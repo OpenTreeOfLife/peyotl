@@ -3,7 +3,7 @@ include clean.sh
 include doc/Makefile
 include ez_setup.py
 include License.txt
-include README.txt
+include README.md
 include requirements.txt
 include setup.cfg
 include setup.py

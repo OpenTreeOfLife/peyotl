@@ -1,0 +1,5 @@
+[phylesystem]
+# parent of the phylesystem, or phylesystem-1, phylesystem-2 directories...
+#   if you have multiple phylesystem repositories not contained in the same
+#   directory
+parent = ~/phylesystem

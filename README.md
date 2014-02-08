@@ -20,6 +20,14 @@ This is intended to hold utility code to make it easier to:
 5. call web services associated with an annotation database (that
      we have not built yet)
 
+## Installation
+
+The code has been run on python 2.7.5
+
+    $ pip install -r requirements.txt
+    $ python setup.py develop
+
+
 ## Configuration
 
 If you run:
@@ -35,7 +43,7 @@ than the config-based value.
 
 ****************
 
-*Etymology* According to Wikipedia, peyotl was the Nahuatl word for *[Lophophora williamsii]* [http://en.wikipedia.org/wiki/Lophophora_williamsii].
+*Etymology* According to Wikipedia, peyotl was the Nahuatl word for [*Lophophora williamsii*] [http://en.wikipedia.org/wiki/Lophophora_williamsii].
 
 [1]: http://blog.opentreeoflife.org/
 [2]: https://github.com/OpenTreeOfLife/phylesystem

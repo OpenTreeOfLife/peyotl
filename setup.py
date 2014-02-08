@@ -6,7 +6,7 @@ setup(
     name='peyotl',
     version='0.0.0a',
     description='Library for interacting with Open Tree of Life resources',
-    long_description=(open('README.md').read() + '\n\n' +
+    long_description=(open('README.txt').read() + '\n\n' +
                       open('AUTHORS.txt').read()),
     url='https://github.com/OpenTreeOfLife/peyotl',
     license='BSD',

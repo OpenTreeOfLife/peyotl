@@ -28,6 +28,7 @@ def config(section=None, param=None):
     '''
     global _CONFIG, _CONFIG_FN
     if _CONFIG is None:
+        from ConfigParser import SafeConfigParser
         _CONFIG_FN = os.path.expanduser("~/.peyotl/config")
         _CONFIG = SafeConfigParser()
         _CONFIG.read(_CONFIG_FN)

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-
+'''Utilities for dealing with local filesystem 
+copies of the phylesystem repositories.
+'''
+import os
 # list of the absolute path to the each of the known "study" directories in phylesystem repos.
 _study_dirs = []
-
-
 
 def _get_phylesystem_parent():
     global _repo_dirs
@@ -14,12 +15,13 @@ def _get_phylesystem_parent():
             from peyotl import config, _expand_path
             phylesystem_parent = _expand_path(config('phylesystem', 'parent'))
         except:
+            raise
             phylesystem_parent = os.path.abspath(os.curdir)
 
     x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
     for p in x:
         if not os.path.isdir(p):
-            raise ValueError('No phylesystem parent "{p}" is not a directory'.format(p=phylesystem_parent))
+            raise ValueError('No phylesystem parent "{p}" is not a directory'.format(p=p))
     return x
 
 def search_for_study_dirs(parent_list=None):
@@ -30,7 +32,7 @@ def search_for_study_dirs(parent_list=None):
     for p in parent_list:
         _search_for_repo_dirs(p)
     if not _study_dirs:
-        raise ValueError('No phylesystem repositories found under "{p}"'.format(p=phylesystem_parent))
+        raise ValueError('No phylesystem repositories found under "{p}"'.format(p=':'.join(parent_list)))
 
 
 def _search_for_repo_dirs(par):

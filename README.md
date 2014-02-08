@@ -22,7 +22,7 @@ This is intended to hold utility code to make it easier to:
 
 ## Installation
 
-The code has been run on python 2.7.5
+The code has been run on python 2.7.5. To install in developer mode:
 
     $ pip install -r requirements.txt
     $ python setup.py develop
@@ -43,7 +43,7 @@ than the config-based value.
 
 ****************
 
-*Etymology* According to Wikipedia, peyotl was the Nahuatl word for [*Lophophora williamsii*] [http://en.wikipedia.org/wiki/Lophophora_williamsii].
+*Etymology* According to Wikipedia, peyotl was the Nahuatl word for [*Lophophora williamsii*](http://en.wikipedia.org/wiki/Lophophora_williamsii).
 
 [1]: http://blog.opentreeoflife.org/
 [2]: https://github.com/OpenTreeOfLife/phylesystem

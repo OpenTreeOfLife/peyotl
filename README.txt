@@ -22,6 +22,16 @@ This is intended to hold utility code to make it easier to:
 
 ## Configuration
 
+If you run:
+
+    $ cp extras/dot_peyotl ~/.peyotl
+
+and then edit ~/.peyotl/config in your text editor to reflect the paths to 
+the parent directory of the phylesystem, then the peyotl library can find
+your local copy of phylesystem repos.
+
+The environmental variable, PHYLESYSTEM_PARENT, if set will be used rather 
+than the config-based value.
 
 ****************
 

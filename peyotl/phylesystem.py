@@ -68,7 +68,9 @@ def phylesystem_study_paths(study_dir_list=None,
     '''
     for p in _iter_phylesystem_repos(study_dir_list=study_dir_list,
                                      parent_list=parent_list):
-        for c in os.listdir(p):
+        sub = os.listdir(p)
+        sub.sort()
+        for c in sub:
             sp = os.path.join(p, c)
             if os.path.isdir(sp):
                 fp = os.path.join(sp, c + '.json') #TEMP Hardcode file name pattern
@@ -85,5 +87,5 @@ def phylesystem_study_objs(**kwargs):
             try:
                 nex_obj = anyjson.loads(fo.read())['nexml']
                 yield (study_id, nex_obj)
-            except:
+            except Exception:
                 pass

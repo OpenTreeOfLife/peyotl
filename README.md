@@ -14,8 +14,8 @@ This is intended to hold utility code to make it easier to:
 3. call web services associated with taxonomic resolution services
     (running [taxomachine] [4] );
 
-4. call web services associated with Open Tree of Life's "synthetic"
-    (running [treemachine] [5]);
+4. call web services associated with Open Tree of Life's "synthetic" estimate
+    of the tree of life (running [treemachine] [5]);
 
 5. call web services associated with an annotation database (that
      we have not built yet)

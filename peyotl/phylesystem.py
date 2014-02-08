@@ -2,6 +2,8 @@
 '''Utilities for dealing with local filesystem 
 copies of the phylesystem repositories.
 '''
+import anyjson
+import codecs
 import os
 # list of the absolute path to the each of the known "study" directories in phylesystem repos.
 _study_dirs = []
@@ -58,8 +60,8 @@ def _iter_phylesystem_repos(study_dir_list=None,
     for i in study_dir_list:
         yield i
 
-def phylesystem_studies(study_dir_list=None,
-                        parent_list=None):
+def phylesystem_study_paths(study_dir_list=None,
+                            parent_list=None):
     '''Generator that allows you to iterate over all detected phylesystem
     studies.
     See documentation about specifying PHYLESYSTEM_PARENT
@@ -71,4 +73,17 @@ def phylesystem_studies(study_dir_list=None,
             if os.path.isdir(sp):
                 fp = os.path.join(sp, c + '.json') #TEMP Hardcode file name pattern
                 if os.path.isfile(fp):
-                    yield fp
+                    yield (c, fp)
+
+def phylesystem_study_objs(**kwargs):
+    '''Generator that iterates over all detected phylesystem studies.
+    Returns a pair (study_id, study_obj)
+    See documentation about specifying PHYLESYSTEM_PARENT
+    '''
+    for study_id, fp in phylesystem_study_paths(**kwargs):
+        with codecs.open(fp, 'rU', 'utf-8') as fo:
+            try:
+                nex_obj = anyjson.loads(fo.read())['nexml']
+                yield (study_id, nex_obj)
+            except:
+                pass

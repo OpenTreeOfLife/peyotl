@@ -3,6 +3,6 @@
 phylesystem directories that the peyotl library can 
 find (see README for discussion of configuration).
 '''
-from peyotl import phylesystem_studies
-for i in phylesystem_studies():
-    print i
+from peyotl import phylesystem_study_paths
+for study_id, filepath in phylesystem_study_paths():
+    print filepath

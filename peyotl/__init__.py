@@ -114,4 +114,4 @@ def get_logger(name="peyotl"):
 def _expand_path(p):
     return os.path.expanduser(os.path.expandvars(p))
 
-from phylesystem import phylesystem_studies
+from phylesystem import phylesystem_study_paths, phylesystem_study_objs

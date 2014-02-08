@@ -37,8 +37,8 @@ than the config-based value.
 
 *Etymology* According to Wikipedia, peyotl was the Nahuatl word for *[Lophophora williamsii]* [http://en.wikipedia.org/wiki/Lophophora_williamsii].
 
-[1] http://blog.opentreeoflife.org/
-[2] https://github.com/OpenTreeOfLife/phylesystem
-[3] https://github.com/OpenTreeOfLife/api.opentreeoflife.org/
-[4] https://github.com/OpenTreeOfLife/taxomachine
-[5] https://github.com/OpenTreeOfLife/treemachine
+[1]: http://blog.opentreeoflife.org/
+[2]: https://github.com/OpenTreeOfLife/phylesystem
+[3]: https://github.com/OpenTreeOfLife/api.opentreeoflife.org/
+[4]: https://github.com/OpenTreeOfLife/taxomachine
+[5]: https://github.com/OpenTreeOfLife/treemachine

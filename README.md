@@ -41,6 +41,11 @@ your local copy of phylesystem repos.
 The environmental variable, PHYLESYSTEM_PARENT, if set will be used rather 
 than the config-based value.
 
+## Thanks
+
+Several parts of the setup.py, logging, documentation, and test suite were 
+based on Jeet Sukumraran's work in the DendroPy package.
+
 ****************
 
 *Etymology* According to Wikipedia, peyotl was the Nahuatl word for [*Lophophora williamsii*](http://en.wikipedia.org/wiki/Lophophora_williamsii).

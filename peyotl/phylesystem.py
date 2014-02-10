@@ -2,9 +2,11 @@
 '''Utilities for dealing with local filesystem 
 copies of the phylesystem repositories.
 '''
+from peyotl.utility import get_config, expand_path
 import anyjson
 import codecs
 import os
+
 # list of the absolute path to the each of the known "study" directories in phylesystem repos.
 _study_dirs = []
 
@@ -14,8 +16,7 @@ def _get_phylesystem_parent():
         phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
     else:
         try:
-            from peyotl import config, _expand_path
-            phylesystem_parent = _expand_path(config('phylesystem', 'parent'))
+            phylesystem_parent = expand_path(get_config('phylesystem', 'parent'))
         except:
             raise
             phylesystem_parent = os.path.abspath(os.curdir)

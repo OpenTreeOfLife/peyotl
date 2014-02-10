@@ -1,7 +1,7 @@
 {
 "nex:nexml": {
 "@generator": "org.opentreeoflife.api.nexsonvalidator.nexson_nexml", 
-"@nexml2json": "1.0.0a", 
+"@nexml2json": "0.0.0", 
 "@version": "0.9", 
 "@xmlns": {
 "$": "http://www.nexml.org/2009", 
@@ -12,10 +12,25 @@
 "xsd": "http://www.w3.org/2001/XMLSchema#", 
 "xsi": "http://www.w3.org/2001/XMLSchema-instance"
 }, 
-"^ot:candidateTreeForSynthesis": "tr1", 
-"^ot:tag": [
-"ingroup added", 
-"cpDNA"
+"meta": [
+{
+"$": "tr1", 
+"@datatype": "xsd:string", 
+"@property": "ot:candidateTreeForSynthesis", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "ingroup added", 
+"@datatype": "xsd:string", 
+"@property": "ot:tag", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "cpDNA", 
+"@datatype": "xsd:string", 
+"@property": "ot:tag", 
+"@xsi:type": "nex:LiteralMeta"
+}
 ], 
 "otus": [
 {
@@ -24,28 +39,45 @@
 {
 "@id": "otu88801", 
 "@label": "Ancyromonas sigmoides", 
-"^ot:originalLabel": {
+"meta": [
+{
 "$": "Ancyromonas sigmoides", 
-"@id": "bogus"
+"@datatype": "xsd:string", 
+"@id": "bogus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
 }, 
-"^ot:ottId": 415973, 
-"^ot:studyPublication": {
-"@href": "http://dx.doi.org/10.3732/ajb.94.12.2026"
+{
+"$": "415973", 
+"@datatype": "xsd:int", 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
 }, 
-"^skos:closeMatch": [
+{
+"@href": "http://dx.doi.org/10.3732/ajb.94.12.2026", 
+"@rel": "ot:studyPublication", 
+"@xsi:type": "nex:ResourceMeta"
+}, 
 {
 "@href": "http://purl.uniprot.org/taxonomy/94215", 
-"@id": "meta4912509"
+"@id": "meta4912509", 
+"@rel": "skos:closeMatch", 
+"@xsi:type": "nex:ResourceMeta"
 }, 
 {
 "@href": "http://purl.uniprot.org/taxonomy/102624", 
-"@id": "meta4912517"
+"@id": "meta4912517", 
+"@rel": "skos:closeMatch", 
+"@xsi:type": "nex:ResourceMeta"
+}, 
+{
+"$": "7002", 
+"@datatype": "xsd:int", 
+"@id": "m0", 
+"@property": "tb:identifier.taxon", 
+"@xsi:type": "nex:LiteralMeta"
 }
-], 
-"^tb:identifier.taxon": {
-"$": 7002, 
-"@id": "m0"
-}
+]
 }
 ]
 }

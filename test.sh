@@ -28,13 +28,13 @@ else
 fi
 
 r=$(expr 1 + $r)
-if ./check_nexson_roundtrip.sh data/nexson/otu-v1.1-nexson.json "${converter}" -o 
+if ./check_nexson_roundtrip.sh data/nexson/otu-v1.0-nexson.json "${converter}" -o 
 then
     p=$(expr 1 + $p)
 fi
 
 r=$(expr 1 + $r)
-if ./check_nexson_nexml_clique.sh data/nexson/otu-v1.1-nexson.json "${converter}" 
+if ./check_nexson_nexml_clique.sh data/nexson/otu-v1.0-nexson.json "${converter}" 
 then
     p=$(expr 1 + $p)
 fi

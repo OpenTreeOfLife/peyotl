@@ -8,8 +8,9 @@ Most notable functions are:
     get_ot_study_info_from_nexml, 
 
 '''
-import xml.dom.minidom
 from peyotl.utility import get_logger
+from cStringIO import StringIO
+import xml.dom.minidom
 import logging
 import codecs
 import json
@@ -608,6 +609,42 @@ def write_obj_as_nexml(obj_dict,
     doc = xml.dom.minidom.Document()
     _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=root_atts, nexson_syntax_version=nexson_syntax_version)
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
+
+def get_nexson_version(blob):
+    '''Returns the nexml2json attribute or the default code for badgerfish'''
+    n = blob.get('nex:nexml') or blob.get('nexml')
+    assert(n)
+    return n.get('@nexml2json', BADGER_FISH_NEXSON_VERSION)
+
+_is_badgerfish_version = lambda x: x.startswith('0.')
+_is_legacy_honeybadgerfish = lambda x: x.startswith('1.0.')
+_is_by_id_honedybadgerfish = lambda x: x.startswith('1.2')
+
+def convert_nexson_format(blob, out_nexson_format, current_format=None):
+    '''Take a dict form of NexSON and converts its datastructures to 
+    those needed to serialize as out_nexson_format.
+    If current_format is not specified, it will be inferred.
+    '''
+    if not current_format:
+        current_format = get_nexson_version(blob)
+    if current_format == out_nexson_format:
+        return blob
+    if _is_badgerfish_version(current_format) or _is_badgerfish_version(out_nexson_format):
+        xo = StringIO()
+        ci = codecs.lookup('utf8')
+        s = codecs.StreamReaderWriter(xo, ci.streamreader, ci.streamwriter)
+            
+        write_obj_as_nexml(blob,
+                           s,
+                           addindent=' ',
+                           newl='\n',
+                           nexson_syntax_version=out_nexson_format)
+        xml_content = xo.getvalue()
+        xi = StringIO(xml_content)
+        blob = get_ot_study_info_from_nexml(xi,
+                                            nexson_syntax_version=out_nexson_format)
+        return blob
+    raise NotImplementedError('Conversion from {i} to {o}'.format(i=current_format, o=out_nexson_format))
 ################################################################################
 # End of honeybadgerfish...
 #end#secret#hacky#cut#paste*nexsonvalidator.py##################################

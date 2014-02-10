@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax import write_obj_as_nexml, \
+from peyotl.nexson_syntax import convert_nexson_format, \
+                                 get_nexson_version,\
                                  get_ot_study_info_from_nexml, \
+                                 write_obj_as_nexml, \
                                  BADGER_FISH_NEXSON_VERSION, \
                                  DEFAULT_NEXSON_VERSION
 #secret#hacky#cut#paste*nexson_nexml.py##################################
@@ -8,7 +10,6 @@ from peyotl.nexson_syntax import write_obj_as_nexml, \
 def _main():
     import sys, codecs, json, os
     import argparse
-    from cStringIO import StringIO
     _HELP_MESSAGE = '''NeXML/NexSON converter'''
     _EPILOG = '''UTF-8 encoding is used (for input and output).
 
@@ -87,7 +88,7 @@ Environmental variables used:
             if not n or (not isinstance(n, dict)):
                 sys.exit('No top level "nex:nexml" element found. Document does not appear to be a JSON version of NeXML\n')
             if n:
-                v = n.get('@nexml2json', '0.0.0')
+                v = get_nexson_version(blob)
                 if v.startswith('0'):
                     mode = 'b' + mode[1]
                 else:
@@ -109,16 +110,7 @@ Environmental variables used:
                            nexson_syntax_version=syntax_version)
     else:
         if not mode.startswith('x'):
-            xo = StringIO()
-            write_obj_as_nexml(blob,
-                           xo,
-                           addindent=' ',
-                           newl='\n',
-                           nexson_syntax_version=out_nexson_format)
-            xml_content = xo.getvalue()
-            xi = StringIO(xml_content)
-            blob = get_ot_study_info_from_nexml(xi,
-                    nexson_syntax_version=out_nexson_format)
+            blob = convert_nexson_format(blob, out_nexson_format)
         json.dump(blob, out, indent=indentation, sort_keys=True)
         out.write('\n')
 

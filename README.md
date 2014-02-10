@@ -41,12 +41,12 @@ your local copy of phylesystem repos.
 The environmental variable, PHYLESYSTEM_PARENT, if set will be used rather 
 than the config-based value.
 
-# NexSON/NeXML
+## NexSON/NeXML
 
 See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/HoneyBadgerFish for full documentation
 of the NeXML <-> NexSON conversion convention.
 
-# Usage
+### Usage
 
     $ python scripts/nexson/nexson_nexml.py input -o output
 
@@ -63,7 +63,7 @@ So to convert from HoneyBadgerFish to BadgerFish run:
     $ python nexson_nexml.py -m jb -o someoutfile.json otu.json
 
 
-## Thanks
+# Thanks
 
 Several parts of the setup.py, logging, documentation, and test suite were 
 based on Jeet Sukumraran's work in the [DendroPy](http://pythonhosted.org/DendroPy/) package.

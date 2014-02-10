@@ -290,7 +290,7 @@ def _gen_hbf_el(x, nexson_syntax_version):
     _cull_redundant_about(obj)
     return el_name, obj
 
-def to_honeybadgerfish_dict(src, encoding=u'utf-8', nexson_syntax_version=NEXSON_VERSION):
+def to_honeybadgerfish_dict(src, encoding=u'utf-8', nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     '''Takes either:
             (1) a file_object, or
             (2) (if file_object is None) a filepath and encoding
@@ -431,7 +431,7 @@ def _add_meta_xml_element(doc, parent, meta_dict):
         else:
             _add_meta_value_to_xml_doc(doc, parent, key, value)
 
-def _add_child_list_to_xml_doc_subtree(doc, parent, child_list, key, key_order, nexson_syntax_version=NEXSON_VERSION):
+def _add_child_list_to_xml_doc_subtree(doc, parent, child_list, key, key_order, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     if not isinstance(child_list, list):
         child_list = [child_list]
     _migrating_old_bf_form = nexson_syntax_version.startswith('0.')
@@ -446,7 +446,7 @@ def _add_child_list_to_xml_doc_subtree(doc, parent, child_list, key, key_order, 
         _add_meta_xml_element(doc, cel, mc)
         _add_xml_doc_subtree(doc, cel, cc, key_order, nexson_syntax_version=nexson_syntax_version)
 
-def _add_xml_doc_subtree(doc, parent, children_dict, key_order=None, nexson_syntax_version=NEXSON_VERSION):
+def _add_xml_doc_subtree(doc, parent, children_dict, key_order=None, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     written = set()
     if key_order:
         for t in key_order:
@@ -464,7 +464,7 @@ def _add_xml_doc_subtree(doc, parent, children_dict, key_order=None, nexson_synt
             _add_child_list_to_xml_doc_subtree(doc, parent, child_list, k, None, nexson_syntax_version=nexson_syntax_version)
 
 
-def _break_keys_by_hbf_type(o, nexson_syntax_version=NEXSON_VERSION):
+def _break_keys_by_hbf_type(o, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     '''Breaks o into a triple two dicts and text data by key type:
         attrib keys (start with '@'),
         text (value associated with the '$' or None),
@@ -507,7 +507,7 @@ def _break_keys_by_hbf_type(o, nexson_syntax_version=NEXSON_VERSION):
             ck[k] = v
     return ak, tk, ck, mc
 
-def get_ot_study_info_from_nexml(src, encoding=u'utf8', nexson_syntax_version=NEXSON_VERSION):
+def get_ot_study_info_from_nexml(src, encoding=u'utf8', nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     '''Converts an XML doc to JSON using the honeybadgerfish convention (see to_honeybadgerfish_dict)
     and then prunes elements not used by open tree of life study curartion.
 
@@ -523,7 +523,7 @@ def get_ot_study_info_from_nexml(src, encoding=u'utf8', nexson_syntax_version=NE
         pass
     return o
 
-def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_version=NEXSON_VERSION):
+def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     '''Just a stub at this point. Intended to normalize treebase-specific metadata 
     into the locations where open tree of life software that expects it. 
 
@@ -534,7 +534,7 @@ def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_v
     return o
 
 
-def _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=None, nexson_syntax_version=NEXSON_VERSION):
+def _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=None, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     base_keys = obj_dict.keys()
     assert(len(base_keys) == 1)
     root_name = base_keys[0]
@@ -588,7 +588,7 @@ def write_obj_as_nexml(obj_dict,
                        file_obj,
                        addindent='',
                        newl='',
-                       nexson_syntax_version=NEXSON_VERSION):
+                       nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     root_atts = {
         "xmlns:nex": "http://www.nexml.org/2009",
         "xmlns": "http://www.nexml.org/2009",

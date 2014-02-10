@@ -95,7 +95,7 @@ Environmental variables used:
     if mode.endswith('x'):
         syntax_version = BADGER_FISH_NEXSON_VERSION
         if mode.startswith('j'):
-            syntax_version = NEXSON_VERSION
+            syntax_version = DEFAULT_NEXSON_VERSION
         if indentation > 0:
             indent = ' '*indentation
         else:

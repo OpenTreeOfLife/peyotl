@@ -70,7 +70,7 @@ based on Jeet Sukumraran's work in the [DendroPy](http://pythonhosted.org/Dendro
 
 ****************
 
-*Etymology* According to Wikipedia, peyotl was the Nahuatl word for [*Lophophora williamsii*](http://en.wikipedia.org/wiki/Lophophora_williamsii).
+*Etymology* According to Wikipedia, peyotl is the Nahuatl word for [*Lophophora williamsii*](http://en.wikipedia.org/wiki/Lophophora_williamsii).
 
 [1]: http://blog.opentreeoflife.org/
 [2]: https://github.com/OpenTreeOfLife/phylesystem

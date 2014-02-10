@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from peyotl.nexson_syntax import write_obj_as_nexml, \
                                  get_ot_study_info_from_nexml, \
                                  BADGER_FISH_NEXSON_VERSION, \

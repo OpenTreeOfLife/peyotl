@@ -30,5 +30,10 @@ class TestConvert(unittest.TestCase):
         h_expect = pathmap.nexson_obj('otu-v1.0-nexson.json')
         h = convert_nexson_format(obj, DIRECT_HONEY_BADGERFISH)
         self.assertEqual(h, h_expect)
+    def testConvertHBF1_1toBF(self):
+        obj = pathmap.nexson_obj('otu-v1.0-nexson.json')
+        b_expect = pathmap.nexson_obj('otu.bf.json')
+        b = convert_nexson_format(obj, BADGER_FISH_NEXSON_VERSION)
+        self.assertEqual(b, b_expect)
 if __name__ == "__main__":
     unittest.main()

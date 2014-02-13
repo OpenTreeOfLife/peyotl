@@ -19,9 +19,10 @@
 """
 Path mapping for various test resources.
 """
-
-import os
 from peyotl.utility import pretty_timestamp, get_logger
+import anyjson
+import codecs
+import os
 _LOG = get_logger(__name__)
 
 try:
@@ -43,39 +44,19 @@ TESTS_COVERAGE_DIR = os.path.join(TESTS_DIR, "coverage")
 TESTS_COVERAGE_REPORT_DIR = os.path.join(TESTS_COVERAGE_DIR, "report")
 TESTS_COVERAGE_SOURCE_DIR = os.path.join(TESTS_COVERAGE_DIR, "source")
 
-def tree_source_stream(filename):
-    return open(tree_source_path(filename), "rU")
+def nexson_obj(filename):
+    with nexson_file_obj(filename) as fo:
+        fc = fo.read()
+        return anyjson.loads(fc)
 
-def tree_source_path(filename=None):
+def nexson_file_obj(filename):
+    fp = nexson_source_path(filename=filename)
+    return codecs.open(fp, mode='rU', encoding='utf-8')
+
+def nexson_source_path(filename=None):
     if filename is None:
         filename = ""
-    return os.path.join(TESTS_DATA_DIR, "trees", filename)
-
-def char_source_stream(filename):
-    return open(char_source_path(filename), "rU")
-
-def char_source_path(filename=None):
-    if filename is None:
-        filename = ""
-    return os.path.join(TESTS_DATA_DIR, "chars", filename)
-
-def mixed_source_stream(filename):
-    return open(mixed_source_path(filename), "rU")
-
-def mixed_source_path(filename=None):
-    if filename is None:
-        filename = ""
-    return os.path.join(TESTS_DATA_DIR, "mixed", filename)
-
-def data_source_stream(filename):
-    return open(data_source_path(filename), "rU")
-
-def data_source_path(filename=None):
-    if filename is None:
-        filename = ""
-    elif isinstance(filename, list):
-        filename = os.path.sep.join(filename)
-    return os.path.join(TESTS_DATA_DIR, filename)
+    return os.path.join(TESTS_DATA_DIR, "nexson", filename)
 
 def named_output_stream(filename=None, suffix_timestamp=True):
     return open(named_output_path(filename=filename, suffix_timestamp=suffix_timestamp), "w")

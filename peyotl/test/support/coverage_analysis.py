@@ -16,9 +16,11 @@
 Support for coverage analysis.
 """
 
+from peyotl.utility import get_logger
 import unittest
 import shutil
-from peyotl.utility import get_logger
+import os
+
 _LOG = get_logger(__name__)
 
 PEYOTL_COVERAGE_ANALYSIS_AVAILABLE = False
@@ -61,7 +63,13 @@ else:
                 self.erase = False
                 self.no_annotate = False
                 self.no_html = False
-                self.omit_prefixes = ['peyotl/test']
+                self.omit = []
+                p = os.path.join('peyotl', 'test')
+                for root, dirs, files in os.walk(p):
+                    for fn in files:
+                        if fn.endswith('.py'):
+                            fp = os.path.join(root, fn)
+                            self.omit.append(fp)
 
             def finalize_options(self):
                 pass
@@ -89,9 +97,9 @@ else:
                     runner.run(test_suite)
                     cov.stop()
                     if not self.no_annotate:
-                        cov.annotate(omit=self.omit_prefixes,
+                        cov.annotate(omit=self.omit,
                                 directory=pathmap.TESTS_COVERAGE_SOURCE_DIR)
                     if not self.no_html:
-                        cov.html_report(omit=self.omit_prefixes,
+                        cov.html_report(omit=self.omit,
                                 directory=pathmap.TESTS_COVERAGE_REPORT_DIR)
-                    cov.report(omit=self.omit_prefixes)
+                    cov.report(omit=self.omit)

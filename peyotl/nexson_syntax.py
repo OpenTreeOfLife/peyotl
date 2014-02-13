@@ -16,7 +16,8 @@ import codecs
 #secret#hacky#cut#paste*nexsonvalidator.py#####################################
 # Code for honeybadgerfish conversion of TreeBase XML to NexSON
 ###############################################################################
-DEFAULT_NEXSON_VERSION = '1.0.0'
+DIRECT_HONEY_BADGERFISH = '1.0.0'
+DEFAULT_NEXSON_VERSION = DIRECT_HONEY_BADGERFISH
 BADGER_FISH_NEXSON_VERSION = '0.0.0'
 _CONVERTIBLE_FORMATS = frozenset([DEFAULT_NEXSON_VERSION, 
                                   BADGER_FISH_NEXSON_VERSION])

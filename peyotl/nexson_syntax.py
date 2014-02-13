@@ -18,9 +18,10 @@ import json
 #secret#hacky#cut#paste*nexsonvalidator.py#####################################
 # Code for honeybadgerfish conversion of TreeBase XML to NexSON
 ###############################################################################
-DEFAULT_NEXSON_VERSION = '1.0.0a'
+DEFAULT_NEXSON_VERSION = '1.0.0'
 BADGER_FISH_NEXSON_VERSION = '0.0.0'
-
+_CONVERTIBLE_FORMATS = frozenset([DEFAULT_NEXSON_VERSION, 
+                                  BADGER_FISH_NEXSON_VERSION])
 _LOG = get_logger()
 
 # unused cruft. Useful if we decide that some ot:... attributes should always map to arrays.
@@ -619,6 +620,9 @@ def get_nexson_version(blob):
 _is_badgerfish_version = lambda x: x.startswith('0.')
 _is_legacy_honeybadgerfish = lambda x: x.startswith('1.0.')
 _is_by_id_honedybadgerfish = lambda x: x.startswith('1.2')
+
+def can_convert_nexson_forms(src_format, dest_format):
+    return (dest_format in _CONVERTIBLE_FORMATS) and (src_format in _CONVERTIBLE_FORMATS)
 
 def convert_nexson_format(blob, out_nexson_format, current_format=None):
     '''Take a dict form of NexSON and converts its datastructures to 

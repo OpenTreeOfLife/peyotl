@@ -1,7 +1,7 @@
 {
 "nex:nexml": {
 "@generator": "org.opentreeoflife.api.nexsonvalidator.nexson_nexml", 
-"@nexml2json": "1.0.0a", 
+"@nexml2json": "1.0.0", 
 "@version": "0.9", 
 "@xmlns": {
 "$": "http://www.nexml.org/2009", 

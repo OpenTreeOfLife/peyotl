@@ -11,9 +11,7 @@ Most notable functions are:
 from peyotl.utility import get_logger
 from cStringIO import StringIO
 import xml.dom.minidom
-import logging
 import codecs
-import json
 
 #secret#hacky#cut#paste*nexsonvalidator.py#####################################
 # Code for honeybadgerfish conversion of TreeBase XML to NexSON
@@ -532,7 +530,7 @@ def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_v
     `src` can be a string (filepath) or a input file object.
     @TODO: need to investigate which metadata should move or be copied
     '''
-    o = get_ot_study_info_from_nexml(src, encoding=encoding,nexson_syntax_version=nexson_syntax_version)
+    o = get_ot_study_info_from_nexml(src, encoding=encoding, nexson_syntax_version=nexson_syntax_version)
     return o
 
 

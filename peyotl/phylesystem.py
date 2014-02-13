@@ -11,14 +11,12 @@ import os
 _study_dirs = []
 
 def _get_phylesystem_parent():
-    global _repo_dirs
     if 'PHYLESYSTEM_PARENT' in os.environ:
         phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
     else:
         try:
             phylesystem_parent = expand_path(get_config('phylesystem', 'parent'))
         except:
-            raise
             phylesystem_parent = os.path.abspath(os.curdir)
 
     x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
@@ -39,7 +37,6 @@ def search_for_study_dirs(parent_list=None):
 
 
 def _search_for_repo_dirs(par):
-    global _study_dirs
     for n in os.listdir(par):
         if not n.startswith('phylesystem'): #TEMP Hardcode repo name pattern
             continue
@@ -53,7 +50,6 @@ def _search_for_repo_dirs(par):
 
 def _iter_phylesystem_repos(study_dir_list=None,
                             parent_list=None):
-    global _study_dirs
     if study_dir_list is None:
         if not _study_dirs:
             search_for_study_dirs(parent_list)

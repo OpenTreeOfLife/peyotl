@@ -3,38 +3,21 @@
 peyotl.
 '''
 import logging
-import sys
+import time
 import os
 
-_CONFIG = None
-_CONFIG_FN = None
-def get_config(section=None, param=None):
-    '''
-    Returns the config object if `section` and `param` are None, or the 
-        value for the requested parameter.
-    
-    If the parameter (or the section) is missing, the exception is logged and
-        None is returned.
-    '''
-    global _CONFIG, _CONFIG_FN
-    if _CONFIG is None:
-        from ConfigParser import SafeConfigParser
-        _CONFIG_FN = os.path.expanduser("~/.peyotl/config")
-        _CONFIG = SafeConfigParser()
-        _CONFIG.read(_CONFIG_FN)
-    if section is None and param is None:
-        return _CONFIG
-    try:
-        v = _CONFIG.get(section, param)
-        return v
-    except:
-        mf = 'Config file "{f}" does not contain option "{o}"" in section "{s}"\n'
-        msg = mf.format(f=_CONFIG_FN, o=param, s=section)
-        _LOG.error(msg)
-        return None
+def expand_path(p):
+    return os.path.expanduser(os.path.expandvars(p))
 
-_LOGGING_LEVEL_ENVAR="PEYOTL_LOGGING_LEVEL"
-_LOGGING_FORMAT_ENVAR="PEYOTL_LOGGING_FORMAT"
+def pretty_timestamp(t=None, style=0):
+    if t is None:
+        t = time.localtime()
+    if style == 0:
+        return time.strftime("%Y-%m-%d", t)
+    return time.strftime("%Y%m%d%H%M%S", t)
+
+_LOGGING_LEVEL_ENVAR = "PEYOTL_LOGGING_LEVEL"
+_LOGGING_FORMAT_ENVAR = "PEYOTL_LOGGING_FORMAT"
 
 def get_logging_level():
     if _LOGGING_LEVEL_ENVAR in os.environ:
@@ -77,7 +60,6 @@ def get_logger(name="peyotl"):
         level = get_logging_level()
         rich_formatter = logging.Formatter("[%(asctime)s] %(filename)s (%(lineno)d): %(levelname) 8s: %(message)s")
         simple_formatter = logging.Formatter("%(levelname) 8s: %(message)s")
-        raw_formatter = logging.Formatter("%(message)s")
         default_formatter = None
         logging_formatter = default_formatter
         if _LOGGING_FORMAT_ENVAR in os.environ:
@@ -92,7 +74,7 @@ def get_logger(name="peyotl"):
         else:
             logging_formatter = default_formatter
         if logging_formatter is not None:
-            logging_formatter.datefmt='%H:%M:%S'
+            logging_formatter.datefmt = '%H:%M:%S'
         logger.setLevel(level)
         ch = logging.StreamHandler()
         ch.setLevel(level)
@@ -100,6 +82,31 @@ def get_logger(name="peyotl"):
         logger.addHandler(ch)
         logger.is_configured = True
     return logger
+_LOG = get_logger("peyotl.utility")
 
-def expand_path(p):
-    return os.path.expanduser(os.path.expandvars(p))
+_CONFIG = None
+_CONFIG_FN = None
+def get_config(section=None, param=None):
+    '''
+    Returns the config object if `section` and `param` are None, or the 
+        value for the requested parameter.
+    
+    If the parameter (or the section) is missing, the exception is logged and
+        None is returned.
+    '''
+    global _CONFIG, _CONFIG_FN
+    if _CONFIG is None:
+        from ConfigParser import SafeConfigParser
+        _CONFIG_FN = os.path.expanduser("~/.peyotl/config")
+        _CONFIG = SafeConfigParser()
+        _CONFIG.read(_CONFIG_FN)
+    if section is None and param is None:
+        return _CONFIG
+    try:
+        v = _CONFIG.get(section, param)
+        return v
+    except:
+        mf = 'Config file "{f}" does not contain option "{o}"" in section "{s}"\n'
+        msg = mf.format(f=_CONFIG_FN, o=param, s=section)
+        _LOG.error(msg)
+        return None

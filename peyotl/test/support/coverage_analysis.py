@@ -18,8 +18,6 @@ Support for coverage analysis.
 
 import unittest
 import shutil
-import sys
-from optparse import OptionParser
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
@@ -91,9 +89,9 @@ else:
                     runner.run(test_suite)
                     cov.stop()
                     if not self.no_annotate:
-                        cov.annotate(omit_prefixes=self.omit_prefixes,
+                        cov.annotate(omit=self.omit_prefixes,
                                 directory=pathmap.TESTS_COVERAGE_SOURCE_DIR)
                     if not self.no_html:
-                        cov.html_report(omit_prefixes=self.omit_prefixes,
+                        cov.html_report(omit=self.omit_prefixes,
                                 directory=pathmap.TESTS_COVERAGE_REPORT_DIR)
-                    cov.report(omit_prefixes=self.omit_prefixes)
+                    cov.report(omit=self.omit_prefixes)

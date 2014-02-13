@@ -23,7 +23,7 @@ def get_test_file_names():
     """Get list of test file names."""
     path = os.path.dirname(__file__)
     files = os.listdir(path)
-    test_file_pattern = re.compile("test.*\.py$", re.IGNORECASE)
+    test_file_pattern = re.compile(r"test.*\.py$", re.IGNORECASE)
     test_files = []
     for f in files:
         if test_file_pattern.search(f):

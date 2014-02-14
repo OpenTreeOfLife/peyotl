@@ -1,0 +1,24 @@
+nexml2json=1.0.0 to nexml2json=1.2.0
+====================================
+
+| v. 1.0       | v. 1.2             | parent    |
+|--------------|--------------------|-----------|
+| edge array   | edgeBySourceId obj | tree      |
+| node array   | nodeByID obj       | tree      |
+| otus array   | otusById obj       | nexml     |
+| otu array    | otuById obj        | otusById  |
+| tree array   | treeById obj       | treesById |
+| trees array  | treesById obj      | nexml     |
+
+
+For node, otus, otu, tree, and trees objects:
+   @id=value pair in v1.0 is deleted n v1.2. The property's name is
+its ID. edge object still hold their ID. 
+
+Leaf node objects have a "^ot:isLeaf:true" in v1.0. In v1.2, the
+can be quickly recognized by not being in edgeBySourceId, so
+they lack ^ot:isLeaf
+
+The nexml object will have ^ot:otusElementOrder and ^ot:otusElementOrder keys in v1.2
+because the otusById and treesById are unsorted containers. The 
+values of these will be an array of otusIds or treeIds.

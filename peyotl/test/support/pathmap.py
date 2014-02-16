@@ -20,7 +20,14 @@
 Path mapping for various test resources.
 """
 from peyotl.utility import pretty_timestamp, get_logger
-import anyjson
+try:
+    import anyjson
+except:
+    import json
+    class Wrapper(object):
+        pass
+    anyjson = Wrapper()
+    anyjson.loads = json.loads
 import codecs
 import os
 _LOG = get_logger(__name__)

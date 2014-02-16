@@ -3,7 +3,14 @@
 copies of the phylesystem repositories.
 '''
 from peyotl.utility import get_config, expand_path
-import anyjson
+try:
+    import anyjson
+except:
+    import json
+    class Wrapper(object):
+        pass
+    anyjson = Wrapper()
+    anyjson.loads = json.loads
 import codecs
 import os
 

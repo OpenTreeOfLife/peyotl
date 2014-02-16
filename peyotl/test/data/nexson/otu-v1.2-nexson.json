@@ -57,6 +57,9 @@
 "treesById": {
 "tb1": {
 "@otus": "ob1", 
+"^ot:treeElementOrder": [
+"tr1"
+], 
 "treeById": {
 "tr1": {
 "@xsi:type": "nex:FloatTree", 

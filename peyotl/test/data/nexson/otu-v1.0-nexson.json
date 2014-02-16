@@ -67,12 +67,13 @@
 ], 
 "node": [
 {
-"@id": "n1", 
-"@otu": "otu88801"
-}, 
-{
 "@id": "n0", 
 "@root": "true"
+}, 
+{
+"@id": "n1", 
+"@otu": "otu88801", 
+"^ot:isLeaf": true
 }
 ]
 }

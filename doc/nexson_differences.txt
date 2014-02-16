@@ -24,3 +24,5 @@ The tree will have a "^ot:rootNodeId" -> node ID string property
 The nexml object will have ^ot:otusElementOrder and ^ot:treesElementOrder keys in v1.2
 because the otusById and treesById are unsorted containers. The 
 values of these will be an array of otusIds or treeIds.
+
+The trees object will have a ^ot:treeElementOrder

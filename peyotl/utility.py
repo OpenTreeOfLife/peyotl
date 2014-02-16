@@ -110,3 +110,43 @@ def get_config(section=None, param=None):
         msg = mf.format(f=_CONFIG_FN, o=param, s=section)
         _LOG.error(msg)
         return None
+
+def recursive_dict_diff(src, dest):
+    '''Inefficient comparison of src and dest dicts.
+    Recurses through dict and lists.
+    returns (is_identical, modifications, additions, deletions)
+    where each
+        is_identical is a boolean True if the dicts have 
+            contents that compare equal.
+    and the other three are dicts:
+        attributes both, but with different values
+        attributes in dest but not in src
+        attributes in src but not in dest
+
+    Returned dicts may alias objects in src, and dest
+    '''
+    if src == dest:
+        return (True, None, None, None)
+    moddict, adddict, deldict = {}, {}, {}
+    sk = set(src.keys())
+    dk = set(dest.keys())
+    for k in sk:
+        v = src[k]
+        if k in dest:
+            dv = dest[k]
+            if v != dv:
+                rec_call = None
+                if isinstance(v, dict) and isinstance(dv, dict):
+                    rec_call = recursive_dict_diff(v, dv)
+                elif isinstance(v, list) and isinstance(dv, list):
+                    rec_call = recursive_list_diff(v, dv)
+                if rec_call is not None:
+                    rc, rm, ra, rd = rec_call
+                    assert(rc is False)
+                    if rm:
+                        moddict[k] = rm
+                    if ra:
+                        adddict[k] = ra
+                    if rd:
+                        deldict[k] = rd
+    return (False, moddict, adddict, deldict)

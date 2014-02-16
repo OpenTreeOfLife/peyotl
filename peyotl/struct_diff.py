@@ -9,6 +9,11 @@ class DictDiff(object):
         self._additions.sort()
         self._deletions.sort()
         self._modifications.sort()
+    def edits_expr(self, par=''):
+        r = self.additions_expr(par=par)
+        r.extend(self.deletions_expr(par=par))
+        r.extend(self.modification_expr(par=par))
+        return r
     def additions_expr(self, par=''):
         r = []
         for k, v in self._additions:
@@ -18,8 +23,13 @@ class DictDiff(object):
     def modification_expr(self, par=''):
         r = []
         for k, v in self._modifications:
-            s = '{p}[{k}] = {v}'.format(p=par, k=repr(k), v=repr(v))
-            r.append(s)
+            pk = '{p}[{k}]'.format(p=par, k=repr(k))
+            if isinstance(v, DictDiff):
+                sedits = v.edits_expr(par=pk)
+                r.extend(sedits)
+            else:
+                s = '{pk} = {v}'.format(pk=pk, v=repr(v))
+                r.append(s)
         return r
     def deletions_expr(self, par=''):
         r = []
@@ -37,6 +47,11 @@ class DictDiff(object):
             del src[k]
         for k, v in self._additions:
             src[k] = v
+        for k, v in self._modifications:
+            if isinstance(v, DictDiff):
+                v.patch(src[k])
+            else:
+                src[k] = v
     @staticmethod
     def create(src, dest, **kwargs):
         '''Inefficient comparison of src and dest dicts.

@@ -1,0 +1,169 @@
+#!/usr/bin/env python
+
+class DictDiff(object):
+    def __init__(self):
+        self._additions = []
+        self._deletions = []
+        self._modifications = []
+    def _finish(self):
+        self._additions.sort()
+        self._deletions.sort()
+        self._modifications.sort()
+    def additions_expr(self, par=''):
+        r = []
+        for k, v in self._additions:
+            s = '{p}[{k}] = {v}'.format(p=par, k=repr(k), v=repr(v))
+            r.append(s)
+        return r
+    def modification_expr(self, par=''):
+        r = []
+        for k, v in self._modifications:
+            s = '{p}[{k}] = {v}'.format(p=par, k=repr(k), v=repr(v))
+            r.append(s)
+        return r
+    def deletions_expr(self, par=''):
+        r = []
+        for k, v in self._deletions:
+            s = 'del {p}[{k}]'.format(p=par, k=repr(k))
+            r.append(s)
+        return r
+    def _addition(self, k, v):
+        self._additions.append((k, v))
+
+    def _deletion(self, k, v):
+        self._deletions.append((k, v))
+    def patch(self, src):
+        for k, v in self._deletions:
+            del src[k]
+        for k, v in self._additions:
+            src[k] = v
+    @staticmethod
+    def create(src, dest, **kwargs):
+        '''Inefficient comparison of src and dest dicts.
+        Recurses through dict and lists.
+        returns None if there is no difference and a
+        DictDiffObject of there are differences
+        **kwargs can contain:
+            wrap_dict_in_list default False. If True and one
+                value is present as a list and the other is 
+                a dict, then the dict will be converted to 
+                a list of one dict of the comparison. This
+                is helpful given the BadgerFish convention of
+                emitting single elements as a dict, but >1 elements
+                as a list of dicts:
+        '''
+        if src == dest:
+            return None
+        ddo = DictDiff()
+        sk = set(src.keys())
+        dk = set(dest.keys())
+        for k in sk:
+            v = src[k]
+            if k in dk:
+                dv = dest[k]
+                if v != dv:
+                    rec_call = None
+                    if isinstance(v, dict) and isinstance(dv, dict):
+                        rec_call = DictDiff.create(v, dv, **kwargs)
+                    elif isinstance(v, list) and isinstance(dv, list):
+                        rec_call = ListDiff.create(v, dv, **kwargs)
+                    elif kwargs.get('wrap_dict_in_list', False):
+                        if isinstance(v, dict) and isinstance(dv, list):
+                            rec_call = ListDiff.create([v], dv, **kwargs)
+                        elif isinstance(dv, dict) or isinstance(v, list):
+                            rec_call = ListDiff.create(v, [dv], **kwargs)
+                    if rec_call is not None:
+                        rc, rm, ra, rd = rec_call
+                        ddo._subsume(k, rec_call)
+            else:
+                ddo._deletion(k, v)
+        add_keys = dk - sk
+        for k in add_keys:
+            ddo._addition(k, dest[k])
+        ddo._finish()
+        return ddo
+
+class ListDiff(object):
+    def __init__(self):
+        pass
+    @staticmethod
+    def create(src, dest):
+        '''Inefficient comparison of src and dest dicts.
+        Recurses through dict and lists.
+        returns (is_identical, modifications, additions, deletions)
+        where each
+            is_identical is a boolean True if the dicts have 
+                contents that compare equal.
+        and the other three are dicts:
+            attributes both, but with different values
+            attributes in dest but not in src
+            attributes in src but not in dest
+
+        Returned dicts may alias objects in src, and dest
+        '''
+        if src == dest:
+            return (True, None, None, None)
+        #TODO: find best match in list
+        trivial_order = [(i, i) for i in range(min(len(src), len(dest)))]
+        optimal_order = trivial_order
+        src_ind = 0
+        dest_ind = 0
+        add_offset = 0
+        modl, addl, dell = [], [], []
+        for p in optimal_order:
+            ns, nd = p
+            while src_ind < ns:
+                dell.append(ListDeletion(src_ind + add_offset, src[src_ind]))
+                src_ind += 1
+            while dest_ind < nd:
+                addl.append(ListAddition(src_ind + add_offset, dest[dest_ind]))
+                dest_ind += 1
+                add_offset += 1
+            sv, dv = src[ns], dest[nd]
+            if sv != dv:
+                modl.append(ListElModification(src_ind + add_offset, sv, dv))
+            src_ind += 1
+            dest_ind += 1
+        while src_ind < len(src):
+            dell.append(ListDeletion(src_ind + add_offset, src[src_ind]))
+            src_ind += 1
+        while dest_ind < len(dest):
+            addl.append(ListAddition(src_ind + add_offset, dest[dest_ind]))
+            dest_ind += 1
+            add_offset += 1
+        return (False, modl, addl, dell)
+
+class ListDiffEdit(object):
+    pass
+
+class ListDeletion(ListDiffEdit):
+    def __init__(self, s_ind, o):
+        self.index = s_ind
+        self.obj = o
+    def __repr__(self):
+        return 'ListDeletion({s}, {o})'.format(s=self.index, o=repr(self.obj))
+    def __str__(self):
+        return repr(self) 
+class ListAddition(ListDiffEdit):
+    def __init__(self, s_ind, o):
+        self.index = s_ind
+        self.obj = o
+    def __repr__(self):
+        return 'ListAddition({s}, {o})'.format(s=self.index, o=repr(self.obj))
+    def __str__(self):
+        return repr(self)
+
+class ListElModification(ListDiffEdit):
+    def __init__(self, s_ind, src, dest):
+        self.index = s_ind
+        self.src = src
+        self.dest = dest
+    def __repr__(self):
+        return 'ListElModification({s}, {o}, {d})'.format(s=self.index,
+                                                          o=repr(self.src),
+                                                          d=repr(self.dest))
+    def __str__(self):
+        return repr(self)
+
+
+

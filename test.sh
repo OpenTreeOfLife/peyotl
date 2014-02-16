@@ -1,4 +1,5 @@
 #!/bin/sh
+#set -x
 r=0 # the number of tests
 p=0 # the number passed
 

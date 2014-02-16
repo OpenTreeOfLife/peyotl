@@ -16,7 +16,7 @@
   <trees about="#tb1" id="tb1" otus="ob1">
     <tree about="#tr1" id="tr1" xsi:type="nex:FloatTree">
       <node about="#n1" id="n1" otu="otu88801"/>
-      <node about="#n0" id="n0"/>
+      <node about="#n0" id="n0" root="true"/>
       <edge about="#e0" id="e0" source="n0" target="n1"/>
     </tree>
   </trees>

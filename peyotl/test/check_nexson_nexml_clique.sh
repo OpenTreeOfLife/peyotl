@@ -21,4 +21,4 @@ diff "${fn}" .4.json || exit
 "${converter}" -m bx .1.bf.json -o .3.xml || exit
 diff .1.xml .3.xml || exit
 rm .1.bf.json .2.bf.json .3.bf.json .3.json .3.xml .4.json
-echo "${fn} passed tour test"
+#echo "${fn} passed clique test"

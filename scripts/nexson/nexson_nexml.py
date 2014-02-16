@@ -5,7 +5,8 @@ from peyotl.nexson_syntax import convert_nexson_format, \
                                  write_obj_as_nexml, \
                                  BADGER_FISH_NEXSON_VERSION, \
                                  DEFAULT_NEXSON_VERSION, \
-                                 DIRECT_HONEY_BADGERFISH
+                                 DIRECT_HONEY_BADGERFISH, \
+                                 PREFERRED_HONEY_BADGERFISH
 #secret#hacky#cut#paste*nexson_nexml.py##################################
 
 def _main():
@@ -34,6 +35,7 @@ Environmental variables used:
                         choices=["nexml",
                                  str(BADGER_FISH_NEXSON_VERSION),
                                  str(DIRECT_HONEY_BADGERFISH),
+                                 str(PREFERRED_HONEY_BADGERFISH),
                                  "badgerfish"],
                         help="output format")
     codes = 'xjb'

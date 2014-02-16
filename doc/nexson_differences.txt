@@ -19,6 +19,6 @@ Leaf node objects have a "^ot:isLeaf:true" in v1.0. In v1.2, the
 can be quickly recognized by not being in edgeBySourceId, so
 they lack ^ot:isLeaf
 
-The nexml object will have ^ot:otusElementOrder and ^ot:otusElementOrder keys in v1.2
+The nexml object will have ^ot:otusElementOrder and ^ot:treesElementOrder keys in v1.2
 because the otusById and treesById are unsorted containers. The 
 values of these will be an array of otusIds or treeIds.

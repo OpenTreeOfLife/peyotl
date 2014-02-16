@@ -50,12 +50,17 @@ class TestDictDiff(unittest.TestCase):
                     'are': ['nes', 'ted']}}
         b = dict(a)
         b['extra'] = 'cool stuff'
+        b['with'] = 'new stuff'
+        del b['some']
         ddo_a = DictDiff.create(a, b)
         add_str = ddo_a.additions_expr(par='obj')
         self.assertEqual(add_str, ["obj['extra'] = 'cool stuff'"])
+        self.assertEqual(["del obj['some']"], ddo_a.deletions_expr(par='obj'))
+        self.assertEqual(["obj['with'] = 'new stuff'"], ddo_a.modification_expr(par='obj'))
         ddo_d = DictDiff.create(b, a)
-        add_str = ddo_d.deletions_expr(par='obj')
-        self.assertEqual(add_str, ["del obj['extra']"])
+        self.assertEqual(ddo_d.deletions_expr(par='obj'), ["del obj['extra']"])
+        self.assertEqual(["obj['some'] = ['dict']"], ddo_d.additions_expr(par='obj'))
+        self.assertEqual(["obj['with'] = 'some'"], ddo_d.modification_expr(par='obj'))
         c_a = copy.deepcopy(a)
         self.assertEqual(a, c_a)
         c_b = copy.deepcopy(b)

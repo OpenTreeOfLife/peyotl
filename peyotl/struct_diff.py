@@ -37,11 +37,12 @@ class DictDiff(object):
             s = 'del {p}[{k}]'.format(p=par, k=repr(k))
             r.append(s)
         return r
-    def _addition(self, k, v):
+    def _add_addition(self, k, v):
         self._additions.append((k, v))
-
-    def _deletion(self, k, v):
+    def _add_deletion(self, k, v):
         self._deletions.append((k, v))
+    def _add_modification(self, k, v):
+        self._modifications.append((k, v))
     def patch(self, src):
         for k, v in self._deletions:
             del src[k]
@@ -90,11 +91,13 @@ class DictDiff(object):
                     if rec_call is not None:
                         rc, rm, ra, rd = rec_call
                         ddo._subsume(k, rec_call)
+                    else:
+                        ddo._add_modification(k, dv)
             else:
-                ddo._deletion(k, v)
+                ddo._add_deletion(k, v)
         add_keys = dk - sk
         for k in add_keys:
-            ddo._addition(k, dest[k])
+            ddo._add_addition(k, dest[k])
         ddo._finish()
         return ddo
 

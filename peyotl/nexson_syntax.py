@@ -12,6 +12,7 @@ from peyotl.utility import get_logger
 from cStringIO import StringIO
 import xml.dom.minidom
 import codecs
+import json
 import re
 
 # TODO: in lieu of real namespace support...
@@ -1002,6 +1003,15 @@ def convert_nexson_format(blob,
                                                   remove_old_structs=remove_old_structs,
                                                   pristine_if_invalid=pristine_if_invalid)
     raise NotImplementedError('Conversion from {i} to {o}'.format(i=current_format, o=out_nexson_format))
+
+def write_as_json(blob, dest, indent=0, sort_keys=True):
+    if isinstance(dest, str) or isinstance(dest, unicode):
+        out = codecs.open(dest, mode='w', encoding='utf-8')
+    else:
+        out = dest
+    json.dump(blob, out, indent=indent, sort_keys=sort_keys)
+    out.write('\n')
+
 ################################################################################
 # End of honeybadgerfish...
 #end#secret#hacky#cut#paste*nexsonvalidator.py##################################

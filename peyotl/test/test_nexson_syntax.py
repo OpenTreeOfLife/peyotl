@@ -74,6 +74,7 @@ class TestConvert(unittest.TestCase):
             dd = DictDiff.create(first, second)
             er = dd.edits_expr()
             _LOG.info('\ndict diff: {d}'.format(d='\n'.join(er)))
+
             self.assertEqual(first, second)
 if __name__ == "__main__":
     unittest.main()

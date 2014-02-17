@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.nexson_syntax import convert_nexson_format, \
                                  get_ot_study_info_from_nexml, \
+                                 write_as_json, \
                                  write_obj_as_nexml, \
                                  BADGER_FISH_NEXSON_VERSION, \
                                  DEFAULT_NEXSON_VERSION, \
@@ -35,6 +36,9 @@ Environmental variables used:
                                  str(BADGER_FISH_NEXSON_VERSION),
                                  str(DIRECT_HONEY_BADGERFISH),
                                  str(PREFERRED_HONEY_BADGERFISH),
+                                 "0.0",
+                                 "1.0",
+                                 "1.2",
                                  "badgerfish"],
                         help="output format")
     codes = 'xjb'
@@ -53,8 +57,12 @@ Environmental variables used:
     mode = args.mode
     export_format = args.export
     if export_format:
-        if export_format.lower() ==  "badgerfish":
+        if export_format.lower() in ["badgerfish", "0.0"]:
             export_format = str(BADGER_FISH_NEXSON_VERSION)
+        elif export_format.lower() ==  "1.0":
+            export_format = str(DIRECT_HONEY_BADGERFISH)
+        elif export_format.lower() ==  "1.2":
+            export_format = str(PREFERRED_HONEY_BADGERFISH)
     if export_format is not None and mode is not None:
         if (mode.endswith('b') and (export_format != str(BADGER_FISH_NEXSON_VERSION))) \
            or (mode.endswith('x') and (export_format.lower() != "nexml")) \
@@ -131,8 +139,7 @@ Environmental variables used:
     else:
         if not mode.startswith('x'):
             blob = convert_nexson_format(blob, export_format)
-        json.dump(blob, out, indent=indentation, sort_keys=True)
-        out.write('\n')
-    
+        write_as_json(blob, out, indent=indentation)
+        
 if __name__ == '__main__':
     _main()

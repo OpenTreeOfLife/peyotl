@@ -17,7 +17,7 @@ then
     if which saxon-xslt 1>/dev/null 2>&1
     then
         r=$(expr 1 + $r)
-        if ./check_nexml_roundtrip.sh data/nexson/otu.xml "${converter}" -o
+        if ./check_nexml_roundtrip.sh data/nexson/otu/nexml "${converter}" -o
         then
             p=$(expr 1 + $p)
         fi
@@ -29,13 +29,13 @@ else
 fi
 
 r=$(expr 1 + $r)
-if ./check_nexson_roundtrip.sh data/nexson/otu-v1.0-nexson.json "${converter}" -o 
+if ./check_nexson_roundtrip.sh data/nexson/otu/v1.0.json "${converter}" -o 
 then
     p=$(expr 1 + $p)
 fi
 
 r=$(expr 1 + $r)
-if ./check_nexson_nexml_clique.sh data/nexson/otu-v1.0-nexson.json "${converter}" 
+if ./check_nexson_nexml_clique.sh data/nexson/otu/v1.0.json "${converter}" 
 then
     p=$(expr 1 + $p)
 fi

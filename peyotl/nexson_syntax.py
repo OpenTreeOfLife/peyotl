@@ -904,7 +904,9 @@ def convert_preferred_to_legacy_nexson(obj,
 
 def _nexson_directly_translatable_to_nexml(vers):
     'TEMP: until we refactor nexml writing code to be more general...'
-    return (vers.startswith('0.0') or vers.startswith('1.0'))
+    return (vers.startswith('0.0') 
+            or vers.startswith('1.0')
+            or vers == 'nexml')
 def write_obj_as_nexml(obj_dict,
                        file_obj,
                        addindent='',

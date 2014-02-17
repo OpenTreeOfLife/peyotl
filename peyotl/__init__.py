@@ -19,7 +19,7 @@ from peyotl.phylesystem import phylesystem_study_paths, \
                                phylesystem_study_objs
 from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
-                                 get_nexson_version
+                                 detect_nexson_version
 
 def gen_otu_dict(nex_obj):
     '''Takes a NexSON object and returns a dict of 

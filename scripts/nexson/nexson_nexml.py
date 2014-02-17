@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from peyotl.nexson_syntax import convert_nexson_format, \
-                                 get_nexson_version,\
                                  get_ot_study_info_from_nexml, \
                                  write_obj_as_nexml, \
                                  BADGER_FISH_NEXSON_VERSION, \
@@ -117,16 +116,9 @@ Environmental variables used:
             if not n or (not isinstance(n, dict)):
                 sys.exit('No top level "nex:nexml" element found. Document does not appear to be a JSON version of NeXML\n')
             if n:
-                v = get_nexson_version(blob)
-                if v.startswith('0'):
-                    mode = 'b' + mode[1]
-                else:
-                    mode = 'j' + mode[1]
+                mode = 'j' + mode[1]
 
     if export_format == "nexml":
-        syntax_version = BADGER_FISH_NEXSON_VERSION
-        if mode.startswith('j'):
-            syntax_version = DEFAULT_NEXSON_VERSION
         if indentation > 0:
             indent = ' '*indentation
         else:
@@ -135,8 +127,7 @@ Environmental variables used:
         write_obj_as_nexml(blob,
                            out,
                            addindent=indent,
-                           newl=newline,
-                           nexson_syntax_version=syntax_version)
+                           newl=newline)
     else:
         if not mode.startswith('x'):
             blob = convert_nexson_format(blob, export_format)

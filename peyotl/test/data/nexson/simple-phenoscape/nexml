@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nexml xmlns="http://www.nexml.org/2009" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:phen="http://www.bioontologies.org/obd/schema/pheno" generator="Phenex null" version="0.9" xmlns:ns="http://www.nexml.org/2009">
+  <meta xmlns:ns="http://www.nexml.org/2009" xmlns:ter="http://purl.org/dc/terms/" xsi:type="ns:LiteralMeta" property="ter:creator">Wasila Dahdul</meta>
+  <meta xmlns:ns="http://www.nexml.org/2009" xmlns:ter="http://purl.org/dc/terms/" xsi:type="ns:LiteralMeta" property="ter:references">PSPUB:0000013</meta>
+  <otus id="a8c4a182-274f-4241-a38a-b15fa117207b">
+    <otu id="o4341922c-a479-4088-b02e-42a0e248a825" label="Acestrorhynchus lacustris" about="#4341922c-a479-4088-b02e-42a0e248a825">
+      <meta xmlns:ter="http://rs.tdwg.org/dwc/terms/" xsi:type="ResourceMeta" rel="ter:individualID">
+        <meta xsi:type="ResourceMeta" rel="ter:collectionID" href="http://purl.obolibrary.org/obo/COLLECTION_0000403"/>
+        <meta xsi:type="LiteralMeta" property="ter:catalogNumber">205830</meta>
+      </meta>
+      <meta xmlns:ter="http://rs.tdwg.org/dwc/terms/" xsi:type="ResourceMeta" rel="ter:individualID">
+        <meta xsi:type="ResourceMeta" rel="ter:collectionID" href="http://purl.obolibrary.org/obo/COLLECTION_0000403"/>
+        <meta xsi:type="LiteralMeta" property="ter:catalogNumber">206997</meta>
+      </meta>
+      <meta xmlns:voc="http://vocab.phenoscape.org/" xsi:type="ns:LiteralMeta" property="voc:describesPhenotype">
+        <phen:phenotype>
+          <phen:phenotype_character>
+            <phen:description/>
+            <phen:bearer>
+              <phen:typeref about="UBERON:2001680"/>
+            </phen:bearer>
+            <phen:quality>
+              <phen:typeref about="PATO:0001449"/>
+            </phen:quality>
+          </phen:phenotype_character>
+        </phen:phenotype>
+      </meta>
+    </otu>
+  </otus>
+  <trees id="tf0c663d4-32b1-4dd6-847e-067c9b5f4f81" otus="a8c4a182-274f-4241-a38a-b15fa117207b"/>
+</nexml>

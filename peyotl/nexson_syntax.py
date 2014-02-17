@@ -509,7 +509,8 @@ def _break_keys_by_hbf_type(o, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     for k, v in o.items():
         if k.startswith('@'):
             if k == '@xmlns':
-                ak['xmlns'] = v['$']
+                if '$' in v:
+                    ak['xmlns'] = v['$']
                 for nsk, nsv in v.items():
                     if nsk != '$':
                         ak['xmlns:' + nsk] = nsv
@@ -548,7 +549,11 @@ def get_ot_study_info_from_nexml(src,
         removes nexml/characters @TODO: should replace it with a URI for 
             where the removed character data can be found.
     '''
-    o = to_honeybadgerfish_dict(src, encoding, nexson_syntax_version=nexson_syntax_version)
+    if nexson_syntax_version == PREFERRED_HONEY_BADGERFISH:
+        nsv = DIRECT_HONEY_BADGERFISH
+    else:
+        nsv = nexson_syntax_version
+    o = to_honeybadgerfish_dict(src, encoding, nexson_syntax_version=nsv)
     n = o.get('nexml') or o.get('nex:nexml')
     if not n:
         return o
@@ -572,6 +577,8 @@ def get_ot_study_info_from_nexml(src,
                 assert(len(root_id_set) == 1)
                 for ri in root_id_set:
                     node_id_map[ri]['@root'] = "true"
+    if nexson_syntax_version == PREFERRED_HONEY_BADGERFISH:
+        convert_nexson_format(o, PREFERRED_HONEY_BADGERFISH, current_format=nsv)
     return o
 
 def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_version=DEFAULT_NEXSON_VERSION):
@@ -740,7 +747,8 @@ def convert_legacy_to_preferred_nexson(obj,
         del nex['otus']
         del nex['trees']
         for k, v in treesById.items():
-            del v['tree']
+            if 'tree' in v:
+                del v['tree']
             del v['@id']
     return obj
 
@@ -935,7 +943,8 @@ def convert_nexson_format(blob,
                            nexson_syntax_version=out_nexson_format)
         xml_content = xo.getvalue()
         xi = StringIO(xml_content)
-        blob = get_ot_study_info_from_nexml(xi,
+        xiwrap = codecs.StreamReaderWriter(xi, ci.streamreader, ci.streamwriter)
+        blob = get_ot_study_info_from_nexml(xiwrap,
                                             nexson_syntax_version=out_nexson_format)
         return blob
     elif _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):

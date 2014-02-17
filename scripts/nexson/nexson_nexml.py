@@ -142,6 +142,6 @@ Environmental variables used:
             blob = convert_nexson_format(blob, export_format)
         json.dump(blob, out, indent=indentation, sort_keys=True)
         out.write('\n')
-
+    
 if __name__ == '__main__':
     _main()

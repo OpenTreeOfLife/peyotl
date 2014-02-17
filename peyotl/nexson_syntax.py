@@ -107,12 +107,17 @@ def _extract_text_and_child_element_list(minidom_node):
 
 
 class ATT_TRANSFORM_CODE:
-    PREVENT_TRANSFORMATION, IN_FULL_OBJECT, HANDLED, CULL = range(4)
+    PREVENT_TRANSFORMATION, IN_FULL_OBJECT, HANDLED, CULL, IN_XMLNS_OBJ = range(5)
 _SUBELEMENTS_OF_LITERAL_META_AS_ATT = frozenset(['content', 'datatype', 'property', 'xsi:type', 'id'])
 _HANDLED_SUBELEMENTS_OF_LITERAL_META_AS_ATT = frozenset(['content', 'datatype', 'property', 'xsi:type'])
 def _literal_meta_att_decision_fn(name):
     if name in _HANDLED_SUBELEMENTS_OF_LITERAL_META_AS_ATT:
         return ATT_TRANSFORM_CODE.HANDLED, None
+    if name.startswith('xmlns'):
+        if name.startswith('xmlns:'):
+            return ATT_TRANSFORM_CODE.IN_XMLNS_OBJ, name[6:]
+        if name == 'xmlns':
+            return ATT_TRANSFORM_CODE.IN_XMLNS_OBJ, '$'
     return ATT_TRANSFORM_CODE.IN_FULL_OBJECT, '@' + name
 
 
@@ -122,6 +127,11 @@ _OBJ_PROP_SUBELEMENTS_OF_RESOURCE_META_AS_ATT = frozenset(['href', 'id'])
 def _resource_meta_att_decision_fn(name):
     if name in _HANDLED_SUBELEMENTS_OF_RESOURCE_META_AS_ATT:
         return ATT_TRANSFORM_CODE.HANDLED, None
+    if name.startswith('xmlns'):
+        if name.startswith('xmlns:'):
+            return ATT_TRANSFORM_CODE.IN_XMLNS_OBJ, name[6:]
+        if name == 'xmlns':
+            return ATT_TRANSFORM_CODE.IN_XMLNS_OBJ, '$'
     return ATT_TRANSFORM_CODE.IN_FULL_OBJECT, '@' + name
 
 class NexmlTypeError(Exception):
@@ -171,7 +181,10 @@ def _literal_transform_meta_key_value(minidom_meta_element, nexson_syntax_versio
         if handling_code == ATT_TRANSFORM_CODE.IN_FULL_OBJECT:
             full_obj[new_name] = attr.value
         else:
-            assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
+            if handling_code == ATT_TRANSFORM_CODE.IN_XMLNS_OBJ:
+                full_obj.setdefault('@xmlns', {})[new_name] = attr.value
+            else:
+                assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
             
     if not att_str_val:
         att_str_val, ntl = _extract_text_and_child_element_list(minidom_meta_element)
@@ -203,7 +216,10 @@ def _resource_transform_meta_key_value(minidom_meta_element, nexson_syntax_versi
         if handling_code == ATT_TRANSFORM_CODE.IN_FULL_OBJECT:
             full_obj[new_name] = attr.value
         else:
-            assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
+            if handling_code == ATT_TRANSFORM_CODE.IN_XMLNS_OBJ:
+                full_obj.setdefault('@xmlns', {})[new_name] = attr.value
+            else:
+                assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
     rel = '^' + rel
     att_str_val, ntl = _extract_text_and_child_element_list(minidom_meta_element)
     if att_str_val:
@@ -598,7 +614,8 @@ def _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=None, nexson_syntax_version=DE
     root_name = base_keys[0]
     root_obj = obj_dict[root_name]
     atts, data, children, meta_children = _break_keys_by_hbf_type(root_obj)
-    atts['generator'] = 'org.opentreeoflife.api.nexsonvalidator.nexson_nexml'
+    if 'generator' not in atts:
+        atts['generator'] = 'org.opentreeoflife.api.nexsonvalidator.nexson_nexml'
     if not 'version' in atts:
         atts['version'] = '0.9'
     if root_atts:
@@ -877,14 +894,18 @@ def write_obj_as_nexml(obj_dict,
                        file_obj,
                        addindent='',
                        newl='',
-                       nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    root_atts = {
-        "xmlns:nex": "http://www.nexml.org/2009",
-        "xmlns": "http://www.nexml.org/2009",
-        "xmlns:xsd": "http://www.w3.org/2001/XMLSchema#",
-        "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-        "xmlns:ot": "http://purl.org/opentree/nexson",
-    }
+                       nexson_syntax_version=DEFAULT_NEXSON_VERSION,
+                       use_default_root_atts=True):
+    if use_default_root_atts:
+        root_atts = {
+            "xmlns:nex": "http://www.nexml.org/2009",
+            "xmlns": "http://www.nexml.org/2009",
+            "xmlns:xsd": "http://www.w3.org/2001/XMLSchema#",
+            "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            "xmlns:ot": "http://purl.org/opentree/nexson",
+        }
+    else: 
+        root_atts = {}
     # extra = {
     #     "xmlns:dc": "http://purl.org/dc/elements/1.1/",
     #     "xmlns:dcterms": "http://purl.org/dc/terms/",
@@ -940,7 +961,8 @@ def convert_nexson_format(blob,
                            s,
                            addindent=' ',
                            newl='\n',
-                           nexson_syntax_version=out_nexson_format)
+                           nexson_syntax_version=out_nexson_format,
+                           use_default_root_atts=False)
         xml_content = xo.getvalue()
         xi = StringIO(xml_content)
         xiwrap = codecs.StreamReaderWriter(xi, ci.streamreader, ci.streamwriter)

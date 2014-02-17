@@ -668,8 +668,8 @@ def convert_legacy_tree_to_preferred_nexson(tree, remove_old_structs=True, prist
         del tree['node']
         del tree['edge']
         for node in node_list:
-            if '^ot:isLeaf:true' in node:
-                del node['^ot:isLeaf:true']
+            if '^ot:isLeaf' in node:
+                del node['^ot:isLeaf']
             del node['@id']
     return tid, tree
 

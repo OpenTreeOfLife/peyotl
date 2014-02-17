@@ -398,7 +398,12 @@ def _create_sub_el(doc, parent, tag, attrib, data=None):
     el = doc.createElement(tag)
     if attrib:
         for att_key, att_value in attrib.items():
-            el.setAttribute(att_key, att_value)
+            if isinstance(att_value, dict):
+                for inner_key, inner_val in att_value.items():
+                    rk = ':'.join([att_key, inner_key])
+                    el.setAttribute(rk, inner_val)
+            else:
+                el.setAttribute(att_key, att_value)
     if parent:
         parent.appendChild(el)
     if data:

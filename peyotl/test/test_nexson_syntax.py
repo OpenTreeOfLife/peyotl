@@ -12,7 +12,10 @@ import os
 _LOG = get_logger(__name__)
 
 # round trip filename tuples
-RT_DIRS = ['otu',]# 'phenoscape']
+if False:
+    RT_DIRS = ['phenoscape', 'otu']
+else:
+    RT_DIRS = ['otu',]
 
 class TestConvert(unittest.TestCase):
 

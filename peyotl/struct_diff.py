@@ -89,8 +89,7 @@ class DictDiff(object):
                         elif isinstance(dv, dict) or isinstance(v, list):
                             rec_call = ListDiff.create(v, [dv], **kwargs)
                     if rec_call is not None:
-                        rc, rm, ra, rd = rec_call
-                        ddo._subsume(k, rec_call)
+                        ddo._add_modification(k, rec_call)
                     else:
                         ddo._add_modification(k, dv)
             else:

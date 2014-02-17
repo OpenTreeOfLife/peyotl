@@ -70,6 +70,38 @@ class TestDictDiff(unittest.TestCase):
         ddo_d.patch(c_b)
         self.assertEqual(a, c_b)
 
+    def testSecondLevelAddModDelDiff(self):
+        a = {'some': ['dict'],
+             'with': 'some', 
+             'key':{'s': 'that',
+                    'are': ['nes', 'ted']}}
+        b = copy.deepcopy(a)
+        b['key']['a'] = 'cool stuff'
+        b['key']['s'] = 'this'
+        del b['key']['are']
+        ddo_a = DictDiff.create(a, b)
+        self.assertEqual(ddo_a.additions_expr(par='obj'), [])
+        self.assertEqual([], ddo_a.deletions_expr(par='obj'))
+        self.assertEqual(["obj['key']['a'] = 'cool stuff'",
+                          "del obj['key']['are']",
+                          "obj['key']['s'] = 'this'",
+                          ], ddo_a.modification_expr(par='obj'))
+        ddo_d = DictDiff.create(b, a)
+        self.assertEqual(ddo_d.deletions_expr(par='obj'), [])
+        self.assertEqual([], ddo_d.additions_expr(par='obj'))
+        self.assertEqual(["obj['key']['are'] = ['nes', 'ted']",
+                          "del obj['key']['a']",
+                          "obj['key']['s'] = 'that'",
+                          ], ddo_d.modification_expr(par='obj'))
+        c_a = copy.deepcopy(a)
+        self.assertEqual(a, c_a)
+        c_b = copy.deepcopy(b)
+        self.assertEqual(b, c_b)
+        ddo_a.patch(c_a)
+        self.assertEqual(b, c_a)
+        ddo_d.patch(c_b)
+        self.assertEqual(a, c_b)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -106,7 +106,7 @@ class ListDiff(object):
         self._modifications = []
         self._deletions = []
     @staticmethod
-    def create(src, dest):
+    def create(src, dest, **kwargs):
         '''Inefficient comparison of src and dest dicts.
         Recurses through dict and lists.
         returns (is_identical, modifications, additions, deletions)
@@ -152,14 +152,14 @@ class ListDiff(object):
                         rec_call = ListDiff.create([sv], dv, **kwargs)
                     elif isinstance(dv, dict) or isinstance(sv, list):
                         rec_call = ListDiff.create(sv, [dv], **kwargs)
-                if rec_call is None:
+                if rec_call is not None:
                     diffs._add_modificaton(src_ind, rec_call)
                 else:
                     diffs._add_modificaton(src_ind, (sv, dv))
             src_ind += 1
             dest_ind += 1
         while src_ind < len(src):
-            diffs._add_deletion(src_ind, add_offset, src[src_ind])
+            diffs._add_deletion(src_ind, src[src_ind])
             src_ind += 1
         while dest_ind < len(dest):
             diffs._add_insertion(src_ind, add_offset, dest[dest_ind])
@@ -199,21 +199,16 @@ class ListDiff(object):
             s = '{p}.pop({k:d})'.format(p=par, k=k)
             r.append(s)
         return r
-    def _add_addition(self, k, v):
-        self._additions.append((k, v))
-    def _add_deletion(self, k, v):
-        self._deletions.append((k, v))
-    def _add_modification(self, k, v):
-        self._modifications.append((k, v))
     def patch(self, src):
-        for k, v in self._modifications:
+        for k, lem in self._modifications:
+            v = lem.obj
             if isinstance(v, DictDiff) or isinstance(v, ListDiff):
                 v.patch(src[k])
             else:
                 dest = v[1]
                 src[k] = dest
         for k, v in self._deletions:
-            src.remove(k)
+            src.pop(k)
         for k, ld in self._additions:
             post_del_ind = k[0] + k[1]
             v = ld.obj

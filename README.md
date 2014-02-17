@@ -118,6 +118,10 @@ The sortattr.xslt stylesheet (which is only used in round-trip testing) is from
 Jim Allman, Karen Cranston, Cody Hinchliff, Mark Holder, Peter Midford, and Jonathon Rees
 all participated in the discussions that led to the NexSON mapping.
 
+The peyotl/test/data/nexson/phenoscape/nexml test file is from
+    https://raw.github.com/phenoscape/phenoscape-data/master/Curation%20Files/completed-phenex-files/Characiformes/Buckup_1998.xml
+    PhenoscapeKB, [U.S. National Evolutionary Synthesis Center], http://kb.phenoscape.org; [Feb 16, 2014]
+    The citation for the data is in the nexml doc itself.
 ****************
 
 *Etymology*: According to Wikipedia, peyotl is the Nahuatl word for [*Lophophora williamsii*](http://en.wikipedia.org/wiki/Lophophora_williamsii).

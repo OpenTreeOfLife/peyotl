@@ -1,0 +1,1618 @@
+{
+"nexml": {
+"@generator": "Phenex null", 
+"@nexml2json": "0.0.0", 
+"@version": "0.9", 
+"@xmlns": {
+"$": "http://www.nexml.org/2009", 
+"phen": "http://www.bioontologies.org/obd/schema/pheno", 
+"xsi": "http://www.w3.org/2001/XMLSchema-instance"
+}, 
+"meta": [
+{
+"$": "Wasila Dahdul", 
+"@property": "ter:creator", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://purl.org/dc/terms/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "PSPUB:0000013", 
+"@property": "ter:references", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://purl.org/dc/terms/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Evidence codes for matrix is IVS.  Outgroup removed because paper does not provide taxa examined.", 
+"@property": "ter:description", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://purl.org/dc/terms/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:source", 
+"@xmlns": {
+"ter": "http://purl.org/dc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"$": "Buckup, P. A. (1998). Relationships of the Characidiinae and phylogeny of characiform fishes (Teleostei: Ostariophysi). Phylogeny and Classification of Neotropical Fishes, 123\u2013144.", 
+"@property": "ter:bibliographicCitation", 
+"@xsi:type": "LiteralMeta"
+}, 
+{
+"$": "Buckup, P. A. (1998)", 
+"@property": "ter:title", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+], 
+"otus": [
+{
+"@id": "a8c4a182-274f-4241-a38a-b15fa117207b", 
+"otu": [
+{
+"@id": "4341922c-a479-4088-b02e-42a0e248a825", 
+"@label": "Acestrorhynchus lacustris", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038620", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "1", 
+"@property": "voc:inFigure", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Acestrorhynchus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "205830", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "206997", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207388", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207768", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207850", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "c0dbb58d-144f-4ea2-b848-e697e94eabda", 
+"@label": "Alestes lateralis", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0037824", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "3A", 
+"@property": "voc:inFigure", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Alestes", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "200349", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "200100", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "541d9737-5457-43ef-acc6-fddfe89b56c4", 
+"@label": "Boulengerella cuvieri", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0064651", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Boulengerella", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "216327", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "209065", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "0a9cdef1-b8f5-492f-a7bf-55224847e52e", 
+"@label": "Brycon guatemalensis", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038007", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Brycon", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "183916", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "189940", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "591c6a0d-7aa8-427b-8589-b1f85633b3f0", 
+"@label": "Bryconops affinis", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038031", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Bryconops", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "215778", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "735caa05-4f91-49fc-83c6-c50874842d05", 
+"@label": "Characidium cf. zebra", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0066202", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Characidium", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "205658", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "4feca6c4-1923-45b3-b414-bf047d3cda55", 
+"@label": "Charax sp.", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0065905", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "5C", 
+"@property": "voc:inFigure", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Charax", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207857", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207313", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "8f9547dc-ca6a-4e70-8765-4de19e16d727", 
+"@label": "Chilodus punctatus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038546", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Chilodus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "205198", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "8a54d80a-5e16-4ed4-94af-67a91c5b80f0", 
+"@label": "Citharinus gibbosus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038454", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Citharinus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000194", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "50443", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "efc4dad0-dd33-4bf1-a2a9-1a5b5dc83869", 
+"@label": "Crenuchus spilurus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0037760", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "3B", 
+"@property": "voc:inFigure", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Crenuchus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000417", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "225688", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000417", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "289577", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "11df80c5-0d39-4287-b665-9859f7628796", 
+"@label": "Ctenolucius hujeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038466", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Ctenolucius", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "146632", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "a0075319-a2c3-4456-b951-ab245d95c137", 
+"@label": "Cynopotamus argenteus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038082", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "5B", 
+"@property": "voc:inFigure", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Cynopotamus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "208075", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "df5ae2fe-e20f-4ec7-8162-71b4afa8baed", 
+"@label": "Distichodus maculatus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038586", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Distichodus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000011", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "77826", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "47ca3295-9d4e-4eed-a259-25a24a2ca02a", 
+"@label": "Hemiodus notatus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0064938", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Hemiodus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "205207", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "204955", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "aa3ffe1e-e2fa-4909-afc8-bb7895b11a0b", 
+"@label": "Hepsetus odoe", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0037545", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Hepsetus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "189121", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000038", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "157770", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000036", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "63081", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "200152", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "74dd60bd-0db2-4c45-b1c4-b9ce13617a20", 
+"@label": "Hoplias malabaricus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038605", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Hoplias", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "206989", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "147344", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "206267", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207317", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "b583ece9-98f1-4b63-aabd-40784128599d", 
+"@label": "Lebiasina panamensis", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0066033", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Lebiasina", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "70715", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "f4869c5c-2b13-44ca-b71f-f8d44dba3311", 
+"@label": "Nannostomus unifasciatus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0037724", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Nannostomus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "204292", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "67a8c14c-99e1-4e25-80ac-1f75fbd6c65e", 
+"@label": "Oligosarcus paranensis", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0075480", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "2", 
+"@property": "voc:inFigure", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Oligosarcus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "206200", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "260693f5-eb42-4ff3-88d8-f6dba6c03298", 
+"@label": "Parodon suborbitalis", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0064970", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Parodon", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "205671", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "9765a17b-80c3-4ac2-a77e-43d132d97003", 
+"@label": "Phenacogaster microstictus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0066033", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "5A", 
+"@property": "voc:inFigure", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Phenacogaster", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "204701", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "4d625d12-911e-4abc-a866-ec00674b56c6", 
+"@label": "Prochilodus lineatus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038484", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Prochilodus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "205861", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "bdd3fb48-ac9c-4755-aed0-7917f07cc2fa", 
+"@label": "Pyrrhulina australis", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0037722", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Pyrrhulina", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207758", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "895fe40e-2837-44c0-8e29-96fdde51a36e", 
+"@label": "Schizodon fasciatus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038639", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Schizodon", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207939", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "dc5b97d1-c635-409e-97b0-961c6af44594", 
+"@label": "Steindachnerina elegans", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038503", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Steindachnerina", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "203531", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "599069d8-b50d-4e06-a553-62fbaaeb1457", 
+"@label": "Tetragonopterus argenteus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038295", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "4", 
+"@property": "voc:inFigure", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"$": "Tetragonopterus", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000403", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "207890", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}, 
+{
+"@id": "915c7219-f787-494f-b7f7-f5af1e39e961", 
+"@label": "Xenocharax spilurus", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/VTO_0038554", 
+"@rel": "ter:taxonID", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ns:ResourceMeta"
+}, 
+{
+"$": "Xenocharax", 
+"@property": "voc:hasMatrixName", 
+"@xmlns": {
+"ns": "http://www.nexml.org/2009", 
+"voc": "http://vocab.phenoscape.org/"
+}, 
+"@xsi:type": "ns:LiteralMeta"
+}, 
+{
+"@rel": "ter:individualID", 
+"@xmlns": {
+"ter": "http://rs.tdwg.org/dwc/terms/"
+}, 
+"@xsi:type": "ResourceMeta", 
+"meta": [
+{
+"@href": "http://purl.obolibrary.org/obo/COLLECTION_0000194", 
+"@rel": "ter:collectionID", 
+"@xsi:type": "ResourceMeta"
+}, 
+{
+"$": "48020", 
+"@property": "ter:catalogNumber", 
+"@xsi:type": "LiteralMeta"
+}
+]
+}
+]
+}
+]
+}
+], 
+"trees": [
+{
+"@id": "tf0c663d4-32b1-4dd6-847e-067c9b5f4f81", 
+"@otus": "a8c4a182-274f-4241-a38a-b15fa117207b"
+}, 
+{
+"@id": "tb4302abe-13d6-4a6c-97d2-35d0a64c15f1", 
+"@otus": "a8c4a182-274f-4241-a38a-b15fa117207b"
+}, 
+{
+"@id": "t5f40d971-d626-414f-9dd0-750322dc4087", 
+"@otus": "a8c4a182-274f-4241-a38a-b15fa117207b"
+}
+]
+}
+}

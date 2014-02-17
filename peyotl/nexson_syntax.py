@@ -12,7 +12,11 @@ from peyotl.utility import get_logger
 from cStringIO import StringIO
 import xml.dom.minidom
 import codecs
+import re
 
+# TODO: in lieu of real namespace support...
+_LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
+_RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 #secret#hacky#cut#paste*nexsonvalidator.py#####################################
 # Code for honeybadgerfish conversion of TreeBase XML to NexSON
 ###############################################################################
@@ -151,7 +155,7 @@ def _coerce_literal_val_to_primitive(datatype, str_val):
         _LOG.debug('unknown xsi:type {t}'.format(t=datatype))
         return None # We'll fall through to here when we encounter types we do not recognize
 
-def _literal_transform_meta_key_value(minidom_meta_element):
+def _literal_transform_meta_key_value(minidom_meta_element, nexson_syntax_version):
     att_key = None
     dt = minidom_meta_element.getAttribute('datatype') or 'xsd:string'
     att_str_val = minidom_meta_element.getAttribute('content')
@@ -171,9 +175,11 @@ def _literal_transform_meta_key_value(minidom_meta_element):
             
     if not att_str_val:
         att_str_val, ntl = _extract_text_and_child_element_list(minidom_meta_element)
-        if len(ntl) > 0: # #TODO: the case of len(ntl) == 1, is a nested meta, and should be handled.
+        if len(ntl) > 1: # #TODO: the case of len(ntl) == 1, is a nested meta, and should be handled.
             _LOG.debug('Nested meta elements are not legal for LiteralMeta (offending property={p}'.format(p=att_key))
             return None
+        if len(ntl) == 1:
+            _hbf_handle_child_elements(full_obj, ntl, nexson_syntax_version)
     att_key = '^' + att_key
     trans_val = _coerce_literal_val_to_primitive(dt, att_str_val)
     if trans_val is None:
@@ -184,7 +190,7 @@ def _literal_transform_meta_key_value(minidom_meta_element):
         return att_key, full_obj
     return att_key, trans_val
 
-def _resource_transform_meta_key_value(minidom_meta_element):
+def _resource_transform_meta_key_value(minidom_meta_element, nexson_syntax_version):
     rel = minidom_meta_element.getAttribute('rel')
     if rel is None:
         _LOG.debug('"rel" missing from ResourceMeta')
@@ -204,14 +210,14 @@ def _resource_transform_meta_key_value(minidom_meta_element):
         _LOG.debug('text content of ResourceMeta of rel="{r}"'.format(r=rel))
         return None
     if ntl:
-        raise NotImplementedError('handling nested metas is a TODO\n')
+        _hbf_handle_child_elements(full_obj, ntl, nexson_syntax_version)
     if not full_obj:
         _LOG.debug('ResourceMeta of rel="{r}" without condents ("href" attribute or nested meta)'.format(r=rel))
         return None
     _cull_redundant_about(full_obj)
     return rel, full_obj
 
-def _transform_meta_key_value(minidom_meta_element):
+def _transform_meta_key_value(minidom_meta_element, nexson_syntax_version):
     '''Checks if the minidom_meta_element can be represented as a
         key/value pair in a object.
 
@@ -221,12 +227,12 @@ def _transform_meta_key_value(minidom_meta_element):
         object may be required.
     '''
     xt = minidom_meta_element.getAttribute('xsi:type')
-    if xt == 'nex:LiteralMeta':
-        return _literal_transform_meta_key_value(minidom_meta_element)
-    elif xt == 'nex:ResourceMeta':
-        return _resource_transform_meta_key_value(minidom_meta_element)
+    if _LITERAL_META_PAT.match(xt):
+        return _literal_transform_meta_key_value(minidom_meta_element, nexson_syntax_version)
+    elif _RESOURCE_META_PAT.match(xt):
+        return _resource_transform_meta_key_value(minidom_meta_element, nexson_syntax_version)
     else:
-        _LOG.debug('xsi:type attribute not LiteralMeta or ResourceMeta')
+        _LOG.debug('xsi:type attribute "{t}" not LiteralMeta or ResourceMeta'.format(t=xt))
         return None
 
 def _cull_redundant_about(obj):
@@ -244,8 +250,8 @@ def _gen_hbf_el(x, nexson_syntax_version):
         to remove namespaces.
     returns a pair of: the tag of `x` and the honeybadgerfish
         representation of the subelements of x
+    Indirect recursion through _hbf_handle_child_elements
     '''
-    badgerfish_style_conversion = nexson_syntax_version.startswith('0.')
     obj = {}
     # grab the tag of x
     el_name = x.nodeName
@@ -274,17 +280,25 @@ def _gen_hbf_el(x, nexson_syntax_version):
     text_content, ntl = _extract_text_and_child_element_list(x)
     if text_content:
         obj['$'] = text_content
+    _hbf_handle_child_elements(obj, ntl, nexson_syntax_version)
+    return el_name, obj
+
+def _hbf_handle_child_elements(obj, ntl, nexson_syntax_version):
+    '''
+    Indirect recursion through _hbf_handle_child_elements
+    '''
     # accumulate a list of the children names in ko, and 
     #   the a dictionary of tag to xml elements.
     # repetition of a tag means that it will map to a list of
     #   xml elements
+    badgerfish_style_conversion = nexson_syntax_version.startswith('0.')
     cd = {}
     ko = []
     ks = set()
     for child in ntl:
         k = child.nodeName
         if k == 'meta' and (not badgerfish_style_conversion):
-            matk, matv = _transform_meta_key_value(child)
+            matk, matv = _transform_meta_key_value(child, nexson_syntax_version)
             _add_value_to_dict_bf(obj, matk, matv)
         else:
             if k not in ks:
@@ -308,7 +322,7 @@ def _gen_hbf_el(x, nexson_syntax_version):
 
     # delete redundant about attributes that are used in XML, but not JSON (last rule of HoneyBadgerFish)
     _cull_redundant_about(obj)
-    return el_name, obj
+    return obj
 
 def to_honeybadgerfish_dict(src, encoding=u'utf-8', nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     '''Takes either:

@@ -3,7 +3,8 @@ from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
                                  DIRECT_HONEY_BADGERFISH, \
                                  BADGER_FISH_NEXSON_VERSION, \
-                                 PREFERRED_HONEY_BADGERFISH
+                                 PREFERRED_HONEY_BADGERFISH,  \
+                                 write_as_json
 from peyotl.struct_diff import DictDiff
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
@@ -13,11 +14,19 @@ _LOG = get_logger(__name__)
 
 # round trip filename tuples
 if False:
-    RT_DIRS = ['phenoscape', 'otu']
+    RT_DIRS = ['simple-phenoscape'] #phenoscape', 'otu']
 else:
     RT_DIRS = ['otu',]
 
 class TestConvert(unittest.TestCase):
+    def _equal_blob_check(self, first, second):
+        if first != second:
+            dd = DictDiff.create(first, second)
+            write_as_json(first, '.first_arg_equal_blob_check')
+            write_as_json(second, '.second_arg_equal_blob_check')
+            er = dd.edits_expr()
+            _LOG.info('\ndict diff: {d}'.format(d='\n'.join(er)))
+            self.assertEqual(first, second)
 
     def testCanConvert(self):
         x = ["0.0.0", "1.0.0"]
@@ -69,12 +78,6 @@ class TestConvert(unittest.TestCase):
             b = convert_nexson_format(obj, PREFERRED_HONEY_BADGERFISH)
             self._equal_blob_check(b_expect, b)
 
-    def _equal_blob_check(self, first, second):
-        if first != second:
-            dd = DictDiff.create(first, second)
-            er = dd.edits_expr()
-            _LOG.info('\ndict diff: {d}'.format(d='\n'.join(er)))
 
-            self.assertEqual(first, second)
 if __name__ == "__main__":
     unittest.main()

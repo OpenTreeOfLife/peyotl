@@ -27,7 +27,7 @@ DEFAULT_NEXSON_VERSION = DIRECT_HONEY_BADGERFISH
 PREFERRED_HONEY_BADGERFISH = '1.2.0'
 
 BADGER_FISH_NEXSON_VERSION = '0.0.0'
-_CONVERTIBLE_FORMATS = frozenset([DEFAULT_NEXSON_VERSION, 
+_CONVERTIBLE_FORMATS = frozenset([DEFAULT_NEXSON_VERSION,
                                   BADGER_FISH_NEXSON_VERSION])
 _LOG = get_logger()
 
@@ -189,6 +189,7 @@ def _literal_transform_meta_key_value(minidom_meta_element, nexson_syntax_versio
             
     if not att_str_val:
         att_str_val, ntl = _extract_text_and_child_element_list(minidom_meta_element)
+        att_str_val = att_str_val.strip()
         if len(ntl) > 1: # #TODO: the case of len(ntl) == 1, is a nested meta, and should be handled.
             _LOG.debug('Nested meta elements are not legal for LiteralMeta (offending property={p}'.format(p=att_key))
             return None
@@ -199,7 +200,8 @@ def _literal_transform_meta_key_value(minidom_meta_element, nexson_syntax_versio
     if trans_val is None:
         return None
     if full_obj:
-        full_obj['$'] = trans_val
+        if trans_val:
+            full_obj['$'] = trans_val
         _cull_redundant_about(full_obj)
         return att_key, full_obj
     return att_key, trans_val
@@ -261,7 +263,7 @@ def _cull_redundant_about(obj):
 
 def _gen_hbf_el(x, nexson_syntax_version):
     '''
-    Builds a dictionary from the ElementTree element x
+    Builds a dictionary from the DOM element x
     The function
     Uses as hacky splitting of attribute or tag names using {}
         to remove namespaces.
@@ -413,12 +415,14 @@ def _create_sub_el(doc, parent, tag, attrib, data=None):
         elif data is False:
             el.appendChild(doc.createTextNode('false'))
         else:
-            el.appendChild(doc.createTextNode(unicode(data)))
+            u = unicode(data).strip()
+            if u:
+                el.appendChild(doc.createTextNode(u))
     return el
 
 def _add_nested_resource_meta(doc, parent, name, value, nexson_syntax_version):
     # assuming the @href holds "value" so we don't actually use the value arg currently.
-    '''tatts = {'xsi:type':  'nex:ResourceMeta',
+    tatts = {'xsi:type':  'nex:ResourceMeta',
              'rel': name}
     return _add_child_to_xml_doc_subtree(doc,
                                          parent,
@@ -427,7 +431,7 @@ def _add_nested_resource_meta(doc, parent, name, value, nexson_syntax_version):
                                          key_order=None,
                                          nexson_syntax_version=nexson_syntax_version,
                                          extra_atts=tatts)
-    '''
+    
 def _add_href_resource_meta(doc, parent, name, att_dict):
     tatts = {'xsi:type':  'nex:ResourceMeta',
              'rel': name}
@@ -437,38 +441,52 @@ def _add_href_resource_meta(doc, parent, name, att_dict):
         tatts[real_att] = v
     return _create_sub_el(doc, parent, 'meta', tatts)
 
-def _add_literal_meta(doc, parent, name, value, att_dict):
+def _add_literal_meta(doc, parent, name, value, prop_dict, nexson_syntax_version):
     # assuming the @href holds "value" so we don't actually use the value arg currently.
     tatts = {'xsi:type':  'nex:LiteralMeta',
              'datatype': _python_instance_to_nexml_meta_datatype(value),
              'property': name
              }
-    for k, v in att_dict.items():
-        if k in ['@content', '$']:
-            continue
-        assert(k.startswith('@'))
-        real_att = k[1:]
-        tatts[real_att] = v
-    return _create_sub_el(doc, parent, 'meta', tatts, value)
+    if not prop_dict:
+        return _create_sub_el(doc, parent, 'meta', tatts, value)
+    return _add_child_to_xml_doc_subtree(doc,
+                                         parent,
+                                         child=prop_dict,
+                                         key='meta',
+                                         key_order=None,
+                                         nexson_syntax_version=nexson_syntax_version, 
+                                         extra_atts=tatts,
+                                         del_atts=['@content'])
 
 
 def _add_meta_value_to_xml_doc(doc, parent, key, value, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     if isinstance(value, dict):
         href = value.get('@href')
         if href is None:
+            content = None
             try:
                 content = value['$']
             except:
-                _add_nested_resource_meta(doc, parent, name=key, value=value, nexson_syntax_version=nexson_syntax_version)
-            else:
+                pass
+            if content is not None:
                 if isinstance(content, dict):
                     _add_nested_resource_meta(doc, parent, name=key, value=content, nexson_syntax_version=nexson_syntax_version)
                 else:
-                    _add_literal_meta(doc, parent, name=key, value=content, att_dict=value)
+                    _add_literal_meta(doc, parent, name=key, value=content, prop_dict=value, nexson_syntax_version=nexson_syntax_version)
+            else:
+                as_res = False
+                for ck in value.keys():
+                    if ck.startswith('^'):
+                        as_res = True
+                        break
+                if as_res:
+                    _add_nested_resource_meta(doc, parent, name=key, value=value, nexson_syntax_version=nexson_syntax_version)
+                else:
+                    _add_literal_meta(doc, parent, name=key, value=None, prop_dict=value, nexson_syntax_version=nexson_syntax_version)
         else:
             _add_href_resource_meta(doc, parent, name=key, att_dict=value)
     else:
-        _add_literal_meta(doc, parent, name=key, value=value, att_dict={})
+        _add_literal_meta(doc, parent, name=key, value=value, prop_dict={}, nexson_syntax_version=nexson_syntax_version)
 
 def _add_meta_xml_element(doc, parent, meta_dict, nexson_syntax_version):
     '''
@@ -495,11 +513,15 @@ def _add_child_list_to_xml_doc_subtree(doc, parent, child_list, key, key_order, 
     for child in child_list:
         _add_child_to_xml_doc_subtree(doc, parent, child, key, key_order, nexson_syntax_version=nexson_syntax_version)
 
-def _add_child_to_xml_doc_subtree(doc, parent, child, key, key_order, nexson_syntax_version, extra_atts=None):
+def _add_child_to_xml_doc_subtree(doc, parent, child, key, key_order, nexson_syntax_version, extra_atts=None, del_atts=None):
     _migrating_old_bf_form = nexson_syntax_version.startswith('0.')
     ca, cd, cc, mc = _break_keys_by_hbf_type(child, nexson_syntax_version=nexson_syntax_version)
     if extra_atts is not None:
         ca.update(extra_atts)
+    if del_atts is not None:
+        for da in del_atts:
+            if da in ca:
+                del ca[da]
     if ('id' in ca) and ('about' not in ca):
         ca['about'] = '#' + ca['id']
     if _migrating_old_bf_form:

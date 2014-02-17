@@ -902,6 +902,9 @@ def convert_preferred_to_legacy_nexson(obj,
         del nex['^ot:treesElementOrder']
     return obj
 
+def _nexson_directly_translatable_to_nexml(vers):
+    'TEMP: until we refactor nexml writing code to be more general...'
+    return (vers.startswith('0.0') or vers.startswith('1.0'))
 def write_obj_as_nexml(obj_dict,
                        file_obj,
                        addindent='',
@@ -926,9 +929,12 @@ def write_obj_as_nexml(obj_dict,
     #     "xmlns:skos": "http://www.w3.org/2004/02/skos/core#",
     #     "xmlns:tb": "http://purl.org/phylo/treebase/2.0/terms#",
     # }
-    nexson_syntax_version = detect_nexson_version(obj_dict)
+    nsv = detect_nexson_version(obj_dict)
+    if not _nexson_directly_translatable_to_nexml(nsv):
+        convert_nexson_format(obj_dict, DIRECT_HONEY_BADGERFISH)
+        nsv = DIRECT_HONEY_BADGERFISH
     doc = xml.dom.minidom.Document()
-    _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=root_atts, nexson_syntax_version=nexson_syntax_version)
+    _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=root_atts, nexson_syntax_version=nsv)
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
 
 def detect_nexson_version(blob):

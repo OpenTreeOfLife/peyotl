@@ -12,8 +12,14 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         NexsonConverter, \
                                         _add_value_to_dict_bf, \
                                         _get_index_list_of_values, \
-                                        _index_list_of_values
+                                        _index_list_of_values, \
+                                        BADGER_FISH_NEXSON_VERSION, \
+                                        DEFAULT_NEXSON_VERSION, \
+                                        DIRECT_HONEY_BADGERFISH, \
+                                        PREFERRED_HONEY_BADGERFISH
+
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
+from peyotl.nexson_syntax.direct2optimal_nexson import Direct2OptimalNexson
 from peyotl.utility import get_logger
 from cStringIO import StringIO
 import xml.dom.minidom
@@ -24,15 +30,7 @@ import re
 # TODO: in lieu of real namespace support...
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
-#secret#hacky#cut#paste*nexsonvalidator.py#####################################
-# Code for honeybadgerfish conversion of TreeBase XML to NexSON
-###############################################################################
-# DIRECT_HONEY_BADGERFISH is the closest to BadgerFish
-DIRECT_HONEY_BADGERFISH = '1.0.0'
-DEFAULT_NEXSON_VERSION = DIRECT_HONEY_BADGERFISH
-PREFERRED_HONEY_BADGERFISH = '1.2.0'
 
-BADGER_FISH_NEXSON_VERSION = '0.0.0'
 _CONVERTIBLE_FORMATS = frozenset([DEFAULT_NEXSON_VERSION,
                                   BADGER_FISH_NEXSON_VERSION])
 _LOG = get_logger()
@@ -670,117 +668,6 @@ def _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=None, nexson_syntax_version=DE
                       )
     _add_xml_doc_subtree(doc, r, children, nexml_key_order, nexson_syntax_version=nexson_syntax_version)
 
-class Legacy2PreferredNexson(NexsonConverter):
-    '''version 1.0 to 1.2 '''
-    def __init__(self, conv_cfg):
-        NexsonConverter.__init__(self, conv_cfg)
-
-    def convert_otus(self, otus_list):
-        otusById = dict((i['@id'], i) for i in otus_list)
-        otusElementOrder = [i['@id'] for i in otus_list]
-        otusIdToOtuObj = {}
-        for oid, otus_el in otusById.items():
-            o_list = _index_list_of_values(otus_el, 'otu')
-            otuById = dict((i['@id'], i) for i in o_list)
-            otusIdToOtuObj[oid] = otuById
-        # If all that succeeds, add the new object to the dict, creating a fat structure
-        for k, v in otusIdToOtuObj.items():
-            otusById[k]['otuById'] = v
-        # Make the struct leaner
-        if self.remove_old_structs:
-            for v in otusById.values():
-                del v['@id']
-            for k, otu_obj in otusIdToOtuObj.items():
-                o = otusById[k]
-                del o['otu']
-                for v in otu_obj.values():
-                    del v['@id']
-        return otusById, otusElementOrder
-
-    def convert_tree(self, tree):
-        nodesById = {}
-        root_node = None
-        node_list = _index_list_of_values(tree, 'node')
-        for node in node_list:
-            nodesById[node['@id']] = node
-            if node.get('@root') == "true":
-                assert(root_node is None)
-                root_node = node
-        assert(root_node is not None)
-        edgeBySourceId = {}
-        edge_list = _get_index_list_of_values(tree, 'edge')
-        for edge in edge_list:
-            sourceId = edge['@source']
-            edgeBySourceId.setdefault(sourceId, []).append(edge)
-        # If all that succeeds, add the new object to the dict, creating a fat structure
-        tree['nodesById'] = nodesById
-        tree['edgeBySourceId'] = edgeBySourceId
-        tree['ot:rootNodeId'] = root_node['@id']
-        # Make the struct leaner
-        tid = tree['@id']
-        if self.remove_old_structs:
-            del tree['@id']
-            del tree['node']
-            del tree['edge']
-            for node in node_list:
-                if '^ot:isLeaf' in node:
-                    del node['^ot:isLeaf']
-                del node['@id']
-        return tid, tree
-
-
-    def convert(self, obj):
-        '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.0.* type and
-        converts it to PREFERRED_HONEY_BADGERFISH version. The object is modified in place
-        and returned.
-        '''
-        if self.pristine_if_invalid:
-            raise NotImplementedError('pristine_if_invalid option is not supported yet')
-
-        nex = obj.get('nex:nexml') or obj['nexml']
-        assert(nex)
-        # Create the new objects as locals. This section should not
-        #   mutate obj, so that if there is an exception the object
-        #   is unchanged on the error exit
-        otus = _index_list_of_values(nex, 'otus')
-        o_t = convert_legacy_otus_list_to_preferred_nexson(otus)
-        otusById, otusElementOrder = o_t
-        trees = _get_index_list_of_values(nex, 'trees')
-        treesById = dict((i['@id'], i) for i in trees)
-        treesElementOrder = [i['@id'] for i in trees]
-        treeContainingObjByTreesId = {}
-        for tree_group in trees:
-            treeById = {}
-            treeElementOrder = []
-            tree_array = _get_index_list_of_values(tree_group, 'tree')
-            for tree in tree_array:
-                t_t = self.convert_tree(tree)
-                tid, tree_alias = t_t
-                assert(tree_alias is tree)
-                treeById[tid] = tree
-                treeElementOrder.append(tid)
-            treeContainingObjByTreesId[tree_group['@id']] = treeById
-            tree_group['^ot:treeElementOrder'] = treeElementOrder
-
-        # If all that succeeds, add the new object to the dict, creating a fat structure
-        nex['otusById'] = otusById
-        nex['^ot:otusElementOrder'] = otusElementOrder
-        nex['treesById'] = treesById
-        nex['^ot:treesElementOrder'] = treesElementOrder
-        for k, v in treeContainingObjByTreesId.items():
-            treesById[k]['treeById'] = v
-        nex['@nexml2json'] = str(PREFERRED_HONEY_BADGERFISH)
-        # Make the struct leaner
-        if self.remove_old_structs:
-            del nex['otus']
-            del nex['trees']
-            for k, v in treesById.items():
-                if 'tree' in v:
-                    del v['tree']
-                del v['@id']
-        return obj
-
-
 def _nexson_directly_translatable_to_nexml(vers):
     'TEMP: until we refactor nexml writing code to be more general...'
     return (vers.startswith('0.0') 
@@ -872,16 +759,17 @@ def convert_nexson_format(blob,
         blob = get_ot_study_info_from_nexml(xiwrap,
                                             nexson_syntax_version=out_nexson_format)
         return blob
-    elif _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):
-        converter = Legacy2PreferredNexson(ccfg)
-        return convert_legacy_to_preferred_nexson(blob,
-                                                  remove_old_structs=remove_old_structs,
-                                                  pristine_if_invalid=pristine_if_invalid)
+    
+    converter = None
+    if _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):
+        converter = Direct2OptimalNexson(ccfg)
     elif _is_legacy_honeybadgerfish(out_nexson_format) and (current_format == PREFERRED_HONEY_BADGERFISH):
         converter = Optimal2DirectNexson(ccfg)
-        return converter.convert(blob)
-    raise NotImplementedError('Conversion from {i} to {o}'.format(i=current_format, o=out_nexson_format))
-
+    
+    if converter is None:
+        raise NotImplementedError('Conversion from {i} to {o}'.format(i=current_format, o=out_nexson_format))
+    return converter.convert(blob)
+    
 def write_as_json(blob, dest, indent=0, sort_keys=True):
     if isinstance(dest, str) or isinstance(dest, unicode):
         out = codecs.open(dest, mode='w', encoding='utf-8')

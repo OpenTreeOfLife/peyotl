@@ -3,7 +3,8 @@
 the more direct (v 1.0) port of NeXML
 '''
 from peyotl.nexson_syntax.helper import ConversionConfig, \
-                                        NexsonConverter
+                                        NexsonConverter, \
+                                        DIRECT_HONEY_BADGERFISH
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 class Optimal2DirectNexson(NexsonConverter):

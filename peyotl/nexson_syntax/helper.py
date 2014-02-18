@@ -2,6 +2,14 @@
 '''Basic functions and classes which are used by nexson_syntax subpackage,
 but do not depend on other parts of peyotl.nexson_syntax
 '''
+# DIRECT_HONEY_BADGERFISH is the closest to BadgerFish
+DIRECT_HONEY_BADGERFISH = '1.0.0'
+DEFAULT_NEXSON_VERSION = DIRECT_HONEY_BADGERFISH
+PREFERRED_HONEY_BADGERFISH = '1.2.0'
+
+BADGER_FISH_NEXSON_VERSION = '0.0.0'
+
+
 class ConversionConfig(object):
     def __init__(self, output_format, **kwargs):
         self._keys = ['output_format']

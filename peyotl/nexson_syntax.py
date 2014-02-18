@@ -980,6 +980,13 @@ _is_by_id_honedybadgerfish = lambda x: x.startswith('1.2')
 def can_convert_nexson_forms(src_format, dest_format):
     return (dest_format in _CONVERTIBLE_FORMATS) and (src_format in _CONVERTIBLE_FORMATS)
 
+class _ConversionConfig(object):
+    def __init__(self, output_format, **kwargs):
+        self.output_format = output_format
+        for k, v in kwargs.items():
+            self.__dict__[k] = v
+
+
 def convert_nexson_format(blob,
                           out_nexson_format,
                           current_format=None,
@@ -998,8 +1005,13 @@ def convert_nexson_format(blob,
     '''
     if not current_format:
         current_format = detect_nexson_version(blob)
+
     if current_format == out_nexson_format:
         return blob
+    ccfg = _ConversionConfig(output_format=out_nexson_format,
+                             input_format=current_format, 
+                             remove_old_structs=remove_old_structs,
+                             pristine_if_invalid=pristine_if_invalid)
     if _is_badgerfish_version(current_format) or _is_badgerfish_version(out_nexson_format):
         xo = StringIO()
         ci = codecs.lookup('utf8')

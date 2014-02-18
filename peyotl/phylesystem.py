@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Utilities for dealing with local filesystem 
+'''Utilities for dealing with local filesystem
 copies of the phylesystem repositories.
 '''
 from peyotl.utility import get_config, expand_path
@@ -46,7 +46,7 @@ def _search_for_repo_dirs(par):
     for n in os.listdir(par):
         if not n.startswith('phylesystem'): #TEMP Hardcode repo name pattern
             continue
-        fp =  os.path.join(par, n)
+        fp = os.path.join(par, n)
         if os.path.isdir(fp):
             d = os.path.abspath(fp)
             s = os.path.join(d, 'study') #TEMP Hardcode file name pattern

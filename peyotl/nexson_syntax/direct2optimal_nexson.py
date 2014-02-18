@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 'Direct2OptimalNexson class'
-from peyotl.nexson_syntax.helper import ConversionConfig, \
-                                        NexsonConverter, \
+from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
                                         PREFERRED_HONEY_BADGERFISH
@@ -9,7 +8,7 @@ from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 class Direct2OptimalNexson(NexsonConverter):
-    '''Conversion of the direct port of NeXML to JSON (v 1.0) 
+    '''Conversion of the direct port of NeXML to JSON (v 1.0)
     to the more optimized version (v 1.2).
     This is a dict-to-dict in-place conversion. No serialization is included.
     '''

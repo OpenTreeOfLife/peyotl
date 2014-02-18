@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
-Small library for conducting operations over the 
-entire set of NexSON files in one or more phylesystem 
+Small library for conducting operations over the
+entire set of NexSON files in one or more phylesystem
 repositories.
 
 Typical usage:
@@ -22,7 +22,7 @@ from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  detect_nexson_version
 
 def gen_otu_dict(nex_obj):
-    '''Takes a NexSON object and returns a dict of 
+    '''Takes a NexSON object and returns a dict of
     otu_id -> otu_obj
     '''
     o_dict = {}

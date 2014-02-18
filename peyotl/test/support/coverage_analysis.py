@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 ##############################################################################
-## 
+##
 ##  Adapted from: DendroPy Phylogenetic Computing Library.
 ##
 ##  Copyright 2010 Jeet Sukumaran and Mark T. Holder.

@@ -41,7 +41,7 @@ def _index_list_of_values(d, k):
     return [v]
 
 def _get_index_list_of_values(d, k, def_value=None):
-    '''Like _index_list_of_values, but uses get to access and 
+    '''Like _index_list_of_values, but uses get to access and
     returns an empty list if the key is absent.
     Returns d[k] or [d[k]] if the value is not a list'''
     v = d.get(k, def_value)
@@ -53,7 +53,7 @@ def _get_index_list_of_values(d, k, def_value=None):
 
 def _add_value_to_dict_bf(d, k, v):
     '''Adds the `k`->`v` mapping to `d`, but if a previous element exists it changes
-    the value of for the key to list. 
+    the value of for the key to list.
 
     This is used in the BadgerFish mapping convention.
 
@@ -70,7 +70,7 @@ def _add_value_to_dict_bf(d, k, v):
             prev.append(v)
     else:
         if isinstance(v, list):
-            x = [prev] 
+            x = [prev]
             x.extend(v)
             d[k] = x
         else:

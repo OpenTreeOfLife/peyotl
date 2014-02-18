@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 'Nexml2Nexson class'
-from peyotl.nexson_syntax.helper import ConversionConfig, \
-                                        NexsonConverter, \
+from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _add_value_to_dict_bf, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
@@ -15,7 +14,7 @@ _LOG = get_logger(__name__)
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 
-class ATT_TRANSFORM_CODE:
+class ATT_TRANSFORM_CODE(object):
     PREVENT_TRANSFORMATION, IN_FULL_OBJECT, HANDLED, CULL, IN_XMLNS_OBJ = range(5)
 _SUBELEMENTS_OF_LITERAL_META_AS_ATT = frozenset(['content', 'datatype', 'property', 'xsi:type', 'id'])
 _HANDLED_SUBELEMENTS_OF_LITERAL_META_AS_ATT = frozenset(['content', 'datatype', 'property', 'xsi:type'])
@@ -59,7 +58,7 @@ def _cull_redundant_about(obj):
             del obj['@about']
 
 class Nexml2Nexson(NexsonConverter):
-    '''Conversion of the optimized (v 1.2) version of NexSON to 
+    '''Conversion of the optimized (v 1.2) version of NexSON to
     the more direct (v 1.0) port of NeXML
     This is a dict-to-minidom-doc conversion. No serialization is included.
     '''
@@ -76,7 +75,7 @@ class Nexml2Nexson(NexsonConverter):
             return o
         # ot: discard characters...
         if 'characters' in n:
-                del n['characters']
+            del n['characters']
         # ot: expect root=true for exactly one node in a tree.
         for trees in _get_index_list_of_values(n, 'trees'):
             for tree in _get_index_list_of_values(trees, 'tree'):
@@ -163,7 +162,7 @@ class Nexml2Nexson(NexsonConverter):
         '''
         Indirect recursion through _gen_hbf_el
         '''
-        # accumulate a list of the children names in ko, and 
+        # accumulate a list of the children names in ko, and
         #   the a dictionary of tag to xml elements.
         # repetition of a tag means that it will map to a list of
         #   xml elements
@@ -173,8 +172,10 @@ class Nexml2Nexson(NexsonConverter):
         for child in ntl:
             k = child.nodeName
             if k == 'meta' and (not self._badgerfish_style_conversion):
-                matk, matv = self._transform_meta_key_value(child)
-                _add_value_to_dict_bf(obj, matk, matv)
+                m_tuple = self._transform_meta_key_value(child)
+                if m_tuple is not None:
+                    matk, matv = m_tuple
+                    _add_value_to_dict_bf(obj, matk, matv)
             else:
                 if k not in ks:
                     ko.append(k)
@@ -219,7 +220,7 @@ class Nexml2Nexson(NexsonConverter):
                     full_obj.setdefault('@xmlns', {})[new_name] = attr.value
                 else:
                     assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
-                
+
         if not att_str_val:
             att_str_val, ntl = self._extract_text_and_child_element_list(minidom_meta_element)
             att_str_val = att_str_val.strip()
@@ -275,7 +276,7 @@ class Nexml2Nexson(NexsonConverter):
 
         Returns (key, value) ready for JSON serialization, OR
                 `None` if the element can not be treated as simple pair.
-        If `None` is returned, then more literal translation of the 
+        If `None` is returned, then more literal translation of the
             object may be required.
         '''
         xt = minidom_meta_element.getAttribute('xsi:type')

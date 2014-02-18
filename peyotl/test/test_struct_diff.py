@@ -11,7 +11,7 @@ class TestDictDiff(unittest.TestCase):
 
     def testEqualDiff(self):
         a = {'some': ['dict'],
-             'with': 'some', 
+             'with': 'some',
              'key':{'s': 'that',
                     'are': ['nes', 'ted']}}
         b = dict(a)
@@ -19,7 +19,7 @@ class TestDictDiff(unittest.TestCase):
 
     def testAddDelDiff(self):
         a = {'some': ['dict'],
-             'with': 'some', 
+             'with': 'some',
              'key':{'s': 'that',
                     'are': ['nes', 'ted']}}
         b = dict(a)
@@ -42,10 +42,10 @@ class TestDictDiff(unittest.TestCase):
         self.assertEqual(b, c_a)
         ddo_d.patch(c_b)
         self.assertEqual(a, c_b)
-        
+
     def testAddModDelDiff(self):
         a = {'some': ['dict'],
-             'with': 'some', 
+             'with': 'some',
              'key':{'s': 'that',
                     'are': ['nes', 'ted']}}
         b = dict(a)
@@ -72,7 +72,7 @@ class TestDictDiff(unittest.TestCase):
 
     def testSecondLevelAddModDelDiff(self):
         a = {'some': ['dict'],
-             'with': 'some', 
+             'with': 'some',
              'key':{'s': 'that',
                     'are': ['nes', 'ted']}}
         b = copy.deepcopy(a)
@@ -104,7 +104,7 @@ class TestDictDiff(unittest.TestCase):
 
     def testListAddModDelDiff(self):
         a = {'some': ['dict', 'bool'],
-             'with': 'some', 
+             'with': 'some',
              'key':{'s': 'that',
                     'are': ['nes', 'ted']}}
         b = copy.deepcopy(a)
@@ -113,13 +113,13 @@ class TestDictDiff(unittest.TestCase):
         ddo_a = DictDiff.create(a, b)
         self.assertEqual(ddo_a.additions_expr(par='obj'), [])
         self.assertEqual([], ddo_a.deletions_expr(par='obj'))
-        self.assertEqual(["obj['some'][0] = 'list'", 
+        self.assertEqual(["obj['some'][0] = 'list'",
                           "obj['some'].insert(2, 'last')"
                          ], ddo_a.modification_expr(par='obj'))
         ddo_d = DictDiff.create(b, a)
         self.assertEqual(ddo_d.deletions_expr(par='obj'), [])
         self.assertEqual([], ddo_d.additions_expr(par='obj'))
-        self.assertEqual(["obj['some'][0] = 'dict'", 
+        self.assertEqual(["obj['some'][0] = 'dict'",
                           "obj['some'].pop(2)"
                          ], ddo_d.modification_expr(par='obj'))
         c_a = copy.deepcopy(a)

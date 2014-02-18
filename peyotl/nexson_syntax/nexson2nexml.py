@@ -1,24 +1,22 @@
 #!/usr/bin/env python
 'Nexson2Nexml class'
-from peyotl.nexson_syntax.helper import ConversionConfig, \
-                                        NexsonConverter, \
+from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _add_value_to_dict_bf, \
                                         _index_list_of_values, \
-                                        _is_badgerfish_version, \
-                                        DIRECT_HONEY_BADGERFISH
+                                        _is_badgerfish_version
 from peyotl.utility import get_logger
 import xml.dom.minidom
 _LOG = get_logger(__name__)
 
 def _create_sub_el(doc, parent, tag, attrib, data=None):
     '''Creates and xml element for the `doc` with the given `parent`
-    and `tag` as the tagName. 
+    and `tag` as the tagName.
     `attrib` should be a dictionary of string keys to primitives or dicts
-        if the value is a dict, then the keys of the dict are joined with 
-        the `attrib` key using a colon. This deals with the badgerfish 
+        if the value is a dict, then the keys of the dict are joined with
+        the `attrib` key using a colon. This deals with the badgerfish
         convention of nesting xmlns: attributes in a @xmnls object
-    If `data` is not None, then it will be written as data. If it is a boolean, 
-        the xml true false will be writtten. Otherwise it will be 
+    If `data` is not None, then it will be written as data. If it is a boolean,
+        the xml true false will be writtten. Otherwise it will be
         converted to python unicode string, stripped and written.
     Returns the element created
     '''
@@ -86,7 +84,7 @@ def _convert_hbf_meta_val_for_xml(key, val):
         ret.setdefault('@xsi:type', 'nex:LiteralMeta')
         ret.setdefault('@property', key)
         if content is not None:
-             ret.setdefault('@datatype', _python_instance_to_nexml_meta_datatype(content))
+            ret.setdefault('@datatype', _python_instance_to_nexml_meta_datatype(content))
         if ret is not val:
             ret['$'] = content
     else:
@@ -109,7 +107,7 @@ def _convert_bf_meta_val_for_xml(blob):
         return "", blob
 
 class Nexson2Nexml(NexsonConverter):
-    '''Conversion of the optimized (v 1.2) version of NexSON to 
+    '''Conversion of the optimized (v 1.2) version of NexSON to
     the more direct (v 1.0) port of NeXML
     This is a dict-to-minidom-doc conversion. No serialization is included.
     '''
@@ -170,7 +168,7 @@ class Nexson2Nexml(NexsonConverter):
                 "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
                 "xmlns:ot": "http://purl.org/opentree/nexson",
             }
-        else: 
+        else:
             root_atts = {}
         # extra = {
         #     "xmlns:dc": "http://purl.org/dc/elements/1.1/",
@@ -205,13 +203,13 @@ class Nexson2Nexml(NexsonConverter):
                                     )
                            ),
                            ('characters', (('meta', None),
-                                           ('format',(('meta', None),
-                                                      ('states', (('state', None),
+                                           ('format', (('meta', None),
+                                                       ('states', (('state', None),
                                                                   ('uncertain_state_set', None),
                                                                  )
+                                                       ),
+                                                       ('char', None)
                                                       ),
-                                                      ('char', None)
-                                                     ),
                                            ),
                                            ('matrix', (('meta', None),
                                                        ('row', None),

@@ -61,8 +61,8 @@ class DictDiff(object):
         DictDiffObject of there are differences
         **kwargs can contain:
             wrap_dict_in_list default False. If True and one
-                value is present as a list and the other is 
-                a dict, then the dict will be converted to 
+                value is present as a list and the other is
+                a dict, then the dict will be converted to
                 a list of one dict of the comparison. This
                 is helpful given the BadgerFish convention of
                 emitting single elements as a dict, but >1 elements
@@ -111,7 +111,7 @@ class ListDiff(object):
         Recurses through dict and lists.
         returns (is_identical, modifications, additions, deletions)
         where each
-            is_identical is a boolean True if the dicts have 
+            is_identical is a boolean True if the dicts have
                 contents that compare equal.
         and the other three are dicts:
             attributes both, but with different values
@@ -238,7 +238,7 @@ class ListDeletion(ListEdit):
     def __repr__(self):
         return 'ListDeletion({s}, {o})'.format(s=self.src_index, o=repr(self.obj))
     def __str__(self):
-        return repr(self) 
+        return repr(self)
 
 class ListAddition(ListEdit):
     def __init__(self, src_ind, add_offset, obj):

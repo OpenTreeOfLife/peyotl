@@ -4,8 +4,8 @@ of NexSON and the NeXML representation.
 See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/NexSON
 
 Most notable functions are:
-    write_obj_as_nexml, 
-    get_ot_study_info_from_nexml, 
+    write_obj_as_nexml,
+    get_ot_study_info_from_nexml,
 
 '''
 from peyotl.nexson_syntax.helper import ConversionConfig, \
@@ -48,7 +48,7 @@ def get_ot_study_info_from_nexml(src,
     See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/HoneyBadgerFish
 
     Currently:
-        removes nexml/characters @TODO: should replace it with a URI for 
+        removes nexml/characters @TODO: should replace it with a URI for
             where the removed character data can be found.
     '''
     if nexson_syntax_version == PREFERRED_HONEY_BADGERFISH:
@@ -60,7 +60,7 @@ def get_ot_study_info_from_nexml(src,
     content = src.read().encode('utf-8')
     doc = xml.dom.minidom.parseString(content)
     doc_root = doc.documentElement
-    
+
     ccfg = ConversionConfig(output_format=nsv, input_format=NEXML_NEXSON_VERSION)
     converter = Nexml2Nexson(ccfg)
     o = converter.convert(doc_root)
@@ -69,8 +69,8 @@ def get_ot_study_info_from_nexml(src,
     return o
 
 def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    '''Just a stub at this point. Intended to normalize treebase-specific metadata 
-    into the locations where open tree of life software that expects it. 
+    '''Just a stub at this point. Intended to normalize treebase-specific metadata
+    into the locations where open tree of life software that expects it.
 
     `src` can be a string (filepath) or a input file object.
     @TODO: need to investigate which metadata should move or be copied
@@ -80,7 +80,7 @@ def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_v
 
 def _nexson_directly_translatable_to_nexml(vers):
     'TEMP: until we refactor nexml writing code to be more general...'
-    return (vers.startswith('0.0') 
+    return (vers.startswith('0.0')
             or vers.startswith('1.0')
             or vers == 'nexml')
 
@@ -114,15 +114,15 @@ def convert_nexson_format(blob,
                           current_format=None,
                           remove_old_structs=True,
                           pristine_if_invalid=False):
-    '''Take a dict form of NexSON and converts its datastructures to 
+    '''Take a dict form of NexSON and converts its datastructures to
     those needed to serialize as out_nexson_format.
     If current_format is not specified, it will be inferred.
     If `remove_old_structs` is False and different honeybadgerfish varieties
         are selected, the `blob` will be "fat" containing both types
         of lookup structures.
-    If pristine_if_invalid is False, then the object may be corrupted if it 
+    If pristine_if_invalid is False, then the object may be corrupted if it
         is an invalid nexson struct. Setting this to False can result in
-        faster translation, but if an exception is raised the object may 
+        faster translation, but if an exception is raised the object may
         be polluted with partially constructed fields for the out_nexson_format.
     '''
     if not current_format:
@@ -134,7 +134,7 @@ def convert_nexson_format(blob,
         xo = StringIO()
         ci = codecs.lookup('utf8')
         s = codecs.StreamReaderWriter(xo, ci.streamreader, ci.streamwriter)
-        
+
         write_obj_as_nexml(blob,
                            s,
                            addindent=' ',
@@ -147,7 +147,7 @@ def convert_nexson_format(blob,
                                             nexson_syntax_version=out_nexson_format)
         return blob
     ccfg = ConversionConfig(output_format=out_nexson_format,
-                            input_format=current_format, 
+                            input_format=current_format,
                             remove_old_structs=remove_old_structs,
                             pristine_if_invalid=pristine_if_invalid)
     if _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):
@@ -157,7 +157,7 @@ def convert_nexson_format(blob,
     else:
         raise NotImplementedError('Conversion from {i} to {o}'.format(i=current_format, o=out_nexson_format))
     return converter.convert(blob)
-    
+
 def write_as_json(blob, dest, indent=0, sort_keys=True):
     if isinstance(dest, str) or isinstance(dest, unicode):
         out = codecs.open(dest, mode='w', encoding='utf-8')

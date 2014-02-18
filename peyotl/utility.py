@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Simple utility functions that do not depend on any other part of 
+'''Simple utility functions that do not depend on any other part of
 peyotl.
 '''
 import logging
@@ -88,9 +88,9 @@ _CONFIG = None
 _CONFIG_FN = None
 def get_config(section=None, param=None):
     '''
-    Returns the config object if `section` and `param` are None, or the 
+    Returns the config object if `section` and `param` are None, or the
         value for the requested parameter.
-    
+
     If the parameter (or the section) is missing, the exception is logged and
         None is returned.
     '''

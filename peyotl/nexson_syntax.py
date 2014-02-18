@@ -1050,10 +1050,7 @@ def convert_nexson_format(blob,
                                                   pristine_if_invalid=pristine_if_invalid)
     elif _is_legacy_honeybadgerfish(out_nexson_format) and (current_format == PREFERRED_HONEY_BADGERFISH):
         converter = Preferred2LegacyNexson(ccfg)
-        #return converter.convert(blob)
-        return convert_preferred_to_legacy_nexson(blob,
-                                                  remove_old_structs=remove_old_structs,
-                                                  pristine_if_invalid=pristine_if_invalid)
+        return converter.convert(blob)
     raise NotImplementedError('Conversion from {i} to {o}'.format(i=current_format, o=out_nexson_format))
 
 def write_as_json(blob, dest, indent=0, sort_keys=True):

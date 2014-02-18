@@ -15,6 +15,29 @@ import codecs
 import json
 import re
 
+class _ConversionConfig(object):
+    def __init__(self, output_format, **kwargs):
+        self._keys = ['output_format']
+        self.output_format = output_format
+        for k, v in kwargs.items():
+            self.__dict__[k] = v
+            self._keys.append(k)
+    def items(self):
+        for k in self._keys:
+            yield (k, getattr(self, k))
+    def keys(self):
+        return list(self._keys)
+    def get(self, k, default):
+        return getattr(self, k, default)
+
+class NexSONConverter(object):
+    def __init__(self, conv_cfg):
+        self._conv_cfg = conv_cfg
+        for k, v in conv_cfg.items():
+            self.__dict__[k] = v
+        self.remove_old_structs = conv_cfg.get('remove_old_structs', True)
+        self.pristine_if_invalid = conv_cfg.get('pristine_if_invalid', True)
+
 # TODO: in lieu of real namespace support...
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
@@ -698,126 +721,119 @@ def _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=None, nexson_syntax_version=DE
                       )
     _add_xml_doc_subtree(doc, r, children, nexml_key_order, nexson_syntax_version=nexson_syntax_version)
 
-def convert_legacy_otus_list_to_preferred_nexson(otus_list, remove_old_structs=True, pristine_if_invalid=False):
-    otusById = dict((i['@id'], i) for i in otus_list)
-    otusElementOrder = [i['@id'] for i in otus_list]
-    otusIdToOtuObj = {}
-    for oid, otus_el in otusById.items():
-        o_list = _index_list_of_values(otus_el, 'otu')
-        otuById = dict((i['@id'], i) for i in o_list)
-        otusIdToOtuObj[oid] = otuById
-    # If all that succeeds, add the new object to the dict, creating a fat structure
-    for k, v in otusIdToOtuObj.items():
-        otusById[k]['otuById'] = v
-    # Make the struct leaner
-    if remove_old_structs:
-        for v in otusById.values():
-            del v['@id']
-        for k, otu_obj in otusIdToOtuObj.items():
-            o = otusById[k]
-            del o['otu']
-            for v in otu_obj.values():
-                del v['@id']
-    return otusById, otusElementOrder
-
-def convert_legacy_tree_to_preferred_nexson(tree, remove_old_structs=True, pristine_if_invalid=False):
-    nodesById = {}
-    root_node = None
-    node_list = _index_list_of_values(tree, 'node')
-    for node in node_list:
-        nodesById[node['@id']] = node
-        if node.get('@root') == "true":
-            assert(root_node is None)
-            root_node = node
-    assert(root_node is not None)
-    edgeBySourceId = {}
-    edge_list = _get_index_list_of_values(tree, 'edge')
-    for edge in edge_list:
-        sourceId = edge['@source']
-        edgeBySourceId.setdefault(sourceId, []).append(edge)
-    # If all that succeeds, add the new object to the dict, creating a fat structure
-    tree['nodesById'] = nodesById
-    tree['edgeBySourceId'] = edgeBySourceId
-    tree['ot:rootNodeId'] = root_node['@id']
-    # Make the struct leaner
-    tid = tree['@id']
-    if remove_old_structs:
-        del tree['@id']
-        del tree['node']
-        del tree['edge']
-        for node in node_list:
-            if '^ot:isLeaf' in node:
-                del node['^ot:isLeaf']
-            del node['@id']
-    return tid, tree
-
-
-def convert_legacy_to_preferred_nexson(obj,
-                                       remove_old_structs=True,
-                                       pristine_if_invalid=False):
-    '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.0.* type and
-    converts it to PREFERRED_HONEY_BADGERFISH version. The object is modified in place
-    and returned.
-    '''
-    if pristine_if_invalid:
-        raise NotImplementedError('pristine_if_invalid option is not supported yet')
-
-    nex = obj.get('nex:nexml') or obj['nexml']
-    assert(nex)
-    # Create the new objects as locals. This section should not
-    #   mutate obj, so that if there is an exception the object
-    #   is unchanged on the error exit
-    otus = _index_list_of_values(nex, 'otus')
-    o_t = convert_legacy_otus_list_to_preferred_nexson(otus,
-                                                       remove_old_structs=remove_old_structs,
-                                                       pristine_if_invalid=pristine_if_invalid)
-    otusById, otusElementOrder = o_t
-    trees = _get_index_list_of_values(nex, 'trees')
-    treesById = dict((i['@id'], i) for i in trees)
-    treesElementOrder = [i['@id'] for i in trees]
-    treeContainingObjByTreesId = {}
-    for tree_group in trees:
-        treeById = {}
-        treeElementOrder = []
-        tree_array = _get_index_list_of_values(tree_group, 'tree')
-        for tree in tree_array:
-            t_t = convert_legacy_tree_to_preferred_nexson(tree,
-                                                          remove_old_structs=remove_old_structs,
-                                                          pristine_if_invalid=pristine_if_invalid)
-            tid, tree_alias = t_t
-            assert(tree_alias is tree)
-            treeById[tid] = tree
-            treeElementOrder.append(tid)
-        treeContainingObjByTreesId[tree_group['@id']] = treeById
-        tree_group['^ot:treeElementOrder'] = treeElementOrder
-
-    # If all that succeeds, add the new object to the dict, creating a fat structure
-    nex['otusById'] = otusById
-    nex['^ot:otusElementOrder'] = otusElementOrder
-    nex['treesById'] = treesById
-    nex['^ot:treesElementOrder'] = treesElementOrder
-    for k, v in treeContainingObjByTreesId.items():
-        treesById[k]['treeById'] = v
-    nex['@nexml2json'] = str(PREFERRED_HONEY_BADGERFISH)
-    # Make the struct leaner
-    if remove_old_structs:
-        del nex['otus']
-        del nex['trees']
-        for k, v in treesById.items():
-            if 'tree' in v:
-                del v['tree']
-            del v['@id']
-    return obj
-
-class NexSONConverter(object):
+class Legacy2PreferredNexson(NexSONConverter):
+    '''version 1.0 to 1.2 '''
     def __init__(self, conv_cfg):
-        self._conv_cfg = conv_cfg
-        for k, v in conv_cfg.items():
-            self.__dict__[k] = v
-        self.remove_old_structs = getattr(conv_cfg, 'remove_old_structs', True)
-        self.pristine_if_invalid = getattr(conv_cfg, 'pristine_if_invalid', True)
+        NexSONConverter.__init__(self, conv_cfg)
+
+    def convert_otus(self, otus_list):
+        otusById = dict((i['@id'], i) for i in otus_list)
+        otusElementOrder = [i['@id'] for i in otus_list]
+        otusIdToOtuObj = {}
+        for oid, otus_el in otusById.items():
+            o_list = _index_list_of_values(otus_el, 'otu')
+            otuById = dict((i['@id'], i) for i in o_list)
+            otusIdToOtuObj[oid] = otuById
+        # If all that succeeds, add the new object to the dict, creating a fat structure
+        for k, v in otusIdToOtuObj.items():
+            otusById[k]['otuById'] = v
+        # Make the struct leaner
+        if self.remove_old_structs:
+            for v in otusById.values():
+                del v['@id']
+            for k, otu_obj in otusIdToOtuObj.items():
+                o = otusById[k]
+                del o['otu']
+                for v in otu_obj.values():
+                    del v['@id']
+        return otusById, otusElementOrder
+
+    def convert_tree(self, tree):
+        nodesById = {}
+        root_node = None
+        node_list = _index_list_of_values(tree, 'node')
+        for node in node_list:
+            nodesById[node['@id']] = node
+            if node.get('@root') == "true":
+                assert(root_node is None)
+                root_node = node
+        assert(root_node is not None)
+        edgeBySourceId = {}
+        edge_list = _get_index_list_of_values(tree, 'edge')
+        for edge in edge_list:
+            sourceId = edge['@source']
+            edgeBySourceId.setdefault(sourceId, []).append(edge)
+        # If all that succeeds, add the new object to the dict, creating a fat structure
+        tree['nodesById'] = nodesById
+        tree['edgeBySourceId'] = edgeBySourceId
+        tree['ot:rootNodeId'] = root_node['@id']
+        # Make the struct leaner
+        tid = tree['@id']
+        if self.remove_old_structs:
+            del tree['@id']
+            del tree['node']
+            del tree['edge']
+            for node in node_list:
+                if '^ot:isLeaf' in node:
+                    del node['^ot:isLeaf']
+                del node['@id']
+        return tid, tree
+
+
+    def convert(self, obj):
+        '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.0.* type and
+        converts it to PREFERRED_HONEY_BADGERFISH version. The object is modified in place
+        and returned.
+        '''
+        if self.pristine_if_invalid:
+            raise NotImplementedError('pristine_if_invalid option is not supported yet')
+
+        nex = obj.get('nex:nexml') or obj['nexml']
+        assert(nex)
+        # Create the new objects as locals. This section should not
+        #   mutate obj, so that if there is an exception the object
+        #   is unchanged on the error exit
+        otus = _index_list_of_values(nex, 'otus')
+        o_t = convert_legacy_otus_list_to_preferred_nexson(otus)
+        otusById, otusElementOrder = o_t
+        trees = _get_index_list_of_values(nex, 'trees')
+        treesById = dict((i['@id'], i) for i in trees)
+        treesElementOrder = [i['@id'] for i in trees]
+        treeContainingObjByTreesId = {}
+        for tree_group in trees:
+            treeById = {}
+            treeElementOrder = []
+            tree_array = _get_index_list_of_values(tree_group, 'tree')
+            for tree in tree_array:
+                t_t = self.convert_tree(tree)
+                tid, tree_alias = t_t
+                assert(tree_alias is tree)
+                treeById[tid] = tree
+                treeElementOrder.append(tid)
+            treeContainingObjByTreesId[tree_group['@id']] = treeById
+            tree_group['^ot:treeElementOrder'] = treeElementOrder
+
+        # If all that succeeds, add the new object to the dict, creating a fat structure
+        nex['otusById'] = otusById
+        nex['^ot:otusElementOrder'] = otusElementOrder
+        nex['treesById'] = treesById
+        nex['^ot:treesElementOrder'] = treesElementOrder
+        for k, v in treeContainingObjByTreesId.items():
+            treesById[k]['treeById'] = v
+        nex['@nexml2json'] = str(PREFERRED_HONEY_BADGERFISH)
+        # Make the struct leaner
+        if self.remove_old_structs:
+            del nex['otus']
+            del nex['trees']
+            for k, v in treesById.items():
+                if 'tree' in v:
+                    del v['tree']
+                del v['@id']
+        return obj
+
 
 class Preferred2LegacyNexson(NexSONConverter):
+    '''version 1.2 to 1.0'''
     def __init__(self, conv_cfg):
         NexSONConverter.__init__(self, conv_cfg)
 
@@ -990,19 +1006,6 @@ _is_by_id_honedybadgerfish = lambda x: x.startswith('1.2')
 def can_convert_nexson_forms(src_format, dest_format):
     return (dest_format in _CONVERTIBLE_FORMATS) and (src_format in _CONVERTIBLE_FORMATS)
 
-class _ConversionConfig(object):
-    def __init__(self, output_format, **kwargs):
-        self._keys = ['output_format']
-        self.output_format = output_format
-        for k, v in kwargs.items():
-            self.__dict__[k] = v
-            self._keys.append(k)
-    def items(self):
-        for k in self._keys:
-            yield (k, getattr(self, k))
-    def keys(self):
-        return list(self._keys)
-
 def convert_nexson_format(blob,
                           out_nexson_format,
                           current_format=None,
@@ -1045,6 +1048,7 @@ def convert_nexson_format(blob,
                                             nexson_syntax_version=out_nexson_format)
         return blob
     elif _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):
+        converter = Legacy2PreferredNexson(ccfg)
         return convert_legacy_to_preferred_nexson(blob,
                                                   remove_old_structs=remove_old_structs,
                                                   pristine_if_invalid=pristine_if_invalid)

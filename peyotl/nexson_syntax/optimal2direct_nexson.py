@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-'''Conversion of the optimized (v 1.2) version of NexSON to 
-the more direct (v 1.0) port of NeXML
-'''
+'Optimal2DirectNexson class'
 from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         NexsonConverter, \
                                         DIRECT_HONEY_BADGERFISH
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 class Optimal2DirectNexson(NexsonConverter):
-    '''version 1.2 to 1.0'''
+    '''Conversion of the optimized (v 1.2) version of NexSON to 
+    the more direct (v 1.0) port of NeXML
+    This is a dict-to-dict in-place conversion. No serialization is included.
+    '''
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
 

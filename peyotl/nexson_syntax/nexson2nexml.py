@@ -277,13 +277,6 @@ class Nexson2Nexml(NexsonConverter):
         Values in the meta element dict are converted to a BadgerFish-style
             encoding (see _convert_hbf_meta_val_for_xml), so regardless of input_format,
             we treat them as if they were BadgerFish.
-        assert key != u'meta':
-                if 'datatype' not in ca:
-                    dsv = _OT_META_PROP_TO_DATATYPE.get(ca.get('property'))
-                    if dsv is None:
-                        dsv = _python_instance_to_nexml_meta_datatype(cd)
-                    ca['datatype'] = dsv
-                cel = _create_sub_el(doc, parent, u'meta', ca, cd)
         '''
         if not meta_dict:
             return

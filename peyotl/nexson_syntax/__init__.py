@@ -330,34 +330,6 @@ def to_honeybadgerfish_dict(src, encoding=u'utf-8', nexson_syntax_version=DEFAUL
     val['@nexml2json'] = nexson_syntax_version
     return {key: val}
 
-# based on http://www.w3.org/TR/xmlschema-2
-# xsd:string is considered the default...
-_OT_META_PROP_TO_DATATYPE = {
-    'ot:focalClade': 'xsd:int',
-    'ot:isLeaf': 'xsd:boolean',
-    'ot:notIntendedForSynthesis': 'xsd:boolean',
-    'ot:notUsingRootedTrees': 'xsd:boolean',
-    'ot:ottid': 'xsd:int',
-    'ot:studyYear' : 'xsd:int',
-    }
-_XSD_TYPE_TO_VALID_PYTHON_TYPES = {
-    'numeric': set([float, int, long]),
-    'xsd:int': set([int, long]),
-    'xsd:float': set([float]),
-    'xsd:boolean': set([bool]),
-    'xsd:string': set([str, unicode]),
-}
-_XSD_TYPE_COERCION = {
-    'numeric': float,
-    'xsd:int': int,
-    'xsd:float': float,
-    'xsd:boolean': lambda x: x.lower() == 'true',
-    'xsd:string': unicode,
-}
-
-
-
-
 def _cull_redundant_about(obj):
     '''Removes the @about key from the `obj` dict if that value refers to the
     dict's '@id'

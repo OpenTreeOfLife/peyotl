@@ -8,7 +8,7 @@ DEFAULT_NEXSON_VERSION = DIRECT_HONEY_BADGERFISH
 PREFERRED_HONEY_BADGERFISH = '1.2.0'
 
 BADGER_FISH_NEXSON_VERSION = '0.0.0'
-
+NEXML_NEXSON_VERSION = 'nexml'
 
 class ConversionConfig(object):
     def __init__(self, output_format, **kwargs):
@@ -65,6 +65,18 @@ def _add_value_to_dict_bf(d, k, v):
     if prev is None:
         d[k] = v
     elif isinstance(prev, list):
-        prev.append(v)
+        if isinstance(v, list):
+            prev.extend(v)
+        else:
+            prev.append(v)
     else:
-        d[k] = [prev, v]
+        if isinstance(v, list):
+            x = [prev] 
+            x.extend(v)
+            d[k] = x
+        else:
+            d[k] = [prev, v]
+
+_is_badgerfish_version = lambda x: x.startswith('0.')
+_is_legacy_honeybadgerfish = lambda x: x.startswith('1.0.')
+_is_by_id_honedybadgerfish = lambda x: x.startswith('1.2')

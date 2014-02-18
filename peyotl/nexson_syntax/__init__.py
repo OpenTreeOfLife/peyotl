@@ -13,13 +13,17 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         _add_value_to_dict_bf, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
+                                        _is_badgerfish_version, \
+                                        _is_legacy_honeybadgerfish, \
                                         BADGER_FISH_NEXSON_VERSION, \
                                         DEFAULT_NEXSON_VERSION, \
                                         DIRECT_HONEY_BADGERFISH, \
+                                        NEXML_NEXSON_VERSION, \
                                         PREFERRED_HONEY_BADGERFISH
 
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
 from peyotl.nexson_syntax.direct2optimal_nexson import Direct2OptimalNexson
+from peyotl.nexson_syntax.nexson2nexml import Nexson2Nexml
 from peyotl.utility import get_logger
 from cStringIO import StringIO
 import xml.dom.minidom
@@ -224,12 +228,6 @@ def _transform_meta_key_value(minidom_meta_element, nexson_syntax_version):
         _LOG.debug('xsi:type attribute "{t}" not LiteralMeta or ResourceMeta'.format(t=xt))
         return None
 
-def _cull_redundant_about(obj):
-    about_val = obj.get('@about')
-    if about_val:
-        id_val = obj.get('@id')
-        if id_val and (('#' + id_val) == about_val):
-            del obj['@about']
 
 def _gen_hbf_el(x, nexson_syntax_version):
     '''
@@ -332,15 +330,6 @@ def to_honeybadgerfish_dict(src, encoding=u'utf-8', nexson_syntax_version=DEFAUL
     val['@nexml2json'] = nexson_syntax_version
     return {key: val}
 
-def _python_instance_to_nexml_meta_datatype(v):
-    if isinstance(v, bool):
-        return 'xsd:boolean'
-    if isinstance(v, int) or isinstance(v, long):
-        return 'xsd:int'
-    if isinstance(v, float):
-        return 'xsd:float'
-    return 'xsd:string'
-
 # based on http://www.w3.org/TR/xmlschema-2
 # xsd:string is considered the default...
 _OT_META_PROP_TO_DATATYPE = {
@@ -367,203 +356,18 @@ _XSD_TYPE_COERCION = {
 }
 
 
-def _create_sub_el(doc, parent, tag, attrib, data=None):
-    el = doc.createElement(tag)
-    if attrib:
-        for att_key, att_value in attrib.items():
-            if isinstance(att_value, dict):
-                for inner_key, inner_val in att_value.items():
-                    rk = ':'.join([att_key, inner_key])
-                    el.setAttribute(rk, inner_val)
-            else:
-                el.setAttribute(att_key, att_value)
-    if parent:
-        parent.appendChild(el)
-    if data:
-        if data is True:
-            el.appendChild(doc.createTextNode('true'))
-        elif data is False:
-            el.appendChild(doc.createTextNode('false'))
-        else:
-            u = unicode(data).strip()
-            if u:
-                el.appendChild(doc.createTextNode(u))
-    return el
-
-def _add_nested_resource_meta(doc, parent, name, value, nexson_syntax_version):
-    # assuming the @href holds "value" so we don't actually use the value arg currently.
-    tatts = {'xsi:type':  'nex:ResourceMeta',
-             'rel': name}
-    return _add_child_to_xml_doc_subtree(doc,
-                                         parent,
-                                         value,
-                                         'meta',
-                                         key_order=None,
-                                         nexson_syntax_version=nexson_syntax_version,
-                                         extra_atts=tatts)
-    
-def _add_href_resource_meta(doc, parent, name, att_dict):
-    tatts = {'xsi:type':  'nex:ResourceMeta',
-             'rel': name}
-    for k, v in att_dict.items():
-        assert(k.startswith('@'))
-        real_att = k[1:]
-        tatts[real_att] = v
-    return _create_sub_el(doc, parent, 'meta', tatts)
-
-def _add_literal_meta(doc, parent, name, value, prop_dict, nexson_syntax_version):
-    # assuming the @href holds "value" so we don't actually use the value arg currently.
-    tatts = {'xsi:type':  'nex:LiteralMeta',
-             'datatype': _python_instance_to_nexml_meta_datatype(value),
-             'property': name
-             }
-    if not prop_dict:
-        return _create_sub_el(doc, parent, 'meta', tatts, value)
-    return _add_child_to_xml_doc_subtree(doc,
-                                         parent,
-                                         child=prop_dict,
-                                         key='meta',
-                                         key_order=None,
-                                         nexson_syntax_version=nexson_syntax_version, 
-                                         extra_atts=tatts,
-                                         del_atts=['@content'])
 
 
-def _add_meta_value_to_xml_doc(doc, parent, key, value, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    if isinstance(value, dict):
-        href = value.get('@href')
-        if href is None:
-            content = None
-            try:
-                content = value['$']
-            except:
-                pass
-            if content is not None:
-                if isinstance(content, dict):
-                    _add_nested_resource_meta(doc, parent, name=key, value=content, nexson_syntax_version=nexson_syntax_version)
-                else:
-                    _add_literal_meta(doc, parent, name=key, value=content, prop_dict=value, nexson_syntax_version=nexson_syntax_version)
-            else:
-                as_res = False
-                for ck in value.keys():
-                    if ck.startswith('^'):
-                        as_res = True
-                        break
-                if as_res:
-                    _add_nested_resource_meta(doc, parent, name=key, value=value, nexson_syntax_version=nexson_syntax_version)
-                else:
-                    _add_literal_meta(doc, parent, name=key, value=None, prop_dict=value, nexson_syntax_version=nexson_syntax_version)
-        else:
-            _add_href_resource_meta(doc, parent, name=key, att_dict=value)
-    else:
-        _add_literal_meta(doc, parent, name=key, value=value, prop_dict={}, nexson_syntax_version=nexson_syntax_version)
-
-def _add_meta_xml_element(doc, parent, meta_dict, nexson_syntax_version):
+def _cull_redundant_about(obj):
+    '''Removes the @about key from the `obj` dict if that value refers to the
+    dict's '@id'
     '''
-    assert key != u'meta':
-            if 'datatype' not in ca:
-                dsv = _OT_META_PROP_TO_DATATYPE.get(ca.get('property'))
-                if dsv is None:
-                    dsv = _python_instance_to_nexml_meta_datatype(cd)
-                ca['datatype'] = dsv
-            cel = _create_sub_el(doc, parent, u'meta', ca, cd)
-    '''
-    if not meta_dict:
-        return
-    key_list = meta_dict.keys()
-    key_list.sort()
-    for key in key_list:
-        el_list = _index_list_of_values(meta_dict, key)
-        for el in el_list:
-            _add_meta_value_to_xml_doc(doc, parent, key, el, nexson_syntax_version)
+    about_val = obj.get('@about')
+    if about_val:
+        id_val = obj.get('@id')
+        if id_val and (('#' + id_val) == about_val):
+            del obj['@about']
 
-def _add_child_list_to_xml_doc_subtree(doc, parent, child_list, key, key_order, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    if not isinstance(child_list, list):
-        child_list = [child_list]
-    for child in child_list:
-        _add_child_to_xml_doc_subtree(doc, parent, child, key, key_order, nexson_syntax_version=nexson_syntax_version)
-
-def _add_child_to_xml_doc_subtree(doc, parent, child, key, key_order, nexson_syntax_version, extra_atts=None, del_atts=None):
-    _migrating_old_bf_form = nexson_syntax_version.startswith('0.')
-    ca, cd, cc, mc = _break_keys_by_hbf_type(child, nexson_syntax_version=nexson_syntax_version)
-    if extra_atts is not None:
-        ca.update(extra_atts)
-    if del_atts is not None:
-        for da in del_atts:
-            if da in ca:
-                del ca[da]
-    if ('id' in ca) and ('about' not in ca):
-        ca['about'] = '#' + ca['id']
-    if _migrating_old_bf_form:
-        if (key == 'tree') and ('xsi:type' not in ca):
-            ca['xsi:type'] = 'nex:FloatTree'
-    cel = _create_sub_el(doc, parent, key, ca, cd)
-    _add_meta_xml_element(doc, cel, mc, nexson_syntax_version)
-    _add_xml_doc_subtree(doc, cel, cc, key_order, nexson_syntax_version=nexson_syntax_version)
-    return cel
-
-def _add_xml_doc_subtree(doc, parent, children_dict, key_order=None, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    written = set()
-    if key_order:
-        for t in key_order:
-            k, next_order_el = t
-            assert(next_order_el is None or isinstance(next_order_el, tuple))
-            if k in children_dict:
-                child_list = children_dict[k]
-                written.add(k)
-                _add_child_list_to_xml_doc_subtree(doc, parent, child_list, k, next_order_el, nexson_syntax_version=nexson_syntax_version)
-    ksl = children_dict.keys()
-    ksl.sort()
-    for k in ksl:
-        child_list = children_dict[k]
-        if k not in written:
-            _add_child_list_to_xml_doc_subtree(doc, parent, child_list, k, None, nexson_syntax_version=nexson_syntax_version)
-
-
-def _break_keys_by_hbf_type(o, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    '''Breaks o into four content type by key syntax:
-        attrib keys (start with '@'),
-        text (value associated with the '$' or None),
-        child element keys (all others)
-        meta element
-    '''
-    _migrating_old_bf_form = nexson_syntax_version.startswith('0.')
-    ak = {}
-    tk = None
-    ck = {}
-    mc = {}
-    for k, v in o.items():
-        if k.startswith('@'):
-            if k == '@xmlns':
-                if '$' in v:
-                    ak['xmlns'] = v['$']
-                for nsk, nsv in v.items():
-                    if nsk != '$':
-                        ak['xmlns:' + nsk] = nsv
-            else:
-                s = k[1:]
-                ak[s] = unicode(v)
-        elif k == '$':
-            tk = v
-        elif k.startswith('^'):
-            s = k[1:]
-            mc[s] = v
-        elif _migrating_old_bf_form and k == 'meta':
-            if not isinstance(v, list):
-                v = [v]
-            for val in v:
-                k = val.get('@property')
-                if k is None:
-                    k = val.get('@rel')
-                if '@property' in val:
-                    del val['@property']
-                if '@rel' in val:
-                    del val['@rel']
-                _cull_redundant_about(val)
-                _add_value_to_dict_bf(mc, k, val)
-        else:
-            ck[k] = v
-    return ak, tk, ck, mc
 
 def get_ot_study_info_from_nexml(src,
                                  encoding=u'utf8',
@@ -618,55 +422,6 @@ def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_v
     return o
 
 
-def _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=None, nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    base_keys = obj_dict.keys()
-    assert(len(base_keys) == 1)
-    root_name = base_keys[0]
-    root_obj = obj_dict[root_name]
-    atts, data, children, meta_children = _break_keys_by_hbf_type(root_obj)
-    if 'generator' not in atts:
-        atts['generator'] = 'org.opentreeoflife.api.nexsonvalidator.nexson_nexml'
-    if not 'version' in atts:
-        atts['version'] = '0.9'
-    if root_atts:
-        for k, v in root_atts.items():
-            atts[k] = v
-    if ('id' in atts) and ('about' not in atts):
-        atts['about'] = '#' + atts['id']
-    if 'nexml2json' in atts:
-        del atts['nexml2json']
-    r = _create_sub_el(doc, doc, root_name, atts, data)
-    _add_meta_xml_element(doc, r, meta_children, nexson_syntax_version)
-    nexml_key_order = (('meta', None),
-                       ('otus', (('meta', None),
-                                 ('otu', None)
-                                )
-                       ),
-                       ('characters', (('meta', None),
-                                       ('format',(('meta', None),
-                                                  ('states', (('state', None),
-                                                              ('uncertain_state_set', None),
-                                                             )
-                                                  ),
-                                                  ('char', None)
-                                                 ),
-                                       ),
-                                       ('matrix', (('meta', None),
-                                                   ('row', None),
-                                                  )
-                                       ),
-                                      ),
-                       ),
-                       ('trees', (('meta', None),
-                                  ('tree', (('meta', None),
-                                            ('node', None),
-                                            ('edge', None)
-                                           )
-                                  )
-                                 )
-                       )
-                      )
-    _add_xml_doc_subtree(doc, r, children, nexml_key_order, nexson_syntax_version=nexson_syntax_version)
 
 def _nexson_directly_translatable_to_nexml(vers):
     'TEMP: until we refactor nexml writing code to be more general...'
@@ -678,16 +433,6 @@ def write_obj_as_nexml(obj_dict,
                        addindent='',
                        newl='',
                        use_default_root_atts=True):
-    if use_default_root_atts:
-        root_atts = {
-            "xmlns:nex": "http://www.nexml.org/2009",
-            "xmlns": "http://www.nexml.org/2009",
-            "xmlns:xsd": "http://www.w3.org/2001/XMLSchema#",
-            "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            "xmlns:ot": "http://purl.org/opentree/nexson",
-        }
-    else: 
-        root_atts = {}
     # extra = {
     #     "xmlns:dc": "http://purl.org/dc/elements/1.1/",
     #     "xmlns:dcterms": "http://purl.org/dc/terms/",
@@ -701,8 +446,11 @@ def write_obj_as_nexml(obj_dict,
     if not _nexson_directly_translatable_to_nexml(nsv):
         convert_nexson_format(obj_dict, DIRECT_HONEY_BADGERFISH)
         nsv = DIRECT_HONEY_BADGERFISH
-    doc = xml.dom.minidom.Document()
-    _nex_obj_2_nexml_doc(doc, obj_dict, root_atts=root_atts, nexson_syntax_version=nsv)
+    ccfg = ConversionConfig(NEXML_NEXSON_VERSION,
+                            input_format=nsv,
+                            use_default_root_atts=use_default_root_atts)
+    converter = Nexson2Nexml(ccfg)
+    doc = converter.convert(obj_dict)
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
 
 def detect_nexson_version(blob):
@@ -711,9 +459,6 @@ def detect_nexson_version(blob):
     assert(n)
     return n.get('@nexml2json', BADGER_FISH_NEXSON_VERSION)
 
-_is_badgerfish_version = lambda x: x.startswith('0.')
-_is_legacy_honeybadgerfish = lambda x: x.startswith('1.0.')
-_is_by_id_honedybadgerfish = lambda x: x.startswith('1.2')
 
 def can_convert_nexson_forms(src_format, dest_format):
     return (dest_format in _CONVERTIBLE_FORMATS) and (src_format in _CONVERTIBLE_FORMATS)
@@ -747,7 +492,7 @@ def convert_nexson_format(blob,
         xo = StringIO()
         ci = codecs.lookup('utf8')
         s = codecs.StreamReaderWriter(xo, ci.streamreader, ci.streamwriter)
-            
+        
         write_obj_as_nexml(blob,
                            s,
                            addindent=' ',

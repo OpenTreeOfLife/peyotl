@@ -44,7 +44,6 @@ except:
     SCRIPTS_DIR = os.path.join(PACKAGE_DIR, os.path.pardir, "scripts")
     _LOG.info("using local filesystem path mapping")
 
-
 TESTS_DATA_DIR = os.path.join(TESTS_DIR, "data")
 TESTS_OUTPUT_DIR = os.path.join(TESTS_DIR, "output")
 TESTS_COVERAGE_DIR = os.path.join(TESTS_DIR, "coverage")

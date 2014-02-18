@@ -33,7 +33,6 @@ class NexsonConverter(object):
         self.remove_old_structs = conv_cfg.get('remove_old_structs', True)
         self.pristine_if_invalid = conv_cfg.get('pristine_if_invalid', True)
 
-
 def _index_list_of_values(d, k):
     '''Returns d[k] or [d[k]] if the value is not a list'''
     v = d[k]
@@ -80,3 +79,18 @@ def _add_value_to_dict_bf(d, k, v):
 _is_badgerfish_version = lambda x: x.startswith('0.')
 _is_legacy_honeybadgerfish = lambda x: x.startswith('1.0.')
 _is_by_id_honedybadgerfish = lambda x: x.startswith('1.2')
+
+def _debug_dump_dom(el):
+    '''Debugging helper. Prints out `el` contents.'''
+    import xml.dom.minidom
+    s = [el.nodeName]
+    att_container = el.attributes
+    for i in xrange(att_container.length):
+        attr = att_container.item(i)
+        s.append('  @{a}="{v}"'.format(a=attr.name, v=attr.value))
+    for c in el.childNodes:
+        if c.nodeType == xml.dom.minidom.Node.TEXT_NODE:
+            s.append('  {a} type="TEXT" data="{d}"'.format(a=c.nodeName, d=c.data))
+        else:
+            s.append('  {a} child'.format(a=c.nodeName))
+    return '\n'.join(s)

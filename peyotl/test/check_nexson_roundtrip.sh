@@ -39,7 +39,6 @@ then
     fi
 fi
 
-
 # 3. Convert to back to JSON
 if ! python "$converter" .1.xml -o .2.json
 then

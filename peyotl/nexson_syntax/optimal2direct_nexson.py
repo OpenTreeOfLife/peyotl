@@ -77,7 +77,6 @@ class Optimal2DirectNexson(NexsonConverter):
             del tree['ot:rootNodeId']
         return tree
 
-
     def convert_trees(self, treesById, treesElementOrder):
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
@@ -99,7 +98,6 @@ class Optimal2DirectNexson(NexsonConverter):
                 del tree_group['^ot:treeElementOrder']
             trees_group_list.append(tree_group)
         return trees_group_list
-
 
     def convert(self, obj):
         '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.2.* type and

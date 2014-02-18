@@ -78,6 +78,5 @@ class TestConvert(unittest.TestCase):
             b = convert_nexson_format(obj, PREFERRED_HONEY_BADGERFISH)
             self._equal_blob_check(b_expect, b)
 
-
 if __name__ == "__main__":
     unittest.main()

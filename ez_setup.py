@@ -161,41 +161,6 @@ and place it in this directory before rerunning this script.)
             if dst: dst.close()
     return os.path.realpath(saveto)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def main(argv, version=DEFAULT_VERSION):
     """Install or upgrade setuptools and EasyInstall"""
     try:
@@ -266,15 +231,8 @@ def update_md5(filenames):
     f.write(src)
     f.close()
 
-
 if __name__=='__main__':
     if len(sys.argv)>2 and sys.argv[1]=='--md5update':
         update_md5(sys.argv[2:])
     else:
         main(sys.argv[1:])
-
-
-
-
-
-

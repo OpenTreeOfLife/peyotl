@@ -76,7 +76,6 @@ saxon-xslt .pp2.xml "${dir}/sortattr.xslt" > .s2.xml || exit
 sed -e '/<\?xml version/d' .s1.xml | sed -e 's/<nex\(.*\)generator="[^"]*"/<nex\1/' > .cpp1.xml
 sed -e '/<\?xml version/d' .s2.xml | sed -e 's/<nex\(.*\)generator="[^"]*"/<nex\1/' > .cpp2.xml
 
-
 if ! diff .cpp1.xml .cpp2.xml 
 then
     echo "Did not roundtrip"

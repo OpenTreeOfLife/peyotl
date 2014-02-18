@@ -27,7 +27,6 @@ The code has been run on python 2.7.5. To install in developer mode:
     $ pip install -r requirements.txt
     $ python setup.py develop
 
-
 ## Configuration
 
 If you run:
@@ -80,7 +79,6 @@ A test of the available format conversions (without NeXML validation) can be run
 
     $ sh peyotl/test/check_nexson_nexml_clique.sh peyotl/test/data/nexson/otu.json
 
-
 If you alias your nexml validation tool to the name "validate-nexml" then you can 
 run the check_nexml_roundrip.sh and check_nexson_roundrip.sh
 
@@ -88,7 +86,6 @@ Other dependencies for these test scripts are xmllint and saxon-xslt. Note
 that these are *not* dependencies for normal usage of 
 
 *Caveat*: check_nexml_roundrip.sh will fail if the attribute order differs from the order used by nexson_nexml.py
-
 
 ## validate-nexml command.
 MTH's validate-nexml is shell script:
@@ -131,5 +128,3 @@ The peyotl/test/data/nexson/phenoscape/nexml test file is from
 [3]: https://github.com/OpenTreeOfLife/api.opentreeoflife.org/
 [4]: https://github.com/OpenTreeOfLife/taxomachine
 [5]: https://github.com/OpenTreeOfLife/treemachine
-
-

@@ -257,6 +257,3 @@ class ListElModification(ListEdit):
                                                           o=repr(self.obj))
     def __str__(self):
         return repr(self)
-
-
-

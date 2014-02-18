@@ -10,7 +10,6 @@ nexml2json=1.0.0 to nexml2json=1.2.0
 | tree array   | treeById obj       | treesById |
 | trees array  | treesById obj      | nexml     |
 
-
 For node, otus, otu, tree, and trees objects:
    @id=value pair in v1.0 is deleted n v1.2. The property's name is
 its ID. edge object still hold their ID. 

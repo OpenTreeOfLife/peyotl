@@ -42,7 +42,6 @@ def search_for_study_dirs(parent_list=None):
     if not _study_dirs:
         raise ValueError('No phylesystem repositories found under "{p}"'.format(p=':'.join(parent_list)))
 
-
 def _search_for_repo_dirs(par):
     for n in os.listdir(par):
         if not n.startswith('phylesystem'): #TEMP Hardcode repo name pattern

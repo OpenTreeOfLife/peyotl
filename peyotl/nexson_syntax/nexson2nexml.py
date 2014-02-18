@@ -10,7 +10,6 @@ from peyotl.utility import get_logger
 import xml.dom.minidom
 _LOG = get_logger(__name__)
 
-
 def _create_sub_el(doc, parent, tag, attrib, data=None):
     '''Creates and xml element for the `doc` with the given `parent`
     and `tag` as the tagName. 
@@ -66,7 +65,6 @@ def _python_instance_to_nexml_meta_datatype(v):
         return 'xsd:float'
     return 'xsd:string'
 
-
 def _convert_hbf_meta_val_for_xml(key, val):
     '''Convert to a BadgerFish-style dict for addition to the xml tree'''
     if isinstance(val, list):
@@ -109,6 +107,7 @@ def _convert_bf_meta_val_for_xml(blob):
         return first_blob["@rel"], blob
     except:
         return "", blob
+
 class Nexson2Nexml(NexsonConverter):
     '''Conversion of the optimized (v 1.2) version of NexSON to 
     the more direct (v 1.0) port of NeXML
@@ -173,6 +172,15 @@ class Nexson2Nexml(NexsonConverter):
             }
         else: 
             root_atts = {}
+        # extra = {
+        #     "xmlns:dc": "http://purl.org/dc/elements/1.1/",
+        #     "xmlns:dcterms": "http://purl.org/dc/terms/",
+        #     "xmlns:prism": "http://prismstandard.org/namespaces/1.2/basic/",
+        #     "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        #     "xmlns:rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        #     "xmlns:skos": "http://www.w3.org/2004/02/skos/core#",
+        #     "xmlns:tb": "http://purl.org/phylo/treebase/2.0/terms#",
+        # }
         base_keys = obj_dict.keys()
         assert(len(base_keys) == 1)
         root_name = base_keys[0]
@@ -226,7 +234,6 @@ class Nexson2Nexml(NexsonConverter):
         for child in ch_list:
             self._add_subtree_to_xml_doc(doc, par, child, key, key_order)
 
-
     def _add_dict_of_subtree_to_xml_doc(self,
                                         doc,
                                         parent,
@@ -247,7 +254,6 @@ class Nexson2Nexml(NexsonConverter):
             chl = _index_list_of_values(children_dict, k)
             if k not in written:
                 self._add_subtree_list_to_xml_doc(doc, parent, chl, k, None)
-
 
     def _add_subtree_to_xml_doc(self,
                                 doc,

@@ -165,3 +165,31 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
         out = dest
     json.dump(blob, out, indent=indent, sort_keys=sort_keys)
     out.write('\n')
+
+def _recursive_sort_meta(blob, k):
+    if isinstance(blob, list):
+        for i in blob:
+            _recursive_sort_meta(i, k)
+    else:
+        for inner_k, v in blob.items():
+            if inner_k == 'meta' and isinstance(v, list):
+                sl = []
+                for el in v:
+                    sk = el.get('@property') or el.get('@rel') or ''
+                    sl.append((sk, el))
+                sl.sort()
+                del v[:] # clear out the value in place
+                v.extend([i[1] for i in sl]) # replace it with the item from the sorted list
+            if isinstance(v, list) or isinstance(v, dict):
+                _recursive_sort_meta(v, inner_k)
+
+def sort_meta_elements(blob):
+    '''For v0.0 (which has meta values in a list), this
+    function recursively walks through the object 
+    and sorts each meta by @property or @rel values.
+    '''
+    v = detect_nexson_version(blob)
+    if _is_badgerfish_version(v):
+        _recursive_sort_meta(blob, '')
+    return blob
+

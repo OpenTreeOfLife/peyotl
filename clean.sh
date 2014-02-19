@@ -1,6 +1,7 @@
 #! /bin/sh
-rm -rfv $(find . -name "*.pyc")
-rm -rfv 'pyotree/test/output/'*
-rm -rfv 'pyotree/test/coverage/'*
+find . -name "*.pyc" -exec rm {} \;
+rm -fv peyotl/test/output/*
+rm -fv peyotl/test/coverage/source/*
+rm -fv peyotl/test/coverage/report/*
 rm -rfv build
 rm -rfv dist

@@ -80,8 +80,8 @@ def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_v
 
 def _nexson_directly_translatable_to_nexml(vers):
     'TEMP: until we refactor nexml writing code to be more general...'
-    return (vers.startswith('0.0')
-            or vers.startswith('1.0')
+    return (_is_badgerfish_version(vers)
+            or _is_legacy_honeybadgerfish(vers)
             or vers == 'nexml')
 
 def write_obj_as_nexml(obj_dict,

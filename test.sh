@@ -1,59 +1,22 @@
 #!/bin/sh
 #set -x
+f=0
 r=0 # the number of tests
-p=0 # the number passed
-
-cwd="$(pwd)"
-top_dir="$(dirname $0)"
-cd "$top_dir"
-top_dir="$(pwd)"
-
-# run shell scripts in the peyotl test dir
-cd peyotl/test || exit
-
-converter="${top_dir}/scripts/nexson/nexson_nexml.py"
-if which xmllint 1>/dev/null 2>&1
+if ! ./integration-tests.sh
 then
-    if which saxon-xslt 1>/dev/null 2>&1
-    then
-        r=$(expr 1 + $r)
-        if ./check_nexml_roundtrip.sh data/nexson/otu/nexml "${converter}" -o
-        then
-            p=$(expr 1 + $p)
-        fi
-    else
-        echo "nexml roundtrip test skipped due to lack of saxon-xslt"
-    fi
-else
-    echo "nexml roundtrip test skipped due to lack of xmllint"
+    f=1
+    r=1
 fi
 
-r=$(expr 1 + $r)
-if ./check_nexson_roundtrip.sh data/nexson/otu/v1.0.json "${converter}" -o 
+if ! python setup.py test
 then
-    p=$(expr 1 + $p)
-fi
-
-r=$(expr 1 + $r)
-if ./check_nexson_nexml_clique.sh data/nexson/otu/v1.0.json "${converter}" 
-then
-    p=$(expr 1 + $p)
-fi
-cd -
-
-if python setup.py test
-then
-    f=0
-else
     f=1
 fi
 
-cd "${cwd}"
-if test $r -eq $p
+if test $r -eq 0
 then
-    echo "Passed all ($r) shell script tests."
+    echo "Passed all shell script tests."
 else
-    f=$(expr 1 + $f)
-    echo "Passed only $p / $r shell script tests."
+    echo "Failed at least one shell script tests."
 fi
 exit $f

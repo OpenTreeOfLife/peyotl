@@ -14,6 +14,7 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
                                         _is_badgerfish_version, \
+                                        _is_by_id_honedybadgerfish, \
                                         _is_legacy_honeybadgerfish, \
                                         BADGER_FISH_NEXSON_VERSION, \
                                         DEFAULT_NEXSON_VERSION, \
@@ -22,7 +23,9 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         PREFERRED_HONEY_BADGERFISH
 
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
+
 from peyotl.nexson_syntax.direct2optimal_nexson import Direct2OptimalNexson
+from peyotl.nexson_syntax.badgerfish2direct_nexson import Badgerfish2DirectNexson
 from peyotl.nexson_syntax.nexson2nexml import Nexson2Nexml
 from peyotl.nexson_syntax.nexml2nexson import Nexml2Nexson
 from peyotl.utility import get_logger
@@ -130,7 +133,8 @@ def convert_nexson_format(blob,
 
     if current_format == out_nexson_format:
         return blob
-    if _is_badgerfish_version(current_format) or _is_badgerfish_version(out_nexson_format):
+    through_nexml = _is_badgerfish_version(out_nexson_format)
+    if through_nexml:
         xo = StringIO()
         ci = codecs.lookup('utf8')
         s = codecs.StreamReaderWriter(xo, ci.streamreader, ci.streamwriter)
@@ -146,11 +150,22 @@ def convert_nexson_format(blob,
         blob = get_ot_study_info_from_nexml(xiwrap,
                                             nexson_syntax_version=out_nexson_format)
         return blob
-    ccfg = ConversionConfig(output_format=out_nexson_format,
-                            input_format=current_format,
-                            remove_old_structs=remove_old_structs,
-                            pristine_if_invalid=pristine_if_invalid)
-    if _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):
+    if _is_by_id_honedybadgerfish(out_nexson_format) and _is_badgerfish_version(current_format):
+        # go from 0.0 -> 1.0 then the 1.0->1.2 should succeed without nexml...
+        blob = convert_nexson_format(blob, 
+                                     DIRECT_HONEY_BADGERFISH,
+                                     current_format=current_format,
+                                     remove_old_structs=remove_old_structs,
+                                     pristine_if_invalid=pristine_if_invalid)
+        current_format = DIRECT_HONEY_BADGERFISH
+    ccdict = {'output_format':out_nexson_format,
+              'input_format':current_format,
+              'remove_old_structs': remove_old_structs,
+              'pristine_if_invalid': pristine_if_invalid}
+    ccfg = ConversionConfig(ccdict)
+    if _is_badgerfish_version(current_format):
+        converter = Badgerfish2DirectNexson(ccfg)
+    elif _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):
         converter = Direct2OptimalNexson(ccfg)
     elif _is_legacy_honeybadgerfish(out_nexson_format) and (current_format == PREFERRED_HONEY_BADGERFISH):
         converter = Optimal2DirectNexson(ccfg)

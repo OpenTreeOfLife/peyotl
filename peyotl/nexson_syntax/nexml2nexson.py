@@ -2,17 +2,17 @@
 'Nexml2Nexson class'
 from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _add_value_to_dict_bf, \
+                                        _coerce_literal_val_to_primitive, \
+                                        _cull_redundant_about, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
-                                        _is_badgerfish_version
+                                        _is_badgerfish_version, \
+                                        _LITERAL_META_PAT, \
+                                        _RESOURCE_META_PAT
+
 from peyotl.utility import get_logger
 import xml.dom.minidom
-import re
 _LOG = get_logger(__name__)
-
-# TODO: in lieu of real namespace support...
-_LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
-_RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 
 class ATT_TRANSFORM_CODE(object):
     PREVENT_TRANSFORMATION, IN_FULL_OBJECT, HANDLED, CULL, IN_XMLNS_OBJ = range(5)
@@ -46,16 +46,6 @@ class NexmlTypeError(Exception):
         self.msg = m
     def __str__(self):
         return self.msg
-
-def _cull_redundant_about(obj):
-    '''Removes the @about key from the `obj` dict if that value refers to the
-    dict's '@id'
-    '''
-    about_val = obj.get('@about')
-    if about_val:
-        id_val = obj.get('@id')
-        if id_val and (('#' + id_val) == about_val):
-            del obj['@about']
 
 def _extract_text_and_child_element_list(minidom_node):
     '''Returns a pair of the "child" content of minidom_node:
@@ -288,27 +278,3 @@ class Nexml2Nexson(NexsonConverter):
             _LOG.debug('xsi:type attribute "%s" not LiteralMeta or ResourceMeta', xt)
             return None, None
 
-def _coerce_literal_val_to_primitive(datatype, str_val):
-    _TYPE_ERROR_MSG_FORMAT = 'Expected meta property to have type {t}, but found "{v}"'
-    if datatype == 'xsd:string':
-        return str_val
-    if datatype in frozenset(['xsd:int', 'xsd:integer', 'xsd:long']):
-        try:
-            return int(str_val)
-        except:
-            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
-    elif datatype == frozenset(['xsd:float', 'xsd:double']):
-        try:
-            return float(str_val)
-        except:
-            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
-    elif datatype == 'xsd:boolean':
-        if str_val.lower() in frozenset(['1', 'true']):
-            return True
-        elif str_val.lower() in frozenset(['0', 'false']):
-            return False
-        else:
-            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
-    else:
-        _LOG.debug('unknown xsi:type "%s"', datatype)
-        return None # We'll fall through to here when we encounter types we do not recognize

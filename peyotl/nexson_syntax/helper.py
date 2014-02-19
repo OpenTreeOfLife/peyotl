@@ -2,6 +2,7 @@
 '''Basic functions and classes which are used by nexson_syntax subpackage,
 but do not depend on other parts of peyotl.nexson_syntax
 '''
+import re
 # DIRECT_HONEY_BADGERFISH is the closest to BadgerFish
 DIRECT_HONEY_BADGERFISH = '1.0.0'
 DEFAULT_NEXSON_VERSION = DIRECT_HONEY_BADGERFISH
@@ -9,6 +10,10 @@ PREFERRED_HONEY_BADGERFISH = '1.2.0'
 
 BADGER_FISH_NEXSON_VERSION = '0.0.0'
 NEXML_NEXSON_VERSION = 'nexml'
+
+# TODO: in lieu of real namespace support...
+_LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
+_RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 
 class ConversionConfig(object):
     def __init__(self, output_format, **kwargs):
@@ -31,7 +36,7 @@ class NexsonConverter(object):
         for k, v in conv_cfg.items():
             self.__dict__[k] = v
         self.remove_old_structs = conv_cfg.get('remove_old_structs', True)
-        self.pristine_if_invalid = conv_cfg.get('pristine_if_invalid', True)
+        self.pristine_if_invalid = conv_cfg.get('pristine_if_invalid', False)
 
 def _index_list_of_values(d, k):
     '''Returns d[k] or [d[k]] if the value is not a list'''
@@ -94,3 +99,38 @@ def _debug_dump_dom(el):
         else:
             s.append('  {a} child'.format(a=c.nodeName))
     return '\n'.join(s)
+
+def _cull_redundant_about(obj):
+    '''Removes the @about key from the `obj` dict if that value refers to the
+    dict's '@id'
+    '''
+    about_val = obj.get('@about')
+    if about_val:
+        id_val = obj.get('@id')
+        if id_val and (('#' + id_val) == about_val):
+            del obj['@about']
+
+def _coerce_literal_val_to_primitive(datatype, str_val):
+    _TYPE_ERROR_MSG_FORMAT = 'Expected meta property to have type {t}, but found "{v}"'
+    if datatype == 'xsd:string':
+        return str_val
+    if datatype in frozenset(['xsd:int', 'xsd:integer', 'xsd:long']):
+        try:
+            return int(str_val)
+        except:
+            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
+    elif datatype == frozenset(['xsd:float', 'xsd:double']):
+        try:
+            return float(str_val)
+        except:
+            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
+    elif datatype == 'xsd:boolean':
+        if str_val.lower() in frozenset(['1', 'true']):
+            return True
+        elif str_val.lower() in frozenset(['0', 'false']):
+            return False
+        else:
+            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
+    else:
+        _LOG.debug('unknown xsi:type "%s"', datatype)
+        return None # We'll fall through to here when we encounter types we do not recognize

@@ -65,7 +65,8 @@ else:
                 self.no_html = False
                 self.omit = []
                 p = os.path.join('peyotl', 'test')
-                for root, dirs, files in os.walk(p):
+                for triple in os.walk(p):
+                    root, files = triple[0], triple[2]
                     for fn in files:
                         if fn.endswith('.py'):
                             fp = os.path.join(root, fn)
@@ -80,7 +81,7 @@ else:
                 """
 
                 if self.erase:
-                    _LOG.warn("removing coverage results directory: '%s'" % pathmap.TESTS_COVERAGE_DIR)
+                    _LOG.warn("removing coverage results directory: %s", pathmap.TESTS_COVERAGE_DIR)
                     try:
                         shutil.rmtree(pathmap.TESTS_COVERAGE_DIR)
                     except:

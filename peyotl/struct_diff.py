@@ -5,7 +5,7 @@ class DictDiff(object):
         self._additions = []
         self._deletions = []
         self._modifications = []
-    def _finish(self):
+    def finish(self):
         self._additions.sort()
         self._deletions.sort()
         self._modifications.sort()
@@ -33,15 +33,16 @@ class DictDiff(object):
         return r
     def deletions_expr(self, par=''):
         r = []
-        for k, v in self._deletions:
+        for deletion in self._deletions:
+            k = deletion[0]
             s = 'del {p}[{k}]'.format(p=par, k=repr(k))
             r.append(s)
         return r
-    def _add_addition(self, k, v):
+    def add_addition(self, k, v):
         self._additions.append((k, v))
-    def _add_deletion(self, k, v):
+    def add_deletion(self, k, v):
         self._deletions.append((k, v))
-    def _add_modification(self, k, v):
+    def add_modification(self, k, v):
         self._modifications.append((k, v))
     def patch(self, src):
         for k, v in self._deletions:
@@ -89,15 +90,15 @@ class DictDiff(object):
                         elif isinstance(dv, dict) or isinstance(v, list):
                             rec_call = ListDiff.create(v, [dv], **kwargs)
                     if rec_call is not None:
-                        ddo._add_modification(k, rec_call)
+                        ddo.add_modification(k, rec_call)
                     else:
-                        ddo._add_modification(k, dv)
+                        ddo.add_modification(k, dv)
             else:
-                ddo._add_deletion(k, v)
+                ddo.add_deletion(k, v)
         add_keys = dk - sk
         for k in add_keys:
-            ddo._add_addition(k, dest[k])
-        ddo._finish()
+            ddo.add_addition(k, dest[k])
+        ddo.finish()
         return ddo
 
 class ListDiff(object):
@@ -133,11 +134,11 @@ class ListDiff(object):
         for p in optimal_order:
             ns, nd = p
             while src_ind < ns:
-                diffs._add_deletion(src_ind, src[src_ind])
+                diffs.add_deletion(src_ind, src[src_ind])
                 src_ind += 1
                 num_deletions += 1
             while dest_ind < nd:
-                diffs._add_insertion(src_ind - num_deletions, add_offset, dest[dest_ind])
+                diffs.add_insertion(src_ind - num_deletions, add_offset, dest[dest_ind])
                 dest_ind += 1
                 add_offset += 1
             sv, dv = src[ns], dest[nd]
@@ -153,16 +154,16 @@ class ListDiff(object):
                     elif isinstance(dv, dict) or isinstance(sv, list):
                         rec_call = ListDiff.create(sv, [dv], **kwargs)
                 if rec_call is not None:
-                    diffs._add_modificaton(src_ind, rec_call)
+                    diffs.add_modificaton(src_ind, rec_call)
                 else:
-                    diffs._add_modificaton(src_ind, (sv, dv))
+                    diffs.add_modificaton(src_ind, (sv, dv))
             src_ind += 1
             dest_ind += 1
         while src_ind < len(src):
-            diffs._add_deletion(src_ind, src[src_ind])
+            diffs.add_deletion(src_ind, src[src_ind])
             src_ind += 1
         while dest_ind < len(dest):
-            diffs._add_insertion(src_ind, add_offset, dest[dest_ind])
+            diffs.add_insertion(src_ind, add_offset, dest[dest_ind])
             dest_ind += 1
             add_offset += 1
         diffs.finish()
@@ -195,7 +196,8 @@ class ListDiff(object):
     def deletions_expr(self, par=''):
         # _deletions are reverse sorted
         r = []
-        for k, ld in self._deletions:
+        for deletion in self._deletions:
+            k = deletion[0]
             s = '{p}.pop({k:d})'.format(p=par, k=k)
             r.append(s)
         return r
@@ -213,14 +215,14 @@ class ListDiff(object):
             post_del_ind = k[0] + k[1]
             v = ld.obj
             src.insert(post_del_ind, v)
-    def _add_deletion(self, ind, obj):
+    def add_deletion(self, ind, obj):
         tup = (ind, ListDeletion(ind, obj))
         self._deletions.append(tup)
-    def _add_insertion(self, ind, add_offset, obj):
+    def add_insertion(self, ind, add_offset, obj):
         sortable_key = (ind, add_offset)
         tup = (sortable_key, ListAddition(ind, add_offset, obj))
         self._additions.append(tup)
-    def _add_modificaton(self, ind, obj):
+    def add_modificaton(self, ind, obj):
         tup = (ind, ListElModification(ind, obj))
         self._modifications.append(tup)
     def finish(self):

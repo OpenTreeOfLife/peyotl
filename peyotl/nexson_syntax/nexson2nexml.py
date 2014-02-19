@@ -113,7 +113,7 @@ class Nexson2Nexml(NexsonConverter):
     '''
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
-        assert(hasattr(self, 'input_format'))
+        self.input_format = conv_cfg.input_format
         self.use_default_root_atts = conv_cfg.get('use_default_root_atts', True)
         self._migrating_from_bf = _is_badgerfish_version(self.input_format)
         # TreeBase and phylografter trees often lack the tree xsi:type

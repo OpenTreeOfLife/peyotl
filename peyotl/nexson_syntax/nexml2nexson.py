@@ -57,6 +57,28 @@ def _cull_redundant_about(obj):
         if id_val and (('#' + id_val) == about_val):
             del obj['@about']
 
+def _extract_text_and_child_element_list(minidom_node):
+    '''Returns a pair of the "child" content of minidom_node:
+        the first element of the pair is a concatenation of the text content
+        the second element is a list of non-text nodes.
+
+    The string concatenation strips leading and trailing whitespace from each
+    bit of text found and joins the fragments (with no separator between them).
+    '''
+    tl = []
+    ntl = []
+    for c in minidom_node.childNodes:
+        if c.nodeType == xml.dom.minidom.Node.TEXT_NODE:
+            tl.append(c)
+        else:
+            ntl.append(c)
+    try:
+        tl = [i.data.strip() for i in tl]
+        text_content = ''.join(tl)
+    except:
+        text_content = ''
+    return text_content, ntl
+
 class Nexml2Nexson(NexsonConverter):
     '''Conversion of the optimized (v 1.2) version of NexSON to
     the more direct (v 1.0) port of NeXML
@@ -64,6 +86,7 @@ class Nexml2Nexson(NexsonConverter):
     '''
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
+        self.output_format = conv_cfg.output_format
         self._badgerfish_style_conversion = _is_badgerfish_version(conv_cfg.output_format)
 
     def convert(self, doc_root):
@@ -130,33 +153,11 @@ class Nexml2Nexson(NexsonConverter):
 
         x.normalize()
         # store the text content of the element under the key '$'
-        text_content, ntl = self._extract_text_and_child_element_list(x)
+        text_content, ntl = _extract_text_and_child_element_list(x)
         if text_content:
             obj['$'] = text_content
         self._hbf_handle_child_elements(obj, ntl)
         return el_name, obj
-
-    def _extract_text_and_child_element_list(self, minidom_node):
-        '''Returns a pair of the "child" content of minidom_node:
-            the first element of the pair is a concatenation of the text content
-            the second element is a list of non-text nodes.
-
-        The string concatenation strips leading and trailing whitespace from each
-        bit of text found and joins the fragments (with no separator between them).
-        '''
-        tl = []
-        ntl = []
-        for c in minidom_node.childNodes:
-            if c.nodeType == xml.dom.minidom.Node.TEXT_NODE:
-                tl.append(c)
-            else:
-                ntl.append(c)
-        try:
-            tl = [i.data.strip() for i in tl]
-            text_content = ''.join(tl)
-        except:
-            text_content = ''
-        return text_content, ntl
 
     def _hbf_handle_child_elements(self, obj, ntl):
         '''
@@ -172,9 +173,8 @@ class Nexml2Nexson(NexsonConverter):
         for child in ntl:
             k = child.nodeName
             if k == 'meta' and (not self._badgerfish_style_conversion):
-                m_tuple = self._transform_meta_key_value(child)
-                if m_tuple is not None:
-                    matk, matv = m_tuple
+                matk, matv = self._transform_meta_key_value(child)
+                if matk is not None:
                     _add_value_to_dict_bf(obj, matk, matv)
             else:
                 if k not in ks:
@@ -208,7 +208,7 @@ class Nexml2Nexson(NexsonConverter):
         full_obj = {}
         if att_key is None:
             _LOG.debug('"property" missing from literal meta')
-            return None
+            return None, None
         att_container = minidom_meta_element.attributes
         for i in xrange(att_container.length):
             attr = att_container.item(i)
@@ -222,17 +222,17 @@ class Nexml2Nexson(NexsonConverter):
                     assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
 
         if not att_str_val:
-            att_str_val, ntl = self._extract_text_and_child_element_list(minidom_meta_element)
+            att_str_val, ntl = _extract_text_and_child_element_list(minidom_meta_element)
             att_str_val = att_str_val.strip()
-            if len(ntl) > 1: # #TODO: the case of len(ntl) == 1, is a nested meta, and should be handled.
-                _LOG.debug('Nested meta elements are not legal for LiteralMeta (offending property={p}'.format(p=att_key))
-                return None
+            if len(ntl) > 1:
+                _LOG.debug('Nested meta elements are not legal for LiteralMeta (offending property="%s")', att_key)
+                return None, None
             if len(ntl) == 1:
                 self._hbf_handle_child_elements(full_obj, ntl)
         att_key = '^' + att_key
-        trans_val = self._coerce_literal_val_to_primitive(dt, att_str_val)
+        trans_val = _coerce_literal_val_to_primitive(dt, att_str_val)
         if trans_val is None:
-            return None
+            return None, None
         if full_obj:
             if trans_val:
                 full_obj['$'] = trans_val
@@ -244,7 +244,7 @@ class Nexml2Nexson(NexsonConverter):
         rel = minidom_meta_element.getAttribute('rel')
         if rel is None:
             _LOG.debug('"rel" missing from ResourceMeta')
-            return None
+            return None, None
         full_obj = {}
         att_container = minidom_meta_element.attributes
         for i in xrange(att_container.length):
@@ -258,15 +258,15 @@ class Nexml2Nexson(NexsonConverter):
                 else:
                     assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
         rel = '^' + rel
-        att_str_val, ntl = self._extract_text_and_child_element_list(minidom_meta_element)
+        att_str_val, ntl = _extract_text_and_child_element_list(minidom_meta_element)
         if att_str_val:
-            _LOG.debug('text content of ResourceMeta of rel="{r}"'.format(r=rel))
-            return None
+            _LOG.debug('text content of ResourceMeta of rel="%s"', rel)
+            return None, None
         if ntl:
             self._hbf_handle_child_elements(full_obj, ntl)
         if not full_obj:
-            _LOG.debug('ResourceMeta of rel="{r}" without condents ("href" attribute or nested meta)'.format(r=rel))
-            return None
+            _LOG.debug('ResourceMeta of rel="%s" without condents ("href" attribute or nested meta)', rel)
+            return None, None
         _cull_redundant_about(full_obj)
         return rel, full_obj
 
@@ -275,7 +275,7 @@ class Nexml2Nexson(NexsonConverter):
             key/value pair in a object.
 
         Returns (key, value) ready for JSON serialization, OR
-                `None` if the element can not be treated as simple pair.
+                `None, None` if the element can not be treated as simple pair.
         If `None` is returned, then more literal translation of the
             object may be required.
         '''
@@ -285,30 +285,30 @@ class Nexml2Nexson(NexsonConverter):
         elif _RESOURCE_META_PAT.match(xt):
             return self._resource_transform_meta_key_value(minidom_meta_element)
         else:
-            _LOG.debug('xsi:type attribute "{t}" not LiteralMeta or ResourceMeta'.format(t=xt))
-            return None
+            _LOG.debug('xsi:type attribute "%s" not LiteralMeta or ResourceMeta', xt)
+            return None, None
 
-    def _coerce_literal_val_to_primitive(self, datatype, str_val):
-        _TYPE_ERROR_MSG_FORMAT = 'Expected meta property to have type {t}, but found "{v}"'
-        if datatype == 'xsd:string':
-            return str_val
-        if datatype in frozenset(['xsd:int', 'xsd:integer', 'xsd:long']):
-            try:
-                return int(str_val)
-            except:
-                raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
-        elif datatype == frozenset(['xsd:float', 'xsd:double']):
-            try:
-                return float(str_val)
-            except:
-                raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
-        elif datatype == 'xsd:boolean':
-            if str_val.lower() in frozenset(['1', 'true']):
-                return True
-            elif str_val.lower() in frozenset(['0', 'false']):
-                return False
-            else:
-                raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
+def _coerce_literal_val_to_primitive(datatype, str_val):
+    _TYPE_ERROR_MSG_FORMAT = 'Expected meta property to have type {t}, but found "{v}"'
+    if datatype == 'xsd:string':
+        return str_val
+    if datatype in frozenset(['xsd:int', 'xsd:integer', 'xsd:long']):
+        try:
+            return int(str_val)
+        except:
+            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
+    elif datatype == frozenset(['xsd:float', 'xsd:double']):
+        try:
+            return float(str_val)
+        except:
+            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
+    elif datatype == 'xsd:boolean':
+        if str_val.lower() in frozenset(['1', 'true']):
+            return True
+        elif str_val.lower() in frozenset(['0', 'false']):
+            return False
         else:
-            _LOG.debug('unknown xsi:type {t}'.format(t=datatype))
-            return None # We'll fall through to here when we encounter types we do not recognize
+            raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
+    else:
+        _LOG.debug('unknown xsi:type "%s"', datatype)
+        return None # We'll fall through to here when we encounter types we do not recognize

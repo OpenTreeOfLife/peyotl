@@ -1,6 +1,5 @@
 #! /usr/bin/env python
-from peyotl.struct_diff import ListDiff, DictDiff
-from peyotl.test.support import pathmap
+from peyotl.struct_diff import DictDiff
 from peyotl.utility import get_logger
 import unittest
 import copy

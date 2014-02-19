@@ -51,10 +51,28 @@ class TestConvert(unittest.TestCase):
             h = convert_nexson_format(obj, DIRECT_HONEY_BADGERFISH)
             self._equal_blob_check(h, h_expect)
 
+    def testConvertBFtoHBF1_2(self):
+        for t in RT_DIRS:
+            bf = os.path.join(t, 'v0.0.json')
+            hbf = os.path.join(t, 'v1.2.json')
+            obj = pathmap.nexson_obj(bf)
+            h_expect = pathmap.nexson_obj(hbf)
+            h = convert_nexson_format(obj, PREFERRED_HONEY_BADGERFISH)
+            self._equal_blob_check(h, h_expect)
+
     def testConvertHBF1_0toBF(self):
         for t in RT_DIRS:
             bf = os.path.join(t, 'v0.0.json')
             hbf = os.path.join(t, 'v1.0.json')
+            obj = pathmap.nexson_obj(hbf)
+            b_expect = pathmap.nexson_obj(bf)
+            b = convert_nexson_format(obj, BADGER_FISH_NEXSON_VERSION)
+            self._equal_blob_check(b, b_expect)
+
+    def testConvertHBF1_2toBF(self):
+        for t in RT_DIRS:
+            bf = os.path.join(t, 'v0.0.json')
+            hbf = os.path.join(t, 'v1.2.json')
             obj = pathmap.nexson_obj(hbf)
             b_expect = pathmap.nexson_obj(bf)
             b = convert_nexson_format(obj, BADGER_FISH_NEXSON_VERSION)

@@ -26,3 +26,20 @@ do
         fi
     done
 done
+
+for out in "1.2" "1.0" "0.0"
+do
+    for inp in "1.2" "1.0" "0.0"
+    do
+        inpf="scratch/.clique.v${inp}from1.2.json"
+        outpf="scratch/.clique.v${inp}from${out}.json"
+        if ! test $inpf = $outpf
+        then
+            if ! diff $outpf $inpf
+            then
+                echo $outpf does not equal $inpf
+                exit 1
+            fi
+        fi
+    done
+done

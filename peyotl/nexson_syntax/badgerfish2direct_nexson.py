@@ -42,8 +42,9 @@ class Badgerfish2DirectNexson(NexsonConverter):
             if k not in _SUPPRESSED_LITERAL:
                 full_obj[k] = lit_bf_meta[k]
         # Coercion should not be needed for json->json
-        if dt and self._coercing_literals and (isinstance(content, str) or isinstance(content, str)):
-            content = _coerce_literal_val_to_primitive(dt, content)
+        if dt and self._coercing_literals:
+            if isinstance(content, str) or isinstance(content, unicode):
+                content = _coerce_literal_val_to_primitive(dt, content)
         att_key = '^' + att_key
         if full_obj:
             if content:

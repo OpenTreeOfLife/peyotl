@@ -117,7 +117,8 @@ def convert_nexson_format(blob,
                           out_nexson_format,
                           current_format=None,
                           remove_old_structs=True,
-                          pristine_if_invalid=False):
+                          pristine_if_invalid=False, 
+                          sort_arbitrary=False):
     '''Take a dict form of NexSON and converts its datastructures to
     those needed to serialize as out_nexson_format.
     If current_format is not specified, it will be inferred.
@@ -133,6 +134,8 @@ def convert_nexson_format(blob,
         current_format = detect_nexson_version(blob)
 
     if current_format == out_nexson_format:
+        if sort_arbitrary:
+            sort_arbitrarily_ordered_nexson(blob)
         return blob
     through_nexml = _is_badgerfish_version(out_nexson_format)
     if (_is_by_id_honedybadgerfish(out_nexson_format) and _is_badgerfish_version(current_format)
@@ -160,7 +163,10 @@ def convert_nexson_format(blob,
         converter = Optimal2DirectNexson(ccfg)
     else:
         raise NotImplementedError('Conversion from {i} to {o}'.format(i=current_format, o=out_nexson_format))
-    return converter.convert(blob)
+    blob = converter.convert(blob)
+    if sort_arbitrary:
+        sort_arbitrarily_ordered_nexson(blob)
+    return blob
 
 def write_as_json(blob, dest, indent=0, sort_keys=True):
     if isinstance(dest, str) or isinstance(dest, unicode):

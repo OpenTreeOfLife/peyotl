@@ -1,5 +1,6 @@
 #!/bin/sh
 #set -x
+sn=$(basename "$0")
 r=0 # the number of tests
 p=0 # the number passed
 
@@ -20,33 +21,40 @@ then
         if ./check_nexml_roundtrip.sh data/nexson/otu/nexml "${converter}" -o
         then
             p=$(expr 1 + $p)
+        else
+            echo "${sn}: Failure of \" ${PWD}/check_nexml_roundtrip.sh ${PWD}/data/nexson/otu/nexml "${converter}" -o\""
         fi
     else
-        echo "nexml roundtrip test skipped due to lack of saxon-xslt"
+        echo "${sn}: nexml roundtrip test skipped due to lack of saxon-xslt"
     fi
 else
-    echo "nexml roundtrip test skipped due to lack of xmllint"
+    echo "${sn}: nexml roundtrip test skipped due to lack of xmllint"
 fi
 
 r=$(expr 1 + $r)
 if ./check_nexson_roundtrip.sh data/nexson/otu/v1.0.json "${converter}" -o 
 then
     p=$(expr 1 + $p)
+else
+    echo "${sn}: Failure of \"${PWD}/check_nexson_roundtrip.sh ${PWD}/data/nexson/otu/v1.0.json "${converter}" -o \""
 fi
 
 r=$(expr 1 + $r)
-if ./check_nexson_nexml_clique.sh data/nexson/otu/v1.0.json "${converter}" 
+if ./check_nexson_nexml_clique.sh data/nexson/otu/v1.2.json "${converter}" 
 then
     p=$(expr 1 + $p)
+else
+    echo "${sn}: Failure of \"${PWD}/check_nexson_nexml_clique.sh ${PWD}/data/nexson/otu/v1.0.json "${converter}"\""
 fi
 cd -
 
 cd "${cwd}"
 if test $r -eq $p
 then
+    f=0
     echo "Passed all ($r) shell script tests."
 else
-    f=$(expr 1 + $f)
+    f=1
     echo "Passed only $p / $r shell script tests."
 fi
 exit $f

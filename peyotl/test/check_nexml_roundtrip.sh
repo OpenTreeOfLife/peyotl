@@ -14,14 +14,9 @@ else
     do_schema_validation="0"
     echo '"validate-nexml" was not found on the path. Validation against schema will be skipped.'
 fi
-
-if ! test "$3" = "-o"
+if ! test -d scratch
 then
-    if test -f .1.json -o -f .2.xml -o -f .pp2.xml -o -f .pp2.xml
-    then
-        echo "file .# or .pp# files in the way and the -o was not used as the 2nd arg"
-        exit 1
-    fi
+    mkdir scratch || exit
 fi
 
 # 1. Verify that the input is valid NeXML
@@ -37,14 +32,14 @@ then
 fi
 
 # 2. Convert to JSON
-if ! python "$converter" "${inpnexml}" -o .1.json
+if ! python "$converter" "${inpnexml}" -o scratch/.1.json
 then
     echo "Conversion of \"${inpnexml}\" to JSON failed"
     exit 1
 fi
 
 # 3. Convert back to NeXML
-if ! python "$converter" .1.json -o .2.xml
+if ! python "$converter" scratch/.1.json -o scratch/.2.xml
 then
     echo "Conversion of .1.json to XML failed"
     exit 1
@@ -53,7 +48,7 @@ fi
 # 4. validate NeXML
 if test ${do_schema_validation} -eq "1"
 then
-    if ! validate-nexml .2.xml >/dev/null 2>&1
+    if ! validate-nexml scratch/.2.xml >/dev/null 2>&1
     then
         echo "XML written to .2.xml was not valid NeXML"
         if test $inpwasvalid -eq 1
@@ -65,24 +60,20 @@ fi
 # 5. verify that after pretty printing and culling of unstable aspects of the file
 # the input and output are identical
 # pretty print
-xmllint --format "${inpnexml}" > .pp1.xml || exit
-xmllint --format .2.xml > .pp2.xml || exit
+xmllint --format "${inpnexml}" > scratch/.pp1.xml || exit
+xmllint --format scratch/.2.xml > scratch/.pp2.xml || exit
 
 # pretty print
-saxon-xslt .pp1.xml "${dir}/sortattr.xslt" > .s1.xml || exit
-saxon-xslt .pp2.xml "${dir}/sortattr.xslt" > .s2.xml || exit
+saxon-xslt scratch/.pp1.xml "${dir}/sortattr.xslt" > scratch/.s1.xml || exit
+saxon-xslt scratch/.pp2.xml "${dir}/sortattr.xslt" > scratch/.s2.xml || exit
 
 # clean by getting rid of hard-to-standardize xml decl and generator field in top element
-sed -e '/<\?xml version/d' .s1.xml | sed -e 's/<nex\(.*\)generator="[^"]*"/<nex\1/' > .cpp1.xml
-sed -e '/<\?xml version/d' .s2.xml | sed -e 's/<nex\(.*\)generator="[^"]*"/<nex\1/' > .cpp2.xml
+sed -e '/<\?xml version/d' scratch/.s1.xml | sed -e 's/<nex\(.*\)generator="[^"]*"/<nex\1/' > scratch/.cpp1.xml
+sed -e '/<\?xml version/d' scratch/.s2.xml | sed -e 's/<nex\(.*\)generator="[^"]*"/<nex\1/' > scratch/.cpp2.xml
 
-if ! diff .cpp1.xml .cpp2.xml
+if ! diff scratch/.cpp1.xml scratch/.cpp2.xml
 then
     echo "Did not roundtrip"
     exit 1
 fi
 
-if test "${3}" = "-o"
-then
-    rm -f .1.json .2.xml .cpp1.xml .cpp2.xml .pp1.xml .pp2.xml .s1.xml .s2.xml 2>/dev/null
-fi

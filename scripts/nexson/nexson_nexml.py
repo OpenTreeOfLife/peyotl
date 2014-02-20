@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.nexson_syntax import convert_nexson_format, \
                                  get_ot_study_info_from_nexml, \
+                                 sort_arbitrarily_ordered_nexson, \
                                  write_as_json, \
                                  write_obj_as_nexml, \
                                  BADGER_FISH_NEXSON_VERSION, \
@@ -29,6 +30,10 @@ Environmental variables used:
                         metavar="FILE",
                         required=False,
                         help="output filepath. Standard output is used if omitted.")
+    parser.add_argument("-s", "--sort", 
+                        action="store_true",
+                        default=False,
+                        help="If specified, the arbitrarily ordered items will be sorted.")
     parser.add_argument("-e", "--export", 
                         metavar="FMT",
                         required=False,
@@ -125,7 +130,8 @@ Environmental variables used:
                 sys.exit('No top level "nex:nexml" element found. Document does not appear to be a JSON version of NeXML\n')
             if n:
                 mode = 'j' + mode[1]
-
+    if args.sort:
+        sort_arbitrarily_ordered_nexson(blob)
     if export_format == "nexml":
         if indentation > 0:
             indent = ' '*indentation
@@ -138,7 +144,7 @@ Environmental variables used:
                            newl=newline)
     else:
         if not mode.startswith('x'):
-            blob = convert_nexson_format(blob, export_format)
+            blob = convert_nexson_format(blob, export_format, sort_arbitrary=True)
         write_as_json(blob, out, indent=indentation)
         
 if __name__ == '__main__':

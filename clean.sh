@@ -6,7 +6,8 @@ rm -fv peyotl/test/coverage/report/*
 rm -rfv build
 rm -rfv dist
 rm .expected_rt*
-rm peyotl/test/.2.xml
-rm peyotl/test/.1.xml
-rm peyotl/test/.1.json
+rm peyotl/test/scratch/.2.*
+rm peyotl/test/scratch/.1.*
+rm peyotl/test/scratch/.3.*
+rm peyotl/test/scratch/.clique.*
 rm .obtained_rt*

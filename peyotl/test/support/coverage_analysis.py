@@ -71,6 +71,7 @@ else:
                         if fn.endswith('.py'):
                             fp = os.path.join(root, fn)
                             self.omit.append(fp)
+                self.omit.append('*anyjson*')
 
             def finalize_options(self):
                 pass

@@ -1,8 +1,5 @@
 #!/bin/sh
-plr="peyotl/test/output/pytlint_report"
-echo "Running pylint..."
-pylint --rcfile=dev/pylintrc peyotl | tee "$plr" | sed -n '/Report/q;p'
-grep '^Your code has been rated' "$plr"
+./dev/run_pylint.sh
 f=0
 echo "Running integration-tests.sh ..."
 if ! ./integration-tests.sh

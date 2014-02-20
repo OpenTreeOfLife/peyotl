@@ -2,21 +2,13 @@
 'Direct2BadgerfishNexson class'
 from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _add_redundant_about, \
-                                        _add_value_to_dict_bf, \
-                                        _coerce_literal_val_to_primitive, \
                                         _convert_hbf_meta_val_for_xml, \
-                                        _get_index_list_of_values, \
-                                        _index_list_of_values, \
-                                        BADGER_FISH_NEXSON_VERSION, \
-                                        _LITERAL_META_PAT, \
-                                        _RESOURCE_META_PAT
-
+                                        BADGER_FISH_NEXSON_VERSION
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
-
 class Direct2BadgerfishNexson(NexsonConverter):
-    '''Conversion of the direct form of honeybadgerfish 
+    '''Conversion of the direct form of honeybadgerfish
     HoneyBadgerFish (v 1.0) to "raw" Badgerfish + phylografter tweaks
     This is a dict-to-dict in-place conversion. No serialization is included.
     '''

@@ -5,9 +5,7 @@ from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _coerce_literal_val_to_primitive, \
                                         _cull_redundant_about, \
                                         _get_index_list_of_values, \
-                                        _index_list_of_values, \
                                         DIRECT_HONEY_BADGERFISH, \
-                                        BY_ID_HONEY_BADGERFISH, \
                                         _LITERAL_META_PAT, \
                                         _RESOURCE_META_PAT
 
@@ -70,7 +68,7 @@ class Badgerfish2DirectNexson(NexsonConverter):
         _cull_redundant_about(full_obj)
         return att_key, full_obj
 
-    def _recursive_convert_list(self, obj, tag):
+    def _recursive_convert_list(self, obj):
         for el in obj:
             if isinstance(el, dict):
                 self._recursive_convert_dict(el)
@@ -95,7 +93,7 @@ class Badgerfish2DirectNexson(NexsonConverter):
             if isinstance(v, dict):
                 self._recursive_convert_dict(v)
             elif isinstance(v, list):
-                self._recursive_convert_list(v, k)
+                self._recursive_convert_list(v)
 
     def _dict_to_list_of_dicts(self, obj, tag, child_tag=None, grand_child_tag=None):
         el = obj.get(tag)

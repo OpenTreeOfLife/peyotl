@@ -41,12 +41,6 @@ def _resource_meta_att_decision_fn(name):
             return ATT_TRANSFORM_CODE.IN_XMLNS_OBJ, '$'
     return ATT_TRANSFORM_CODE.IN_FULL_OBJECT, '@' + name
 
-class NexmlTypeError(Exception):
-    def __init__(self, m):
-        self.msg = m
-    def __str__(self):
-        return self.msg
-
 def _extract_text_and_child_element_list(minidom_node):
     '''Returns a pair of the "child" content of minidom_node:
         the first element of the pair is a concatenation of the text content

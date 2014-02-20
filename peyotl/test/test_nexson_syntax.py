@@ -17,6 +17,18 @@ _LOG = get_logger(__name__)
 # round trip filename tuples
 RT_DIRS = ['otu', '9', ]
 
+def _get_pair(par, f, s):
+    bf = os.path.join(par, f)
+    hbf = os.path.join(par, s)
+    fp, sp = pathmap.nexson_source_path(bf), pathmap.nexson_source_path(hbf)
+    if not os.path.exists(fp):
+        _LOG.warn('\nTest skipped because {s} does not exist'.format(s=fp))
+        return None, None
+    if not os.path.exists(sp):
+        _LOG.warn('\nTest skipped because {s} does not exist'.format(s=sp))
+        return None, None
+    return pathmap.nexson_obj(bf), pathmap.nexson_obj(hbf)
+
 class TestConvert(unittest.TestCase):
     def _equal_blob_check(self, first, second):
         if first != second:
@@ -29,17 +41,6 @@ class TestConvert(unittest.TestCase):
             _LOG.info('\ndict diff: {d}'.format(d='\n'.join(er)))
             if first != second:
                 self.assertEqual("", "Roundtrip failed see files {o} and {e}".format(o=ofn, e=efn))
-    def _get_pair(self, par, f, s):
-            bf = os.path.join(par, f)
-            hbf = os.path.join(par, s)
-            fp, sp = pathmap.nexson_source_path(bf), pathmap.nexson_source_path(hbf)
-            if not os.path.exists(fp):
-                _LOG.warn('\nTest skipped because {s} does not exist'.format(s=fp))
-                return None, None
-            if not os.path.exists(sp):
-                _LOG.warn('\nTest skipped because {s} does not exist'.format(s=sp))
-                return None, None
-            return pathmap.nexson_obj(bf), pathmap.nexson_obj(hbf)
     def testCanConvert(self):
         x = ["0.0.0", "1.0.0"]
         for i in x:
@@ -56,7 +57,7 @@ class TestConvert(unittest.TestCase):
 
     def testConvertBFtoHBF1_0(self):
         for t in RT_DIRS:
-            obj, b_expect = self._get_pair(t, 'v0.0.json', 'v1.0.json')
+            obj, b_expect = _get_pair(t, 'v0.0.json', 'v1.0.json')
             if obj is None:
                 continue
             h = convert_nexson_format(obj, DIRECT_HONEY_BADGERFISH)
@@ -64,7 +65,7 @@ class TestConvert(unittest.TestCase):
 
     def testConvertBFtoHBF1_2(self):
         for t in RT_DIRS:
-            obj, b_expect = self._get_pair(t, 'v0.0.json', 'v1.2.json')
+            obj, b_expect = _get_pair(t, 'v0.0.json', 'v1.2.json')
             if obj is None:
                 continue
             b = convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH)
@@ -72,7 +73,7 @@ class TestConvert(unittest.TestCase):
 
     def testConvertHBF1_0toBF(self):
         for t in RT_DIRS:
-            obj, b_expect = self._get_pair(t, 'v1.0.json', 'v0.0.json')
+            obj, b_expect = _get_pair(t, 'v1.0.json', 'v0.0.json')
             if obj is None:
                 continue
             b = convert_nexson_format(obj, BADGER_FISH_NEXSON_VERSION)
@@ -82,7 +83,7 @@ class TestConvert(unittest.TestCase):
 
     def testConvertHBF1_2toBF(self):
         for t in RT_DIRS:
-            obj, b_expect = self._get_pair(t, 'v1.2.json', 'v0.0.json')
+            obj, b_expect = _get_pair(t, 'v1.2.json', 'v0.0.json')
             if obj is None:
                 continue
             b = convert_nexson_format(obj, BADGER_FISH_NEXSON_VERSION)
@@ -92,7 +93,7 @@ class TestConvert(unittest.TestCase):
 
     def testConvertHBF1_2toHBF1_0(self):
         for t in RT_DIRS:
-            obj, b_expect = self._get_pair(t, 'v1.2.json', 'v1.0.json')
+            obj, b_expect = _get_pair(t, 'v1.2.json', 'v1.0.json')
             if obj is None:
                 continue
             b = convert_nexson_format(obj, DIRECT_HONEY_BADGERFISH)
@@ -102,7 +103,7 @@ class TestConvert(unittest.TestCase):
 
     def testConvertHBF1_0toHBF1_2(self):
         for t in RT_DIRS:
-            obj, b_expect = self._get_pair(t, 'v1.0.json', 'v1.2.json')
+            obj, b_expect = _get_pair(t, 'v1.0.json', 'v1.2.json')
             if obj is None:
                 continue
             b = convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH)

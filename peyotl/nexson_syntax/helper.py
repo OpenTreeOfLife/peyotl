@@ -3,6 +3,8 @@
 but do not depend on other parts of peyotl.nexson_syntax
 '''
 import re
+from peyotl.utility import get_logger
+_LOG = get_logger(__name__)
 # DIRECT_HONEY_BADGERFISH is the closest to BadgerFish
 DIRECT_HONEY_BADGERFISH = '1.0.0'
 DEFAULT_NEXSON_VERSION = DIRECT_HONEY_BADGERFISH
@@ -14,6 +16,12 @@ NEXML_NEXSON_VERSION = 'nexml'
 # TODO: in lieu of real namespace support...
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
+
+class NexmlTypeError(Exception):
+    def __init__(self, m):
+        self.msg = m
+    def __str__(self):
+        return self.msg
 
 class ConversionConfig(object):
     def __init__(self, output_format, **kwargs):
@@ -153,7 +161,7 @@ def _python_instance_to_nexml_meta_datatype(v):
     return 'xsd:string'
 
 def _convert_hbf_meta_val_for_xml(key, val):
-    '''Convert to a BadgerFish-style dict for addition to a dict suitable for 
+    '''Convert to a BadgerFish-style dict for addition to a dict suitable for
     addition to XML tree or for v1.0 to v0.0 conversion.'''
     if isinstance(val, list):
         return [_convert_hbf_meta_val_for_xml(key, i) for i in val]
@@ -181,3 +189,10 @@ def _convert_hbf_meta_val_for_xml(key, val):
         ret.setdefault('@xsi:type', 'nex:ResourceMeta')
         ret.setdefault('@rel', key)
     return ret
+
+def _contains_hbf_meta_keys(d):
+    for k in d.keys():
+        if k.startswith('^'):
+            return True
+    return False
+

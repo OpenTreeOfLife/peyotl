@@ -37,7 +37,7 @@ import json
 
 _CONVERTIBLE_FORMATS = frozenset([DEFAULT_NEXSON_VERSION,
                                   BADGER_FISH_NEXSON_VERSION])
-_LOG = get_logger()
+_LOG = get_logger(__name__)
 
 def get_ot_study_info_from_nexml(src,
                                  encoding=u'utf8',
@@ -117,7 +117,7 @@ def convert_nexson_format(blob,
                           out_nexson_format,
                           current_format=None,
                           remove_old_structs=True,
-                          pristine_if_invalid=False, 
+                          pristine_if_invalid=False,
                           sort_arbitrary=False):
     '''Take a dict form of NexSON and converts its datastructures to
     those needed to serialize as out_nexson_format.
@@ -137,11 +137,10 @@ def convert_nexson_format(blob,
         if sort_arbitrary:
             sort_arbitrarily_ordered_nexson(blob)
         return blob
-    through_nexml = _is_direct_hbf(out_nexson_format)
     if (_is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
         or _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)):
         # go from 0.0 -> 1.0 then the 1.0->1.2 should succeed without nexml...
-        blob = convert_nexson_format(blob, 
+        blob = convert_nexson_format(blob,
                                      DIRECT_HONEY_BADGERFISH,
                                      current_format=current_format,
                                      remove_old_structs=remove_old_structs,
@@ -198,7 +197,7 @@ def _recursive_sort_meta(blob, k):
 
 def sort_meta_elements(blob):
     '''For v0.0 (which has meta values in a list), this
-    function recursively walks through the object 
+    function recursively walks through the object
     and sorts each meta by @property or @rel values.
     '''
     v = detect_nexson_version(blob)
@@ -207,7 +206,7 @@ def sort_meta_elements(blob):
     return blob
 
 def _inplace_sort_by_id(unsorted_list):
-    '''Takes a list of dicts each of which has an '@id' key, 
+    '''Takes a list of dicts each of which has an '@id' key,
     sorts the elements in the list by the value of the @id key.
     Assumes that @id is unique or the dicts have a meaningul < operator
     '''
@@ -228,7 +227,7 @@ def sort_arbitrarily_ordered_nexson(blob):
     if _is_by_id_hbf(v):
         for tb in nex.get('treesById', {}).values():
             for tree in tb.get('treeById', {}).values():
-                for k, v in tree.get('edgeBySourceId', {}).items():
+                for v in tree.get('edgeBySourceId', {}).values():
                     _inplace_sort_by_id(v)
         return blob
     sort_meta_elements(blob)

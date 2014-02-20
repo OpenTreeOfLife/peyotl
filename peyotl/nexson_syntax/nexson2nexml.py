@@ -46,12 +46,6 @@ def _create_sub_el(doc, parent, tag, attrib, data=None):
                 el.appendChild(doc.createTextNode(u))
     return el
 
-def _contains_hbf_meta_keys(d):
-    for k in d.keys():
-        if k.startswith('^'):
-            return True
-    return False
-
 def _convert_bf_meta_val_for_xml(blob):
     if not isinstance(blob, list):
         blob = [blob]

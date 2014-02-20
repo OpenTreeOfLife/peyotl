@@ -14,14 +14,6 @@ else
     do_schema_validation="0"
     echo '"validate-nexml" was not found on the path. Validation against schema will be skipped.'
 fi
-if ! test "$3" = "-o"
-then
-    if test -f .1.xml -o -f .2.json
-    then
-        echo "file .1.xml or .2.json files in the way and the -o was not used as the 2nd arg"
-        exit 1
-    fi
-fi
 # 1. to NeXML
 if ! python "$converter" "${inpnexson}" -o .1.xml
 then

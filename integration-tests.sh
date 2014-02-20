@@ -39,13 +39,17 @@ else
     echo "${sn}: Failure of \"${PWD}/check_nexson_roundtrip.sh ${PWD}/data/nexson/otu/v1.0.json "${converter}" -o \""
 fi
 
-r=$(expr 1 + $r)
-if ./check_nexson_nexml_clique.sh data/nexson/otu/v1.2.json "${converter}" 
-then
-    p=$(expr 1 + $p)
-else
-    echo "${sn}: Failure of \"${PWD}/check_nexson_nexml_clique.sh ${PWD}/data/nexson/otu/v1.0.json "${converter}"\""
-fi
+
+for d in otu 9
+do
+    r=$(expr 1 + $r)
+    if ./check_nexson_nexml_clique.sh data/nexson/${d}/v1.2.json "${converter}" 
+    then
+        p=$(expr 1 + $p)
+    else
+        echo "${sn}: Failure of \"${PWD}/check_nexson_nexml_clique.sh ${PWD}/data/nexson/${d}/v1.0.json "${converter}"\""
+    fi
+done
 cd -
 
 cd "${cwd}"

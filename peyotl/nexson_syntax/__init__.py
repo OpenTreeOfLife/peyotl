@@ -222,12 +222,16 @@ def sort_arbitrarily_ordered_nexson(blob):
     '''Primarily used for testing (getting nice diffs). Calls
     sort_meta_elements and then sorts otu, node and edge list by id
     '''
-    sort_meta_elements(blob)
     # otu, node and edge elements have no necessary orger in v0.0 or v1.0
     v = detect_nexson_version(blob)
-    if _is_by_id_honedybadgerfish(v):
-        return blob
     nex = blob.get('nex:nexml') or blob['nexml']
+    if _is_by_id_honedybadgerfish(v):
+        for tb in nex.get('treesById', {}).values():
+            for tree in tb.get('treeById', {}).values():
+                for k, v in tree.get('edgeBySourceId', {}).items():
+                    _inplace_sort_by_id(v)
+        return blob
+    sort_meta_elements(blob)
     for ob in _get_index_list_of_values(nex, 'otus'):
         _inplace_sort_by_id(ob.get('otu', []))
     for tb in _get_index_list_of_values(nex, 'trees'):

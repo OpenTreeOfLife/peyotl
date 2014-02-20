@@ -8,7 +8,7 @@ then
     mkdir scratch || exit
 fi
 #all four edges from 1.2
-for out in "nexml" "1.2" "1.0" "0.0"
+for out in "1.2" "1.0" "0.0" "nexml"
 do
     "${converter}" -e $out -s "$fn" -o scratch/.clique.v${out}from1.2.json || exit
 done

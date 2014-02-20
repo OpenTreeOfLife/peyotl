@@ -36,7 +36,8 @@ import codecs
 import json
 
 _CONVERTIBLE_FORMATS = frozenset([DEFAULT_NEXSON_VERSION,
-                                  BADGER_FISH_NEXSON_VERSION])
+                                  BADGER_FISH_NEXSON_VERSION,
+                                  BY_ID_HONEY_BADGERFISH])
 _LOG = get_logger(__name__)
 
 def get_ot_study_info_from_nexml(src,

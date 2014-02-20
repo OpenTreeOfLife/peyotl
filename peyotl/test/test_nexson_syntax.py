@@ -3,7 +3,7 @@ from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
                                  DIRECT_HONEY_BADGERFISH, \
                                  BADGER_FISH_NEXSON_VERSION, \
-                                 PREFERRED_HONEY_BADGERFISH, \
+                                 BY_ID_HONEY_BADGERFISH, \
                                  sort_meta_elements, \
                                  sort_arbitrarily_ordered_nexson, \
                                  write_as_json
@@ -67,7 +67,7 @@ class TestConvert(unittest.TestCase):
             obj, b_expect = self._get_pair(t, 'v0.0.json', 'v1.2.json')
             if obj is None:
                 continue
-            b = convert_nexson_format(obj, PREFERRED_HONEY_BADGERFISH)
+            b = convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH)
             self._equal_blob_check(b, b_expect)
 
     def testConvertHBF1_0toBF(self):
@@ -105,7 +105,7 @@ class TestConvert(unittest.TestCase):
             obj, b_expect = self._get_pair(t, 'v1.0.json', 'v1.2.json')
             if obj is None:
                 continue
-            b = convert_nexson_format(obj, PREFERRED_HONEY_BADGERFISH)
+            b = convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH)
             self._equal_blob_check(b, b_expect)
 
 if __name__ == "__main__":

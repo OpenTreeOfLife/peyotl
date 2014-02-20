@@ -7,7 +7,7 @@ from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
                                         DIRECT_HONEY_BADGERFISH, \
-                                        PREFERRED_HONEY_BADGERFISH, \
+                                        BY_ID_HONEY_BADGERFISH, \
                                         _LITERAL_META_PAT, \
                                         _RESOURCE_META_PAT
 
@@ -113,7 +113,7 @@ class Badgerfish2DirectNexson(NexsonConverter):
 
     def convert(self, obj):
         '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.0.* type and
-        converts it to PREFERRED_HONEY_BADGERFISH version. The object is modified in place
+        converts it to BY_ID_HONEY_BADGERFISH version. The object is modified in place
         and returned.
         '''
         if self.pristine_if_invalid:

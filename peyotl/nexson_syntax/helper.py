@@ -6,7 +6,7 @@ import re
 # DIRECT_HONEY_BADGERFISH is the closest to BadgerFish
 DIRECT_HONEY_BADGERFISH = '1.0.0'
 DEFAULT_NEXSON_VERSION = DIRECT_HONEY_BADGERFISH
-PREFERRED_HONEY_BADGERFISH = '1.2.0'
+BY_ID_HONEY_BADGERFISH = '1.2.0'
 
 BADGER_FISH_NEXSON_VERSION = '0.0.0'
 NEXML_NEXSON_VERSION = 'nexml'
@@ -82,8 +82,8 @@ def _add_value_to_dict_bf(d, k, v):
             d[k] = [prev, v]
 
 _is_badgerfish_version = lambda x: x.startswith('0.')
-_is_legacy_honeybadgerfish = lambda x: x.startswith('1.0.')
-_is_by_id_honedybadgerfish = lambda x: x.startswith('1.2')
+_is_direct_hbf = lambda x: x.startswith('1.0.')
+_is_by_id_hbf = lambda x: x.startswith('1.2')
 
 def _debug_dump_dom(el):
     '''Debugging helper. Prints out `el` contents.'''

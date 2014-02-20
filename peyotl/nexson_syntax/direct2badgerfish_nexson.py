@@ -76,7 +76,7 @@ class Direct2BadgerfishNexson(NexsonConverter):
 
     def convert(self, obj):
         '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.0.* type and
-        converts it to PREFERRED_HONEY_BADGERFISH version. The object is modified in place
+        converts it to BY_ID_HONEY_BADGERFISH version. The object is modified in place
         and returned.
         '''
         if self.pristine_if_invalid:

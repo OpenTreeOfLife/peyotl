@@ -14,13 +14,13 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
                                         _is_badgerfish_version, \
-                                        _is_by_id_honedybadgerfish, \
-                                        _is_legacy_honeybadgerfish, \
+                                        _is_by_id_hbf, \
+                                        _is_direct_hbf, \
                                         BADGER_FISH_NEXSON_VERSION, \
                                         DEFAULT_NEXSON_VERSION, \
                                         DIRECT_HONEY_BADGERFISH, \
                                         NEXML_NEXSON_VERSION, \
-                                        PREFERRED_HONEY_BADGERFISH
+                                        BY_ID_HONEY_BADGERFISH
 
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
 
@@ -55,7 +55,7 @@ def get_ot_study_info_from_nexml(src,
         removes nexml/characters @TODO: should replace it with a URI for
             where the removed character data can be found.
     '''
-    if nexson_syntax_version == PREFERRED_HONEY_BADGERFISH:
+    if nexson_syntax_version == BY_ID_HONEY_BADGERFISH:
         nsv = DIRECT_HONEY_BADGERFISH
     else:
         nsv = nexson_syntax_version
@@ -68,8 +68,8 @@ def get_ot_study_info_from_nexml(src,
     ccfg = ConversionConfig(output_format=nsv, input_format=NEXML_NEXSON_VERSION)
     converter = Nexml2Nexson(ccfg)
     o = converter.convert(doc_root)
-    if nexson_syntax_version == PREFERRED_HONEY_BADGERFISH:
-        return convert_nexson_format(o, PREFERRED_HONEY_BADGERFISH, current_format=nsv)
+    if nexson_syntax_version == BY_ID_HONEY_BADGERFISH:
+        return convert_nexson_format(o, BY_ID_HONEY_BADGERFISH, current_format=nsv)
     return o
 
 def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_version=DEFAULT_NEXSON_VERSION):
@@ -85,7 +85,7 @@ def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_v
 def _nexson_directly_translatable_to_nexml(vers):
     'TEMP: until we refactor nexml writing code to be more general...'
     return (_is_badgerfish_version(vers)
-            or _is_legacy_honeybadgerfish(vers)
+            or _is_direct_hbf(vers)
             or vers == 'nexml')
 
 def write_obj_as_nexml(obj_dict,
@@ -137,9 +137,9 @@ def convert_nexson_format(blob,
         if sort_arbitrary:
             sort_arbitrarily_ordered_nexson(blob)
         return blob
-    through_nexml = _is_badgerfish_version(out_nexson_format)
-    if (_is_by_id_honedybadgerfish(out_nexson_format) and _is_badgerfish_version(current_format)
-        or _is_by_id_honedybadgerfish(current_format) and _is_badgerfish_version(out_nexson_format)):
+    through_nexml = _is_direct_hbf(out_nexson_format)
+    if (_is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
+        or _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)):
         # go from 0.0 -> 1.0 then the 1.0->1.2 should succeed without nexml...
         blob = convert_nexson_format(blob, 
                                      DIRECT_HONEY_BADGERFISH,
@@ -155,11 +155,11 @@ def convert_nexson_format(blob,
     if _is_badgerfish_version(current_format):
         converter = Badgerfish2DirectNexson(ccfg)
     elif _is_badgerfish_version(out_nexson_format):
-        assert(_is_legacy_honeybadgerfish(current_format))
+        assert(_is_direct_hbf(current_format))
         converter = Direct2BadgerfishNexson(ccfg)
-    elif _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):
+    elif _is_direct_hbf(current_format) and (out_nexson_format == BY_ID_HONEY_BADGERFISH):
         converter = Direct2OptimalNexson(ccfg)
-    elif _is_legacy_honeybadgerfish(out_nexson_format) and (current_format == PREFERRED_HONEY_BADGERFISH):
+    elif _is_direct_hbf(out_nexson_format) and (current_format == BY_ID_HONEY_BADGERFISH):
         converter = Optimal2DirectNexson(ccfg)
     else:
         raise NotImplementedError('Conversion from {i} to {o}'.format(i=current_format, o=out_nexson_format))
@@ -225,7 +225,7 @@ def sort_arbitrarily_ordered_nexson(blob):
     # otu, node and edge elements have no necessary orger in v0.0 or v1.0
     v = detect_nexson_version(blob)
     nex = blob.get('nex:nexml') or blob['nexml']
-    if _is_by_id_honedybadgerfish(v):
+    if _is_by_id_hbf(v):
         for tb in nex.get('treesById', {}).values():
             for tree in tb.get('treeById', {}).values():
                 for k, v in tree.get('edgeBySourceId', {}).items():

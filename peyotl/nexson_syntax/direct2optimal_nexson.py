@@ -3,7 +3,7 @@
 from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
-                                        PREFERRED_HONEY_BADGERFISH
+                                        BY_ID_HONEY_BADGERFISH
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
@@ -70,7 +70,7 @@ class Direct2OptimalNexson(NexsonConverter):
 
     def convert(self, obj):
         '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.0.* type and
-        converts it to PREFERRED_HONEY_BADGERFISH version. The object is modified in place
+        converts it to BY_ID_HONEY_BADGERFISH version. The object is modified in place
         and returned.
         '''
         if self.pristine_if_invalid:
@@ -108,7 +108,7 @@ class Direct2OptimalNexson(NexsonConverter):
         nex['^ot:treesElementOrder'] = treesElementOrder
         for k, v in treeContainingObjByTreesId.items():
             treesById[k]['treeById'] = v
-        nex['@nexml2json'] = str(PREFERRED_HONEY_BADGERFISH)
+        nex['@nexml2json'] = str(BY_ID_HONEY_BADGERFISH)
         # Make the struct leaner
         if self.remove_old_structs:
             del nex['otus']

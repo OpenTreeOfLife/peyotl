@@ -7,7 +7,7 @@ from peyotl.nexson_syntax import convert_nexson_format, \
                                  BADGER_FISH_NEXSON_VERSION, \
                                  DEFAULT_NEXSON_VERSION, \
                                  DIRECT_HONEY_BADGERFISH, \
-                                 PREFERRED_HONEY_BADGERFISH
+                                 BY_ID_HONEY_BADGERFISH
 #secret#hacky#cut#paste*nexson_nexml.py##################################
 
 def _main():
@@ -40,7 +40,7 @@ Environmental variables used:
                         choices=["nexml",
                                  str(BADGER_FISH_NEXSON_VERSION),
                                  str(DIRECT_HONEY_BADGERFISH),
-                                 str(PREFERRED_HONEY_BADGERFISH),
+                                 str(BY_ID_HONEY_BADGERFISH),
                                  "0.0",
                                  "1.0",
                                  "1.2",
@@ -67,7 +67,7 @@ Environmental variables used:
         elif export_format.lower() ==  "1.0":
             export_format = str(DIRECT_HONEY_BADGERFISH)
         elif export_format.lower() ==  "1.2":
-            export_format = str(PREFERRED_HONEY_BADGERFISH)
+            export_format = str(BY_ID_HONEY_BADGERFISH)
     if export_format is not None and mode is not None:
         if (mode.endswith('b') and (export_format != str(BADGER_FISH_NEXSON_VERSION))) \
            or (mode.endswith('x') and (export_format.lower() != "nexml")) \

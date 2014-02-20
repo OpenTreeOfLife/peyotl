@@ -110,6 +110,11 @@ def _cull_redundant_about(obj):
         if id_val and (('#' + id_val) == about_val):
             del obj['@about']
 
+def _add_redundant_about(obj):
+    id_val = obj.get('@id')
+    if id_val and ('@about' not in obj):
+        obj['@about'] = ('#' + id_val)
+
 def _coerce_literal_val_to_primitive(datatype, str_val):
     _TYPE_ERROR_MSG_FORMAT = 'Expected meta property to have type {t}, but found "{v}"'
     if datatype == 'xsd:string':
@@ -134,3 +139,45 @@ def _coerce_literal_val_to_primitive(datatype, str_val):
     else:
         _LOG.debug('unknown xsi:type "%s"', datatype)
         return None # We'll fall through to here when we encounter types we do not recognize
+
+def _python_instance_to_nexml_meta_datatype(v):
+    '''Returns 'xsd:string' or a more specific type for a <meta datatype="XYZ"...
+    syntax using introspection.
+    '''
+    if isinstance(v, bool):
+        return 'xsd:boolean'
+    if isinstance(v, int) or isinstance(v, long):
+        return 'xsd:int'
+    if isinstance(v, float):
+        return 'xsd:float'
+    return 'xsd:string'
+
+def _convert_hbf_meta_val_for_xml(key, val):
+    '''Convert to a BadgerFish-style dict for addition to a dict suitable for 
+    addition to XML tree or for v1.0 to v0.0 conversion.'''
+    if isinstance(val, list):
+        return [_convert_hbf_meta_val_for_xml(key, i) for i in val]
+    is_literal = True
+    content = None
+    if isinstance(val, dict):
+        ret = val
+        if '@href' in val:
+            is_literal = False
+        else:
+            content = val.get('$')
+            if isinstance(content, dict) and _contains_hbf_meta_keys(val):
+                is_literal = False
+    else:
+        ret = {}
+        content = val
+    if is_literal:
+        ret.setdefault('@xsi:type', 'nex:LiteralMeta')
+        ret.setdefault('@property', key)
+        if content is not None:
+            ret.setdefault('@datatype', _python_instance_to_nexml_meta_datatype(content))
+        if ret is not val:
+            ret['$'] = content
+    else:
+        ret.setdefault('@xsi:type', 'nex:ResourceMeta')
+        ret.setdefault('@rel', key)
+    return ret

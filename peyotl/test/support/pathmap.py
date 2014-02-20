@@ -83,3 +83,15 @@ def script_source_path(filename=None):
     if filename is None:
         filename = ""
     return os.path.join(SCRIPTS_DIR, filename)
+
+def next_unique_filepath(fp):
+    '''Not thread safe.
+    '''
+    if os.path.exists(fp):
+        ind = 0
+        while True:
+            np = '{f}.{i:d}'.format(f=fp, i=ind)
+            if not os.path.exists(np):
+                return np
+            ind += 1
+    return fp

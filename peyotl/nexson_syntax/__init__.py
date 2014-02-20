@@ -26,6 +26,7 @@ from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
 
 from peyotl.nexson_syntax.direct2optimal_nexson import Direct2OptimalNexson
 from peyotl.nexson_syntax.badgerfish2direct_nexson import Badgerfish2DirectNexson
+from peyotl.nexson_syntax.direct2badgerfish_nexson import Direct2BadgerfishNexson
 from peyotl.nexson_syntax.nexson2nexml import Nexson2Nexml
 from peyotl.nexson_syntax.nexml2nexson import Nexml2Nexson
 from peyotl.utility import get_logger
@@ -134,23 +135,8 @@ def convert_nexson_format(blob,
     if current_format == out_nexson_format:
         return blob
     through_nexml = _is_badgerfish_version(out_nexson_format)
-    if through_nexml:
-        xo = StringIO()
-        ci = codecs.lookup('utf8')
-        s = codecs.StreamReaderWriter(xo, ci.streamreader, ci.streamwriter)
-
-        write_obj_as_nexml(blob,
-                           s,
-                           addindent=' ',
-                           newl='\n',
-                           use_default_root_atts=False)
-        xml_content = xo.getvalue()
-        xi = StringIO(xml_content)
-        xiwrap = codecs.StreamReaderWriter(xi, ci.streamreader, ci.streamwriter)
-        blob = get_ot_study_info_from_nexml(xiwrap,
-                                            nexson_syntax_version=out_nexson_format)
-        return blob
-    if _is_by_id_honedybadgerfish(out_nexson_format) and _is_badgerfish_version(current_format):
+    if (_is_by_id_honedybadgerfish(out_nexson_format) and _is_badgerfish_version(current_format)
+        or _is_by_id_honedybadgerfish(current_format) and _is_badgerfish_version(out_nexson_format)):
         # go from 0.0 -> 1.0 then the 1.0->1.2 should succeed without nexml...
         blob = convert_nexson_format(blob, 
                                      DIRECT_HONEY_BADGERFISH,
@@ -165,6 +151,9 @@ def convert_nexson_format(blob,
     ccfg = ConversionConfig(ccdict)
     if _is_badgerfish_version(current_format):
         converter = Badgerfish2DirectNexson(ccfg)
+    elif _is_badgerfish_version(out_nexson_format):
+        assert(_is_legacy_honeybadgerfish(current_format))
+        converter = Direct2BadgerfishNexson(ccfg)
     elif _is_legacy_honeybadgerfish(current_format) and (out_nexson_format == PREFERRED_HONEY_BADGERFISH):
         converter = Direct2OptimalNexson(ccfg)
     elif _is_legacy_honeybadgerfish(out_nexson_format) and (current_format == PREFERRED_HONEY_BADGERFISH):
@@ -189,12 +178,15 @@ def _recursive_sort_meta(blob, k):
         for inner_k, v in blob.items():
             if inner_k == 'meta' and isinstance(v, list):
                 sl = []
+                incd = {}
                 for el in v:
                     sk = el.get('@property') or el.get('@rel') or ''
-                    sl.append((sk, el))
+                    count = incd.setdefault(sk, 0)
+                    incd[sk] = 1 + count
+                    sl.append((sk, count, el))
                 sl.sort()
                 del v[:] # clear out the value in place
-                v.extend([i[1] for i in sl]) # replace it with the item from the sorted list
+                v.extend([i[2] for i in sl]) # replace it with the item from the sorted list
             if isinstance(v, list) or isinstance(v, dict):
                 _recursive_sort_meta(v, inner_k)
 
@@ -208,3 +200,32 @@ def sort_meta_elements(blob):
         _recursive_sort_meta(blob, '')
     return blob
 
+def _inplace_sort_by_id(unsorted_list):
+    '''Takes a list of dicts each of which has an '@id' key, 
+    sorts the elements in the list by the value of the @id key.
+    Assumes that @id is unique or the dicts have a meaningul < operator
+    '''
+    if not isinstance(unsorted_list, list):
+        return
+    sorted_list = [(i.get('@id'), i) for i in unsorted_list]
+    sorted_list.sort()
+    del unsorted_list[:]
+    unsorted_list.extend([i[1] for i in sorted_list])
+
+def sort_arbitrarily_ordered_nexson(blob):
+    '''Primarily used for testing (getting nice diffs). Calls
+    sort_meta_elements and then sorts otu, node and edge list by id
+    '''
+    sort_meta_elements(blob)
+    # otu, node and edge elements have no necessary orger in v0.0 or v1.0
+    v = detect_nexson_version(blob)
+    if _is_by_id_honedybadgerfish(v):
+        return blob
+    nex = blob.get('nex:nexml') or blob['nexml']
+    for ob in _get_index_list_of_values(nex, 'otus'):
+        _inplace_sort_by_id(ob.get('otu', []))
+    for tb in _get_index_list_of_values(nex, 'trees'):
+        for tree in _get_index_list_of_values(tb, 'tree'):
+            _inplace_sort_by_id(tree.get('node', []))
+            _inplace_sort_by_id(tree.get('edge', []))
+    return blob

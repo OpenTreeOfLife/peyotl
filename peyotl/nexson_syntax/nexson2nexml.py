@@ -2,6 +2,7 @@
 'Nexson2Nexml class'
 from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _add_value_to_dict_bf, \
+                                        _convert_hbf_meta_val_for_xml, \
                                         _index_list_of_values, \
                                         _is_badgerfish_version
 from peyotl.utility import get_logger
@@ -50,47 +51,6 @@ def _contains_hbf_meta_keys(d):
         if k.startswith('^'):
             return True
     return False
-
-def _python_instance_to_nexml_meta_datatype(v):
-    '''Returns 'xsd:string' or a more specific type for a <meta datatype="XYZ"...
-    syntax using introspection.
-    '''
-    if isinstance(v, bool):
-        return 'xsd:boolean'
-    if isinstance(v, int) or isinstance(v, long):
-        return 'xsd:int'
-    if isinstance(v, float):
-        return 'xsd:float'
-    return 'xsd:string'
-
-def _convert_hbf_meta_val_for_xml(key, val):
-    '''Convert to a BadgerFish-style dict for addition to the xml tree'''
-    if isinstance(val, list):
-        return [_convert_hbf_meta_val_for_xml(key, i) for i in val]
-    is_literal = True
-    content = None
-    if isinstance(val, dict):
-        ret = val
-        if '@href' in val:
-            is_literal = False
-        else:
-            content = val.get('$')
-            if isinstance(content, dict) and _contains_hbf_meta_keys(val):
-                is_literal = False
-    else:
-        ret = {}
-        content = val
-    if is_literal:
-        ret.setdefault('@xsi:type', 'nex:LiteralMeta')
-        ret.setdefault('@property', key)
-        if content is not None:
-            ret.setdefault('@datatype', _python_instance_to_nexml_meta_datatype(content))
-        if ret is not val:
-            ret['$'] = content
-    else:
-        ret.setdefault('@xsi:type', 'nex:ResourceMeta')
-        ret.setdefault('@rel', key)
-    return ret
 
 def _convert_bf_meta_val_for_xml(blob):
     if not isinstance(blob, list):

@@ -14,7 +14,8 @@ class Direct2OptimalNexson(NexsonConverter):
     '''
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
-
+        self.suppress_label_if_ott_taxon = getattr(conv_cfg, 'suppress_label_if_ott_taxon', True)
+    
     def convert_otus(self, otus_list):
         otusById = dict((i['@id'], i) for i in otus_list)
         otusElementOrder = [i['@id'] for i in otus_list]
@@ -35,6 +36,19 @@ class Direct2OptimalNexson(NexsonConverter):
                 del o['otu']
                 for v in otu_obj.values():
                     del v['@id']
+                    # move @label to ^ot:manualLabel if it is not ottTaxonName
+                    # if self.suppress_label_if_ott_taxon:
+                    #     if '@label' in v:
+                    #         tax_name = v.get('^ot:ottTaxonName')
+                    #         label = v.get('@label').strip()
+                    #         if tax_name is None:
+                    #             orig_name = v.get('^ot:originalLabel')
+                    #             assert(orig_name is not None)
+                    #             if label != orig_name:
+                    #                 v['^ot:manualLabel'] = label
+                    #         elif label != tax_name:
+                    #             v['^ot:manualLabel'] = label
+                    #         del v['@label']
         return otusById, otusElementOrder
 
     def convert_tree(self, tree):

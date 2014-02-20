@@ -15,7 +15,6 @@ class Direct2BadgerfishNexson(NexsonConverter):
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
         self.remove_old_structs = getattr(conv_cfg, 'remove_old_structs', True)
-
     def _recursive_convert_list(self, obj):
         for el in obj:
             if isinstance(el, dict):
@@ -84,5 +83,4 @@ class Direct2BadgerfishNexson(NexsonConverter):
         self._single_el_list_to_dicts(nex, 'trees', 'tree')
         self._single_el_list_to_dicts(nex, 'trees', 'tree', 'node')
         self._single_el_list_to_dicts(nex, 'trees', 'tree', 'edge')
-
         return obj

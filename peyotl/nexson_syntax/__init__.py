@@ -245,4 +245,5 @@ def add_resource_meta(obj, rel, href, format):
     if _is_badgerfish_version(format):
         obj.setdefault('meta', []).append({'@href':href, '@rel': rel, '@xsi:type': 'nex:ResourceMeta'})
     else:
+        k = '^' + rel
         _add_value_to_dict_bf(obj, k, {'@href': href})

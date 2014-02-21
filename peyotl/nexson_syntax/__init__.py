@@ -35,7 +35,8 @@ import xml.dom.minidom
 import codecs
 import json
 
-_CONVERTIBLE_FORMATS = frozenset([DEFAULT_NEXSON_VERSION,
+_CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
+                                  DEFAULT_NEXSON_VERSION,
                                   BADGER_FISH_NEXSON_VERSION,
                                   BY_ID_HONEY_BADGERFISH])
 _LOG = get_logger(__name__)
@@ -239,3 +240,9 @@ def sort_arbitrarily_ordered_nexson(blob):
             _inplace_sort_by_id(tree.get('node', []))
             _inplace_sort_by_id(tree.get('edge', []))
     return blob
+
+def add_resource_meta(obj, rel, href, format):
+    if _is_badgerfish_version(format):
+        obj.setdefault('meta', []).append({'@href':href, '@rel': rel, '@xsi:type': 'nex:ResourceMeta'})
+    else:
+        _add_value_to_dict_bf(obj, k, {'@href': href})

@@ -61,7 +61,7 @@ def get_ot_study_info_from_nexml(src,
         nsv = DIRECT_HONEY_BADGERFISH
     else:
         nsv = nexson_syntax_version
-    if isinstance(src, str):
+    if isinstance(src, str) or isinstance(src, unicode):
         src = codecs.open(src, 'rU', encoding=encoding)
     content = src.read().encode('utf-8')
     doc = xml.dom.minidom.parseString(content)

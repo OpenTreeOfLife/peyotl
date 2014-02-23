@@ -241,8 +241,8 @@ def sort_arbitrarily_ordered_nexson(blob):
             _inplace_sort_by_id(tree.get('edge', []))
     return blob
 
-def add_resource_meta(obj, rel, href, format):
-    if _is_badgerfish_version(format):
+def add_resource_meta(obj, rel, href, version):
+    if _is_badgerfish_version(version):
         obj.setdefault('meta', []).append({'@href':href, '@rel': rel, '@xsi:type': 'nex:ResourceMeta'})
     else:
         k = '^' + rel

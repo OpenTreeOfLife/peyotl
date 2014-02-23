@@ -3,8 +3,30 @@
 '''
 from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
                                  convert_nexson_format, \
-                                 detect_nexson_version
+                                 detect_nexson_version, \
+                                 _is_by_id_hbf
 
+def count_num_trees(nexson, nexson_version=None):
+    if nexson_version is None:
+        nexson_version = detect_nexson_version(nexson)
+    nex = nexson.get('nex:nexml') or nexson['nexml']
+    num_trees_by_group = []
+    if _is_by_id_hbf(nexson_version):
+        for tree_group in nex.get('treesById', {}).values():
+            nt = len(tree_group.get('treeById', {}))
+            num_trees_by_group.append(nt)
+    else:
+        trees_group = nex.get('trees', [])
+        if isinstance(trees_group, dict):
+            trees_group = [trees_group]
+        for tree_group in trees_group:
+            t = tree_group.get('tree')
+            if isinstance(t, list):
+                nt = len(t)
+            else:
+                nt = 1
+            num_trees_by_group.append(nt)
+    return sum(num_trees_by_group)
 def label_to_original_label_otu_by_id(otu_by_id):
     '''Takes a v1.2 otuById dict and, for every otu,
     checks if ot:originalLabel exists. If it does not,

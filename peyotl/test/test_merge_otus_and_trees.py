@@ -8,7 +8,7 @@ import unittest
 import os
 _LOG = get_logger(__name__)
 
-class TestConvert(unittest.TestCase):
+class TestMerge(unittest.TestCase):
     def _equal_blob_check(self, first, second):
         if first != second:
             dd = DictDiff.create(first, second)

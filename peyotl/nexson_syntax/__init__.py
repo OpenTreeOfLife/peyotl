@@ -243,7 +243,13 @@ def sort_arbitrarily_ordered_nexson(blob):
 
 def add_resource_meta(obj, rel, href, version):
     if _is_badgerfish_version(version):
-        obj.setdefault('meta', []).append({'@href':href, '@rel': rel, '@xsi:type': 'nex:ResourceMeta'})
+        m = obj.setdefault('meta', [])
+        if not isinstance(m, list):
+            m = [m]
+            obj['meta'] = m
+        m.append({'@href':href,
+                  '@rel': rel,
+                  '@xsi:type': 'nex:ResourceMeta'})
     else:
         k = '^' + rel
         _add_value_to_dict_bf(obj, k, {'@href': href})

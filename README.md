@@ -104,6 +104,41 @@ You can tweak this by deciding on your NEXML_PARENT dir and running:
     $ cd xml-validator-read-only
     $ mvn package
 
+# Roadmap
+
+## Short term
+
+  1. Improve tests of NexSON and complete transition to v1.2 syntax as the preferred syntax
+
+  2. MTH needs to move NexSON validation from the API repo to peyotl
+
+## Medium term (spring 2014)
+
+  * Build up a set of utility phylogenetic functions that are agnostic to NexSON version
+      like the current peyotl.nexson_syntax.add_resource_meta
+
+  * Create a peyotl.native subpackage that implements the generic phylogenetic utilities
+      under the assumption that the NexSON blob is v1.2
+
+  * Improve struct_diff: better tests and better feature for representing sets of changes.
+
+    * functions for comparing an ancestor to 2 descendants, for summarizing compatible or
+        conflicting
+
+  * Wrappers around web-service calls to open tree API web services
+
+## Long term (summer 2014)
+
+  * wrappers for treemachine/taxomachine web services.
+
+  * wrappers for oti indexing web services.
+
+  * support for input of parts of the OTT taxonomy, and taxonomic operations.
+
+  * translation to DendroPy, BioPython, or PyCogent data structures from NexSON.
+
+  * export to other phylogenetic file formats
+
 # Thanks
 
 Several parts of the setup.py, logging, documentation, and test suite were 

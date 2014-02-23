@@ -33,8 +33,8 @@ class TestConvert(unittest.TestCase):
     def _equal_blob_check(self, first, second):
         if first != second:
             dd = DictDiff.create(first, second)
-            ofn = pathmap.next_unique_filepath('.obtained_rt')
-            efn = pathmap.next_unique_filepath('.expected_rt')
+            ofn = pathmap.next_unique_scratch_filepath('.obtained_rt')
+            efn = pathmap.next_unique_scratch_filepath('.expected_rt')
             write_as_json(first, ofn)
             write_as_json(second, efn)
             er = dd.edits_expr()

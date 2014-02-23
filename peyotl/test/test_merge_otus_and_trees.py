@@ -12,8 +12,8 @@ class TestMerge(unittest.TestCase):
     def _equal_blob_check(self, first, second):
         if first != second:
             dd = DictDiff.create(first, second)
-            ofn = pathmap.next_unique_filepath('.obtained_merge_otu')
-            efn = pathmap.next_unique_filepath('.expected_merge_otu')
+            ofn = pathmap.next_unique_scratch_filepath('.obtained_merge_otu')
+            efn = pathmap.next_unique_scratch_filepath('.expected_merge_otu')
             write_as_json(first, ofn)
             write_as_json(second, efn)
             er = dd.edits_expr()

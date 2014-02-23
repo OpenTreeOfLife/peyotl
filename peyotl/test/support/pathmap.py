@@ -46,6 +46,7 @@ except:
 
 TESTS_DATA_DIR = os.path.join(TESTS_DIR, "data")
 TESTS_OUTPUT_DIR = os.path.join(TESTS_DIR, "output")
+TESTS_SCRATCH_DIR = os.path.join(TESTS_DIR, "scratch")
 TESTS_COVERAGE_DIR = os.path.join(TESTS_DIR, "coverage")
 TESTS_COVERAGE_REPORT_DIR = os.path.join(TESTS_COVERAGE_DIR, "report")
 TESTS_COVERAGE_SOURCE_DIR = os.path.join(TESTS_COVERAGE_DIR, "source")
@@ -83,6 +84,15 @@ def script_source_path(filename=None):
     if filename is None:
         filename = ""
     return os.path.join(SCRIPTS_DIR, filename)
+
+def next_unique_scratch_filepath(fn):
+    frag = os.path.join(TESTS_SCRATCH_DIR, fn)
+    if os.path.exists(TESTS_SCRATCH_DIR):
+        if not os.path.isdir(TESTS_SCRATCH_DIR):
+            raise RuntimeError('Cannot create temp file "{f}" because a file "{c}" is in the way'.format(f=frag, c=TESTS_SCRATCH_DIR))
+    else:
+        os.makedirs(TESTS_SCRATCH_DIR)
+    return next_unique_filepath(frag)
 
 def next_unique_filepath(fp):
     '''Not thread safe.

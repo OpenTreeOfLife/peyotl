@@ -1,4 +1,2 @@
 *.pyc
 peyotl.egg-info
-.expected_*
-.obtained_*

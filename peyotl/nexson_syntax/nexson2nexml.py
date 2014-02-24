@@ -120,7 +120,7 @@ class Nexson2Nexml(NexsonConverter):
                 "xmlns": "http://www.nexml.org/2009",
                 "xmlns:xsd": "http://www.w3.org/2001/XMLSchema#",
                 "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-                "xmlns:ot": "http://purl.org/opentree/nexson",
+                "xmlns:ot": "http://purl.org/opentree/opentree-terms#",
             }
         else:
             root_atts = {}

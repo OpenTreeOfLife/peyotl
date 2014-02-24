@@ -227,10 +227,6 @@ def sort_arbitrarily_ordered_nexson(blob):
     v = detect_nexson_version(blob)
     nex = blob.get('nex:nexml') or blob['nexml']
     if _is_by_id_hbf(v):
-        for tb in nex.get('treesById', {}).values():
-            for tree in tb.get('treeById', {}).values():
-                for v in tree.get('edgeBySourceId', {}).values():
-                    _inplace_sort_by_id(v)
         return blob
     sort_meta_elements(blob)
     for ob in _get_index_list_of_values(nex, 'otus'):

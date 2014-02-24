@@ -65,7 +65,10 @@ class Direct2OptimalNexson(NexsonConverter):
         edge_list = _get_index_list_of_values(tree, 'edge')
         for edge in edge_list:
             sourceId = edge['@source']
-            edgeBySourceId.setdefault(sourceId, []).append(edge)
+            eid = edge['@id']
+            del edge['@id']
+            byso = edgeBySourceId.setdefault(sourceId, {})
+            byso[eid] = edge
         # If all that succeeds, add the new object to the dict, creating a fat structure
         tree['nodesById'] = nodesById
         tree['edgeBySourceId'] = edgeBySourceId

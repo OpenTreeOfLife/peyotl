@@ -1,12 +1,12 @@
 {
 "nex:nexml": {
 "@generator": "org.opentreeoflife.api.nexsonvalidator.nexson_nexml", 
-"@nexml2json": "1.2.0", 
+"@nexml2json": "1.2.1", 
 "@version": "0.9", 
 "@xmlns": {
 "$": "http://www.nexml.org/2009", 
 "nex": "http://www.nexml.org/2009", 
-"ot": "http://purl.org/opentree/nexson", 
+"ot": "http://purl.org/opentree/opentree-terms#", 
 "skos": "http://www.w3.org/2004/02/skos/core#", 
 "tb": "http://purl.org/phylo/treebase/2.0/terms#", 
 "xsd": "http://www.w3.org/2001/XMLSchema#", 
@@ -64,13 +64,12 @@
 "tr1": {
 "@xsi:type": "nex:FloatTree", 
 "edgeBySourceId": {
-"n0": [
-{
-"@id": "e0", 
+"n0": {
+"e0": {
 "@source": "n0", 
 "@target": "n1"
 }
-]
+}
 }, 
 "nodesById": {
 "n0": {

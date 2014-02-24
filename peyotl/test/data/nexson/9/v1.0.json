@@ -3,12 +3,12 @@
 "@generator": "Phylografter nexml-json exporter", 
 "@id": "study", 
 "@nexml2json": "1.0.0", 
-"@nexmljson": "http://purl.org/opentree/nexson", 
+"@nexmljson": "http://purl.org/opentree/opentree-terms#", 
 "@version": "0.9", 
 "@xmlns": {
 "$": "http://www.nexml.org/2009", 
 "nex": "http://www.nexml.org/2009", 
-"ot": "http://purl.org/opentree-terms#", 
+"ot": "http://purl.org/opentree/opentree-terms#", 
 "xsd": "http://www.w3.org/2001/XMLSchema#", 
 "xsi": "http://www.w3.org/2001/XMLSchema-instance"
 }, 

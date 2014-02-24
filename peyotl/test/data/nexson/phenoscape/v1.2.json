@@ -1,7 +1,7 @@
 {
 "nexml": {
 "@generator": "Phenex null", 
-"@nexml2json": "1.2.0", 
+"@nexml2json": "1.2.1", 
 "@version": "0.9", 
 "@xmlns": {
 "$": "http://www.nexml.org/2009", 

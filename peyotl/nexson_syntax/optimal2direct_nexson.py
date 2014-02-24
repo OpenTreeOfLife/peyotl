@@ -51,18 +51,21 @@ class Optimal2DirectNexson(NexsonConverter):
             assert(curr_node_id not in node_set_written)
             node_set_written.add(curr_node_id)
             node_list.append(curr_node)
-            sub_edge_list = edgeBySourceId.get(curr_node_id)
-            if sub_edge_list:
-                edge = sub_edge_list[0]
+            sub_edge_dict = edgeBySourceId.get(curr_node_id)
+            if sub_edge_dict:
+                ks = sub_edge_dict.keys()
+                ks.sort()
+                sub_edge_list = [(ski, sub_edge_dict[ski]) for ski in ks]
+                eid, edge = sub_edge_list[0]
                 to_stack = sub_edge_list[-1:0:-1]
                 edge_stack.extend(to_stack)
             else:
                 curr_node['^ot:isLeaf'] = True
                 if not edge_stack:
                     break
-                edge = edge_stack.pop(-1)
+                eid, edge = edge_stack.pop(-1)
+            edge['@id'] = eid
             edge_list.append(edge)
-            eid = edge['@id']
             assert(eid not in edge_set_written)
             edge_set_written.add(eid)
             curr_node_id = edge['@target']

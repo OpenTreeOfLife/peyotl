@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<nex:nexml generator="org.opentreeoflife.api.nexsonvalidator.nexson_nexml" version="0.9" xmlns="http://www.nexml.org/2009" xmlns:nex="http://www.nexml.org/2009" xmlns:ot="http://purl.org/opentree/nexson" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:tb="http://purl.org/phylo/treebase/2.0/terms#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<nex:nexml generator="org.opentreeoflife.api.nexsonvalidator.nexson_nexml" version="0.9" xmlns="http://www.nexml.org/2009" xmlns:nex="http://www.nexml.org/2009" xmlns:ot="http://purl.org/opentree/opentree-terms#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:tb="http://purl.org/phylo/treebase/2.0/terms#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <meta datatype="xsd:string" property="ot:candidateTreeForSynthesis" xsi:type="nex:LiteralMeta">tr1</meta>
   <meta datatype="xsd:string" property="ot:tag" xsi:type="nex:LiteralMeta">ingroup added</meta>
   <meta datatype="xsd:string" property="ot:tag" xsi:type="nex:LiteralMeta">cpDNA</meta>

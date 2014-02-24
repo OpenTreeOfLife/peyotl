@@ -1,4 +1,4 @@
-nexml2json=1.0.0 to nexml2json=1.2.0
+nexml2json=1.0.0 to nexml2json=
 ====================================
 
 | v. 1.0       | v. 1.2             | parent    |

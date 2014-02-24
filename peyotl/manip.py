@@ -2,6 +2,7 @@
 '''Simple manipulations of data structure in peyotl
 '''
 from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
+                                 _add_value_to_dict_bf, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \
                                  _is_by_id_hbf
@@ -34,14 +35,40 @@ def label_to_original_label_otu_by_id(otu_by_id):
     @label and @label is deleted.
     '''
     for val in otu_by_id.values():
-        orig = val.get('ot:originalLabel')
+        orig = val.get('^ot:originalLabel')
         if orig is None:
             label = val.get('@label')
             if label:
                 del val['@label']
-                val['ot:originalLabel'] = label
+                val['^ot:originalLabel'] = label
 
-def merge_otus_and_trees(nexson):
+def replace_entity_references_in_meta_and_annotations(d, id2id):
+    if isinstance(d, list):
+        for el in d:
+            replace_entity_references_in_meta_and_annotations(el, id2id)
+    elif isinstance(d, dict):
+        about_key = d.get('@about')
+        try:
+            if about_key and about_key.startswith('#'):
+                s = about_key[1:]
+                r = id2id.get(s)
+                if r is not None:
+                    d['@about'] = '#' + r
+        except:
+            pass
+        for k, v in d.items():
+            replace_entity_references_in_meta_and_annotations(v, id2id)
+
+_special_otu_keys = frozenset(('@label', '^ot:originalLabel', '^ot:ottId', '^ot:ottTaxonName'))
+def _merge_otu_do_not_fix_references(src, dest):
+    for k in _special_otu_keys:
+        if k not in dest and k in src:
+            dest[k] = src[k]
+    for k, v in src.items():
+        if k not in _special_otu_keys:
+            _add_value_to_dict_bf(dest, k, v)
+
+def merge_otus_and_trees(nexson_blob):
     '''Takes a nexson object:
         1. merges trees elements 2 - # trees into the first trees element.,
         2. merges otus elements 2 - # otus into the first otus element.
@@ -55,7 +82,10 @@ def merge_otus_and_trees(nexson):
               C. No two leaves of a tree may share an otu (though otu should
                 be shared across different trees). It is important that 
                 each leaf node be mapped to a distinct OTU. Otherwise there
-                will be no way of separating them during OTU mapping.
+                will be no way of separating them during OTU mapping. we
+                do this indirectly by assuring to no two otu objects in the
+                same otus object get merged with each other (or to a common
+                object)
 
         5. correct object references to deleted entities.
 
@@ -65,9 +95,10 @@ def merge_otus_and_trees(nexson):
     of the analysis tools that produced the trees (for most/all such tools unique names
     constitute unique OTUs).
     '''
-    orig_version = detect_nexson_version(nexson)
-    convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
-
+    id_to_replace_id = {}
+    orig_version = detect_nexson_version(nexson_blob)
+    convert_nexson_format(nexson_blob, BY_ID_HONEY_BADGERFISH)
+    nexson = nexson_blob.get('nex:nexml') or nexson_blob['nexml']
     replaced_otu_id_by_group = {}
     otus_group_order = nexson.get('^ot:otusElementOrder', [])
     # (ott, orig) -> list of otu elements
@@ -82,7 +113,7 @@ def merge_otus_and_trees(nexson):
     if len(otus_group_order) > 0:
         otus_group_by_id = nexson['otusById']
         retained_ogi = otus_group_order[0]
-        retained_og = otus_group_by_id[retained_tgi]
+        retained_og = otus_group_by_id[retained_ogi]
         otu_by_id = retained_og.get('otuById', {})
         label_to_original_label_otu_by_id(otu_by_id)
         replaced_otu_id_by_group[retained_ogi] = {}
@@ -91,63 +122,84 @@ def merge_otus_and_trees(nexson):
             orig = otu.get('ot:originalLabel')
             key = (ottid, orig)
             if key != (None, None):
-                t = (oid, otu)
                 m = retained_mapped2otu.setdefault(key, [])
+                t = (oid, otu)
                 m.append(t)
                 if orig is not None:
                     m = retained_orig2otu.setdefault(orig, [])
                     m.append(t)
-    # For each of the other otus elements, we:
-    #   1. assure that originalLabel is filled in
-    for ogi in otus_group_order[1:]:
-        og = otus_group_by_id[ogi]
-        otu_by_id = og.get('otuById', {})
-        label_to_original_label_otu_by_id(otu_by_id)
-        replaced_otu = {}
-        used_matches = set()
-        for oid, otu in otu_by_id.items():
-            ottid = otu.get('^ot:ottId')
-            orig = otu.get('ot:originalLabel')
-            key = (ottid, orig)
-            if key == (None, None):
-                retained_og[oid] = otu
-            else:
-                match_otu = None
-                mlist = retained_mapped2otu.get(key)
-                if mlist is not None:
-                    for m in mlist:
-                        if m not in used_matches:
-                            match_otu = m
-                            break
-                mlist = retained_orig2otu.get(orig)
-                if (match_otu is None) and (mlist is not None):
-                    for m in mlist:
-                        if m not in used_matches:
-                            match_otu = m
-                            break
-                if match_otu is not None:
-                    replaced_otu[oid] = match_otu
-                    _merge_otu_do_not_fix_references(match_otu[1], otu)
-                else:
-                    assert(oid not in retained_og)
+        # For each of the other otus elements, we:
+        #   1. assure that originalLabel is filled in
+        #   2. decide (for each otu) whether it will 
+        #       be added to retained_og or merged with
+        #       an otu already in retained_og. In the
+        #       case of the latter, we add to the 
+        #       replaced_otu dict (old oid as key, new otu as value)
+        for ogi in otus_group_order[1:]:
+            og = otus_group_by_id[ogi]
+            otu_by_id = og.get('otuById', {})
+            label_to_original_label_otu_by_id(otu_by_id)
+            replaced_otu = {}
+            used_matches = set()
+            id_to_replace_id[ogi] = retained_ogi
+            for oid, otu in otu_by_id.items():
+                ottid = otu.get('^ot:ottId')
+                orig = otu.get('ot:originalLabel')
+                key = (ottid, orig)
+                if key == (None, None):
                     retained_og[oid] = otu
-                    t = (oid, otu)
-                    m = retained_mapped2otu.setdefault(key, [])
-                    m.append(t)
-                    if orig is not None:
-                        m = retained_orig2otu.setdefault(orig, [])
+                else:
+                    match_otu = None
+                    mlist = retained_mapped2otu.get(key)
+                    if mlist is not None:
+                        for m in mlist:
+                            if m[0] not in used_matches:
+                                match_otu = m
+                                break
+                    
+                    if (match_otu is None):
+                        mlist = retained_orig2otu.get(orig, [])
+                        for m in mlist:
+                            if m[0] not in used_matches:
+                                match_otu = m
+                                break
+                    if match_otu is not None:
+                        replaced_otu[oid] = match_otu
+                        id_to_replace_id[oid] = match_otu[0]
+                        used_matches = match_otu[0]
+                        _merge_otu_do_not_fix_references(otu, match_otu[1])
+                    else:
+                        assert(oid not in retained_og)
+                        retained_og[oid] = otu
+                        m = retained_mapped2otu.setdefault(key, [])
+                        t = (oid, otu)
                         m.append(t)
-        replaced_otu_id_by_group[ogi] = replaced_otu
-
-    deleted_trees_group_ids = set()
+                        if orig is not None:
+                            m = retained_orig2otu.setdefault(orig, [])
+                            m.append(t)
+            replaced_otu_id_by_group[ogi] = replaced_otu
+        nexson['^ot:otusElementOrder'] = [retained_ogi]
+    # Move all of the tree elements to the first trees group.
     trees_group_order = nexson.get('^ot:treesElementOrder', [])
     if len(trees_group_order) > 0:
         trees_group_by_id = nexson['treesById']
         retained_tgi = trees_group_order[0]
         retained_tg = trees_group_by_id[retained_tgi]
-    if len(trees_group_order) > 1:
+        retained_tg["@otus"] != retained_ogi
         for tgi in trees_group_order[1:]:
             tg = trees_group_by_id[tgi]
+            id_to_replace_id[tgi] = retained_tgi
+            for tid, tree_obj in tg.get("treesById", {}).items():
+                retained_tg[tid] = tree_obj
+        for tree_obj in retained_tg.get('treeById',{}).values():
+            for node in tree_obj.get('nodesById', {}).values():
+                o = node.get('@otu')
+                if o is not None:
+                    r = id_to_replace_id.get(o)
+                    if r is not None:
+                        node['@otu'] = r
+        nexson['^ot:treesElementOrder'] = [retained_tgi]
 
-    convert_nexson_format(nexson, orig_version)
-    return nexson
+    replace_entity_references_in_meta_and_annotations(nexson, id_to_replace_id)
+    convert_nexson_format(nexson_blob, orig_version)
+    return nexson_blob

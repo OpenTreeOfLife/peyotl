@@ -2820,7 +2820,7 @@
 "^ot:ottTaxonName": "Myodocarpus"
 }
 }, 
-"ot:rootNodeId": "node1"
+"^ot:rootNodeId": "node1"
 }, 
 "tree2": {
 "@xsi:type": "nex:FloatTree", 
@@ -4978,7 +4978,7 @@
 "^ot:ottTaxonName": "Spinacia"
 }
 }, 
-"ot:rootNodeId": "node252"
+"^ot:rootNodeId": "node252"
 }
 }
 }

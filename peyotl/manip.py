@@ -58,7 +58,7 @@ def replace_entity_references_in_meta_and_annotations(d, id2id):
                     d['@about'] = '#' + r
         except:
             pass
-        for k, v in d.items():
+        for v in d.values():
             replace_entity_references_in_meta_and_annotations(v, id2id)
 
 _special_otu_keys = frozenset(('@label', '^ot:originalLabel', '^ot:ottId', '^ot:ottTaxonName'))

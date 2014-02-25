@@ -5,7 +5,6 @@ from peyotl.struct_diff import DictDiff
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
-import os
 _LOG = get_logger(__name__)
 
 class TestMerge(unittest.TestCase):

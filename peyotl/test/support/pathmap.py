@@ -89,7 +89,9 @@ def next_unique_scratch_filepath(fn):
     frag = os.path.join(TESTS_SCRATCH_DIR, fn)
     if os.path.exists(TESTS_SCRATCH_DIR):
         if not os.path.isdir(TESTS_SCRATCH_DIR):
-            raise RuntimeError('Cannot create temp file "{f}" because a file "{c}" is in the way'.format(f=frag, c=TESTS_SCRATCH_DIR))
+            mf = 'Cannot create temp file "{f}" because a file "{c}" is in the way'
+            msg = mf.format(f=frag, c=TESTS_SCRATCH_DIR)
+            raise RuntimeError(msg)
     else:
         os.makedirs(TESTS_SCRATCH_DIR)
     return next_unique_filepath(frag)

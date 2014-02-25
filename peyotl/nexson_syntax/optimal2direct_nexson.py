@@ -38,7 +38,7 @@ class Optimal2DirectNexson(NexsonConverter):
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
         nodesById = tree['nodesById']
         edgeBySourceId = tree['edgeBySourceId']
-        root_node_id = tree['ot:rootNodeId']
+        root_node_id = tree['^ot:rootNodeId']
         node_list = []
         edge_list = []
         curr_node_id = root_node_id
@@ -76,7 +76,7 @@ class Optimal2DirectNexson(NexsonConverter):
         if self.remove_old_structs:
             del tree['nodesById']
             del tree['edgeBySourceId']
-            del tree['ot:rootNodeId']
+            del tree['^ot:rootNodeId']
         return tree
 
     def convert_trees(self, treesById, treesElementOrder):

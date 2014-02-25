@@ -6,6 +6,8 @@ from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \
                                  _is_by_id_hbf
+from peyotl.utility import get_logger
+_LOG = get_logger(__name__)
 
 def count_num_trees(nexson, nexson_version=None):
     if nexson_version is None:
@@ -119,7 +121,7 @@ def merge_otus_and_trees(nexson_blob):
         replaced_otu_id_by_group[retained_ogi] = {}
         for oid, otu in otu_by_id.items():
             ottid = otu.get('^ot:ottId')
-            orig = otu.get('ot:originalLabel')
+            orig = otu.get('^ot:originalLabel')
             key = (ottid, orig)
             if key != (None, None):
                 m = retained_mapped2otu.setdefault(key, [])
@@ -137,6 +139,7 @@ def merge_otus_and_trees(nexson_blob):
         #       replaced_otu dict (old oid as key, new otu as value)
         for ogi in otus_group_order[1:]:
             og = otus_group_by_id[ogi]
+            del otus_group_by_id[ogi]
             otu_by_id = og.get('otuById', {})
             label_to_original_label_otu_by_id(otu_by_id)
             replaced_otu = {}
@@ -144,7 +147,7 @@ def merge_otus_and_trees(nexson_blob):
             id_to_replace_id[ogi] = retained_ogi
             for oid, otu in otu_by_id.items():
                 ottid = otu.get('^ot:ottId')
-                orig = otu.get('ot:originalLabel')
+                orig = otu.get('^ot:originalLabel')
                 key = (ottid, orig)
                 if key == (None, None):
                     retained_og[oid] = otu
@@ -185,13 +188,16 @@ def merge_otus_and_trees(nexson_blob):
         trees_group_by_id = nexson['treesById']
         retained_tgi = trees_group_order[0]
         retained_tg = trees_group_by_id[retained_tgi]
-        retained_tg["@otus"] != retained_ogi
+        retained_tg['@otus'] = retained_ogi
+        retained_tg_tree_obj = retained_tg.get('treeById', {})
         for tgi in trees_group_order[1:]:
             tg = trees_group_by_id[tgi]
+            del trees_group_by_id[tgi]
             id_to_replace_id[tgi] = retained_tgi
-            for tid, tree_obj in tg.get("treesById", {}).items():
-                retained_tg[tid] = tree_obj
-        for tree_obj in retained_tg.get('treeById',{}).values():
+            retained_tg['^ot:treeElementOrder'].extend(tg['^ot:treeElementOrder'])
+            for tid, tree_obj in tg.get('treeById', {}).items():
+                retained_tg_tree_obj[tid] = tree_obj
+        for tree_obj in retained_tg_tree_obj.values():
             for node in tree_obj.get('nodesById', {}).values():
                 o = node.get('@otu')
                 if o is not None:

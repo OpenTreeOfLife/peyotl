@@ -72,7 +72,7 @@ class Direct2OptimalNexson(NexsonConverter):
         # If all that succeeds, add the new object to the dict, creating a fat structure
         tree['nodesById'] = nodesById
         tree['edgeBySourceId'] = edgeBySourceId
-        tree['ot:rootNodeId'] = root_node['@id']
+        tree['^ot:rootNodeId'] = root_node['@id']
         # Make the struct leaner
         tid = tree['@id']
         if self.remove_old_structs:

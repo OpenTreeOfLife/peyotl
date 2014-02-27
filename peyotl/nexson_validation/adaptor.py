@@ -893,6 +893,23 @@ def indented_keys(out, o, indentation='', indent=2):
             out.write('{i}{k}\n'.format(i=next_indentation, k=k))
         out.write('{i}]\n'.format(i=indentation))
 
+################################
+from peyotl.nexson_syntax import detect_nexson_version
+_NEXEL_TOP_LEVEL = 0
+_NEXEL_NEXML = 1
+_NEXEL_OTUS = 2
+_NEXEL_OTU = 3
+_NEXEL_TREES = 4
+_NEXEL_TREE = 5
+_NEXEL_NODE = 6
+_NEXEL_EDGE = 7
+_NEXEL_META = 8
+
+class LazyAddress(object):
+    def __init__(self, code, obj=None):
+        self.code = code
+        self.ref = obj
+
 class NexsonValidationAdaptor(object):
     '''An object created during NexSON validation.
     It holds onto the nexson object that it was instantiated for.
@@ -904,9 +921,32 @@ class NexsonValidationAdaptor(object):
         and annotations to be relatively light weight, and yet easy 
         to efficiently add back to the orignal NexSON object.
     '''
-    def __init__(self, obj, log_and_config):
+    def __init__(self, obj, logger):
         self._raw = obj
-        self._logger = log_and_config
+        self._nexml = None
+        tlz = None
+        for k in obj.keys():
+            if k not in ['nexml']:
+                if tlz = None:
+                    tlz = LazyAddress(_NEXEL_TOP_LEVEL, obj)
+                logger.warning(UnrecognizedKeyWarning(k, address=tlz))
+        self._nexml = None
+        if 'nexml' not in obj:
+            if tlz = None:
+                tlz = LazyAddress(NexsonElement.TOP_LEVEL, obj)
+            logger.emit_error(MissingMandatoryKeyWarning('nexml', address=tlz))
+            return ## EARLY EXIT!!
+        self._nexml = o['nexml']
+        self._nexson_version = detect_nexson_version(obj)
+        if _is_by_id_hbf(self._nexson_version):
+            self.__class__ = ByIdHBFValidationAdaptor
+        elif _is_badgerfish_version(self._nexson_version):
+            self.__class__ = BadgerFishValidationAdaptor
+        else _is_direct_hbf(self._nexson_version):
+            self.__class__ = DirectHBFValidationAdaptor
+        else:
+            assert(False) # unrecognized nexson variant
+        self._validate_nexml_obj(self._nexml, logger)
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
         expected to have a string as the value of annotation['author']['name']
@@ -948,3 +988,11 @@ class NexsonValidationAdaptor(object):
         former_meta.append(annotation)
     def get_nexson_str(self):
         return json.dumps(self._raw, sort_keys=True, indent=0)
+
+
+class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
+    pass
+class DirectHBFValidationAdaptor(NexsonValidationAdaptor):
+    pass
+class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
+    pass

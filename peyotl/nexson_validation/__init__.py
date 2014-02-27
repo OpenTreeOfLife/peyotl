@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 '''Functions for validating NexSON.
 '''
+from peyotl.nexson_validation.helper import NexsonError
+from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from peyotl.nexson_validation.logger import FilteringLogger, \
                                             ValidationLogger
 from peyotl.nexson_validation.adaptor import NexsonValidationAdaptor

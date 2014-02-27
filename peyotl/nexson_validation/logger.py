@@ -2,6 +2,11 @@
 '''Classes for recording warnings and errors
 '''
 from peyotl.nexson_validation.helper import SeverityCodes, VERSION
+from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
+import datetime
+import platform
+import uuid
+import sys
 
 class DefaultRichLogger(object):
     def __init__(self, store_messages=False):

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 '''Classes for recording warnings and errors
 '''
+from peyotl.nexson_validation.helper import SeverityCodes, VERSION
+
 class DefaultRichLogger(object):
     def __init__(self, store_messages=False):
         self.out = sys.stderr
@@ -26,6 +28,56 @@ class DefaultRichLogger(object):
             self.errors.append(m)
         else:
             raise NexSONError(m.getvalue(self.prefix))
+    def prepare_annotation(self, 
+                       author_name='',
+                       invocation=tuple(),
+                       annotation_label='',
+                       author_version=VERSION,
+                       url='https://github.com/OpenTreeOfLife/api.opentreeoflife.org',
+                       description="validator of NexSON constraints as well as constraints that would allow a study to be imported into the Open Tree of Life's phylogenetic synthesis tools"
+                       ):
+        checks_performed = list(NexsonWarningCodes.numeric_codes_registered)
+        for code in self.codes_to_skip:
+            try:
+                checks_performed.remove(code)
+            except:
+                pass
+        checks_performed = [NexsonWarningCodes.facets[i] for i in checks_performed]
+        nuuid = 'meta-' + str(uuid.uuid1())
+        annotation = {
+            '@property': 'ot:annotation',
+            '$': annotation_label,
+            '@xsi:type': 'nex:ResourceMeta',
+            'author': {
+                'name': author_name, 
+                'url': url, 
+                'description': description,
+                'version': author_version,
+                'invocation': {
+                    'commandLine': invocation,
+                    'checksPerformed': checks_performed,
+                    'pythonVersion' : platform.python_version(),
+                    'pythonImplementation' : platform.python_implementation(),
+                }
+            },
+            'dateCreated': datetime.datetime.utcnow().isoformat(),
+            'id': nuuid,
+            'messages': [],
+            'isValid': (len(self.errors) == 0) and (len(self.warnings) == 0),
+        }
+        message_list = annotation['messages']
+        for m in self.errors:
+            d = m.as_dict()
+            d['severity'] = 'ERROR'
+            d['preserve'] = False
+            message_list.append(d)
+        for m in self.warnings:
+            d = m.as_dict()
+            d['severity'] = 'WARNING'
+            d['preserve'] = False
+            message_list.append(d)
+        return annotation
+
 
 class ValidationLogger(DefaultRichLogger):
     def __init__(self, store_messages=False):
@@ -52,7 +104,7 @@ class FilteringLogger(ValidationLogger):
                     assert el not in self.registered
         else:
             assert codes_to_skip
-            self.registered = set(WarningCodes.numeric_codes_registered)
+            self.registered = set(NexsonWarningCodes.numeric_codes_registered)
             for el in codes_to_skip:
                 self.codes_to_skip.add(el)
                 self.registered.remove(el)

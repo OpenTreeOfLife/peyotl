@@ -1,4 +1,5 @@
 #!/usr/bin/env
+VERSION = '0.0.3a'
 
 class SeverityCodes(object):
     '''An enum of Warning/Error severity

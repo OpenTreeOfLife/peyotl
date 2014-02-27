@@ -1,14 +1,7 @@
-
-
-################################################################################
-# Wrappers around the entities that we care about in a NexSON file. The
-#   first argument in the constructor of each is the dict (presumably
-#   directly from a json load operation) that represents the object.
-#   each class simply provides the validation logic for elements of the
-#   corresponding type.
-################################################################################
-
-
+#!/usr/bin/env python
+'''NexsonValidationAdaptor class.
+'''
+import re
 class NexsonAddress(object):
     '''Encapsulates a reference to an addressable object in a NexSON blob.
     A class is needed because the reference is encoded in multiple fields:
@@ -896,3 +889,58 @@ def indented_keys(out, o, indentation='', indent=2):
             out.write('{i}{k}\n'.format(i=next_indentation, k=k))
         out.write('{i}]\n'.format(i=indentation))
 
+class NexsonValidationAdaptor(object):
+    '''An object created during NexSON validation.
+    It holds onto the nexson object that it was instantiated for.
+    When add_or_replace_annotation is called, it will annotate the 
+    nexson object, and when get_nexson_str is called it will
+    serialize it.
+
+    This class is useful merely because it allows the validation log
+        and annotations to be relatively light weight, and yet easy 
+        to efficiently add back to the orignal NexSON object.
+    '''
+    def __init__(self, obj, log_and_config):
+        self._raw = obj
+        self._logger = log_and_config
+    def add_or_replace_annotation(self, annotation):
+        '''Takes an `annotation` dictionary which is 
+        expected to have a string as the value of annotation['author']['name']
+        This function will remove all annotations from obj that:
+            1. have the same author/name, and
+            2. have no messages that are flagged as messages to be preserved (values for 'preserve' that evaluate to true)
+        '''
+        return # TODO!
+        script_name = annotation['author']['name']
+        n = obj['nexml']
+        former_meta = n.setdefault('meta', [])
+        if not isinstance(former_meta, list):
+            former_meta = [former_meta]
+            n['meta'] = former_meta
+        else:
+            indices_to_pop = []
+            for annotation_ind, el in enumerate(former_meta):
+                try:
+                    if (el.get('$') == annotation_label) and (el.get('author',{}).get('name') == script_name):
+                        m_list = el.get('messages', [])
+                        to_retain = []
+                        for m in m_list:
+                            if m.get('preserve'):
+                                to_retain.append(m)
+                        if len(to_retain) == 0:
+                            indices_to_pop.append(annotation_ind)
+                        elif len(to_retain) < len(m_list):
+                            el['messages'] = to_retain
+                            el['dateModified'] = datetime.datetime.utcnow().isoformat()
+                except:
+                    # different annotation structures could yield IndexErrors or other exceptions.
+                    # these are not the annotations that you are looking for....
+                    pass
+
+            if len(indices_to_pop) > 0:
+                # walk backwards so pops won't change the meaning of stored indices
+                for annotation_ind in indices_to_pop[-1::-1]:
+                    former_meta.pop(annotation_ind)
+        former_meta.append(annotation)
+    def get_nexson_str(self):
+        return json.dumps(self._raw, sort_keys=True, indent=0)

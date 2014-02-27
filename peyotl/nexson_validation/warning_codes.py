@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 '''Classes for different forms of Warnings and Errors.
 '''
-
+from peyotl.nexson_validation.helper import SeverityCodes
 # An enum of WARNING_CODES
-class WarningCodes():
+class NexsonWarningCodes():
     '''Enumeration of Warning/Error types. For internal use.
 
-    WarningCodes.facets maps int -> warning name.
-    Each of these names will also be an attribute of WarningCodes.
-    WarningCodes.numeric_codes_registered is (after some mild monkey-patching)
+    NexsonWarningCodes.facets maps int -> warning name.
+    Each of these names will also be an attribute of NexsonWarningCodes.
+    NexsonWarningCodes.numeric_codes_registered is (after some mild monkey-patching)
         a set of the integers registered.
     '''
     facets = ('MISSING_MANDATORY_KEY',
@@ -39,12 +39,12 @@ class WarningCodes():
               'DEPRECATED_PROPERTY',
               )
     numeric_codes_registered = []
-# monkey-patching WarningCodes...
-for _n, _f in enumerate(WarningCodes.facets):
-    setattr(WarningCodes, _f, _n)
-    WarningCodes.numeric_codes_registered.append(_n)
-WarningCodes.numeric_codes_registered = set(WarningCodes.numeric_codes_registered)
-# End of WarningCodes enum
+# monkey-patching NexsonWarningCodes...
+for _n, _f in enumerate(NexsonWarningCodes.facets):
+    setattr(NexsonWarningCodes, _f, _n)
+    NexsonWarningCodes.numeric_codes_registered.append(_n)
+NexsonWarningCodes.numeric_codes_registered = set(NexsonWarningCodes.numeric_codes_registered)
+# End of NexsonWarningCodes enum
 
 ################################################################################
 # In a burst of over-exuberant OO-coding, MTH added a class for 
@@ -64,7 +64,7 @@ class WarningMessage(object):
                  address,
                  severity=SeverityCodes.WARNING):
         '''
-            `warning_code` should be a facet of WarningCodes
+            `warning_code` should be a facet of NexsonWarningCodes
             `data` is an object whose details depend on the specific subclass
                 of warning that is being created
             `address` is a NexsonAddress offending element
@@ -72,7 +72,7 @@ class WarningMessage(object):
             `severity` is either SeverityCodes.WARNING or SeverityCodes.ERROR
         '''
         self.warning_code = warning_code
-        assert warning_code in WarningCodes.numeric_codes_registered
+        assert warning_code in NexsonWarningCodes.numeric_codes_registered
         self.warning_data = data
         self.severity = severity
         assert severity in SeverityCodes.numeric_codes_registered
@@ -88,7 +88,7 @@ class WarningMessage(object):
     def as_dict(self):
         return {
             'severity': SeverityCodes.facets[self.severity],
-            'code': WarningCodes.facets[self.warning_code],
+            'code': NexsonWarningCodes.facets[self.warning_code],
             'comment': self.__unicode__(),
             'data': self.convert_data_for_json(),
             'refersTo': self.address.path
@@ -102,7 +102,7 @@ class WarningMessage(object):
 
 class MissingExpectedListWarning(WarningMessage):
     def __init__(self, data, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.MISSING_LIST_EXPECTED, data=data, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.MISSING_LIST_EXPECTED, data=data, address=address, severity=severity)
     def write(self, outstream, prefix):
         outstream.write('{p}Expected a list found "{k}"'.format(p=prefix, k=type(self.data)))
         self._write_message_suffix(outstream)
@@ -111,7 +111,7 @@ class MissingExpectedListWarning(WarningMessage):
 
 class UnrecognizedKeyWarning(WarningMessage):
     def __init__(self, key, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, WarningCodes.UNRECOGNIZED_KEY, data=key, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.UNRECOGNIZED_KEY, data=key, address=address, severity=severity)
         self.key = key
     def write(self, outstream, prefix):
         outstream.write('{p}Unrecognized key "{k}"'.format(p=prefix, k=self.key))
@@ -121,7 +121,7 @@ class UnrecognizedKeyWarning(WarningMessage):
 
 class MissingOptionalKeyWarning(WarningMessage):
     def __init__(self, key, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, WarningCodes.MISSING_OPTIONAL_KEY, data=key, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.MISSING_OPTIONAL_KEY, data=key, address=address, severity=severity)
         self.key = key
     def write(self, outstream, prefix):
         if self.key:
@@ -137,7 +137,7 @@ class MissingOptionalKeyWarning(WarningMessage):
 
 class DuplicatingSingletonKeyWarning(WarningMessage):
     def __init__(self, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.DUPLICATING_SINGLETON_KEY, data=None, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.DUPLICATING_SINGLETON_KEY, data=None, address=address, severity=severity)
         self.key = address.property_name
     def write(self, outstream, prefix):
         outstream.write('{p}Multiple instances found for a key ("{k}") which was expected to be found once'.format(p=prefix, k=self.key))
@@ -146,7 +146,7 @@ class DuplicatingSingletonKeyWarning(WarningMessage):
         return self.key
 class DeprecatedMetaPropertyWarning(WarningMessage):
     def __init__(self, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, WarningCodes.DEPRECATED_PROPERTY, data=None, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.DEPRECATED_PROPERTY, data=None, address=address, severity=severity)
         self.key = address.property_name
     def write(self, outstream, prefix):
         outstream.write('{p}Found a deprecated a property ("{k}")'.format(p=prefix, k=self.key))
@@ -157,7 +157,7 @@ class DeprecatedMetaPropertyWarning(WarningMessage):
 
 class RepeatedIDWarning(WarningMessage):
     def __init__(self, identifier, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.REPEATED_ID, data=identifier, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.REPEATED_ID, data=identifier, address=address, severity=severity)
         self.identifier = identifier
     def write(self, outstream, prefix):
         outstream.write('{p}An ID ("{k}") was repeated'.format(p=prefix, k=self.identifier))
@@ -168,7 +168,7 @@ class RepeatedIDWarning(WarningMessage):
 class ReferencedIDNotFoundWarning(WarningMessage):
     def __init__(self, key, identifier, address, severity=SeverityCodes.ERROR):
         d = {'key': key, 'value': identifier}
-        WarningMessage.__init__(self, WarningCodes.REFERENCED_ID_NOT_FOUND, data=d, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.REFERENCED_ID_NOT_FOUND, data=d, address=address, severity=severity)
         self.key = key
         self.identifier = identifier
     def write(self, outstream, prefix):
@@ -179,7 +179,7 @@ class ReferencedIDNotFoundWarning(WarningMessage):
 
 class MultipleRootNodesWarning(WarningMessage):
     def __init__(self, nd_id, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.MULTIPLE_ROOT_NODES, data=nd_id, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.MULTIPLE_ROOT_NODES, data=nd_id, address=address, severity=severity)
         self.nd_id = nd_id
     def write(self, outstream, prefix):
         outstream.write('{p}Multiple nodes in a tree were flagged as being the root node ("{k}" was not the first)'.format(p=prefix, k=self.nd_id))
@@ -189,7 +189,7 @@ class MultipleRootNodesWarning(WarningMessage):
 
 class MissingMandatoryKeyWarning(WarningMessage):
     def __init__(self, key, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, WarningCodes.MISSING_MANDATORY_KEY, data=key, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.MISSING_MANDATORY_KEY, data=key, address=address, severity=severity)
         self.key = key
     def write(self, outstream, prefix):
         outstream.write('{p}Missing required key "{k}"'.format(p=prefix, k=self.key))
@@ -199,7 +199,7 @@ class MissingMandatoryKeyWarning(WarningMessage):
 
 class UnrecognizedTagWarning(WarningMessage):
     def __init__(self, tag, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, WarningCodes.UNRECOGNIZED_TAG, data=tag, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.UNRECOGNIZED_TAG, data=tag, address=address, severity=severity)
         self.tag = tag
     def write(self, outstream, prefix):
         outstream.write(u'{p}Unrecognized value for a tag: "{s}"'.format(p=prefix, s=self.tag))
@@ -209,7 +209,7 @@ class UnrecognizedTagWarning(WarningMessage):
 
 class NoRootNodeWarning(WarningMessage):
     def __init__(self, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.NO_ROOT_NODE, data=None, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.NO_ROOT_NODE, data=None, address=address, severity=severity)
     def write(self, outstream, prefix):
         outstream.write('{p}No node in a tree was flagged as being the root node'.format(p=prefix))
         self._write_message_suffix(outstream)
@@ -218,7 +218,7 @@ class NoRootNodeWarning(WarningMessage):
 
 class MultipleTreesWarning(WarningMessage):
     def __init__(self, trees_list, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, WarningCodes.MULTIPLE_TREES, data=trees_list, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.MULTIPLE_TREES, data=trees_list, address=address, severity=severity)
         self.trees_list = trees_list
     def write(self, outstream, prefix):
         outstream.write('{p}Multiple trees were found without an indication of which tree is preferred'.format(p=prefix))
@@ -228,7 +228,7 @@ class MultipleTreesWarning(WarningMessage):
 
 class NoTreesWarning(WarningMessage):
     def __init__(self, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, WarningCodes.NO_TREES, data=None, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.NO_TREES, data=None, address=address, severity=severity)
     def write(self, outstream, prefix):
         outstream.write('{p}No trees were found, or all trees were flagged for deletion'.format(p=prefix))
         self._write_message_suffix(outstream)
@@ -237,7 +237,7 @@ class NoTreesWarning(WarningMessage):
 
 class TipWithoutOTUWarning(WarningMessage):
     def __init__(self, tip_node, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.TIP_WITHOUT_OTU, data=None, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.TIP_WITHOUT_OTU, data=None, address=address, severity=severity)
         self.tip_node = tip_node
     def write(self, outstream, prefix):
         outstream.write('{p}Tip node ("{n}") without a valid @otu value'.format(p=prefix, n=self.tip_node.nexson_id))
@@ -248,7 +248,7 @@ class TipWithoutOTUWarning(WarningMessage):
 class PropertyValueNotUsefulWarning(WarningMessage):
     def __init__(self, value, address, severity=SeverityCodes.WARNING):
         d = {'key': address.property_name, 'value': value}
-        WarningMessage.__init__(self, WarningCodes.PROPERTY_VALUE_NOT_USEFUL, data=d, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.PROPERTY_VALUE_NOT_USEFUL, data=d, address=address, severity=severity)
         self.key = address.property_name
         self.value = value
     def write(self, outstream, prefix):
@@ -260,7 +260,7 @@ class PropertyValueNotUsefulWarning(WarningMessage):
 class UnrecognizedPropertyValueWarning(WarningMessage):
     def __init__(self, value, address, severity=SeverityCodes.WARNING):
         d = {'key': address.property_name, 'value': value}
-        WarningMessage.__init__(self, WarningCodes.UNRECOGNIZED_PROPERTY_VALUE, data=d, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.UNRECOGNIZED_PROPERTY_VALUE, data=d, address=address, severity=severity)
         self.key = address.property_name
         self.value = value
     def write(self, outstream, prefix):
@@ -272,7 +272,7 @@ class UnrecognizedPropertyValueWarning(WarningMessage):
 class InvalidPropertyValueWarning(WarningMessage):
     def __init__(self, value, address, severity=SeverityCodes.ERROR):
         d = {'key': address.property_name, 'value': value}
-        WarningMessage.__init__(self, WarningCodes.INVALID_PROPERTY_VALUE, data=d, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.INVALID_PROPERTY_VALUE, data=d, address=address, severity=severity)
         self.key = address.property_name
         self.value = value
     def write(self, outstream, prefix):
@@ -284,7 +284,7 @@ class InvalidPropertyValueWarning(WarningMessage):
 class UnvalidatedAnnotationWarning(WarningMessage):
     def __init__(self, value, address, severity=SeverityCodes.WARNING):
         d = {'key': address.property_name, 'value': value}
-        WarningMessage.__init__(self, WarningCodes.UNVALIDATED_ANNOTATION, data=d, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.UNVALIDATED_ANNOTATION, data=d, address=address, severity=severity)
         self.key = address.property_name
         self.value = value
     def write(self, outstream, prefix):
@@ -295,7 +295,7 @@ class UnvalidatedAnnotationWarning(WarningMessage):
 
 class ConflictingPropertyValuesWarning(WarningMessage):
     def __init__(self, key_value_list, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.CONFLICTING_PROPERTY_VALUES, data=key_value_list, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.CONFLICTING_PROPERTY_VALUES, data=key_value_list, address=address, severity=severity)
         self.key_value_list = key_value_list
     def write(self, outstream, prefix):
         s = u", ".join([u'"{k}"="{v}"'.format(k=i[0], v=i[1]) for i in self.key_value_list])
@@ -307,7 +307,7 @@ class ConflictingPropertyValuesWarning(WarningMessage):
 class MultipleTipsMappedToOTTIDWarning(WarningMessage):
     def __init__(self, ott_id, node_list, address, severity=SeverityCodes.WARNING):
         data = {'ott_id':ott_id, 'node_list': node_list}
-        WarningMessage.__init__(self, WarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID, data=data, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID, data=data, address=address, severity=severity)
         self.ott_id = ott_id
         self.node_list = node_list
         self.id_list = [i.nexson_id for i in self.node_list]
@@ -324,7 +324,7 @@ class MultipleTipsMappedToOTTIDWarning(WarningMessage):
 class NonMonophyleticTipsMappedToOTTIDWarning(WarningMessage):
     def __init__(self, ott_id, clade_list, address, severity=SeverityCodes.WARNING):
         data = {'ott_id':ott_id, 'node_list': clade_list}
-        WarningMessage.__init__(self, WarningCodes.NON_MONOPHYLETIC_TIPS_MAPPED_TO_OTT_ID, data=data, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.NON_MONOPHYLETIC_TIPS_MAPPED_TO_OTT_ID, data=data, address=address, severity=severity)
         self.ott_id = ott_id
         self.clade_list = clade_list
         sl = [(i[0].nexson_id, i) for i in clade_list]
@@ -349,7 +349,7 @@ class NonMonophyleticTipsMappedToOTTIDWarning(WarningMessage):
 
 class TipsWithoutOTTIDWarning(WarningMessage):
     def __init__(self, tip, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, WarningCodes.TIP_WITHOUT_OTT_ID, data=tip, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.TIP_WITHOUT_OTT_ID, data=tip, address=address, severity=severity)
         self.tip = tip
     def write(self, outstream, prefix):
         outstream.write('{p}Tip node mapped to an OTU ("{o}") which does not have an OTT ID'.format(p=prefix, 
@@ -362,7 +362,7 @@ class TipsWithoutOTTIDWarning(WarningMessage):
 class MultipleEdgesPerNodeWarning(WarningMessage):
     def __init__(self, node, edge, address, severity=SeverityCodes.ERROR):
         data = {'node': node, 'edge': edge}
-        WarningMessage.__init__(self, WarningCodes.MULTIPLE_EDGES_FOR_NODES, data=data, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.MULTIPLE_EDGES_FOR_NODES, data=data, address=address, severity=severity)
         self.node = node
         self.edge = edge
     def write(self, outstream, prefix):
@@ -377,7 +377,7 @@ class MultipleEdgesPerNodeWarning(WarningMessage):
 class IncorrectRootNodeLabelWarning(WarningMessage):
     def __init__(self, tagged_node, node_without_parent, address, severity=SeverityCodes.ERROR):
         data = {'tagged': tagged_node, 'node_without_parent': node_without_parent}
-        WarningMessage.__init__(self, WarningCodes.INCORRECT_ROOT_NODE_LABEL, data=data, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.INCORRECT_ROOT_NODE_LABEL, data=data, address=address, severity=severity)
         self.tagged_node = tagged_node
         self.node_without_parent = node_without_parent
     def write(self, outstream, prefix):
@@ -390,7 +390,7 @@ class IncorrectRootNodeLabelWarning(WarningMessage):
 
 class TreeCycleWarning(WarningMessage):
     def __init__(self, node, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.CYCLE_DETECTED, data=node, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.CYCLE_DETECTED, data=node, address=address, severity=severity)
         self.node = node
     def write(self, outstream, prefix):
         outstream.write('{p}Cycle in a tree detected passing througn node "{n}"'.format(p=prefix, n=self.node.nexson_id))
@@ -400,7 +400,7 @@ class TreeCycleWarning(WarningMessage):
 
 class DisconnectedTreeWarning(WarningMessage):
     def __init__(self, root_node_list, address, severity=SeverityCodes.ERROR):
-        WarningMessage.__init__(self, WarningCodes.DISCONNECTED_GRAPH_DETECTED, data=root_node_list, address=address, severity=severity)
+        WarningMessage.__init__(self, NexsonWarningCodes.DISCONNECTED_GRAPH_DETECTED, data=root_node_list, address=address, severity=severity)
         self.root_node_list = root_node_list
     def write(self, outstream, prefix):
         outstream.write('{p}Disconnected graph found instead of tree including root nodes:'.format(p=prefix))

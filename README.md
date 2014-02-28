@@ -59,19 +59,16 @@ of the NeXML <-> NexSON conversion convention.
 
 ### Usage
 
-    $ python scripts/nexson/nexson_nexml.py input -o output
+    $ python scripts/nexson/nexson_nexml.py input -e 1.2 -o output
 
-will read NeXML or NexSON as input and produce the other format in a file called output.
+will read NeXML or NexSON as input and produce version 1.2 of the
+honeybadgerfish NexSON and 
 
-You can use the -m to specify the conversion mode. It expects two letter code for the 
-source and destination formats: 
-  x for NeXML,
-  j for NexSON (using the HoneyBadgerFish convention),
-  b for a direct BadgerFish translation of NeXML.
+    $ python scripts/nexson/nexson_nexml.py input -e nexml -o output
 
-So to convert from HoneyBadgerFish to BadgerFish run:
+to write NeXML.
 
-    $ python nexson_nexml.py -m jb -o someoutfile.json otu.json
+The <code>-h</code> command line flag reports more details about the arguments.
 
 ### Roundtrip tests
 

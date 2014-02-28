@@ -34,24 +34,34 @@ Environmental variables used:
                         action="store_true",
                         default=False,
                         help="If specified, the arbitrarily ordered items will be sorted.")
+    e_choices = ["nexml",
+                 str(BADGER_FISH_NEXSON_VERSION),
+                 str(DIRECT_HONEY_BADGERFISH),
+                 str(BY_ID_HONEY_BADGERFISH),
+                 "0.0",
+                 "1.0",
+                 "1.2",
+                 "badgerfish"]
+    e_choices.sort()
+    e_help = 'output format. Valid choices are: "{c}". \
+With "0.0" and "badgerfish" as aliases for "0.0.0", and \
+"1.2" being an alias for the most recent version of honeybadgerfish \
+(1.2.0). The verions "1.0.0" and its alias "1.0" refer to a \
+version that uses the honeybadgefish syntax for meta elements, \
+but maintained the direct object-mapping from NeXML of the \
+badgerfish form of NexSON'.format(c='", "'.join(e_choices))
     parser.add_argument("-e", "--export", 
                         metavar="FMT",
                         required=False,
-                        choices=["nexml",
-                                 str(BADGER_FISH_NEXSON_VERSION),
-                                 str(DIRECT_HONEY_BADGERFISH),
-                                 str(BY_ID_HONEY_BADGERFISH),
-                                 "0.0",
-                                 "1.0",
-                                 "1.2",
-                                 "badgerfish"],
-                        help="output format")
+                        choices=e_choices,
+                        help=e_help)
     codes = 'xjb'
     parser.add_argument("-m", "--mode", 
                         metavar="MODE",
                         required=False,
                         choices=[i + j for i in codes for j in codes],
-                        help="Two letter code for {input}{output} \
+                        help="A less precise way to specify a mapping. The \
+                               m option is a two-letter code for {input}{output} \
                                The letters are x for NeXML, j for NexSON, \
                                and b for BadgerFish JSON version of NexML. \
                                The default behavior is to autodetect the format \

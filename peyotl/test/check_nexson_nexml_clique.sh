@@ -7,6 +7,12 @@ if ! test -d scratch
 then
     mkdir scratch || exit
 fi
+if ! test -e "${converter}"
+then
+    echo Expecting "${converter}" to be an executable.
+    exit 1
+fi
+
 #all four edges from 1.2
 for out in "1.2" "1.0" "0.0" "nexml"
 do

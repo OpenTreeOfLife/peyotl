@@ -74,7 +74,7 @@ The <code>-h</code> command line flag reports more details about the arguments.
 
 A test of the available format conversions (without NeXML validation) can be run with:
 
-    $ sh peyotl/test/check_nexson_nexml_clique.sh peyotl/test/data/nexson/otu.json
+    $ sh peyotl/test/check_nexson_nexml_clique.sh peyotl/test/data/nexson/otu.json scripts/nexson/nexson_nexml.py
 
 If you alias your nexml validation tool to the name "validate-nexml" then you can 
 run the check_nexml_roundrip.sh and check_nexson_roundrip.sh

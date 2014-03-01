@@ -61,7 +61,7 @@ def get_ot_study_info_from_nexml(src,
         removes nexml/characters @TODO: should replace it with a URI for
             where the removed character data can be found.
     '''
-    if nexson_syntax_version == BY_ID_HONEY_BADGERFISH:
+    if _is_by_id_hbf(nexson_syntax_version):
         nsv = DIRECT_HONEY_BADGERFISH
     else:
         nsv = nexson_syntax_version
@@ -74,7 +74,7 @@ def get_ot_study_info_from_nexml(src,
     ccfg = ConversionConfig(output_format=nsv, input_format=NEXML_NEXSON_VERSION)
     converter = Nexml2Nexson(ccfg)
     o = converter.convert(doc_root)
-    if nexson_syntax_version == BY_ID_HONEY_BADGERFISH:
+    if _is_by_id_hbf(nexson_syntax_version):
         return convert_nexson_format(o, BY_ID_HONEY_BADGERFISH, current_format=nsv)
     return o
 

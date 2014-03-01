@@ -16,18 +16,37 @@ class DefaultRichLogger(object):
         self.errors = []
         self.prefix = ''
         self.retain_deprecated = False
-    def warn(self, warning_code, data, address):
+
+    def warn_event(self, err_type, *valist, **kwargs):
+        m = err_type(*valist, **kwargs)
+        self.append_warning(m)
+
+    def error_event(self, err_type, *valist, **kwargs):
+        m = err_type(*valist, **kwargs)
+        self.append_error(m)
+
+    def create_and_store_warning(self, warning_code, data, address):
+        raise NotImplementedError('create_and_store_warning')
         m = WarningMessage(warning_code, data, address, severity=SeverityCodes.WARNING)
-        self.warning(m)
-    def warning(self, m):
+        self.store_warning(m)
+
+    def store_warning(self, m):
+        raise NotImplementedError('store_warning')
+
+    def append_warning(self, m):
         if self.store_messages_as_obj:
             self.warnings.append(m)
         else:
             m.write(self.out, self.prefix)
-    def error(self, warning_code, address, subelement=''):
+
+    def create_and_emit_error(self, warning_code, address, subelement=''):
+        raise NotImplementedError('create_and_emit_error')
         m = WarningMessage(warning_code, data, address)
         self.emit_error(m)
+
     def emit_error(self, m):
+        raise NotImplementedError('emit_error')
+    def append_error(self, m):
         m.severity = SeverityCodes.ERROR
         if self.store_messages_as_obj:
             self.errors.append(m)
@@ -87,11 +106,15 @@ class DefaultRichLogger(object):
 class ValidationLogger(DefaultRichLogger):
     def __init__(self, store_messages=False):
         DefaultRichLogger.__init__(self, store_messages=store_messages)
-    def warning(self, m):
+    def store_warning(self, m):
+        raise NotImplementedError('store_warning')
+    def append_warning(self, m):
         if not self.store_messages_as_obj:
             m = m.getvalue(self.prefix)
         self.warnings.append(m)
     def emit_error(self, m):
+        raise NotImplementedError('emit_error')
+    def append_error(self, m):
         m.severity = SeverityCodes.ERROR
         if not self.store_messages_as_obj:
             m = m.getvalue(self.prefix)
@@ -114,12 +137,16 @@ class FilteringLogger(ValidationLogger):
                 self.codes_to_skip.add(el)
                 self.registered.remove(el)
 
-    def warning(self, m):
+    def store_warning(self, m):
+        raise NotImplementedError('store_warning')
+    def append_warning(self, m):
         if m.warning_code in self.codes_to_skip:
             return
         if m.warning_code in self.registered:
-            ValidationLogger.warning(self, m)
+            ValidationLogger.store_warning(self, m)
     def emit_error(self, m):
+        raise NotImplementedError('emit_error')
+    def append_error(self, m):
         m.severity = SeverityCodes.ERROR
         if m.warning_code in self.codes_to_skip:
             return

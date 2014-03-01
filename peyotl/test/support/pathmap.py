@@ -52,11 +52,19 @@ TESTS_COVERAGE_REPORT_DIR = os.path.join(TESTS_COVERAGE_DIR, "report")
 TESTS_COVERAGE_SOURCE_DIR = os.path.join(TESTS_COVERAGE_DIR, "source")
 
 def nexson_obj(filename):
+    '''Returns a dict that is the deserialized nexson object
+    'filename' should be the fragment of the filepath below
+    the nexson test dir.
+    '''
     with nexson_file_obj(filename) as fo:
         fc = fo.read()
         return anyjson.loads(fc)
 
 def nexson_file_obj(filename):
+    ''' Returns file object.
+    'filename' should be the fragment of the filepath below
+    the nexson test dir.
+    '''
     fp = nexson_source_path(filename=filename)
     return codecs.open(fp, mode='rU', encoding='utf-8')
 

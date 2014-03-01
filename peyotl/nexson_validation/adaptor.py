@@ -6,6 +6,12 @@ import datetime
 import codecs
 import json
 import re
+from peyotl.nexson_validation.warning_codes import MissingMandatoryKeyWarning, \
+                                                   UnrecognizedKeyWarning
+from peyotl.nexson_syntax.helper import _is_badgerfish_version, \
+                                        _is_by_id_hbf, \
+                                        _is_direct_hbf
+
 class NexsonAddress(object):
     '''Encapsulates a reference to an addressable object in a NexSON blob.
     A class is needed because the reference is encoded in multiple fields:
@@ -48,10 +54,10 @@ def check_key_presence(d, container, rich_logger):
     '''
     for k in d.keys():
         if k not in container.PERMISSIBLE_KEYS:
-            rich_logger.warning(UnrecognizedKeyWarning(k, address=container.address))
+            rich_logger.store_warning(UnrecognizedKeyWarning(k, address=container.address))
     for k in container.EXPECETED_KEYS:
         if k not in d:
-            rich_logger.warning(MissingOptionalKeyWarning(k, address=container.address))
+            rich_logger.store_warning(MissingOptionalKeyWarning(k, address=container.address))
     for k in container.REQUIRED_KEYS:
         if k not in d:
             rich_logger.emit_error(MissingMandatoryKeyWarning(k, address=container.address))
@@ -110,12 +116,12 @@ class NexsonDictWrapper(object):
         if (expected_keys is not None) and (rich_logger is not None):
             for k, v in mv.iteritems():
                 if k not in expected_keys:
-                    rich_logger.warning(UnvalidatedAnnotationWarning(v, self.address_of_meta_key(k)))
+                    rich_logger.store_warning(UnvalidatedAnnotationWarning(v, self.address_of_meta_key(k)))
     def get_singelton_meta(self, property_name, default=None, warn_if_missing=True):
         v = self._meta2value.get(property_name)
         if v is None:
             if warn_if_missing:
-                self._logger.warning(MissingOptionalKeyWarning(key=None, address=self.address_of_meta_key(property_name)))
+                self._logger.store_warning(MissingOptionalKeyWarning(key=None, address=self.address_of_meta_key(property_name)))
             v = default
         elif isinstance(v, MetaValueList):
             self._logger.emit_error(DuplicatingSingletonKeyWarning(self.address_of_meta_key(property_name)))
@@ -157,7 +163,7 @@ class NexsonDictWrapper(object):
         v = self._meta2value.get(property_name)
         if v is None:
             if warn_if_missing:
-                self._logger.warning(MissingOptionalKeyWarning(key=None, address=self.address_of_meta_key(property_name)))
+                self._logger.store_warning(MissingOptionalKeyWarning(key=None, address=self.address_of_meta_key(property_name)))
             v = []
         return v
     def consume_meta_and_check_keys(self, d, rich_logger):
@@ -247,7 +253,7 @@ class OTU(NexsonDictWrapper):
                 if (rich_logger is None or (not rich_logger.retain_deprecated)):
                     self.replace_meta_property_name('ot:ottolid', 'ot:ottid')
                 else:
-                    rich_logger.warning(DeprecatedMetaPropertyWarning(address=self.address))
+                    rich_logger.store_warning(DeprecatedMetaPropertyWarning(address=self.address))
         if self._ott_id is None:
             self.get_singelton_meta('ot:ottid') # trigger a warning
         self._original_label = self.get_singelton_meta('ot:originalLabel')
@@ -522,7 +528,7 @@ class Tree(NexsonDictWrapper):
                                              'ot:bootstrapValues',
                                              'ot:posteriorSupport']:
                 if self._branch_len_mode in ['ot:other', 'ot:undefined']:
-                    rich_logger.warning(PropertyValueNotUsefulWarning(self._branch_len_mode, address=self.address_of_meta_key(k)))
+                    rich_logger.store_warning(PropertyValueNotUsefulWarning(self._branch_len_mode, address=self.address_of_meta_key(k)))
                 else:
                     rich_logger.emit_error(UnrecognizedPropertyValueWarning(self._branch_len_mode, address=self.address_of_meta_key(k)))
         self._tag_list = self.get_list_meta('ot:tag', warn_if_missing=False)
@@ -530,7 +536,7 @@ class Tree(NexsonDictWrapper):
             self._tag_list = [self._tag_list]
         unexpected_tags = [i for i in self._tag_list if i.lower() not in self.EXPECTED_TAGS]
         for tag in unexpected_tags:
-            rich_logger.warning(UnrecognizedTagWarning(tag, address=self.address_of_meta_key('ot:tag')))
+            rich_logger.store_warning(UnrecognizedTagWarning(tag, address=self.address_of_meta_key('ot:tag')))
         self._tagged_for_deletion = False
         self._tagged_for_inclusion = False # is there a tag meaning "use this tree?"
         tl = [i.lower() for i in self._tag_list]
@@ -544,7 +550,7 @@ class Tree(NexsonDictWrapper):
                 self._tagged_for_inclusion = True
                 inc_tag = self._tag_list[tl.index(t)]
         if self._tagged_for_inclusion and self._tagged_for_deletion:
-            rich_logger.warning(ConflictingPropertyValuesWarning([('ot:tag', del_tag), ('ot:tag', inc_tag)], address=self.address_of_meta))
+            rich_logger.store_warning(ConflictingPropertyValuesWarning([('ot:tag', del_tag), ('ot:tag', inc_tag)], address=self.address_of_meta))
         self._node_dict = {}
         self._node_list = []
         self._edge_dict = {}
@@ -576,7 +582,7 @@ class Tree(NexsonDictWrapper):
                     else:
                         rich_logger.emit_error(MultipleRootNodesWarning(nid, NexsonAddress(container=self, subelement='node')))
         if self._root_node is None:
-            rich_logger.warning(NoRootNodeWarning(address=self.address))
+            rich_logger.store_warning(NoRootNodeWarning(address=self.address))
         v = o.get('edge', [])
         if not isinstance(v, list):
             rich_logger.emit_error(MissingExpectedListWarning(v, NexsonAddress(container=self, subelement='edge')))
@@ -608,14 +614,14 @@ class Tree(NexsonDictWrapper):
                 if nd._otu is None:
                     rich_logger.emit_error(TipWithoutOTUWarning(nd, address=nd.address))
                 elif nd._otu._ott_id is None:
-                    rich_logger.warning(TipsWithoutOTTIDWarning(nd, address=nd.address))
+                    rich_logger.store_warning(TipsWithoutOTTIDWarning(nd, address=nd.address))
                 else:
                     nl = ott_id2node.setdefault(nd._otu._ott_id, [])
                     if len(nl) == 1:
                         multi_labelled_ott_id.add(nd._otu._ott_id)
                     nl.append(nd)
                 if not is_flagged_as_leaf:
-                    rich_logger.warning(MissingOptionalKeyWarning(key=None, address=nd.address_of_meta_key('ot:isLeaf')))
+                    rich_logger.store_warning(MissingOptionalKeyWarning(key=None, address=nd.address_of_meta_key('ot:isLeaf')))
                     if not rich_logger.retain_deprecated:
                         nd.add_meta('ot:isLeaf', True)
             elif is_flagged_as_leaf:
@@ -623,7 +629,7 @@ class Tree(NexsonDictWrapper):
                 nd.del_meta('ot:isLeaf') # Non const. Fixing.
         for ott_id in multi_labelled_ott_id:
             tip_list = ott_id2node.get(ott_id)
-            rich_logger.warning(MultipleTipsMappedToOTTIDWarning(ott_id, tip_list, address=self.address))
+            rich_logger.store_warning(MultipleTipsMappedToOTTIDWarning(ott_id, tip_list, address=self.address))
         if len(lowest_node_set) > 1:
             valid_tree = False
             lowest_node_set = [(i.nexson_id, i) for i in lowest_node_set]
@@ -639,7 +645,7 @@ class Tree(NexsonDictWrapper):
                 tip_list = ott_id2node.get(ott_id)
                 clade_tips = self.break_by_clades(tip_list)
                 if len(clade_tips) > 1:
-                    rich_logger.warning(NonMonophyleticTipsMappedToOTTIDWarning(ott_id, clade_tips, address=self.address))
+                    rich_logger.store_warning(NonMonophyleticTipsMappedToOTTIDWarning(ott_id, clade_tips, address=self.address))
     def break_by_clades(self, tip_list):
         '''Takes a list of nodes. returns a list of lists. 
         Each sub list is a set of leaves in the tree that form the tips of a clade on the tree..
@@ -806,7 +812,7 @@ class NexSON(NexsonDictWrapper):
         NexsonDictWrapper.__init__(self, o, rich_logger, None)
         for k in o.keys():
             if k not in ['nexml']:
-                rich_logger.warning(UnrecognizedKeyWarning(k, address=self.address))
+                rich_logger.store_warning(UnrecognizedKeyWarning(k, address=self.address))
         self._nexml = None
         if 'nexml' not in o:
             rich_logger.emit_error(MissingMandatoryKeyWarning('nexml', address=self.address))
@@ -827,7 +833,7 @@ class NexSON(NexsonDictWrapper):
             self._tags = [self._tags]
         unexpected_tags = [i for i in self._tags if i not in self.EXPECTED_TAGS]
         for tag in unexpected_tags:
-            rich_logger.warning(UnrecognizedTagWarning(tag, address=self.address_of_meta_key('ot:tag')))
+            rich_logger.store_warning(UnrecognizedTagWarning(tag, address=self.address_of_meta_key('ot:tag')))
         v = self._nexml.get('otus')
         if v is None:
             rich_logger.emit_error(MissingMandatoryKeyWarning('otus', address=self.address))
@@ -847,9 +853,9 @@ class NexSON(NexsonDictWrapper):
                 possible_trees.extend([t for t in tc._as_list if t._tagged_for_inclusion or (not t._tagged_for_deletion)])
             if len(possible_trees) > 1:
                 #TEMP: bug self.trees[0] may not be the offending element...
-                rich_logger.warning(MultipleTreesWarning(self.trees, address=self.trees[0].address))
+                rich_logger.store_warning(MultipleTreesWarning(self.trees, address=self.trees[0].address))
             elif len(possible_trees) == 0:
-                rich_logger.warning(NoTreesWarning(address=self.trees[0].address))
+                rich_logger.store_warning(NoTreesWarning(address=self.trees[0].address))
 
 
 def indented_keys(out, o, indentation='', indent=2):
@@ -905,11 +911,31 @@ _NEXEL_NODE = 6
 _NEXEL_EDGE = 7
 _NEXEL_META = 8
 
+_NEXEL_CODE_TO_STR = {
+    _NEXEL_TOP_LEVEL: 'top-level container',
+    _NEXEL_NEXML: 'nexml element',
+    _NEXEL_OTUS: 'otus group',
+    _NEXEL_OTU: 'otu',
+    _NEXEL_TREES: 'trees group',
+    _NEXEL_TREE: 'tree',
+    _NEXEL_NODE: 'node',
+    _NEXEL_EDGE: 'edge',
+    _NEXEL_META: 'meta',
+}
 class LazyAddress(object):
-    def __init__(self, code, obj=None):
+    @staticmethod
+    def _address_code_to_str(code):
+        return _NEXEL_CODE_TO_STR[code]
+    def __init__(self, code, obj=None, obj_id=None):
         self.code = code
         self.ref = obj
-
+        self.obj_id = obj_id
+    def write_path_suffix_str(self, out):
+        ts = LazyAddress._address_code_to_str(self.code)
+        if self.obj_id is None:
+            out.write(' in {t}'.format(t=ts))
+        else:
+            out.write(' in {t} (id="{i}")'.format(t=ts, i=self.obj_id))
 class NexsonValidationAdaptor(object):
     '''An object created during NexSON validation.
     It holds onto the nexson object that it was instantiated for.
@@ -926,27 +952,29 @@ class NexsonValidationAdaptor(object):
         self._nexml = None
         tlz = None
         for k in obj.keys():
-            if k not in ['nexml']:
-                if tlz = None:
-                    tlz = LazyAddress(_NEXEL_TOP_LEVEL, obj)
-                logger.warning(UnrecognizedKeyWarning(k, address=tlz))
+            if k not in ['nexml', 'nex:nexml']:
+                if tlz is None:
+                    tlz = LazyAddress(_NEXEL_TOP_LEVEL, obj, None)
+                logger.warn_event(UnrecognizedKeyWarning, k, address=tlz)
         self._nexml = None
-        if 'nexml' not in obj:
-            if tlz = None:
-                tlz = LazyAddress(NexsonElement.TOP_LEVEL, obj)
-            logger.emit_error(MissingMandatoryKeyWarning('nexml', address=tlz))
+        if ('nexml' not in obj) and ('nex:nexml' not in obj):
+            if tlz is None:
+                tlz = LazyAddress(NexsonElement.TOP_LEVEL, obj, None)
+            logger.error_event(MissingMandatoryKeyWarning, 'nexml', address=tlz)
             return ## EARLY EXIT!!
-        self._nexml = o['nexml']
+        self._nexml = obj.get('nexml') or obj['nex:nexml']
         self._nexson_version = detect_nexson_version(obj)
         if _is_by_id_hbf(self._nexson_version):
             self.__class__ = ByIdHBFValidationAdaptor
         elif _is_badgerfish_version(self._nexson_version):
             self.__class__ = BadgerFishValidationAdaptor
-        else _is_direct_hbf(self._nexson_version):
+        elif _is_direct_hbf(self._nexson_version):
             self.__class__ = DirectHBFValidationAdaptor
         else:
             assert(False) # unrecognized nexson variant
         self._validate_nexml_obj(self._nexml, logger)
+    def _validate_nexml_obj(self, nex_obj, logger):
+        pass
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
         expected to have a string as the value of annotation['author']['name']

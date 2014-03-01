@@ -17,6 +17,18 @@ import os
 # list of the absolute path to the each of the known "study" directories in phylesystem repos.
 _study_dirs = []
 
+def get_HEAD_SHA1(git_dir):
+    '''Not locked!
+    '''
+    head_file = os.path.join(git_dir, 'HEAD')
+    with open(head_file, 'rU') as hf:
+        head_contents = hf.read().strip()
+    assert(head_contents.startswith('ref: '))
+    ref_filename = head_contents[5:] #strip off "ref: "
+    real_ref = os.path.join(git_dir, ref_filename)
+    with open(real_ref, 'rU') as rf:
+        return rf.read().strip()
+
 def _get_phylesystem_parent():
     if 'PHYLESYSTEM_PARENT' in os.environ:
         phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')

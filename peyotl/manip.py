@@ -30,6 +30,32 @@ def count_num_trees(nexson, nexson_version=None):
                 nt = 1
             num_trees_by_group.append(nt)
     return sum(num_trees_by_group)
+def iter_trees(nexson, nexson_version=None):
+    '''generator over all trees in all trees elements.
+    yields a tuple of 3 items:
+        trees element ID,
+        tree ID,
+        the tree obj
+    '''
+    if nexson_version is None:
+        nexson_version = detect_nexson_version(nexson)
+    nex = nexson.get('nex:nexml') or nexson['nexml']
+    if _is_by_id_hbf(nexson_version):
+        trees_group_by_id = nex['treesById']
+        for trees_group_id in nex.get('^ot:treesElementOrder', []):
+            trees_group = trees_group_by_id[trees_group_id]
+            tree_by_id = trees_group['treeById']
+            ti_order = trees_group['^ot:treeElementOrder']
+            for tree_id in ti_order:
+                tree = tree_by_id[tree_id]
+                yield trees_group_id, tree_id, tree
+    else:
+        for trees_group in nex.get('trees', []):
+            trees_group_id = trees_group['@id']
+            for tree in trees_group.get('tree', []):
+                tree_id = tree['@id']
+                yield trees_group_id, tree_id, tree
+
 def label_to_original_label_otu_by_id(otu_by_id):
     '''Takes a v1.2 otuById dict and, for every otu,
     checks if ot:originalLabel exists. If it does not,

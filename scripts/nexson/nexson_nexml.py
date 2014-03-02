@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.nexson_syntax import convert_nexson_format, \
                                  get_ot_study_info_from_nexml, \
+                                 get_nexml_el, \
                                  sort_arbitrarily_ordered_nexson, \
                                  write_as_json, \
                                  write_obj_as_nexml, \
@@ -135,7 +136,10 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
     else:
         blob = json.load(inp)
         if mode.startswith('*'):
-            n = blob.get('nex:nexml') or blob.get('nexml')
+            try:
+                n = get_nexml_el(blob)
+            except:
+                n = None
             if not n or (not isinstance(n, dict)):
                 sys.exit('No top level "nex:nexml" element found. Document does not appear to be a JSON version of NeXML\n')
             if n:

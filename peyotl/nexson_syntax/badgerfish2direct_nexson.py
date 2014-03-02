@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 'Badgerfish2DirectNexson class'
 from peyotl.nexson_syntax.helper import NexsonConverter, \
+                                        get_nexml_el, \
                                         _add_value_to_dict_bf, \
                                         _coerce_literal_val_to_primitive, \
                                         _cull_redundant_about, \
@@ -117,7 +118,7 @@ class Badgerfish2DirectNexson(NexsonConverter):
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 
-        nex = obj.get('nex:nexml') or obj['nexml']
+        nex = get_nexml_el(obj)
         assert(nex)
         self._recursive_convert_dict(nex)
         # pluralization simplifications in hbf:

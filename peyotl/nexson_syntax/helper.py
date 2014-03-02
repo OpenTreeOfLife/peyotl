@@ -20,6 +20,11 @@ SUPPORTED_NEXSON_VERSIONS = frozenset([BADGER_FISH_NEXSON_VERSION,
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 
+def get_nexml_el(blob):
+    v = blob.get('nexml')
+    if v is not None:
+        return v
+    return blob['nex:nexml']
 
 class NexmlTypeError(Exception):
     def __init__(self, m):

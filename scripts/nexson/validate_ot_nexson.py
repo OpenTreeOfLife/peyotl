@@ -1,55 +1,66 @@
 #!/usr/bin/env python
-import sys
-from peyotl.nexson_validation import NexsonError, \
-                                     NexsonWarningCodes, \
-                                     validate_nexson
-SCRIPT_NAME = __name__  #@TODO replace with logger...
-ERR_STREAM = sys.stderr #@TODO replace with logger...
-
-def error(msg):
-    global SCRIPT_NAME, ERR_STREAM
-    ERR_STREAM.write('{n}: ERROR: {m}'.format(n=SCRIPT_NAME,
-                                                m=msg))
-    if not msg.endswith('\n'):
-        ERR_STREAM.write('\n')
-
-def warn(msg):
-    global SCRIPT_NAME, ERR_STREAM
-    ERR_STREAM.write('{n}: WARNING: {m}'.format(n=SCRIPT_NAME,
-                                                m=msg))
-    if not msg.endswith('\n'):
-        ERR_STREAM.write('\n')
-
-def info(msg):
-    global SCRIPT_NAME, ERR_STREAM
-    ERR_STREAM.write('{n}: {m}'.format(n=SCRIPT_NAME,
-                                                m=msg))
-    if not msg.endswith('\n'):
-        ERR_STREAM.write('\n')
-
 if __name__ == '__main__':
-    import json
-    import os
-    import codecs
+    from peyotl.nexson_validation import NexsonError, \
+                                         NexsonWarningCodes, \
+                                         validate_nexson
+    from peyotl import get_logger
     import argparse
+    import codecs
+    import json
+    import sys
+    import os
+    SCRIPT_NAME = os.path.split(os.path.abspath(sys.argv[0]))[-1]
+    _LOG = get_logger(SCRIPT_NAME)
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
     parser = argparse.ArgumentParser(description='Validate a json file as Open Tree of Life NexSON')
-    parser.add_argument('--verbose', dest='verbose', action='store_true', default=False, help='verbose output')
-    parser.add_argument('--meta', dest='meta', action='store_true', default=False, help='warn about unvalidated meta elements')
-    parser.add_argument('input', metavar='filepath', type=unicode, nargs=1, help='filename')
+    parser.add_argument('--verbose',
+                        dest='verbose',
+                        action='store_true',
+                        default=False,
+                        help='verbose output')
+    out_syntax_choices = ["json",]
+    out_syntax_choices.sort()
+    s_help = 'Syntax of output. Valid choices are: "{c}"'.format(c='", "'.join(out_syntax_choices))
+    parser.add_argument("-s", "--syntax", 
+                        metavar="FMT",
+                        required=False,
+                        choices=out_syntax_choices,
+                        default="json",
+                        help=s_help)
+    parser.add_argument("-o", "--output", 
+                        metavar="FILE",
+                        required=False,
+                        help="output filepath. Standard output is used if omitted.")
+    parser.add_argument('--meta',
+                        dest='meta',
+                        action='store_true',
+                        default=False,
+                        help='warn about unvalidated meta elements')
+    parser.add_argument('input',
+                        metavar='filepath',
+                        type=unicode,
+                        nargs=1,
+                        help='filename')
     args = parser.parse_args()
-    SCRIPT_NAME = os.path.split(sys.argv[0])[-1]
     try:
         inp_filepath = args.input[0]
     except:
         sys.exit('Expecting a filepath to a NexSON file as the only argument.\n')
     inp = codecs.open(inp_filepath, 'rU', encoding='utf-8')
+    outfn = args.output
+    if outfn is not None:
+        try:
+            out = codecs.open(outfn, mode='w', encoding='utf-8')
+        except:
+            sys.exit('validate_ot_nexson: Could not open output filepath "{fn}"\n'.format(fn=outfn))
+    else:
+        out = codecs.getwriter('utf-8')(sys.stdout)
     try:
         obj = json.load(inp)
     except ValueError as vx:
-        error('Not valid JSON.')
+        _LOG.error('Not valid JSON.')
         if args.verbose:
             raise vx
         else:
@@ -60,13 +71,18 @@ if __name__ == '__main__':
     try:
         v, n = validate_nexson(obj, codes_to_skip)
     except NexsonError as nx:
-        error(nx.value)
+        _LOG.error(nx.value)
         sys.exit(1)
     if (not v.errors) and (not v.warnings):
-        info('Valid')
-    elif v.errors:
-        for el in v.errors:
-            error(el)
+        _LOG.info('Valid')
     else:
-        for el in v.warnings:
-            warn(el)
+        if args.syntax.lower() == 'json':
+            em_dict = v.get_err_warn_summary_dict()
+            json.dump(em_dict, out, indent=2, sort_keys=True)
+        else:
+            if v.errors:
+                for el in v.errors:
+                    _LOG.error(el)
+            else:
+                for el in v.warnings:
+                    _LOG.warn(el)

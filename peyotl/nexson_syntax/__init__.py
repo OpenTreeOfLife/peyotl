@@ -10,6 +10,7 @@ Most notable functions are:
 '''
 from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         NexsonConverter, \
+                                        get_nexml_el, \
                                         _add_value_to_dict_bf, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
@@ -113,8 +114,8 @@ def write_obj_as_nexml(obj_dict,
 
 def detect_nexson_version(blob):
     '''Returns the nexml2json attribute or the default code for badgerfish'''
-    n = blob.get('nex:nexml') or blob.get('nexml')
-    assert(n)
+    n = get_nexml_el(blob)
+    assert(isinstance(n, dict))
     return n.get('@nexml2json', BADGER_FISH_NEXSON_VERSION)
 def resolve_nexson_format(v):
     if len(v) == 3:
@@ -241,7 +242,7 @@ def sort_arbitrarily_ordered_nexson(blob):
     '''
     # otu, node and edge elements have no necessary orger in v0.0 or v1.0
     v = detect_nexson_version(blob)
-    nex = blob.get('nex:nexml') or blob['nexml']
+    nex = get_nexml_el(blob)
     if _is_by_id_hbf(v):
         return blob
     sort_meta_elements(blob)

@@ -5,6 +5,7 @@ from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
                                  _add_value_to_dict_bf, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \
+                                 get_nexml_el, \
                                  _is_by_id_hbf
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
@@ -12,7 +13,7 @@ _LOG = get_logger(__name__)
 def count_num_trees(nexson, nexson_version=None):
     if nexson_version is None:
         nexson_version = detect_nexson_version(nexson)
-    nex = nexson.get('nex:nexml') or nexson['nexml']
+    nex = get_nexml_el(nexson)
     num_trees_by_group = []
     if _is_by_id_hbf(nexson_version):
         for tree_group in nex.get('treesById', {}).values():
@@ -39,7 +40,7 @@ def iter_trees(nexson, nexson_version=None):
     '''
     if nexson_version is None:
         nexson_version = detect_nexson_version(nexson)
-    nex = nexson.get('nex:nexml') or nexson['nexml']
+    nex = get_nexml_el(nexson)
     if _is_by_id_hbf(nexson_version):
         trees_group_by_id = nex['treesById']
         for trees_group_id in nex.get('^ot:treesElementOrder', []):
@@ -126,7 +127,7 @@ def merge_otus_and_trees(nexson_blob):
     id_to_replace_id = {}
     orig_version = detect_nexson_version(nexson_blob)
     convert_nexson_format(nexson_blob, BY_ID_HONEY_BADGERFISH)
-    nexson = nexson_blob.get('nex:nexml') or nexson_blob['nexml']
+    nexson = get_nexml_el(nexson_blob)
     replaced_otu_id_by_group = {}
     otus_group_order = nexson.get('^ot:otusElementOrder', [])
     # (ott, orig) -> list of otu elements

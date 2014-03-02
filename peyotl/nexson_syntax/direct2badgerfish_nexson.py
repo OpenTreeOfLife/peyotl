@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 'Direct2BadgerfishNexson class'
 from peyotl.nexson_syntax.helper import NexsonConverter, \
+                                        get_nexml_el, \
                                         _add_redundant_about, \
                                         _convert_hbf_meta_val_for_xml, \
                                         BADGER_FISH_NEXSON_VERSION
@@ -73,7 +74,7 @@ class Direct2BadgerfishNexson(NexsonConverter):
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 
-        nex = obj.get('nex:nexml') or obj['nexml']
+        nex = get_nexml_el(obj)
         assert(nex)
         self._recursive_convert_dict(nex)
         nex['@nexml2json'] = str(BADGER_FISH_NEXSON_VERSION)

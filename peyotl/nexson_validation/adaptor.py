@@ -8,7 +8,8 @@ import json
 import re
 from peyotl.nexson_validation.warning_codes import MissingMandatoryKeyWarning, \
                                                    UnrecognizedKeyWarning
-from peyotl.nexson_syntax.helper import _is_badgerfish_version, \
+from peyotl.nexson_syntax.helper import get_nexml_el, \
+                                        _is_badgerfish_version, \
                                         _is_by_id_hbf, \
                                         _is_direct_hbf
 from peyotl.nexson_syntax import detect_nexson_version
@@ -68,12 +69,14 @@ class NexsonValidationAdaptor(object):
                     tlz = LazyAddress(_NEXEL_TOP_LEVEL, obj, None)
                 logger.warn_event(UnrecognizedKeyWarning, k, address=tlz)
         self._nexml = None
-        if ('nexml' not in obj) and ('nex:nexml' not in obj):
+        try:
+            self._nexml = get_nexml_el(obj)
+            assert(isinstance(self._nexml, dict))
+        except:
             if tlz is None:
-                tlz = LazyAddress(NexsonElement.TOP_LEVEL, obj, None)
+                tlz = LazyAddress(_NEXEL_TOP_LEVEL, obj, None)
             logger.error_event(MissingMandatoryKeyWarning, 'nexml', address=tlz)
             return ## EARLY EXIT!!
-        self._nexml = obj.get('nexml') or obj['nex:nexml']
         self._nexson_version = detect_nexson_version(obj)
         if _is_by_id_hbf(self._nexson_version):
             self.__class__ = ByIdHBFValidationAdaptor

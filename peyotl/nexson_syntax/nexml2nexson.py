@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 'Nexml2Nexson class'
 from peyotl.nexson_syntax.helper import NexsonConverter, \
+                                        get_nexml_el, \
                                         _add_value_to_dict_bf, \
                                         _coerce_literal_val_to_primitive, \
                                         _cull_redundant_about, \
@@ -77,8 +78,10 @@ class Nexml2Nexson(NexsonConverter):
         key, val = self._gen_hbf_el(doc_root)
         val['@nexml2json'] = self.output_format
         o = {key: val}
-        n = o.get('nexml') or o.get('nex:nexml')
-        if not n:
+        try:
+            n = get_nexml_el(o)
+            assert(n)
+        except:
             return o
         # ot: discard characters...
         if 'characters' in n:

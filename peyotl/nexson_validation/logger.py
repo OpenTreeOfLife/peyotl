@@ -143,7 +143,7 @@ class FilteringLogger(ValidationLogger):
         if m.warning_code in self.codes_to_skip:
             return
         if m.warning_code in self.registered:
-            ValidationLogger.store_warning(self, m)
+            ValidationLogger.append_warning(self, m)
     def emit_error(self, m):
         raise NotImplementedError('emit_error')
     def append_error(self, m):

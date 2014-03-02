@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 'Direct2OptimalNexson class'
 from peyotl.nexson_syntax.helper import NexsonConverter, \
+                                        get_nexml_el, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
                                         BY_ID_HONEY_BADGERFISH
@@ -93,7 +94,7 @@ class Direct2OptimalNexson(NexsonConverter):
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 
-        nex = obj.get('nex:nexml') or obj['nexml']
+        nex = get_nexml_el(obj)
         assert(nex)
         # Create the new objects as locals. This section should not
         #   mutate obj, so that if there is an exception the object

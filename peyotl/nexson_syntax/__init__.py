@@ -20,7 +20,8 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         DEFAULT_NEXSON_VERSION, \
                                         DIRECT_HONEY_BADGERFISH, \
                                         NEXML_NEXSON_VERSION, \
-                                        BY_ID_HONEY_BADGERFISH
+                                        BY_ID_HONEY_BADGERFISH, \
+                                        SUPPORTED_NEXSON_VERSIONS
 
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
 
@@ -115,7 +116,18 @@ def detect_nexson_version(blob):
     n = blob.get('nex:nexml') or blob.get('nexml')
     assert(n)
     return n.get('@nexml2json', BADGER_FISH_NEXSON_VERSION)
-
+def resolve_nexson_format(v):
+    if len(v) == 3:
+        if v == '1.2':
+            return BY_ID_HONEY_BADGERFISH
+        if v == '1.0':
+            return DIRECT_HONEY_BADGERFISH
+        if v == '0.0':
+            return BADGER_FISH_NEXSON_VERSION
+    else:
+        if v in SUPPORTED_NEXSON_VERSIONS:
+            return v
+    raise NotImplementedError('NexSON version "{v}" not supported.'.format(v=v))
 def can_convert_nexson_forms(src_format, dest_format):
     return (dest_format in _CONVERTIBLE_FORMATS) and (src_format in _CONVERTIBLE_FORMATS)
 
@@ -138,7 +150,7 @@ def convert_nexson_format(blob,
     '''
     if not current_format:
         current_format = detect_nexson_version(blob)
-
+    out_nexson_format = resolve_nexson_format(out_nexson_format)
     if current_format == out_nexson_format:
         if sort_arbitrary:
             sort_arbitrarily_ordered_nexson(blob)

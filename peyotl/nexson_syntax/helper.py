@@ -13,9 +13,13 @@ BY_ID_HONEY_BADGERFISH = '1.2.1'
 BADGER_FISH_NEXSON_VERSION = '0.0.0'
 NEXML_NEXSON_VERSION = 'nexml'
 
+SUPPORTED_NEXSON_VERSIONS = frozenset([BADGER_FISH_NEXSON_VERSION,
+                                       DIRECT_HONEY_BADGERFISH,
+                                       BY_ID_HONEY_BADGERFISH])
 # TODO: in lieu of real namespace support...
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
+
 
 class NexmlTypeError(Exception):
     def __init__(self, m):

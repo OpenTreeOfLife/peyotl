@@ -1,6 +1,8 @@
 {
 "nex:nexml": {
+"@about": "#bogusStudyID",
 "@generator": "org.opentreeoflife.api.nexsonvalidator.nexson_nexml", 
+"@id": "bogusStudyID",
 "@nexml2json": "0.0.0", 
 "@version": "0.9", 
 "@xmlns": {

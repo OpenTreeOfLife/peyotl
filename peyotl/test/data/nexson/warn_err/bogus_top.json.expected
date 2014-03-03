@@ -1,5 +1,18 @@
 {
   "errors": {
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "@id"
+      ], 
+      "refersTo": "nexml"
+    }, 
+    "MISSING_OPTIONAL_KEY": {
+      "data": [
+        "otus", 
+        "trees"
+      ], 
+      "refersTo": "nexml"
+    }, 
     "UNRECOGNIZED_KEY": {
       "data": [
         "bogus"

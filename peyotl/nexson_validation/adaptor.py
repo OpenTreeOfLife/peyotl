@@ -3,6 +3,7 @@
 '''
 import json
 from peyotl.nexson_validation.helper import SeverityCodes
+from peyotl.nexson_validation.schema import add_schema_attributes
 from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
@@ -25,10 +26,10 @@ _NEXEL_META = 8
 
 _NEXEL_CODE_TO_STR = {
     _NEXEL_TOP_LEVEL: 'top-level',
-    _NEXEL_NEXML: 'nexml element',
-    _NEXEL_OTUS: 'otus group',
+    _NEXEL_NEXML: 'nexml',
+    _NEXEL_OTUS: 'otus',
     _NEXEL_OTU: 'otu',
-    _NEXEL_TREES: 'trees group',
+    _NEXEL_TREES: 'trees',
     _NEXEL_TREE: 'tree',
     _NEXEL_NODE: 'node',
     _NEXEL_EDGE: 'edge',
@@ -120,6 +121,7 @@ class NexsonValidationAdaptor(object):
                               key_list=('nexml',))
             return ## EARLY EXIT!!
         self._nexson_version = detect_nexson_version(obj)
+        # a little duck-punching
         add_schema_attributes(self, self._nexson_version)
         self._validate_nexml_obj(self._nexml, anc=obj)
 
@@ -180,8 +182,8 @@ class NexsonValidationAdaptor(object):
                              key_list=tuple(off_key))
 
     def _validate_nexml_obj(self, nex_obj, anc):
-        schema = self.__class__._NexmlEl_Schema
-        self._validate_obj_by_schema(_NEXEL_NEXML, nex_obj, anc, schema)
+        schema = self._NexmlEl_Schema
+        self._validate_obj_by_schema(_NEXEL_NEXML, nex_obj, [anc], schema)
 
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
@@ -225,3 +227,24 @@ class NexsonValidationAdaptor(object):
     def get_nexson_str(self):
         return json.dumps(self._raw, sort_keys=True, indent=0)
 
+class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
+    def __init__(self, obj, logger):
+        NexsonValidationAdaptor.__init__(self, obj, logger)
+class DirectHBFValidationAdaptor(NexsonValidationAdaptor):
+    def __init__(self, obj, logger):
+        NexsonValidationAdaptor.__init__(self, obj, logger)
+class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
+    def __init__(self, obj, logger):
+        NexsonValidationAdaptor.__init__(self, obj, logger)
+
+def create_validation_adaptor(obj, logger):
+    try:
+        nexson_version = detect_nexson_version(obj)
+        if _is_by_id_hbf(nexson_version):
+            return ByIdHBFValidationAdaptor(obj, logger)
+        elif _is_badgerfish_version(nexson_version):
+            return BadgerFishValidationAdaptor(obj, logger)
+        elif _is_direct_hbf(nexson_version):
+            return DirectHBFValidationAdaptor(obj, logger)
+    except:
+        return NexsonValidationAdaptor(obj, logger)

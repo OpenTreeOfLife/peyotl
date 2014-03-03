@@ -5,7 +5,7 @@ from peyotl.nexson_validation.helper import NexsonError
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from peyotl.nexson_validation.logger import FilteringLogger, \
                                             ValidationLogger
-from peyotl.nexson_validation.adaptor import NexsonValidationAdaptor
+from peyotl.nexson_validation.adaptor import create_validation_adaptor
 
 def validate_nexson(obj, warning_codes_to_skip=None, retain_deprecated=True):
     '''Takes an `obj` that is a NexSON object. 
@@ -28,6 +28,6 @@ def validate_nexson(obj, warning_codes_to_skip=None, retain_deprecated=True):
     else:
         v = ValidationLogger(store_messages=True)
     v.retain_deprecated = retain_deprecated
-    n = NexsonValidationAdaptor(obj, v)
+    n = create_validation_adaptor(obj, v)
     return v, n
 

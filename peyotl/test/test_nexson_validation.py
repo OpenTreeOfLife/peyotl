@@ -41,7 +41,8 @@ class TestConvert(unittest.TestCase):
             for nf in format_list:
                 frag = os.path.join(d, 'v{f}.json'.format(f=nf))
                 nexson = pathmap.nexson_obj(frag)
-                annot, adaptor = validate_nexson(nexson)
+                aa = validate_nexson(nexson)
+                annot = aa[0]
                 for e in annot.errors:
                     _LOG.debug('unexpected error from {f}: {m}'.format(f=frag, m=unicode(e)))
                 for e in annot.warnings:
@@ -55,7 +56,8 @@ class TestConvert(unittest.TestCase):
                 efn = frag + '.expected'
                 if os.path.exists(efn):
                     inp = read_json(fn)
-                    v, n = validate_nexson(inp)
+                    vp = validate_nexson(inp)
+                    v = vp[0]
                     em_dict = v.get_err_warn_summary_dict()
                     em_dict = through_json(em_dict)
                     exp = read_json(efn)

@@ -28,6 +28,7 @@ class DefaultRichLogger(object):
         self._err_by_obj = {}
         self.prefix = ''
         self.retain_deprecated = False
+        self.codes_to_skip = set()
     def get_errors(self):
         return self._err_by_type.values()
     errors = property(get_errors)
@@ -35,6 +36,7 @@ class DefaultRichLogger(object):
         return self._warn_by_type.values()
     warnings = property(get_warnings)
     def is_logging_type(self, t):
+        #pylint: disable=W0613,R0201
         return True
     def register_new_messages(self, err_tup, severity):
         c = err_tup[0].code
@@ -67,8 +69,12 @@ class DefaultRichLogger(object):
                        annotation_label='',
                        author_version=VERSION,
                        url='https://github.com/OpenTreeOfLife/api.opentreeoflife.org',
-                       description="validator of NexSON constraints as well as constraints that would allow a study to be imported into the Open Tree of Life's phylogenetic synthesis tools"
+                       description=None
                        ):
+        if description is None:
+            description = "validator of NexSON constraints as well as constraints "\
+                          "that would allow a study to be imported into the Open Tree "\
+                          "of Life's phylogenetic synthesis tools"
         checks_performed = list(NexsonWarningCodes.numeric_codes_registered)
         for code in self.codes_to_skip:
             try:

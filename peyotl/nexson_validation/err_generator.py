@@ -8,7 +8,6 @@
     element 3: the "data" argument for the warning. must be hashable.
 '''
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
-from peyotl.nexson_validation.helper import SeverityCodes
 from cStringIO import StringIO
 import codecs
 
@@ -17,6 +16,10 @@ class MessageTupleAdaptor(object):
     track of the "address" of the element that triggered the warning, 
     the severity code, and methods for writing to free text stream or JSON.
     '''
+    def write(self, err_tuple, s, prefix):
+        raise NotImplementedError('MessageTupleAdaptor.write')
+    def __init__(self):
+        self.code = None
     def __unicode__(self, err_tuple, prefix=''):
         b = StringIO()
         ci = codecs.lookup('utf8')
@@ -78,5 +81,5 @@ for k in locals().keys():
         obj_n = k[4:]
         if obj_n in locals():
             gf = locals()[k]
-            obj =locals()[obj_n]
+            obj = locals()[obj_n]
             factory2code[gf] = obj.code

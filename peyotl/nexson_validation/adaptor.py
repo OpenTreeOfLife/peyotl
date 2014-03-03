@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 '''NexsonValidationAdaptor class.
 '''
-from cStringIO import StringIO
-import datetime
-import codecs
 import json
-import re
 from peyotl.nexson_validation.helper import SeverityCodes
 from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingMandatoryKeyWarning, \
@@ -37,6 +33,22 @@ _NEXEL_CODE_TO_STR = {
     _NEXEL_EDGE: 'edge',
     _NEXEL_META: 'meta',
 }
+_NEXEL_CODE_TO_PAR_CODE = {
+    _NEXEL_TOP_LEVEL: None,
+    _NEXEL_NEXML: _NEXEL_TOP_LEVEL,
+    _NEXEL_OTUS: _NEXEL_NEXML,
+    _NEXEL_OTU: _NEXEL_OTUS,
+    _NEXEL_TREES: _NEXEL_NEXML,
+    _NEXEL_TREE: _NEXEL_TREES,
+    _NEXEL_NODE: _NEXEL_TREE,
+    _NEXEL_EDGE: _NEXEL_TREE,
+}
+
+def _get_par_obj_code(c):
+    pc = _NEXEL_CODE_TO_PAR_CODE[c]
+    if pc is None:
+        return None
+    return _NEXEL_CODE_TO_STR[pc]
 
 class LazyAddress(object):
     @staticmethod
@@ -102,7 +114,7 @@ class NexsonValidationAdaptor(object):
         except:
             self._error_event(_NEXEL_TOP_LEVEL, 
                               obj=obj,
-                              err_type=MissingMandatoryKeyWarning,
+                              err_type=gen_MissingMandatoryKeyWarning,
                               anc=_EMPTY_TUPLE,
                               key_list=('nexml',))
             return ## EARLY EXIT!!
@@ -156,37 +168,37 @@ class NexsonValidationAdaptor(object):
             2. have no messages that are flagged as messages to be preserved (values for 'preserve' that evaluate to true)
         '''
         return # TODO!
-        script_name = annotation['author']['name']
-        n = obj['nexml']
-        former_meta = n.setdefault('meta', [])
-        if not isinstance(former_meta, list):
-            former_meta = [former_meta]
-            n['meta'] = former_meta
-        else:
-            indices_to_pop = []
-            for annotation_ind, el in enumerate(former_meta):
-                try:
-                    if (el.get('$') == annotation_label) and (el.get('author',{}).get('name') == script_name):
-                        m_list = el.get('messages', [])
-                        to_retain = []
-                        for m in m_list:
-                            if m.get('preserve'):
-                                to_retain.append(m)
-                        if len(to_retain) == 0:
-                            indices_to_pop.append(annotation_ind)
-                        elif len(to_retain) < len(m_list):
-                            el['messages'] = to_retain
-                            el['dateModified'] = datetime.datetime.utcnow().isoformat()
-                except:
-                    # different annotation structures could yield IndexErrors or other exceptions.
-                    # these are not the annotations that you are looking for....
-                    pass
+        # script_name = annotation['author']['name']
+        # n = obj['nexml']
+        # former_meta = n.setdefault('meta', [])
+        # if not isinstance(former_meta, list):
+        #     former_meta = [former_meta]
+        #     n['meta'] = former_meta
+        # else:
+        #     indices_to_pop = []
+        #     for annotation_ind, el in enumerate(former_meta):
+        #         try:
+        #             if (el.get('$') == annotation_label) and (el.get('author',{}).get('name') == script_name):
+        #                 m_list = el.get('messages', [])
+        #                 to_retain = []
+        #                 for m in m_list:
+        #                     if m.get('preserve'):
+        #                         to_retain.append(m)
+        #                 if len(to_retain) == 0:
+        #                     indices_to_pop.append(annotation_ind)
+        #                 elif len(to_retain) < len(m_list):
+        #                     el['messages'] = to_retain
+        #                     el['dateModified'] = datetime.datetime.utcnow().isoformat()
+        #         except:
+        #             # different annotation structures could yield IndexErrors or other exceptions.
+        #             # these are not the annotations that you are looking for....
+        #             pass
 
-            if len(indices_to_pop) > 0:
-                # walk backwards so pops won't change the meaning of stored indices
-                for annotation_ind in indices_to_pop[-1::-1]:
-                    former_meta.pop(annotation_ind)
-        former_meta.append(annotation)
+        #     if len(indices_to_pop) > 0:
+        #         # walk backwards so pops won't change the meaning of stored indices
+        #         for annotation_ind in indices_to_pop[-1::-1]:
+        #             former_meta.pop(annotation_ind)
+        # former_meta.append(annotation)
     def get_nexson_str(self):
         return json.dumps(self._raw, sort_keys=True, indent=0)
 

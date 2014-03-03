@@ -18,7 +18,7 @@ class TestManip(unittest.TestCase):
                 inp = pathmap.nexson_obj('merge/merge-{f}.v{v}.json'.format(v=v, f=f))
                 id_order = []
                 for t_tuple in iter_trees(inp):
-                    tgi, ti, tree = t_tuple
+                    ti = t_tuple[1]
                     id_order.append(ti)
                 id_order_list.append(id_order)
         for i in range(1, 4):

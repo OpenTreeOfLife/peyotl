@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "nexml"
+      ], 
+      "refersTo": "top-level"
+    }
+  }, 
+  "warnings": {}
+}

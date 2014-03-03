@@ -28,16 +28,22 @@ class _SchemaFragment(object):
                  expected_meta_keys,
                  using_hbf_meta):
         if using_hbf_meta:
-            self.REQUIRED_META_KEYS = tuple(['^' + i for i in required_meta_keys])
-            self.EXPECTED_META_KEYS = tuple(['^' + i for i in expected_meta_keys])
-            self.REQUIRED_KEYS = required_keys + self.REQUIRED_META_KEYS
-            self.EXPECETED_KEYS = expected_keys + self.EXPECTED_META_KEYS
+            self.REQUIRED_META_KEYS = frozenset(['^' + i for i in required_meta_keys])
+            self.EXPECTED_META_KEYS = frozenset(['^' + i for i in expected_meta_keys])
+            self.REQUIRED_KEYS = frozenset(required_keys + tuple(self.REQUIRED_META_KEYS))
+            self.EXPECETED_KEYS = frozenset(expected_keys + tuple(self.EXPECTED_META_KEYS))
+            self.PERMISSIBLE_KEYS = frozenset(tuple(self.REQUIRED_KEYS) 
+                                              + tuple(self.EXPECETED_KEYS) 
+                                              + additional_allowed_keys)
         else:
-            self.REQUIRED_META_KEYS = required_meta_keys
-            self.EXPECTED_META_KEYS = expected_meta_keys
-            self.REQUIRED_KEYS = required_keys
-            self.EXPECETED_KEYS = expected_keys
-        self.PERMISSIBLE_KEYS = self.REQUIRED_KEYS + self.EXPECETED_KEYS + additional_allowed_keys
+            self.REQUIRED_META_KEYS = frozenset(required_meta_keys)
+            self.EXPECTED_META_KEYS = frozenset(expected_meta_keys)
+            self.REQUIRED_KEYS = frozenset(required_keys)
+            self.EXPECETED_KEYS = frozenset(expected_keys)
+            self.PERMISSIBLE_KEYS = frozenset(('meta', ) 
+                                              + tuple(self.REQUIRED_KEYS) 
+                                              + tuple(self.EXPECETED_KEYS) 
+                                              + additional_allowed_keys)
         self.USING_HBF_META = using_hbf_meta
 
 

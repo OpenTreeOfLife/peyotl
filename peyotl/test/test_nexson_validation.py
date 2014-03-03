@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from peyotl.nexson_syntax import detect_nexson_version
 from peyotl.nexson_validation import validate_nexson
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
@@ -35,6 +36,11 @@ def dict_eq(a, b):
     return False
 
 class TestConvert(unittest.TestCase):
+    def testDetectVersion(self):
+        o = pathmap.nexson_obj('invalid/bad_version.json.input')
+        v = detect_nexson_version(o)
+        self.assertEqual(v, '1.3.1')
+
     def testValidFilesPass(self):
         format_list = ['1.2']
         msg = ''
@@ -54,6 +60,23 @@ class TestConvert(unittest.TestCase):
                     write_json(ew_dict, ofn)
                     msg = "File failed to validate cleanly. See {o}".format(o=ofn)
                 self.assertEqual(len(annot.errors), 0, msg)
+    def testInvalidFilesFail(self):
+        msg = ''
+        for fn in pathmap.all_files(os.path.join('nexson', 'invalid')):
+            if fn.endswith('.input'):
+                frag = fn[:-len('.input')]
+                inp = read_json(fn)
+                try:
+                    aa = validate_nexson(inp)
+                except:
+                    continue
+                annot = aa[0]
+                if len(annot.errors) == 0:
+                    ofn = pathmap.nexson_source_path(frag + '.output')
+                    ew_dict = annot.get_err_warn_summary_dict()
+                    write_json(ew_dict, ofn)
+                    msg = "Failed to reject file. See {o}".format(o=str(msg))
+                    self.assertTrue(False, msg)
     def testExpectedWarnings(self):
         msg = ''
         for fn in pathmap.all_files(os.path.join('nexson', 'warn_err')):
@@ -74,6 +97,5 @@ class TestConvert(unittest.TestCase):
                     self.assertDictEqual(exp, ew_dict, msg)
                 else:
                     _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
-
 if __name__ == "__main__":
     unittest.main()

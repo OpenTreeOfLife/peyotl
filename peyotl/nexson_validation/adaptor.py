@@ -246,5 +246,6 @@ def create_validation_adaptor(obj, logger):
             return BadgerFishValidationAdaptor(obj, logger)
         elif _is_direct_hbf(nexson_version):
             return DirectHBFValidationAdaptor(obj, logger)
+        assert(False)
     except:
         return NexsonValidationAdaptor(obj, logger)

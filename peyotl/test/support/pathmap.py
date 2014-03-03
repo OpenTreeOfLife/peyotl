@@ -51,6 +51,16 @@ TESTS_COVERAGE_DIR = os.path.join(TESTS_DIR, "coverage")
 TESTS_COVERAGE_REPORT_DIR = os.path.join(TESTS_COVERAGE_DIR, "report")
 TESTS_COVERAGE_SOURCE_DIR = os.path.join(TESTS_COVERAGE_DIR, "source")
 
+def all_files(prefix):
+    d = os.path.join(TESTS_DATA_DIR, prefix)
+    s = set()
+    for p in os.listdir(d):
+        fp = os.path.join(d, p)
+        if os.path.isfile(fp):
+            s.add(fp)
+    return s
+
+
 def nexson_obj(filename):
     '''Returns a dict that is the deserialized nexson object
     'filename' should be the fragment of the filepath below

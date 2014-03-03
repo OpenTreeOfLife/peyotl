@@ -78,7 +78,9 @@ if __name__ == '__main__':
     else:
         if args.syntax.lower() == 'json':
             em_dict = v.get_err_warn_summary_dict()
-            json.dump(em_dict, out, indent=2, sort_keys=True)
+            if em_dict:
+                json.dump(em_dict, out, indent=2, sort_keys=True)
+                out.write('\n')
         else:
             if v.errors:
                 for el in v.errors:

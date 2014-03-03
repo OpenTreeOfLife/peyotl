@@ -8,50 +8,59 @@ import platform
 import uuid
 import sys
 
+def _err_warn_summary(w):
+    d = {}
+    for el in w:
+        msg_adapt_inst = el[0]
+        r = msg_adapt_inst.as_dict(el)
+        key = r['code']
+        del r['code']
+        d[key] = r
+    return d
+
 class DefaultRichLogger(object):
     def __init__(self, store_messages=False):
         self.out = sys.stderr
         self.store_messages_as_obj = store_messages
-        self.warnings = []
-        self.errors = []
+        self._warn_by_type = {}
+        self._err_by_type = {}
+        self._warn_by_obj = {}
+        self._err_by_obj = {}
         self.prefix = ''
         self.retain_deprecated = False
-
-    def warn_event(self, err_type, *valist, **kwargs):
-        m = err_type(*valist, **kwargs)
-        self.append_warning(m)
-
-    def error_event(self, err_type, *valist, **kwargs):
-        m = err_type(*valist, **kwargs)
-        self.append_error(m)
-
-    def create_and_store_warning(self, warning_code, data, address):
-        raise NotImplementedError('create_and_store_warning')
-        m = WarningMessage(warning_code, data, address, severity=SeverityCodes.WARNING)
-        self.store_warning(m)
-
-    def store_warning(self, m):
-        raise NotImplementedError('store_warning')
-
-    def append_warning(self, m):
-        if self.store_messages_as_obj:
-            self.warnings.append(m)
+    def get_errors(self):
+        return self._err_by_type.values()
+    errors = property(get_errors)
+    def get_warnings(self):
+        return self._warn_by_type.values()
+    warnings = property(get_warnings)
+    def is_logging_type(self, t):
+        return True
+    def register_new_messages(self, err_tup, severity):
+        c = err_tup[0].code
+        pyid = err_tup[1]
+        if severity == SeverityCodes.WARNING:
+            x = self._warn_by_type.setdefault(c, set())
+            x.add(err_tup)
+            x = self._warn_by_obj.setdefault(pyid, set())
+            x.add(err_tup)
         else:
-            m.write(self.out, self.prefix)
+            x = self._err_by_type.setdefault(c, set())
+            x.add(err_tup)
+            x = self._err_by_obj.setdefault(pyid, set())
+            x.add(err_tup)
+    
+    def get_err_warn_summary_dict(self):
+        w = {}
+        for wm in self._warn_by_type.values():
+            d = _err_warn_summary(wm)
+            w.update(d)
+        e = {}
+        for em in self._err_by_type.values():
+            d = _err_warn_summary(em)
+            e.update(d)
+        return {'warnings': w, 'errors': e}
 
-    def create_and_emit_error(self, warning_code, address, subelement=''):
-        raise NotImplementedError('create_and_emit_error')
-        m = WarningMessage(warning_code, data, address)
-        self.emit_error(m)
-
-    def emit_error(self, m):
-        raise NotImplementedError('emit_error')
-    def append_error(self, m):
-        m.severity = SeverityCodes.ERROR
-        if self.store_messages_as_obj:
-            self.errors.append(m)
-        else:
-            raise NexSONError(m.getvalue(self.prefix))
     def prepare_annotation(self, 
                        author_name='',
                        invocation=tuple(),
@@ -106,19 +115,6 @@ class DefaultRichLogger(object):
 class ValidationLogger(DefaultRichLogger):
     def __init__(self, store_messages=False):
         DefaultRichLogger.__init__(self, store_messages=store_messages)
-    def store_warning(self, m):
-        raise NotImplementedError('store_warning')
-    def append_warning(self, m):
-        if not self.store_messages_as_obj:
-            m = m.getvalue(self.prefix)
-        self.warnings.append(m)
-    def emit_error(self, m):
-        raise NotImplementedError('emit_error')
-    def append_error(self, m):
-        m.severity = SeverityCodes.ERROR
-        if not self.store_messages_as_obj:
-            m = m.getvalue(self.prefix)
-        self.errors.append(m)
 
 class FilteringLogger(ValidationLogger):
     def __init__(self, codes_to_register=None, codes_to_skip=None, store_messages=False):
@@ -136,19 +132,5 @@ class FilteringLogger(ValidationLogger):
             for el in codes_to_skip:
                 self.codes_to_skip.add(el)
                 self.registered.remove(el)
-
-    def store_warning(self, m):
-        raise NotImplementedError('store_warning')
-    def append_warning(self, m):
-        if m.warning_code in self.codes_to_skip:
-            return
-        if m.warning_code in self.registered:
-            ValidationLogger.append_warning(self, m)
-    def emit_error(self, m):
-        raise NotImplementedError('emit_error')
-    def append_error(self, m):
-        m.severity = SeverityCodes.ERROR
-        if m.warning_code in self.codes_to_skip:
-            return
-        if m.warning_code in self.registered:
-            ValidationLogger.emit_error(self, m)
+    def is_logging_type(self, t):
+        return (t not in self.codes_to_skip) and (t in self.registered)

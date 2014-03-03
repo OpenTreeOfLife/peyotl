@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "UNRECOGNIZED_KEY": {
+      "data": [
+        "bogus"
+      ], 
+      "refersTo": "top-level"
+    }
+  }, 
+  "warnings": {}
+}

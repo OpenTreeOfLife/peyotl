@@ -102,6 +102,7 @@ class WarningMessage(object):
     def _write_message_suffix(self, out):
         self.address.write_path_suffix_str(out)
 
+
 class MissingExpectedListWarning(WarningMessage):
     def __init__(self, data, address, severity=SeverityCodes.ERROR):
         WarningMessage.__init__(self, NexsonWarningCodes.MISSING_LIST_EXPECTED, data=data, address=address, severity=severity)
@@ -110,16 +111,6 @@ class MissingExpectedListWarning(WarningMessage):
         self._write_message_suffix(outstream)
     def convert_data_for_json(self):
         return type(self.data)
-
-class UnrecognizedKeyWarning(WarningMessage):
-    def __init__(self, key, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, NexsonWarningCodes.UNRECOGNIZED_KEY, data=key, address=address, severity=severity)
-        self.key = key
-    def write(self, outstream, prefix):
-        outstream.write('{p}Unrecognized key "{k}"'.format(p=prefix, k=self.key))
-        self._write_message_suffix(outstream)
-    def convert_data_for_json(self):
-        return self.key
 
 class MissingOptionalKeyWarning(WarningMessage):
     def __init__(self, key, address, severity=SeverityCodes.WARNING):
@@ -189,15 +180,6 @@ class MultipleRootNodesWarning(WarningMessage):
     def convert_data_for_json(self):
         return self.warning_data
 
-class MissingMandatoryKeyWarning(WarningMessage):
-    def __init__(self, key, address, severity=SeverityCodes.WARNING):
-        WarningMessage.__init__(self, NexsonWarningCodes.MISSING_MANDATORY_KEY, data=key, address=address, severity=severity)
-        self.key = key
-    def write(self, outstream, prefix):
-        outstream.write('{p}Missing required key "{k}"'.format(p=prefix, k=self.key))
-        self._write_message_suffix(outstream)
-    def convert_data_for_json(self):
-        return self.key
 
 class UnrecognizedTagWarning(WarningMessage):
     def __init__(self, tag, address, severity=SeverityCodes.WARNING):

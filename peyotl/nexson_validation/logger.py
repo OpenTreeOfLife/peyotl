@@ -105,6 +105,7 @@ class DefaultRichLogger(object):
             'isValid': (len(self.errors) == 0) and (len(self.warnings) == 0),
         }
         message_list = annotation['messages']
+        return annotation
         for m in self.errors:
             d = m.as_dict()
             d['severity'] = 'ERROR'

@@ -146,13 +146,13 @@ class NexsonValidationAdaptor(object):
         if not self._logger.is_logging_type(c):
             return
         address, pyid = self._event_address(obj_code, obj, anc)
-        err_type(address, pyid, self._logger, SeverityCodes.WARNING *valist, **kwargs)
+        err_type(address, pyid, self._logger, SeverityCodes.WARNING, *valist, **kwargs)
     def _error_event(self, obj_code, obj, err_type, anc, *valist, **kwargs):
         c = factory2code[err_type]
         if not self._logger.is_logging_type(c):
             return
         address, pyid = self._event_address(obj_code, obj, anc)
-        err_type(address, pyid, self._logger, SeverityCodes.ERROR *valist, **kwargs)
+        err_type(address, pyid, self._logger, SeverityCodes.ERROR, *valist, **kwargs)
     def _validate_obj_by_schema(self, obj_code, obj, anc, schema):
         '''Creates:
             errors if `obj` does not contain keys in the schema.PERMISSIBLE_KEYS,

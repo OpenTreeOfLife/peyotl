@@ -5,7 +5,9 @@
         "@id"
       ], 
       "refersTo": "nexml"
-    }, 
+    }
+  }, 
+  "warnings": {
     "MISSING_OPTIONAL_KEY": {
       "data": [
         "otus", 
@@ -19,6 +21,5 @@
       ], 
       "refersTo": "top-level"
     }
-  }, 
-  "warnings": {}
+  }
 }

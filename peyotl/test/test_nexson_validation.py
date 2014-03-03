@@ -35,7 +35,7 @@ def dict_eq(a, b):
     return False
 
 class TestConvert(unittest.TestCase):
-    def skip_testValidFilesPass(self):
+    def testValidFilesPass(self):
         format_list = ['1.2']
         msg = ''
         for d in VALID_NEXSON_DIRS:
@@ -48,13 +48,12 @@ class TestConvert(unittest.TestCase):
                     _LOG.debug('unexpected error from {f}: {m}'.format(f=frag, m=unicode(e)))
                 for e in annot.warnings:
                     _LOG.debug('unexpected warning from {f}: {m}'.format(f=frag, m=unicode(e)))
-                if len(annot.errors) + len(annot.warnings) > 0:
+                if len(annot.errors) > 0:
                     ofn = pathmap.nexson_source_path(frag + '.output')
                     ew_dict = annot.get_err_warn_summary_dict()
                     write_json(ew_dict, ofn)
                     msg = "File failed to validate cleanly. See {o}".format(o=ofn)
                 self.assertEqual(len(annot.errors), 0, msg)
-                self.assertEqual(len(annot.warnings), 0, msg)
     def testExpectedWarnings(self):
         msg = ''
         for fn in pathmap.all_files(os.path.join('nexson', 'warn_err')):

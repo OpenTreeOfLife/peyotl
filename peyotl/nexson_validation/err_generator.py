@@ -59,10 +59,16 @@ class MissingMandatoryKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_MANDATORY_KEY
         self.format = '{p}Missing required key(s): "{d}"'
+class MissingOptionalKeyWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MISSING_OPTIONAL_KEY
+        self.format = '{p}Missing optional key(s): "{d}"'
 
 UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
 MissingMandatoryKeyWarning = MissingMandatoryKeyWarningType()
+MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
 
+# factory functions that call register_new_messages
 def gen_UnrecognizedKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
     k_list = kwargs['key_list']
     t = (UnrecognizedKeyWarning, pyid, addr, k_list)
@@ -73,8 +79,13 @@ def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, *valist, **kwar
     t = (MissingMandatoryKeyWarning, pyid, addr, k_list)
     logger.register_new_messages(t, severity=severity)
 
+def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
+    k_list = kwargs['key_list']
+    t = (MissingOptionalKeyWarning, pyid, addr, k_list)
+    logger.register_new_messages(t, severity=severity)
 
 
+# some introspective hacking to create a look up of factory function 2 NexsonWarningCodes type
 factory2code = {}
 for k in locals().keys():
     if k.startswith('gen_'):

@@ -5,6 +5,7 @@ import json
 from peyotl.nexson_validation.helper import SeverityCodes
 from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingMandatoryKeyWarning, \
+                                                   gen_MissingOptionalKeyWarning, \
                                                    gen_UnrecognizedKeyWarning
 from peyotl.nexson_syntax.helper import get_nexml_el, \
                                         _is_badgerfish_version, \
@@ -119,14 +120,7 @@ class NexsonValidationAdaptor(object):
                               key_list=('nexml',))
             return ## EARLY EXIT!!
         self._nexson_version = detect_nexson_version(obj)
-        if _is_by_id_hbf(self._nexson_version):
-            self.__class__ = ByIdHBFValidationAdaptor
-        elif _is_badgerfish_version(self._nexson_version):
-            self.__class__ = BadgerFishValidationAdaptor
-        elif _is_direct_hbf(self._nexson_version):
-            self.__class__ = DirectHBFValidationAdaptor
-        else:
-            assert(False) # unrecognized nexson variant
+        add_schema_attributes(self, self._nexson_version)
         self._validate_nexml_obj(self._nexml, anc=obj)
 
     def _event_address(self, obj_code, obj, anc, anc_offset=0):
@@ -157,8 +151,37 @@ class NexsonValidationAdaptor(object):
             return
         address, pyid = self._event_address(obj_code, obj, anc)
         err_type(address, pyid, self._logger, SeverityCodes.ERROR *valist, **kwargs)
+    def _validate_obj_by_schema(self, obj_code, obj, anc, schema):
+        '''Creates:
+            errors if `obj` does not contain keys in the schema.PERMISSIBLE_KEYS,
+            warnings if `obj` lacks keys listed in schema.EXPECETED_KEYS, 
+                      or if `obj` contains keys not listed in schema.PERMISSIBLE_KEYS.
+        '''
+        off_key = [k for k in obj.keys() if k not in schema.PERMISSIBLE_KEYS]
+        if off_key:
+            self._warn_event(obj_code,
+                             obj=obj,
+                             err_type=gen_UnrecognizedKeyWarning,
+                             anc=anc,
+                             key_list=tuple(off_key))
+        off_key = [k for k in schema.EXPECETED_KEYS if k not in obj]
+        if off_key:
+            self._warn_event(obj_code,
+                             obj=obj,
+                             err_type=gen_MissingOptionalKeyWarning,
+                             anc=anc,
+                             key_list=tuple(off_key))
+        off_key = [k for k in schema.REQUIRED_KEYS if k not in obj]
+        if off_key:
+            self._error_event(obj_code,
+                             obj=obj,
+                             err_type=gen_MissingMandatoryKeyWarning,
+                             anc=anc,
+                             key_list=tuple(off_key))
+
     def _validate_nexml_obj(self, nex_obj, anc):
-        pass
+        schema = self.__class__._NexmlEl_Schema
+        self._validate_obj_by_schema(_NEXEL_NEXML, nex_obj, anc, schema)
 
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
@@ -202,10 +225,3 @@ class NexsonValidationAdaptor(object):
     def get_nexson_str(self):
         return json.dumps(self._raw, sort_keys=True, indent=0)
 
-
-class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
-    pass
-class DirectHBFValidationAdaptor(NexsonValidationAdaptor):
-    pass
-class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
-    pass

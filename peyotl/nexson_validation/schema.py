@@ -48,7 +48,6 @@ _NExpected_NexmlEl_Direct = ('otus', 'trees',)
 _NExpected_NexmlEl_ById = ('otusById', 
                            'treesById',
                            '^ot:otusElementOrder', 
-                           '^ot:candidateTreeForSynthesis', 
                            '^ot:treesElementOrder')
 _NAllowed_NexmlEl = ('@about', 
                      '@generator',
@@ -62,8 +61,8 @@ _NExpectedMeta_NexmlEl_BF = ('ot:studyId',
                              'ot:studyYear',
                              'ot:curatorName', 
                              'ot:studyPublicationReference', 
-                             'ot:dataDeposit',
-                             'ot:tag')
+                             'ot:dataDeposit',)
+
 
 def _add_by_id_nexson_schema_attributes(container):
     container._using_hbf_meta = True

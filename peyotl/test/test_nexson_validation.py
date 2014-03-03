@@ -52,8 +52,6 @@ class TestConvert(unittest.TestCase):
                 annot = aa[0]
                 for e in annot.errors:
                     _LOG.debug('unexpected error from {f}: {m}'.format(f=frag, m=unicode(e)))
-                for e in annot.warnings:
-                    _LOG.debug('unexpected warning from {f}: {m}'.format(f=frag, m=unicode(e)))
                 if len(annot.errors) > 0:
                     ofn = pathmap.nexson_source_path(frag + '.output')
                     ew_dict = annot.get_err_warn_summary_dict()

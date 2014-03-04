@@ -10,7 +10,8 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
                                                    gen_UnparseableMetaWarning, \
-                                                   gen_UnrecognizedKeyWarning
+                                                   gen_UnrecognizedKeyWarning, \
+                                                   gen_WrongValueTypeWarning
 from peyotl.nexson_syntax.helper import get_nexml_el, \
                                         _add_value_to_dict_bf, \
                                         _is_badgerfish_version, \
@@ -261,6 +262,12 @@ class NexsonValidationAdaptor(object):
                         correct_type, info = schema.K2VT[k](v)
                         if not correct_type:
                             wrong_type.append((k, v, info))
+        if wrong_type:
+            self._error_event(obj_code,
+                             obj=obj,
+                             err_type=gen_WrongValueTypeWarning,
+                             anc=anc,
+                             key_val_type_list=wrong_type)
         if unrec_non_meta_keys:
             self._warn_event(obj_code,
                              obj=obj,

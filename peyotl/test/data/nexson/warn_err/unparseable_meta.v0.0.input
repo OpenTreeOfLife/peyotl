@@ -48,10 +48,10 @@ true,
 "@xsi:type": "nex:LiteralMeta"
 }, 
 {
-"$": "http://dx.doi.org/10.1073/pnas.0709121104", 
+"@href": "http://dx.doi.org/10.1073/pnas.0709121104", 
 "@datatype": "xsd:string", 
 "@property": "ot:studyPublication", 
-"@xsi:type": "nex:LiteralMeta"
+"@xsi:type": "nex:ResourceMeta"
 }, 
 {
 "$": "Some free, text here.", 

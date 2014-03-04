@@ -99,7 +99,7 @@ class _VT:
         if not isinstance(x, list):
             return _VT.__FALSE_STR_LIST
         for i in x:
-            if not (isinstance(x, str) or isinstance(x, unicode)):
+            if not (isinstance(i, str) or isinstance(i, unicode)):
                 return _VT.__FALSE_STR_LIST
         return _VT.__TRUE_VAL
     @staticmethod
@@ -116,7 +116,13 @@ class _VT:
         return _VT.__TRUE_VAL if (isinstance(x, dict)) else _VT.__FALSE_DICT
     @staticmethod
     def HREF(x):
-        return _VT.__TRUE_VAL if (isinstance(x, str) or isinstance(x, unicode)) else _VT.__FALSE_HREF
+        try:
+            h = x.get('@href')
+            if isinstance(h, str) or isinstance(h, unicode):
+                return _VT.__TRUE_VAL
+        except:
+            pass
+        return _VT.__FALSE_HREF
     @staticmethod
     def INT(x):
         return  _VT.__TRUE_VAL if (isinstance(x, int)) else _VT.__FALSE_INT
@@ -155,10 +161,9 @@ class _VT:
             return _VT.META_DICT
         if v is _VT.STR_LIST:
             return _VT.META_STR_LIST
-        if v is _VT.HREF:
-            return _VT.META_HREF
         if v is _VT.INT:
             return _VT.META_INT
+        return v
 
 _EMPTY_TUPLE = tuple()
 _EMPTY_DICT = {}

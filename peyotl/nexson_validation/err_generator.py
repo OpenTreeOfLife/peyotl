@@ -77,11 +77,21 @@ class UnparseableMetaWarningType(_ObjListDataWarningType):
         self.code = NexsonWarningCodes.UNPARSEABLE_META
         self.format = '{p}meta(s) with out @property or @rel: "{d}"'
 
+class WrongValueTypeWarningType(MessageTupleAdaptor):
+    def write(self, err_tuple, outstream, prefix):
+        raise NotImplementedError('WrongValueTypeWarningType.write')
+    def convert_data_for_json(self, err_tuple):
+        return ['key="{k}" type="{t}" expected type="{e}"'.format(k=k, t=v, e=et) for k, v, et in err_tuple[3]]
+    def __init__(self):
+        self.code = NexsonWarningCodes.INCORRECT_VALUE_TYPE
+        self.format = '{p}value for key not the expected type: "{d}"'
+
 UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
 MissingMandatoryKeyWarning = MissingMandatoryKeyWarningType()
 MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
 MissingExpectedListWarning = MissingExpectedListWarningType()
 UnparseableMetaWarning = UnparseableMetaWarningType()
+WrongValueTypeWarning = WrongValueTypeWarningType()
 
 # factory functions that call register_new_messages
 def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
@@ -108,7 +118,11 @@ def _obj_list_warning(wt, k_list, addr, pyid, logger, severity):
 def gen_UnparseableMetaWarning(addr, pyid, logger, severity, *valist, **kwargs):
     _obj_list_warning(UnparseableMetaWarning, kwargs['obj_list'], addr, pyid, logger, severity)
 
-gen_UnparseableMetaWarning
+def gen_WrongValueTypeWarning(addr, pyid, logger, severity, *valist, **kwargs):
+    key_val_type_list = tuple([(k, type(v), t) for k, v, t in kwargs['key_val_type_list']])
+    t = (WrongValueTypeWarning, pyid, addr, key_val_type_list)
+    logger.register_new_messages(t, severity=severity)
+
 
 # some introspective hacking to create a look up of factory function 2 NexsonWarningCodes type
 factory2code = {}

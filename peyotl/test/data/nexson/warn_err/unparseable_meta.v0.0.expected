@@ -1,5 +1,11 @@
 {
   "errors": {
+    "INCORRECT_VALUE_TYPE": {
+      "data": [
+        "key=\"ot:focalClade\" type=\"<type 'dict'>\" expected type=\"integer\""
+      ], 
+      "refersTo": "nexml"
+    }, 
     "UNPARSEABLE_META": {
       "data": [
         {

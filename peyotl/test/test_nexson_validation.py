@@ -20,20 +20,22 @@ def write_json(o, fp):
         fo.write('\n')
 def through_json(d):
     return json.loads(json.dumps(d))
+
 def dict_eq(a, b):
     if a == b:
         return True
-    ka, kb = a.keys(), b.keys()
-    ka.sort()
-    kb.sort()
-    if ka != kb:
-        _LOG.debug('keys "{a}" != "{b}"'.format(a=ka, b=kb))
-    for k in ka:
-        va = a[k]
-        vb = b[k]
-        if va != vb:
-            _LOG.debug('value for {k}: "{a}" != "{b}"'.format(k=k, a=va, b=vb))
     return False
+    # ka, kb = a.keys(), b.keys()
+    # ka.sort()
+    # kb.sort()
+    # if ka != kb:
+    #     _LOG.debug('keys "{a}" != "{b}"'.format(a=ka, b=kb))
+    # for k in ka:
+    #     va = a[k]
+    #     vb = b[k]
+    #     if va != vb:
+    #         _LOG.debug('value for {k}: "{a}" != "{b}"'.format(k=k, a=va, b=vb))
+    # return False
 
 class TestConvert(unittest.TestCase):
     def testDetectVersion(self):

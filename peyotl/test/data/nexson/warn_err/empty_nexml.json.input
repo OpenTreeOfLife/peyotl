@@ -14,8 +14,10 @@
 "xsi": "http://www.w3.org/2001/XMLSchema-instance"
 }, 
 "^ot:studyId": "b",
-"^ot:focalClade": "a", 
-"^ot:studyPublication": "http://dx.doi.org/10.1073/pnas.0709121104", 
+"^ot:focalClade": 42, 
+"^ot:studyPublication": {
+   "@href": "http://dx.doi.org/10.1073/pnas.0709121104"
+},
 "^ot:studyYear": 2014, 
 "^ot:curatorName": "jane q. public", 
 "^ot:studyPublicationReference": "Some free, text here.", 

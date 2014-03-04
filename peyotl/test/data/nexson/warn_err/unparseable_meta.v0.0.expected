@@ -9,6 +9,7 @@
         }
       ], 
       "refersTo": {
+        "@idref": "bogusStudyID", 
         "@top": "nexml"
       }
     }, 
@@ -25,6 +26,7 @@
         true
       ], 
       "refersTo": {
+        "@idref": "bogusStudyID", 
         "@top": "nexml"
       }
     }

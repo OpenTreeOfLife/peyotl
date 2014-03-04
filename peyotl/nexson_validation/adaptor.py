@@ -86,7 +86,7 @@ class LazyAddress(object):
         self.code = code
         self.ref = obj
         if obj_id is None:
-            self.obj_id = getattr(obj, '@id', None)
+            self.obj_id = obj.get('@id')
         else:
             self.obj_id = obj_id
         self.par_addr = par_addr

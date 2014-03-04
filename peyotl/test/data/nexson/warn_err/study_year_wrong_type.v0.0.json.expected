@@ -9,6 +9,7 @@
         }
       ], 
       "refersTo": {
+        "@idref": "bogusStudyID", 
         "@top": "nexml"
       }
     }

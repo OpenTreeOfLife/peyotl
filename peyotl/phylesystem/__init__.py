@@ -13,6 +13,9 @@ except:
     anyjson.loads = json.loads
 import codecs
 import os
+from threading import Lock
+_study_index_lock = Lock()
+_study_index = None
 
 # list of the absolute path to the each of the known "study" directories in phylesystem repos.
 _study_dirs = []
@@ -36,23 +39,39 @@ def _get_phylesystem_parent():
         try:
             phylesystem_parent = expand_path(get_config('phylesystem', 'parent'))
         except:
-            phylesystem_parent = os.path.abspath(os.curdir)
-
+            raise ValueError('No phylesystem parent specified in config or environmental variables')
     x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
+    repos=[]
     for p in x:
         if not os.path.isdir(p):
-            raise ValueError('No phylesystem parent "{p}" is not a directory'.format(p=p))
-    return x
+            raise ValueError('No phylesystem parent "{p}" is not a directory'.format(p=p))            
+        repos=repos+[ os.path.join(p,name) for name in os.listdir(p) if os.path.isdir(os.path.join(p, name+'/.git')) ]
+    if not repos:
+        raise ValueError('No git repos in {parent}'.format{})
+    return repos
 
-def search_for_study_dirs(parent_list=None):
-    if not parent_list:
-        parent_list = _get_phylesystem_parent()
-    if isinstance(parent_list, str):
-        parent_list = [parent_list]
-    for p in parent_list:
-        _search_for_repo_dirs(p)
-    if not _study_dirs:
-        raise ValueError('No phylesystem repositories found under "{p}"'.format(p=':'.join(parent_list)))
+      
+    
+    
+def _initialize_study_index():
+    d = {} # Key is study id, value is repo,dir tuple
+    #if not 
+    for x in _get_phylesystem_parent():
+      for root, dirs, files in os.walk(x):      
+       for file in files:
+         if ".git" not in root:
+             d[file]=root    # if file is in more than one place it gets over written. EJM Needs work 
+    return d
+
+def get_paths_for_study_id(study_id):
+    global _study_index, _study_index_lock
+    _study_index_lock.acquire()
+    try:
+        if _study_index is None:
+            _study_index = _initialize_study_index()
+        _study_index[study_id]
+    finally:
+        _study_index_lock.release()
 
 def _search_for_repo_dirs(par):
     for n in os.listdir(par):
@@ -104,3 +123,35 @@ def phylesystem_study_objs(**kwargs):
                 yield (study_id, nex_obj)
             except Exception:
                 pass
+
+#----------------------------------------------------------------------
+#From get_study_index in api, might repeat above?
+
+
+
+
+
+def create_new_path_for_study_id(study_id):
+    global _study_index, _study_index_lock
+    _study_index_lock.acquire()
+    try:
+        pass
+    finally:
+        _study_index_lock.release()
+
+try:
+    get_paths_for_study_id('abdha')
+except:
+    pass
+
+                
+def write_study(jsondat,repo=repo_path):
+    tmpname="tmp.txt"
+    fi=open(tmp.txt)
+    fi.write(jsondat)
+    fi.close()
+    phylesystem.GitAction(repo)
+    
+    
+    
+   

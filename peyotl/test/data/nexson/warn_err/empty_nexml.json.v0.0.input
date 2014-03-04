@@ -28,8 +28,14 @@
 }, 
 {
 "$": 42, 
-"@datatype": "xsd:string", 
+"@datatype": "xsd:int", 
 "@property": "ot:focalClade", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": true, 
+"@datatype": "xsd:boolean", 
+"@property": "ot:notIntendedForSynthesis", 
 "@xsi:type": "nex:LiteralMeta"
 }, 
 {
@@ -40,8 +46,7 @@
 }, 
 {
 "@href": "http://dx.doi.org/10.1073/pnas.0709121104", 
-"@datatype": "xsd:string", 
-"@property": "ot:studyPublication", 
+"@rel": "ot:studyPublication", 
 "@xsi:type": "nex:ResourceMeta"
 }, 
 {
@@ -54,6 +59,18 @@
 "$": 2014, 
 "@datatype": "xsd:int", 
 "@property": "ot:studyYear", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "bogus", 
+"@datatype": "xsd:string", 
+"@property": "ot:tag", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "delete me", 
+"@datatype": "xsd:string", 
+"@property": "ot:tag", 
 "@xsi:type": "nex:LiteralMeta"
 }
 ], 

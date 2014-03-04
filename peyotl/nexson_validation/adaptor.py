@@ -289,6 +289,7 @@ class NexsonValidationAdaptor(object):
                     if k not in schema.ALLOWED_META_KEY_SET:
                         unrec_meta_keys.append(k)
                     else:
+                        #_LOG.debug('{k} --> "{v}"'.format(k=k, v=repr(v)))
                         correct_type, info = schema.K2VT[k](v)
                         if not correct_type:
                             v = schema._VT._extract_meta(v)

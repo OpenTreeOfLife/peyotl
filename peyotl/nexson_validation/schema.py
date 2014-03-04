@@ -3,6 +3,8 @@ from peyotl.nexson_syntax.helper import get_bf_meta_value, \
                                         _is_badgerfish_version, \
                                         _is_by_id_hbf, \
                                         _is_direct_hbf
+from peyotl.utility import get_logger
+_LOG = get_logger(__name__)
 
 def add_schema_attributes(container, nexson_version):
     '''Adds several attributes to `container`:
@@ -106,10 +108,11 @@ class _VT:
     __FALSE_HREF = (False, 'href')
     __FALSE_LIST = (False, 'array')
     __FALSE_DICT = (False, 'object')
-    __FALSE_STR_OR_STR_LIST = (False, 'string or string array')
+    __FALSE_STR_REPEATABLE_EL = (False, 'string or string array')
     __FALSE_STR_LIST = (False, 'string array')
     __FALSE_INT = (False, 'integer')
     __FALSE_DICT_LIST = (False, 'array or object')
+    __FALSE_BOOL = (False, 'boolean')
     @staticmethod
     def STR_LIST(x):
         if not isinstance(x, list):
@@ -119,14 +122,14 @@ class _VT:
                 return _VT.__FALSE_STR_LIST
         return _VT.__TRUE_VAL
     @staticmethod
-    def STR_OR_STR_LIST(x):
+    def STR_REPEATABLE_EL(x):
         if isinstance(x, str) or isinstance(x, unicode):
             return _VT.__TRUE_VAL
         if not isinstance(x, list):
-            return _VT.__FALSE_STR_OR_STR_LIST
+            return _VT.__FALSE_STR_REPEATABLE_EL
         for i in x:
             if not (isinstance(i, str) or isinstance(i, unicode)):
-                return _VT.__FALSE_STR_OR_STR_LIST
+                return _VT.__FALSE_STR_REPEATABLE_EL
         return _VT.__TRUE_VAL
     @staticmethod
     def STR(x):
@@ -142,7 +145,7 @@ class _VT:
         return _VT.__TRUE_VAL if (isinstance(x, dict)) else _VT.__FALSE_DICT
     @staticmethod
     def BOOL(x):
-        return _VT.__TRUE_VAL if (x is False or x is True) else _VT.__FALSE_DICT
+        return _VT.__TRUE_VAL if (x is False or x is True) else _VT.__FALSE_BOOL
     @staticmethod
     def HREF(x):
         try:
@@ -175,8 +178,15 @@ class _VT:
     def META_STR_LIST(x):
         return _VT.STR_LIST(_VT._extract_meta(x))
     @staticmethod
-    def META_STR_OR_STR_LIST(x):
-        return _VT.STR_OR_STR_LIST(_VT._extract_meta(x))
+    def META_STR_REPEATABLE_EL(x):
+        if not isinstance(x, list):
+            x = [x]
+        for el in x:
+            vel = _VT._extract_meta(el)
+            r = _VT.STR(vel)
+            if r is not _VT.__TRUE_VAL:
+                return _VT.__FALSE_STR_REPEATABLE_EL
+        return _VT.__TRUE_VAL
     @staticmethod
     def META_HREF(x):
         return _VT.HREF(_VT._extract_meta(x))
@@ -196,8 +206,12 @@ class _VT:
             return _VT.META_DICT
         if v is _VT.STR_LIST:
             return _VT.META_STR_LIST
+        if v is _VT.STR_REPEATABLE_EL:
+            return _VT.META_STR_REPEATABLE_EL
         if v is _VT.INT:
             return _VT.META_INT
+        if v is _VT.BOOL:
+            return _VT.META_BOOL
         return v
 _SchemaFragment._VT = _VT
 
@@ -233,8 +247,8 @@ _TypMNexmlEl_All = {'ot:curatorName': _VT.STR,
                     'ot:notIntendedForSynthesis': _VT.BOOL,
                     'ot:notUsingRootedTrees': _VT.BOOL,
                     'ot:studyId': _VT.STR,
-                    'ot:tag': _VT.STR_OR_STR_LIST,
-                    'ot:candidateTreeForSynthesis': _VT.STR_OR_STR_LIST,
+                    'ot:tag': _VT.STR_REPEATABLE_EL,
+                    'ot:candidateTreeForSynthesis': _VT.STR_REPEATABLE_EL,
                    }
 
 _v1_2_nexml = _SchemaFragment(required=_Req_NexmlEl_All,

@@ -2,6 +2,7 @@
 '''NexsonValidationAdaptor class.
 '''
 import json
+from peyotl.utility import get_logger
 from peyotl.nexson_validation.helper import SeverityCodes
 from peyotl.nexson_validation.schema import add_schema_attributes
 from peyotl.nexson_validation.err_generator import factory2code, \
@@ -17,6 +18,7 @@ from peyotl.nexson_syntax.helper import get_nexml_el, \
                                         _is_direct_hbf
 
 from peyotl.nexson_syntax import detect_nexson_version
+_LOG = get_logger(__name__)
 _NEXEL_TOP_LEVEL = 0
 _NEXEL_NEXML = 1
 _NEXEL_OTUS = 2
@@ -210,21 +212,30 @@ class NexsonValidationAdaptor(object):
             warnings if `obj` lacks keys listed in schema.EXPECETED_KEY_SET, 
                       or if `obj` contains keys not listed in schema.ALLOWED_KEY_SET.
         '''
-        off_key = [k for k in obj.keys() if k not in schema.ALLOWED_KEY_SET]
-        unrec_meta_keys = None
-        unrec_non_meta_keys = None
-        if off_key:
-            if self._using_hbf_meta:
-                non_meta_keys = []
-                unrec_meta_keys = []
-                for k in off_key:
-                    if k[0] == '^':
+        wrong_type = []
+        unrec_meta_keys = []
+        unrec_non_meta_keys = []
+        
+        if self._using_hbf_meta:
+            for k, v in obj.items():
+                is_meta = k[0] == '^'
+                if k not in schema.ALLOWED_KEY_SET:
+                    if is_meta:
                         unrec_meta_keys.append(k)
                     else:
                         unrec_non_meta_keys.append(k)
-            else:
-                unrec_non_meta_keys = off_key
-        if not self._using_hbf_meta:
+                else:
+                    correct_type, info = schema.K2VT[k](v)
+                    if not correct_type:
+                        wrong_type.append((k, v, info))
+        else:
+            for k, v in obj.items():
+                if k not in schema.ALLOWED_KEY_SET:
+                    unrec_non_meta_keys.append(k)
+                else:
+                    correct_type, info = schema.K2VT[k](v)
+                    if not correct_type:
+                        wrong_type.append((k, v, info))
             m = self._get_list_key(obj_code, obj, 'meta', anc)
             if m:
                 # might want a flag of meta?
@@ -243,6 +254,13 @@ class NexsonValidationAdaptor(object):
                                      err_type=gen_MissingMandatoryKeyWarning,
                                      anc=anc,
                                      key_list=mrmk)
+                for k, v in md.items():
+                    if k not in schema.ALLOWED_META_KEY_SET:
+                        unrec_meta_keys.append(k)
+                    else:
+                        correct_type, info = schema.K2VT[k](v)
+                        if not correct_type:
+                            wrong_type.append((k, v, info))
         if unrec_non_meta_keys:
             self._warn_event(obj_code,
                              obj=obj,

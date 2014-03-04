@@ -199,6 +199,14 @@ def _convert_hbf_meta_val_for_xml(key, val):
         ret.setdefault('@rel', key)
     return ret
 
+def get_bf_meta_value(d):
+    v = d.get('$')
+    if v is not None:
+        return v
+    v = d.get('@content')
+    if v is not None:
+        return v
+    return d.get('@href')
 def _contains_hbf_meta_keys(d):
     for k in d.keys():
         if k.startswith('^'):

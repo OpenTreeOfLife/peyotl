@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax.helper import _is_badgerfish_version, \
+from peyotl.nexson_syntax.helper import get_bf_meta_value, \
+                                        _is_badgerfish_version, \
                                         _is_by_id_hbf, \
                                         _is_direct_hbf
 
@@ -27,17 +28,20 @@ class _SchemaFragment(object):
                  required_meta,
                  expected_meta,
                  using_hbf_meta):
-        self.REQUIRED_2_VT = required
-        self.EXPECETED_2_VT = expected
-        self.ALLOWED_2_VT = additional_allowed
-        self.REQUIRED_META_2_VT = required_meta
-        self.EXPECTED_META_2_VT = expected_meta
+        self.K2VT = dict(required)
+        self.K2VT.update(expected)
+        self.K2VT.update(additional_allowed)
+
         required_meta_keys = tuple(required_meta.keys())
         expected_meta_keys = tuple(expected_meta.keys())
         required_keys = tuple(required.keys())
         expected_keys = tuple(expected.keys())
         additional_allowed_keys = tuple(additional_allowed.keys())
         if using_hbf_meta:
+            for k, v in required_meta.items():
+                self.K2VT['^' + k] = v
+            for k, v in expected_meta.items():
+                self.K2VT['^' + k] = v
             self.REQUIRED_META_KEY_SET = frozenset(['^' + i for i in required_meta_keys])
             self.EXPECTED_META_KEY_SET = frozenset(['^' + i for i in expected_meta_keys])
             self.REQUIRED_KEY_SET = frozenset(required_keys + tuple(self.REQUIRED_META_KEY_SET))
@@ -46,8 +50,14 @@ class _SchemaFragment(object):
                                               + tuple(self.EXPECETED_KEY_SET) 
                                               + additional_allowed_keys)
         else:
+            for k, v in required_meta.items():
+                self.K2VT[k] = _VT.convert2meta(v)
+            for k, v in expected_meta.items():
+                self.K2VT[k] = _VT.convert2meta(v)
+            self.K2VT['meta'] = _VT.LIST_OR_DICT
             self.REQUIRED_META_KEY_SET = frozenset(required_meta_keys)
             self.EXPECTED_META_KEY_SET = frozenset(expected_meta_keys)
+            self.ALLOWED_META_KEY_SET = frozenset(required_meta_keys + expected_meta_keys)
             self.REQUIRED_KEY_SET = frozenset(required_keys)
             self.EXPECETED_KEY_SET = frozenset(expected_keys)
             self.ALLOWED_KEY_SET = frozenset(('meta', ) 
@@ -76,13 +86,79 @@ class _SchemaFragment(object):
 
 class _VT:
     '''Value type enum'''
-    STR = 0
-    LIST = 1
-    DICT = 2
-    STR_LIST = 3
-    HREF = 4
-    INT = 5
-
+    __TRUE_VAL = (True, None)
+    __FALSE_STR = (False, 'str')
+    __FALSE_HREF = (False, 'href')
+    __FALSE_LIST = (False, 'array')
+    __FALSE_DICT = (False, 'object')
+    __FALSE_STR_LIST = (False, 'string array')
+    __FALSE_INT = (False, 'integer')
+    __FALSE_DICT_LIST = (False, 'array or object')
+    @staticmethod
+    def STR_LIST(x):
+        if not isinstance(x, list):
+            return _VT.__FALSE_STR_LIST
+        for i in x:
+            if not (isinstance(x, str) or isinstance(x, unicode)):
+                return _VT.__FALSE_STR_LIST
+        return _VT.__TRUE_VAL
+    @staticmethod
+    def STR(x):
+        return _VT.__TRUE_VAL if (isinstance(x, str) or isinstance(x, unicode)) else _VT.__FALSE_STR
+    @staticmethod
+    def LIST_OR_DICT(x):
+        return _VT.__TRUE_VAL if (isinstance(x, list) or isinstance(x, dict)) else _VT.__FALSE_DICT_LIST
+    @staticmethod
+    def LIST(x):
+        return _VT.__TRUE_VAL if (isinstance(x, list)) else _VT.__FALSE_LIST
+    @staticmethod
+    def DICT(x):
+        return _VT.__TRUE_VAL if (isinstance(x, dict)) else _VT.__FALSE_DICT
+    @staticmethod
+    def HREF(x):
+        return _VT.__TRUE_VAL if (isinstance(x, str) or isinstance(x, unicode)) else _VT.__FALSE_HREF
+    @staticmethod
+    def INT(x):
+        return  _VT.__TRUE_VAL if (isinstance(x, int)) else _VT.__FALSE_INT
+    @staticmethod
+    def _extract_meta(x):
+        try:
+            return get_bf_meta_value(x)
+        except:
+            return None
+    # meta forms
+    @staticmethod
+    def META_STR(x):
+        return _VT.STR(_VT._extract_meta(x))
+    @staticmethod
+    def META_LIST(x):
+        return _VT.LIST(_VT._extract_meta(x))
+    @staticmethod
+    def META_DICT(x):
+        return _VT.DICT(_VT._extract_meta(x))
+    @staticmethod
+    def META_STR_LIST(x):
+        return _VT.STR_LIST(_VT._extract_meta(x))
+    @staticmethod
+    def META_HREF(x):
+        return _VT.HREF(_VT._extract_meta(x))
+    @staticmethod
+    def META_INT(x):
+        return _VT.INT(_VT._extract_meta(x))
+    @staticmethod
+    def convert2meta(v):
+        if v is _VT.STR:
+            return _VT.META_STR
+        if v is _VT.LIST:
+            return _VT.META_LIST
+        if v is _VT.DICT:
+            return _VT.META_DICT
+        if v is _VT.STR_LIST:
+            return _VT.META_STR_LIST
+        if v is _VT.HREF:
+            return _VT.META_HREF
+        if v is _VT.INT:
+            return _VT.META_INT
 
 _EMPTY_TUPLE = tuple()
 _EMPTY_DICT = {}

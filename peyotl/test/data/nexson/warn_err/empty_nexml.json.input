@@ -15,10 +15,12 @@
 }, 
 "^ot:studyId": "b",
 "^ot:focalClade": 42, 
+"^ot:tag": ["bogus", "delete me"], 
 "^ot:studyPublication": {
    "@href": "http://dx.doi.org/10.1073/pnas.0709121104"
 },
 "^ot:studyYear": 2014, 
+"^ot:notIntendedForSynthesis": true, 
 "^ot:curatorName": "jane q. public", 
 "^ot:studyPublicationReference": "Some free, text here.", 
 "^ot:dataDeposit" : {

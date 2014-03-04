@@ -141,6 +141,9 @@ class _VT:
     def DICT(x):
         return _VT.__TRUE_VAL if (isinstance(x, dict)) else _VT.__FALSE_DICT
     @staticmethod
+    def BOOL(x):
+        return _VT.__TRUE_VAL if (x is False or x is True) else _VT.__FALSE_DICT
+    @staticmethod
     def HREF(x):
         try:
             h = x.get('@href')
@@ -178,6 +181,9 @@ class _VT:
     def META_HREF(x):
         return _VT.HREF(_VT._extract_meta(x))
     @staticmethod
+    def META_BOOL(x):
+        return _VT.BOOL(_VT._extract_meta(x))
+    @staticmethod
     def META_INT(x):
         return _VT.INT(_VT._extract_meta(x))
     @staticmethod
@@ -211,20 +217,24 @@ _Exp_NexmlEl_ByI = {'otusById': _VT.DICT,
                    }
 _All_NexmlEl_All = {'@about': _VT.STR,
                      '@generator': _VT.STR,
-                     '@nexmljson': _VT.STR,
+                     '@nexmljson': _VT.STR, # TODO: should be the purl. Move to xmlns?
                      '@version': _VT.STR,
                      '@xmlns': _VT.DICT,
                      '@nexml2json': _VT.STR,
                     }
 _ExpMNexmlEl_All = {'ot:dataDeposit': _VT.HREF,
-                    'ot:focalClade': _VT.INT,
                     'ot:studyPublication': _VT.HREF,
                     'ot:studyPublicationReference': _VT.STR,
                     'ot:studyYear': _VT.INT,
                    }
 _TypMNexmlEl_All = {'ot:curatorName': _VT.STR,
+                    'ot:focalClade': _VT.INT,
+                    'ot:focalCladeOTTTaxonName': _VT.STR,
+                    'ot:notIntendedForSynthesis': _VT.BOOL,
+                    'ot:notUsingRootedTrees': _VT.BOOL,
                     'ot:studyId': _VT.STR,
                     'ot:tag': _VT.STR_OR_STR_LIST,
+                    'ot:candidateTreeForSynthesis': _VT.STR_OR_STR_LIST,
                    }
 
 _v1_2_nexml = _SchemaFragment(required=_Req_NexmlEl_All,

@@ -10,6 +10,7 @@
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from cStringIO import StringIO
 import codecs
+import json
 
 class MessageTupleAdaptor(object):
     '''This base class provides the basic functionality of keeping
@@ -63,27 +64,51 @@ class MissingOptionalKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_OPTIONAL_KEY
         self.format = '{p}Missing optional key(s): "{d}"'
+class MissingExpectedListWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MISSING_LIST_EXPECTED
+        self.format = '{p}Expected a list for key(s): "{d}"'
+
+class _ObjListDataWarningType(_StrListDataWarningType):
+    def convert_data_for_json(self, err_tuple):
+        return [json.loads(i) for i in err_tuple[3]]
+class UnparseableMetaWarningType(_ObjListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.UNPARSEABLE_META
+        self.format = '{p}meta(s) with out @property or @rel: "{d}"'
 
 UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
 MissingMandatoryKeyWarning = MissingMandatoryKeyWarningType()
 MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
+MissingExpectedListWarning = MissingExpectedListWarningType()
+UnparseableMetaWarning = UnparseableMetaWarningType()
 
 # factory functions that call register_new_messages
+def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
+    k_list.sort()
+    k_list = tuple(k_list)
+    t = (wt, pyid, addr, k_list)
+    logger.register_new_messages(t, severity=severity)
+
 def gen_UnrecognizedKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
-    k_list = kwargs['key_list']
-    t = (UnrecognizedKeyWarning, pyid, addr, k_list)
-    logger.register_new_messages(t, severity=severity)
-
+    _key_list_warning(UnrecognizedKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
-    k_list = kwargs['key_list']
-    t = (MissingMandatoryKeyWarning, pyid, addr, k_list)
-    logger.register_new_messages(t, severity=severity)
-
+    _key_list_warning(MissingMandatoryKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
-    k_list = kwargs['key_list']
-    t = (MissingOptionalKeyWarning, pyid, addr, k_list)
+    _key_list_warning(MissingOptionalKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
+def gen_MissingExpectedListWarning(addr, pyid, logger, severity, *valist, **kwargs):
+    _key_list_warning(MissingExpectedListWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def _obj_list_warning(wt, k_list, addr, pyid, logger, severity):
+    k_list = tuple([json.dumps(i) for i in k_list])
+    t = (wt, pyid, addr, k_list)
     logger.register_new_messages(t, severity=severity)
 
+
+def gen_UnparseableMetaWarning(addr, pyid, logger, severity, *valist, **kwargs):
+    _obj_list_warning(UnparseableMetaWarning, kwargs['obj_list'], addr, pyid, logger, severity)
+
+gen_UnparseableMetaWarning
 
 # some introspective hacking to create a look up of factory function 2 NexsonWarningCodes type
 factory2code = {}

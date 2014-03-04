@@ -39,6 +39,7 @@ class NexsonWarningCodes():
               'CONFLICTING_PROPERTY_VALUES',
               'NO_TREES',
               'DEPRECATED_PROPERTY',
+              'UNPARSEABLE_META',
               )
     numeric_codes_registered = []
 # monkey-patching NexsonWarningCodes...

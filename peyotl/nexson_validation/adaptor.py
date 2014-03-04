@@ -5,10 +5,13 @@ import json
 from peyotl.nexson_validation.helper import SeverityCodes
 from peyotl.nexson_validation.schema import add_schema_attributes
 from peyotl.nexson_validation.err_generator import factory2code, \
+                                                   gen_MissingExpectedListWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
+                                                   gen_UnparseableMetaWarning, \
                                                    gen_UnrecognizedKeyWarning
 from peyotl.nexson_syntax.helper import get_nexml_el, \
+                                        _add_value_to_dict_bf, \
                                         _is_badgerfish_version, \
                                         _is_by_id_hbf, \
                                         _is_direct_hbf
@@ -78,6 +81,7 @@ class LazyAddress(object):
                 self._path = '{t} (id="{i}")'.format(t=ts, i=self.obj_id)
         return self._path
     path = property(get_path)
+
 _EMPTY_TUPLE = tuple()
 
 class NexsonValidationAdaptor(object):
@@ -108,7 +112,7 @@ class NexsonValidationAdaptor(object):
                              obj=obj,
                              err_type=gen_UnrecognizedKeyWarning,
                              anc=_EMPTY_TUPLE,
-                             key_list=tuple(uk))
+                             key_list=uk)
         self._nexml = None
         try:
             self._nexml = get_nexml_el(obj)
@@ -118,12 +122,39 @@ class NexsonValidationAdaptor(object):
                               obj=obj,
                               err_type=gen_MissingMandatoryKeyWarning,
                               anc=_EMPTY_TUPLE,
-                              key_list=('nexml',))
+                              key_list=['nexml',])
             return ## EARLY EXIT!!
         self._nexson_version = detect_nexson_version(obj)
         # a little duck-punching
         add_schema_attributes(self, self._nexson_version)
         self._validate_nexml_obj(self._nexml, anc=obj)
+    def _bf_meta_list_to_dict(self, m_list, par_obj_code, par, par_anc):
+        d = {}
+        unparseable_m = None
+        for m_el in m_list:
+            try:
+                n = m_el.get('@property')
+            except:
+                if unparseable_m is None:
+                    unparseable_m = []
+                unparseable_m.append(m_el)
+            else:
+                if n is None:
+                    n = m_el.get('@rel')
+                if n is None:
+                    if unparseable_m is None:
+                        unparseable_m = []
+                    unparseable_m.append(m_el)
+                else:
+                    _add_value_to_dict_bf(d, n, m_el)
+        if unparseable_m:
+            for m_el in unparseable_m:
+                self._error_event(par_obj_code,
+                                  obj=par,
+                                  err_type=gen_UnparseableMetaWarning,
+                                  anc=par_anc,
+                                  obj_list=unparseable_m)
+        return d
 
     def _event_address(self, obj_code, obj, anc, anc_offset=0):
         pyid = id(obj)
@@ -153,6 +184,21 @@ class NexsonValidationAdaptor(object):
             return
         address, pyid = self._event_address(obj_code, obj, anc)
         err_type(address, pyid, self._logger, SeverityCodes.ERROR, *valist, **kwargs)
+    def _get_list_key(self, obj_code, obj, key, anc):
+        k = obj.get(key)
+        if k is None:
+            return None
+        if isinstance(k, dict):
+            k = [k]
+        if not isinstance(k, list):
+            self._error_event(obj_code,
+                              obj=obj,
+                              err_type=gen_MissingExpectedListWarning,
+                              anc=anc,
+                              key_list=[key,])
+            return None
+        return k
+
     def _validate_obj_by_schema(self, obj_code, obj, anc, schema):
         '''Creates:
             errors if `obj` does not contain keys in the schema.PERMISSIBLE_KEYS,
@@ -160,26 +206,66 @@ class NexsonValidationAdaptor(object):
                       or if `obj` contains keys not listed in schema.PERMISSIBLE_KEYS.
         '''
         off_key = [k for k in obj.keys() if k not in schema.PERMISSIBLE_KEYS]
+        unrec_meta_keys = None
+        unrec_non_meta_keys = None
         if off_key:
+            if self._using_hbf_meta:
+                non_meta_keys = []
+                unrec_meta_keys = []
+                for k in off_key:
+                    if k[0] == '^':
+                        unrec_meta_keys.append(k)
+                    else:
+                        unrec_non_meta_keys.append(k)
+            else:
+                unrec_non_meta_keys = off_key
+        if not self._using_hbf_meta:
+            m = self._get_list_key(obj_code, obj, 'meta', anc)
+            if m:
+                # might want a flag of meta?
+                md = self._bf_meta_list_to_dict(m, obj_code, obj, anc)
+                mrmk = [i for i in schema.REQUIRED_META_KEYS if i not in md]
+                memk = [i for i in schema.EXPECTED_META_KEYS if i not in md]
+                if memk:
+                    self._warn_event(obj_code,
+                                     obj=obj,
+                                     err_type=gen_MissingOptionalKeyWarning,
+                                     anc=anc,
+                                     key_list=memk)
+                if mrmk:
+                    self._error_event(obj_code,
+                                     obj=obj,
+                                     err_type=gen_MissingMandatoryKeyWarning,
+                                     anc=anc,
+                                     key_list=mrmk)
+        if unrec_non_meta_keys:
             self._warn_event(obj_code,
                              obj=obj,
                              err_type=gen_UnrecognizedKeyWarning,
                              anc=anc,
-                             key_list=tuple(off_key))
+                             key_list=unrec_non_meta_keys)
+        if unrec_meta_keys:
+            # might want a flag of meta?
+            self._warn_event(obj_code,
+                             obj=obj,
+                             err_type=gen_UnrecognizedKeyWarning,
+                             anc=anc,
+                             key_list=unrec_meta_keys)
+
         off_key = [k for k in schema.EXPECETED_KEYS if k not in obj]
         if off_key:
             self._warn_event(obj_code,
                              obj=obj,
                              err_type=gen_MissingOptionalKeyWarning,
                              anc=anc,
-                             key_list=tuple(off_key))
+                             key_list=off_key)
         off_key = [k for k in schema.REQUIRED_KEYS if k not in obj]
         if off_key:
             self._error_event(obj_code,
                              obj=obj,
                              err_type=gen_MissingMandatoryKeyWarning,
                              anc=anc,
-                             key_list=tuple(off_key))
+                             key_list=off_key)
 
     def _validate_nexml_obj(self, nex_obj, anc):
         schema = self._NexmlEl_Schema

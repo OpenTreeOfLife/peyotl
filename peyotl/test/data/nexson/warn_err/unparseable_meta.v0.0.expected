@@ -5,7 +5,7 @@
         {
           "expected": "integer", 
           "key": "ot:focalClade", 
-          "type": "dict"
+          "type": "unicode"
         }
       ], 
       "refersTo": "nexml"

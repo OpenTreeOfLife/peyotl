@@ -19,6 +19,7 @@ rm -f peyotl/test/scratch/.obtained_*
 rm -f peyotl/test/scratch/.expected_*
 rm -f peyotl/test/scratch/.clique.*
 rm -f peyotl/test/data/nexson/*/*.output
+rm -f peyotl/test/data/nexson/*/*.expected.orig
 rm -f scratch/.2.*
 rm -f scratch/.1.*
 rm -f scratch/.3.*

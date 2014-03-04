@@ -164,6 +164,7 @@ class _VT:
         if v is _VT.INT:
             return _VT.META_INT
         return v
+_SchemaFragment._VT = _VT
 
 _EMPTY_TUPLE = tuple()
 _EMPTY_DICT = {}

@@ -261,6 +261,7 @@ class NexsonValidationAdaptor(object):
                     else:
                         correct_type, info = schema.K2VT[k](v)
                         if not correct_type:
+                            v = schema._VT._extract_meta(v)
                             wrong_type.append((k, v, info))
         if wrong_type:
             self._error_event(obj_code,

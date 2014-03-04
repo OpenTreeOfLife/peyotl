@@ -35,8 +35,7 @@ class GitAction(object):
            self.gitdir="--git-dir={}/.git".format(self.repo)
            self.gitwd="--work-tree={}".format(self.repo)
         else: #EJM needs a test?
-            print("Not a Git repo") 
-           #EJM not sure where this will go in web2py
+            raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
             
 
     def acquire_lock(self):
@@ -83,7 +82,7 @@ class GitAction(object):
         dirs.sort()
         return dirs[-1]
 
-    def fetch_study(self, study_id):
+    def return_study(self, study_id): 
         """Return the contents of the given study_id, and the SHA1 of the HEAD.
 
         If the study_id does not exist, it returns the empty string.

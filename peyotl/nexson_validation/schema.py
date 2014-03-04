@@ -22,12 +22,22 @@ def add_schema_attributes(container, nexson_version):
 
 class _SchemaFragment(object):
     def __init__(self,
-                 required,
+                 required, 
                  expected,
                  additional_allowed,
                  required_meta,
                  expected_meta,
+                 type_checked_meta,
                  using_hbf_meta):
+        '''
+        `required` dict of key to _VT type code. Error is not present.
+        `expected` dict of key to _VT type code. Warnings is not present.
+        `additional_allowed` dict of None ignored elements #@TODO could be a set.
+        `required_meta` dict of meta key to _VT type code. Error is not present.
+        `expected_meta` dict of meta key to _VT type code. Warnings is not present.
+        `type_checked_meta` dict of meta key to _VT type code. Error if wrong type, no warning if absent.
+        `using_hbf_meta` True for >=1.0.0, False for badgerfish.
+        '''
         self.K2VT = dict(required)
         self.K2VT.update(expected)
         self.K2VT.update(additional_allowed)
@@ -42,22 +52,27 @@ class _SchemaFragment(object):
                 self.K2VT['^' + k] = v
             for k, v in expected_meta.items():
                 self.K2VT['^' + k] = v
+            for k, v in type_checked_meta.items():
+                self.K2VT['^' + k] = v
             self.REQUIRED_META_KEY_SET = frozenset(['^' + i for i in required_meta_keys])
             self.EXPECTED_META_KEY_SET = frozenset(['^' + i for i in expected_meta_keys])
             self.REQUIRED_KEY_SET = frozenset(required_keys + tuple(self.REQUIRED_META_KEY_SET))
             self.EXPECETED_KEY_SET = frozenset(expected_keys + tuple(self.EXPECTED_META_KEY_SET))
             self.ALLOWED_KEY_SET = frozenset(tuple(self.REQUIRED_KEY_SET) 
                                               + tuple(self.EXPECETED_KEY_SET) 
-                                              + additional_allowed_keys)
+                                              + additional_allowed_keys
+                                              + tuple(['^' + i for i in type_checked_meta.keys()]))
         else:
             for k, v in required_meta.items():
                 self.K2VT[k] = _VT.convert2meta(v)
             for k, v in expected_meta.items():
                 self.K2VT[k] = _VT.convert2meta(v)
+            for k, v in type_checked_meta.items():
+                self.K2VT[k] = _VT.convert2meta(v)
             self.K2VT['meta'] = _VT.LIST_OR_DICT
             self.REQUIRED_META_KEY_SET = frozenset(required_meta_keys)
             self.EXPECTED_META_KEY_SET = frozenset(expected_meta_keys)
-            self.ALLOWED_META_KEY_SET = frozenset(required_meta_keys + expected_meta_keys)
+            self.ALLOWED_META_KEY_SET = frozenset(required_meta_keys + expected_meta_keys + tuple(type_checked_meta.keys()))
             self.REQUIRED_KEY_SET = frozenset(required_keys)
             self.EXPECETED_KEY_SET = frozenset(expected_keys)
             self.ALLOWED_KEY_SET = frozenset(('meta', ) 
@@ -91,6 +106,7 @@ class _VT:
     __FALSE_HREF = (False, 'href')
     __FALSE_LIST = (False, 'array')
     __FALSE_DICT = (False, 'object')
+    __FALSE_STR_OR_STR_LIST = (False, 'string or string array')
     __FALSE_STR_LIST = (False, 'string array')
     __FALSE_INT = (False, 'integer')
     __FALSE_DICT_LIST = (False, 'array or object')
@@ -101,6 +117,16 @@ class _VT:
         for i in x:
             if not (isinstance(i, str) or isinstance(i, unicode)):
                 return _VT.__FALSE_STR_LIST
+        return _VT.__TRUE_VAL
+    @staticmethod
+    def STR_OR_STR_LIST(x):
+        if isinstance(x, str) or isinstance(x, unicode):
+            return _VT.__TRUE_VAL
+        if not isinstance(x, list):
+            return _VT.__FALSE_STR_OR_STR_LIST
+        for i in x:
+            if not (isinstance(i, str) or isinstance(i, unicode)):
+                return _VT.__FALSE_STR_OR_STR_LIST
         return _VT.__TRUE_VAL
     @staticmethod
     def STR(x):
@@ -146,6 +172,9 @@ class _VT:
     def META_STR_LIST(x):
         return _VT.STR_LIST(_VT._extract_meta(x))
     @staticmethod
+    def META_STR_OR_STR_LIST(x):
+        return _VT.STR_OR_STR_LIST(_VT._extract_meta(x))
+    @staticmethod
     def META_HREF(x):
         return _VT.HREF(_VT._extract_meta(x))
     @staticmethod
@@ -172,32 +201,37 @@ _EMPTY_DICT = {}
 # nexml element schema
 _NRequired_NexmlEl = {'@id': _VT.STR}
 _NExpected_NexmlEl_Direct = {'otus': _VT.LIST,
-                             'trees': _VT.LIST}
+                             'trees': _VT.LIST,
+                             }
 _NExpected_NexmlEl_ById = {'otusById': _VT.DICT, 
                            'treesById': _VT.DICT,
                            '^ot:otusElementOrder': _VT.STR_LIST,
-                           '^ot:treesElementOrder': _VT.STR_LIST}
+                           '^ot:treesElementOrder': _VT.STR_LIST,
+                           }
 _NAllowed_NexmlEl = {'@about': _VT.STR,
                      '@generator': _VT.STR,
                      '@nexmljson': _VT.STR,
                      '@version': _VT.STR,
                      '@xmlns': _VT.DICT,
-                     '@nexml2json': _VT.STR,}
-_NExpectedMeta_NexmlEl_BF = {'ot:studyId': _VT.STR,
+                     '@nexml2json': _VT.STR,
+                     }
+_NExpectedMeta_NexmlEl_BF = {'ot:dataDeposit': _VT.HREF,
                              'ot:focalClade': _VT.INT,
+                             'ot:studyId': _VT.STR,
                              'ot:studyPublication': _VT.HREF,
-                             'ot:studyYear': _VT.INT,
-                             'ot:curatorName': _VT.STR,
                              'ot:studyPublicationReference': _VT.STR,
-                             'ot:dataDeposit': _VT.HREF
+                             'ot:studyYear': _VT.INT,
                             }
-
+_NTypeCheckedMeta_NexmlEl_BF = {'ot:curatorName': _VT.STR,
+                                'ot:tag': _VT.STR_OR_STR_LIST,
+                                }
 
 _by_id_nexml = _SchemaFragment(required=_NRequired_NexmlEl,
                         expected=_NExpected_NexmlEl_ById,
                         additional_allowed=_NAllowed_NexmlEl,
                         required_meta=_EMPTY_DICT,
                         expected_meta=_NExpectedMeta_NexmlEl_BF,
+                        type_checked_meta=_NTypeCheckedMeta_NexmlEl_BF,
                         using_hbf_meta=True)
 
 _direct_nexml = _SchemaFragment(required=_NRequired_NexmlEl,
@@ -205,6 +239,7 @@ _direct_nexml = _SchemaFragment(required=_NRequired_NexmlEl,
                         additional_allowed=_NAllowed_NexmlEl,
                         required_meta=_EMPTY_DICT,
                         expected_meta=_NExpectedMeta_NexmlEl_BF,
+                        type_checked_meta=_NTypeCheckedMeta_NexmlEl_BF,
                         using_hbf_meta=True)
 
 _bf_nexml = _SchemaFragment(required=_NRequired_NexmlEl,
@@ -212,6 +247,7 @@ _bf_nexml = _SchemaFragment(required=_NRequired_NexmlEl,
                         additional_allowed=_NAllowed_NexmlEl,
                         required_meta=_EMPTY_DICT,
                         expected_meta=_NExpectedMeta_NexmlEl_BF,
+                        type_checked_meta=_NTypeCheckedMeta_NexmlEl_BF,
                         using_hbf_meta=False)
 #####################################################################
 

@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "INCORRECT_VALUE_TYPE": {
+      "data": [
+        {
+          "expected": "integer", 
+          "key": "^ot:studyYear", 
+          "type": "unicode"
+        }
+      ], 
+      "refersTo": {
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
+      }
+    }
+  }, 
+  "warnings": {}
+}

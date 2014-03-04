@@ -4,7 +4,9 @@
       "data": [
         "nexml"
       ], 
-      "refersTo": "top-level"
+      "refersTo": {
+        "@top": ""
+      }
     }
   }, 
   "warnings": {}

@@ -8,7 +8,9 @@
           "type": "unicode"
         }
       ], 
-      "refersTo": "nexml"
+      "refersTo": {
+        "@top": "nexml"
+      }
     }, 
     "UNPARSEABLE_META": {
       "data": [
@@ -22,7 +24,9 @@
         4.5, 
         true
       ], 
-      "refersTo": "nexml"
+      "refersTo": {
+        "@top": "nexml"
+      }
     }
   }, 
   "warnings": {}

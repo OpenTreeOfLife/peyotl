@@ -51,18 +51,38 @@ _NEXEL_CODE_TO_PAR_CODE = {
     _NEXEL_NODE: _NEXEL_TREE,
     _NEXEL_EDGE: _NEXEL_TREE,
 }
-
+_NEXEL_CODE_TO_OTHER_ID_KEY = {
+    _NEXEL_TOP_LEVEL: None,
+    _NEXEL_NEXML: None,
+    _NEXEL_OTUS: '@otusID',
+    _NEXEL_OTU: '@otuID',
+    _NEXEL_TREES: '@treesID',
+    _NEXEL_TREE: '@treeID',
+    _NEXEL_NODE: '@nodeID',
+    _NEXEL_EDGE: '@edgeID',
+}
+_NEXEL_CODE_TO_TOP_ENTITY_NAME = {
+    _NEXEL_TOP_LEVEL: '',
+    _NEXEL_NEXML: 'nexml',
+    _NEXEL_OTUS: 'otus',
+    _NEXEL_OTU: 'otus',
+    _NEXEL_TREES: 'trees',
+    _NEXEL_TREE: 'trees',
+    _NEXEL_NODE: 'trees',
+    _NEXEL_EDGE: 'trees',
+}
 def _get_par_obj_code(c):
     pc = _NEXEL_CODE_TO_PAR_CODE[c]
     if pc is None:
         return None
-    return _NEXEL_CODE_TO_STR[pc]
+    return pc
 
 class LazyAddress(object):
     @staticmethod
     def _address_code_to_str(code):
         return _NEXEL_CODE_TO_STR[code]
     def __init__(self, code, obj=None, obj_id=None, par_addr=None):
+        assert(code in _NEXEL_CODE_TO_STR)
         self.code = code
         self.ref = obj
         if obj_id is None:
@@ -77,11 +97,20 @@ class LazyAddress(object):
         out.write(p)
     def get_path(self):
         if self._path is None:
-            ts = LazyAddress._address_code_to_str(self.code)
-            if self.obj_id is None:
-                self._path = ts
+            if self.par_addr is None:
+                assert(self.code == _NEXEL_TOP_LEVEL)
+                self._path = {}
             else:
-                self._path = '{t} (id="{i}")'.format(t=ts, i=self.obj_id)
+                self._path = dict(self.par_addr.path)
+            self._path['@top'] = _NEXEL_CODE_TO_TOP_ENTITY_NAME[self.code]
+            ts = LazyAddress._address_code_to_str(self.code)
+            if self.obj_id is not None:
+                self._path['@idref'] = self.obj_id
+                other_id_key = _NEXEL_CODE_TO_OTHER_ID_KEY[self.code]
+                if other_id_key is not None:
+                    self._path[other_id_key] = self.obj_id
+            elif '@idref' in self._path:
+                del self._path['@idref']
         return self._path
     path = property(get_path)
 
@@ -166,10 +195,11 @@ class NexsonValidationAdaptor(object):
             if len(anc) > anc_offset:
                 p_ind = -1 -anc_offset
                 p = anc[p_ind]
-                par_addr = self._event_address(_get_par_obj_code(obj_code),
-                                               p,
-                                               anc, 
-                                               1 + anc_offset)
+                pea = self._event_address(_get_par_obj_code(obj_code),
+                                          p,
+                                          anc, 
+                                          1 + anc_offset)
+                par_addr = pea[0]
             else:
                 par_addr = None
             addr = LazyAddress(obj_code, obj=obj, par_addr=par_addr)

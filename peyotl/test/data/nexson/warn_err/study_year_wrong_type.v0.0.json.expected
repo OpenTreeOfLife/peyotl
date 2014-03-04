@@ -8,7 +8,9 @@
           "type": "unicode"
         }
       ], 
-      "refersTo": "nexml"
+      "refersTo": {
+        "@top": "nexml"
+      }
     }
   }, 
   "warnings": {}

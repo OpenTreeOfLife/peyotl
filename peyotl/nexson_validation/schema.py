@@ -24,7 +24,7 @@ class _SchemaFragment(object):
     def __init__(self,
                  required, 
                  expected,
-                 additional_allowed,
+                 allowed,
                  required_meta,
                  expected_meta,
                  type_checked_meta,
@@ -32,7 +32,7 @@ class _SchemaFragment(object):
         '''
         `required` dict of key to _VT type code. Error is not present.
         `expected` dict of key to _VT type code. Warnings is not present.
-        `additional_allowed` dict of None ignored elements #@TODO could be a set.
+        `allowed` dict of None ignored elements #@TODO could be a set.
         `required_meta` dict of meta key to _VT type code. Error is not present.
         `expected_meta` dict of meta key to _VT type code. Warnings is not present.
         `type_checked_meta` dict of meta key to _VT type code. Error if wrong type, no warning if absent.
@@ -40,13 +40,13 @@ class _SchemaFragment(object):
         '''
         self.K2VT = dict(required)
         self.K2VT.update(expected)
-        self.K2VT.update(additional_allowed)
+        self.K2VT.update(allowed)
 
         required_meta_keys = tuple(required_meta.keys())
         expected_meta_keys = tuple(expected_meta.keys())
         required_keys = tuple(required.keys())
         expected_keys = tuple(expected.keys())
-        additional_allowed_keys = tuple(additional_allowed.keys())
+        allowed_keys = tuple(allowed.keys())
         if using_hbf_meta:
             for k, v in required_meta.items():
                 self.K2VT['^' + k] = v
@@ -60,7 +60,7 @@ class _SchemaFragment(object):
             self.EXPECETED_KEY_SET = frozenset(expected_keys + tuple(self.EXPECTED_META_KEY_SET))
             self.ALLOWED_KEY_SET = frozenset(tuple(self.REQUIRED_KEY_SET) 
                                               + tuple(self.EXPECETED_KEY_SET) 
-                                              + additional_allowed_keys
+                                              + allowed_keys
                                               + tuple(['^' + i for i in type_checked_meta.keys()]))
         else:
             for k, v in required_meta.items():
@@ -78,7 +78,7 @@ class _SchemaFragment(object):
             self.ALLOWED_KEY_SET = frozenset(('meta', ) 
                                               + tuple(self.REQUIRED_KEY_SET) 
                                               + tuple(self.EXPECETED_KEY_SET) 
-                                              + additional_allowed_keys)
+                                              + allowed_keys)
         # for order-dependent
         x = list(self.REQUIRED_META_KEY_SET)
         x.sort()
@@ -199,66 +199,67 @@ _EMPTY_TUPLE = tuple()
 _EMPTY_DICT = {}
 ####################################################################
 # nexml element schema
-_NRequired_NexmlEl = {'@id': _VT.STR}
-_NExpected_NexmlEl_Direct = {'otus': _VT.LIST,
-                             'trees': _VT.LIST,
-                             }
-_NExpected_NexmlEl_ById = {'otusById': _VT.DICT, 
-                           'treesById': _VT.DICT,
-                           '^ot:otusElementOrder': _VT.STR_LIST,
-                           '^ot:treesElementOrder': _VT.STR_LIST,
-                           }
-_NAllowed_NexmlEl = {'@about': _VT.STR,
+_Req_NexmlEl_All = {'@id': _VT.STR,
+                   }
+_Exp_NexmlEl_Dir = {'otus': _VT.LIST,
+                    'trees': _VT.LIST,
+                   }
+_Exp_NexmlEl_ByI = {'otusById': _VT.DICT, 
+                    'treesById': _VT.DICT,
+                    '^ot:otusElementOrder': _VT.STR_LIST,
+                    '^ot:treesElementOrder': _VT.STR_LIST,
+                   }
+_All_NexmlEl_All = {'@about': _VT.STR,
                      '@generator': _VT.STR,
                      '@nexmljson': _VT.STR,
                      '@version': _VT.STR,
                      '@xmlns': _VT.DICT,
                      '@nexml2json': _VT.STR,
-                     }
-_NExpectedMeta_NexmlEl_BF = {'ot:dataDeposit': _VT.HREF,
-                             'ot:focalClade': _VT.INT,
-                             'ot:studyId': _VT.STR,
-                             'ot:studyPublication': _VT.HREF,
-                             'ot:studyPublicationReference': _VT.STR,
-                             'ot:studyYear': _VT.INT,
-                            }
-_NTypeCheckedMeta_NexmlEl_BF = {'ot:curatorName': _VT.STR,
-                                'ot:tag': _VT.STR_OR_STR_LIST,
-                                }
+                    }
+_ExpMNexmlEl_All = {'ot:dataDeposit': _VT.HREF,
+                    'ot:focalClade': _VT.INT,
+                    'ot:studyPublication': _VT.HREF,
+                    'ot:studyPublicationReference': _VT.STR,
+                    'ot:studyYear': _VT.INT,
+                   }
+_TypMNexmlEl_All = {'ot:curatorName': _VT.STR,
+                    'ot:studyId': _VT.STR,
+                    'ot:tag': _VT.STR_OR_STR_LIST,
+                   }
 
-_by_id_nexml = _SchemaFragment(required=_NRequired_NexmlEl,
-                        expected=_NExpected_NexmlEl_ById,
-                        additional_allowed=_NAllowed_NexmlEl,
-                        required_meta=_EMPTY_DICT,
-                        expected_meta=_NExpectedMeta_NexmlEl_BF,
-                        type_checked_meta=_NTypeCheckedMeta_NexmlEl_BF,
-                        using_hbf_meta=True)
+_v1_2_nexml = _SchemaFragment(required=_Req_NexmlEl_All,
+                              expected=_Exp_NexmlEl_ByI,
+                              allowed=_All_NexmlEl_All,
+                              required_meta=_EMPTY_DICT,
+                              expected_meta=_ExpMNexmlEl_All,
+                              type_checked_meta=_TypMNexmlEl_All,
+                              using_hbf_meta=True)
 
-_direct_nexml = _SchemaFragment(required=_NRequired_NexmlEl,
-                        expected=_NExpected_NexmlEl_Direct,
-                        additional_allowed=_NAllowed_NexmlEl,
-                        required_meta=_EMPTY_DICT,
-                        expected_meta=_NExpectedMeta_NexmlEl_BF,
-                        type_checked_meta=_NTypeCheckedMeta_NexmlEl_BF,
-                        using_hbf_meta=True)
+_v1_0_nexml = _SchemaFragment(required=_Req_NexmlEl_All,
+                              expected=_Exp_NexmlEl_Dir,
+                              allowed=_All_NexmlEl_All,
+                              required_meta=_EMPTY_DICT,
+                              expected_meta=_ExpMNexmlEl_All,
+                              type_checked_meta=_TypMNexmlEl_All,
+                              using_hbf_meta=True)
 
-_bf_nexml = _SchemaFragment(required=_NRequired_NexmlEl,
-                        expected=_NExpected_NexmlEl_Direct,
-                        additional_allowed=_NAllowed_NexmlEl,
-                        required_meta=_EMPTY_DICT,
-                        expected_meta=_NExpectedMeta_NexmlEl_BF,
-                        type_checked_meta=_NTypeCheckedMeta_NexmlEl_BF,
-                        using_hbf_meta=False)
+_v0_0_nexml = _SchemaFragment(required=_Req_NexmlEl_All,
+                              expected=_Exp_NexmlEl_Dir,
+                              allowed=_All_NexmlEl_All,
+                              required_meta=_EMPTY_DICT,
+                              expected_meta=_ExpMNexmlEl_All,
+                              type_checked_meta=_TypMNexmlEl_All,
+                              using_hbf_meta=False)
 #####################################################################
 
 def _add_by_id_nexson_schema_attributes(container):
     container._using_hbf_meta = True
-    container._NexmlEl_Schema = _by_id_nexml
+    container._NexmlEl_Schema = _v1_2_nexml
 
 def _add_direct_nexson_schema_attributes(container):
     container._using_hbf_meta = True
-    container._NexmlEl_Schema = _direct_nexml
+    container._NexmlEl_Schema = _v1_0_nexml
 
 def _add_badgerfish_nexson_schema_attributes(container):
     container._using_hbf_meta = False
-    container._NexmlEl_Schema = _bf_nexml
+    container._NexmlEl_Schema = _v0_0_nexml

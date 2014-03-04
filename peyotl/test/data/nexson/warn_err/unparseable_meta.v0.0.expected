@@ -13,6 +13,15 @@
         "@top": "nexml"
       }
     }, 
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "otus"
+      ], 
+      "refersTo": {
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
+      }
+    }, 
     "UNPARSEABLE_META": {
       "data": [
         {

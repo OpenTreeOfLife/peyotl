@@ -1,5 +1,13 @@
 {
   "errors": {
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "otus"
+      ], 
+      "refersTo": {
+        "@top": "nexml"
+      }
+    }, 
     "MISSING_MANDATORY_KEY": {
       "data": [
         "@id"

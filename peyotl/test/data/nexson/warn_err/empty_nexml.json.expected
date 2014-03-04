@@ -1,4 +1,15 @@
 {
-  "errors":{},
-  "warnings":{}
+  "errors": {
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "^ot:otusElementOrder", 
+        "otusById"
+      ], 
+      "refersTo": {
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
+      }
+    }
+  }, 
+  "warnings": {}
 }

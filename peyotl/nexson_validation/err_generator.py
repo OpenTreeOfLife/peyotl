@@ -68,6 +68,10 @@ class MissingExpectedListWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_LIST_EXPECTED
         self.format = '{p}Expected a list for key(s): "{d}"'
+class MissingCrucialContentWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MISSING_CRUCIAL_CONTENT
+        self.format = '{p}Further validation amd acceptance requires more content; specifically keys(s): "{d}"'
 
 class _ObjListDataWarningType(_StrListDataWarningType):
     def convert_data_for_json(self, err_tuple):
@@ -95,6 +99,7 @@ MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
 MissingExpectedListWarning = MissingExpectedListWarningType()
 UnparseableMetaWarning = UnparseableMetaWarningType()
 WrongValueTypeWarning = WrongValueTypeWarningType()
+MissingCrucialContentWarning = MissingCrucialContentWarningType()
 
 # factory functions that call register_new_messages
 def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
@@ -111,6 +116,8 @@ def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, *valist, **kwarg
     _key_list_warning(MissingOptionalKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 def gen_MissingExpectedListWarning(addr, pyid, logger, severity, *valist, **kwargs):
     _key_list_warning(MissingExpectedListWarning, kwargs['key_list'], addr, pyid, logger, severity)
+def gen_MissingCrucialContentWarning(addr, pyid, logger, severity, *valist, **kwargs):
+    _key_list_warning(MissingCrucialContentWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
 def _obj_list_warning(wt, k_list, addr, pyid, logger, severity):
     k_list = tuple([json.dumps(i) for i in k_list])

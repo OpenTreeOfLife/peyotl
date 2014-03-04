@@ -6,6 +6,7 @@ from peyotl.utility import get_logger
 from peyotl.nexson_validation.helper import SeverityCodes
 from peyotl.nexson_validation.schema import add_schema_attributes
 from peyotl.nexson_validation.err_generator import factory2code, \
+                                                   gen_MissingCrucialContentWarning, \
                                                    gen_MissingExpectedListWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
@@ -159,6 +160,7 @@ class NexsonValidationAdaptor(object):
         self._nexson_version = detect_nexson_version(obj)
         # a little duck-punching
         add_schema_attributes(self, self._nexson_version)
+        assert(self._nexson_version[:3] in ('0.0', '1.0', '1.2'))
         self._validate_nexml_obj(self._nexml, anc=obj)
     def _bf_meta_list_to_dict(self, m_list, par_obj_code, par, par_anc):
         d = {}
@@ -331,8 +333,9 @@ class NexsonValidationAdaptor(object):
 
     def _validate_nexml_obj(self, nex_obj, anc):
         schema = self._NexmlEl_Schema
-        self._validate_obj_by_schema(_NEXEL_NEXML, nex_obj, [anc], schema)
-
+        anc_l = [anc]
+        self._validate_obj_by_schema(_NEXEL_NEXML, nex_obj, anc_l, schema)
+        self._post_key_check_validate_nexml_obj(nex_obj, anc_l)
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
         expected to have a string as the value of annotation['author']['name']
@@ -378,12 +381,36 @@ class NexsonValidationAdaptor(object):
 class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
-class DirectHBFValidationAdaptor(NexsonValidationAdaptor):
+    def _post_key_check_validate_nexml_obj(self, nex_obj, anc_list):
+        otus_list = nex_obj.get('otus')
+        if otus_list and isinstance(otus_list, dict):
+            otus_list = [otus_list]
+        if not otus_list:
+            self._error_event(_NEXEL_NEXML,
+                             obj=nex_obj,
+                             err_type=gen_MissingCrucialContentWarning,
+                             anc=anc_list,
+                             key_list=['otus'])
+            return False
+
+class DirectHBFValidationAdaptor(BadgerFishValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
+
 class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
+    def _post_key_check_validate_nexml_obj(self, nex_obj, anc_list):
+        otus = nex_obj.get('otusById')
+        otus_order_list = nex_obj.get('^ot:otusElementOrder')
+        if (not otus) or (not isinstance(otus, dict)) \
+          or (not otus_order_list) or (not isinstance(otus_order_list, list)):
+            self._error_event(_NEXEL_NEXML,
+                             obj=nex_obj,
+                             err_type=gen_MissingCrucialContentWarning,
+                             anc=anc_list,
+                             key_list=['otusById', '^ot:otusElementOrder'])
+            return False
 
 def create_validation_adaptor(obj, logger):
     try:
@@ -396,4 +423,4 @@ def create_validation_adaptor(obj, logger):
             return DirectHBFValidationAdaptor(obj, logger)
         assert(False)
     except:
-        return NexsonValidationAdaptor(obj, logger)
+        return BadgerFishValidationAdaptor(obj, logger)

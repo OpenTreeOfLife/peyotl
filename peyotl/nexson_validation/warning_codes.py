@@ -40,7 +40,8 @@ class NexsonWarningCodes():
               'NO_TREES',
               'DEPRECATED_PROPERTY',
               'UNPARSEABLE_META',
-              'INCORRECT_VALUE_TYPE'
+              'INCORRECT_VALUE_TYPE',
+              'MISSING_CRUCIAL_CONTENT',
               )
     numeric_codes_registered = []
 # monkey-patching NexsonWarningCodes...

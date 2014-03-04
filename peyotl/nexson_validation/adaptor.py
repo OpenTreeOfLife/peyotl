@@ -185,6 +185,11 @@ class NexsonValidationAdaptor(object):
         address, pyid = self._event_address(obj_code, obj, anc)
         err_type(address, pyid, self._logger, SeverityCodes.ERROR, *valist, **kwargs)
     def _get_list_key(self, obj_code, obj, key, anc):
+        '''Either:
+            * Returns a list, or
+            * Generates a MissingExpectedListWarning and returns None (if
+                 the value is not a dict or list)
+        '''
         k = obj.get(key)
         if k is None:
             return None
@@ -201,11 +206,11 @@ class NexsonValidationAdaptor(object):
 
     def _validate_obj_by_schema(self, obj_code, obj, anc, schema):
         '''Creates:
-            errors if `obj` does not contain keys in the schema.PERMISSIBLE_KEYS,
-            warnings if `obj` lacks keys listed in schema.EXPECETED_KEYS, 
-                      or if `obj` contains keys not listed in schema.PERMISSIBLE_KEYS.
+            errors if `obj` does not contain keys in the schema.ALLOWED_KEY_SET,
+            warnings if `obj` lacks keys listed in schema.EXPECETED_KEY_SET, 
+                      or if `obj` contains keys not listed in schema.ALLOWED_KEY_SET.
         '''
-        off_key = [k for k in obj.keys() if k not in schema.PERMISSIBLE_KEYS]
+        off_key = [k for k in obj.keys() if k not in schema.ALLOWED_KEY_SET]
         unrec_meta_keys = None
         unrec_non_meta_keys = None
         if off_key:
@@ -224,8 +229,8 @@ class NexsonValidationAdaptor(object):
             if m:
                 # might want a flag of meta?
                 md = self._bf_meta_list_to_dict(m, obj_code, obj, anc)
-                mrmk = [i for i in schema.REQUIRED_META_KEYS if i not in md]
-                memk = [i for i in schema.EXPECTED_META_KEYS if i not in md]
+                mrmk = [i for i in schema.REQUIRED_META_KEY_SET if i not in md]
+                memk = [i for i in schema.EXPECTED_META_KEY_SET if i not in md]
                 if memk:
                     self._warn_event(obj_code,
                                      obj=obj,
@@ -252,14 +257,14 @@ class NexsonValidationAdaptor(object):
                              anc=anc,
                              key_list=unrec_meta_keys)
 
-        off_key = [k for k in schema.EXPECETED_KEYS if k not in obj]
+        off_key = [k for k in schema.EXPECETED_KEY_SET if k not in obj]
         if off_key:
             self._warn_event(obj_code,
                              obj=obj,
                              err_type=gen_MissingOptionalKeyWarning,
                              anc=anc,
                              key_list=off_key)
-        off_key = [k for k in schema.REQUIRED_KEYS if k not in obj]
+        off_key = [k for k in schema.REQUIRED_KEY_SET if k not in obj]
         if off_key:
             self._error_event(obj_code,
                              obj=obj,

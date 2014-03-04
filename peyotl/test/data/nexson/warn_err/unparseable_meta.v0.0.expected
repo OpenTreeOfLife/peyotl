@@ -2,7 +2,11 @@
   "errors": {
     "INCORRECT_VALUE_TYPE": {
       "data": [
-        "key=\"ot:focalClade\" type=\"<type 'dict'>\" expected type=\"integer\""
+        {
+          "expected": "integer", 
+          "key": "ot:focalClade", 
+          "type": "dict"
+        }
       ], 
       "refersTo": "nexml"
     }, 

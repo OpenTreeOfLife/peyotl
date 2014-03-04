@@ -81,7 +81,10 @@ class WrongValueTypeWarningType(MessageTupleAdaptor):
     def write(self, err_tuple, outstream, prefix):
         raise NotImplementedError('WrongValueTypeWarningType.write')
     def convert_data_for_json(self, err_tuple):
-        return ['key="{k}" type="{t}" expected type="{e}"'.format(k=k, t=v, e=et) for k, v, et in err_tuple[3]]
+        rl = []
+        for k, v, et in err_tuple[3]:
+            rl.append({'key':k, 'type':v, 'expected':et})
+        return rl
     def __init__(self):
         self.code = NexsonWarningCodes.INCORRECT_VALUE_TYPE
         self.format = '{p}value for key not the expected type: "{d}"'
@@ -119,7 +122,7 @@ def gen_UnparseableMetaWarning(addr, pyid, logger, severity, *valist, **kwargs):
     _obj_list_warning(UnparseableMetaWarning, kwargs['obj_list'], addr, pyid, logger, severity)
 
 def gen_WrongValueTypeWarning(addr, pyid, logger, severity, *valist, **kwargs):
-    key_val_type_list = tuple([(k, type(v), t) for k, v, t in kwargs['key_val_type_list']])
+    key_val_type_list = tuple([(k, type(v).__name__, t) for k, v, t in kwargs['key_val_type_list']])
     t = (WrongValueTypeWarning, pyid, addr, key_val_type_list)
     logger.register_new_messages(t, severity=severity)
 

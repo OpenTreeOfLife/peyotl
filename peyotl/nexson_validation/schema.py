@@ -40,10 +40,13 @@ class _SchemaFragment(object):
         `type_checked_meta` dict of meta key to _VT type code. Error if wrong type, no warning if absent.
         `using_hbf_meta` True for >=1.0.0, False for badgerfish.
         '''
-        self.K2VT = dict(required)
-        self.K2VT.update(expected)
-        self.K2VT.update(allowed)
-
+        self.K2VT = {}
+        for k, v in required.items():
+            self.K2VT[k] = _VT._2RawCheck[v]
+        for k, v in expected.items():
+            self.K2VT[k] = _VT._2RawCheck[v]
+        for k, v in allowed.items():
+            self.K2VT[k] = _VT._2RawCheck[v]
         required_meta_keys = tuple(required_meta.keys())
         expected_meta_keys = tuple(expected_meta.keys())
         required_keys = tuple(required.keys())
@@ -51,11 +54,11 @@ class _SchemaFragment(object):
         allowed_keys = tuple(allowed.keys())
         if using_hbf_meta:
             for k, v in required_meta.items():
-                self.K2VT['^' + k] = v
+                self.K2VT['^' + k] = _VT._2HBFCheck[v]
             for k, v in expected_meta.items():
-                self.K2VT['^' + k] = v
+                self.K2VT['^' + k] = _VT._2HBFCheck[v]
             for k, v in type_checked_meta.items():
-                self.K2VT['^' + k] = v
+                self.K2VT['^' + k] = _VT._2HBFCheck[v]
             self.REQUIRED_META_KEY_SET = frozenset(['^' + i for i in required_meta_keys])
             self.EXPECTED_META_KEY_SET = frozenset(['^' + i for i in expected_meta_keys])
             self.REQUIRED_KEY_SET = frozenset(required_keys + tuple(self.REQUIRED_META_KEY_SET))
@@ -66,12 +69,12 @@ class _SchemaFragment(object):
                                               + tuple(['^' + i for i in type_checked_meta.keys()]))
         else:
             for k, v in required_meta.items():
-                self.K2VT[k] = _VT.convert2meta(v)
+                self.K2VT[k] = _VT._2BFCheck[v]
             for k, v in expected_meta.items():
-                self.K2VT[k] = _VT.convert2meta(v)
+                self.K2VT[k] = _VT._2BFCheck[v]
             for k, v in type_checked_meta.items():
-                self.K2VT[k] = _VT.convert2meta(v)
-            self.K2VT['meta'] = _VT.LIST_OR_DICT
+                self.K2VT[k] = _VT._2BFCheck[v]
+            self.K2VT['meta'] = _VT._2RawCheck[_VT.LIST_OR_DICT]
             self.REQUIRED_META_KEY_SET = frozenset(required_meta_keys)
             self.EXPECTED_META_KEY_SET = frozenset(expected_meta_keys)
             self.ALLOWED_META_KEY_SET = frozenset(required_meta_keys + expected_meta_keys + tuple(type_checked_meta.keys()))
@@ -100,119 +103,168 @@ class _SchemaFragment(object):
         self.USING_HBF_META = using_hbf_meta
 
 
+__TRUE_VAL = (True, None)
+__FALSE_STR = (False, 'str')
+__FALSE_HREF = (False, 'href')
+__FALSE_LIST = (False, 'array')
+__FALSE_DICT = (False, 'object')
+__FALSE_STR_REPEATABLE_EL = (False, 'string or string array')
+__FALSE_STR_LIST = (False, 'string array')
+__FALSE_INT = (False, 'integer')
+__FALSE_DICT_LIST = (False, 'array or object')
+__FALSE_BOOL = (False, 'boolean')
+
+
+def _extract_meta(x):
+    try:
+        return get_bf_meta_value(x)
+    except:
+        return None
+def _check_id(x, obj, vc):
+    try:
+        nid = x.get('@id')
+    except:
+        return
+    if nid is not None:
+        vc.adaptor._check_meta_id(nid, x, obj, vc)
+
+def check_raw_bool(x, obj, vc):
+    return __TRUE_VAL if (x is False or x is True) else __FALSE_BOOL
+def check_obj_meta_bool(x, obj, vc):
+    mo = _VT._extract_meta(x)
+    _VT._check_id(x, obj, vc)
+    return _VT.check_raw_bool(mo, obj, vc)
+def check_hbf_meta_bool(x, obj, vc):
+    if isinstance(x, dict):
+        return check_obj_meta_bool(x, obj, vc)
+    return __TRUE_VAL if (x is False or x is True) else __FALSE_BOOL
+def check_raw_dict(x, obj, vc):
+    return __TRUE_VAL if (isinstance(x, dict)) else __FALSE_DICT
+def check_href(x, obj, vc):
+    try:
+        _VT._check_id(x, obj, vc)
+        h = x.get('@href')
+        if isinstance(h, str) or isinstance(h, unicode):
+            return __TRUE_VAL
+    except:
+        pass
+    return __FALSE_HREF
+def check_raw_int(x, obj, vc):
+    return  __TRUE_VAL if (isinstance(x, int)) else __FALSE_INT
+def check_obj_meta_int(x, obj, vc):
+    mo = _VT._extract_meta(x)
+    _VT._check_id(x, obj, vc)
+    return _VT.check_raw_int(mo, obj, vc)
+def check_hbf_meta_int(x, obj, vc):
+    if isinstance(x, dict):
+        return check_obj_meta_int(x, obj, vc)
+    return check_raw_int(x, obj, vc)
+def check_raw_list(x, obj, vc):
+    return __TRUE_VAL if (isinstance(x, list)) else __FALSE_LIST
+def check_obj_meta_list(x, obj, vc):
+    mo = _VT._extract_meta(x)
+    _VT._check_id(x, obj, vc)
+    return _VT.check_list(mo, obj, vc)
+def check_hbf_meta_list(x, obj, vc):
+    if isinstance(x, dict):
+        return check_obj_meta_list(x, obj, vc)
+    return check_raw_list(x, obj, vc)
+def check_list_or_dict(x, obj, vc):
+    return __TRUE_VAL if (isinstance(x, list) or isinstance(x, dict)) else __FALSE_DICT_LIST
+def check_raw_str(x, obj, vc):
+    return __TRUE_VAL if (isinstance(x, str) or isinstance(x, unicode)) else __FALSE_STR
+def check_obj_meta_str(x, obj, vc):
+    mo = _VT._extract_meta(x)
+    _VT._check_id(x, obj, vc)
+    return _VT.check_raw_str(mo, obj, vc)
+def check_hbf_meta_str(x, obj, vc):
+    if isinstance(x, dict):
+        return check_obj_meta_str(x, obj, vc)
+    return check_raw_str(x, obj, vc)
+def check_raw_str_list(x, obj, vc):
+    if not isinstance(x, list):
+        return __FALSE_STR_LIST
+    for i in x:
+        if not (isinstance(i, str) or isinstance(i, unicode)):
+            return __FALSE_STR_LIST
+    return __TRUE_VAL
+def check_obj_meta_str_list(x, obj, vc):
+    mo = _VT._extract_meta(x)
+    _VT._check_id(x, obj, vc)
+    return _VT.check_str_list(mo, obj, vc)
+def check_hbf_meta_str_list(x, obj, vc):
+    if isinstance(x, dict):
+        return check_obj_meta_str_list(x, obj, vc)
+    return check_raw_str_list(x, obj, vc)
+def check_raw_str_repeatable(x, obj, vc):
+    if isinstance(x, str) or isinstance(x, unicode):
+        return __TRUE_VAL
+    if not isinstance(x, list):
+        return __FALSE_STR_REPEATABLE_EL
+    for i in x:
+        if not (isinstance(i, str) or isinstance(i, unicode)):
+            return __FALSE_STR_REPEATABLE_EL
+    return __TRUE_VAL
+def check_obj_meta_str_repeatable(x, obj, vc):
+    if not isinstance(x, list):
+        x = [x]
+    for el in x:
+        r = _VT.check_obj_str(el, obj, vc)
+        if r is not __TRUE_VAL:
+            return __FALSE_STR_REPEATABLE_EL
+    return __TRUE_VAL
+def check_hbf_meta_str_repeatable(x, obj, vc):
+    if not isinstance(x, list):
+        x = [x]
+    for el in x:
+        r = _VT.check_hbf_meta_str(el, obj, vc)
+        if r is not __TRUE_VAL:
+            return __FALSE_STR_REPEATABLE_EL
+    return __TRUE_VAL
 
 class _VT:
     '''Value type enum'''
-    __TRUE_VAL = (True, None)
-    __FALSE_STR = (False, 'str')
-    __FALSE_HREF = (False, 'href')
-    __FALSE_LIST = (False, 'array')
-    __FALSE_DICT = (False, 'object')
-    __FALSE_STR_REPEATABLE_EL = (False, 'string or string array')
-    __FALSE_STR_LIST = (False, 'string array')
-    __FALSE_INT = (False, 'integer')
-    __FALSE_DICT_LIST = (False, 'array or object')
-    __FALSE_BOOL = (False, 'boolean')
-    @staticmethod
-    def STR_LIST(x):
-        if not isinstance(x, list):
-            return _VT.__FALSE_STR_LIST
-        for i in x:
-            if not (isinstance(i, str) or isinstance(i, unicode)):
-                return _VT.__FALSE_STR_LIST
-        return _VT.__TRUE_VAL
-    @staticmethod
-    def STR_REPEATABLE_EL(x):
-        if isinstance(x, str) or isinstance(x, unicode):
-            return _VT.__TRUE_VAL
-        if not isinstance(x, list):
-            return _VT.__FALSE_STR_REPEATABLE_EL
-        for i in x:
-            if not (isinstance(i, str) or isinstance(i, unicode)):
-                return _VT.__FALSE_STR_REPEATABLE_EL
-        return _VT.__TRUE_VAL
-    @staticmethod
-    def STR(x):
-        return _VT.__TRUE_VAL if (isinstance(x, str) or isinstance(x, unicode)) else _VT.__FALSE_STR
-    @staticmethod
-    def LIST_OR_DICT(x):
-        return _VT.__TRUE_VAL if (isinstance(x, list) or isinstance(x, dict)) else _VT.__FALSE_DICT_LIST
-    @staticmethod
-    def LIST(x):
-        return _VT.__TRUE_VAL if (isinstance(x, list)) else _VT.__FALSE_LIST
-    @staticmethod
-    def DICT(x):
-        return _VT.__TRUE_VAL if (isinstance(x, dict)) else _VT.__FALSE_DICT
-    @staticmethod
-    def BOOL(x):
-        return _VT.__TRUE_VAL if (x is False or x is True) else _VT.__FALSE_BOOL
-    @staticmethod
-    def HREF(x):
-        try:
-            h = x.get('@href')
-            if isinstance(h, str) or isinstance(h, unicode):
-                return _VT.__TRUE_VAL
-        except:
-            pass
-        return _VT.__FALSE_HREF
-    @staticmethod
-    def INT(x):
-        return  _VT.__TRUE_VAL if (isinstance(x, int)) else _VT.__FALSE_INT
-    @staticmethod
-    def _extract_meta(x):
-        try:
-            return get_bf_meta_value(x)
-        except:
-            return None
-    # meta forms
-    @staticmethod
-    def META_STR(x):
-        return _VT.STR(_VT._extract_meta(x))
-    @staticmethod
-    def META_LIST(x):
-        return _VT.LIST(_VT._extract_meta(x))
-    @staticmethod
-    def META_DICT(x):
-        return _VT.DICT(_VT._extract_meta(x))
-    @staticmethod
-    def META_STR_LIST(x):
-        return _VT.STR_LIST(_VT._extract_meta(x))
-    @staticmethod
-    def META_STR_REPEATABLE_EL(x):
-        if not isinstance(x, list):
-            x = [x]
-        for el in x:
-            vel = _VT._extract_meta(el)
-            r = _VT.STR(vel)
-            if r is not _VT.__TRUE_VAL:
-                return _VT.__FALSE_STR_REPEATABLE_EL
-        return _VT.__TRUE_VAL
-    @staticmethod
-    def META_HREF(x):
-        return _VT.HREF(_VT._extract_meta(x))
-    @staticmethod
-    def META_BOOL(x):
-        return _VT.BOOL(_VT._extract_meta(x))
-    @staticmethod
-    def META_INT(x):
-        return _VT.INT(_VT._extract_meta(x))
-    @staticmethod
-    def convert2meta(v):
-        if v is _VT.STR:
-            return _VT.META_STR
-        if v is _VT.LIST:
-            return _VT.META_LIST
-        if v is _VT.DICT:
-            return _VT.META_DICT
-        if v is _VT.STR_LIST:
-            return _VT.META_STR_LIST
-        if v is _VT.STR_REPEATABLE_EL:
-            return _VT.META_STR_REPEATABLE_EL
-        if v is _VT.INT:
-            return _VT.META_INT
-        if v is _VT.BOOL:
-            return _VT.META_BOOL
-        return v
+    BOOL = 0
+    DICT = 1
+    HREF = 2
+    INT = 3
+    LIST = 4
+    LIST_OR_DICT = 5
+    STR = 6
+    STR_LIST = 7
+    STR_REPEATABLE_EL = 8
+
+    _2RawCheck = {
+        BOOL: check_raw_bool,
+        DICT: check_raw_dict,
+        HREF: check_href,
+        INT: check_raw_int,
+        LIST: check_raw_list,
+        LIST_OR_DICT: check_list_or_dict,
+        STR: check_raw_str,
+        STR_LIST: check_raw_str_list,
+        STR_REPEATABLE_EL: check_raw_str_repeatable,
+    }
+    _2HBFCheck = {
+        BOOL: check_hbf_meta_bool,
+        HREF: check_href,
+        INT: check_hbf_meta_int,
+        LIST: check_hbf_meta_list, 
+        STR: check_hbf_meta_str,
+        STR_LIST: check_hbf_meta_str_list,
+        STR_REPEATABLE_EL: check_hbf_meta_str_repeatable,
+    }
+    
+    _2BFCheck = {
+        BOOL: check_obj_meta_bool,
+        HREF: check_href, 
+        INT: check_obj_meta_int,
+        LIST: check_hbf_meta_list,
+        STR: check_obj_meta_str, 
+        STR_LIST: check_obj_meta_str_list,
+        STR_REPEATABLE_EL: check_obj_meta_str_repeatable,
+    }
+
 _SchemaFragment._VT = _VT
 
 _EMPTY_TUPLE = tuple()

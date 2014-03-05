@@ -307,7 +307,7 @@ class NexsonValidationAdaptor(object):
                         else:
                             unrec_non_meta_keys.append(k)
                     else:
-                        correct_type, info = schema.K2VT[k](v)
+                        correct_type, info = schema.K2VT[k](v, obj, vc)
                         if not correct_type:
                             wrong_type.append((k, v, info))
             else:
@@ -315,7 +315,7 @@ class NexsonValidationAdaptor(object):
                     if k not in schema.ALLOWED_KEY_SET:
                         unrec_non_meta_keys.append(k)
                     else:
-                        correct_type, info = schema.K2VT[k](v)
+                        correct_type, info = schema.K2VT[k](v, obj, vc)
                         if not correct_type:
                             wrong_type.append((k, v, info))
                 m = self._get_list_key(obj, 'meta', vc)
@@ -343,7 +343,7 @@ class NexsonValidationAdaptor(object):
                             unrec_meta_keys.append(k)
                         else:
                             #_LOG.debug('{k} --> "{v}"'.format(k=k, v=repr(v)))
-                            correct_type, info = schema.K2VT[k](v)
+                            correct_type, info = schema.K2VT[k](v, obj, vc)
                             if not correct_type:
                                 v = schema._VT._extract_meta(v)
                                 wrong_type.append((k, v, info))

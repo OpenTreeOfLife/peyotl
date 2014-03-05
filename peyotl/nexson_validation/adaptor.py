@@ -10,6 +10,8 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingExpectedListWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
+                                                   gen_ReferencedIDNotFoundWarning, \
+                                                   gen_RepeatedIDWarning, \
                                                    gen_UnparseableMetaWarning, \
                                                    gen_UnrecognizedKeyWarning, \
                                                    gen_WrongValueTypeWarning
@@ -157,6 +159,7 @@ class NexsonValidationAdaptor(object):
                               anc=_EMPTY_TUPLE,
                               key_list=['nexml',])
             return ## EARLY EXIT!!
+        self._nexson_id_to_obj = {}
         self._nexson_version = detect_nexson_version(obj)
         # a little duck-punching
         add_schema_attributes(self, self._nexson_version)
@@ -238,7 +241,16 @@ class NexsonValidationAdaptor(object):
                               key_list=[key,])
             return None
         return k
-
+    def _register_nexson_id(self, nid, nobj, element_type=''):
+        robj = self._nexson_id_to_obj.setdefault(nid, nobj)
+        if robj is nobj:
+            return True
+        self._error_event(obj_code,
+                          obj=obj,
+                          err_type=gen_RepeatedIDWarning,
+                          anc=anc,
+                          key_list=[key,])
+        return False
     def _validate_obj_by_schema(self, obj_code, obj, anc, schema):
         '''Creates:
             errors if `obj` does not contain keys in the schema.ALLOWED_KEY_SET,
@@ -335,8 +347,15 @@ class NexsonValidationAdaptor(object):
         schema = self._NexmlEl_Schema
         anc_l = [anc]
         self._validate_obj_by_schema(_NEXEL_NEXML, nex_obj, anc_l, schema)
-        self._post_key_check_validate_nexml_obj(nex_obj, anc_l)
-    def _validate_otus_group_list(self, otu_group_list, anc_list):
+        nid = nex_obj.get('@id')
+        if nid is not None:
+            self._register_nexson_id(nid, nex_obj, _NEXEL_NEXML)
+        return self._post_key_check_validate_nexml_obj(nex_obj, anc_l)
+    def _validate_otus_group_list(self, otu_group_id_obj_list, anc_list):
+        for el in otu_group_id_obj_list:
+            if not self._register_nexson_id(el[0], el[1], _NEXEL_OTUS):
+                return False
+
         pass # raise NotImplementedError('_validate_otus_group_list')
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
@@ -385,10 +404,10 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         NexsonValidationAdaptor.__init__(self, obj, logger)
 
     def _post_key_check_validate_nexml_obj(self, nex_obj, anc_list):
-        otus_list = nex_obj.get('otus')
-        if otus_list and isinstance(otus_list, dict):
-            otus_list = [otus_list]
-        if not otus_list:
+        otus_group_list = nex_obj.get('otus')
+        if otus_group_list and isinstance(otus_group_list, dict):
+            otus_group_list = [otus_group_list]
+        if not otus_group_list:
             self._error_event(_NEXEL_NEXML,
                              obj=nex_obj,
                              err_type=gen_MissingCrucialContentWarning,
@@ -396,7 +415,22 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                              key_list=['otus'])
             return False
         anc_list.append(self)
-        self._validate_otus_group_list(otus_group_list, anc_list)
+        without_id = []
+        og_tuple_list = []
+        for og in otus_group_list:
+            ogid = og.get('@id')
+            if ogid is None:
+                without_id.append(og)
+            else:
+                og_tuple_list.append((ogid, og))
+        if without_id:
+            self._error_event(_NEXEL_NEXML,
+                             obj=without_id,
+                             err_type=gen_MissingCrucialContentWarning,
+                             anc=anc_list,
+                             key_list=['@id'])
+            return False
+        return self._validate_otus_group_list(og_tuple_list, anc_list)
 
 class DirectHBFValidationAdaptor(BadgerFishValidationAdaptor):
     def __init__(self, obj, logger):
@@ -432,7 +466,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 t = r[1]
                 not_dict_og.append(t)
             else:
-                otus_group_list.append(og)
+                otus_group_list.append((ogid, og))
         if missing_ogid:
             self._error_event(_NEXEL_NEXML,
                              obj=nex_obj,
@@ -448,7 +482,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=anc_list,
                              key_val_type_list=[not_dict_og])
             return False
-        self._validate_otus_group_list(otus_group_list, anc_list)
+        return self._validate_otus_group_list(otus_group_list, anc_list)
 def create_validation_adaptor(obj, logger):
     try:
         nexson_version = detect_nexson_version(obj)

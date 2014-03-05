@@ -32,7 +32,16 @@
 "^ot:treesElementOrder": [
 ], 
 "otusById": {
-"og1": {}
+"og1": {
+  "otuById": {
+    "otu1" : {
+      "^ot:originalLabel": "bogusLabel1"
+    },
+    "otu2" : {
+      "^ot:originalLabel": "bogusLabel2"
+    }
+  }
+}
 }, 
 "treesById": {
 }

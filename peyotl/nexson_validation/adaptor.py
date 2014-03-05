@@ -74,7 +74,7 @@ _NEXEL_CODE_TO_TOP_ENTITY_NAME = {
     _NEXEL_NODE: 'trees',
     _NEXEL_EDGE: 'trees',
 }
-def _get_par_obj_code(c):
+def _get_par_element_type(c):
     pc = _NEXEL_CODE_TO_PAR_CODE[c]
     if pc is None:
         return None
@@ -118,6 +118,28 @@ class LazyAddress(object):
 
 _EMPTY_TUPLE = tuple()
 
+class _ValidationContext(object):
+    '''Holds references to the adaptor and logger
+    '''
+    _et2schema_name = {
+        _NEXEL_NEXML: '_NexmlEl_Schema',
+        _NEXEL_OTUS: '_OtusEl_Schema',
+        _NEXEL_OTU: '_OtuEl_Schema'
+    }
+    def __init__(self, adaptor, logger):
+        self.adaptor = adaptor
+        self.logger = logger
+        self.anc_list = []
+        self.curr_element_type = _NEXEL_TOP_LEVEL
+        self.schema = None
+    def switch_context(self, element_type, new_par):
+        self.curr_element_type = element_type
+        if new_par is None:
+            self.anc_list.pop(-1)
+        else:
+            self.anc_list.append(new_par)
+        self.schema = getattr(self, _ValidationContext._et2schema_name[element_type])
+        
 class NexsonValidationAdaptor(object):
     '''An object created during NexSON validation.
     It holds onto the nexson object that it was instantiated for.
@@ -163,10 +185,12 @@ class NexsonValidationAdaptor(object):
         self._nexson_id_to_obj = {}
         self._nexson_version = detect_nexson_version(obj)
         # a little duck-punching
-        add_schema_attributes(self, self._nexson_version)
+        vc = _ValidationContext(self, logger)
+        add_schema_attributes(vc, self._nexson_version)
         assert(self._nexson_version[:3] in ('0.0', '1.0', '1.2'))
-        self._validate_nexml_obj(self._nexml, anc=(obj, None))
-    def _bf_meta_list_to_dict(self, m_list, par_obj_code, par, par_anc):
+        self._validate_nexml_obj(self._nexml, vc, obj)
+
+    def _bf_meta_list_to_dict(self, m_list, par, par_vc):
         d = {}
         unparseable_m = None
         for m_el in m_list:
@@ -187,22 +211,22 @@ class NexsonValidationAdaptor(object):
                     _add_value_to_dict_bf(d, n, m_el)
         if unparseable_m:
             for m_el in unparseable_m:
-                self._error_event(par_obj_code,
+                self._error_event(par_vc.curr_element_type,
                                   obj=par,
                                   err_type=gen_UnparseableMetaWarning,
-                                  anc=par_anc,
+                                  anc=par_vc.anc_list,
                                   obj_nex_id=None,
                                   obj_list=unparseable_m)
         return d
 
-    def _event_address(self, obj_code, obj, anc, obj_nex_id, anc_offset=0):
+    def _event_address(self, element_type, obj, anc, obj_nex_id, anc_offset=0):
         pyid = id(obj)
         addr = self._pyid_to_nexson_add.get(pyid)
         if addr is None:
             if len(anc) > anc_offset:
                 p_ind = -1 -anc_offset
                 p, pnid = anc[p_ind]
-                pea = self._event_address(_get_par_obj_code(obj_code),
+                pea = self._event_address(_get_par_element_type(element_type),
                                           p,
                                           anc,
                                           pnid,
@@ -210,22 +234,22 @@ class NexsonValidationAdaptor(object):
                 par_addr = pea[0]
             else:
                 par_addr = None
-            addr = LazyAddress(obj_code, obj=obj, obj_nex_id=obj_nex_id, par_addr=par_addr)
+            addr = LazyAddress(element_type, obj=obj, obj_nex_id=obj_nex_id, par_addr=par_addr)
             self._pyid_to_nexson_add[pyid] = addr
         return addr, pyid
-    def _warn_event(self, obj_code, obj, err_type, anc, obj_nex_id, *valist, **kwargs):
+    def _warn_event(self, element_type, obj, err_type, anc, obj_nex_id, *valist, **kwargs):
         c = factory2code[err_type]
         if not self._logger.is_logging_type(c):
             return
-        address, pyid = self._event_address(obj_code, obj, anc, obj_nex_id)
+        address, pyid = self._event_address(element_type, obj, anc, obj_nex_id)
         err_type(address, pyid, self._logger, SeverityCodes.WARNING, *valist, **kwargs)
-    def _error_event(self, obj_code, obj, err_type, anc, obj_nex_id, *valist, **kwargs):
+    def _error_event(self, element_type, obj, err_type, anc, obj_nex_id, *valist, **kwargs):
         c = factory2code[err_type]
         if not self._logger.is_logging_type(c):
             return
-        address, pyid = self._event_address(obj_code, obj, anc, obj_nex_id)
+        address, pyid = self._event_address(element_type, obj, anc, obj_nex_id)
         err_type(address, pyid, self._logger, SeverityCodes.ERROR, *valist, **kwargs)
-    def _get_list_key(self, obj_code, obj, key, anc, obj_nex_id=None):
+    def _get_list_key(self, obj, key, vc, obj_nex_id=None):
         '''Either:
             * Returns a list, or
             * Generates a MissingExpectedListWarning and returns None (if
@@ -237,142 +261,158 @@ class NexsonValidationAdaptor(object):
         if isinstance(k, dict):
             k = [k]
         if not isinstance(k, list):
-            self._error_event(obj_code,
+            self._error_event(vc.curr_element_type,
                               obj=obj,
                               err_type=gen_MissingExpectedListWarning,
-                              anc=anc,
+                              anc=vc.anc_list,
                               obj_nex_id=obj_nex_id,
                               key_list=[key,])
             return None
         return k
-    def _register_nexson_id(self, nid, nobj, anc, element_type=''):
+    def _register_nexson_id(self, nid, nobj, vc):
         robj = self._nexson_id_to_obj.setdefault(nid, nobj)
         if robj is nobj:
             return True
-        self._error_event(element_type,
+        self._error_event(vc.curr_element_type,
                           obj=nobj,
                           err_type=gen_RepeatedIDWarning,
-                          anc=anc,
+                          anc=vc.anc_list,
                           obj_nex_id=nid,
                           key_list=[key])
         return False
-    def _validate_obj_by_schema(self, obj_code, obj, anc, obj_nex_id, schema):
+    def _validate_obj_by_schema(self, obj, obj_nex_id, vc):
         '''Creates:
             errors if `obj` does not contain keys in the schema.ALLOWED_KEY_SET,
             warnings if `obj` lacks keys listed in schema.EXPECETED_KEY_SET, 
                       or if `obj` contains keys not listed in schema.ALLOWED_KEY_SET.
         '''
-        wrong_type = []
-        unrec_meta_keys = []
-        unrec_non_meta_keys = []
-        
-        if self._using_hbf_meta:
-            for k, v in obj.items():
-                is_meta = k[0] == '^'
-                if k not in schema.ALLOWED_KEY_SET:
-                    if is_meta:
-                        unrec_meta_keys.append(k)
+        return self._validate_id_obj_list_by_schema([(obj_nex_id, obj)], vc)
+    def _validate_id_obj_list_by_schema(self, id_obj_list, vc):
+        #TODO: should optimize for sets of objects with the same warnings...
+        element_type = vc.curr_element_type
+        anc_list = vc.anc_list
+        schema = vc.schema
+        using_hbf_meta = vc._using_hbf_meta
+        for obj_nex_id, obj in id_obj_list:
+            wrong_type = []
+            unrec_meta_keys = []
+            unrec_non_meta_keys = []
+            
+            if using_hbf_meta:
+                for k, v in obj.items():
+                    is_meta = k[0] == '^'
+                    if k not in schema.ALLOWED_KEY_SET:
+                        if is_meta:
+                            unrec_meta_keys.append(k)
+                        else:
+                            unrec_non_meta_keys.append(k)
                     else:
-                        unrec_non_meta_keys.append(k)
-                else:
-                    correct_type, info = schema.K2VT[k](v)
-                    if not correct_type:
-                        wrong_type.append((k, v, info))
-        else:
-            for k, v in obj.items():
-                if k not in schema.ALLOWED_KEY_SET:
-                    unrec_non_meta_keys.append(k)
-                else:
-                    correct_type, info = schema.K2VT[k](v)
-                    if not correct_type:
-                        wrong_type.append((k, v, info))
-            m = self._get_list_key(obj_code, obj, 'meta', anc)
-            if m:
-                # might want a flag of meta?
-                md = self._bf_meta_list_to_dict(m, obj_code, obj, anc)
-                mrmk = [i for i in schema.REQUIRED_META_KEY_SET if i not in md]
-                memk = [i for i in schema.EXPECTED_META_KEY_SET if i not in md]
-                if memk:
-                    self._warn_event(obj_code,
-                                     obj=obj,
-                                     err_type=gen_MissingOptionalKeyWarning,
-                                     anc=anc,
-                                     obj_nex_id=obj_nex_id,
-                                     key_list=memk)
-                if mrmk:
-                    self._error_event(obj_code,
-                                     obj=obj,
-                                     err_type=gen_MissingMandatoryKeyWarning,
-                                     anc=anc,
-                                     obj_nex_id=obj_nex_id,
-                                     key_list=mrmk)
-                for k, v in md.items():
-                    if k not in schema.ALLOWED_META_KEY_SET:
-                        unrec_meta_keys.append(k)
-                    else:
-                        #_LOG.debug('{k} --> "{v}"'.format(k=k, v=repr(v)))
                         correct_type, info = schema.K2VT[k](v)
                         if not correct_type:
-                            v = schema._VT._extract_meta(v)
                             wrong_type.append((k, v, info))
-        if wrong_type:
-            self._error_event(obj_code,
-                             obj=obj,
-                             err_type=gen_WrongValueTypeWarning,
-                             anc=anc,
-                             obj_nex_id=obj_nex_id,
-                             key_val_type_list=wrong_type)
-        if unrec_non_meta_keys:
-            self._warn_event(obj_code,
-                             obj=obj,
-                             err_type=gen_UnrecognizedKeyWarning,
-                             anc=anc,
-                             obj_nex_id=obj_nex_id,
-                             key_list=unrec_non_meta_keys)
-        if unrec_meta_keys:
-            # might want a flag of meta?
-            self._warn_event(obj_code,
-                             obj=obj,
-                             err_type=gen_UnrecognizedKeyWarning,
-                             anc=anc,
-                             obj_nex_id=obj_nex_id,
-                             key_list=unrec_meta_keys)
-
-        off_key = [k for k in schema.EXPECETED_KEY_SET if k not in obj]
-        if off_key:
-            self._warn_event(obj_code,
-                             obj=obj,
-                             err_type=gen_MissingOptionalKeyWarning,
-                             anc=anc,
-                             obj_nex_id=obj_nex_id,
-                             key_list=off_key)
-        off_key = [k for k in schema.REQUIRED_KEY_SET if k not in obj]
-        if off_key:
-            self._error_event(obj_code,
-                             obj=obj,
-                             err_type=gen_MissingMandatoryKeyWarning,
-                             anc=anc,
-                             obj_nex_id=obj_nex_id,
-                             key_list=off_key)
-
-    def _validate_nexml_obj(self, nex_obj, anc):
-        schema = self._NexmlEl_Schema
-        anc_l = [anc]
+            else:
+                for k, v in obj.items():
+                    if k not in schema.ALLOWED_KEY_SET:
+                        unrec_non_meta_keys.append(k)
+                    else:
+                        correct_type, info = schema.K2VT[k](v)
+                        if not correct_type:
+                            wrong_type.append((k, v, info))
+                m = self._get_list_key(obj, 'meta', vc)
+                if m:
+                    # might want a flag of meta?
+                    md = self._bf_meta_list_to_dict(m, obj, vc)
+                    mrmk = [i for i in schema.REQUIRED_META_KEY_SET if i not in md]
+                    memk = [i for i in schema.EXPECTED_META_KEY_SET if i not in md]
+                    if memk:
+                        self._warn_event(element_type,
+                                         obj=obj,
+                                         err_type=gen_MissingOptionalKeyWarning,
+                                         anc=anc_list,
+                                         obj_nex_id=obj_nex_id,
+                                         key_list=memk)
+                    if mrmk:
+                        self._error_event(element_type,
+                                         obj=obj,
+                                         err_type=gen_MissingMandatoryKeyWarning,
+                                         anc=anc_list,
+                                         obj_nex_id=obj_nex_id,
+                                         key_list=mrmk)
+                    for k, v in md.items():
+                        if k not in schema.ALLOWED_META_KEY_SET:
+                            unrec_meta_keys.append(k)
+                        else:
+                            #_LOG.debug('{k} --> "{v}"'.format(k=k, v=repr(v)))
+                            correct_type, info = schema.K2VT[k](v)
+                            if not correct_type:
+                                v = schema._VT._extract_meta(v)
+                                wrong_type.append((k, v, info))
+            if wrong_type:
+                self._error_event(element_type,
+                                 obj=obj,
+                                 err_type=gen_WrongValueTypeWarning,
+                                 anc=anc_list,
+                                 obj_nex_id=obj_nex_id,
+                                 key_val_type_list=wrong_type)
+            if unrec_non_meta_keys:
+                self._warn_event(element_type,
+                                 obj=obj,
+                                 err_type=gen_UnrecognizedKeyWarning,
+                                 anc=anc_list,
+                                 obj_nex_id=obj_nex_id,
+                                 key_list=unrec_non_meta_keys)
+            if unrec_meta_keys:
+                # might want a flag of meta?
+                self._warn_event(element_type,
+                                 obj=obj,
+                                 err_type=gen_UnrecognizedKeyWarning,
+                                 anc=anc_list,
+                                 obj_nex_id=obj_nex_id,
+                                 key_list=unrec_meta_keys)
+            off_key = [k for k in schema.EXPECETED_KEY_SET if k not in obj]
+            if off_key:
+                self._warn_event(element_type,
+                                 obj=obj,
+                                 err_type=gen_MissingOptionalKeyWarning,
+                                 anc=anc_list,
+                                 obj_nex_id=obj_nex_id,
+                                 key_list=off_key)
+            off_key = [k for k in schema.REQUIRED_KEY_SET if k not in obj]
+            if off_key:
+                self._error_event(element_type,
+                                 obj=obj,
+                                 err_type=gen_MissingMandatoryKeyWarning,
+                                 anc=anc_list,
+                                 obj_nex_id=obj_nex_id,
+                                 key_list=off_key)
+        return True
+    def _validate_nexml_obj(self, nex_obj, vc, top_obj):
+        vc.switch_context(_NEXEL_NEXML, (top_obj, None))
         nid = nex_obj.get('@id')
         if nid is not None:
-            self._register_nexson_id(nid, nex_obj, anc, _NEXEL_NEXML)
-        self._validate_obj_by_schema(_NEXEL_NEXML, nex_obj, anc_l, nid, schema)
-        return self._post_key_check_validate_nexml_obj(nex_obj, nid, anc_l)
-    def _validate_otus_group_list(self, otu_group_id_obj_list, anc_list):
+            self._register_nexson_id(nid, nex_obj, vc)
+        self._validate_obj_by_schema(nex_obj, nid, vc)
+        return self._post_key_check_validate_nexml_obj(nex_obj, nid, vc)
+    def _validate_otus_group_list(self, otu_group_id_obj_list, vc):
         for el in otu_group_id_obj_list:
-            if not self._register_nexson_id(el[0], el[1], anc_list, _NEXEL_OTUS):
+            if not self._register_nexson_id(el[0], el[1], vc):
                 return False
-        schema = self._OtusEl_Schema
         for el in otu_group_id_obj_list:
             ogid = el[0]
             og = el[1]
-            self._validate_obj_by_schema(_NEXEL_OTUS, og, anc_list, ogid, schema)
+            self._validate_obj_by_schema(og, ogid, vc)
+            self._post_key_check_validate_otus_obj(og, ogid, vc)
         return True
+    def _validate_otu_group_list(self, otu_id_obj_list, vc):
+        for el in otu_id_obj_list:
+            if not self._register_nexson_id(el[0], el[1], vc):
+                return False
+        self._validate_id_obj_list_by_schema(otu_id_obj_list, vc)
+        self._post_key_check_validate_otu__id_obj_list(otu_id_obj_list, vc)
+        return True
+    def _post_key_check_validate_otu__id_obj_list(self, otu_id_obj_list, vc):
+        return True
+
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
         expected to have a string as the value of annotation['author']['name']
@@ -419,7 +459,36 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
 
-    def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, anc_list):
+    def _post_key_check_validate_otus_obj(self, otus_group, og_nex_id, vc):
+        otu_list = otus_group.get('otu')
+        if otu_list and isinstance(otu_list, dict):
+            otu_list = [otu_list]
+        if not otu_list:
+            self._error_event(_NEXEL_OTUS,
+                             obj=otus_group,
+                             err_type=gen_MissingCrucialContentWarning,
+                             anc=vc.anc_list,
+                             obj_nex_id=og_nex_id,
+                             key_list=['otu'])
+            return False
+        vc.switch_context(_NEXEL_OTU, (otus_group, og_nex_id))
+        without_id = []
+        otu_tuple_list = []
+        for otu in otu_list:
+            oid = otu.get('@id')
+            if oid is None:
+                without_id.append(otu)
+            else:
+                otu_tuple_list.append((oid, otu))
+        if without_id:
+            self._error_event(_NEXEL_NEXML,
+                             obj=without_id,
+                             err_type=gen_MissingCrucialContentWarning,
+                             anc=vc.anc_list,
+                             key_list=['@id'])
+            return False
+        return self._validate_otu_group_list(otu_tuple_list, vc)
+    def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
         otus_group_list = nex_obj.get('otus')
         if otus_group_list and isinstance(otus_group_list, dict):
             otus_group_list = [otus_group_list]
@@ -427,11 +496,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             self._error_event(_NEXEL_NEXML,
                              obj=nex_obj,
                              err_type=gen_MissingCrucialContentWarning,
-                             anc=anc_list,
+                             anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
                              key_list=['otus'])
             return False
-        anc_list.append((nex_obj, obj_nex_id))
+        vc.switch_context(_NEXEL_OTUS, (nex_obj, obj_nex_id))
         without_id = []
         og_tuple_list = []
         for og in otus_group_list:
@@ -441,13 +510,13 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             else:
                 og_tuple_list.append((ogid, og))
         if without_id:
-            self._error_event(_NEXEL_NEXML,
+            self._error_event(_NEXEL_OTUS,
                              obj=without_id,
                              err_type=gen_MissingCrucialContentWarning,
-                             anc=anc_list,
+                             anc=vc.anc_list,
                              key_list=['@id'])
             return False
-        return self._validate_otus_group_list(og_tuple_list, anc_list)
+        return self._validate_otus_group_list(og_tuple_list, vc)
 
 class DirectHBFValidationAdaptor(BadgerFishValidationAdaptor):
     def __init__(self, obj, logger):
@@ -456,8 +525,39 @@ class DirectHBFValidationAdaptor(BadgerFishValidationAdaptor):
 class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
+    def _post_key_check_validate_otus_obj(self, otus_group, og_nex_id, vc):
+        otu_obj = otus_group.get('otuById')
+        if (not otu_obj) or (not isinstance(otu_obj, dict)):
+            self._error_event(_NEXEL_OTUS,
+                             obj=otus_group,
+                             err_type=gen_MissingCrucialContentWarning,
+                             anc=vc.anc_list,
+                             obj_nex_id=og_nex_id,
+                             key_list=['otuById'])
+            return False
+        vc.switch_context(_NEXEL_OTU, (otus_group, og_nex_id))
+        not_dict_otu = []
+        otu_id_obj_list = []
+        for id_obj_pair in otu_obj.items():
+            if not isinstance(id_obj_pair[1], dict):
+                # temp external use of _VT
+                vt = self._NexmlEl_Schema._VT
+                r = vt.DICT(id_obj_pair[1])
+                assert(r[0] is False)
+                t = r[1]
+                not_dict_otu.append(t)
+            else:
+                otu_id_obj_list.append(id_obj_pair)
+        if not_dict_otu:
+            self._error_event(_NEXEL_OTU,
+                             obj=otu_obj,
+                             err_type=gen_WrongValueTypeWarning,
+                             anc=vc.anc_list,
+                             key_val_type_list=[not_dict_otu])
+            return False
+        return self._validate_otu_group_list(otu_id_obj_list, vc)
 
-    def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, anc_list):
+    def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
         otus = nex_obj.get('otusById')
         otus_order_list = nex_obj.get('^ot:otusElementOrder')
         if (not otus) or (not isinstance(otus, dict)) \
@@ -465,7 +565,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             self._error_event(_NEXEL_NEXML,
                              obj=nex_obj,
                              err_type=gen_MissingCrucialContentWarning,
-                             anc=anc_list,
+                             anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
                              key_list=['otusById', '^ot:otusElementOrder'])
             return False
@@ -489,18 +589,18 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             self._error_event(_NEXEL_NEXML,
                              obj=nex_obj,
                              err_type=gen_ReferencedIDNotFoundWarning,
-                             anc=anc_list,
+                             anc=vc.anc_list,
                              key_list=missing_ogid)
             return False
-        anc_list.append((nex_obj, obj_nex_id))
+        vc.switch_context(_NEXEL_OTUS, (nex_obj, obj_nex_id))
         if not_dict_og:
             self._error_event(_NEXEL_OTUS,
                              obj=otus,
                              err_type=gen_WrongValueTypeWarning,
-                             anc=anc_list,
+                             anc=vc.anc_list,
                              key_val_type_list=[not_dict_og])
             return False
-        return self._validate_otus_group_list(otus_group_list, anc_list)
+        return self._validate_otus_group_list(otus_group_list, vc)
 def create_validation_adaptor(obj, logger):
     try:
         nexson_version = detect_nexson_version(obj)

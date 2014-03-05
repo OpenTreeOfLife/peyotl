@@ -1,15 +1,16 @@
 {
-  "errors": {
-    "MISSING_MANDATORY_KEY": {
+  "errors": {}, 
+  "warnings": {
+    "MISSING_OPTIONAL_KEY": {
       "data": [
-        "otuById"
+        "^ot:ottid"
       ], 
       "refersTo": {
-        "@idref": "og1", 
+        "@idref": "otu1", 
+        "@otuID": "otu1", 
         "@otusID": "og1", 
         "@top": "otus"
       }
     }
-  }, 
-  "warnings": {}
+  }
 }

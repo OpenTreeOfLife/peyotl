@@ -221,8 +221,8 @@ _EMPTY_DICT = {}
 # nexml element schema
 _Req_NexmlEl_All = {'@id': _VT.STR,
                    }
-_Exp_NexmlEl_Dir = {'otus': _VT.LIST,
-                    'trees': _VT.LIST,
+_Exp_NexmlEl_Dir = {'otus': _VT.LIST_OR_DICT,
+                    'trees': _VT.LIST_OR_DICT,
                    }
 _Exp_NexmlEl_ByI = {'otusById': _VT.DICT, 
                     'treesById': _VT.DICT,
@@ -281,7 +281,9 @@ _v0_0_nexml = _SchemaFragment(required=_Req_NexmlEl_All,
 _Req_OtusEl_ByI = {'otuById': _VT.DICT,
                   }
 _Req_OtusEl_Dir = {'@id': _VT.STR,
-                   'otu': _VT.DICT,
+                   'otu': _VT.LIST,
+                  }
+_All_OtusEl_Dir = {'@about': _VT.STR,
                   }
 
 _v1_2_Otus = _SchemaFragment(required=_Req_OtusEl_ByI,
@@ -294,7 +296,7 @@ _v1_2_Otus = _SchemaFragment(required=_Req_OtusEl_ByI,
 
 _v1_0_Otus = _SchemaFragment(required=_Req_OtusEl_Dir,
                               expected=_EMPTY_DICT,
-                              allowed=_EMPTY_DICT,
+                              allowed=_All_OtusEl_Dir,
                               required_meta=_EMPTY_DICT,
                               expected_meta=_EMPTY_DICT,
                               type_checked_meta=_EMPTY_DICT,
@@ -302,23 +304,66 @@ _v1_0_Otus = _SchemaFragment(required=_Req_OtusEl_Dir,
 
 _v0_0_Otus = _SchemaFragment(required=_Req_OtusEl_Dir,
                               expected=_EMPTY_DICT,
-                              allowed=_EMPTY_DICT,
+                              allowed=_All_OtusEl_Dir,
                               required_meta=_EMPTY_DICT,
                               expected_meta=_EMPTY_DICT,
                               type_checked_meta=_EMPTY_DICT,
                               using_hbf_meta=False)
+
+####################################################################
+# otus element schema
+_Req_OtuEl_ByI = _EMPTY_DICT
+_Req_OtuEl_Dir = {'@id': _VT.STR,
+                 }
+_All_OtuEl_ByI = {'@label': _VT.STR,
+                 }
+_All_OtuEl_Dir = {'@about': _VT.STR,
+                  '@label': _VT.STR,
+                 }
+_ReqMOtuEl_All = {'ot:originalLabel': _VT.STR,
+                 }
+_ExpMOtuEl_All = {'ot:ottid': _VT.INT,
+                 }
+_TypMOtuEl_All = {'ot:treebaseOTUId': _VT.STR,
+                  'ot:ottTaxonName': _VT.STR
+                 }
+_v1_2_Otu = _SchemaFragment(required=_Req_OtuEl_ByI,
+                            expected=_EMPTY_DICT,
+                            allowed=_All_OtuEl_ByI,
+                            required_meta=_ReqMOtuEl_All,
+                            expected_meta=_ExpMOtuEl_All,
+                            type_checked_meta=_TypMOtuEl_All,
+                            using_hbf_meta=True)
+_v1_0_Otu = _SchemaFragment(required=_Req_OtuEl_Dir,
+                            expected=_EMPTY_DICT,
+                            allowed=_All_OtusEl_Dir,
+                            required_meta=_ReqMOtuEl_All,
+                            expected_meta=_ExpMOtuEl_All,
+                            type_checked_meta=_TypMOtuEl_All,
+                            using_hbf_meta=True)
+
+_v0_0_Otu = _SchemaFragment(required=_Req_OtuEl_Dir,
+                            expected=_EMPTY_DICT,
+                            allowed=_All_OtusEl_Dir,
+                            required_meta=_ReqMOtuEl_All,
+                            expected_meta=_ExpMOtuEl_All,
+                            type_checked_meta=_TypMOtuEl_All,
+                            using_hbf_meta=False)
 #####################################################################
 def _add_by_id_nexson_schema_attributes(container):
     container._using_hbf_meta = True
     container._NexmlEl_Schema = _v1_2_nexml
     container._OtusEl_Schema = _v1_2_Otus
+    container._OtuEl_Schema = _v1_2_Otu
 
 def _add_direct_nexson_schema_attributes(container):
     container._using_hbf_meta = True
     container._NexmlEl_Schema = _v1_0_nexml
     container._OtusEl_Schema = _v1_0_Otus
+    container._OtuEl_Schema = _v1_0_Otu
 
 def _add_badgerfish_nexson_schema_attributes(container):
     container._using_hbf_meta = False
     container._NexmlEl_Schema = _v0_0_nexml
     container._OtusEl_Schema = _v0_0_Otus
+    container._OtuEl_Schema = _v0_0_Otu

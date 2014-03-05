@@ -276,14 +276,49 @@ _v0_0_nexml = _SchemaFragment(required=_Req_NexmlEl_All,
                               using_hbf_meta=False)
 #####################################################################
 
+####################################################################
+# otus element schema
+_Req_OtusEl_ByI = {'otuById': _VT.DICT,
+                  }
+_Req_OtusEl_Dir = {'@id': _VT.STR,
+                   'otu': _VT.DICT,
+                  }
+
+_v1_2_Otus = _SchemaFragment(required=_Req_OtusEl_ByI,
+                              expected=_EMPTY_DICT,
+                              allowed=_EMPTY_DICT,
+                              required_meta=_EMPTY_DICT,
+                              expected_meta=_EMPTY_DICT,
+                              type_checked_meta=_EMPTY_DICT,
+                              using_hbf_meta=True)
+
+_v1_0_Otus = _SchemaFragment(required=_Req_OtusEl_Dir,
+                              expected=_EMPTY_DICT,
+                              allowed=_EMPTY_DICT,
+                              required_meta=_EMPTY_DICT,
+                              expected_meta=_EMPTY_DICT,
+                              type_checked_meta=_EMPTY_DICT,
+                              using_hbf_meta=True)
+
+_v0_0_Otus = _SchemaFragment(required=_Req_OtusEl_Dir,
+                              expected=_EMPTY_DICT,
+                              allowed=_EMPTY_DICT,
+                              required_meta=_EMPTY_DICT,
+                              expected_meta=_EMPTY_DICT,
+                              type_checked_meta=_EMPTY_DICT,
+                              using_hbf_meta=False)
+#####################################################################
 def _add_by_id_nexson_schema_attributes(container):
     container._using_hbf_meta = True
     container._NexmlEl_Schema = _v1_2_nexml
+    container._OtusEl_Schema = _v1_2_Otus
 
 def _add_direct_nexson_schema_attributes(container):
     container._using_hbf_meta = True
     container._NexmlEl_Schema = _v1_0_nexml
+    container._OtusEl_Schema = _v1_0_Otus
 
 def _add_badgerfish_nexson_schema_attributes(container):
     container._using_hbf_meta = False
     container._NexmlEl_Schema = _v0_0_nexml
+    container._OtusEl_Schema = _v0_0_Otus

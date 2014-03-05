@@ -122,31 +122,31 @@ UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
 WrongValueTypeWarning = WrongValueTypeWarningType()
 
 
-def gen_MissingCrucialContentWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_MissingCrucialContentWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingCrucialContentWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
-def gen_MissingExpectedListWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_MissingExpectedListWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingExpectedListWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
-def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingMandatoryKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
-def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingOptionalKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
-def gen_ReferencedIDNotFoundWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_ReferencedIDNotFoundWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(ReferencedIDNotFoundWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
-def gen_RepeatedIDWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_RepeatedIDWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(RepeatedIDWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
-def gen_UnparseableMetaWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_UnparseableMetaWarning(addr, pyid, logger, severity, **kwargs):
     _obj_list_warning(UnparseableMetaWarning, kwargs['obj_list'], addr, pyid, logger, severity)
 
-def gen_UnrecognizedKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_UnrecognizedKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(UnrecognizedKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
-def gen_WrongValueTypeWarning(addr, pyid, logger, severity, *valist, **kwargs):
+def gen_WrongValueTypeWarning(addr, pyid, logger, severity, **kwargs):
     key_val_type_list = tuple([(k, type(v).__name__, t) for k, v, t in kwargs['key_val_type_list']])
     t = (WrongValueTypeWarning, pyid, addr, key_val_type_list)
     logger.register_new_messages(t, severity=severity)

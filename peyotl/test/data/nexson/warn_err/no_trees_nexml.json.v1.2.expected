@@ -1,0 +1,15 @@
+{
+  "errors": {
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "otuById"
+      ], 
+      "refersTo": {
+        "@idref": "og1", 
+        "@otusID": "og1", 
+        "@top": "otus"
+      }
+    }
+  }, 
+  "warnings": {}
+}

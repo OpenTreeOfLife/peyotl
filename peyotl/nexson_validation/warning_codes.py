@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 '''Classes for different forms of Warnings and Errors.
 '''
-from peyotl.nexson_validation.helper import SeverityCodes
-from cStringIO import StringIO
-import codecs
 # An enum of WARNING_CODES
 class NexsonWarningCodes():
     '''Enumeration of Warning/Error types. For internal use.

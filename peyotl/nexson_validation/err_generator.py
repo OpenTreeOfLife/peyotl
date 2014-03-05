@@ -10,6 +10,7 @@
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from cStringIO import StringIO
 import codecs
+import json
 
 class MessageTupleAdaptor(object):
     '''This base class provides the basic functionality of keeping
@@ -55,33 +56,112 @@ class UnrecognizedKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.UNRECOGNIZED_KEY
         self.format = '{p}Unrecognized key(s): "{d}"'
+
 class MissingMandatoryKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_MANDATORY_KEY
         self.format = '{p}Missing required key(s): "{d}"'
+
 class MissingOptionalKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_OPTIONAL_KEY
         self.format = '{p}Missing optional key(s): "{d}"'
 
-UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
+class MissingExpectedListWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MISSING_LIST_EXPECTED
+        self.format = '{p}Expected a list for key(s): "{d}"'
+
+class MissingCrucialContentWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MISSING_CRUCIAL_CONTENT
+        self.format = '{p}Further validation amd acceptance requires more content; specifically keys(s): "{d}"'
+
+class ReferencedIDNotFoundWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.REFERENCED_ID_NOT_FOUND
+        self.format = '{p}An ID reference(s) did not match a previous ID: "{d}"'
+
+class RepeatedIDWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.REPEATED_ID
+        self.format = '{p}Object identifier(s) repeated: "{d}"'
+
+class _ObjListDataWarningType(_StrListDataWarningType):
+    def convert_data_for_json(self, err_tuple):
+        return [json.loads(i) for i in err_tuple[3]]
+
+class UnparseableMetaWarningType(_ObjListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.UNPARSEABLE_META
+        self.format = '{p}meta(s) with out @property or @rel: "{d}"'
+
+
+class WrongValueTypeWarningType(MessageTupleAdaptor):
+    def write(self, err_tuple, outstream, prefix):
+        raise NotImplementedError('WrongValueTypeWarningType.write')
+    def convert_data_for_json(self, err_tuple):
+        rl = []
+        for k, v, et in err_tuple[3]:
+            rl.append({'key':k, 'type':v, 'expected':et})
+        return rl
+    def __init__(self):
+        self.code = NexsonWarningCodes.INCORRECT_VALUE_TYPE
+        self.format = '{p}value for key not the expected type: "{d}"'
+
+# A single, immutable, global instance of each warning type is created
+
+MissingCrucialContentWarning = MissingCrucialContentWarningType()
+MissingExpectedListWarning = MissingExpectedListWarningType()
 MissingMandatoryKeyWarning = MissingMandatoryKeyWarningType()
 MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
+ReferencedIDNotFoundWarning = ReferencedIDNotFoundWarningType()
+RepeatedIDWarning = RepeatedIDWarningType()
+UnparseableMetaWarning = UnparseableMetaWarningType()
+UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
+WrongValueTypeWarning = WrongValueTypeWarningType()
+
+
+def gen_MissingCrucialContentWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(MissingCrucialContentWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def gen_MissingExpectedListWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(MissingExpectedListWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(MissingMandatoryKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(MissingOptionalKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def gen_ReferencedIDNotFoundWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(ReferencedIDNotFoundWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def gen_RepeatedIDWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(RepeatedIDWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def gen_UnparseableMetaWarning(addr, pyid, logger, severity, **kwargs):
+    _obj_list_warning(UnparseableMetaWarning, kwargs['obj_list'], addr, pyid, logger, severity)
+
+def gen_UnrecognizedKeyWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(UnrecognizedKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def gen_WrongValueTypeWarning(addr, pyid, logger, severity, **kwargs):
+    key_val_type_list = tuple([(k, type(v).__name__, t) for k, v, t in kwargs['key_val_type_list']])
+    t = (WrongValueTypeWarning, pyid, addr, key_val_type_list)
+    logger.register_new_messages(t, severity=severity)
+
 
 # factory functions that call register_new_messages
-def gen_UnrecognizedKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
-    k_list = kwargs['key_list']
-    t = (UnrecognizedKeyWarning, pyid, addr, k_list)
+def _obj_list_warning(wt, k_list, addr, pyid, logger, severity):
+    k_list = tuple([json.dumps(i) for i in k_list])
+    t = (wt, pyid, addr, k_list)
     logger.register_new_messages(t, severity=severity)
 
-def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
-    k_list = kwargs['key_list']
-    t = (MissingMandatoryKeyWarning, pyid, addr, k_list)
-    logger.register_new_messages(t, severity=severity)
-
-def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, *valist, **kwargs):
-    k_list = kwargs['key_list']
-    t = (MissingOptionalKeyWarning, pyid, addr, k_list)
+def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
+    k_list.sort()
+    k_list = tuple(k_list)
+    t = (wt, pyid, addr, k_list)
     logger.register_new_messages(t, severity=severity)
 
 

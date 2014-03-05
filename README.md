@@ -144,6 +144,9 @@ based on Jeet Sukumraran's work in the [DendroPy](http://pythonhosted.org/Dendro
 The sortattr.xslt stylesheet (which is only used in round-trip testing) is from 
    http://stackoverflow.com/questions/1429991/using-xsl-to-sort-attributes other code by Mark Holder.
 
+The peyotl.phylesystem.git_actions (and the tests) were a part of the api.opentreeoflife.org
+    repo which was primarily the work of Duke Leto (at that time).
+
 Jim Allman, Karen Cranston, Cody Hinchliff, Mark Holder, Peter Midford, and Jonathon Rees
 all participated in the discussions that led to the NexSON mapping.
 

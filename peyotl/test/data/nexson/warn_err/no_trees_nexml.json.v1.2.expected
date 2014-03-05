@@ -2,10 +2,12 @@
   "errors": {
     "MISSING_MANDATORY_KEY": {
       "data": [
-        "nexml"
+        "otuById"
       ], 
       "refersTo": {
-        "@top": ""
+        "@idref": "og1", 
+        "@otusID": "og1", 
+        "@top": "otus"
       }
     }
   }, 

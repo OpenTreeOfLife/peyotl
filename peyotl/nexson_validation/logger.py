@@ -51,7 +51,6 @@ class DefaultRichLogger(object):
             x.add(err_tup)
             x = self._err_by_obj.setdefault(pyid, set())
             x.add(err_tup)
-    
     def get_err_warn_summary_dict(self):
         w = {}
         for wm in self._warn_by_type.values():

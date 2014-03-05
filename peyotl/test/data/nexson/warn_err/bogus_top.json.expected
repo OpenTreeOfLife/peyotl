@@ -1,24 +1,39 @@
 {
   "errors": {
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "otus"
+      ], 
+      "refersTo": {
+        "@top": "nexml"
+      }
+    }, 
     "MISSING_MANDATORY_KEY": {
       "data": [
         "@id"
       ], 
-      "refersTo": "nexml"
-    }, 
+      "refersTo": {
+        "@top": "nexml"
+      }
+    }
+  }, 
+  "warnings": {
     "MISSING_OPTIONAL_KEY": {
       "data": [
         "otus", 
         "trees"
       ], 
-      "refersTo": "nexml"
+      "refersTo": {
+        "@top": "nexml"
+      }
     }, 
     "UNRECOGNIZED_KEY": {
       "data": [
         "bogus"
       ], 
-      "refersTo": "top-level"
+      "refersTo": {
+        "@top": ""
+      }
     }
-  }, 
-  "warnings": {}
+  }
 }

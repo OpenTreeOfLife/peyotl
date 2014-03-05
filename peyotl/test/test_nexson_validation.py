@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from peyotl.nexson_syntax import detect_nexson_version
 from peyotl.nexson_validation import validate_nexson
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
@@ -19,23 +20,30 @@ def write_json(o, fp):
         fo.write('\n')
 def through_json(d):
     return json.loads(json.dumps(d))
+
 def dict_eq(a, b):
     if a == b:
         return True
-    ka, kb = a.keys(), b.keys()
-    ka.sort()
-    kb.sort()
-    if ka != kb:
-        _LOG.debug('keys "{a}" != "{b}"'.format(a=ka, b=kb))
-    for k in ka:
-        va = a[k]
-        vb = b[k]
-        if va != vb:
-            _LOG.debug('value for {k}: "{a}" != "{b}"'.format(k=k, a=va, b=vb))
     return False
+    # ka, kb = a.keys(), b.keys()
+    # ka.sort()
+    # kb.sort()
+    # if ka != kb:
+    #     _LOG.debug('keys "{a}" != "{b}"'.format(a=ka, b=kb))
+    # for k in ka:
+    #     va = a[k]
+    #     vb = b[k]
+    #     if va != vb:
+    #         _LOG.debug('value for {k}: "{a}" != "{b}"'.format(k=k, a=va, b=vb))
+    # return False
 
 class TestConvert(unittest.TestCase):
-    def skip_testValidFilesPass(self):
+    def testDetectVersion(self):
+        o = pathmap.nexson_obj('invalid/bad_version.json.input')
+        v = detect_nexson_version(o)
+        self.assertEqual(v, '1.3.1')
+
+    def testValidFilesPass(self):
         format_list = ['1.2']
         msg = ''
         for d in VALID_NEXSON_DIRS:
@@ -46,15 +54,29 @@ class TestConvert(unittest.TestCase):
                 annot = aa[0]
                 for e in annot.errors:
                     _LOG.debug('unexpected error from {f}: {m}'.format(f=frag, m=unicode(e)))
-                for e in annot.warnings:
-                    _LOG.debug('unexpected warning from {f}: {m}'.format(f=frag, m=unicode(e)))
-                if len(annot.errors) + len(annot.warnings) > 0:
+                if len(annot.errors) > 0:
                     ofn = pathmap.nexson_source_path(frag + '.output')
                     ew_dict = annot.get_err_warn_summary_dict()
                     write_json(ew_dict, ofn)
                     msg = "File failed to validate cleanly. See {o}".format(o=ofn)
                 self.assertEqual(len(annot.errors), 0, msg)
-                self.assertEqual(len(annot.warnings), 0, msg)
+    def testInvalidFilesFail(self):
+        msg = ''
+        for fn in pathmap.all_files(os.path.join('nexson', 'invalid')):
+            if fn.endswith('.input'):
+                frag = fn[:-len('.input')]
+                inp = read_json(fn)
+                try:
+                    aa = validate_nexson(inp)
+                except:
+                    continue
+                annot = aa[0]
+                if len(annot.errors) == 0:
+                    ofn = pathmap.nexson_source_path(frag + '.output')
+                    ew_dict = annot.get_err_warn_summary_dict()
+                    write_json(ew_dict, ofn)
+                    msg = "Failed to reject file. See {o}".format(o=str(msg))
+                    self.assertTrue(False, msg)
     def testExpectedWarnings(self):
         msg = ''
         for fn in pathmap.all_files(os.path.join('nexson', 'warn_err')):
@@ -75,6 +97,5 @@ class TestConvert(unittest.TestCase):
                     self.assertDictEqual(exp, ew_dict, msg)
                 else:
                     _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
-
 if __name__ == "__main__":
     unittest.main()

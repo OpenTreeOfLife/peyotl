@@ -336,6 +336,8 @@ class NexsonValidationAdaptor(object):
         anc_l = [anc]
         self._validate_obj_by_schema(_NEXEL_NEXML, nex_obj, anc_l, schema)
         self._post_key_check_validate_nexml_obj(nex_obj, anc_l)
+    def _validate_otus_group_list(self, otu_group_list, anc_list):
+        pass # raise NotImplementedError('_validate_otus_group_list')
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
         expected to have a string as the value of annotation['author']['name']
@@ -381,6 +383,7 @@ class NexsonValidationAdaptor(object):
 class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
+
     def _post_key_check_validate_nexml_obj(self, nex_obj, anc_list):
         otus_list = nex_obj.get('otus')
         if otus_list and isinstance(otus_list, dict):
@@ -392,6 +395,8 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                              anc=anc_list,
                              key_list=['otus'])
             return False
+        anc_list.append(self)
+        self._validate_otus_group_list(otus_group_list, anc_list)
 
 class DirectHBFValidationAdaptor(BadgerFishValidationAdaptor):
     def __init__(self, obj, logger):
@@ -400,6 +405,7 @@ class DirectHBFValidationAdaptor(BadgerFishValidationAdaptor):
 class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
+
     def _post_key_check_validate_nexml_obj(self, nex_obj, anc_list):
         otus = nex_obj.get('otusById')
         otus_order_list = nex_obj.get('^ot:otusElementOrder')
@@ -411,16 +417,47 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=anc_list,
                              key_list=['otusById', '^ot:otusElementOrder'])
             return False
-
+        otus_group_list = []
+        missing_ogid = []
+        not_dict_og = []
+        for ogid in otus_order_list:
+            og = otus.get(ogid)
+            if og is None:
+                missing_ogid.append(ogid)
+            elif not isinstance(og, dict):
+                # temp external use of _VT
+                vt = self._NexmlEl_Schema._VT
+                r = vt.DICT(og)
+                assert(r[0] is False)
+                t = r[1]
+                not_dict_og.append(t)
+            else:
+                otus_group_list.append(og)
+        if missing_ogid:
+            self._error_event(_NEXEL_NEXML,
+                             obj=nex_obj,
+                             err_type=gen_ReferencedIDNotFoundWarning,
+                             anc=anc_list,
+                             key_list=missing_ogid)
+            return False
+        anc_list.append(self)
+        if not_dict_og:
+            self._error_event(_NEXEL_OTUS,
+                             obj=otus,
+                             err_type=gen_WrongValueTypeWarning,
+                             anc=anc_list,
+                             key_val_type_list=[not_dict_og])
+            return False
+        self._validate_otus_group_list(otus_group_list, anc_list)
 def create_validation_adaptor(obj, logger):
     try:
         nexson_version = detect_nexson_version(obj)
-        if _is_by_id_hbf(nexson_version):
-            return ByIdHBFValidationAdaptor(obj, logger)
-        elif _is_badgerfish_version(nexson_version):
-            return BadgerFishValidationAdaptor(obj, logger)
-        elif _is_direct_hbf(nexson_version):
-            return DirectHBFValidationAdaptor(obj, logger)
-        assert(False)
     except:
         return BadgerFishValidationAdaptor(obj, logger)
+    if _is_by_id_hbf(nexson_version):
+        return ByIdHBFValidationAdaptor(obj, logger)
+    elif _is_badgerfish_version(nexson_version):
+        return BadgerFishValidationAdaptor(obj, logger)
+    elif _is_direct_hbf(nexson_version):
+        return DirectHBFValidationAdaptor(obj, logger)
+    raise NotImplementedError('nexml2json version {v}'.format(v=nexson_version))

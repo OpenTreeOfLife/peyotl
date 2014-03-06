@@ -62,7 +62,7 @@ class GitAction(object):
         git(self.gitdir, self.gitwd, "checkout","master")
         dirs = []
         # first we look for studies already in our master branch
-        for f in os.listdir(os.path.join(repo,"study/")):
+        for f in os.listdir(os.path.join(self.repo,"study/")):
             if os.path.isdir("study/%s" % f):
                 # ignore alphabetic prefix, o = created by opentree API
                 if f[0].isalpha():

@@ -58,12 +58,12 @@ class GitAction(object):
 
     def newest_study_id(self):
         "Return the numeric part of the newest study_id"
-        #git(self.gitdir, "stash") #EJM not clear why, ask Mark
         git(self.gitdir, self.gitwd, "checkout","master")
         dirs = []
         # first we look for studies already in our master branch
-        for f in os.listdir(os.path.join(self.repo,"study/")):
-            if os.path.isdir("study/%s" % f):
+        _study_dir = os.path.join(self.repo,"study")
+        for f in os.listdir(_study_dir):
+            if os.path.isdir(os.path.join(_study_dir,f)):
                 # ignore alphabetic prefix, o = created by opentree API
                 if f[0].isalpha():
                     dirs.append(int(f[1:]))
@@ -78,7 +78,6 @@ class GitAction(object):
             mo = re.match(".+_o(\d+)",b)
             if mo:
                 dirs.append(int(mo.group(1)))
-
         dirs.sort()
         return dirs[-1]
 

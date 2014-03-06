@@ -83,10 +83,10 @@ def create_new_path_for_study_id(study_id):
     finally:
         _study_index_lock.release()
 
-try:
-    get_paths_for_study_id('abdha')
-except:
-    pass
+#try:
+#    get_paths_for_study_id('abdha')
+##except:
+#    pass
     
 
 #def _search_for_repo_dirs(par):

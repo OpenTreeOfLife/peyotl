@@ -24,7 +24,8 @@
 "^ot:curatorName": "jane q. public", 
 "^ot:studyPublicationReference": "Some free, text here.", 
 "^ot:dataDeposit" : {
-   "@href": "http://purl.org/phylo/treebase/phylows/study/TB2:S1623"
+    "@id": "bogusStudyID",
+    "@href": "http://purl.org/phylo/treebase/phylows/study/TB2:S1623"
 },
 "^ot:otusElementOrder": [
 "og1"

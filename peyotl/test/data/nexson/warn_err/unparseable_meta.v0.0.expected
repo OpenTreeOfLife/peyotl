@@ -9,8 +9,7 @@
         }
       ], 
       "refersTo": {
-        "@idref": "bogusStudyID", 
-        "@top": "nexml"
+        "@idref": "bogusStudyID"
       }
     }, 
     "MISSING_CRUCIAL_CONTENT": {
@@ -18,8 +17,7 @@
         "otus"
       ], 
       "refersTo": {
-        "@idref": "bogusStudyID", 
-        "@top": "nexml"
+        "@idref": "bogusStudyID"
       }
     }, 
     "UNPARSEABLE_META": {
@@ -35,8 +33,7 @@
         true
       ], 
       "refersTo": {
-        "@idref": "bogusStudyID", 
-        "@top": "nexml"
+        "@idref": "bogusStudyID"
       }
     }
   }, 

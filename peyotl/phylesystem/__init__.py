@@ -57,7 +57,7 @@ def _initialize_study_index():
         raise ValueError('No git repos in {parent}'.format(p))
     else: 
         for repo in repos:
-          for root, dirs, files in os.walk(_repos[repo]):      
+          for root, dirs, files in os.walk(os.path.join(_repos[repo], 'study')):      
             for file in files:
               if ".json" in file:
                 d[file]=(repo,root)    # if file is in more than one place it gets over written. EJM Needs work 
@@ -70,7 +70,7 @@ def get_paths_for_study_id(study_id):
     try:
         if _study_index is None:
             _study_index = _initialize_study_index()
-        _study_index[study_id]
+        return _study_index[study_id]
     finally:
         _study_index_lock.release()
 
@@ -140,10 +140,3 @@ def phylesystem_study_objs(**kwargs):
             except Exception:
                 pass
 
-
-def write_study(jsondat,repo=repo_path):
-    tmpname="tmp.txt"
-    fi=open(tmp.txt)
-    fi.write(jsondat)
-    fi.close()
-    phylesystem.GitAction(repo)

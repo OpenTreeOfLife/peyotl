@@ -5,8 +5,7 @@
         "^ot:dataDeposit"
       ], 
       "refersTo": {
-        "@idref": "bogusStudyID", 
-        "@top": "nexml"
+        "@idref": "bogusStudyID"
       }
     }
   }, 
@@ -17,10 +16,7 @@
           "^ot:ottId"
         ], 
         "refersTo": {
-          "@idref": "otu1", 
-          "@otuID": "otu1", 
-          "@otusID": "og1", 
-          "@top": "otus"
+          "@idref": "otu1"
         }
       }, 
       {
@@ -28,10 +24,7 @@
           "^ot:ottId"
         ], 
         "refersTo": {
-          "@idref": "otu2", 
-          "@otuID": "otu2", 
-          "@otusID": "og1", 
-          "@top": "otus"
+          "@idref": "otu2"
         }
       }
     ]

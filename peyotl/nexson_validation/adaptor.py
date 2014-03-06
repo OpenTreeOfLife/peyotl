@@ -76,6 +76,7 @@ _NEXEL_CODE_TO_TOP_ENTITY_NAME = {
     _NEXEL_EDGE: 'trees',
 }
 
+_USING_IDREF_ONLY_PATHS = True
 
 class LazyAddress(object):
     @staticmethod
@@ -90,28 +91,59 @@ class LazyAddress(object):
         else:
             self.obj_nex_id = obj_nex_id
         self.par_addr = par_addr
-        self._path = None
+        self._path, self._full_path = None, None
     def write_path_suffix_str(self, out):
         p = self.path
         out.write(' in ')
         out.write(p)
-    def get_path(self):
-        if self._path is None:
-            #_LOG.debug('c = ' + str(self.code))
+    def get_full_path(self):
+        if self._full_path is None:
             if self.par_addr is None:
                 assert(self.code == _NEXEL_TOP_LEVEL)
-                self._path = {}
+                self._full_path = {}
             else:
                 #_LOG.debug('par ' + str(self.par_addr.path))
-                self._path = dict(self.par_addr.path)
-            self._path['@top'] = _NEXEL_CODE_TO_TOP_ENTITY_NAME[self.code]
+                self._full_path = dict(self.par_addr.get_full_path())
+            self._full_path['@top'] = _NEXEL_CODE_TO_TOP_ENTITY_NAME[self.code]
             if self.obj_nex_id is not None:
-                self._path['@idref'] = self.obj_nex_id
+                self._full_path['@idref'] = self.obj_nex_id
                 other_id_key = _NEXEL_CODE_TO_OTHER_ID_KEY[self.code]
                 if other_id_key is not None:
-                    self._path[other_id_key] = self.obj_nex_id
-            elif '@idref' in self._path:
-                del self._path['@idref']
+                    self._full_path[other_id_key] = self.obj_nex_id
+            elif '@idref' in self._full_path:
+                del self._full_path['@idref']
+        return self._full_path
+    def get_path(self):
+        if self._path is None:
+            if _USING_IDREF_ONLY_PATHS:
+                if self.obj_nex_id is not None:
+                    self._path = {'@idref': self.obj_nex_id}
+                else:
+                    if self.par_addr is None:
+                        assert(self.code == _NEXEL_TOP_LEVEL)
+                        self._path = {}
+                    else:
+                        #_LOG.debug('par ' + str(self.par_addr.path))
+                        self._path = dict(self.par_addr.get_full_path())
+                    self._path['@top'] = _NEXEL_CODE_TO_TOP_ENTITY_NAME[self.code]
+                    if '@idref' in self._path:
+                        del self._path['@idref']
+            else:
+                 #_LOG.debug('c = ' + str(self.code))
+                if self.par_addr is None:
+                    assert(self.code == _NEXEL_TOP_LEVEL)
+                    self._path = {}
+                else:
+                    #_LOG.debug('par ' + str(self.par_addr.path))
+                    self._path = dict(self.par_addr.path)
+                self._path['@top'] = _NEXEL_CODE_TO_TOP_ENTITY_NAME[self.code]
+                if self.obj_nex_id is not None:
+                    self._path['@idref'] = self.obj_nex_id
+                    other_id_key = _NEXEL_CODE_TO_OTHER_ID_KEY[self.code]
+                    if other_id_key is not None:
+                        self._path[other_id_key] = self.obj_nex_id
+                elif '@idref' in self._path:
+                    del self._path['@idref']
         return self._path
     path = property(get_path)
 

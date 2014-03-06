@@ -17,8 +17,6 @@ from threading import Lock
 _study_index_lock = Lock()
 _study_index = None
 
-# list of the absolute path to the each of the known "study" directories in phylesystem repos.
-_study_dirs = []
 
 def get_HEAD_SHA1(git_dir):
     '''Not locked!

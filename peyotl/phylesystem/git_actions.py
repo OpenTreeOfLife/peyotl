@@ -140,6 +140,13 @@ class GitAction(object):
 
         return new_sha.strip()
 
+    def _write_tmp(content, tmp_filename="tmp.json"):
+    import tmpfile
+#    make some sort of tmp dir to keep em in.
+        file = open(tmp_filename, 'w')
+        file.write(content)
+        file.close()
+
     def write_study(self,study_id, content, branch, author="OpenTree API <api@opentreeoflife.org>"):
         """Write a study
 
@@ -164,11 +171,13 @@ class GitAction(object):
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):
             os.mkdir(study_dir)
-
-        file = open(study_filename, 'w')
-        file.write(content)
-        file.close()
-
+            
+        _write_tmp(content,tmp_filename)
+        
+        destination = os.path.join(study_dir)
+        
+        os.rename()
+        
         git(self.gitdir, self.gitwd, "add",study_filename)
 
         git(self.gitdir, self.gitwd,  "commit",author=author, message="Update Study #%s via OpenTree API" % study_id)

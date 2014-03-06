@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''Classes for recording warnings and errors
 '''
+from peyotl.nexson_syntax.helper import _add_value_to_dict_bf
 from peyotl.nexson_validation.helper import SeverityCodes, VERSION
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 import datetime
@@ -15,7 +16,7 @@ def _err_warn_summary(w):
         r = msg_adapt_inst.as_dict(el)
         key = r['code']
         del r['code']
-        d[key] = r
+        _add_value_to_dict_bf(d, key, r)
     return d
 
 class DefaultRichLogger(object):
@@ -51,7 +52,7 @@ class DefaultRichLogger(object):
             x.add(err_tup)
             x = self._err_by_obj.setdefault(pyid, set())
             x.add(err_tup)
-    def get_err_warn_summary_dict(self):
+    def get_err_warn_summary_dict(self, sort=True):
         w = {}
         for wm in self._warn_by_type.values():
             d = _err_warn_summary(wm)
@@ -60,6 +61,13 @@ class DefaultRichLogger(object):
         for em in self._err_by_type.values():
             d = _err_warn_summary(em)
             e.update(d)
+        if sort:
+            for v in w.values():
+                if isinstance(v, list):
+                    v.sort(key=lambda x: x.get('refersTo',{}).get('@idref'))
+            for v in e.values():
+                if isinstance(v, list):
+                    v.sort(key=lambda x: x.get('refersTo',{}).get('@idref'))
         return {'warnings': w, 'errors': e}
 
     def prepare_annotation(self, 

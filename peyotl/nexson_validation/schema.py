@@ -115,83 +115,84 @@ __FALSE_DICT_LIST = (False, 'array or object')
 __FALSE_BOOL = (False, 'boolean')
 
 
-def _check_id(x, obj, vc):
+def _check_id(x, obj, k, vc):
     try:
         nid = x.get('@id')
     except:
         return
     if nid is not None:
-        vc.adaptor._check_meta_id(nid, x, obj, vc)
+        vc.adaptor._check_meta_id(nid, x, k, obj, vc)
 
-def check_raw_bool(x, obj, vc):
+def check_raw_bool(x, obj, k, vc):
     return __TRUE_VAL if (x is False or x is True) else __FALSE_BOOL
-def check_obj_meta_bool(x, obj, vc):
+def check_obj_meta_bool(x, obj, k, vc):
     mo = extract_meta(x)
-    _check_id(x, obj, vc)
-    return check_raw_bool(mo, obj, vc)
-def check_hbf_meta_bool(x, obj, vc):
+    _check_id(x, obj, k, vc)
+    return check_raw_bool(mo, obj, k, vc)
+def check_hbf_meta_bool(x, obj, k, vc):
     if isinstance(x, dict):
-        return check_obj_meta_bool(x, obj, vc)
+        return check_obj_meta_bool(x, obj, k, vc)
     return __TRUE_VAL if (x is False or x is True) else __FALSE_BOOL
-def check_raw_dict(x, obj, vc):
+def check_raw_dict(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, dict)) else __FALSE_DICT
-def check_href(x, obj, vc):
+def check_href(x, obj, k, vc):
     try:
-        _check_id(x, obj, vc)
+        _check_id(x, obj, k, vc)
         h = x.get('@href')
         if isinstance(h, str) or isinstance(h, unicode):
             return __TRUE_VAL
     except:
+        raise
         pass
     return __FALSE_HREF
-def check_raw_int(x, obj, vc):
+def check_raw_int(x, obj, k, vc):
     return  __TRUE_VAL if (isinstance(x, int)) else __FALSE_INT
-def check_obj_meta_int(x, obj, vc):
+def check_obj_meta_int(x, obj, k, vc):
     mo = extract_meta(x)
-    _check_id(x, obj, vc)
-    return check_raw_int(mo, obj, vc)
-def check_hbf_meta_int(x, obj, vc):
+    _check_id(x, obj, k, vc)
+    return check_raw_int(mo, obj, k, vc)
+def check_hbf_meta_int(x, obj, k, vc):
     if isinstance(x, dict):
-        return check_obj_meta_int(x, obj, vc)
-    return check_raw_int(x, obj, vc)
-def check_raw_list(x, obj, vc):
+        return check_obj_meta_int(x, obj, k, vc)
+    return check_raw_int(x, obj, k, vc)
+def check_raw_list(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, list)) else __FALSE_LIST
-def check_obj_meta_list(x, obj, vc):
+def check_obj_meta_list(x, obj, k, vc):
     mo = extract_meta(x)
-    _check_id(x, obj, vc)
-    return check_list(mo, obj, vc)
-def check_hbf_meta_list(x, obj, vc):
+    _check_id(x, obj, k, vc)
+    return check_list(mo, obj, k, vc)
+def check_hbf_meta_list(x, obj, k, vc):
     if isinstance(x, dict):
-        return check_obj_meta_list(x, obj, vc)
-    return check_raw_list(x, obj, vc)
-def check_list_or_dict(x, obj, vc):
+        return check_obj_meta_list(x, obj, k, vc)
+    return check_raw_list(x, obj, k, vc)
+def check_list_or_dict(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, list) or isinstance(x, dict)) else __FALSE_DICT_LIST
-def check_raw_str(x, obj, vc):
+def check_raw_str(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, str) or isinstance(x, unicode)) else __FALSE_STR
-def check_obj_meta_str(x, obj, vc):
+def check_obj_meta_str(x, obj, k, vc):
     mo = extract_meta(x)
-    _check_id(x, obj, vc)
-    return check_raw_str(mo, obj, vc)
-def check_hbf_meta_str(x, obj, vc):
+    _check_id(x, obj, k, vc)
+    return check_raw_str(mo, obj, k, vc)
+def check_hbf_meta_str(x, obj, k, vc):
     if isinstance(x, dict):
-        return check_obj_meta_str(x, obj, vc)
-    return check_raw_str(x, obj, vc)
-def check_raw_str_list(x, obj, vc):
+        return check_obj_meta_str(x, obj, k, vc)
+    return check_raw_str(x, obj, k, vc)
+def check_raw_str_list(x, obj, k, vc):
     if not isinstance(x, list):
         return __FALSE_STR_LIST
     for i in x:
         if not (isinstance(i, str) or isinstance(i, unicode)):
             return __FALSE_STR_LIST
     return __TRUE_VAL
-def check_obj_meta_str_list(x, obj, vc):
+def check_obj_meta_str_list(x, obj, k, vc):
     mo = extract_meta(x)
-    _check_id(x, obj, vc)
-    return check_str_list(mo, obj, vc)
-def check_hbf_meta_str_list(x, obj, vc):
+    _check_id(x, obj, k, vc)
+    return check_str_list(mo, obj, k, vc)
+def check_hbf_meta_str_list(x, obj, k, vc):
     if isinstance(x, dict):
-        return check_obj_meta_str_list(x, obj, vc)
-    return check_raw_str_list(x, obj, vc)
-def check_raw_str_repeatable(x, obj, vc):
+        return check_obj_meta_str_list(x, obj, k, vc)
+    return check_raw_str_list(x, obj, k, vc)
+def check_raw_str_repeatable(x, obj, k, vc):
     if isinstance(x, str) or isinstance(x, unicode):
         return __TRUE_VAL
     if not isinstance(x, list):
@@ -200,19 +201,19 @@ def check_raw_str_repeatable(x, obj, vc):
         if not (isinstance(i, str) or isinstance(i, unicode)):
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
-def check_obj_meta_str_repeatable(x, obj, vc):
+def check_obj_meta_str_repeatable(x, obj, k, vc):
     if not isinstance(x, list):
         x = [x]
     for el in x:
-        r = check_obj_meta_str(el, obj, vc)
+        r = check_obj_meta_str(el, obj, k, vc)
         if r is not __TRUE_VAL:
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
-def check_hbf_meta_str_repeatable(x, obj, vc):
+def check_hbf_meta_str_repeatable(x, obj, k, vc):
     if not isinstance(x, list):
         x = [x]
     for el in x:
-        r = check_hbf_meta_str(el, obj, vc)
+        r = check_hbf_meta_str(el, obj, k, vc)
         if r is not __TRUE_VAL:
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL

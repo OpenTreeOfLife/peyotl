@@ -1,5 +1,15 @@
 {
-  "errors": {}, 
+  "errors": {
+    "REPEATED_ID": {
+      "data": [
+        "^ot:dataDeposit"
+      ], 
+      "refersTo": {
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
+      }
+    }
+  }, 
   "warnings": {
     "MISSING_OPTIONAL_KEY": [
       {

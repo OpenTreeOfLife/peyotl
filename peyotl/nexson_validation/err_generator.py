@@ -8,9 +8,11 @@
     element 3: the "data" argument for the warning. must be hashable.
 '''
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
+from peyotl.utility import get_logger
 from cStringIO import StringIO
 import codecs
 import json
+_LOG = get_logger(__name__)
 
 class MessageTupleAdaptor(object):
     '''This base class provides the basic functionality of keeping
@@ -162,6 +164,7 @@ def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
     k_list.sort()
     k_list = tuple(k_list)
     t = (wt, pyid, addr, k_list)
+    #_LOG.debug("t=" + str(t))
     logger.register_new_messages(t, severity=severity)
 
 

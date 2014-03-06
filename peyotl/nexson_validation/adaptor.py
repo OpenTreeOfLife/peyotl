@@ -75,11 +75,7 @@ _NEXEL_CODE_TO_TOP_ENTITY_NAME = {
     _NEXEL_NODE: 'trees',
     _NEXEL_EDGE: 'trees',
 }
-def _get_par_element_type(c):
-    pc = _NEXEL_CODE_TO_PAR_CODE[c]
-    if pc is None:
-        return None
-    return pc
+
 
 class LazyAddress(object):
     @staticmethod
@@ -101,10 +97,12 @@ class LazyAddress(object):
         out.write(p)
     def get_path(self):
         if self._path is None:
+            #_LOG.debug('c = ' + str(self.code))
             if self.par_addr is None:
                 assert(self.code == _NEXEL_TOP_LEVEL)
                 self._path = {}
             else:
+                #_LOG.debug('par ' + str(self.par_addr.path))
                 self._path = dict(self.par_addr.path)
             self._path['@top'] = _NEXEL_CODE_TO_TOP_ENTITY_NAME[self.code]
             if self.obj_nex_id is not None:
@@ -158,6 +156,7 @@ class NexsonValidationAdaptor(object):
         self._pyid_to_nexson_add = {}
         self._logger = logger
         self._repeated_id = False
+        self._otu_by_otug = {}
         uk = None
         for k in obj.keys():
             if k not in ['nexml', 'nex:nexml']:
@@ -231,7 +230,7 @@ class NexsonValidationAdaptor(object):
             if len(anc) > anc_offset:
                 p_ind = -1 -anc_offset
                 p, pnid = anc[p_ind]
-                pea = self._event_address(_get_par_element_type(element_type),
+                pea = self._event_address(self._get_par_element_type(element_type),
                                           p,
                                           anc,
                                           pnid,
@@ -274,18 +273,21 @@ class NexsonValidationAdaptor(object):
                               key_list=[key,])
             return None
         return k
-    def _check_meta_id(self, nid, meta_obj, container_obj, vc):
+    def _get_par_element_type(self, c):
+        pc = _NEXEL_CODE_TO_PAR_CODE.get(c)
+        if pc is None:
+            return self._meta_par_code_stash
+        return pc
+    def _check_meta_id(self, nid, meta_obj, k, container_obj, vc):
         robj = self._nexson_id_to_obj.setdefault(nid, meta_obj)
         if robj is meta_obj:
             return True
-        vc.anc_list.append((container_obj, None))
-        self._error_event(_NEXEL_META,
+        self._error_event(vc.curr_element_type,
                           obj=meta_obj,
                           err_type=gen_RepeatedIDWarning,
                           anc=vc.anc_list,
                           obj_nex_id=nid,
-                          key_list=[key])
-        vc.anc_list.pop(-1)
+                          key_list=[k])
         self._repeated_id = True
         return False
     def _register_nexson_id(self, nid, nobj, vc):
@@ -310,6 +312,7 @@ class NexsonValidationAdaptor(object):
     def _validate_id_obj_list_by_schema(self, id_obj_list, vc):
         #TODO: should optimize for sets of objects with the same warnings...
         element_type = vc.curr_element_type
+        assert(element_type is not None)
         anc_list = vc.anc_list
         schema = vc.schema
         using_hbf_meta = vc._using_hbf_meta
@@ -327,7 +330,7 @@ class NexsonValidationAdaptor(object):
                         else:
                             unrec_non_meta_keys.append(k)
                     else:
-                        correct_type, info = schema.K2VT[k](v, obj, vc)
+                        correct_type, info = schema.K2VT[k](v, obj, k, vc)
                         if not correct_type:
                             wrong_type.append((k, v, info))
             else:
@@ -335,7 +338,7 @@ class NexsonValidationAdaptor(object):
                     if k not in schema.ALLOWED_KEY_SET:
                         unrec_non_meta_keys.append(k)
                     else:
-                        correct_type, info = schema.K2VT[k](v, obj, vc)
+                        correct_type, info = schema.K2VT[k](v, obj, k, vc)
                         if not correct_type:
                             wrong_type.append((k, v, info))
                 m = self._get_list_key(obj, 'meta', vc)
@@ -363,7 +366,7 @@ class NexsonValidationAdaptor(object):
                             unrec_meta_keys.append(k)
                         else:
                             #_LOG.debug('{k} --> "{v}"'.format(k=k, v=repr(v)))
-                            correct_type, info = schema.K2VT[k](v, obj, vc)
+                            correct_type, info = schema.K2VT[k](v, obj, k, vc)
                             if not correct_type:
                                 v = extract_meta(v)
                                 wrong_type.append((k, v, info))
@@ -415,22 +418,21 @@ class NexsonValidationAdaptor(object):
         return self._post_key_check_validate_nexml_obj(nex_obj, nid, vc)
     def _validate_otus_group_list(self, otu_group_id_obj_list, vc):
         for el in otu_group_id_obj_list:
-            if not self._register_nexson_id(el[0], el[1], vc):
+            ogid, og = el
+            if not self._register_nexson_id(ogid, og, vc):
                 return False
-        for el in otu_group_id_obj_list:
-            ogid = el[0]
-            og = el[1]
             self._validate_obj_by_schema(og, ogid, vc)
-            self._post_key_check_validate_otus_obj(og, ogid, vc)
+            self._post_key_check_validate_otus_obj(ogid, og, vc)
         return True
     def _validate_otu_group_list(self, otu_id_obj_list, vc):
         for el in otu_id_obj_list:
             if not self._register_nexson_id(el[0], el[1], vc):
                 return False
+        #_LOG.debug(str(otu_id_obj_list))
         self._validate_id_obj_list_by_schema(otu_id_obj_list, vc)
-        self._post_key_check_validate_otu__id_obj_list(otu_id_obj_list, vc)
+        self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)
         return True
-    def _post_key_check_validate_otu__id_obj_list(self, otu_id_obj_list, vc):
+    def _post_key_check_validate_otu_id_obj_list(self, otu_id_obj_list, vc):
         return True
 
     def add_or_replace_annotation(self, annotation):
@@ -479,7 +481,9 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
 
-    def _post_key_check_validate_otus_obj(self, otus_group, og_nex_id, vc):
+    def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
+        d = {}
+        self._otu_by_otug[og_nex_id] = d
         otu_list = otus_group.get('otu')
         if otu_list and isinstance(otu_list, dict):
             otu_list = [otu_list]
@@ -500,6 +504,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 without_id.append(otu)
             else:
                 otu_tuple_list.append((oid, otu))
+            d[oid] = otu
         if without_id:
             self._error_event(_NEXEL_NEXML,
                              obj=without_id,
@@ -545,7 +550,7 @@ class DirectHBFValidationAdaptor(BadgerFishValidationAdaptor):
 class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
-    def _post_key_check_validate_otus_obj(self, otus_group, og_nex_id, vc):
+    def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
         otu_obj = otus_group.get('otuById')
         if (not otu_obj) or (not isinstance(otu_obj, dict)):
             self._error_event(_NEXEL_OTUS,

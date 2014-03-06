@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax.helper import get_bf_meta_value, \
+from peyotl.nexson_syntax.helper import extract_meta, \
                                         _is_badgerfish_version, \
                                         _is_by_id_hbf, \
                                         _is_direct_hbf
@@ -115,11 +115,6 @@ __FALSE_DICT_LIST = (False, 'array or object')
 __FALSE_BOOL = (False, 'boolean')
 
 
-def _extract_meta(x):
-    try:
-        return get_bf_meta_value(x)
-    except:
-        return None
 def _check_id(x, obj, vc):
     try:
         nid = x.get('@id')
@@ -131,9 +126,9 @@ def _check_id(x, obj, vc):
 def check_raw_bool(x, obj, vc):
     return __TRUE_VAL if (x is False or x is True) else __FALSE_BOOL
 def check_obj_meta_bool(x, obj, vc):
-    mo = _VT._extract_meta(x)
-    _VT._check_id(x, obj, vc)
-    return _VT.check_raw_bool(mo, obj, vc)
+    mo = extract_meta(x)
+    _check_id(x, obj, vc)
+    return check_raw_bool(mo, obj, vc)
 def check_hbf_meta_bool(x, obj, vc):
     if isinstance(x, dict):
         return check_obj_meta_bool(x, obj, vc)
@@ -142,7 +137,7 @@ def check_raw_dict(x, obj, vc):
     return __TRUE_VAL if (isinstance(x, dict)) else __FALSE_DICT
 def check_href(x, obj, vc):
     try:
-        _VT._check_id(x, obj, vc)
+        _check_id(x, obj, vc)
         h = x.get('@href')
         if isinstance(h, str) or isinstance(h, unicode):
             return __TRUE_VAL
@@ -152,9 +147,9 @@ def check_href(x, obj, vc):
 def check_raw_int(x, obj, vc):
     return  __TRUE_VAL if (isinstance(x, int)) else __FALSE_INT
 def check_obj_meta_int(x, obj, vc):
-    mo = _VT._extract_meta(x)
-    _VT._check_id(x, obj, vc)
-    return _VT.check_raw_int(mo, obj, vc)
+    mo = extract_meta(x)
+    _check_id(x, obj, vc)
+    return check_raw_int(mo, obj, vc)
 def check_hbf_meta_int(x, obj, vc):
     if isinstance(x, dict):
         return check_obj_meta_int(x, obj, vc)
@@ -162,9 +157,9 @@ def check_hbf_meta_int(x, obj, vc):
 def check_raw_list(x, obj, vc):
     return __TRUE_VAL if (isinstance(x, list)) else __FALSE_LIST
 def check_obj_meta_list(x, obj, vc):
-    mo = _VT._extract_meta(x)
-    _VT._check_id(x, obj, vc)
-    return _VT.check_list(mo, obj, vc)
+    mo = extract_meta(x)
+    _check_id(x, obj, vc)
+    return check_list(mo, obj, vc)
 def check_hbf_meta_list(x, obj, vc):
     if isinstance(x, dict):
         return check_obj_meta_list(x, obj, vc)
@@ -174,9 +169,9 @@ def check_list_or_dict(x, obj, vc):
 def check_raw_str(x, obj, vc):
     return __TRUE_VAL if (isinstance(x, str) or isinstance(x, unicode)) else __FALSE_STR
 def check_obj_meta_str(x, obj, vc):
-    mo = _VT._extract_meta(x)
-    _VT._check_id(x, obj, vc)
-    return _VT.check_raw_str(mo, obj, vc)
+    mo = extract_meta(x)
+    _check_id(x, obj, vc)
+    return check_raw_str(mo, obj, vc)
 def check_hbf_meta_str(x, obj, vc):
     if isinstance(x, dict):
         return check_obj_meta_str(x, obj, vc)
@@ -189,9 +184,9 @@ def check_raw_str_list(x, obj, vc):
             return __FALSE_STR_LIST
     return __TRUE_VAL
 def check_obj_meta_str_list(x, obj, vc):
-    mo = _VT._extract_meta(x)
-    _VT._check_id(x, obj, vc)
-    return _VT.check_str_list(mo, obj, vc)
+    mo = extract_meta(x)
+    _check_id(x, obj, vc)
+    return check_str_list(mo, obj, vc)
 def check_hbf_meta_str_list(x, obj, vc):
     if isinstance(x, dict):
         return check_obj_meta_str_list(x, obj, vc)
@@ -209,7 +204,7 @@ def check_obj_meta_str_repeatable(x, obj, vc):
     if not isinstance(x, list):
         x = [x]
     for el in x:
-        r = _VT.check_obj_str(el, obj, vc)
+        r = check_obj_meta_str(el, obj, vc)
         if r is not __TRUE_VAL:
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
@@ -217,7 +212,7 @@ def check_hbf_meta_str_repeatable(x, obj, vc):
     if not isinstance(x, list):
         x = [x]
     for el in x:
-        r = _VT.check_hbf_meta_str(el, obj, vc)
+        r = check_hbf_meta_str(el, obj, vc)
         if r is not __TRUE_VAL:
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
@@ -374,7 +369,7 @@ _All_OtuEl_Dir = {'@about': _VT.STR,
                  }
 _ReqMOtuEl_All = {'ot:originalLabel': _VT.STR,
                  }
-_ExpMOtuEl_All = {'ot:ottid': _VT.INT,
+_ExpMOtuEl_All = {'ot:ottId': _VT.INT,
                  }
 _TypMOtuEl_All = {'ot:treebaseOTUId': _VT.STR,
                   'ot:ottTaxonName': _VT.STR

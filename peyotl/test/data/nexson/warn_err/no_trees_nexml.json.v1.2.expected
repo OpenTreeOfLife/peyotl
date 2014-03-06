@@ -3,7 +3,7 @@
   "warnings": {
     "MISSING_OPTIONAL_KEY": {
       "data": [
-        "^ot:ottid"
+        "^ot:ottId"
       ], 
       "refersTo": {
         "@idref": "otu1", 

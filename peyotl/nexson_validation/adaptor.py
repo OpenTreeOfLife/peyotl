@@ -16,6 +16,7 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_UnrecognizedKeyWarning, \
                                                    gen_WrongValueTypeWarning
 from peyotl.nexson_syntax.helper import get_nexml_el, \
+                                        extract_meta, \
                                         _add_value_to_dict_bf, \
                                         _is_badgerfish_version, \
                                         _is_by_id_hbf, \
@@ -156,6 +157,7 @@ class NexsonValidationAdaptor(object):
         self._nexml = None
         self._pyid_to_nexson_add = {}
         self._logger = logger
+        self._repeated_id = False
         uk = None
         for k in obj.keys():
             if k not in ['nexml', 'nex:nexml']:
@@ -185,11 +187,14 @@ class NexsonValidationAdaptor(object):
         self._nexson_id_to_obj = {}
         self._nexson_version = detect_nexson_version(obj)
         # a little duck-punching
-        vc = _ValidationContext(self, logger)
-        add_schema_attributes(vc, self._nexson_version)
-        assert(self._nexson_version[:3] in ('0.0', '1.0', '1.2'))
-        self._validate_nexml_obj(self._nexml, vc, obj)
-
+        try:
+            vc = _ValidationContext(self, logger)
+            add_schema_attributes(vc, self._nexson_version)
+            assert(self._nexson_version[:3] in ('0.0', '1.0', '1.2'))
+            self._validate_nexml_obj(self._nexml, vc, obj)
+        finally:
+            vc.adaptor = None # delete circular ref to help gc
+            del vc
     def _bf_meta_list_to_dict(self, m_list, par, par_vc):
         d = {}
         unparseable_m = None
@@ -269,6 +274,20 @@ class NexsonValidationAdaptor(object):
                               key_list=[key,])
             return None
         return k
+    def _check_meta_id(self, nid, meta_obj, container_obj, vc):
+        robj = self._nexson_id_to_obj.setdefault(nid, meta_obj)
+        if robj is meta_obj:
+            return True
+        vc.anc_list.append((container_obj, None))
+        self._error_event(_NEXEL_META,
+                          obj=meta_obj,
+                          err_type=gen_RepeatedIDWarning,
+                          anc=vc.anc_list,
+                          obj_nex_id=nid,
+                          key_list=[key])
+        vc.anc_list.pop(-1)
+        self._repeated_id = True
+        return False
     def _register_nexson_id(self, nid, nobj, vc):
         robj = self._nexson_id_to_obj.setdefault(nid, nobj)
         if robj is nobj:
@@ -279,6 +298,7 @@ class NexsonValidationAdaptor(object):
                           anc=vc.anc_list,
                           obj_nex_id=nid,
                           key_list=[key])
+        self._repeated_id = True
         return False
     def _validate_obj_by_schema(self, obj, obj_nex_id, vc):
         '''Creates:
@@ -345,7 +365,7 @@ class NexsonValidationAdaptor(object):
                             #_LOG.debug('{k} --> "{v}"'.format(k=k, v=repr(v)))
                             correct_type, info = schema.K2VT[k](v, obj, vc)
                             if not correct_type:
-                                v = schema._VT._extract_meta(v)
+                                v = extract_meta(v)
                                 wrong_type.append((k, v, info))
             if wrong_type:
                 self._error_event(element_type,

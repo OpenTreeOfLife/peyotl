@@ -213,3 +213,8 @@ def _contains_hbf_meta_keys(d):
             return True
     return False
 
+def extract_meta(x):
+    try:
+        return get_bf_meta_value(x)
+    except:
+        return None

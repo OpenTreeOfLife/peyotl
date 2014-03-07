@@ -168,7 +168,7 @@ class GitAction(object):
         file.write(content)
         file.close()
 
-        git(self.gitdir, self.gitwd, "add",study_filename)
+        git(self.gitdir, self.gitwd, "add", study_filename)
 
         git(self.gitdir, self.gitwd,  "commit",author=author, message="Update Study #%s via OpenTree API" % study_id)
 
@@ -195,12 +195,13 @@ class GitAction(object):
         # Always create a merge commit, even if we could fast forward, so we know
         # when merges occured
         try:
-            merge_output = git(self.gitdir, self.gitwd, "--no-ff","merge", branch)
+            merge_output = git(self.gitdir, self.gitwd, "merge",  "--no-ff", branch)
         except sh.ErrorReturnCode:
+            raise
             # attempt to reset things so other operations can
             # continue
             output = git(self.gitdir, self.gitwd, "status")
-            git(self.gitdir, self.gitwd, "merge""--abort")
+            git(self.gitdir, self.gitwd, "merge", "--abort")
 
             # re-raise the exception so other code can decide
             # what to do with it

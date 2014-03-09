@@ -7,6 +7,8 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingExpectedListWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
+                                                   gen_MultipleRootsWarning, \
+                                                   gen_NoRootWarning, \
                                                    gen_ReferencedIDNotFoundWarning, \
                                                    gen_RepeatedIDWarning, \
                                                    gen_UnparseableMetaWarning, \
@@ -23,7 +25,6 @@ from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 _EMPTY_TUPLE = tuple()
-
 _USING_IDREF_ONLY_PATHS = True
 
 class LazyAddress(object):
@@ -486,8 +487,10 @@ class NexsonValidationAdaptor(object):
     
     def _validate_otu_group_list(self, otu_id_obj_list, vc):
         for el in otu_id_obj_list:
-            if not self._register_nexson_id(el[0], el[1], vc):
+            ogid, og = el
+            if not self._register_nexson_id(ogid, og, vc):
                 return False
+            self._otu_group_by_id[ogid] = og
         #_LOG.debug(str(otu_id_obj_list))
         self._validate_id_obj_list_by_schema(otu_id_obj_list, vc)
         self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)

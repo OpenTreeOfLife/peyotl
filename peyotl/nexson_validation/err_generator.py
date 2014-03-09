@@ -54,6 +54,14 @@ class _StrListDataWarningType(MessageTupleAdaptor):
         outstream.write(self.format.format(p=prefix, d=ds))
         self._write_message_suffix(err_tuple, outstream)
 
+class _ArgumentlessWarningType(MessageTupleAdaptor):
+    '''Adaptor for warning with data being a list of strings
+    '''
+    def write(self, err_tuple, outstream, prefix):
+        outstream.write(self.format.format(p=prefix))
+        self._write_message_suffix(err_tuple, outstream)
+
+
 class UnrecognizedKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.UNRECOGNIZED_KEY
@@ -78,6 +86,16 @@ class MissingCrucialContentWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_CRUCIAL_CONTENT
         self.format = '{p}Further validation amd acceptance requires more content; specifically keys(s): "{d}"'
+
+class MultipleRootsWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MULTIPLE_ROOT_NODES
+        self.format = '{p}Multiple nodes flagged as the root: "{d}"'
+
+class NoRootWarningType(_ArgumentlessWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MULTIPLE_ROOT_NODES
+        self.format = '{p}Multiple nodes flagged as the root:'
 
 class NodeWithMultipleParentsType(_StrListDataWarningType):
     def __init__(self):
@@ -121,7 +139,9 @@ MissingCrucialContentWarning = MissingCrucialContentWarningType()
 MissingExpectedListWarning = MissingExpectedListWarningType()
 MissingMandatoryKeyWarning = MissingMandatoryKeyWarningType()
 MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
+MultipleRootsWarning = MultipleRootsWarningType()
 NodeWithMultipleParents = NodeWithMultipleParentsType()
+NoRootWarning = NoRootWarningType()
 ReferencedIDNotFoundWarning = ReferencedIDNotFoundWarningType()
 RepeatedIDWarning = RepeatedIDWarningType()
 UnparseableMetaWarning = UnparseableMetaWarningType()
@@ -141,8 +161,14 @@ def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, **kwargs):
 def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingOptionalKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+def gen_MultipleRootsWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(MultipleRootsWarning, kwargs['node_id_list'], addr, pyid, logger, severity)
+
 def gen_NodeWithMultipleParents(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(NodeWithMultipleParents, kwargs['node_id_list'], addr, pyid, logger, severity)
+
+def gen_NoRootWarning(addr, pyid, logger, severity, **kwargs):
+    _argumentless_warning(NoRootWarning, addr, pyid, logger, severity)
 
 def gen_ReferencedIDNotFoundWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(ReferencedIDNotFoundWarning, kwargs['key_list'], addr, pyid, logger, severity)
@@ -175,6 +201,9 @@ def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
     #_LOG.debug("t=" + str(t))
     logger.register_new_messages(t, severity=severity)
 
+def _argumentless_warning(wt, addr, pyid, logger, severity):
+    t = (wt, pyid, addr, None)
+    logger.register_new_messages(t, severity=severity)
 
 # some introspective hacking to create a look up of factory function 2 NexsonWarningCodes type
 factory2code = {}

@@ -6,6 +6,8 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingExpectedListWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
+                                                   gen_MultipleRootsWarning, \
+                                                   gen_NoRootWarning, \
                                                    gen_ReferencedIDNotFoundWarning, \
                                                    gen_RepeatedIDWarning, \
                                                    gen_UnparseableMetaWarning, \
@@ -61,8 +63,48 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             return self._validate_otu_group_list(otu_tuple_list, vc)
         except:
             v.pop_context()
-    def _post_key_check_validate_tree_group(self, og_nex_id, otus_group, vc):
-        raise NotImplementedError('_post_key_check_validate_tree_group')
+    def _post_key_check_validate_tree_group(self, tg_nex_id, trees_group, vc):
+        otus_el = trees_group.get('@otus')
+        if otus_el not in self._otu_group_by_id:
+            kl = ['@otus="{oe}"'.format(oe=otus_el)]
+            self._error_event(_NEXEL.TREES,
+                               obj=trees_group,
+                               err_type=gen_ReferencedIDNotFoundWarning,
+                               anc=vc.anc_list,
+                               obj_nex_id=tg_nex_id,
+                               key_list=kl)
+            return False
+        tree_list = trees_group.get('tree')
+        if isinstance(tree_list, dict):
+            tree_list = [tree_list]
+        elif (not tree_list) or (not isinstance(tree_list, list)):
+            self._error_event(_NEXEL.TREES,
+                             obj=tree_obj,
+                             err_type=gen_MissingCrucialContentWarning,
+                             anc=vc.anc_list,
+                             obj_nex_id=tg_nex_id,
+                             key_list=['tree'])
+            return False
+        for tree_obj in tree_list:
+            t_nex_id = tree.get('@id')
+            vc.push_context(_NEXEL.TREE, (tree_obj, None))
+            try:
+                if t_nex_id is None:
+                    self._error_event(_NEXEL.TREE,
+                                  obj=tree_obj,
+                                  err_type=gen_MissingCrucialContentWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=tg_nex_id,
+                                  key_list=['@id'])
+                    return False
+                if not self._validate_tree(t_nex_id, tree_obj, vc):
+                    return True
+            finally:
+                vc.pop_context()
+        return True
+
+
+
         d = {}
         self._otu_by_otug[og_nex_id] = d
         otu_list = otus_group.get('otu')

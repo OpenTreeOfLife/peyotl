@@ -6,6 +6,8 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingExpectedListWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
+                                                   gen_MultipleRootsWarning, \
+                                                   gen_NoRootWarning, \
                                                    gen_ReferencedIDNotFoundWarning, \
                                                    gen_RepeatedIDWarning, \
                                                    gen_UnparseableMetaWarning, \
@@ -84,11 +86,11 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 self._validate_tree(t_nex_id, tree_obj, vc)
             finally:
                 vc.pop_context()
-        
+
     def _post_key_check_validate_tree(self, tree_nex_id, tree_obj, vc):
         node_by_id = tree_obj.get('nodeById')
         edge_by_source = tree_obj.get('edgeBySourceId')
-        rootNodeId = tree_obj.get('^ot:rootNodeId')
+        root_node_id = tree_obj.get('^ot:rootNodeId')
         if (not node_by_id) or (not isinstance(node_by_id, dict)):
             self._error_event(_NEXEL.TREES,
                              obj=tree_obj,
@@ -105,13 +107,13 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              obj_nex_id=tree_nex_id,
                              key_list=['edgeBySourceId',])
             return False
-        if (not isinstance(rootNodeId, str)) and (not isinstance(rootNodeId, unicode)):
+        if (not isinstance(root_node_id, str)) and (not isinstance(root_node_id, unicode)):
             self._error_event(_NEXEL.TREES,
                              obj=tree_obj,
                              err_type=gen_MissingCrucialContentWarning,
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
-                             key_list=['^ot:rootNodeId', rootNodeId])
+                             key_list=['^ot:rootNodeId',])
             return False
         edge_dict = {}
         edge_by_target = {}
@@ -194,7 +196,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              obj=tree_obj,
                              err_type=gen_RepeatedIDWarning,
                              anc=vc.anc_list,
-                             node_list=repeated_edge_id)
+                             key_list=repeated_edge_id)
         if fatal:
             return False
         node_set = set(edge_by_target.keys())
@@ -205,6 +207,30 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         if not valid:
             return False
         internal_nodes = [(i, node_by_id[i]) for i in internal_node_set]
+        with_at_root_prop = {}
+        for nid, n_obj in internal_nodes:
+            if n_obj.get('@root'):
+                with_at_root_prop[nid] = n_obj
+        if len(with_at_root_prop) > 1:
+            self._error_event(_NEXEL.TREE,
+                             obj=tree_obj,
+                             err_type=gen_MultipleRootsWarning,
+                             anc=vc.anc_list,
+                             node_id_list=with_at_root_prop.keys())
+            return False
+        if len(with_at_root_prop) == 0:
+            self._error_event(_NEXEL.TREE,
+                             obj=tree_obj,
+                             err_type=gen_NoRootWarning,
+                             anc=vc.anc_list)
+            return False
+        if root_node_id not in with_at_root_prop:
+            self._error_event(_NEXEL.TREE,
+                             obj=tree_obj,
+                             err_type=gen_MultipleRootsWarning,
+                             anc=vc.anc_list,
+                             node_id_list=with_at_root_prop.keys() + [root_node_id])
+            return False
         valid = self._validate_internal_node_list(internal_nodes, vc)
         if not valid:
             return False

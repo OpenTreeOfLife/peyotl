@@ -47,7 +47,7 @@ def _get_phylesystem_parent():
 def search_for_study_dirs(parent_list=None):
     if not parent_list:
         parent_list = _get_phylesystem_parent()
-    if isinstance(parent_list, str):
+    if isinstance(parent_list, str) or isinstance(parent_list, unicode):
         parent_list = [parent_list]
     for p in parent_list:
         _search_for_repo_dirs(p)

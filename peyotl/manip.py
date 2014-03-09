@@ -225,7 +225,7 @@ def merge_otus_and_trees(nexson_blob):
             for tid, tree_obj in tg.get('treeById', {}).items():
                 retained_tg_tree_obj[tid] = tree_obj
         for tree_obj in retained_tg_tree_obj.values():
-            for node in tree_obj.get('nodesById', {}).values():
+            for node in tree_obj.get('nodeById', {}).values():
                 o = node.get('@otu')
                 if o is not None:
                     r = id_to_replace_id.get(o)

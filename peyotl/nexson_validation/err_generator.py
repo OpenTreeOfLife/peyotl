@@ -79,6 +79,11 @@ class MissingCrucialContentWarningType(_StrListDataWarningType):
         self.code = NexsonWarningCodes.MISSING_CRUCIAL_CONTENT
         self.format = '{p}Further validation amd acceptance requires more content; specifically keys(s): "{d}"'
 
+class NodeWithMultipleParentsType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MULTIPLE_EDGES_FOR_NODES
+        self.format = '{p} node ID is the target of multiple edges. Node ID(s): "{d}"'
+
 class ReferencedIDNotFoundWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.REFERENCED_ID_NOT_FOUND
@@ -98,7 +103,6 @@ class UnparseableMetaWarningType(_ObjListDataWarningType):
         self.code = NexsonWarningCodes.UNPARSEABLE_META
         self.format = '{p}meta(s) with out @property or @rel: "{d}"'
 
-
 class WrongValueTypeWarningType(MessageTupleAdaptor):
     def write(self, err_tuple, outstream, prefix):
         raise NotImplementedError('WrongValueTypeWarningType.write')
@@ -117,6 +121,7 @@ MissingCrucialContentWarning = MissingCrucialContentWarningType()
 MissingExpectedListWarning = MissingExpectedListWarningType()
 MissingMandatoryKeyWarning = MissingMandatoryKeyWarningType()
 MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
+NodeWithMultipleParents = NodeWithMultipleParentsType()
 ReferencedIDNotFoundWarning = ReferencedIDNotFoundWarningType()
 RepeatedIDWarning = RepeatedIDWarningType()
 UnparseableMetaWarning = UnparseableMetaWarningType()
@@ -135,6 +140,9 @@ def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, **kwargs):
 
 def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingOptionalKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
+def gen_NodeWithMultipleParents(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(NodeWithMultipleParents, kwargs['node_id_list'], addr, pyid, logger, severity)
 
 def gen_ReferencedIDNotFoundWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(ReferencedIDNotFoundWarning, kwargs['key_list'], addr, pyid, logger, severity)

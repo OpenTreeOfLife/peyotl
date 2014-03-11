@@ -343,9 +343,28 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                                  obj_nex_id=None,
                                  key_list=['@id'])
                 return False
-            return self._validate_trees_group_list(tg_tuple_list, vc)
+            if not self._validate_trees_group_list(tg_tuple_list, vc):
+                return False
         finally:
             vc.pop_context()
+        ogid2og = {}
+        for og in otus_group_list:
+            ogid = og.get('@id')
+            ogid2og[ogid] = og
+        if not find_val_for_first_bf_l_meta(nex_obj, 'ot:notIntendedForSynthesis'):
+            cs = find_val_for_first_bf_l_meta(nex_obj, 'ot:candidateTreeForSynthesis')
+            if cs:
+                if not isinstance(cs, list):
+                    tree_list = [cs]
+                else:
+                    tree_list = cs
+            else:
+                tree_list = []
+                for tg in trees_group_list:
+                    stree_list = tg.get('tree')
+                    tree_list.extend([i.get('@id') for i in stree_list])
+            self._generate_ott_warnings(ogid2og, tree_list, (nex_obj, obj_nex_id), vc)
+        return True
 
 def construct_path_to_root(node, encountered_nodes, edge_by_target):
     n = node

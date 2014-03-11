@@ -243,7 +243,7 @@ class NexsonValidationAdaptor(object):
                 for otuid in otuid_list:
                     nd_id = otuid2leaf.get(otuid)
                     if nd_id is not None:
-                        nd_list.append(nd_id)
+                        nd_list.append((otuid, nd_id))
                 if len(nd_list) > 1:
                     dup_dict[ottid] = nd_list
                     nd_list = None
@@ -251,6 +251,38 @@ class NexsonValidationAdaptor(object):
                     del nd_list[:]
         bt = self._dupottid_by_ogid_tree_id.setdefault(otus_group_id, {})
         bt[tree_id] = dup_dict
+
+
+    def _generate_ott_warnings(self, ogid2og_map, used_tree_id_list, nex_tuple, vc):
+        for ogid, by_tree in self._dupottid_by_ogid_tree_id.items():
+            ottid2otuid_list = self._ottid2otuid_list_byogid[ogid]
+            dup_ottid_set = set()
+            for ottid, otuid_list in ottid2otuid_list.items():
+                if isinstance(otuid_list, list) and len(otuid_list):
+                    dup_ottid_set.add(ottid)
+            otuid2dup_set = set()
+            for dottid in dup_ottid_set:
+                for tree_id in used_tree_id_list:
+                    dup_dict = by_tree[tree_id]
+                    nl = dup_dict.get(dottid)
+                    if nl and len(nl) > 1:
+                        otu_ids = [i[0] for i in nl] # (otu_id, no_id) pairs in nl
+                        sotu = frozenset(otu_ids)
+                        if sotu not in otuid2dup_set:
+                            otuid2dup_set.add(sotu)
+            if otuid2dup_set:
+                vc.push_context(_NEXEL.OTUS, nex_tuple)
+                try:
+                    og = ogid2og_map[ogid]
+                    for otu_set in otuid2dup_set:
+                        self._warn_event(_NEXEL.OTUS,
+                                          obj=og,
+                                          err_type=gen_,
+                                          anc=vc.anc_list,
+                                          obj_nex_id=ogid,
+                                          otu_sets=list(otu_set))
+                finally:
+                    vc.pop_context()
 
     def _bf_meta_list_to_dict(self, m_list, par, par_vc):
         d = {}
@@ -280,6 +312,9 @@ class NexsonValidationAdaptor(object):
                                   obj_nex_id=None,
                                   obj_list=unparseable_m)
         return d
+
+
+
 
     def _event_address(self, element_type, obj, anc, obj_nex_id, anc_offset=0):
         pyid = id(obj)

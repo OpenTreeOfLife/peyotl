@@ -138,6 +138,7 @@ class InvalidKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.INVALID_PROPERTY_VALUE
         self.format = '{p}Invalid or inappropriate key: "{d}"'
+
 class WrongValueTypeWarningType(MessageTupleAdaptor):
     def write(self, err_tuple, outstream, prefix):
         raise NotImplementedError('WrongValueTypeWarningType.write')
@@ -150,6 +151,15 @@ class WrongValueTypeWarningType(MessageTupleAdaptor):
         self.code = NexsonWarningCodes.INCORRECT_VALUE_TYPE
         self.format = '{p}value for key not the expected type: "{d}"'
 
+class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID
+        self.format = '{p}Multiple otus mapping to the same OTT ID used in the same tree: "{d}"'
+    def write(self, err_tuple, outstream, prefix):
+        raise NotImplementedError('MultipleTipsToSameOttIdWarningType.write')
+    def convert_data_for_json(self, err_tuple):
+        return [i for i in err_tuple[3]]
+
 # A single, immutable, global instance of each warning type is created
 
 InvalidKeyWarning = InvalidKeyWarningType()
@@ -158,6 +168,7 @@ MissingExpectedListWarning = MissingExpectedListWarningType()
 MissingMandatoryKeyWarning = MissingMandatoryKeyWarningType()
 MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
 MultipleRootsWarning = MultipleRootsWarningType()
+MultipleTipsToSameOttIdWarning = MultipleTipsToSameOttIdWarningType()
 NodeWithMultipleParents = NodeWithMultipleParentsType()
 NoRootWarning = NoRootWarningType()
 ReferencedIDNotFoundWarning = ReferencedIDNotFoundWarningType()
@@ -187,6 +198,13 @@ def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, **kwargs):
 
 def gen_MultipleRootsWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MultipleRootsWarning, kwargs['node_id_list'], addr, pyid, logger, severity)
+
+def gen_MultipleTipsToSameOttIdWarning(addr, pyid, logger, severity, **kwargs):
+    k_list = kwargs['otu_sets']
+    k_list.sort()
+    k_list = tuple(k_list)
+    t = (MultipleTipsToSameOttIdWarning, pyid, addr, k_list)
+    logger.register_new_messages(t, severity=severity)
 
 def gen_NodeWithMultipleParents(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(NodeWithMultipleParents, kwargs['node_id_list'], addr, pyid, logger, severity)

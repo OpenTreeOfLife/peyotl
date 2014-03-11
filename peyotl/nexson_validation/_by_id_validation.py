@@ -368,3 +368,17 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 return False
         finally:
             vc.pop_context()
+        if not nex_obj.get('ot:notIntendedForSynthesis'):
+            cs = nex_obj.get('ot:candidateTreeForSynthesis')
+            if cs:
+                if not isinstance(cs, list):
+                    tree_list = [cs]
+                else:
+                    tree_list = cs
+            else:
+                tree_list = []
+                for tg in trees.values():
+                    tbi = tg.get('treeById',{})
+                    tree_list.extend(tbi.keys())
+            self._generate_ott_warnings(otus, tree_list, (nex_obj, obj_nex_id), vc)
+        return True

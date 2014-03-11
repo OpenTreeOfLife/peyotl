@@ -1,21 +1,20 @@
 #!/usr/bin/env python
 '''NexsonValidationAdaptor class.
 '''
-from peyotl.nexson_validation._validation_base import NexsonValidationAdaptor
 from peyotl.nexson_validation._badgerfish_validation import BadgerFishValidationAdaptor
 from peyotl.nexson_validation._by_id_validation import ByIdHBFValidationAdaptor
 from peyotl.nexson_syntax import detect_nexson_version
-from peyotl.nexson_syntax.helper import _add_value_to_dict_bf, \
+from peyotl.nexson_syntax.helper import DIRECT_HONEY_BADGERFISH, \
                                         _is_badgerfish_version, \
                                         _is_by_id_hbf, \
                                         _is_direct_hbf
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
-
 class DirectHBFValidationAdaptor(BadgerFishValidationAdaptor):
     def __init__(self, obj, logger):
-        NexsonValidationAdaptor.__init__(self, obj, logger)
+        BadgerFishValidationAdaptor.__init__(self, obj, logger)
+        self._syntax_version = DIRECT_HONEY_BADGERFISH
 
 def create_validation_adaptor(obj, logger):
     try:

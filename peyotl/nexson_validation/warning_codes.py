@@ -17,6 +17,7 @@ class NexsonWarningCodes():
               'DUPLICATING_SINGLETON_KEY',
               'REFERENCED_ID_NOT_FOUND',
               'REPEATED_ID',
+              'REPEATED_OTU',
               'MULTIPLE_ROOT_NODES',
               'NO_ROOT_NODE',
               'MULTIPLE_EDGES_FOR_NODES',
@@ -37,6 +38,7 @@ class NexsonWarningCodes():
               'NO_TREES',
               'DEPRECATED_PROPERTY',
               'UNPARSEABLE_META',
+              'UNREACHABLE_NODE',
               'INCORRECT_VALUE_TYPE',
               'MISSING_CRUCIAL_CONTENT',
               )

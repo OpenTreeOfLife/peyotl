@@ -1,25 +1,18 @@
 #!/usr/bin/env python
 import json
 from peyotl.nexson_validation.helper import SeverityCodes, _NEXEL
-from peyotl.nexson_validation.schema import add_schema_attributes, check_raw_dict
+from peyotl.nexson_validation.schema import add_schema_attributes
 from peyotl.nexson_validation.err_generator import factory2code, \
-                                                   gen_MissingCrucialContentWarning, \
                                                    gen_MissingExpectedListWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
-                                                   gen_MultipleRootsWarning, \
-                                                   gen_NoRootWarning, \
-                                                   gen_ReferencedIDNotFoundWarning, \
                                                    gen_RepeatedIDWarning, \
                                                    gen_UnparseableMetaWarning, \
                                                    gen_UnrecognizedKeyWarning, \
                                                    gen_WrongValueTypeWarning
 from peyotl.nexson_syntax.helper import get_nexml_el, \
                                         extract_meta, \
-                                        _add_value_to_dict_bf, \
-                                        _is_badgerfish_version, \
-                                        _is_by_id_hbf, \
-                                        _is_direct_hbf
+                                        _add_value_to_dict_bf
 from peyotl.nexson_syntax import detect_nexson_version
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
@@ -162,12 +155,12 @@ class NexsonValidationAdaptor(object):
         to efficiently add back to the orignal NexSON object.
     '''
     def __init__(self, obj, logger):
+        self._syntax_version = None
         self._raw = obj
         self._nexml = None
         self._pyid_to_nexson_add = {}
         self._logger = logger
         self._repeated_id = False
-        self._otu_by_otug = {}
         uk = None
         for k in obj.keys():
             if k not in ['nexml', 'nex:nexml']:
@@ -200,6 +193,7 @@ class NexsonValidationAdaptor(object):
         #attr used in validation only should be cleaned up
         # in the finally clause
         self._otu_group_by_id = {}
+        self._otu_by_otug = {}
         
         try:
             # a little duck-punching
@@ -211,6 +205,7 @@ class NexsonValidationAdaptor(object):
             vc.adaptor = None # delete circular ref to help gc
             del vc
             del self._otu_group_by_id
+            del self._otu_by_otug
     def _bf_meta_list_to_dict(self, m_list, par, par_vc):
         d = {}
         unparseable_m = None
@@ -293,8 +288,6 @@ class NexsonValidationAdaptor(object):
         return k
     def _get_par_element_type(self, c):
         pc = _NEXEL.CODE_TO_PAR_CODE.get(c)
-        if pc is None:
-            return self._meta_par_code_stash
         return pc
     def _check_meta_id(self, nid, meta_obj, k, container_obj, vc):
         robj = self._nexson_id_to_obj.setdefault(nid, meta_obj)
@@ -317,7 +310,7 @@ class NexsonValidationAdaptor(object):
                           err_type=gen_RepeatedIDWarning,
                           anc=vc.anc_list,
                           obj_nex_id=nid,
-                          key_list=[key])
+                          key_list=[nid])
         self._repeated_id = True
         return False
     def _validate_obj_by_schema(self, obj, obj_nex_id, vc):
@@ -437,12 +430,13 @@ class NexsonValidationAdaptor(object):
             self._validate_obj_by_schema(nex_obj, nid, vc)
             return self._post_key_check_validate_nexml_obj(nex_obj, nid, vc)
         finally:
-          vc.pop_context()
+            vc.pop_context()
     def _validate_otus_group_list(self, otu_group_id_obj_list, vc):
         for el in otu_group_id_obj_list:
             ogid, og = el
             if not self._register_nexson_id(ogid, og, vc):
                 return False
+            self._otu_group_by_id[ogid] = og
             self._validate_obj_by_schema(og, ogid, vc)
             self._post_key_check_validate_otus_obj(ogid, og, vc)
         return True
@@ -456,12 +450,15 @@ class NexsonValidationAdaptor(object):
             self._post_key_check_validate_tree_group(tgid, tg, vc)
         return True
 
-    def _validate_tree(self, tree_id, tree_obj, vc):
+    def _validate_tree(self, tree_id, tree_obj, vc, otus_group_id=None):
         if not self._register_nexson_id(tree_id, tree_obj, vc):
             return False
-        self._validate_obj_by_schema(tree_obj, tree_id, vc)
-        self._post_key_check_validate_tree(tree_id, tree_obj, vc)
-        return True
+        if not self._validate_obj_by_schema(tree_obj, tree_id, vc):
+            return False
+        return self._post_key_check_validate_tree(tree_id,
+                                                  tree_obj,
+                                                  vc,
+                                                  otus_group_id=otus_group_id)
 
     def _validate_leaf_list(self, leaf_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.LEAF_NODE)
@@ -485,19 +482,29 @@ class NexsonValidationAdaptor(object):
             vc.pop_context_no_anc()
         return True
     
-    def _validate_otu_group_list(self, otu_id_obj_list, vc):
+    def _validate_otu_list(self, otu_id_obj_list, vc):
         for el in otu_id_obj_list:
             ogid, og = el
             if not self._register_nexson_id(ogid, og, vc):
                 return False
-            self._otu_group_by_id[ogid] = og
         #_LOG.debug(str(otu_id_obj_list))
         self._validate_id_obj_list_by_schema(otu_id_obj_list, vc)
         self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)
         return True
     def _post_key_check_validate_otu_id_obj_list(self, otu_id_obj_list, vc):
         return True
-
+    def _post_key_check_validate_tree(self,
+                                      tree_nex_id,
+                                      tree_obj,
+                                      vc,
+                                      otus_group_id=None):
+        raise NotImplementedError('base NexsonValidationAdaptor hook')
+    def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
+        raise NotImplementedError('base NexsonValidationAdaptor hook')
+    def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
+        raise NotImplementedError('base NexsonValidationAdaptor hook')
+    def _post_key_check_validate_tree_group(self, tg_nex_id, trees_group, vc):
+        raise NotImplementedError('base NexsonValidationAdaptor hook')
     def add_or_replace_annotation(self, annotation):
         '''Takes an `annotation` dictionary which is 
         expected to have a string as the value of annotation['author']['name']

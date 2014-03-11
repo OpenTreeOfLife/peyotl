@@ -73,9 +73,11 @@ if __name__ == '__main__':
     except NexsonError as nx:
         _LOG.error(nx.value)
         sys.exit(1)
+    rc = 0
     if (not v.errors) and (not v.warnings):
         _LOG.info('Valid')
     else:
+        rc = len(v.errors)
         if args.syntax.lower() == 'json':
             em_dict = v.get_err_warn_summary_dict()
             if em_dict:
@@ -88,3 +90,4 @@ if __name__ == '__main__':
             else:
                 for el in v.warnings:
                     _LOG.warn(el)
+    sys.exit(rc)

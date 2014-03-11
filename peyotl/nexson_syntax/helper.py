@@ -207,6 +207,7 @@ def get_bf_meta_value(d):
     if v is not None:
         return v
     return d.get('@href')
+
 def _contains_hbf_meta_keys(d):
     for k in d.keys():
         if k.startswith('^'):
@@ -218,3 +219,51 @@ def extract_meta(x):
         return get_bf_meta_value(x)
     except:
         return None
+
+def find_val_for_first_bf_l_meta(d, prop_name):
+    '''Returns the $ value of the first meta element with
+    the @property that matches @prop_name (or None).
+    '''
+    m_list = d.get('meta')
+    if not m_list:
+        return None
+    if not isinstance(m_list, list):
+        m_list = [m_list]
+    for m_el in m_list:
+        if m_el.get('@property') == prop_name:
+            return extract_meta(m_el)
+    return None
+
+
+def add_literal_meta(obj, prop_name, value, version):
+    if _is_badgerfish_version(version):
+        m = obj.setdefault('meta', [])
+        if not isinstance(m, list):
+            m = [m]
+            obj['meta'] = m
+        m.append({'$': value,
+                  '@property': prop_name,
+                  '@xsi:type': 'nex:LiteralMeta'})
+    else:
+        k = '^' + prop_name
+        _add_value_to_dict_bf(obj, k, value)
+
+def delete_first_literal_meta(obj, prop_name, version):
+    if _is_badgerfish_version(version):
+        m = obj.setdefault('meta', [])
+        if not isinstance(m, list):
+            m = [m]
+            obj['meta'] = m
+        ind = None
+        for n, el in enumerate(m):
+            if el.get('@property') == prop_name:
+                ind = n
+                break
+        if ind is not None:
+            m.pop(ind)
+        if len(m) == 0:
+            del obj['meta']
+    else:
+        k = '^' + prop_name
+        if k in obj:
+            del obj[k]

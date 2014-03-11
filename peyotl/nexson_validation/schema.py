@@ -5,7 +5,7 @@ from peyotl.nexson_syntax.helper import extract_meta, \
                                         _is_direct_hbf
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
-
+#pylint: disable=W0613,W0212
 def add_schema_attributes(container, nexson_version):
     '''Adds several attributes to `container`:
     _using_hbf_meta  - boolean. True for HoneyBadgerFish v1-style meta elements ('^prop': value 
@@ -42,11 +42,11 @@ class _SchemaFragment(object):
         '''
         self.K2VT = {}
         for k, v in required.items():
-            self.K2VT[k] = _VT._2RawCheck[v]
+            self.K2VT[k] = _VT.m2RawCheck[v]
         for k, v in expected.items():
-            self.K2VT[k] = _VT._2RawCheck[v]
+            self.K2VT[k] = _VT.m2RawCheck[v]
         for k, v in allowed.items():
-            self.K2VT[k] = _VT._2RawCheck[v]
+            self.K2VT[k] = _VT.m2RawCheck[v]
         required_meta_keys = tuple(required_meta.keys())
         expected_meta_keys = tuple(expected_meta.keys())
         required_keys = tuple(required.keys())
@@ -74,10 +74,11 @@ class _SchemaFragment(object):
                 self.K2VT[k] = _VT._2BFCheck[v]
             for k, v in type_checked_meta.items():
                 self.K2VT[k] = _VT._2BFCheck[v]
-            self.K2VT['meta'] = _VT._2RawCheck[_VT.LIST_OR_DICT]
+            self.K2VT['meta'] = _VT.m2RawCheck[_VT.LIST_OR_DICT]
             self.REQUIRED_META_KEY_SET = frozenset(required_meta_keys)
             self.EXPECTED_META_KEY_SET = frozenset(expected_meta_keys)
-            self.ALLOWED_META_KEY_SET = frozenset(required_meta_keys + expected_meta_keys + tuple(type_checked_meta.keys()))
+            targ = required_meta_keys + expected_meta_keys + tuple(type_checked_meta.keys())
+            self.ALLOWED_META_KEY_SET = frozenset(targ)
             self.REQUIRED_KEY_SET = frozenset(required_keys)
             self.EXPECETED_KEY_SET = frozenset(expected_keys)
             self.ALLOWED_KEY_SET = frozenset(('meta', ) 
@@ -111,6 +112,7 @@ __FALSE_DICT = (False, 'object')
 __FALSE_STR_REPEATABLE_EL = (False, 'string or string array')
 __FALSE_STR_LIST = (False, 'string array')
 __FALSE_INT = (False, 'integer')
+__FALSE_FLOAT = (False, 'float')
 __FALSE_DICT_LIST = (False, 'array or object')
 __FALSE_BOOL = (False, 'boolean')
 
@@ -142,7 +144,6 @@ def check_href(x, obj, k, vc):
         if isinstance(h, str) or isinstance(h, unicode):
             return __TRUE_VAL
     except:
-        raise
         pass
     return __FALSE_HREF
 def check_raw_int(x, obj, k, vc):
@@ -170,7 +171,7 @@ def check_raw_list(x, obj, k, vc):
 def check_obj_meta_list(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
-    return check_list(mo, obj, k, vc)
+    return check_raw_list(mo, obj, k, vc)
 def check_hbf_meta_list(x, obj, k, vc):
     if isinstance(x, dict):
         return check_obj_meta_list(x, obj, k, vc)
@@ -197,7 +198,7 @@ def check_raw_str_list(x, obj, k, vc):
 def check_obj_meta_str_list(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
-    return check_str_list(mo, obj, k, vc)
+    return check_raw_str_list(mo, obj, k, vc)
 def check_hbf_meta_str_list(x, obj, k, vc):
     if isinstance(x, dict):
         return check_obj_meta_str_list(x, obj, k, vc)
@@ -241,7 +242,7 @@ class _VT:
     STR_REPEATABLE_EL = 8
     FLOAT = 9
 
-    _2RawCheck = {
+    m2RawCheck = {
         BOOL: check_raw_bool,
         DICT: check_raw_dict,
         HREF: check_href,
@@ -474,7 +475,6 @@ _ExpMTreeEl_All = {'ot:branchLengthTimeUnit': _VT.STR,
                    'ot:curatedType': _VT.STR,
                    'ot:inGroupClade': _VT.STR,
                    'ot:tag': _VT.STR_REPEATABLE_EL,
-                   'ot:inGroupClade': _VT.STR,
                    }
 _TypMTreeEl_All = {'ot:specifiedRoot': _VT.STR,
                    'ot:unrootedTree': _VT.BOOL,

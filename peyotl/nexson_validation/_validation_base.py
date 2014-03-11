@@ -11,6 +11,7 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_UnrecognizedKeyWarning, \
                                                    gen_WrongValueTypeWarning
 from peyotl.nexson_syntax.helper import get_nexml_el, \
+                                        find_val_literal_meta_first, \
                                         extract_meta, \
                                         _add_value_to_dict_bf
 from peyotl.nexson_syntax import detect_nexson_version
@@ -161,6 +162,9 @@ class NexsonValidationAdaptor(object):
         self._pyid_to_nexson_add = {}
         self._logger = logger
         self._repeated_id = False
+        self._otuid2ottid_byogid = {}
+        self._ottid2otuid_list_byogid = {}
+        self._dupottid_by_ogid_tree_id = {}
         uk = None
         for k in obj.keys():
             if k not in ['nexml', 'nex:nexml']:
@@ -206,6 +210,48 @@ class NexsonValidationAdaptor(object):
             del vc
             del self._otu_group_by_id
             del self._otu_by_otug
+
+    def _fill_otu_ottid_maps(self, otus_group_id):
+        if self._otuid2ottid_byogid.get(otus_group_id) is None:
+            otuid2ottid = {}
+            ottid2otuid_list = {}
+            self._otuid2ottid_byogid[otus_group_id] = otuid2ottid
+            self._ottid2otuid_list_byogid[otus_group_id] = ottid2otuid_list
+            otu_dict = self._otu_by_otug[otus_group_id]
+            for otuid, otu in otu_dict.items():
+                ottid = find_val_literal_meta_first(otu, 'ot:ottId', self._nexson_version)
+                otuid2ottid[otuid] = ottid
+                ottid2otuid_list.setdefault(ottid, []).append(otuid)
+            return otuid2ottid, ottid2otuid_list
+        return self._otuid2ottid_byogid[otus_group_id], self._ottid2otuid_list_byogid[otus_group_id]
+
+    def _detect_multilabelled_tree(self,
+                                   otus_group_id,
+                                   tree_id,
+                                   otuid2leaf):
+        # See if there are any otus that we need to flag as occurring in a tree
+        # multiple_times
+        #
+        pair = self._fill_otu_ottid_maps(otus_group_id)
+        ottid2otuid_list = pair[1]
+        dup_dict = {}
+        nd_list = None
+        for ottid, otuid_list in ottid2otuid_list.items():
+            if isinstance(otuid_list, list) and len(otuid_list) > 1:
+                if nd_list is None:
+                    nd_list = []
+                for otuid in otuid_list:
+                    nd_id = otuid2leaf.get(otuid)
+                    if nd_id is not None:
+                        nd_list.append(nd_id)
+                if len(nd_list) > 1:
+                    dup_dict[ottid] = nd_list
+                    nd_list = None
+                else:
+                    del nd_list[:]
+        bt = self._dupottid_by_ogid_tree_id.setdefault(otus_group_id, {})
+        bt[tree_id] = dup_dict
+
     def _bf_meta_list_to_dict(self, m_list, par, par_vc):
         d = {}
         unparseable_m = None
@@ -466,7 +512,7 @@ class NexsonValidationAdaptor(object):
             self._validate_id_obj_list_by_schema(leaf_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
-        return True
+        return not self._logger.has_error()
     def _validate_internal_node_list(self, node_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.INTERNAL_NODE)
         try:

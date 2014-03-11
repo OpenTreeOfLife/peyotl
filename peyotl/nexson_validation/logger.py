@@ -30,6 +30,8 @@ class DefaultRichLogger(object):
         self.prefix = ''
         self.retain_deprecated = False
         self.codes_to_skip = set()
+    def has_error(self):
+        return bool(self._err_by_type)
     def get_errors(self):
         return self._err_by_type.values()
     errors = property(get_errors)

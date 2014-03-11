@@ -51,7 +51,9 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                  obj_nex_id=ndo_id_list,
                                  key_val_type_list=[not_dict_otu])
                 return False
-            return self._validate_otu_list(otu_id_obj_list, vc)
+            r = self._validate_otu_list(otu_id_obj_list, vc)
+            if r:
+                 self._otu_by_otug[og_nex_id] = otu_obj
         finally:
             vc.pop_context()
     def _post_key_check_validate_tree_group(self, tg_nex_id, tree_group_obj, vc):
@@ -119,6 +121,9 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         edge_by_target = {}
         internal_nodes = []
         fatal = False
+        if otus_group_id is None:
+            tree_group = vc.anc_list[-1][1]
+            otus_group_id = tree_group.get('@otus')
 
         bad_node_ref = []
         repeated_edge_id = []
@@ -244,7 +249,28 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         if not valid:
             return False
         edges = [i for i in edge_dict.items()]
-        return self._validate_edge_list(edges, vc)
+        valid = self._validate_edge_list(edges, vc)
+        if not valid:
+            return False
+        otuid2leaf = {}
+        for nd_id, nd in leaves:
+            otuid = nd['@otu']
+            if otuid in otuid2leaf:
+                vc.push_context(_NEXEL.NODE, (tree_nex_id, tree_obj))
+                try:
+                    self._error_event(_NEXEL.NODE,
+                                     obj=nd,
+                                     err_type=gen_RepeatedOTUWarning,
+                                     anc=vc.anc_list,
+                                     obj_nex_id=nd_id,
+                                     key_list=[otuid])
+                    return False
+                finally:
+                    vc.pop_context()
+            otuid2leaf[otuid] = nd_id
+        self._detect_multilabelled_tree(otus_group_id=otus_group_id,
+                                        tree_id=tree_nex_id,
+                                        otuid2leaf=otuid2leaf)
 
     def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
         otus = nex_obj.get('otusById')

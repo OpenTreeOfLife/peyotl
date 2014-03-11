@@ -21,9 +21,6 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         NexsonValidationAdaptor.__init__(self, obj, logger)
         self._syntax_version = BADGER_FISH_NEXSON_VERSION
-        self._otuid2ottid_byogid = {}
-        self._ottid2otuid_list_byogid = {}
-        self._dupottid_by_ogid_tree_id = {}
 
 
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
@@ -281,47 +278,6 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                              obj_nex_id=tree_nex_id)
             return False
         return True
-
-    def _fill_otu_ottid_maps(self, otus_group_id):
-        if self._otuid2ottid_byogid.get(otus_group_id) is None:
-            otuid2ottid = {}
-            ottid2otuid_list = {}
-            self._otuid2ottid_byogid[otus_group_id] = otuid2ottid
-            self._ottid2otuid_list_byogid[otus_group_id] = ottid2otuid_list
-            otu_dict = self._otu_by_otug[otus_group_id]
-            for otuid, otu in otu_dict.items():
-                ottid = find_val_for_first_bf_l_meta(otu, 'ot:ottId')
-                otuid2ottid[otuid] = ottid
-                ottid2otuid_list.setdefault(ottid, []).append(otuid)
-            return otuid2ottid, ottid2otuid_list
-        return self._otuid2ottid_byogid[otus_group_id], self._ottid2otuid_list_byogid[otus_group_id]
-
-    def _detect_multilabelled_tree(self,
-                                   otus_group_id,
-                                   tree_id,
-                                   otuid2leaf):
-        # See if there are any otus that we need to flag as occurring in a tree
-        # multiple_times
-        #
-        pair = self._fill_otu_ottid_maps(otus_group_id)
-        ottid2otuid_list = pair[1]
-        dup_dict = {}
-        nd_list = None
-        for ottid, otuid_list in ottid2otuid_list.items():
-            if isinstance(otuid_list, list) and len(otuid_list) > 1:
-                if nd_list is None:
-                    nd_list = []
-                for otuid in otuid_list:
-                    nd_id = otuid2leaf.get(otuid)
-                    if nd_id is not None:
-                        nd_list.append(nd_id)
-                if len(nd_list) > 1:
-                    dup_dict[ottid] = nd_list
-                    nd_list = None
-                else:
-                    del nd_list[:]
-        bt = self._dupottid_by_ogid_tree_id.setdefault(otus_group_id, {})
-        bt[tree_id] = dup_dict
 
     def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
         otus_group_list = nex_obj.get('otus')

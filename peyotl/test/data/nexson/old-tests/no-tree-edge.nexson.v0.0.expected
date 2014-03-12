@@ -10,7 +10,6 @@
     }, 
     "MISSING_MANDATORY_KEY": {
       "data": [
-        "@xsi:type", 
         "edge"
       ], 
       "refersTo": {
@@ -20,30 +19,6 @@
   }, 
   "warnings": {
     "MISSING_OPTIONAL_KEY": [
-      {
-        "data": [
-          "ot:ottId"
-        ], 
-        "refersTo": {
-          "@idref": "otu1"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottId"
-        ], 
-        "refersTo": {
-          "@idref": "otu2"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottId"
-        ], 
-        "refersTo": {
-          "@idref": "otu3"
-        }
-      }, 
       {
         "data": [
           "ot:dataDeposit", 
@@ -57,6 +32,14 @@
       }, 
       {
         "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }, 
+      {
+        "data": [
           "ot:branchLengthMode", 
           "ot:branchLengthTimeUnit", 
           "ot:curatedType", 
@@ -64,56 +47,6 @@
         ], 
         "refersTo": {
           "@idref": "tree1"
-        }
-      }
-    ], 
-    "UNRECOGNIZED_KEY": [
-      {
-        "data": [
-          "@label"
-        ], 
-        "refersTo": {
-          "@idref": "otu1"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottolid"
-        ], 
-        "refersTo": {
-          "@idref": "otu1"
-        }
-      }, 
-      {
-        "data": [
-          "@label"
-        ], 
-        "refersTo": {
-          "@idref": "otu2"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottolid"
-        ], 
-        "refersTo": {
-          "@idref": "otu2"
-        }
-      }, 
-      {
-        "data": [
-          "@label"
-        ], 
-        "refersTo": {
-          "@idref": "otu3"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottolid"
-        ], 
-        "refersTo": {
-          "@idref": "otu3"
         }
       }
     ]

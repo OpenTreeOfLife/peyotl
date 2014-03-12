@@ -47,7 +47,7 @@
 "meta": [
 {
 "$": 1007359, 
-"@property": "ot:ottolid", 
+"@property": "ot:ottId", 
 "@xsi:type": "nex:LiteralMeta"
 }, 
 {
@@ -63,7 +63,7 @@
 "meta": [
 {
 "$": 1024525, 
-"@property": "ot:ottolid", 
+"@property": "ot:ottId", 
 "@xsi:type": "nex:LiteralMeta"
 }, 
 {

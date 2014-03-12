@@ -260,7 +260,8 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                              obj_nex_id=tree_nex_id,
                              node_id_list=lowest_nodeid_set)
             return False
-        root_node_id = first_lowest_node.get('@id')
+
+        root_node_id = first_lowest_node
 
         if root_node_id not in with_at_root_prop:
             self._error_event(_NEXEL.TREE,

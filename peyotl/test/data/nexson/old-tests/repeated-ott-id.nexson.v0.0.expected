@@ -1,11 +1,11 @@
 {
   "errors": {
-    "MISSING_MANDATORY_KEY": {
+    "REPEATED_OTU": {
       "data": [
-        "@xsi:type"
+        "otu3"
       ], 
       "refersTo": {
-        "@idref": "tree1"
+        "@idref": "node4"
       }
     }
   }, 
@@ -13,26 +13,10 @@
     "MISSING_OPTIONAL_KEY": [
       {
         "data": [
-          "ot:ottId"
+          "@xsi:type"
         ], 
         "refersTo": {
-          "@idref": "otu1"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottId"
-        ], 
-        "refersTo": {
-          "@idref": "otu2"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottId"
-        ], 
-        "refersTo": {
-          "@idref": "otu3"
+          "@idref": "tree1"
         }
       }, 
       {
@@ -44,56 +28,6 @@
         ], 
         "refersTo": {
           "@idref": "tree1"
-        }
-      }
-    ], 
-    "UNRECOGNIZED_KEY": [
-      {
-        "data": [
-          "@label"
-        ], 
-        "refersTo": {
-          "@idref": "otu1"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottolid"
-        ], 
-        "refersTo": {
-          "@idref": "otu1"
-        }
-      }, 
-      {
-        "data": [
-          "@label"
-        ], 
-        "refersTo": {
-          "@idref": "otu2"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottolid"
-        ], 
-        "refersTo": {
-          "@idref": "otu2"
-        }
-      }, 
-      {
-        "data": [
-          "@label"
-        ], 
-        "refersTo": {
-          "@idref": "otu3"
-        }
-      }, 
-      {
-        "data": [
-          "ot:ottolid"
-        ], 
-        "refersTo": {
-          "@idref": "otu3"
         }
       }
     ]

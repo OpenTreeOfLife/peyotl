@@ -398,7 +398,7 @@ _v1_2_Otu = _SchemaFragment(required=_Req_OtuEl_ByI,
                             using_hbf_meta=True)
 _v1_0_Otu = _SchemaFragment(required=_Req_OtuEl_Dir,
                             expected=_EMPTY_DICT,
-                            allowed=_All_OtusEl_Dir,
+                            allowed=_All_OtuEl_Dir,
                             required_meta=_ReqMOtuEl_All,
                             expected_meta=_ExpMOtuEl_All,
                             type_checked_meta=_TypMOtuEl_All,
@@ -406,7 +406,7 @@ _v1_0_Otu = _SchemaFragment(required=_Req_OtuEl_Dir,
 
 _v0_0_Otu = _SchemaFragment(required=_Req_OtuEl_Dir,
                             expected=_EMPTY_DICT,
-                            allowed=_All_OtusEl_Dir,
+                            allowed=_All_OtuEl_Dir,
                             required_meta=_ReqMOtuEl_All,
                             expected_meta=_ExpMOtuEl_All,
                             type_checked_meta=_TypMOtuEl_All,
@@ -455,12 +455,12 @@ _v0_0_Trees = _SchemaFragment(required=_Req_TreesEl_Dir,
 # tree element schema
 _Req_TreeEl_ByI = {'edgeBySourceId': _VT.DICT,
                    'nodeById': _VT.DICT,
-                   '@xsi:type': _VT.STR, # could be a choice...
                   }
 _Req_TreeEl_Dir = {'edge': _VT.LIST,
                    'node': _VT.LIST,
                    '@id': _VT.STR,
-                   '@xsi:type': _VT.STR, # could be a choice...
+                  }
+_Exp_TreeEl_All = {'@xsi:type': _VT.STR, # could be a choice...
                   }
 _All_TreeEl_ByI = {'@label': _VT.STR,
                  }
@@ -480,14 +480,14 @@ _TypMTreeEl_All = {'ot:specifiedRoot': _VT.STR,
                    'ot:unrootedTree': _VT.BOOL,
                    }
 _v1_2_Tree = _SchemaFragment(required=_Req_TreeEl_ByI,
-                            expected=_EMPTY_DICT,
+                            expected=_Exp_TreeEl_All,
                             allowed=_All_TreeEl_ByI,
                             required_meta=_ReqMTreeEl_ByI,
                             expected_meta=_ExpMTreeEl_All,
                             type_checked_meta=_TypMTreeEl_All,
                             using_hbf_meta=True)
 _v1_0_Tree = _SchemaFragment(required=_Req_TreeEl_Dir,
-                            expected=_EMPTY_DICT,
+                            expected=_Exp_TreeEl_All,
                             allowed=_All_TreesEl_Dir,
                             required_meta=_ReqMTreeEl_Dir,
                             expected_meta=_ExpMTreeEl_All,
@@ -495,7 +495,7 @@ _v1_0_Tree = _SchemaFragment(required=_Req_TreeEl_Dir,
                             using_hbf_meta=True)
 
 _v0_0_Tree = _SchemaFragment(required=_Req_TreeEl_Dir,
-                            expected=_EMPTY_DICT,
+                            expected=_Exp_TreeEl_All,
                             allowed=_All_TreesEl_Dir,
                             required_meta=_ReqMTreeEl_Dir,
                             expected_meta=_ExpMTreeEl_All,

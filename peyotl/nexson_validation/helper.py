@@ -42,6 +42,7 @@ _NEXEL.CODE_TO_STR = {
     _NEXEL.LEAF_NODE: 'node',
     _NEXEL.EDGE: 'edge',
     _NEXEL.META: 'meta',
+    None: 'unknown',
 }
 _NEXEL.CODE_TO_PAR_CODE = {
     _NEXEL.TOP_LEVEL: None,
@@ -54,6 +55,7 @@ _NEXEL.CODE_TO_PAR_CODE = {
     _NEXEL.INTERNAL_NODE: _NEXEL.TREE,
     _NEXEL.LEAF_NODE: _NEXEL.TREE,
     _NEXEL.EDGE: _NEXEL.TREE,
+    None: None,
 }
 _NEXEL.CODE_TO_OTHER_ID_KEY = {
     _NEXEL.TOP_LEVEL: None,
@@ -66,6 +68,7 @@ _NEXEL.CODE_TO_OTHER_ID_KEY = {
     _NEXEL.INTERNAL_NODE: '@nodeID',
     _NEXEL.LEAF_NODE: '@nodeID',
     _NEXEL.EDGE: '@edgeID',
+    None: None,
 }
 _NEXEL.CODE_TO_TOP_ENTITY_NAME = {
     _NEXEL.TOP_LEVEL: '',
@@ -78,4 +81,5 @@ _NEXEL.CODE_TO_TOP_ENTITY_NAME = {
     _NEXEL.INTERNAL_NODE: 'trees',
     _NEXEL.LEAF_NODE: 'trees',
     _NEXEL.EDGE: 'trees',
+    None: '',
 }

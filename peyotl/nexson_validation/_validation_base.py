@@ -6,6 +6,7 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingExpectedListWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
+                                                   gen_MultipleTipsToSameOttIdWarning, \
                                                    gen_RepeatedIDWarning, \
                                                    gen_UnparseableMetaWarning, \
                                                    gen_UnrecognizedKeyWarning, \
@@ -281,7 +282,7 @@ class NexsonValidationAdaptor(object):
                     for otu_set in otuid2dup_set:
                         self._warn_event(_NEXEL.OTUS,
                                           obj=og,
-                                          err_type=gen_,
+                                          err_type=gen_MultipleTipsToSameOttIdWarning,
                                           anc=vc.anc_list,
                                           obj_nex_id=ogid,
                                           otu_sets=list(otu_set))

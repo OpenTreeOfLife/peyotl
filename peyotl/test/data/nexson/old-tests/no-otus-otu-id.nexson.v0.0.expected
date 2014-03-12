@@ -7,14 +7,6 @@
       "refersTo": {
         "@top": "nexml"
       }
-    }, 
-    "MISSING_MANDATORY_KEY": {
-      "data": [
-        "@xsi:type"
-      ], 
-      "refersTo": {
-        "@idref": "tree1"
-      }
     }
   }, 
   "warnings": {
@@ -28,6 +20,14 @@
         ], 
         "refersTo": {
           "@idref": "some-id"
+        }
+      }, 
+      {
+        "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
         }
       }, 
       {

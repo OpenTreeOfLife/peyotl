@@ -8,24 +8,14 @@
         "@idref": "otus1"
       }
     }, 
-    "MISSING_MANDATORY_KEY": [
-      {
-        "data": [
-          "otu"
-        ], 
-        "refersTo": {
-          "@idref": "otus1"
-        }
-      }, 
-      {
-        "data": [
-          "@xsi:type"
-        ], 
-        "refersTo": {
-          "@idref": "tree1"
-        }
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "otu"
+      ], 
+      "refersTo": {
+        "@idref": "otus1"
       }
-    ]
+    }
   }, 
   "warnings": {
     "MISSING_OPTIONAL_KEY": [
@@ -38,6 +28,14 @@
         ], 
         "refersTo": {
           "@idref": "some-id"
+        }
+      }, 
+      {
+        "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
         }
       }, 
       {

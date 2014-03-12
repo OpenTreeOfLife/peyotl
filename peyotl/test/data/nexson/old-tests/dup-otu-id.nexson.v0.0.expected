@@ -1,13 +1,5 @@
 {
   "errors": {
-    "MISSING_MANDATORY_KEY": {
-      "data": [
-        "@xsi:type"
-      ], 
-      "refersTo": {
-        "@idref": "tree1"
-      }
-    }, 
     "REPEATED_ID": {
       "data": [
         "otu1"
@@ -28,6 +20,14 @@
         ], 
         "refersTo": {
           "@idref": "some-id"
+        }
+      }, 
+      {
+        "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
         }
       }, 
       {

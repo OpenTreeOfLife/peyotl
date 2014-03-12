@@ -1,23 +1,13 @@
 {
   "errors": {
-    "MISSING_CRUCIAL_CONTENT": [
-      {
-        "data": [
-          "otu"
-        ], 
-        "refersTo": {
-          "@idref": "otus1"
-        }
-      }, 
-      {
-        "data": [
-          "edge"
-        ], 
-        "refersTo": {
-          "@idref": "tree1"
-        }
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "otu"
+      ], 
+      "refersTo": {
+        "@idref": "otus1"
       }
-    ], 
+    }, 
     "MISSING_MANDATORY_KEY": [
       {
         "data": [

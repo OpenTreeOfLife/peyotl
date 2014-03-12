@@ -1,23 +1,13 @@
 {
   "errors": {
-    "MISSING_CRUCIAL_CONTENT": [
-      {
-        "data": [
-          "edge"
-        ], 
-        "refersTo": {
-          "@idref": "tree1"
-        }
-      }, 
-      {
-        "data": [
-          "@id"
-        ], 
-        "refersTo": {
-          "@top": "nexml"
-        }
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "@id"
+      ], 
+      "refersTo": {
+        "@top": "nexml"
       }
-    ], 
+    }, 
     "MISSING_MANDATORY_KEY": {
       "data": [
         "@xsi:type"

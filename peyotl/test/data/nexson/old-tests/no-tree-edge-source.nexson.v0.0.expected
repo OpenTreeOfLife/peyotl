@@ -1,21 +1,23 @@
 {
   "errors": {
-    "MISSING_CRUCIAL_CONTENT": {
-      "data": [
-        "edge"
-      ], 
-      "refersTo": {
-        "@idref": "tree1"
+    "MISSING_MANDATORY_KEY": [
+      {
+        "data": [
+          "@source"
+        ], 
+        "refersTo": {
+          "@idref": "edge3"
+        }
+      }, 
+      {
+        "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
       }
-    }, 
-    "MISSING_MANDATORY_KEY": {
-      "data": [
-        "@xsi:type"
-      ], 
-      "refersTo": {
-        "@idref": "tree1"
-      }
-    }
+    ]
   }, 
   "warnings": {
     "MISSING_OPTIONAL_KEY": [

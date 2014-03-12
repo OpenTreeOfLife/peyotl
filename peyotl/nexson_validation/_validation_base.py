@@ -29,6 +29,7 @@ class LazyAddress(object):
         assert(code in _NEXEL.CODE_TO_STR)
         self.code = code
         self.ref = obj
+        #_LOG.debug('code={c} obj_nex_id = "{oni}"'.format(c=code, oni=obj_nex_id))
         if obj_nex_id is None:
             try:
                 self.obj_nex_id = obj.get('@id')
@@ -316,11 +317,14 @@ class NexsonValidationAdaptor(object):
                                   obj_list=unparseable_m)
         return d
 
-
-
-
+    _LIST_ADDR_INCR = 0
     def _event_address(self, element_type, obj, anc, obj_nex_id, anc_offset=0):
-        pyid = id(obj)
+        if isinstance(obj_nex_id, list):
+            obj_nex_id.sort()
+            pyid = (NexsonValidationAdaptor._LIST_ADDR_INCR, None)
+            NexsonValidationAdaptor._LIST_ADDR_INCR += 1
+        else:
+            pyid = id(obj)
         addr = self._pyid_to_nexson_add.get(pyid)
         if addr is None:
             if len(anc) > anc_offset:
@@ -347,8 +351,9 @@ class NexsonValidationAdaptor(object):
         c = factory2code[err_type]
         if not self._logger.is_logging_type(c):
             return
+        #_LOG.debug('in _error_event = ' + str(obj_nex_id))
         address, pyid = self._event_address(element_type, obj, anc, obj_nex_id)
-        #_LOG.debug('err type = '+ str(err_type) + ' adaptor type = ' + str(type(self)))
+        #_LOG.debug('in _error_event address.obj_nex_id = ' + str(address.obj_nex_id))
         err_type(address, pyid, self._logger, SeverityCodes.ERROR, *valist, **kwargs)
     def _get_list_key(self, obj, key, vc, obj_nex_id=None):
         '''Either:
@@ -558,14 +563,14 @@ class NexsonValidationAdaptor(object):
             self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
-        return True
+        return not self._logger.has_error()
     def _validate_edge_list(self, edge_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.EDGE)
         try:
             self._validate_id_obj_list_by_schema(edge_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
-        return True
+        return not self._logger.has_error()
     
     def _validate_otu_list(self, otu_id_obj_list, vc):
         for el in otu_id_obj_list:

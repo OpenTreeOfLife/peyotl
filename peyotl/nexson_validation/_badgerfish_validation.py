@@ -125,7 +125,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         edge_list = tree_obj.get('edge')
         if isinstance(edge_list, dict):
             edge_list = [edge_list]
-        elif (not edge_list) or (not isinstance(edge_list, dict)):
+        elif (not edge_list) or (not isinstance(edge_list, list)):
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
                              err_type=gen_MissingCrucialContentWarning,
@@ -133,6 +133,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                              obj_nex_id=tree_nex_id,
                              key_list=['edge',])
             return False
+        edge_id_list = [(i.get('@id'), i) for i in edge_list]
+        valid = self._validate_edge_list(edge_id_list, vc)
+        if not valid:
+            return False
+
         if otus_group_id is None:
             tree_group = vc.anc_list[-1][1]
             otus_group_id = tree_group.get('@otus')
@@ -148,7 +153,9 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 multi_parent_node.append(t)
             else:
                 edge_by_target[t] = e
-            edge_by_source.setdefault('@source', []).append(e)
+            #_LOG.debug('e=' + str(e))
+            sid = e['@source']
+            edge_by_source.setdefault(sid, []).append(e)
         if multi_parent_node:
             self._error_event(_NEXEL.TREE,
                               obj=tree_obj,
@@ -177,8 +184,8 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 if first_lowest_node is None:
                     first_lowest_node = path_to_root[-1]
             is_flagged_as_leaf = find_val_for_first_bf_l_meta(nd, 'ot:isLeaf')
-            ch_list = edge_by_source[nid]
-            if len(ch_list) == 0:
+            ch_list = edge_by_source.get(nid)
+            if ch_list is None:
                 otu_id = nd.get('@otu')
                 if otu_id is None:
                     vc.push_context(_NEXEL.NODE, (tree_nex_id, tree_obj))
@@ -222,6 +229,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         if unflagged_leaves:
             vc.push_context(_NEXEL.NODE, (tree_nex_id, tree_obj))
             try:
+                #_LOG.debug('unflagged_leaves="{f}"'.format(f=unflagged_leaves))
                 self._error_event(_NEXEL.NODE,
                                  obj=tree_obj,
                                  err_type=gen_MissingMandatoryKeyWarning,
@@ -367,24 +375,24 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         return True
 
 def construct_path_to_root(node, encountered_nodes, edge_by_target):
-    n = node
+    nid = node.get('@id')
     p = []
     s = set()
-    while n:
-        if n in s:
-            return n, p
-        if n in encountered_nodes:
+    while nid:
+        #_LOG.debug('node = "{node}"   n="{n}"'.format(node=str(node), n=str(n)))
+        if nid in s:
+            return nid, p
+        if nid in encountered_nodes:
             return None, []
-        nid = n.get('@id')
         p.append(nid)
         s.add(nid)
-        encountered_nodes.add(n)
-        e = edge_by_target.get(n)
+        encountered_nodes.add(nid)
+        e = edge_by_target.get(nid)
         src = None
         if e:
             src = e.get('@source')
         if src:
-            n = src
+            nid = src
         else:
             break
     return None, p

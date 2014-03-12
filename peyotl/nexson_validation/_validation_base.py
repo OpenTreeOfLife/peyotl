@@ -30,7 +30,10 @@ class LazyAddress(object):
         self.code = code
         self.ref = obj
         if obj_nex_id is None:
-            self.obj_nex_id = obj.get('@id')
+            try:
+                self.obj_nex_id = obj.get('@id')
+            except:
+                self.obj_nex_id = None
         else:
             self.obj_nex_id = obj_nex_id
         self.par_addr = par_addr
@@ -438,6 +441,7 @@ class NexsonValidationAdaptor(object):
                 if m:
                     # might want a flag of meta?
                     md = self._bf_meta_list_to_dict(m, obj, vc)
+                    #_LOG.debug('md = ' + str(md))
                     mrmk = [i for i in schema.REQUIRED_META_KEY_SET if i not in md]
                     memk = [i for i in schema.EXPECTED_META_KEY_SET if i not in md]
                     if memk:

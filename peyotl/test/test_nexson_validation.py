@@ -97,5 +97,25 @@ class TestConvert(unittest.TestCase):
                     self.assertDictEqual(exp, ew_dict, msg)
                 else:
                     _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
+    def testOldExpectedWarnings(self):
+        msg = ''
+        for fn in pathmap.all_files(os.path.join('nexson', 'old-tests')):
+            if fn.endswith('.input'):
+                frag = fn[:-len('.input')]
+                efn = frag + '.expected'
+                if os.path.exists(efn):
+                    inp = read_json(fn)
+                    aa = validate_nexson(inp)
+                    annot = aa[0]
+                    ew_dict = annot.get_err_warn_summary_dict()
+                    ew_dict = through_json(ew_dict)
+                    exp = read_json(efn)
+                    if not dict_eq(ew_dict, exp):
+                        ofn = frag + '.output'
+                        write_json(ew_dict, ofn)
+                        msg = "Validation failed to produce expected outcome. Compare {o} and {e}".format(o=ofn, e=efn)
+                    self.assertDictEqual(exp, ew_dict, msg)
+                else:
+                    _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
 if __name__ == "__main__":
     unittest.main()

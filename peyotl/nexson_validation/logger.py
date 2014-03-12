@@ -4,6 +4,8 @@
 from peyotl.nexson_syntax.helper import _add_value_to_dict_bf
 from peyotl.nexson_validation.helper import SeverityCodes, VERSION
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
+from peyotl.utility import get_logger
+_LOG = get_logger(__name__)
 import datetime
 import platform
 import uuid
@@ -18,6 +20,47 @@ def _err_warn_summary(w):
         del r['code']
         _add_value_to_dict_bf(d, key, r)
     return d
+
+_LIST_0 = [0]
+_LIST_1 = [1]
+def _msg_data_cmp(x, y):
+    return cmp(x.get('data', _LIST_0), y.get('data', _LIST_1))
+
+def _msg_cmp(x, y):
+    xr = x.get('refersTo')
+    yr = y.get('refersTo')
+    if xr is None:
+        if yr is None:
+            return _msg_data_cmp(x, y)
+        else:
+            return 1
+    if yr is None:
+        return -1
+    xri = xr.get('@idref')
+    yri = yr.get('@idref')
+    #_LOG.debug('xri = "{x}" yri = "{y}"'.format(x=xri, y=yri))
+    if xri is None:
+        if yri is None:
+            xrk = xr.keys()
+            xrk.sort()
+            yrk = yr.keys()
+            yrk.sort()
+            r = cmp(xrk, yrk)
+            if r == 0:
+                xrv = [xr[i] for i in xrk]
+                yrv = [yr[i] for i in xrk]
+                c = cmp(xrv, yrv)
+                if c == 0:
+                    return _msg_data_cmp(x, y)
+                return c
+            return r
+        return 1
+    if yri is None:
+        return -1
+    r = cmp(xri, yri)
+    if r != 0:
+        return r
+    return _msg_data_cmp(x, y)
 
 class DefaultRichLogger(object):
     def __init__(self, store_messages=False):
@@ -54,6 +97,7 @@ class DefaultRichLogger(object):
             x.add(err_tup)
             x = self._err_by_obj.setdefault(pyid, set())
             x.add(err_tup)
+
     def get_err_warn_summary_dict(self, sort=True):
         w = {}
         for wm in self._warn_by_type.values():
@@ -66,10 +110,10 @@ class DefaultRichLogger(object):
         if sort:
             for v in w.values():
                 if isinstance(v, list):
-                    v.sort(key=lambda x: x.get('refersTo',{}).get('@idref'))
+                    v.sort(cmp=_msg_cmp)
             for v in e.values():
                 if isinstance(v, list):
-                    v.sort(key=lambda x: x.get('refersTo',{}).get('@idref'))
+                    v.sort(cmp=_msg_cmp)
         return {'warnings': w, 'errors': e}
 
     def prepare_annotation(self, 

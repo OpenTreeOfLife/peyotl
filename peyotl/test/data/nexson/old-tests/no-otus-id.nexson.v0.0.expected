@@ -1,0 +1,25 @@
+{
+  "errors": {
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "@id"
+      ], 
+      "refersTo": {
+        "@idref": "some-id"
+      }
+    }
+  }, 
+  "warnings": {
+    "MISSING_OPTIONAL_KEY": {
+      "data": [
+        "ot:dataDeposit", 
+        "ot:studyPublication", 
+        "ot:studyPublicationReference", 
+        "ot:studyYear"
+      ], 
+      "refersTo": {
+        "@idref": "some-id"
+      }
+    }
+  }
+}

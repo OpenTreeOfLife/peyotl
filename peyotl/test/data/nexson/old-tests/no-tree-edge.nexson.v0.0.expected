@@ -1,0 +1,121 @@
+{
+  "errors": {
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "edge"
+      ], 
+      "refersTo": {
+        "@idref": "tree1"
+      }
+    }, 
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "@xsi:type", 
+        "edge"
+      ], 
+      "refersTo": {
+        "@idref": "tree1"
+      }
+    }
+  }, 
+  "warnings": {
+    "MISSING_OPTIONAL_KEY": [
+      {
+        "data": [
+          "ot:ottId"
+        ], 
+        "refersTo": {
+          "@idref": "otu1"
+        }
+      }, 
+      {
+        "data": [
+          "ot:ottId"
+        ], 
+        "refersTo": {
+          "@idref": "otu2"
+        }
+      }, 
+      {
+        "data": [
+          "ot:ottId"
+        ], 
+        "refersTo": {
+          "@idref": "otu3"
+        }
+      }, 
+      {
+        "data": [
+          "ot:dataDeposit", 
+          "ot:studyPublication", 
+          "ot:studyPublicationReference", 
+          "ot:studyYear"
+        ], 
+        "refersTo": {
+          "@idref": "some-id"
+        }
+      }, 
+      {
+        "data": [
+          "ot:branchLengthMode", 
+          "ot:branchLengthTimeUnit", 
+          "ot:curatedType", 
+          "ot:tag"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }
+    ], 
+    "UNRECOGNIZED_KEY": [
+      {
+        "data": [
+          "@label"
+        ], 
+        "refersTo": {
+          "@idref": "otu1"
+        }
+      }, 
+      {
+        "data": [
+          "ot:ottolid"
+        ], 
+        "refersTo": {
+          "@idref": "otu1"
+        }
+      }, 
+      {
+        "data": [
+          "@label"
+        ], 
+        "refersTo": {
+          "@idref": "otu2"
+        }
+      }, 
+      {
+        "data": [
+          "ot:ottolid"
+        ], 
+        "refersTo": {
+          "@idref": "otu2"
+        }
+      }, 
+      {
+        "data": [
+          "@label"
+        ], 
+        "refersTo": {
+          "@idref": "otu3"
+        }
+      }, 
+      {
+        "data": [
+          "ot:ottolid"
+        ], 
+        "refersTo": {
+          "@idref": "otu3"
+        }
+      }
+    ]
+  }
+}

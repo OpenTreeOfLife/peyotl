@@ -1,0 +1,66 @@
+{
+  "errors": {
+    "MISSING_CRUCIAL_CONTENT": [
+      {
+        "data": [
+          "otu"
+        ], 
+        "refersTo": {
+          "@idref": "otus1"
+        }
+      }, 
+      {
+        "data": [
+          "edge"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }
+    ], 
+    "MISSING_MANDATORY_KEY": [
+      {
+        "data": [
+          "otu"
+        ], 
+        "refersTo": {
+          "@idref": "otus1"
+        }
+      }, 
+      {
+        "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }
+    ]
+  }, 
+  "warnings": {
+    "MISSING_OPTIONAL_KEY": [
+      {
+        "data": [
+          "ot:dataDeposit", 
+          "ot:studyPublication", 
+          "ot:studyPublicationReference", 
+          "ot:studyYear"
+        ], 
+        "refersTo": {
+          "@idref": "some-id"
+        }
+      }, 
+      {
+        "data": [
+          "ot:branchLengthMode", 
+          "ot:branchLengthTimeUnit", 
+          "ot:curatedType", 
+          "ot:tag"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }
+    ]
+  }
+}

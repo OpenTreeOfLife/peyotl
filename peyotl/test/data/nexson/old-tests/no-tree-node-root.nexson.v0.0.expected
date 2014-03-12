@@ -11,6 +11,14 @@
           "node4"
         ]
       }
+    }, 
+    "MULTIPLE_ROOT_NODES": {
+      "data": [
+        "node0"
+      ], 
+      "refersTo": {
+        "@idref": "tree1"
+      }
     }
   }, 
   "warnings": {

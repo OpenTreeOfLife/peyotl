@@ -136,6 +136,225 @@
           "@idref": "tree1945"
         }
       }
+    ], 
+    "MULTIPLE_TIPS_MAPPED_TO_OTT_ID": [
+      {
+        "data": [
+          "otu213260", 
+          "otu213261"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213262", 
+          "otu213263"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213264", 
+          "otu213265"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213266", 
+          "otu213267"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213268", 
+          "otu213269", 
+          "otu213270"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213271", 
+          "otu213272"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213276", 
+          "otu213278", 
+          "otu213281", 
+          "otu213282"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213285", 
+          "otu213286", 
+          "otu213287"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213290", 
+          "otu213291"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213292", 
+          "otu213293"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213294", 
+          "otu213295"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213296", 
+          "otu213297"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213302", 
+          "otu213303", 
+          "otu213304"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213309", 
+          "otu213310", 
+          "otu213311", 
+          "otu213324"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213316", 
+          "otu213317"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213318", 
+          "otu213319"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213320", 
+          "otu213321"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213331", 
+          "otu213332"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213339", 
+          "otu213341", 
+          "otu213343", 
+          "otu213347"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213344", 
+          "otu213345"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213350", 
+          "otu213351", 
+          "otu213352"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213353", 
+          "otu213354"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }, 
+      {
+        "data": [
+          "otu213355", 
+          "otu213356"
+        ], 
+        "refersTo": {
+          "@idref": "otus1003"
+        }
+      }
     ]
   }
 }

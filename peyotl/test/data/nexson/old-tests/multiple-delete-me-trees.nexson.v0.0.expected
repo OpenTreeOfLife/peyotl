@@ -32,6 +32,24 @@
         "refersTo": {
           "@idref": "tree1"
         }
+      }, 
+      {
+        "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree2"
+        }
+      }, 
+      {
+        "data": [
+          "ot:branchLengthMode", 
+          "ot:branchLengthTimeUnit", 
+          "ot:curatedType"
+        ], 
+        "refersTo": {
+          "@idref": "tree2"
+        }
       }
     ]
   }

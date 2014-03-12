@@ -268,7 +268,7 @@ class NexsonValidationAdaptor(object):
             otuid2dup_set = set()
             for dottid in dup_ottid_set:
                 for tree_id in used_tree_id_list:
-                    dup_dict = by_tree[tree_id]
+                    dup_dict = by_tree.get(tree_id, {})
                     nl = dup_dict.get(dottid)
                     if nl and len(nl) > 1:
                         otu_ids = [i[0] for i in nl] # (otu_id, no_id) pairs in nl

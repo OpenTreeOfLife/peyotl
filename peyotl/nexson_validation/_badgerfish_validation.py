@@ -236,7 +236,6 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                                  anc=vc.anc_list,
                                  obj_nex_id=unflagged_leaves,
                                  key_list=['ot:isLeaf'])
-                return False
             finally:
                 vc.pop_context()
         if nonleaves_with_leaf_flags:

@@ -1,13 +1,5 @@
 {
   "errors": {
-    "MISSING_CRUCIAL_CONTENT": {
-      "data": [
-        "otu"
-      ], 
-      "refersTo": {
-        "@idref": "otus1"
-      }
-    }, 
     "MISSING_MANDATORY_KEY": {
       "data": [
         "otu"

@@ -1,13 +1,5 @@
 {
   "errors": {
-    "MISSING_CRUCIAL_CONTENT": {
-      "data": [
-        "edge"
-      ], 
-      "refersTo": {
-        "@idref": "tree1"
-      }
-    }, 
     "MISSING_MANDATORY_KEY": {
       "data": [
         "edge"

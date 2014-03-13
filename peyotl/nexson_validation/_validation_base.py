@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import json
-from peyotl.nexson_validation.helper import SeverityCodes, _NEXEL
+from peyotl.nexson_validation.helper import SeverityCodes, _NEXEL, errorReturn
 from peyotl.nexson_validation.schema import add_schema_attributes
 from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingExpectedListWarning, \
@@ -464,6 +464,7 @@ class NexsonValidationAdaptor(object):
                                          anc=anc_list,
                                          obj_nex_id=obj_nex_id,
                                          key_list=mrmk)
+                        return errorReturn('missing mandatory meta key(s) according to {s} schema'.format(s=vc.schema_name()))
                     for k, v in md.items():
                         if k not in schema.ALLOWED_META_KEY_SET:
                             unrec_meta_keys.append(k)
@@ -480,6 +481,7 @@ class NexsonValidationAdaptor(object):
                                  anc=anc_list,
                                  obj_nex_id=obj_nex_id,
                                  key_val_type_list=wrong_type)
+                return errorReturn('wrong value type according to {s} schema'.format(s=vc.schema_name()))
             if unrec_non_meta_keys:
                 self._warn_event(element_type,
                                  obj=obj,
@@ -511,14 +513,17 @@ class NexsonValidationAdaptor(object):
                                  anc=anc_list,
                                  obj_nex_id=obj_nex_id,
                                  key_list=off_key)
+                return errorReturn('missing key(s) according to {s} schema'.format(s=vc.schema_name()))
         return True
     def _validate_nexml_obj(self, nex_obj, vc, top_obj):
         vc.push_context(_NEXEL.NEXML, (top_obj, None))
         try:
             nid = nex_obj.get('@id')
             if nid is not None:
-                self._register_nexson_id(nid, nex_obj, vc)
-            self._validate_obj_by_schema(nex_obj, nid, vc)
+                if not self._register_nexson_id(nid, nex_obj, vc):
+                    return False
+            if not self._validate_obj_by_schema(nex_obj, nid, vc):
+                return False
             return self._post_key_check_validate_nexml_obj(nex_obj, nid, vc)
         finally:
             vc.pop_context()
@@ -566,7 +571,7 @@ class NexsonValidationAdaptor(object):
         try:
             if not self._register_nexson_id_list(leaf_id_obj_list, vc):
                 return False
-            self._validate_id_obj_list_by_schema(leaf_id_obj_list, vc)
+            return self._validate_id_obj_list_by_schema(leaf_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
         return not self._logger.has_error()
@@ -575,7 +580,7 @@ class NexsonValidationAdaptor(object):
         try:
             if not self._register_nexson_id_list(node_id_obj_list, vc):
                 return False
-            self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
+            return self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
         return not self._logger.has_error()
@@ -584,7 +589,7 @@ class NexsonValidationAdaptor(object):
         try:
             if not self._register_nexson_id_list(node_id_obj_list, vc):
                 return False
-            self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
+            return self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
         return not self._logger.has_error()
@@ -593,7 +598,7 @@ class NexsonValidationAdaptor(object):
         try:
             if not self._register_nexson_id_list(edge_id_obj_list, vc):
                 return False
-            self._validate_id_obj_list_by_schema(edge_id_obj_list, vc)
+            return self._validate_id_obj_list_by_schema(edge_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
         return not self._logger.has_error()
@@ -602,9 +607,10 @@ class NexsonValidationAdaptor(object):
         if not self._register_nexson_id_list(otu_id_obj_list, vc):
             return False
         #_LOG.debug(str(otu_id_obj_list))
-        self._validate_id_obj_list_by_schema(otu_id_obj_list, vc)
-        self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)
-        return True
+        if not self._validate_id_obj_list_by_schema(otu_id_obj_list, vc):
+            return False
+        return self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)
+    
     def _post_key_check_validate_otu_id_obj_list(self, otu_id_obj_list, vc):
         return True
     def _post_key_check_validate_tree(self,

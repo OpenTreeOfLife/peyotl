@@ -12,14 +12,6 @@
         "@idref": "bogusStudyID"
       }
     }, 
-    "MISSING_CRUCIAL_CONTENT": {
-      "data": [
-        "otus"
-      ], 
-      "refersTo": {
-        "@idref": "bogusStudyID"
-      }
-    }, 
     "UNPARSEABLE_META": {
       "data": [
         {

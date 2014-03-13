@@ -7,14 +7,6 @@
       "refersTo": {
         "@idref": "trees2"
       }
-    }, 
-    "REFERENCED_ID_NOT_FOUND": {
-      "data": [
-        "@otus=\"None\""
-      ], 
-      "refersTo": {
-        "@idref": "trees2"
-      }
     }
   }, 
   "warnings": {

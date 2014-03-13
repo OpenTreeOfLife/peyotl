@@ -1,4 +1,11 @@
 #!/usr/bin/env
+from peyotl.utility import get_logger
+_LOG = get_logger(__name__)
+
+def errorReturn(msg):
+    _LOG.debug(msg)
+    return False
+
 VERSION = '0.0.3a'
 class NexsonError(Exception):
     def __init__(self, v):

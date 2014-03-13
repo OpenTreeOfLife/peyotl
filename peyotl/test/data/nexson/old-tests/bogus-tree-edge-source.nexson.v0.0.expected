@@ -1,26 +1,5 @@
 {
   "errors": {
-    "MISSING_MANDATORY_KEY": {
-      "data": [
-        "ot:isLeaf"
-      ], 
-      "refersTo": {
-        "@idref": [
-          "node2", 
-          "node3", 
-          "node4"
-        ]
-      }
-    }, 
-    "MULTIPLE_ROOT_NODES": {
-      "data": [
-        "node0", 
-        "node10"
-      ], 
-      "refersTo": {
-        "@idref": "tree1"
-      }
-    }, 
     "REFERENCED_ID_NOT_FOUND": {
       "data": [
         "node10"

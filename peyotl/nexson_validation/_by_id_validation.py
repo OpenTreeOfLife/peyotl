@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.nexson_validation.helper import _NEXEL
+from peyotl.nexson_validation.helper import _NEXEL, errorReturn
 from peyotl.nexson_validation.schema import check_raw_dict
 from peyotl.nexson_validation.err_generator import gen_MissingCrucialContentWarning, \
                                                    gen_MultipleRootsWarning, \
@@ -27,7 +27,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=og_nex_id,
                              key_list=['otuById'])
-            return False
+            return errorReturn('no "otuById" in otus group')
         self._otu_group_by_id[og_nex_id] = otus_group
         vc.push_context(_NEXEL.OTU, (otus_group, og_nex_id))
         try:
@@ -50,12 +50,14 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                  anc=vc.anc_list,
                                  obj_nex_id=ndo_id_list,
                                  key_val_type_list=[not_dict_otu])
-                return False
+                return errorReturn('otu is wrong type')
             r = self._validate_otu_list(otu_id_obj_list, vc)
             if r:
                  self._otu_by_otug[og_nex_id] = otu_obj
+            return r
         finally:
             vc.pop_context()
+
     def _post_key_check_validate_tree_group(self, tg_nex_id, tree_group_obj, vc):
         tree_id_order = tree_group_obj.get('^ot:treeElementOrder')
         tree_by_id = tree_group_obj.get('treeById')
@@ -67,7 +69,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tg_nex_id,
                              key_list=['treeById', '^ot:treeElementOrder'])
-            return False
+            return errorReturn('no "treeById" in trees group')
         otus_el = tree_group_obj.get('@otus')
         if otus_el not in self._otu_group_by_id:
             self._error_event(_NEXEL.TREES,
@@ -76,13 +78,15 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                anc=vc.anc_list,
                                obj_nex_id=tg_nex_id,
                                key_list=[otus_el])
-            return False
+            return errorReturn('no "@otus" in trees group')
         for t_nex_id, tree_obj in tree_by_id.items():
             vc.push_context(_NEXEL.TREE, (tree_obj, t_nex_id))
             try:
-                self._validate_tree(t_nex_id, tree_obj, vc, otus_group_id=otus_el)
+                if not self._validate_tree(t_nex_id, tree_obj, vc, otus_group_id=otus_el):
+                    return False
             finally:
                 vc.pop_context()
+        return True
 
     def _post_key_check_validate_tree(self,
                                       tree_nex_id,
@@ -100,7 +104,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              key_list=['nodeById',])
-            return False
+            return errorReturn('no "nodeById" in tree')
         if (not edge_by_source) or (not isinstance(edge_by_source, dict)):
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
@@ -108,7 +112,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              key_list=['edgeBySourceId',])
-            return False
+            return errorReturn('no "edgeBySourceId" in tree')
         if (not isinstance(root_node_id, str)) and (not isinstance(root_node_id, unicode)):
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
@@ -116,11 +120,10 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              key_list=['^ot:rootNodeId',])
-            return False
+            return errorReturn('no "^ot:rootNodeId" in tree')
         edge_dict = {}
         edge_by_target = {}
         internal_nodes = []
-        fatal = False
         if otus_group_id is None:
             tree_group = vc.anc_list[-1][1]
             otus_group_id = tree_group.get('@otus')
@@ -157,7 +160,6 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             unreachable.sort()
             not_in_node_by_id = list(reachable_nodes - node_set)
             not_in_node_by_id.sort()
-            fatal = True
             if unreachable:
                 self._error_event(_NEXEL.TREE,
                                  obj=tree_obj,
@@ -165,6 +167,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                  anc=vc.anc_list,
                                  obj_nex_id=tree_nex_id,
                                  key_list=unreachable)
+                return errorReturn('unreachable node in tree tree')
             if not_in_node_by_id:
                 self._error_event(_NEXEL.TREE,
                                  obj=tree_obj,
@@ -172,8 +175,8 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                  anc=vc.anc_list,
                                  obj_nex_id=tree_nex_id,
                                  key_list=not_in_node_by_id)
+                return errorReturn('referenced node id not in "nodeById" in tree')
         if bad_node_ref:
-            fatal = True
             bad_node_ref.sort()
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
@@ -181,8 +184,8 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              key_list=bad_node_ref)
+            return errorReturn('referenced parent node not in "nodeById" in tree')
         if missing_target:
-            fatal = True
             missing_target.sort()
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
@@ -190,8 +193,8 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              key_list=missing_target)
+            return errorReturn('no "@target" in edge')
         if repeated_target:
-            fatal = True
             repeated_target.sort()
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
@@ -199,8 +202,8 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              node_id_list=repeated_target)
+            return errorReturn('same node used as "@target" for different edges')
         if repeated_edge_id:
-            fatal = True
             repeated_edge_id.sort()
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
@@ -208,14 +211,12 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              key_list=repeated_edge_id)
-        if fatal:
-            return False
+            return errorReturn('edge "@id" repeated')
         node_set = set(edge_by_target.keys())
         internal_node_set = set(edge_by_source.keys())
         leaf_set = node_set - internal_node_set
         leaves = [(i, node_by_id[i]) for i in leaf_set]
-        valid = self._validate_leaf_list(leaves, vc)
-        if not valid:
+        if not self._validate_leaf_list(leaves, vc):
             return False
         internal_nodes = [(i, node_by_id[i]) for i in internal_node_set]
         with_at_root_prop = {}
@@ -229,14 +230,14 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              node_id_list=with_at_root_prop.keys())
-            return False
+            return errorReturn('multiple "@root" nodes')
         if len(with_at_root_prop) == 0:
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
                              err_type=gen_NoRootWarning,
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id)
-            return False
+            return errorReturn('No node labelled as "@root"')
         if root_node_id not in with_at_root_prop:
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
@@ -244,13 +245,11 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
                              node_id_list=with_at_root_prop.keys() + [root_node_id])
-            return False
-        valid = self._validate_internal_node_list(internal_nodes, vc)
-        if not valid:
+            return errorReturn('root node not labelled as root')
+        if not self._validate_internal_node_list(internal_nodes, vc):
             return False
         edges = [i for i in edge_dict.items()]
-        valid = self._validate_edge_list(edges, vc)
-        if not valid:
+        if not self._validate_edge_list(edges, vc):
             return False
         otuid2leaf = {}
         for nd_id, nd in leaves:
@@ -264,7 +263,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                      anc=vc.anc_list,
                                      obj_nex_id=nd_id,
                                      key_list=[otuid])
-                    return False
+                    return errorReturn('Repeated "@otu" id')
                 finally:
                     vc.pop_context()
             otuid2leaf[otuid] = nd_id
@@ -283,7 +282,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
                              key_list=['otusById', '^ot:otusElementOrder'])
-            return False
+            return errorReturn('Missing "otusById" or "^ot:otusElementOrder"')
         otus_group_list = []
         missing_ogid = []
         not_dict_og = []
@@ -305,7 +304,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
                              key_list=missing_ogid)
-            return False
+            return errorReturn('Missing "@id" for otus group')
         vc.push_context(_NEXEL.OTUS, (nex_obj, obj_nex_id))
         try:
             if not_dict_og:
@@ -315,7 +314,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                  anc=vc.anc_list,
                                  obj_nex_id=None,
                                  key_val_type_list=[not_dict_og])
-                return False
+                return errorReturn('Otus objects of the wrong type of object')
             if not self._validate_otus_group_list(otus_group_list, vc):
                 return False
         finally:
@@ -331,7 +330,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
                              key_list=['treesById', '^ot:treesElementOrder'])
-            return False
+            return errorReturn('Missing "treesById" or "^ot:treesElementOrder"')
         trees_group_list = []
         missing_tgid = []
         not_dict_tg = []
@@ -353,7 +352,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
                              key_list=missing_tgid)
-            return False
+            return errorReturn('Missing trees group id')
         vc.push_context(_NEXEL.TREES, (nex_obj, obj_nex_id))
         try:
             if not_dict_tg:
@@ -363,7 +362,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                  anc=vc.anc_list,
                                  obj_nex_id=None,
                                  key_val_type_list=[not_dict_tg])
-                return False
+                return errorReturn('Trees element of the wrong type')
             if not self._validate_trees_group_list(trees_group_list, vc):
                 return False
         finally:

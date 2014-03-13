@@ -9,26 +9,5 @@
       }
     }
   }, 
-  "warnings": {
-    "MISSING_OPTIONAL_KEY": [
-      {
-        "data": [
-          "@xsi:type"
-        ], 
-        "refersTo": {
-          "@idref": "tree1"
-        }
-      }, 
-      {
-        "data": [
-          "ot:branchLengthMode", 
-          "ot:branchLengthTimeUnit", 
-          "ot:curatedType"
-        ], 
-        "refersTo": {
-          "@idref": "tree1"
-        }
-      }
-    ]
-  }
+  "warnings": {}
 }

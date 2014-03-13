@@ -1,0 +1,46 @@
+{
+  "errors": {
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "ot:isLeaf"
+      ], 
+      "refersTo": {
+        "@idref": [
+          "node2", 
+          "node3", 
+          "node4"
+        ]
+      }
+    }
+  }, 
+  "warnings": {
+    "MISSING_OPTIONAL_KEY": [
+      {
+        "data": [
+          "ot:ottId"
+        ], 
+        "refersTo": {
+          "@idref": "otu1"
+        }
+      }, 
+      {
+        "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }, 
+      {
+        "data": [
+          "ot:branchLengthMode", 
+          "ot:branchLengthTimeUnit", 
+          "ot:curatedType"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }
+    ]
+  }
+}

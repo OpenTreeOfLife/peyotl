@@ -63,7 +63,6 @@ def _initialize_study_index():
                 d[file]=(repo,root)    # if file is in more than one place it gets over written. EJM Needs work 
     return d
 
-
 def get_paths_for_study_id(study_id):
     global _study_index, _study_index_lock
     _study_index_lock.acquire()

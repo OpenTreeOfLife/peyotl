@@ -1,0 +1,153 @@
+{
+"nexml": {
+"@id": "some-id", 
+"meta": [
+{
+"$": "0", 
+"@property": "ot:studyId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Public, J. Q.. 2009. Some Bogus Title Here. Journal of Made-up Titles, 1(2): 3-12.", 
+"@property": "ot:studyPublicationReference", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"@href": "http://dx.doi.org/10.1600/036364409790139727", 
+"@property": "ot:studyPublication", 
+"@xsi:type": "nex:ResourceMeta"
+}, 
+{
+"$": "Mark Holder", 
+"@property": "ot:curatorName", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": 2009, 
+"@property": "ot:studyYear", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": 1786733, 
+"@property": "ot:focalClade", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"@href": "http://purl.org/phylo/treebase/phylows/study/TB2:S12414", 
+"@property": "ot:dataDeposit", 
+"@xsi:type": "nex:ResourceMeta"
+}
+], 
+"otus": {
+"@id": "otus1", 
+"otu": [
+{
+"@id": "otu1", 
+"@label": "Potamogeton berchtoldii Fieber", 
+"meta": [
+{
+"$": 1007359, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Potamogeton berchtoldii CoventryLk.06.015", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "otu2", 
+"@label": "Potamogeton foliosus Raf.", 
+"meta": [
+{
+"$": 1024525, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Potamogeton foliosus MtHigby.CT", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "otu3", 
+"@label": "Potamogeton gemmiparus", 
+"meta": [
+{
+"$": 161393, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Potamogeton gemmiparus Pickerel.06.014.8", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}
+]
+}, 
+"trees": {
+"@id": "trees2", 
+"@otus": "otus1", 
+"tree": [
+{
+"@id": "tree1", 
+"edge": [
+{
+"@id": "edge0", 
+"@source": "node0", 
+"@target": "node2"
+}, 
+{
+"@id": "edge1", 
+"@source": "node0", 
+"@target": "node1"
+}, 
+{
+"@id": "edge2", 
+"@source": "node1", 
+"@target": "node3"
+}, 
+{
+"@id": "edge3", 
+"@source": "node1", 
+"@target": "node4"
+}
+], 
+"meta": [
+{
+"$": "node1", 
+"@property": "ot:inGroupClade", 
+"@xsi:type": "nex:LiteralMeta"
+}
+], 
+"node": [
+{
+"@id": "node0"
+}, 
+{
+"@id": "node1"
+}, 
+{
+"@id": "node2", 
+"@otu": "otu1"
+}, 
+{
+"@id": "node3", 
+"@otu": "otu2"
+}, 
+{
+"@id": "node4", 
+"@otu": "otu3"
+}
+]
+}
+]
+}
+}
+}

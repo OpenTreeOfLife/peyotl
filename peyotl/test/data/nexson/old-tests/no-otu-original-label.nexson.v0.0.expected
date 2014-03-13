@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "ot:originalLabel"
+      ], 
+      "refersTo": {
+        "@idref": "otu1"
+      }
+    }
+  }, 
+  "warnings": {}
+}

@@ -1,5 +1,14 @@
 {
   "errors": {
+    "MISSING_CRUCIAL_CONTENT": {
+      "data": [
+        "^ot:treesElementOrder", 
+        "treesById"
+      ], 
+      "refersTo": {
+        "@idref": "bogusStudyID"
+      }
+    }, 
     "REPEATED_ID": {
       "data": [
         "^ot:dataDeposit"

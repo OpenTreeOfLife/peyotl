@@ -1,0 +1,25 @@
+{
+  "errors": {
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "@id"
+      ], 
+      "refersTo": {
+        "@top": "nexml"
+      }
+    }
+  }, 
+  "warnings": {
+    "MISSING_OPTIONAL_KEY": {
+      "data": [
+        "ot:dataDeposit", 
+        "ot:studyPublication", 
+        "ot:studyPublicationReference", 
+        "ot:studyYear"
+      ], 
+      "refersTo": {
+        "@top": "nexml"
+      }
+    }
+  }
+}

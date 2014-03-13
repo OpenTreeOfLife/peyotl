@@ -1,15 +1,11 @@
 {
   "errors": {
-    "MISSING_MANDATORY_KEY": {
+    "REPEATED_ID": {
       "data": [
-        "ot:isLeaf"
+        "node0"
       ], 
       "refersTo": {
-        "@idref": [
-          "node2", 
-          "node3", 
-          "node4"
-        ]
+        "@idref": "node0"
       }
     }
   }, 

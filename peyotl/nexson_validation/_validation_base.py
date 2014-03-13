@@ -523,22 +523,26 @@ class NexsonValidationAdaptor(object):
         finally:
             vc.pop_context()
     def _validate_otus_group_list(self, otu_group_id_obj_list, vc):
+        if not self._register_nexson_id_list(otu_group_id_obj_list, vc):
+            return False
         for el in otu_group_id_obj_list:
             ogid, og = el
-            if not self._register_nexson_id(ogid, og, vc):
-                return False
             self._otu_group_by_id[ogid] = og
-            self._validate_obj_by_schema(og, ogid, vc)
-            self._post_key_check_validate_otus_obj(ogid, og, vc)
+            if not self._validate_obj_by_schema(og, ogid, vc):
+                return False
+            if not self._post_key_check_validate_otus_obj(ogid, og, vc):
+                return False
         return True
 
     def _validate_trees_group_list(self, trees_group_id_obj_list, vc):
+        if not self._register_nexson_id_list(trees_group_id_obj_list, vc):
+            return False
         for el in trees_group_id_obj_list:
             tgid, tg = el
-            if not self._register_nexson_id(tgid, tg, vc):
+            if not self._validate_obj_by_schema(tg, tgid, vc):
                 return False
-            self._validate_obj_by_schema(tg, tgid, vc)
-            self._post_key_check_validate_tree_group(tgid, tg, vc)
+            if not self._post_key_check_validate_tree_group(tgid, tg, vc):
+                return False
         return True
 
     def _validate_tree(self, tree_id, tree_obj, vc, otus_group_id=None):
@@ -551,9 +555,17 @@ class NexsonValidationAdaptor(object):
                                                   vc,
                                                   otus_group_id=otus_group_id)
 
+    def _register_nexson_id_list(self, id_obj_list, vc):
+        for obj_id, obj in id_obj_list:
+            if not self._register_nexson_id(obj_id, obj, vc):
+                return False
+        return True
+
     def _validate_leaf_list(self, leaf_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.LEAF_NODE)
         try:
+            if not self._register_nexson_id_list(leaf_id_obj_list, vc):
+                return False
             self._validate_id_obj_list_by_schema(leaf_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
@@ -561,6 +573,8 @@ class NexsonValidationAdaptor(object):
     def _validate_internal_node_list(self, node_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.INTERNAL_NODE)
         try:
+            if not self._register_nexson_id_list(node_id_obj_list, vc):
+                return False
             self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
@@ -568,6 +582,8 @@ class NexsonValidationAdaptor(object):
     def _validate_node_list(self, node_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.NODE)
         try:
+            if not self._register_nexson_id_list(node_id_obj_list, vc):
+                return False
             self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
@@ -575,16 +591,16 @@ class NexsonValidationAdaptor(object):
     def _validate_edge_list(self, edge_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.EDGE)
         try:
+            if not self._register_nexson_id_list(edge_id_obj_list, vc):
+                return False
             self._validate_id_obj_list_by_schema(edge_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
         return not self._logger.has_error()
     
     def _validate_otu_list(self, otu_id_obj_list, vc):
-        for el in otu_id_obj_list:
-            ogid, og = el
-            if not self._register_nexson_id(ogid, og, vc):
-                return False
+        if not self._register_nexson_id_list(otu_id_obj_list, vc):
+            return False
         #_LOG.debug(str(otu_id_obj_list))
         self._validate_id_obj_list_by_schema(otu_id_obj_list, vc)
         self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)

@@ -11,6 +11,14 @@
           "node4"
         ]
       }
+    }, 
+    "REPEATED_ID": {
+      "data": [
+        "edge0"
+      ], 
+      "refersTo": {
+        "@idref": "edge0"
+      }
     }
   }, 
   "warnings": {

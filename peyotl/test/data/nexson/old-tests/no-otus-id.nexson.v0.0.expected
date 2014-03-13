@@ -2,63 +2,10 @@
   "errors": {
     "MISSING_CRUCIAL_CONTENT": {
       "data": [
-        "@id"
+        "otus[*]/@id"
       ], 
       "refersTo": {
-        "@idref": [
-          {
-            "otu": [
-              {
-                "@id": "otu1", 
-                "@label": "Potamogeton berchtoldii Fieber", 
-                "meta": [
-                  {
-                    "$": 1007359, 
-                    "@property": "ot:ottId", 
-                    "@xsi:type": "nex:LiteralMeta"
-                  }, 
-                  {
-                    "$": "Potamogeton berchtoldii CoventryLk.06.015", 
-                    "@property": "ot:originalLabel", 
-                    "@xsi:type": "nex:LiteralMeta"
-                  }
-                ]
-              }, 
-              {
-                "@id": "otu2", 
-                "@label": "Potamogeton foliosus Raf.", 
-                "meta": [
-                  {
-                    "$": 1024525, 
-                    "@property": "ot:ottId", 
-                    "@xsi:type": "nex:LiteralMeta"
-                  }, 
-                  {
-                    "$": "Potamogeton foliosus MtHigby.CT", 
-                    "@property": "ot:originalLabel", 
-                    "@xsi:type": "nex:LiteralMeta"
-                  }
-                ]
-              }, 
-              {
-                "@id": "otu3", 
-                "@label": "Potamogeton gemmiparus", 
-                "meta": [
-                  {
-                    "$": 161393, 
-                    "@property": "ot:ottId", 
-                    "@xsi:type": "nex:LiteralMeta"
-                  }, 
-                  {
-                    "$": "Potamogeton gemmiparus Pickerel.06.014.8", 
-                    "@property": "ot:originalLabel", 
-                    "@xsi:type": "nex:LiteralMeta"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+        "@idref": "some-id"
       }
     }
   }, 

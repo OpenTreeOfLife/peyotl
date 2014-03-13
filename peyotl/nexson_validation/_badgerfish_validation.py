@@ -337,7 +337,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             for og in otus_group_list:
                 ogid = og.get('@id')
                 if ogid is None:
-                    without_id.append(og)
+                    without_id.append(None)
                 else:
                     og_tuple_list.append((ogid, og))
             if without_id:
@@ -345,8 +345,8 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                                  obj=nex_obj,
                                  err_type=gen_MissingCrucialContentWarning,
                                  anc=vc.anc_list,
-                                 obj_nex_id=without_id,
-                                 key_list=['@id'])
+                                 obj_nex_id=None,
+                                 key_list=['otus[*]/@id'])
                 return False
             if not self._validate_otus_group_list(og_tuple_list, vc):
                 return False

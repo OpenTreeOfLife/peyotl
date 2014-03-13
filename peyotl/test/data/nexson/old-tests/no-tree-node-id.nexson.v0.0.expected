@@ -1,11 +1,13 @@
 {
   "errors": {
-    "REPEATED_OTU": {
+    "MISSING_MANDATORY_KEY": {
       "data": [
-        "otu1"
+        "@id"
       ], 
       "refersTo": {
-        "@idref": "node2"
+        "@top": "trees", 
+        "@treeID": "tree1", 
+        "@treesID": "tree1"
       }
     }
   }, 
@@ -34,8 +36,7 @@
         "data": [
           "ot:branchLengthMode", 
           "ot:branchLengthTimeUnit", 
-          "ot:curatedType", 
-          "ot:tag"
+          "ot:curatedType"
         ], 
         "refersTo": {
           "@idref": "tree1"

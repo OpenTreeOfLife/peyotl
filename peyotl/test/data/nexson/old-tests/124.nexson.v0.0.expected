@@ -95,8 +95,7 @@
         "data": [
           "ot:branchLengthMode", 
           "ot:branchLengthTimeUnit", 
-          "ot:curatedType", 
-          "ot:tag"
+          "ot:curatedType"
         ], 
         "refersTo": {
           "@idref": "tree5781"

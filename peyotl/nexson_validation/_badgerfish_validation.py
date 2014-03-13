@@ -137,7 +137,38 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         valid = self._validate_edge_list(edge_id_list, vc)
         if not valid:
             return False
-
+        node_id_obj_list = [(i.get('@id'), i) for i in node_list]
+        valid = self._validate_node_list(node_id_obj_list, vc)
+        if not valid:
+            return False
+        node_dict = {}
+        for i in node_id_obj_list:
+            nid, nd = i
+            node_dict[nid] = nd
+        missing_src = []
+        missing_target = []
+        for el in edge_id_list:
+            eid, e = el
+            sid = e.get('@source')
+            tid = e.get('@target')
+            if sid not in node_dict:
+                missing_src.append(sid)
+            if tid not in node_dict:
+                missing_target.append(tid)
+        if missing_src:
+            self._error_event(_NEXEL.TREE,
+                               obj=tree_obj,
+                               err_type=gen_ReferencedIDNotFoundWarning,
+                               anc=vc.anc_list,
+                               obj_nex_id=tree_nex_id,
+                               key_list=missing_src)
+        if missing_target:
+            self._error_event(_NEXEL.TREE,
+                               obj=tree_obj,
+                               err_type=gen_ReferencedIDNotFoundWarning,
+                               anc=vc.anc_list,
+                               obj_nex_id=tree_nex_id,
+                               key_list=missing_target)
         if otus_group_id is None:
             tree_group = vc.anc_list[-1][1]
             otus_group_id = tree_group.get('@otus')

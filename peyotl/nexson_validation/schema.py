@@ -474,9 +474,9 @@ _ExpMTreeEl_All = {'ot:branchLengthTimeUnit': _VT.STR,
                    'ot:branchLengthMode': _VT.STR,
                    'ot:curatedType': _VT.STR,
                    'ot:inGroupClade': _VT.STR,
-                   'ot:tag': _VT.STR_REPEATABLE_EL,
                    }
 _TypMTreeEl_All = {'ot:specifiedRoot': _VT.STR,
+                   'ot:tag': _VT.STR_REPEATABLE_EL,
                    'ot:unrootedTree': _VT.BOOL,
                    }
 _v1_2_Tree = _SchemaFragment(required=_Req_TreeEl_ByI,

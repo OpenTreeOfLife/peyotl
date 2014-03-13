@@ -565,6 +565,13 @@ class NexsonValidationAdaptor(object):
         finally:
             vc.pop_context_no_anc()
         return not self._logger.has_error()
+    def _validate_node_list(self, node_id_obj_list, vc):
+        vc.push_context_no_anc(_NEXEL.NODE)
+        try:
+            self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
+        finally:
+            vc.pop_context_no_anc()
+        return not self._logger.has_error()
     def _validate_edge_list(self, edge_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.EDGE)
         try:

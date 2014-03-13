@@ -148,7 +148,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         missing_src = []
         missing_target = []
         for el in edge_id_list:
-            eid, e = el
+            e = el[1]
             sid = e.get('@source')
             tid = e.get('@target')
             if sid not in node_dict:

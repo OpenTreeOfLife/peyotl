@@ -464,7 +464,9 @@ class NexsonValidationAdaptor(object):
                                          anc=anc_list,
                                          obj_nex_id=obj_nex_id,
                                          key_list=mrmk)
-                        return errorReturn('missing mandatory meta key(s) according to {s} schema'.format(s=vc.schema_name()))
+                        msgf = 'missing mandatory meta key(s) according to {s} schema'
+                        msg = msgf.format(s=vc.schema_name())
+                        return errorReturn(msg)
                     for k, v in md.items():
                         if k not in schema.ALLOWED_META_KEY_SET:
                             unrec_meta_keys.append(k)

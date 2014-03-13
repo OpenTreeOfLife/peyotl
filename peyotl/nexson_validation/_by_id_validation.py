@@ -7,6 +7,7 @@ from peyotl.nexson_validation.err_generator import gen_MissingCrucialContentWarn
                                                    gen_NoRootWarning, \
                                                    gen_ReferencedIDNotFoundWarning, \
                                                    gen_RepeatedIDWarning, \
+                                                   gen_RepeatedOTUWarning, \
                                                    gen_UnreachableNodeWarning, \
                                                    gen_WrongValueTypeWarning
 from peyotl.nexson_validation._validation_base import NexsonValidationAdaptor
@@ -53,7 +54,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 return errorReturn('otu is wrong type')
             r = self._validate_otu_list(otu_id_obj_list, vc)
             if r:
-                 self._otu_by_otug[og_nex_id] = otu_obj
+                self._otu_by_otug[og_nex_id] = otu_obj
             return r
         finally:
             vc.pop_context()
@@ -377,7 +378,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             else:
                 tree_list = []
                 for tg in trees.values():
-                    tbi = tg.get('treeById',{})
+                    tbi = tg.get('treeById', {})
                     tree_list.extend(tbi.keys())
             self._generate_ott_warnings(otus, tree_list, (nex_obj, obj_nex_id), vc)
         return True

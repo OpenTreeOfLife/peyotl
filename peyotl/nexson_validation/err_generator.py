@@ -12,6 +12,8 @@ from peyotl.utility import get_logger
 from cStringIO import StringIO
 import codecs
 import json
+# monkey patching of NexsonWarningCodes causes lots of warnings
+#pylint: disable=E1101 
 _LOG = get_logger(__name__)
 
 class MessageTupleAdaptor(object):
@@ -48,6 +50,9 @@ class MessageTupleAdaptor(object):
 class _StrListDataWarningType(MessageTupleAdaptor):
     '''Adaptor for warning with data being a list of strings
     '''
+    def __init__(self):
+        self.code = None
+        self.format = '{p}'
     def write(self, err_tuple, outstream, prefix):
         data = err_tuple[3]
         ds = '", "'.join(data)
@@ -258,10 +263,10 @@ def _argumentless_warning(wt, addr, pyid, logger, severity):
 
 # some introspective hacking to create a look up of factory function 2 NexsonWarningCodes type
 factory2code = {}
-for k in locals().keys():
-    if k.startswith('gen_'):
-        obj_n = k[4:]
-        if obj_n in locals():
-            gf = locals()[k]
-            obj = locals()[obj_n]
-            factory2code[gf] = obj.code
+for _local_key in locals().keys():
+    if _local_key.startswith('gen_'):
+        _obj_n = _local_key[4:]
+        if _obj_n in locals():
+            _gf = locals()[_local_key]
+            _obj = locals()[_obj_n]
+            factory2code[_gf] = _obj.code

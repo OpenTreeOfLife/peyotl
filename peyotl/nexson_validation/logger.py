@@ -159,6 +159,7 @@ class DefaultRichLogger(object):
         }
         message_list = annotation['messages']
         return annotation
+        #TODO include messages...
         for m in self.errors:
             d = m.as_dict()
             d['severity'] = 'ERROR'

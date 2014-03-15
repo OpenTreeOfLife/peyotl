@@ -1,10 +1,8 @@
 from sh import git
 import sh
 import re
-import os, sys
+import os
 import locket
-import functools
-from locket import LockError
 import codecs
 from peyotl.phylesystem import get_HEAD_SHA1
 from peyotl import get_logger
@@ -127,9 +125,9 @@ class GitAction(object):
 
         self.create_or_checkout_branch(branch)
         if not os.path.isdir(study_dir):
-                # branch already exists locally with study removed
-                # so just return the commit SHA
-                return git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip()
+            # branch already exists locally with study removed
+            # so just return the commit SHA
+            return git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip()
 
         git(self.gitdir, self.gitwd, "rm", "-rf", study_dir)
 
@@ -164,9 +162,9 @@ class GitAction(object):
         if not os.path.isdir(study_dir):
             os.mkdir(study_dir)
 
-        file = open(study_filename, 'w')
-        file.write(content)
-        file.close()
+        file_obj = open(study_filename, 'w')
+        file_obj.write(content)
+        file_obj.close()
 
         git(self.gitdir, self.gitwd, "add", study_filename)
 

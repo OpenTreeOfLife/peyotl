@@ -125,3 +125,8 @@ def next_unique_filepath(fp):
                 return np
             ind += 1
     return fp
+
+def json_source_path(filename=None):
+    if filename is None:
+        filename = ""
+    return os.path.join(TESTS_DATA_DIR, "json", filename)

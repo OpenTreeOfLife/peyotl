@@ -16,13 +16,19 @@ def _err_warn_summary(w):
     for el in w:
         msg_adapt_inst = el[0]
         r = msg_adapt_inst.as_dict(el)
-        key = r['code']
-        del r['code']
+        key = r['@code']
+        del r['@code']
         _add_value_to_dict_bf(d, key, r)
     return d
 
-def _create_message(key, w):
-    return _err_warn_summary(w)
+def _create_message_list(key, w, severity):
+    d = []
+    for el in w:
+        msg_adapt_inst = el[0]
+        r = msg_adapt_inst.as_dict(el)
+        r['@severity'] = severity
+        d.append(r)
+    return d
 
 _LIST_0 = [0]
 _LIST_1 = [1]
@@ -122,18 +128,14 @@ class DefaultRichLogger(object):
     def create_nexson_message_list(self, sort=True):
         em_list = []
         for key, em in self._err_by_type.items():
-            d = _create_message(key, em)
-            d['severity'] = 'ERROR'
-            d['preserve'] = False
-            em_list.append(d)
+            d = _create_message_list(key, em, 'ERROR')
+            em_list.extend(d)
         if sort:
             em_list.sort(cmp=_msg_cmp)
         wm_list = []
         for key, em in self._warn_by_type.items():
-            d = _create_message(key, em)
-            d['severity'] = 'WARNING'
-            d['preserve'] = False
-            wm_list.append(d)
+            d = _create_message_list(key, em, 'WARNING')
+            wm_list.extend(d)
         if sort:
             em_list.sort(cmp=_msg_cmp)
             wm_list.sort(cmp=_msg_cmp)
@@ -167,7 +169,7 @@ class DefaultRichLogger(object):
             '@description': description,
             '@wasAssociatedWithAgentId': agent_id,
             '@dateCreated': datetime.datetime.utcnow().isoformat(),
-            '@passedChecks': self.has_error(),
+            '@passedChecks': not self.has_error(),
             '@preserve': False,
             'message': ml
         }

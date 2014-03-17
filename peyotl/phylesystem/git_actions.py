@@ -181,9 +181,16 @@ class GitAction(object):
         shutil.copy(f.name, study_filename)
         
         git(self.gitdir, self.gitwd, "add",study_filename)
-
-        git(self.gitdir, self.gitwd,  "commit", author=author, message="Update Study #%s via OpenTree API" % study_id)
-
+        try:
+          git(self.gitdir, self.gitwd,  "commit", author=author, message="Update Study #%s via OpenTree API" % study_id)
+        except Exception, e:
+            # We can ignore this if no changes are new,
+            # otherwise raise a 400
+            if "nothing to commit" in e.message:
+                 pass
+            else:
+                 raise
+                 
         new_sha = git(self.gitdir, self.gitwd,  "rev-parse", "HEAD")
         
         self.lock.release()

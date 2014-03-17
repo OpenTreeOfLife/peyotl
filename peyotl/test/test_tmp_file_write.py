@@ -14,4 +14,4 @@ class TestCreate(unittest.TestCase):
         gd.write_study(study_id="9999", content=n, branch="ejm_test")
         
 if __name__ == "__main__":
-    unittest.main()git 
+    unittest.main()

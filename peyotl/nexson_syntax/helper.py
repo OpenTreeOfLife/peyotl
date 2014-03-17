@@ -234,23 +234,46 @@ def find_val_for_first_bf_l_meta(d, prop_name):
             return extract_meta(m_el)
     return None
 
+def find_val_for_first_bf_r_meta(d, prop_name):
+    '''Returns the $ value of the first meta element with
+    the @rel that matches @prop_name (or None).
+    '''
+    m_list = d.get('meta')
+    if not m_list:
+        return None
+    if not isinstance(m_list, list):
+        m_list = [m_list]
+    for m_el in m_list:
+        if m_el.get('@rel') == prop_name:
+            return extract_meta(m_el)
+    return None
+
 def find_val_literal_meta_first(d, prop_name, version):
     if _is_badgerfish_version(version):
         return find_val_for_first_bf_l_meta(d, prop_name)
     p = '^' + prop_name
     return d.get(p)
+def find_val_resource_meta_first(d, prop_name, version):
+    if _is_badgerfish_version(version):
+        return find_val_for_first_bf_r_meta(d, prop_name)
+    p = '^' + prop_name
+    return d.get(p)
+
 def add_literal_meta(obj, prop_name, value, version):
     if _is_badgerfish_version(version):
         m = obj.setdefault('meta', [])
         if not isinstance(m, list):
             m = [m]
             obj['meta'] = m
-        m.append({'$': value,
+        d = {'$': value,
                   '@property': prop_name,
-                  '@xsi:type': 'nex:LiteralMeta'})
+                  '@xsi:type': 'nex:LiteralMeta'}
+        m.append(d)
+        return d
     else:
         k = '^' + prop_name
         _add_value_to_dict_bf(obj, k, value)
+        return value
 
 def delete_first_literal_meta(obj, prop_name, version):
     if _is_badgerfish_version(version):

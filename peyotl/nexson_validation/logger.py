@@ -16,9 +16,18 @@ def _err_warn_summary(w):
     for el in w:
         msg_adapt_inst = el[0]
         r = msg_adapt_inst.as_dict(el)
-        key = r['code']
-        del r['code']
+        key = r['@code']
+        del r['@code']
         _add_value_to_dict_bf(d, key, r)
+    return d
+
+def _create_message_list(key, w, severity):
+    d = []
+    for el in w:
+        msg_adapt_inst = el[0]
+        r = msg_adapt_inst.as_dict(el)
+        r['@severity'] = severity
+        d.append(r)
     return d
 
 _LIST_0 = [0]
@@ -116,12 +125,29 @@ class DefaultRichLogger(object):
                     v.sort(cmp=_msg_cmp)
         return {'warnings': w, 'errors': e}
 
+    def create_nexson_message_list(self, sort=True):
+        em_list = []
+        for key, em in self._err_by_type.items():
+            d = _create_message_list(key, em, 'ERROR')
+            em_list.extend(d)
+        if sort:
+            em_list.sort(cmp=_msg_cmp)
+        wm_list = []
+        for key, em in self._warn_by_type.items():
+            d = _create_message_list(key, em, 'WARNING')
+            wm_list.extend(d)
+        if sort:
+            em_list.sort(cmp=_msg_cmp)
+            wm_list.sort(cmp=_msg_cmp)
+        em_list.extend(wm_list)
+        return em_list
+
+
     def prepare_annotation(self, 
                        author_name='',
                        invocation=tuple(),
-                       annotation_label='',
                        author_version=VERSION,
-                       url='https://github.com/OpenTreeOfLife/api.opentreeoflife.org',
+                       url='https://github.com/OpenTreeOfLife/peyotl',
                        description=None
                        ):
         if description is None:
@@ -135,42 +161,38 @@ class DefaultRichLogger(object):
             except:
                 pass
         checks_performed = [NexsonWarningCodes.facets[i] for i in checks_performed]
-        nuuid = 'meta-' + str(uuid.uuid1())
+        aevent_id = 'ae' + str(uuid.uuid1())
+        agent_id = 'peyotl-validator'
+        ml = self.create_nexson_message_list()
         annotation = {
-            '@property': 'ot:annotation',
-            '$': annotation_label,
-            '@xsi:type': 'nex:ResourceMeta',
-            'author': {
-                'name': author_name, 
-                'url': url, 
-                'description': description,
-                'version': author_version,
-                'invocation': {
-                    'commandLine': invocation,
-                    'checksPerformed': checks_performed,
-                    'pythonVersion' : platform.python_version(),
-                    'pythonImplementation' : platform.python_implementation(),
-                }
-            },
-            'dateCreated': datetime.datetime.utcnow().isoformat(),
-            'id': nuuid,
-            'messages': [],
-            'isValid': (len(self.errors) == 0) and (len(self.warnings) == 0),
+            '@id': aevent_id,
+            '@description': description,
+            '@wasAssociatedWithAgentId': agent_id,
+            '@dateCreated': datetime.datetime.utcnow().isoformat(),
+            '@passedChecks': not self.has_error(),
+            '@preserve': False,
+            'message': ml
         }
-        message_list = annotation['messages']
-        return annotation
-        #TODO include messages...
-        for m in self.errors:
-            d = m.as_dict()
-            d['severity'] = 'ERROR'
-            d['preserve'] = False
-            message_list.append(d)
-        for m in self.warnings:
-            d = m.as_dict()
-            d['severity'] = 'WARNING'
-            d['preserve'] = False
-            message_list.append(d)
-        return annotation
+        invocation_obj = {
+            'commandLine': invocation,
+            'checksPerformed': checks_performed,
+            'otherProperty': [
+                {'name': 'pythonVersion',
+                'value': platform.python_version()},
+                {'name': 'pythonImplementation',
+                'value': platform.python_implementation(),
+                },
+            ]
+        }
+        agent = {
+            '@id': agent_id,
+            '@name': author_name,
+            '@url': url,
+            '@description': description,
+            '@version': author_version,
+            'invocation': invocation_obj,
+        }
+        return {'annotationEvent': annotation, 'agent': agent}
 
 
 class ValidationLogger(DefaultRichLogger):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 if __name__ == '__main__':
+    from peyotl.nexson_syntax import write_as_json
     from peyotl.nexson_validation import NexsonError, \
                                          NexsonWarningCodes, \
                                          validate_nexson
@@ -38,6 +39,11 @@ if __name__ == '__main__':
                         action='store_true',
                         default=False,
                         help='warn about unvalidated meta elements')
+    parser.add_argument('--embed',
+                        dest='embed',
+                        action='store_true',
+                        default=False,
+                        help='Writes warnings/errors into the NexSON content')
     parser.add_argument('input',
                         metavar='filepath',
                         type=unicode,
@@ -69,25 +75,35 @@ if __name__ == '__main__':
     if not args.meta:
         codes_to_skip = [NexsonWarningCodes.UNVALIDATED_ANNOTATION]
     try:
-        v, n = validate_nexson(obj, codes_to_skip)
+        v_log, adaptor = validate_nexson(obj, codes_to_skip)
     except NexsonError as nx:
         _LOG.error(nx.value)
         sys.exit(1)
     rc = 0
-    if (not v.errors) and (not v.warnings):
-        _LOG.info('Valid')
+    if args.embed:
+        rc = 1 if v_log.has_error() else 0
+        annotation = v_log.prepare_annotation(author_name=SCRIPT_NAME,
+                                              invocation=sys.argv[1:],
+                                              )
+        adaptor.add_or_replace_annotation(obj,
+                                          annotation['annotationEvent'],
+                                          annotation['agent'])
+        write_as_json(obj, out)
     else:
-        rc = len(v.errors)
-        if args.syntax.lower() == 'json':
-            em_dict = v.get_err_warn_summary_dict()
-            if em_dict:
-                json.dump(em_dict, out, indent=2, sort_keys=True)
-                out.write('\n')
+        if (not v_log.errors) and (not v_log.warnings):
+            _LOG.info('Valid')
         else:
-            if v.errors:
-                for el in v.errors:
-                    _LOG.error(el)
+            rc = len(v_log.errors)
+            if args.syntax.lower() == 'json':
+                em_dict = v_log.get_err_warn_summary_dict()
+                if em_dict:
+                    json.dump(em_dict, out, indent=2, sort_keys=True)
+                    out.write('\n')
             else:
-                for el in v.warnings:
-                    _LOG.warn(el)
+                if v_log.errors:
+                    for el in v_log.errors:
+                        _LOG.error(el)
+                else:
+                    for el in v_log.warnings:
+                        _LOG.warn(el)
     sys.exit(rc)

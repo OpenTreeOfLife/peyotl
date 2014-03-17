@@ -36,7 +36,7 @@ class MessageTupleAdaptor(object):
     def as_dict(self, err_tuple):
         addr = err_tuple[2]
         return {
-            'code': NexsonWarningCodes.facets[self.code],
+            '@code': NexsonWarningCodes.facets[self.code],
             #'comment': self.__unicode__(err_tuple),
             'data': self.convert_data_for_json(err_tuple),
             'refersTo': addr.path

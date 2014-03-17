@@ -1,0 +1,25 @@
+{
+  "errors": {
+    "REPEATED_ID": {
+      "data": [
+        "otu1"
+      ], 
+      "refersTo": {
+        "@idref": "otu1"
+      }
+    }
+  }, 
+  "warnings": {
+    "MISSING_OPTIONAL_KEY": {
+      "data": [
+        "ot:dataDeposit", 
+        "ot:studyPublication", 
+        "ot:studyPublicationReference", 
+        "ot:studyYear"
+      ], 
+      "refersTo": {
+        "@idref": "some-id"
+      }
+    }
+  }
+}

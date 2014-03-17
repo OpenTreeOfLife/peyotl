@@ -53,11 +53,11 @@ class Direct2OptimalNexson(NexsonConverter):
         return otusById, otusElementOrder
 
     def convert_tree(self, tree):
-        nodesById = {}
+        nodeById = {}
         root_node = None
         node_list = _index_list_of_values(tree, 'node')
         for node in node_list:
-            nodesById[node['@id']] = node
+            nodeById[node['@id']] = node
             if node.get('@root') == "true":
                 assert(root_node is None)
                 root_node = node
@@ -71,7 +71,7 @@ class Direct2OptimalNexson(NexsonConverter):
             byso = edgeBySourceId.setdefault(sourceId, {})
             byso[eid] = edge
         # If all that succeeds, add the new object to the dict, creating a fat structure
-        tree['nodesById'] = nodesById
+        tree['nodeById'] = nodeById
         tree['edgeBySourceId'] = edgeBySourceId
         tree['^ot:rootNodeId'] = root_node['@id']
         # Make the struct leaner

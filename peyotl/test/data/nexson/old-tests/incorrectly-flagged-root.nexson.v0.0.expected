@@ -1,0 +1,58 @@
+{
+  "errors": {
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "ot:isLeaf"
+      ], 
+      "refersTo": {
+        "@idref": [
+          "node2", 
+          "node3", 
+          "node4"
+        ]
+      }
+    }, 
+    "MULTIPLE_ROOT_NODES": {
+      "data": [
+        "node0", 
+        "node1"
+      ], 
+      "refersTo": {
+        "@idref": "tree1"
+      }
+    }
+  }, 
+  "warnings": {
+    "MISSING_OPTIONAL_KEY": [
+      {
+        "data": [
+          "ot:dataDeposit", 
+          "ot:studyPublication", 
+          "ot:studyPublicationReference", 
+          "ot:studyYear"
+        ], 
+        "refersTo": {
+          "@idref": "some-id"
+        }
+      }, 
+      {
+        "data": [
+          "@xsi:type"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }, 
+      {
+        "data": [
+          "ot:branchLengthMode", 
+          "ot:branchLengthTimeUnit", 
+          "ot:curatedType"
+        ], 
+        "refersTo": {
+          "@idref": "tree1"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "errors": {
+    "MISSING_MANDATORY_KEY": {
+      "data": [
+        "nexml"
+      ], 
+      "refersTo": {
+        "@top": ""
+      }
+    }
+  }, 
+  "warnings": {
+    "UNRECOGNIZED_KEY": {
+      "data": [
+        "a", 
+        "b"
+      ], 
+      "refersTo": {
+        "@top": ""
+      }
+    }
+  }
+}

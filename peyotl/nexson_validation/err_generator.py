@@ -12,6 +12,8 @@ from peyotl.utility import get_logger
 from cStringIO import StringIO
 import codecs
 import json
+# monkey patching of NexsonWarningCodes causes lots of warnings
+#pylint: disable=E1101 
 _LOG = get_logger(__name__)
 
 class MessageTupleAdaptor(object):
@@ -48,11 +50,26 @@ class MessageTupleAdaptor(object):
 class _StrListDataWarningType(MessageTupleAdaptor):
     '''Adaptor for warning with data being a list of strings
     '''
+    def __init__(self):
+        self.code = None
+        self.format = '{p}'
     def write(self, err_tuple, outstream, prefix):
         data = err_tuple[3]
         ds = '", "'.join(data)
         outstream.write(self.format.format(p=prefix, d=ds))
         self._write_message_suffix(err_tuple, outstream)
+
+class _ArgumentlessWarningType(MessageTupleAdaptor):
+    '''Adaptor for warning with data being a list of strings
+    '''
+    def write(self, err_tuple, outstream, prefix):
+        outstream.write(self.format.format(p=prefix))
+        self._write_message_suffix(err_tuple, outstream)
+
+class RepeatedOTUWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.REPEATED_OTU
+        self.format = '{p}OTU id found in mutliple nodes. id(s): "{d}"'
 
 class UnrecognizedKeyWarningType(_StrListDataWarningType):
     def __init__(self):
@@ -79,6 +96,26 @@ class MissingCrucialContentWarningType(_StrListDataWarningType):
         self.code = NexsonWarningCodes.MISSING_CRUCIAL_CONTENT
         self.format = '{p}Further validation amd acceptance requires more content; specifically keys(s): "{d}"'
 
+class MultipleRootsWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MULTIPLE_ROOT_NODES
+        self.format = '{p}Multiple nodes flagged as the root: "{d}"'
+
+class NoRootWarningType(_ArgumentlessWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MULTIPLE_ROOT_NODES
+        self.format = '{p}Multiple nodes flagged as the root:'
+
+class NodeWithMultipleParentsType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MULTIPLE_EDGES_FOR_NODES
+        self.format = '{p} node ID is the target of multiple edges. Node ID(s): "{d}"'
+
+class TreeCycleWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.CYCLE_DETECTED
+        self.format = '{p} node ID involved in a cycle in the tree. Node ID(s): "{d}"'
+
 class ReferencedIDNotFoundWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.REFERENCED_ID_NOT_FOUND
@@ -98,6 +135,14 @@ class UnparseableMetaWarningType(_ObjListDataWarningType):
         self.code = NexsonWarningCodes.UNPARSEABLE_META
         self.format = '{p}meta(s) with out @property or @rel: "{d}"'
 
+class UnreachableNodeWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.UNREACHABLE_NODE
+        self.format = '{p}Nodes not connected to the root of the tree: "{d}"'
+class InvalidKeyWarningType(_StrListDataWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.INVALID_PROPERTY_VALUE
+        self.format = '{p}Invalid or inappropriate key: "{d}"'
 
 class WrongValueTypeWarningType(MessageTupleAdaptor):
     def write(self, err_tuple, outstream, prefix):
@@ -111,18 +156,38 @@ class WrongValueTypeWarningType(MessageTupleAdaptor):
         self.code = NexsonWarningCodes.INCORRECT_VALUE_TYPE
         self.format = '{p}value for key not the expected type: "{d}"'
 
+class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID
+        self.format = '{p}Multiple otus mapping to the same OTT ID used in the same tree: "{d}"'
+    def write(self, err_tuple, outstream, prefix):
+        raise NotImplementedError('MultipleTipsToSameOttIdWarningType.write')
+    def convert_data_for_json(self, err_tuple):
+        return [i for i in err_tuple[3]]
+
 # A single, immutable, global instance of each warning type is created
 
+InvalidKeyWarning = InvalidKeyWarningType()
 MissingCrucialContentWarning = MissingCrucialContentWarningType()
 MissingExpectedListWarning = MissingExpectedListWarningType()
 MissingMandatoryKeyWarning = MissingMandatoryKeyWarningType()
 MissingOptionalKeyWarning = MissingOptionalKeyWarningType()
+MultipleRootsWarning = MultipleRootsWarningType()
+MultipleTipsToSameOttIdWarning = MultipleTipsToSameOttIdWarningType()
+NodeWithMultipleParents = NodeWithMultipleParentsType()
+NoRootWarning = NoRootWarningType()
 ReferencedIDNotFoundWarning = ReferencedIDNotFoundWarningType()
 RepeatedIDWarning = RepeatedIDWarningType()
+RepeatedOTUWarning = RepeatedOTUWarningType()
+TreeCycleWarning = TreeCycleWarningType()
 UnparseableMetaWarning = UnparseableMetaWarningType()
+UnreachableNodeWarning = UnreachableNodeWarningType()
 UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
 WrongValueTypeWarning = WrongValueTypeWarningType()
 
+
+def gen_InvalidKeyWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(InvalidKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
 def gen_MissingCrucialContentWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingCrucialContentWarning, kwargs['key_list'], addr, pyid, logger, severity)
@@ -136,14 +201,39 @@ def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, **kwargs):
 def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingOptionalKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+def gen_MultipleRootsWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(MultipleRootsWarning, kwargs['node_id_list'], addr, pyid, logger, severity)
+
+def gen_MultipleTipsToSameOttIdWarning(addr, pyid, logger, severity, **kwargs):
+    k_list = kwargs['otu_sets']
+    k_list.sort()
+    k_list = tuple(k_list)
+    t = (MultipleTipsToSameOttIdWarning, pyid, addr, k_list)
+    logger.register_new_messages(t, severity=severity)
+
+def gen_NodeWithMultipleParents(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(NodeWithMultipleParents, kwargs['node_id_list'], addr, pyid, logger, severity)
+
+def gen_TreeCycleWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(TreeCycleWarning, kwargs['node_id_list'], addr, pyid, logger, severity)
+
+def gen_NoRootWarning(addr, pyid, logger, severity, **kwargs):
+    _argumentless_warning(NoRootWarning, addr, pyid, logger, severity)
+
 def gen_ReferencedIDNotFoundWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(ReferencedIDNotFoundWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
 def gen_RepeatedIDWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(RepeatedIDWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+def gen_RepeatedOTUWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(RepeatedOTUWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
 def gen_UnparseableMetaWarning(addr, pyid, logger, severity, **kwargs):
     _obj_list_warning(UnparseableMetaWarning, kwargs['obj_list'], addr, pyid, logger, severity)
+
+def gen_UnreachableNodeWarning(addr, pyid, logger, severity, **kwargs):
+    _key_list_warning(UnreachableNodeWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
 def gen_UnrecognizedKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(UnrecognizedKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
@@ -167,13 +257,16 @@ def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
     #_LOG.debug("t=" + str(t))
     logger.register_new_messages(t, severity=severity)
 
+def _argumentless_warning(wt, addr, pyid, logger, severity):
+    t = (wt, pyid, addr, None)
+    logger.register_new_messages(t, severity=severity)
 
 # some introspective hacking to create a look up of factory function 2 NexsonWarningCodes type
 factory2code = {}
-for k in locals().keys():
-    if k.startswith('gen_'):
-        obj_n = k[4:]
-        if obj_n in locals():
-            gf = locals()[k]
-            obj = locals()[obj_n]
-            factory2code[gf] = obj.code
+for _local_key in locals().keys():
+    if _local_key.startswith('gen_'):
+        _obj_n = _local_key[4:]
+        if _obj_n in locals():
+            _gf = locals()[_local_key]
+            _obj = locals()[_obj_n]
+            factory2code[_gf] = _obj.code

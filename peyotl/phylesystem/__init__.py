@@ -42,8 +42,7 @@ def _get_phylesystem_parent():
     return(x)
 
 
-def _initialize_study_index():
-    d = {} # Key is study id, value is repo,dir tuple
+def get_repos():
     _repos = {} # key is repo name, value repo location
     par_list = _get_phylesystem_parent()
     for p in par_list:
@@ -54,6 +53,11 @@ def _initialize_study_index():
                 _repos[name] = os.path.join(p, name)
     if len(_repos)==0:
         raise ValueError('No git repos in {parent}'.format(str(par_list)))
+    return _repos
+
+def _initialize_study_index():
+    d = {} # Key is study id, value is repo,dir tuple
+    repos=get_repos()
     for repo in _repos:
         for triple in os.walk(os.path.join(_repos[repo], 'study')):
             root, files = triple[0], triple[2]
@@ -79,16 +83,6 @@ def get_paths_for_study_id(study_id):
     finally:
         _study_index_lock.release()
 
-
-def get_repos():
-    global _study_index
-    _study_index_lock.acquire()
-    try:
-        if _study_index is None:
-            _study_index = _initialize_study_index()
-    finally:
-        _study_index_lock.release()
-    return _study_index.keys()
 
 def create_new_path_for_study_id(study_id):
     _study_index_lock.acquire()

@@ -9,6 +9,8 @@ import codecs
 from peyotl.phylesystem import get_HEAD_SHA1
 from peyotl import get_logger
 import tempfile
+import shutil
+import json
 
 _LOG = get_logger(__name__)
 class MergeException(Exception):
@@ -140,12 +142,6 @@ class GitAction(object):
 
         return new_sha.strip()
 
-    def _write_tmp(content, tmp_filename="tmp.json"):
-    import tmpfile
-        tempfile.TemporaryFile([mode='w+b'[, bufsize=-1[, suffix=''[, prefix='tmp'[, dir=None]]]]])
-        file = open(tmp_filename, 'w')
-        file.write(content)
-        file.close()
 
 
     def write_study(self, study_id, content, branch, author="OpenTree API <api@opentreeoflife.org>"):
@@ -159,6 +155,7 @@ class GitAction(object):
         it will be created. If the study is being
         created, it's containing directory will be
         created as well.
+        @EJM Assume content is a json dictionary, or something else?
 
         Returns the SHA of the new commit on branch.
 
@@ -174,17 +171,25 @@ class GitAction(object):
         if not os.path.isdir(study_dir):
             os.mkdir(study_dir)
             
-        _write_tmp(content,tmp_filename)
+        f=tempfile.NamedTemporaryFile()
+
+        json.dump(content,f)
+
+        f.flush()
         
-        destination = os.path.join(study_dir)
+        self.lock.acquire()
         
-        os.rename()#@ejm this won't work across dorves, does this matter?
+        shutil.copy(f.name, study_filename)
         
         git(self.gitdir, self.gitwd, "add",study_filename)
 
         git(self.gitdir, self.gitwd,  "commit", author=author, message="Update Study #%s via OpenTree API" % study_id)
 
         new_sha = git(self.gitdir, self.gitwd,  "rev-parse", "HEAD")
+        
+        self.lock.release()
+
+        f.close()
 
         return new_sha.strip()
 

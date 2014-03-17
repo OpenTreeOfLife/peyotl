@@ -193,6 +193,11 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
         out = dest
     json.dump(blob, out, indent=indent, sort_keys=sort_keys)
     out.write('\n')
+    
+def read_as_json(infi):
+    inpf = codecs.open(infi)
+    n = json.load(inpf)
+    return(n)
 
 def _recursive_sort_meta(blob, k):
     if isinstance(blob, list):

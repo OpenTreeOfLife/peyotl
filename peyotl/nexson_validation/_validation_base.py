@@ -11,7 +11,8 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_UnparseableMetaWarning, \
                                                    gen_UnrecognizedKeyWarning, \
                                                    gen_WrongValueTypeWarning
-from peyotl.nexson_syntax.helper import get_nexml_el, \
+from peyotl.nexson_syntax.helper import add_literal_meta, \
+                                        get_nexml_el, \
                                         find_val_literal_meta_first, \
                                         extract_meta, \
                                         _add_value_to_dict_bf
@@ -627,44 +628,51 @@ class NexsonValidationAdaptor(object):
         raise NotImplementedError('base NexsonValidationAdaptor hook')
     def _post_key_check_validate_tree_group(self, tg_nex_id, trees_group, vc):
         raise NotImplementedError('base NexsonValidationAdaptor hook')
-    def add_or_replace_annotation(self, annotation):
+    def add_or_replace_annotation(self, obj, annotation, agent):
         '''Takes an `annotation` dictionary which is 
         expected to have a string as the value of annotation['author']['name']
         This function will remove all annotations from obj that:
             1. have the same author/name, and
             2. have no messages that are flagged as messages to be preserved (values for 'preserve' that evaluate to true)
         '''
-        return # TODO!
-        # script_name = annotation['author']['name']
-        # n = obj['nexml']
-        # former_meta = n.setdefault('meta', [])
-        # if not isinstance(former_meta, list):
-        #     former_meta = [former_meta]
-        #     n['meta'] = former_meta
-        # else:
-        #     indices_to_pop = []
-        #     for annotation_ind, el in enumerate(former_meta):
-        #         try:
-        #             if (el.get('$') == annotation_label) and (el.get('author',{}).get('name') == script_name):
-        #                 m_list = el.get('messages', [])
-        #                 to_retain = []
-        #                 for m in m_list:
-        #                     if m.get('preserve'):
-        #                         to_retain.append(m)
-        #                 if len(to_retain) == 0:
-        #                     indices_to_pop.append(annotation_ind)
-        #                 elif len(to_retain) < len(m_list):
-        #                     el['messages'] = to_retain
-        #                     el['dateModified'] = datetime.datetime.utcnow().isoformat()
-        #         except:
-        #             # different annotation structures could yield IndexErrors or other exceptions.
-        #             # these are not the annotations that you are looking for....
-        #             pass
+        script_name = agent['@name']
+        nex = get_nexml_el(obj)
+        nvers = detect_nexson_version(obj)
+        ae_s_obj = find_val_literal_meta_first(nex, 'ot:annotationEvents', nvers)
+        if not ae_s_obj:
+            ae_s_obj = add_literal_meta(nex, 'ot:annotationEvents', {'annotation':[]}, nvers)
+        annotation_list = ae_s_obj.get('annotation')
+        agents_obj = find_val_literal_meta_first(nex, 'ot:agents', nvers)
+        if not agents_obj:
+            agents_obj = add_literal_meta(nex, 'ot:agents', {'agent':[]}, nvers)
+        agents_list = agents_obj.get('agent')
+        found_agent = False
+        aid = agent['@id']
+        anid = annotation['@id']
+        for a in agents_list:
+            if a.get('@id') == aid:
+                found_agent = True
+                break
+        if not found_agent:
+            agents_list.append(agent)
+        to_remove_inds = []
+        # TODO should check preserve field...
+        if aid == 'peyotl-validator':
+            for n, annot in enumerate(annotation_list):
+                if annot.get('@wasAssociatedWithAgentId') == aid:
+                    to_remove_inds.append(n)
+        else:
+            for n, annot in enumerate(annotation_list):
+                if annot.get('@id') == anid:
+                    to_remove_inds.append(n)
+        while len(to_remove_inds) > 1:
+            n = to_remove_inds.pop(-1)
+            del annotation_list[n]
+        if to_remove_inds:
+            n = to_remove_inds.pop()
+            annotation_list[n] = annotation
+        else:
+            annotation_list.append(annotation)
 
-        #     if len(indices_to_pop) > 0:
-        #         # walk backwards so pops won't change the meaning of stored indices
-        #         for annotation_ind in indices_to_pop[-1::-1]:
-        #             former_meta.pop(annotation_ind)
-        # former_meta.append(annotation)
     def get_nexson_str(self):
         return json.dumps(self._raw, sort_keys=True, indent=0)

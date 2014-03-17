@@ -172,7 +172,10 @@ class GitAction(object):
             
         f=tempfile.NamedTemporaryFile()
 
-        write_as_json(content,f)
+        if isinstance(content, str) or isinstance(content, unicode):
+            f.write(content)
+        else:
+            write_as_json(content, f)
 
         f.flush()
         

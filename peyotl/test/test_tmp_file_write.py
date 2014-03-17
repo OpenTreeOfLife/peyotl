@@ -4,8 +4,9 @@ import unittest
 import codecs
 import json
 from peyotl.nexson_syntax import read_as_json
+from peyotl.test.support import pathmap
 
-n = read_asjson(pathmap.nexson_source_path('1003'))
+n = read_as_json(pathmap.json_source_path('1003.json'))
 
 repodir="/Users/ejmctavish/Documents/projects/otapi/phylesystem_test"
 

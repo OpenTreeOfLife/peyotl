@@ -64,13 +64,18 @@ def _initialize_study_index():
                     d[filename] = (repo, root)
     return d
 
+
 def get_paths_for_study_id(study_id):
     global _study_index
     _study_index_lock.acquire()
+    if ".json" not in study_id:
+         study_id=study_id+".json" #@EJM risky?
     try:
         if _study_index is None:
             _study_index = _initialize_study_index()
         return _study_index[study_id]
+    except KeyError, e:
+        raise ValueError("Study {} not found in repo".format(study_id))
     finally:
         _study_index_lock.release()
 

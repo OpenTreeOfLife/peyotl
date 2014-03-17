@@ -1,0 +1,2081 @@
+{
+"nexml": {
+"@about": "#study", 
+"@generator": "Phylografter nexml-json exporter", 
+"@id": "study", 
+"@nexmljson": "http://opentree.wikispaces.com/NexSON", 
+"@version": "0.9", 
+"@xmlns": {
+"$": "http://www.nexml.org/2009", 
+"nex": "http://www.nexml.org/2009", 
+"ot": "http://purl.org/opentree-terms#", 
+"xsd": "http://www.w3.org/2001/XMLSchema#", 
+"xsi": "http://www.w3.org/2001/XMLSchema-instance"
+}, 
+"meta": [
+{
+"$": "Moore, Michael J., Charles D. Bell, Pamela S. Soltis, and Douglas E. Soltis. 2007. Using plastid genome-scale data to resolve enigmatic relationships among basal angiosperms. Proceedings of the National Academy of Sciences 104, no. 49 (December 4): 19363 -19368. doi:10.1073/pnas.0708072104.", 
+"@property": "ot:studyPublicationReference", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"@href": "http://dx.doi.org/10.1073/pnas.0708072104", 
+"@property": "ot:studyPublication", 
+"@xsi:type": "nex:ResourceMeta"
+}, 
+{
+"$": "Rick Ree", 
+"@property": "ot:curatorName", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "12", 
+"@property": "ot:studyId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": 2007, 
+"@property": "ot:studyYear", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": 177637, 
+"@property": "ot:focalClade", 
+"@xsi:type": "nex:LiteralMeta"
+}
+], 
+"otus": {
+"@id": "otus12", 
+"otu": [
+{
+"@about": "#otu1393", 
+"@id": "otu1393", 
+"@label": "Ginkgo", 
+"meta": [
+{
+"$": 950165, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Ginkgo", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1394", 
+"@id": "otu1394", 
+"@label": "Pinus", 
+"meta": [
+{
+"$": 771683, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Pinus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1395", 
+"@id": "otu1395", 
+"@label": "Amborella", 
+"meta": [
+{
+"$": 303952, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Amborella", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1396", 
+"@id": "otu1396", 
+"@label": "Nuphar", 
+"meta": [
+{
+"$": 583532, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Nuphar", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1397", 
+"@id": "otu1397", 
+"@label": "Nymphaea", 
+"meta": [
+{
+"$": 583523, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Nymphaea", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1398", 
+"@id": "otu1398", 
+"@label": "Illicium", 
+"meta": [
+{
+"$": 35784, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Illicium", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1399", 
+"@id": "otu1399", 
+"@label": "Chloranthus", 
+"meta": [
+{
+"$": 815629, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Chloranthus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1400", 
+"@id": "otu1400", 
+"@label": "Drimys", 
+"meta": [
+{
+"$": 777323, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Drimys", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1401", 
+"@id": "otu1401", 
+"@label": "Piper", 
+"meta": [
+{
+"$": 283089, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Piper", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1402", 
+"@id": "otu1402", 
+"@label": "Calycanthus", 
+"meta": [
+{
+"$": 930002, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Calycanthus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1403", 
+"@id": "otu1403", 
+"@label": "Liriodendron", 
+"meta": [
+{
+"$": 863069, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Liriodendron", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1404", 
+"@id": "otu1404", 
+"@label": "Acorus", 
+"meta": [
+{
+"$": 1008191, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Acorus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1405", 
+"@id": "otu1405", 
+"@label": "Dioscorea", 
+"meta": [
+{
+"$": 781622, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Dioscorea", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1406", 
+"@id": "otu1406", 
+"@label": "Phalaenopsis", 
+"meta": [
+{
+"$": 995670, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Phalaenopsis", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1407", 
+"@id": "otu1407", 
+"@label": "Yucca", 
+"meta": [
+{
+"$": 548110, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Yucca", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1408", 
+"@id": "otu1408", 
+"@label": "Typha", 
+"meta": [
+{
+"$": 613197, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Typha", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1409", 
+"@id": "otu1409", 
+"@label": "Zea", 
+"meta": [
+{
+"$": 605186, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Zea", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1410", 
+"@id": "otu1410", 
+"@label": "Oryza", 
+"meta": [
+{
+"$": 135764, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Oryza", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1411", 
+"@id": "otu1411", 
+"@label": "Triticum", 
+"meta": [
+{
+"$": 31937, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Triticum", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1412", 
+"@id": "otu1412", 
+"@label": "Ceratophyllum", 
+"meta": [
+{
+"$": 10945, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Ceratophyllum", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1413", 
+"@id": "otu1413", 
+"@label": "Nandina", 
+"meta": [
+{
+"$": 681927, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Nandina", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1414", 
+"@id": "otu1414", 
+"@label": "Ranunculus", 
+"meta": [
+{
+"$": 387812, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Ranunculus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1415", 
+"@id": "otu1415", 
+"@label": "Platanus", 
+"meta": [
+{
+"$": 62539, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Platanus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1416", 
+"@id": "otu1416", 
+"@label": "Buxus", 
+"meta": [
+{
+"$": 1000250, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Buxus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1417", 
+"@id": "otu1417", 
+"@label": "Spinacia", 
+"meta": [
+{
+"$": 317799, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Spinacia", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1418", 
+"@id": "otu1418", 
+"@label": "Coffea", 
+"meta": [
+{
+"$": 1001054, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Coffea", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1419", 
+"@id": "otu1419", 
+"@label": "Jasminum", 
+"meta": [
+{
+"$": 23725, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Jasminum", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1420", 
+"@id": "otu1420", 
+"@label": "Atropa", 
+"meta": [
+{
+"$": 543092, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Atropa", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1421", 
+"@id": "otu1421", 
+"@label": "Nicotiana", 
+"meta": [
+{
+"$": 797191, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Nicotiana", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1422", 
+"@id": "otu1422", 
+"@label": "Daucus", 
+"meta": [
+{
+"$": 372841, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Daucus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1423", 
+"@id": "otu1423", 
+"@label": "Panax", 
+"meta": [
+{
+"$": 524072, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Panax", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1424", 
+"@id": "otu1424", 
+"@label": "Helianthus", 
+"meta": [
+{
+"$": 515718, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Helianthus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1425", 
+"@id": "otu1425", 
+"@label": "Lactuca", 
+"meta": [
+{
+"$": 515705, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Lactuca", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1426", 
+"@id": "otu1426", 
+"@label": "Vitis", 
+"meta": [
+{
+"$": 329893, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Vitis", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1427", 
+"@id": "otu1427", 
+"@label": "Populus", 
+"meta": [
+{
+"$": 530178, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Populus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1428", 
+"@id": "otu1428", 
+"@label": "Cucumis", 
+"meta": [
+{
+"$": 1006254, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Cucumis", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1429", 
+"@id": "otu1429", 
+"@label": "Morus", 
+"meta": [
+{
+"$": 658501, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Morus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1430", 
+"@id": "otu1430", 
+"@label": "Glycine", 
+"meta": [
+{
+"$": 459704, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Glycine", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1431", 
+"@id": "otu1431", 
+"@label": "Lotus", 
+"meta": [
+{
+"$": 879017, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Lotus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1432", 
+"@id": "otu1432", 
+"@label": "Pelargonium", 
+"meta": [
+{
+"$": 372825, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Pelargonium", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1433", 
+"@id": "otu1433", 
+"@label": "Eucalyptus", 
+"meta": [
+{
+"$": 1015498, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Eucalyptus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1434", 
+"@id": "otu1434", 
+"@label": "Oenothera", 
+"meta": [
+{
+"$": 1015472, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Oenothera", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1435", 
+"@id": "otu1435", 
+"@label": "Citrus", 
+"meta": [
+{
+"$": 929678, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Citrus", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1436", 
+"@id": "otu1436", 
+"@label": "Arabidopsis", 
+"meta": [
+{
+"$": 309275, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Arabidopsis", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#otu1437", 
+"@id": "otu1437", 
+"@label": "Gossypium", 
+"meta": [
+{
+"$": 800239, 
+"@property": "ot:ottId", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "Gossypium", 
+"@property": "ot:originalLabel", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}
+]
+}, 
+"trees": {
+"@id": "trees12", 
+"@otus": "otus12", 
+"tree": [
+{
+"@about": "#tree10", 
+"@id": "tree10", 
+"edge": [
+{
+"@id": "edge3022", 
+"@length": 0.0583254, 
+"@source": "node3021", 
+"@target": "node3022"
+}, 
+{
+"@id": "edge3023", 
+"@length": 0.107064, 
+"@source": "node3021", 
+"@target": "node3023"
+}, 
+{
+"@id": "edge3024", 
+"@length": 0.169163, 
+"@source": "node3021", 
+"@target": "node3024"
+}, 
+{
+"@id": "edge3025", 
+"@length": 0.047856, 
+"@source": "node3024", 
+"@target": "node3025"
+}, 
+{
+"@id": "edge3026", 
+"@length": 0.0049301, 
+"@source": "node3024", 
+"@target": "node3026"
+}, 
+{
+"@id": "edge3027", 
+"@length": 0.0446919, 
+"@source": "node3026", 
+"@target": "node3027"
+}, 
+{
+"@id": "edge3028", 
+"@length": 0.00620384, 
+"@source": "node3027", 
+"@target": "node3028"
+}, 
+{
+"@id": "edge3029", 
+"@length": 0.013996, 
+"@source": "node3027", 
+"@target": "node3029"
+}, 
+{
+"@id": "edge3030", 
+"@length": 0.00700178, 
+"@source": "node3026", 
+"@target": "node3030"
+}, 
+{
+"@id": "edge3031", 
+"@length": 0.0327179, 
+"@source": "node3030", 
+"@target": "node3031"
+}, 
+{
+"@id": "edge3032", 
+"@length": 0.0108163, 
+"@source": "node3030", 
+"@target": "node3032"
+}, 
+{
+"@id": "edge3033", 
+"@length": 0.000713789, 
+"@source": "node3032", 
+"@target": "node3033"
+}, 
+{
+"@id": "edge3034", 
+"@length": 0.0292457, 
+"@source": "node3033", 
+"@target": "node3034"
+}, 
+{
+"@id": "edge3035", 
+"@length": 0.00314037, 
+"@source": "node3033", 
+"@target": "node3035"
+}, 
+{
+"@id": "edge3036", 
+"@length": 0.00331618, 
+"@source": "node3035", 
+"@target": "node3036"
+}, 
+{
+"@id": "edge3037", 
+"@length": 0.0241734, 
+"@source": "node3036", 
+"@target": "node3037"
+}, 
+{
+"@id": "edge3038", 
+"@length": 0.0887994, 
+"@source": "node3036", 
+"@target": "node3038"
+}, 
+{
+"@id": "edge3039", 
+"@length": 0.00219643, 
+"@source": "node3035", 
+"@target": "node3039"
+}, 
+{
+"@id": "edge3040", 
+"@length": 0.0324267, 
+"@source": "node3039", 
+"@target": "node3040"
+}, 
+{
+"@id": "edge3041", 
+"@length": 0.0149954, 
+"@source": "node3039", 
+"@target": "node3041"
+}, 
+{
+"@id": "edge3042", 
+"@length": 0.000817364, 
+"@source": "node3032", 
+"@target": "node3042"
+}, 
+{
+"@id": "edge3043", 
+"@length": 0.0119613, 
+"@source": "node3042", 
+"@target": "node3043"
+}, 
+{
+"@id": "edge3044", 
+"@length": 0.0527495, 
+"@source": "node3043", 
+"@target": "node3044"
+}, 
+{
+"@id": "edge3045", 
+"@length": 0.0185484, 
+"@source": "node3043", 
+"@target": "node3045"
+}, 
+{
+"@id": "edge3046", 
+"@length": 0.0504006, 
+"@source": "node3045", 
+"@target": "node3046"
+}, 
+{
+"@id": "edge3047", 
+"@length": 0.00210301, 
+"@source": "node3045", 
+"@target": "node3047"
+}, 
+{
+"@id": "edge3048", 
+"@length": 0.00389041, 
+"@source": "node3047", 
+"@target": "node3048"
+}, 
+{
+"@id": "edge3049", 
+"@length": 0.0668241, 
+"@source": "node3048", 
+"@target": "node3049"
+}, 
+{
+"@id": "edge3050", 
+"@length": 0.0326796, 
+"@source": "node3048", 
+"@target": "node3050"
+}, 
+{
+"@id": "edge3051", 
+"@length": 0.014041, 
+"@source": "node3047", 
+"@target": "node3051"
+}, 
+{
+"@id": "edge3052", 
+"@length": 0.0221239, 
+"@source": "node3051", 
+"@target": "node3052"
+}, 
+{
+"@id": "edge3053", 
+"@length": 0.0979876, 
+"@source": "node3051", 
+"@target": "node3053"
+}, 
+{
+"@id": "edge3054", 
+"@length": 0.0231129, 
+"@source": "node3053", 
+"@target": "node3054"
+}, 
+{
+"@id": "edge3055", 
+"@length": 0.00301605, 
+"@source": "node3053", 
+"@target": "node3055"
+}, 
+{
+"@id": "edge3056", 
+"@length": 0.022843, 
+"@source": "node3055", 
+"@target": "node3056"
+}, 
+{
+"@id": "edge3057", 
+"@length": 0.027687, 
+"@source": "node3055", 
+"@target": "node3057"
+}, 
+{
+"@id": "edge3058", 
+"@length": 0.00168133, 
+"@source": "node3042", 
+"@target": "node3058"
+}, 
+{
+"@id": "edge3059", 
+"@length": 0.0634462, 
+"@source": "node3058", 
+"@target": "node3059"
+}, 
+{
+"@id": "edge3060", 
+"@length": 0.0145657, 
+"@source": "node3058", 
+"@target": "node3060"
+}, 
+{
+"@id": "edge3061", 
+"@length": 0.0154105, 
+"@source": "node3060", 
+"@target": "node3061"
+}, 
+{
+"@id": "edge3062", 
+"@length": 0.0301372, 
+"@source": "node3061", 
+"@target": "node3062"
+}, 
+{
+"@id": "edge3063", 
+"@length": 0.0595085, 
+"@source": "node3061", 
+"@target": "node3063"
+}, 
+{
+"@id": "edge3064", 
+"@length": 0.00214453, 
+"@source": "node3060", 
+"@target": "node3064"
+}, 
+{
+"@id": "edge3065", 
+"@length": 0.0251476, 
+"@source": "node3064", 
+"@target": "node3065"
+}, 
+{
+"@id": "edge3066", 
+"@length": 0.00390443, 
+"@source": "node3064", 
+"@target": "node3066"
+}, 
+{
+"@id": "edge3067", 
+"@length": 0.0267351, 
+"@source": "node3066", 
+"@target": "node3067"
+}, 
+{
+"@id": "edge3068", 
+"@length": 0.0167999, 
+"@source": "node3066", 
+"@target": "node3068"
+}, 
+{
+"@id": "edge3069", 
+"@length": 0.00433573, 
+"@source": "node3068", 
+"@target": "node3069"
+}, 
+{
+"@id": "edge3070", 
+"@length": 0.0810317, 
+"@source": "node3069", 
+"@target": "node3070"
+}, 
+{
+"@id": "edge3071", 
+"@length": 0.0130158, 
+"@source": "node3069", 
+"@target": "node3071"
+}, 
+{
+"@id": "edge3072", 
+"@length": 0.0107402, 
+"@source": "node3071", 
+"@target": "node3072"
+}, 
+{
+"@id": "edge3073", 
+"@length": 0.00128224, 
+"@source": "node3072", 
+"@target": "node3073"
+}, 
+{
+"@id": "edge3074", 
+"@length": 0.0468185, 
+"@source": "node3073", 
+"@target": "node3074"
+}, 
+{
+"@id": "edge3075", 
+"@length": 0.0627421, 
+"@source": "node3073", 
+"@target": "node3075"
+}, 
+{
+"@id": "edge3076", 
+"@length": 0.0281937, 
+"@source": "node3072", 
+"@target": "node3076"
+}, 
+{
+"@id": "edge3077", 
+"@length": 0.00661699, 
+"@source": "node3076", 
+"@target": "node3077"
+}, 
+{
+"@id": "edge3078", 
+"@length": 0.00484483, 
+"@source": "node3076", 
+"@target": "node3078"
+}, 
+{
+"@id": "edge3079", 
+"@length": 0.00552087, 
+"@source": "node3071", 
+"@target": "node3079"
+}, 
+{
+"@id": "edge3080", 
+"@length": 0.0130099, 
+"@source": "node3079", 
+"@target": "node3080"
+}, 
+{
+"@id": "edge3081", 
+"@length": 0.0371337, 
+"@source": "node3080", 
+"@target": "node3081"
+}, 
+{
+"@id": "edge3082", 
+"@length": 0.0139721, 
+"@source": "node3080", 
+"@target": "node3082"
+}, 
+{
+"@id": "edge3083", 
+"@length": 0.0397276, 
+"@source": "node3079", 
+"@target": "node3083"
+}, 
+{
+"@id": "edge3084", 
+"@length": 0.0136445, 
+"@source": "node3083", 
+"@target": "node3084"
+}, 
+{
+"@id": "edge3085", 
+"@length": 0.0111197, 
+"@source": "node3083", 
+"@target": "node3085"
+}, 
+{
+"@id": "edge3086", 
+"@length": 0.00153692, 
+"@source": "node3068", 
+"@target": "node3086"
+}, 
+{
+"@id": "edge3087", 
+"@length": 0.0298446, 
+"@source": "node3086", 
+"@target": "node3087"
+}, 
+{
+"@id": "edge3088", 
+"@length": 0.00717544, 
+"@source": "node3086", 
+"@target": "node3088"
+}, 
+{
+"@id": "edge3089", 
+"@length": 0.00277237, 
+"@source": "node3088", 
+"@target": "node3089"
+}, 
+{
+"@id": "edge3090", 
+"@length": 0.0596441, 
+"@source": "node3089", 
+"@target": "node3090"
+}, 
+{
+"@id": "edge3091", 
+"@length": 0.00514088, 
+"@source": "node3089", 
+"@target": "node3091"
+}, 
+{
+"@id": "edge3092", 
+"@length": 0.0548019, 
+"@source": "node3091", 
+"@target": "node3092"
+}, 
+{
+"@id": "edge3093", 
+"@length": 0.0033374, 
+"@source": "node3091", 
+"@target": "node3093"
+}, 
+{
+"@id": "edge3094", 
+"@length": 0.044978, 
+"@source": "node3093", 
+"@target": "node3094"
+}, 
+{
+"@id": "edge3095", 
+"@length": 0.0448076, 
+"@source": "node3093", 
+"@target": "node3095"
+}, 
+{
+"@id": "edge3096", 
+"@length": 0.0530244, 
+"@source": "node3095", 
+"@target": "node3096"
+}, 
+{
+"@id": "edge3097", 
+"@length": 0.0597607, 
+"@source": "node3095", 
+"@target": "node3097"
+}, 
+{
+"@id": "edge3098", 
+"@length": 0.00122007, 
+"@source": "node3088", 
+"@target": "node3098"
+}, 
+{
+"@id": "edge3099", 
+"@length": 0.137913, 
+"@source": "node3098", 
+"@target": "node3099"
+}, 
+{
+"@id": "edge3100", 
+"@length": 0.000557839, 
+"@source": "node3098", 
+"@target": "node3100"
+}, 
+{
+"@id": "edge3101", 
+"@length": 0.0177669, 
+"@source": "node3100", 
+"@target": "node3101"
+}, 
+{
+"@id": "edge3102", 
+"@length": 0.0215802, 
+"@source": "node3101", 
+"@target": "node3102"
+}, 
+{
+"@id": "edge3103", 
+"@length": 0.0689228, 
+"@source": "node3101", 
+"@target": "node3103"
+}, 
+{
+"@id": "edge3104", 
+"@length": 0.00637414, 
+"@source": "node3100", 
+"@target": "node3104"
+}, 
+{
+"@id": "edge3105", 
+"@length": 0.0601447, 
+"@source": "node3104", 
+"@target": "node3105"
+}, 
+{
+"@id": "edge3106", 
+"@length": 0.00696117, 
+"@source": "node3104", 
+"@target": "node3106"
+}, 
+{
+"@id": "edge3107", 
+"@length": 0.0832076, 
+"@source": "node3106", 
+"@target": "node3107"
+}, 
+{
+"@id": "edge3108", 
+"@length": 0.0394281, 
+"@source": "node3106", 
+"@target": "node3108"
+}
+], 
+"meta": [
+{
+"$": "ot:substitutionCount", 
+"@property": "ot:branchLengthMode", 
+"@xsi:type": "nex:LiteralMeta"
+}, 
+{
+"$": "ML bootstrap consensus", 
+"@property": "ot:curatedType", 
+"@xsi:type": "nex:LiteralMeta"
+}
+], 
+"node": [
+{
+"@id": "node3021", 
+"@root": "true"
+}, 
+{
+"@about": "#node3022", 
+"@id": "node3022", 
+"@otu": "otu1393", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3023", 
+"@id": "node3023", 
+"@otu": "otu1394", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3024"
+}, 
+{
+"@about": "#node3025", 
+"@id": "node3025", 
+"@otu": "otu1395", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3026"
+}, 
+{
+"@id": "node3027"
+}, 
+{
+"@about": "#node3028", 
+"@id": "node3028", 
+"@otu": "otu1396", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3029", 
+"@id": "node3029", 
+"@otu": "otu1397", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3030"
+}, 
+{
+"@about": "#node3031", 
+"@id": "node3031", 
+"@otu": "otu1398", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3032"
+}, 
+{
+"@id": "node3033"
+}, 
+{
+"@about": "#node3034", 
+"@id": "node3034", 
+"@otu": "otu1399", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3035"
+}, 
+{
+"@id": "node3036"
+}, 
+{
+"@about": "#node3037", 
+"@id": "node3037", 
+"@otu": "otu1400", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3038", 
+"@id": "node3038", 
+"@otu": "otu1401", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3039"
+}, 
+{
+"@about": "#node3040", 
+"@id": "node3040", 
+"@otu": "otu1402", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3041", 
+"@id": "node3041", 
+"@otu": "otu1403", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3042"
+}, 
+{
+"@id": "node3043"
+}, 
+{
+"@about": "#node3044", 
+"@id": "node3044", 
+"@otu": "otu1404", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3045"
+}, 
+{
+"@about": "#node3046", 
+"@id": "node3046", 
+"@otu": "otu1405", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3047"
+}, 
+{
+"@id": "node3048"
+}, 
+{
+"@about": "#node3049", 
+"@id": "node3049", 
+"@otu": "otu1406", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3050", 
+"@id": "node3050", 
+"@otu": "otu1407", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3051"
+}, 
+{
+"@about": "#node3052", 
+"@id": "node3052", 
+"@otu": "otu1408", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3053"
+}, 
+{
+"@about": "#node3054", 
+"@id": "node3054", 
+"@otu": "otu1409", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3055"
+}, 
+{
+"@about": "#node3056", 
+"@id": "node3056", 
+"@otu": "otu1410", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3057", 
+"@id": "node3057", 
+"@otu": "otu1411", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3058"
+}, 
+{
+"@about": "#node3059", 
+"@id": "node3059", 
+"@otu": "otu1412", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3060"
+}, 
+{
+"@id": "node3061"
+}, 
+{
+"@about": "#node3062", 
+"@id": "node3062", 
+"@otu": "otu1413", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3063", 
+"@id": "node3063", 
+"@otu": "otu1414", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3064"
+}, 
+{
+"@about": "#node3065", 
+"@id": "node3065", 
+"@otu": "otu1415", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3066"
+}, 
+{
+"@about": "#node3067", 
+"@id": "node3067", 
+"@otu": "otu1416", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3068"
+}, 
+{
+"@id": "node3069"
+}, 
+{
+"@about": "#node3070", 
+"@id": "node3070", 
+"@otu": "otu1417", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3071"
+}, 
+{
+"@id": "node3072"
+}, 
+{
+"@id": "node3073"
+}, 
+{
+"@about": "#node3074", 
+"@id": "node3074", 
+"@otu": "otu1418", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3075", 
+"@id": "node3075", 
+"@otu": "otu1419", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3076"
+}, 
+{
+"@about": "#node3077", 
+"@id": "node3077", 
+"@otu": "otu1420", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3078", 
+"@id": "node3078", 
+"@otu": "otu1421", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3079"
+}, 
+{
+"@id": "node3080"
+}, 
+{
+"@about": "#node3081", 
+"@id": "node3081", 
+"@otu": "otu1422", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3082", 
+"@id": "node3082", 
+"@otu": "otu1423", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3083"
+}, 
+{
+"@about": "#node3084", 
+"@id": "node3084", 
+"@otu": "otu1424", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3085", 
+"@id": "node3085", 
+"@otu": "otu1425", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3086"
+}, 
+{
+"@about": "#node3087", 
+"@id": "node3087", 
+"@otu": "otu1426", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3088"
+}, 
+{
+"@id": "node3089"
+}, 
+{
+"@about": "#node3090", 
+"@id": "node3090", 
+"@otu": "otu1427", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3091"
+}, 
+{
+"@about": "#node3092", 
+"@id": "node3092", 
+"@otu": "otu1428", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3093"
+}, 
+{
+"@about": "#node3094", 
+"@id": "node3094", 
+"@otu": "otu1429", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3095"
+}, 
+{
+"@about": "#node3096", 
+"@id": "node3096", 
+"@otu": "otu1430", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3097", 
+"@id": "node3097", 
+"@otu": "otu1431", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3098"
+}, 
+{
+"@about": "#node3099", 
+"@id": "node3099", 
+"@otu": "otu1432", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3100"
+}, 
+{
+"@id": "node3101"
+}, 
+{
+"@about": "#node3102", 
+"@id": "node3102", 
+"@otu": "otu1433", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3103", 
+"@id": "node3103", 
+"@otu": "otu1434", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3104"
+}, 
+{
+"@about": "#node3105", 
+"@id": "node3105", 
+"@otu": "otu1435", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@id": "node3106"
+}, 
+{
+"@about": "#node3107", 
+"@id": "node3107", 
+"@otu": "otu1436", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}, 
+{
+"@about": "#node3108", 
+"@id": "node3108", 
+"@otu": "otu1437", 
+"meta": [
+{
+"$": "true", 
+"@datatype": "xsd:boolean", 
+"@property": "ot:isLeaf", 
+"@xsi:type": "nex:LiteralMeta"
+}
+]
+}
+]
+}
+]
+}
+}
+}

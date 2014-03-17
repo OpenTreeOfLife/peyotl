@@ -80,6 +80,16 @@ def get_paths_for_study_id(study_id):
         _study_index_lock.release()
 
 
+def get_repos():
+    global _study_index
+    _study_index_lock.acquire()
+    try:
+        if _study_index is None:
+            _study_index = _initialize_study_index()
+    finally:
+        _study_index_lock.release()
+    return _study_index.keys()
+
 def create_new_path_for_study_id(study_id):
     _study_index_lock.acquire()
     try:

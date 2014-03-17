@@ -8,6 +8,7 @@ from locket import LockError
 import codecs
 from peyotl.phylesystem import get_HEAD_SHA1
 from peyotl import get_logger
+import tempfile
 
 _LOG = get_logger(__name__)
 class MergeException(Exception):
@@ -141,7 +142,7 @@ class GitAction(object):
 
     def _write_tmp(content, tmp_filename="tmp.json"):
     import tmpfile
-#    make some sort of tmp dir to keep em in.
+        tempfile.TemporaryFile([mode='w+b'[, bufsize=-1[, suffix=''[, prefix='tmp'[, dir=None]]]]])
         file = open(tmp_filename, 'w')
         file.write(content)
         file.close()

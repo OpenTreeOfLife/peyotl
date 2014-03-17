@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 from peyotl.phylesystem.git_actions import GitAction
 import unittest
+from peyotl import phylesystem
 
-repodir="/Users/ejmctavish/Documents/projects/otapi/phylesystem_test"
+reponame = phylesystem.get_repos().keys()[0]
+repodir = phylesystem.get_repos()[reponame]
 
 class TestCreate(unittest.TestCase):
         gd=GitAction(repodir)

@@ -11,6 +11,7 @@ from peyotl import get_logger
 import tempfile
 import shutil
 import json
+from peyotl.nexson_syntax import write_as_json
 
 _LOG = get_logger(__name__)
 class MergeException(Exception):
@@ -105,7 +106,7 @@ class GitAction(object):
             return False
         return True
 
-    def create_or_checkout_branch(self, branch):
+    def create_or_checkout_branch(self, branch, parent_sha):
         if self.branch_exists(branch):
             git(self.gitdir, self.gitwd, "checkout", branch)
             
@@ -144,7 +145,7 @@ class GitAction(object):
 
 
 
-    def write_study(self, study_id, content, branch, author="OpenTree API <api@opentreeoflife.org>"):
+    def write_study(self, study_id, content, branch, parent_sha, author="OpenTree API <api@opentreeoflife.org>"):
 
         """Write a study
 
@@ -165,7 +166,7 @@ class GitAction(object):
         # If there are uncommitted changes to our repo, stash them so this commit can proceed
         #git(self.gitdir, self.gitwd, "stash") #EJM not clear why
 
-        self.create_or_checkout_branch(branch)
+        self.create_or_checkout_branch(branch,parent_sha)
         
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):
@@ -173,7 +174,7 @@ class GitAction(object):
             
         f=tempfile.NamedTemporaryFile()
 
-        json.dump(content,f)
+        write_as_json(content,f)
 
         f.flush()
         

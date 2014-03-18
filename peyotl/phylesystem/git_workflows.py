@@ -60,11 +60,11 @@ def commit_and_try_merge2master(git_action, gh, file_content, author_name, autho
     # global TIMING
     author  = "%s <%s>" % (author_name, author_email)
     gh_user = gh.get_user().login
-    git_action.commit_and_try_merge2master(gh_user, file_content, resource_id, author)
-
-def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author):
+#    git_action.commit_and_try_merge2master(gh_user, file_content, resource_id, author)
+#
+#def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author):
     branch_name  = "%s_study_%s" % (gh_user, resource_id)
-    fc = git_action._write_temp(file_content)
+#    fc = git_action._write_temp(file_content)
     try:
         acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=resource_id))
         try:
@@ -81,7 +81,7 @@ def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id,
         finally:
             git_action.release_lock()
     finally:
-        fc.close()
+        pass # fc.close()
 
     # What other useful information should be returned on a successful write?
     return {

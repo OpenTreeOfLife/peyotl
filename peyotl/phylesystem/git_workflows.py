@@ -59,21 +59,29 @@ def commit_and_try_merge2master(git_action, gh, file_content, author_name, autho
     """
     # global TIMING
     author  = "%s <%s>" % (author_name, author_email)
-    branch_name  = "%s_study_%s" % (gh.get_user().login, resource_id)
-    acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=resource_id))
+    gh_user = gh.get_user().login
+    git_action.commit_and_try_merge2master(gh_user, file_content, resource_id, author)
+
+def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author):
+    branch_name  = "%s_study_%s" % (gh_user, resource_id)
+    fc = git_action._write_temp(file_content)
     try:
-        git_action.checkout_master()
-        _pull_gh(git_action, "master")
-        
+        acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=resource_id))
         try:
-            new_sha = git_action.write_study(resource_id, file_content, branch_name,author)
-            # TIMING = api_utils.log_time_diff(_LOG, 'writing study', TIMING)
-        except Exception, e:
-            raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (resource_id, e.message))
-        git_action.merge(branch_name)
-        _push_gh(git_action, "master", resource_id)
+            git_action.checkout_master()
+            _pull_gh(git_action, "master")
+            
+            try:
+                new_sha = git_action.write_study(resource_id, file_content, branch_name,author)
+                # TIMING = api_utils.log_time_diff(_LOG, 'writing study', TIMING)
+            except Exception, e:
+                raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (resource_id, e.message))
+            git_action.merge(branch_name)
+            _push_gh(git_action, "master", resource_id)
+        finally:
+            git_action.release_lock()
     finally:
-        git_action.release_lock()
+        fc.close()
 
     # What other useful information should be returned on a successful write?
     return {

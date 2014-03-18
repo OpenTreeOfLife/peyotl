@@ -3,6 +3,8 @@
 '''
 from sh import git
 from locket import LockError
+import tempfile
+from peyotl.nexson_syntax import write_as_json
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
@@ -45,7 +47,7 @@ def _pull_gh(git_action, branch_name):#
             raise GitWorkflowError(msg)
 
 
-def _push_gh(git_action, branch_name, resource_id):#
+def _push_gh(git_action, branch_name, resource_id):
     try:
         git_env = git_action.env()
         # actually push the changes to Github
@@ -60,29 +62,26 @@ def commit_and_try_merge2master(git_action, gh, file_content, author_name, autho
     # global TIMING
     author  = "%s <%s>" % (author_name, author_email)
     gh_user = gh.get_user().login
-    git_action.commit_and_try_merge2master(gh_user, file_content, resource_id, author)
+    return _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha=None)
 
-def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author):
-    branch_name  = "%s_study_%s" % (gh_user, resource_id)
-    fc = git_action._write_temp(file_content)
+
+def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha):
+    fc = tempfile.NamedTemporaryFile()
+    if isinstance(file_content, str) or isinstance(file_content, unicode):
+            fc.write(file_content)
+    else:
+            write_as_json(file_content, fc)
+    fc.flush()
     try:
         acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=resource_id))
         try:
-            git_action.checkout_master()
-            _pull_gh(git_action, "master")
-            
-            try:
-                new_sha = git_action.write_study(resource_id, file_content, branch_name,author)
-                # TIMING = api_utils.log_time_diff(_LOG, 'writing study', TIMING)
-            except Exception, e:
+            new_sha = git_action.write_study(resource_id, fc, gh_user, resource_id, parent_sha, author)
+        except Exception, e:
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (resource_id, e.message))
-            git_action.merge(branch_name)
-            _push_gh(git_action, "master", resource_id)
-        finally:
-            git_action.release_lock()
+        git_action.merge(branch_name)
     finally:
+        git_action.release_lock()
         fc.close()
-
     # What other useful information should be returned on a successful write?
     return {
         "error": 0,

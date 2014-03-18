@@ -21,7 +21,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         self._syntax_version = BY_ID_HONEY_BADGERFISH
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
         otu_obj = otus_group.get('otuById')
-        if (not otu_obj) or (not isinstance(otu_obj, dict)):
+        if (not isinstance(otu_obj, dict)):
             self._error_event(_NEXEL.OTUS,
                              obj=otus_group,
                              err_type=gen_MissingCrucialContentWarning,
@@ -62,8 +62,8 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
     def _post_key_check_validate_tree_group(self, tg_nex_id, tree_group_obj, vc):
         tree_id_order = tree_group_obj.get('^ot:treeElementOrder')
         tree_by_id = tree_group_obj.get('treeById')
-        if (not tree_by_id) or (not isinstance(tree_by_id, dict)) \
-            or (not tree_id_order) or (not isinstance(tree_id_order, list)):
+        if (not isinstance(tree_by_id, dict)) \
+            or (not isinstance(tree_id_order, list)):
             self._error_event(_NEXEL.TREES,
                              obj=tree_group_obj,
                              err_type=gen_MissingCrucialContentWarning,

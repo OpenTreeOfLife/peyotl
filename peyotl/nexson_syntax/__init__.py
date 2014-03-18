@@ -142,7 +142,7 @@ def convert_nexson_format(blob,
     those needed to serialize as out_nexson_format.
     If current_format is not specified, it will be inferred.
     If `remove_old_structs` is False and different honeybadgerfish varieties
-        are selected, the `blob` will be "fat" containing both types
+        are selected, the `blob` will be 'fat" containing both types
         of lookup structures.
     If pristine_if_invalid is False, then the object may be corrupted if it
         is an invalid nexson struct. Setting this to False can result in
@@ -271,3 +271,44 @@ def add_resource_meta(obj, rel, href, version):
     else:
         k = '^' + rel
         _add_value_to_dict_bf(obj, k, {'@href': href})
+
+
+def get_empty_nexson(vers='1.2.1'):
+    assert(vers == '1.2.1')
+    return {
+        'nexml': {
+        '@about': '#study', 
+        '@generator': 'Open Tree API',
+        '@id': 'study',
+        '@nexml2json': vers,
+        '@nexmljson': 'http://purl.org/opentree/nexson', 
+        '@version': '0.9', 
+        '@xmlns': {
+            '$': 'http://www.nexml.org/2009', 
+            'nex': 'http://www.nexml.org/2009', 
+            'ot': 'http://purl.org/opentree-terms#', 
+            'xsd': 'http://www.w3.org/2001/XMLSchema#', 
+            'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+            'xhtml': 'http://www.w3.org/1999/xhtml/vocab#'
+        },
+        '^xhtml:license': {'@href': 'http://creativecommons.org/publicdomain/zero/1.0/'},
+        '^ot:otusElementOrder': [
+            'otus1',
+        ],
+        'otusById': {
+            'otus1': {
+                'otuById':{},
+            },
+        },
+        '^ot:treesElementOrder': [
+            'trees1',
+        ],
+        'treesById': {
+            'trees1': {
+                '@otus': 'otus1',
+                '^ot:treeElementOrder':[],
+                'treeById': {},
+                },
+            },
+        }
+    }

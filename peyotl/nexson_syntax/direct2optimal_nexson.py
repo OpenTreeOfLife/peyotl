@@ -58,7 +58,7 @@ class Direct2OptimalNexson(NexsonConverter):
         node_list = _index_list_of_values(tree, 'node')
         for node in node_list:
             nodeById[node['@id']] = node
-            if node.get('@root') == "true":
+            if node.get('@root') == True:
                 assert(root_node is None)
                 root_node = node
         assert(root_node is not None)

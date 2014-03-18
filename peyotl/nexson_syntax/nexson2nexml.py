@@ -99,6 +99,11 @@ class Nexson2Nexml(NexsonConverter):
                             ak['xmlns:' + nsk] = nsv
                 else:
                     s = k[1:]
+                    if type(v) == bool:
+                        if v == True:
+                            v = u'true'
+                        else:
+                            v = u'false'
                     ak[s] = unicode(v)
             elif k == '$':
                 tk = v

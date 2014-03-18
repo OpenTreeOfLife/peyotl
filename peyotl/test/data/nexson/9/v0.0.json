@@ -4265,7 +4265,7 @@
 {
 "@about": "#node1", 
 "@id": "node1", 
-"@root": "true"
+"@root": true
 }, 
 {
 "@about": "#node2", 
@@ -8962,7 +8962,7 @@
 {
 "@about": "#node252", 
 "@id": "node252", 
-"@root": "true"
+"@root": true
 }, 
 {
 "@about": "#node253", 

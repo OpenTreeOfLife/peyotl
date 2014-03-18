@@ -104,7 +104,7 @@
 {
 "@about": "#n0", 
 "@id": "n0", 
-"@root": "true"
+"@root": true
 }, 
 {
 "@about": "#n1", 

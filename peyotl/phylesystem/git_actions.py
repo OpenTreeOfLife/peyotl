@@ -48,7 +48,11 @@ class GitAction(object):
     def release_lock(self):
         "Release a lock on the git repository"
         _LOG.debug('Releasing lock')
-        self.lock.release()
+        try:
+            self.lock.release()
+        except:
+            _LOG.debug('Exception releasing lock suppressed.')
+            pass
 
     def current_branch(self):
         "Return the current branch name"

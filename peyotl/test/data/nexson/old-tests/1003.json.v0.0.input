@@ -2868,7 +2868,7 @@
 "node": [
 {
 "@id": "node503657", 
-"@root": "true"
+"@root": true
 }, 
 {
 "@id": "node503658"

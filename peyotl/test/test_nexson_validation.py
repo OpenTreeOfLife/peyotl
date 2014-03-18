@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.nexson_syntax import detect_nexson_version
+from peyotl.nexson_syntax import detect_nexson_version, get_empty_nexson
 from peyotl.nexson_validation import validate_nexson
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
@@ -117,5 +117,11 @@ class TestConvert(unittest.TestCase):
                     self.assertDictEqual(exp, ew_dict, msg)
                 else:
                     _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
+    def testCreated(self):
+        b = get_empty_nexson()
+        aa = validate_nexson(b)
+        annot = aa[0]
+        self.assertFalse(annot.has_error())
+
 if __name__ == "__main__":
     unittest.main()

@@ -92,7 +92,7 @@ class Nexml2Nexson(NexsonConverter):
                 node_list = _get_index_list_of_values(tree, 'node')
                 root_node_flagged = False
                 for node in node_list:
-                    if node.get('@root') == "true":
+                    if node.get('@root') == True:
                         root_node_flagged = True
                         break
                 if not root_node_flagged:
@@ -102,7 +102,7 @@ class Nexml2Nexson(NexsonConverter):
                     root_id_set = set(node_id_map.keys()) - target_set
                     assert(len(root_id_set) == 1)
                     for ri in root_id_set:
-                        node_id_map[ri]['@root'] = "true"
+                        node_id_map[ri]['@root'] = True
         return o
 
     def _gen_hbf_el(self, x):

@@ -641,11 +641,11 @@ class NexsonValidationAdaptor(object):
         ae_s_obj = find_val_literal_meta_first(nex, 'ot:annotationEvents', nvers)
         if not ae_s_obj:
             ae_s_obj = add_literal_meta(nex, 'ot:annotationEvents', {'annotation':[]}, nvers)
-        annotation_list = ae_s_obj.get('annotation')
+        annotation_list = ae_s_obj.setdefault('annotation', [])
         agents_obj = find_val_literal_meta_first(nex, 'ot:agents', nvers)
         if not agents_obj:
             agents_obj = add_literal_meta(nex, 'ot:agents', {'agent':[]}, nvers)
-        agents_list = agents_obj.get('agent')
+        agents_list = agents_obj.setdefault('agent', [])
         found_agent = False
         aid = agent['@id']
         anid = annotation['@id']

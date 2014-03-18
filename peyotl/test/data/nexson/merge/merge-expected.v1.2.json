@@ -1305,7 +1305,7 @@
 }, 
 "nodeById": {
 "u99lab69d-b9f9-40b1-bdb7-854e815a1299g0n0n0": {
-"@root": "true"
+"@root": true
 }, 
 "u99lab69d-b9f9-40b1-bdb7-854e815a1299g0n0n1": {
 "@otu": "u96224bec-b1c1-4f93-b74b-adfe5a596217t0n0"
@@ -2654,7 +2654,7 @@
 }, 
 "nodeById": {
 "u96224bec-b1c1-4f93-b74b-adfe5a596217g0n0n0": {
-"@root": "true"
+"@root": true
 }, 
 "u96224bec-b1c1-4f93-b74b-adfe5a596217g0n0n1": {
 "@otu": "u96224bec-b1c1-4f93-b74b-adfe5a596217t0n0"

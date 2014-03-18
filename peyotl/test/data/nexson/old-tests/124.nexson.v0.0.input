@@ -1715,7 +1715,7 @@
 "node": [
 {
 "@id": "node988719", 
-"@root": "true"
+"@root": true
 }, 
 {
 "@id": "node988720"

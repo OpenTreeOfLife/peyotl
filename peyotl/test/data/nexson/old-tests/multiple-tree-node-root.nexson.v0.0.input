@@ -124,11 +124,11 @@
 "node": [
 {
 "@id": "node0", 
-"@root": "true"
+"@root": true
 }, 
 {
 "@id": "node1", 
-"@root": "true"
+"@root": true
 }, 
 {
 "@id": "node2", 

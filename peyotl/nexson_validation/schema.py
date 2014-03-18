@@ -311,6 +311,7 @@ _TypMNexmlEl_All = {'ot:curatorName': _VT.STR,
                     'ot:studyId': _VT.STR,
                     'ot:tag': _VT.STR_REPEATABLE_EL,
                     'ot:candidateTreeForSynthesis': _VT.STR_REPEATABLE_EL,
+                    'xhtml:license': _VT.HREF,
                    }
 
 _v1_2_nexml = _SchemaFragment(required=_Req_NexmlEl_All,
@@ -541,7 +542,7 @@ _v0_0_Leaf = _SchemaFragment(required=_Req_LeafEl_Dir,
 _Req_IntNEl_ByI = _EMPTY_DICT
 _Req_IntNEl_Dir = {'@id': _VT.STR,
                   }
-_All_IntNEl_All = {'@root': _VT.STR,
+_All_IntNEl_All = {'@root': _VT.BOOL,
                   }
 _TypMIntNEl_Dir = {'ot:isLeaf': _VT.BOOL,
                   }
@@ -574,7 +575,7 @@ _Req_NodeEl_ByI = _EMPTY_DICT
 _Req_NodeEl_Dir = {'@id': _VT.STR,
                   }
 _All_NodeEl_All = {'@otu': _VT.STR,
-                   '@root': _VT.STR,
+                   '@root': _VT.BOOL,
                   }
 _TypMNodeEl_Dir = {'ot:isLeaf': _VT.BOOL,
                   }

@@ -74,7 +74,7 @@
 }, 
 "nodeById": {
 "n0": {
-"@root": "true"
+"@root": true
 }, 
 "n1": {
 "@otu": "otu88801"

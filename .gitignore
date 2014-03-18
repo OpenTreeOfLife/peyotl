@@ -1,4 +1,4 @@
 *.pyc
 peyotl.egg-info
-peyotl/test/data
+peyotl/test/data/miniphyl
 

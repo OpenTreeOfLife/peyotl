@@ -187,12 +187,19 @@ def convert_nexson_format(blob,
     return blob
 
 def write_as_json(blob, dest, indent=0, sort_keys=True):
+    opened_out = False
     if isinstance(dest, str) or isinstance(dest, unicode):
         out = codecs.open(dest, mode='w', encoding='utf-8')
+        opened_out = True
     else:
         out = dest
-    json.dump(blob, out, indent=indent, sort_keys=sort_keys)
-    out.write('\n')
+    try:
+        json.dump(blob, out, indent=indent, sort_keys=sort_keys)
+        out.write('\n')
+    finally:
+        out.flush()
+        if opened_out:
+            out.close()
     
 def read_as_json(infi):
     inpf = codecs.open(infi)

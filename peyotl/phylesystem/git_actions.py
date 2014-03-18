@@ -131,7 +131,7 @@ class GitAction(object):
         study_dir = "{}/study/{}".format(self.repo, study_id) #TODO change directory
         study_filename = "{}/{}.json".format(study_dir, study_id)
 
-        self.create_or_checkout_branch(branch)
+        self.create_or_checkout_branch(branch, parent_sha=None)
         if not os.path.isdir(study_dir):
             # branch already exists locally with study removed
             # so just return the commit SHA
@@ -168,7 +168,7 @@ class GitAction(object):
         # If there are uncommitted changes to our repo, stash them so this commit can proceed
         #git(self.gitdir, self.gitwd, "stash") #EJM not clear why
 
-        self.create_or_checkout_branch(branch,parent_sha)
+        self.create_or_checkout_branch(branch, parent_sha)
         
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):

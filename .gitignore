@@ -1,2 +1,4 @@
 *.pyc
 peyotl.egg-info
+peyotl/test/data
+

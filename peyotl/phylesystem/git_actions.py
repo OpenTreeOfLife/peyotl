@@ -190,7 +190,6 @@ class GitAction(object):
 
         f.flush()
         
-        self.lock.acquire()
         
         shutil.copy(f.name, study_filename)
         
@@ -206,9 +205,6 @@ class GitAction(object):
                  raise
                  
         new_sha = git(self.gitdir, self.gitwd,  "rev-parse", "HEAD")
-        
-        self.lock.release()
-
         f.close()
 
         return new_sha.strip()

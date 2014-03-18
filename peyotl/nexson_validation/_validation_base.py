@@ -638,10 +638,6 @@ class NexsonValidationAdaptor(object):
         script_name = agent['@name']
         nex = get_nexml_el(obj)
         nvers = detect_nexson_version(obj)
-        ae_s_obj = find_val_literal_meta_first(nex, 'ot:annotationEvents', nvers)
-        if not ae_s_obj:
-            ae_s_obj = add_literal_meta(nex, 'ot:annotationEvents', {'annotation':[]}, nvers)
-        annotation_list = ae_s_obj.setdefault('annotation', [])
         agents_obj = find_val_literal_meta_first(nex, 'ot:agents', nvers)
         if not agents_obj:
             agents_obj = add_literal_meta(nex, 'ot:agents', {'agent':[]}, nvers)
@@ -655,15 +651,37 @@ class NexsonValidationAdaptor(object):
                 break
         if not found_agent:
             agents_list.append(agent)
+        self.replace_same_agent_annotation(obj, annotation)
+    def replace_same_agent_annotation(self, obj, annotation):
+        agent_id = annotation.get('@wasAssociatedWithAgentId')
+        self.replace_annotation(obj, annotation, agent_id=agent_id)
+
+    def get_annotation_list(self, nex_el, nexson_version):
+        ae_s_obj = find_val_literal_meta_first(nex_el, 'ot:annotationEvents', nexson_version)
+        if not ae_s_obj:
+            ae_s_obj = add_literal_meta(nex_el, 'ot:annotationEvents', {'annotation':[]}, nexson_version)
+        annotation_list = ae_s_obj.setdefault('annotation', [])
+        return annotation_list
+        
+    def replace_annotation(self, obj, annotation, agent_id=None, annot_id=None, nexson_version=None):
+        if nexson_version is None:
+            nexson_version = detect_nexson_version(obj)
+        nex_el = get_nexml_el(obj)
+        annotation_list = self.get_annotation_list(nex_el, nexson_version)
+        self.replace_annotation_from_annot_list(annotation_list, annotation, agent_id=agent_id, annot_id=annot_id)
+
+    def replace_annotation_from_annot_list(self, annotation_list, annotation, agent_id=None, annot_id=None):
         to_remove_inds = []
         # TODO should check preserve field...
-        if aid == 'peyotl-validator':
+        if agent_id is not None:
             for n, annot in enumerate(annotation_list):
-                if annot.get('@wasAssociatedWithAgentId') == aid:
+                if annot.get('@wasAssociatedWithAgentId') == agent_id:
                     to_remove_inds.append(n)
         else:
+            if annot_id is None:
+                raise ValueError('Either agent_id or annot_id must have a value')
             for n, annot in enumerate(annotation_list):
-                if annot.get('@id') == anid:
+                if annot.get('@id') == annot_id:
                     to_remove_inds.append(n)
         while len(to_remove_inds) > 1:
             n = to_remove_inds.pop(-1)

@@ -5,7 +5,14 @@ from sh import git
 from locket import LockError
 import tempfile
 from peyotl.nexson_syntax import write_as_json
+from peyotl.nexson_validation import NexsonWarningCodes, validate_nexson
+from peyotl.nexson_syntax import convert_nexson_format
 from peyotl.utility import get_logger
+from locket import LockError
+from sh import git
+import traceback
+import json
+
 _LOG = get_logger(__name__)
 
 class GitWorkflowError(Exception):
@@ -23,6 +30,38 @@ def acquire_lock_raise(git_action, fail_msg=''):
         msg = '{o} Details: {d}'.format(o=fail_msg, d=e.message)
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
+
+def __validate(nexson):
+    '''Returns three objects:
+        an annotation dict (NexSON formmatted), 
+        the validation_log object created when NexSON validation was performed, and
+        the object of class NexSON which was created from nexson. This object may
+            alias parts of the nexson dict that is passed in as an argument.
+    '''
+    # stub function for hooking into NexSON validation
+    codes_to_skip = [NexsonWarningCodes.UNVALIDATED_ANNOTATION]
+    v_log, adaptor = validate_nexson(nexson, codes_to_skip)
+    annotation = v_log.prepare_annotation(author_name='api.opentreeoflife.org/validate')
+    return annotation, v_log, adaptor
+
+def validate_and_convert_nexson(nexson, output_version, allow_invalid):
+    '''Runs the nexson validator and returns a converted 4 object:
+        nexson, annotation, validation_log, nexson_adaptor
+
+    `nexson` is the nexson dict.
+    `output_version` is the version of nexson syntax to be used after validation.
+    if `allow_invalid` is False, and the nexson validation has errors, then
+        a GitWorkflowError will be generated before conversion.
+    '''
+    try:
+        annotation, validation_log, nexson_adaptor = __validate(nexson)
+    except:
+        msg = 'exception in __validate: ' + traceback.format_exc()
+        raise GitWorkflowError(msg)
+    if (not allow_invalid) and validation_log.has_error():
+        raise GitWorkflowError('__validation failed: ' + json.dumps(annotation))
+    nexson = convert_nexson_format(nexson, output_version)
+    return nexson, annotation, validation_log, nexson_adaptor
 
 
 def _pull_gh(git_action, branch_name):#

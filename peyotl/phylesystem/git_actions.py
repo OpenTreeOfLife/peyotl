@@ -16,7 +16,7 @@ class MergeException(Exception):
     pass
 
 class GitAction(object):
-    def __init__(self, repo):
+    def __init__(self, repo, remote=None, git_ssh=None, pkey=None):
         """Create a GitAction object to interact with a Git repository
 
         Example:
@@ -32,13 +32,20 @@ class GitAction(object):
         self.lock_file = os.path.join(self.git_dir, "API_WRITE_LOCK")
         self.lock_timeout = 30
         self.lock = locket.lock_file(self.lock_file, timeout=self.lock_timeout)
+        self.repo_remote = remote
+        self.git_ssh = git_ssh
+        self.pkey = pkey
         
         if os.path.isdir("{}/.git".format(self.repo)):
             self.gitdir = "--git-dir={}/.git".format(self.repo)
             self.gitwd = "--work-tree={}".format(self.repo)
         else: #EJM needs a test?
             raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
-            
+
+    def env(self):
+        return {'GIT_SSH': self.git_ssh,
+                'PKEY': self.pkey,
+                }
 
     def acquire_lock(self):
         "Acquire a lock on the git repository"

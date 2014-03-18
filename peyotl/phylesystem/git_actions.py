@@ -6,7 +6,6 @@ import locket
 import codecs
 from peyotl.phylesystem import get_HEAD_SHA1
 from peyotl import get_logger
-import tempfile
 import shutil
 import json
 from peyotl.nexson_syntax import write_as_json
@@ -115,15 +114,28 @@ class GitAction(object):
             return False
         return True
 
-    def create_or_checkout_branch(self, branch, parent_sha):
-        if self.branch_exists(branch):
-            git(self.gitdir, self.gitwd, "checkout", branch)
-            
+    def _find_head_sha(self, gh_user, parent_sha):
+        head_shas = git(self.gitdir, self.gitwd, "show-ref", branch)
+        for lin in head_shas:
+            if lin.startswith(parent_sha):
+                if gh_user in lin.split()[1]
+                     branch = lin.split()[1]
+                     return branch
         else:
-            # Create this new branch off of master, NOT the currently-checked out branch!
-            #EJM wait why?
-            git(self.gitdir, self.gitwd, "checkout", "master")
-            git(self.gitdir, self.gitwd, "checkout", "-b", branch)
+            return None    
+
+    def create_or_checkout_branch(self, gh_user, resource_id, parent_sha=None):
+        branch = _find_head_sha(self, gh_user, parent_sha)
+        if branch:
+            git(self.gitdir, self.gitwd, "checkout", branch)
+        else:
+            branch = "{ghu}_study_{rid}".format(ghu=gh_user, rid=resource_id)
+            if self.branch_exists(branch):
+                i=1
+                while self.branch_exists(branch):
+                   branch = "{ghu}_study_{rid}_{i}".format(ghu=gh_user, rid=resource_id, i=i)
+        git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
+
     
     def remove_study(self, study_id, branch, author="OpenTree API <api@opentreeoflife.org>"):
         """Remove a study
@@ -154,44 +166,30 @@ class GitAction(object):
 
 
 
-    def write_study(self, study_id, content, branch, parent_sha=None, author="OpenTree API <api@opentreeoflife.org>"):
+    def write_study(self, study_id, tmpfi, gh_user, resource_id, parent_sha=None, author="OpenTree API <api@opentreeoflife.org>"):
 
         """Write a study
 
-        Given a study_id, content, branch and
+        Given a study_id, temporary filename of content, branch and
         optionally an author, write a study on the
         given branch and attribute the commit to
         author. If the branch does not yet exist,
         it will be created. If the study is being
         created, it's containing directory will be
         created as well.
-        @EJM Assume content is a json dictionary, or something else?
-
         Returns the SHA of the new commit on branch.
 
         """
         study_dir      = "{}/study/{}".format(self.repo, study_id) #TODO EJM change directory
         study_filename = "{}/{}.json".format(study_dir, study_id) 
-        # If there are uncommitted changes to our repo, stash them so this commit can proceed
-        #git(self.gitdir, self.gitwd, "stash") #EJM not clear why
 
-        self.create_or_checkout_branch(branch, parent_sha)
+        self.create_or_checkout_branch(gh_user, resource_id, parent_sha)
         
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):
             os.mkdir(study_dir)
             
-        f=tempfile.NamedTemporaryFile()
-
-        if isinstance(content, str) or isinstance(content, unicode):
-            f.write(content)
-        else:
-            write_as_json(content, f)
-
-        f.flush()
-        
-        
-        shutil.copy(f.name, study_filename)
+        shutil.copy(tmpfi.name, study_filename)
         
         git(self.gitdir, self.gitwd, "add",study_filename)
         try:
@@ -199,13 +197,12 @@ class GitAction(object):
         except Exception, e:
             # We can ignore this if no changes are new,
             # otherwise raise a 400
-            if "nothing to commit" in e.message:
+            if "nothing to commit" in e.message:#@EJM is this dangerous?
                  pass
             else:
                  raise
                  
         new_sha = git(self.gitdir, self.gitwd,  "rev-parse", "HEAD")
-        f.close()
 
         return new_sha.strip()
 

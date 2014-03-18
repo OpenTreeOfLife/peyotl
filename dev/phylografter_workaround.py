@@ -14,7 +14,6 @@ def rec_resource_meta(blob, k):
                 if p is not None:
                     del blob['@property']
                     blob['@rel'] = p
-                    print blob
     if isinstance(blob, list):
         for i in blob:
             rec_resource_meta(i, k)
@@ -54,7 +53,67 @@ def coerce_boolean(blob, k):
     elif isinstance(blob, list):
         for i in blob:
             coerce_boolean(i, k)
+
+def move_ott_taxon_name_to_otu(obj):
+    nex = obj['nexml']
+    ogl = nex['otus']
+    tree_group_list = nex['trees']
+    if not tree_group_list:
+        return
+    ogi_to_oid2otu = {}
+    if not isinstance(ogl, list):
+        ogl = [ogl]
+    if not isinstance(tree_group_list, list):
+        tree_group_list = [tree_group_list]
+    for og in ogl:
+        ogi = og['@id']
+        od = {}
+        for otu in og['otu']:
+            oi = otu['@id']
+            od[oi] = otu
+        ogi_to_oid2otu[ogi] = od
+    for tg in tree_group_list:
+        ogi = tg['@otus']
+        oid2otu = ogi_to_oid2otu[ogi]
+        for tree in tg['tree']:
+            for node in tree['node']:
+                m = node.get('meta')
+                if not m:
+                    continue
+                to_move = None
+                if isinstance(m, dict):
+                    if m.get('@property') == "ot:ottTaxonName":
+                        to_move = m
+                        del node['meta']
+                else:
+                    assert(isinstance(m, list))
+                    ind_to_del = None
+                    for n, ottnm in enumerate(m):
+                        if ottnm.get('@property') == "ot:ottTaxonName":
+                            to_move = ottnm
+                            ind_to_del = n
+                            break
+                    if ind_to_del:
+                        m.pop(n)
+                if to_move:
+                    oid = node['@otu']
+                    otu = oid2otu[oid]
+                    om = otu.get('meta')
+                    if om is None:
+                        otu['meta'] = to_move
+                    elif isinstance(om, dict):
+                        if om.get('@property') != "ot:ottTaxonName":
+                            otu['meta'] = [om, to_move]
+                    else:
+                        assert(isinstance(om, list))
+                        found = False
+                        for omel in om:
+                            if omel.get('@property') == "ot:ottTaxonName":
+                                found = True
+                                break
+                        if not found:
+                            om.append(to_move)
 rec_resource_meta(obj, 'root')
 coerce_boolean(obj, 'root')
-
+move_ott_taxon_name_to_otu(obj)
 write_as_json(obj, out)

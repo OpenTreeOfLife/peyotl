@@ -15,6 +15,8 @@ import json
 
 _LOG = get_logger(__name__)
 
+parent_sha="f5f6101aad47677d41cbb613efaad54136acbe87"
+
 class GitWorkflowError(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -101,7 +103,7 @@ def commit_and_try_merge2master(git_action, gh, file_content, author_name, autho
     # global TIMING
     author  = "%s <%s>" % (author_name, author_email)
     gh_user = gh.get_user().login
-    return _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha=None)
+    return _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha)
 
 
 def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha):
@@ -114,10 +116,10 @@ def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id,
     try:
         acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=resource_id))
         try:
-            new_sha = git_action.write_study(resource_id, fc, gh_user, resource_id, parent_sha, author)
+            new_sha, branch_name = git_action.write_study(resource_id, fc, gh_user, resource_id, parent_sha, author)
         except Exception, e:
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (resource_id, e.message))
-        git_action.merge(branch_name)
+        git_action.merge(branch_name) #@EJM need to return the branch name...
     finally:
         git_action.release_lock()
         fc.close()
@@ -132,17 +134,13 @@ def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id,
 
 
 def delete_and_push(git_action, gh, author_name, author_email, resource_id):
-    author = "%s <%s>" % (author_name, author_email)
-    branch_name  = "%s_study_%s" % (gh.get_user().login, resource_id)
+    author  = "%s <%s>" % (author_name, author_email)
+    gh_user = gh.get_user().login
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % resource_id)
     try:
-        _pull_gh(git_action, branch_name)
-        try:
-            pass
-            new_sha = git_action.remove_study(resource_id, branch_name, author)
-        except Exception, e:
-            raise GitWorkflowError("Could not remove study #%s! Details: %s" % (resource_id, e.message))
-        _push_gh(git_action, branch_name, resource_id)
+        new_sha, branch_name = git_action.remove_study(gh_user, resource_id, parent_sha)
+    except Exception, e:
+        raise GitWorkflowError("Could not remove study #%s! Details: %s" % (resource_id, e.message))
     finally:
         git_action.release_lock()
     return {

@@ -14,6 +14,7 @@ _LOG = get_logger(__name__)
 class MergeException(Exception):
     pass
 
+
 class GitAction(object):
     def __init__(self, repo, remote=None, git_ssh=None, pkey=None):
         """Create a GitAction object to interact with a Git repository
@@ -114,59 +115,58 @@ class GitAction(object):
             return False
         return True
 
-    def _find_head_sha(self, gh_user, parent_sha):
-        head_shas = git(self.gitdir, self.gitwd, "show-ref", branch)
+    def _find_head_sha(self, gh_user, resource_id, parent_sha):
+        head_shas = git(self.gitdir, self.gitwd, "show-ref")
         for lin in head_shas:
             if lin.startswith(parent_sha):
-                if gh_user in lin.split()[1]
-                     branch = lin.split()[1]
+                if gh_user in lin.split()[1] and resource_id in lin.split()[1] :
+                     branch = lin.split()[1].split('/')[-1]
                      return branch
         else:
             return None    
 
-    def create_or_checkout_branch(self, gh_user, resource_id, parent_sha=None):
-        branch = _find_head_sha(self, gh_user, parent_sha)
+
+    def create_or_checkout_branch(self, gh_user, resource_id, parent_sha):
+        branch = self._find_head_sha(gh_user, resource_id, parent_sha)
         if branch:
             git(self.gitdir, self.gitwd, "checkout", branch)
         else:
             branch = "{ghu}_study_{rid}".format(ghu=gh_user, rid=resource_id)
-            if self.branch_exists(branch):
-                i=1
-                while self.branch_exists(branch):
-                   branch = "{ghu}_study_{rid}_{i}".format(ghu=gh_user, rid=resource_id, i=i)
-        git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
+            i=1
+            while self.branch_exists(branch):
+                branch = "{ghu}_study_{rid}_{i}".format(ghu=gh_user, rid=resource_id, i=i)
+                i+=1
+            try:
+                git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
+            except:
+                raise ValueError('parent sha not in git repo')
+        return branch
 
-    
-    def remove_study(self, study_id, branch, author="OpenTree API <api@opentreeoflife.org>"):
+
+    def remove_study(self, gh_user, resource_id, parent_sha, author="OpenTree API <api@opentreeoflife.org>"):
         """Remove a study
-
         Given a study_id, branch and optionally an
         author, remove a study on the given branch
         and attribute the commit to author.
-
         Returns the SHA of the commit on branch.
-
         """
-        study_dir = "{}/study/{}".format(self.repo, study_id) #TODO change directory
-        study_filename = "{}/{}.json".format(study_dir, study_id)
+        study_dir = "{r}/study/{id}".format(r=self.repo, id=resource_id) #TODO change directory
+        study_filename = "{d}/{id}.json".format(d=study_dir, id=resource_id)
 
-        self.create_or_checkout_branch(branch, parent_sha=None)
+        branch = self.create_or_checkout_branch(gh_user, resource_id, parent_sha)
         if not os.path.isdir(study_dir):
             # branch already exists locally with study removed
             # so just return the commit SHA
-            return git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip()
-
+            return git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip(), branch
         git(self.gitdir, self.gitwd, "rm", "-rf", study_dir)
-
-        git(self.gitdir, self.gitwd, "commit", author=author, message="Delete Study #%s via OpenTree API" % study_id)
-
+        git(self.gitdir, self.gitwd, "commit", author=author, message="Delete Study #%s via OpenTree API" % resource_id)
         new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")
+        return new_sha.strip(), branch
+        
 
-        return new_sha.strip()
 
 
-
-    def write_study(self, study_id, tmpfi, gh_user, resource_id, parent_sha=None, author="OpenTree API <api@opentreeoflife.org>"):
+    def write_study(self, study_id, tmpfi, gh_user, resource_id, parent_sha, author="OpenTree API <api@opentreeoflife.org>"): #@EJM don't forget to fix!!
 
         """Write a study
 
@@ -183,7 +183,7 @@ class GitAction(object):
         study_dir      = "{}/study/{}".format(self.repo, study_id) #TODO EJM change directory
         study_filename = "{}/{}.json".format(study_dir, study_id) 
 
-        self.create_or_checkout_branch(gh_user, resource_id, parent_sha)
+        branch = self.create_or_checkout_branch(gh_user, resource_id, parent_sha)
         
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):
@@ -204,7 +204,7 @@ class GitAction(object):
                  
         new_sha = git(self.gitdir, self.gitwd,  "rev-parse", "HEAD")
 
-        return new_sha.strip()
+        return new_sha.strip(), branch
 
     def merge(self, branch, base_branch="master"):
         """

@@ -142,7 +142,11 @@ Several parts of the setup.py, logging, documentation, and test suite were
 based on Jeet Sukumraran's work in the [DendroPy](http://pythonhosted.org/DendroPy/) package.
 
 The sortattr.xslt stylesheet (which is only used in round-trip testing) is from 
-   http://stackoverflow.com/questions/1429991/using-xsl-to-sort-attributes other code by Mark Holder.
+   http://stackoverflow.com/questions/1429991/using-xsl-to-sort-attributes
+
+md5_for_file taken from code snippet by Lars Wirzenius on
+  http://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
+
 
 The peyotl.phylesystem.git_actions (and the tests) were a part of the api.opentreeoflife.org
     repo which was primarily the work of Duke Leto (at that time).

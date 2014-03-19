@@ -60,10 +60,11 @@ def create_id2repo_pair_dict(path, tag):
     for triple in os.walk(path):
         root, files = triple[0], triple[2]
         for filename in files:
-            if ".json" in filename:
+            if filename.endswith('.json'):
                 # if file is in more than one place it gets over written.
                 #TODO EJM Needs work 
-                d[filename] = (tag, root)
+                study_id = filename[:-5]
+                d[study_id] = (tag, root)
     return d
 
 def _initialize_study_index():
@@ -146,4 +147,9 @@ class Phylesystem(object):
                 d[k] = s
         self._study2shard_map = d
         self._shards = shards
+
+    def create_git_action(self, study_id):
+        shard = self._study2shard_map[study_id]
+        from peyotl.phylesystem.git_actions import GitAction
+        return GitAction(repo=shard.path)
 

@@ -7,11 +7,13 @@ import tempfile
 from peyotl.nexson_syntax import write_as_json
 from peyotl.nexson_validation import NexsonWarningCodes, validate_nexson
 from peyotl.nexson_syntax import convert_nexson_format
+from peyotl.phylesystem.git_actions import MergeException
 from peyotl.utility import get_logger
 from locket import LockError
 from sh import git
 import traceback
 import json
+
 
 _LOG = get_logger(__name__)
 
@@ -98,31 +100,50 @@ def _push_gh(git_action, branch_name, resource_id):
         raise GitWorkflowError("Could not push deletion of study #%s! Details:\n%s" % (resource_id, e.message))
 
 
-def commit_and_try_merge2master(git_action, file_content, resource_id, auth_info):
+def commit_and_try_merge2master(git_action, file_content, resource_id, auth_info, parent_sha):
     """Actually make a local Git commit and push it to our remote
     """
     # global TIMING
-    author  = "%s <%s>" % (author_name, author_email)
-    gh_user = gh.get_user().login
+    author  = "%s <%s>" % (auth_info['name'], auth_info['email'])
+    gh_user = auth_info['login']
     return _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha)
 
 
 def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha):
+    pull_needed = False
     fc = tempfile.NamedTemporaryFile()
-    if isinstance(file_content, str) or isinstance(file_content, unicode):
-            fc.write(file_content)
-    else:
-            write_as_json(file_content, fc)
-    fc.flush()
     try:
+        if isinstance(file_content, str) or isinstance(file_content, unicode):
+            fc.write(file_content)
+        else:
+            write_as_json(file_content, fc)
+        fc.flush()
         acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=resource_id))
         try:
-            new_sha, branch_name = git_action.write_study(resource_id, fc, gh_user, resource_id, parent_sha, author)
-        except Exception, e:
+            try:
+                new_sha, branch_name = git_action.write_study(resource_id, fc, gh_user, resource_id, parent_sha, author)
+            except Exception, e:
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (resource_id, e.message))
-        git_action.merge(branch_name) #@EJM need to return the branch name...
+            wip_md5 = git_action.md5_for_study(resource_id)
+            try:
+                master_sha = git_action.merge(branch_name)
+            except MergeException:
+                pull_needed = True
+            else:
+                master_md5 = git_action.md5_for_study(resource_id)
+                # If the master and WIP are identical, we can
+                #   merge all of the other study content so both 
+                #   master and branch_name point to the same commit...
+                #@TODO we probably just want to delete the WIP branch
+                #   and maybe just create a new branch on the master...
+                if master_md5 == wip_md5:
+                    try:
+                        new_sha = git_action.merge('master', branch_name)
+                    except MergeException:
+                        pull_needed = True
+        finally:
+            git_action.release_lock()
     finally:
-        git_action.release_lock()
         fc.close()
     # What other useful information should be returned on a successful write?
     return {
@@ -130,7 +151,8 @@ def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id,
         "resource_id": resource_id,
         "branch_name": branch_name,
         "description": "Updated study #%s" % resource_id,
-        "sha":  new_sha
+        "sha":  new_sha,
+        "pull_needed": pull_needed,
     }
 
 

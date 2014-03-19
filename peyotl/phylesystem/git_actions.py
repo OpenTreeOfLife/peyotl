@@ -1,4 +1,5 @@
 from sh import git
+import traceback
 import sh
 import re
 import os
@@ -8,11 +9,23 @@ from peyotl.phylesystem import get_HEAD_SHA1
 from peyotl import get_logger
 import shutil
 import json
+import hashlib
 from peyotl.nexson_syntax import write_as_json
 
 _LOG = get_logger(__name__)
 class MergeException(Exception):
     pass
+
+
+def md5_for_file(f, block_size=2**10):
+    # from http://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
+    md5 = hashlib.md5()
+    while True:
+        data = f.read(block_size)
+        if not data:
+            break
+        md5.update(data)
+    return md5.digest()
 
 
 class GitAction(object):
@@ -41,6 +54,18 @@ class GitAction(object):
             self.gitwd = "--work-tree={}".format(self.repo)
         else: #EJM needs a test?
             raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
+    def paths_for_study(self, study_id):
+        '''Returns study_dir and study_filepath for study_id.
+        '''
+        study_dir = "{r}/study/{id}".format(r=self.repo, id=study_id) #TODO change directory
+        study_filename = "{d}/{id}.json".format(d=study_dir, id=study_id)
+        return study_dir, study_filename
+
+    def md5_for_study(self, study_id):
+        fd, fp = self.paths_for_study(study_id)
+        with open(fp, 'rb') as fo:
+            study_md5 = md5_for_file(fo)
+        return study_md5
 
     def env(self):
         return {'GIT_SSH': self.git_ssh,
@@ -99,7 +124,7 @@ class GitAction(object):
 
         If the study_id does not exist, it returns the empty string.
         """
-        study_filename = "%s/study/%s/%s.json" % (self.repo, study_id, study_id)
+        study_filename = self.paths_for_study(study_id)[1]
         head_sha = get_HEAD_SHA1(self.git_dir)
         try:
             f = codecs.open(study_filename, mode='rU', encoding='utf-8')
@@ -115,26 +140,27 @@ class GitAction(object):
             return False
         return True
 
-    def _find_head_sha(self, gh_user, resource_id, parent_sha):
-        head_shas = git(self.gitdir, self.gitwd, "show-ref")
+    def _find_head_sha(self, frag, parent_sha):
+        head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
         for lin in head_shas:
             if lin.startswith(parent_sha):
-                if gh_user in lin.split()[1] and resource_id in lin.split()[1] :
-                     branch = lin.split()[1].split('/')[-1]
-                     return branch
-        else:
-            return None    
-
+                local_branch_split = lin.split(' refs/heads/')
+                if len(local_branch_split) == 2:
+                    branch = local_branch_split[1].rstrip()
+                    if branch.startswith(frag):
+                         return branch
+        return None
 
     def create_or_checkout_branch(self, gh_user, resource_id, parent_sha):
-        branch = self._find_head_sha(gh_user, resource_id, parent_sha)
+        frag = "{ghu}_study_{rid}_".format(ghu=gh_user, rid=resource_id)
+        branch = self._find_head_sha(frag, parent_sha)
         if branch:
             git(self.gitdir, self.gitwd, "checkout", branch)
         else:
-            branch = "{ghu}_study_{rid}".format(ghu=gh_user, rid=resource_id)
+            branch = frag + '0'
             i=1
             while self.branch_exists(branch):
-                branch = "{ghu}_study_{rid}_{i}".format(ghu=gh_user, rid=resource_id, i=i)
+                branch = frag + str(i)
                 i+=1
             try:
                 git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
@@ -150,8 +176,7 @@ class GitAction(object):
         and attribute the commit to author.
         Returns the SHA of the commit on branch.
         """
-        study_dir = "{r}/study/{id}".format(r=self.repo, id=resource_id) #TODO change directory
-        study_filename = "{d}/{id}.json".format(d=study_dir, id=resource_id)
+        study_dir, study_filename = self.paths_for_study(resource_id)
 
         branch = self.create_or_checkout_branch(gh_user, resource_id, parent_sha)
         if not os.path.isdir(study_dir):
@@ -164,7 +189,11 @@ class GitAction(object):
         return new_sha.strip(), branch
         
 
-
+    def reset_hard(self):
+        try:
+            git(self.gitdir, self.gitwd, 'reset', '--hard')
+        except:
+            _LOG.exception('"git reset --hard" failed.')
 
     def write_study(self, study_id, tmpfi, gh_user, resource_id, parent_sha, author="OpenTree API <api@opentreeoflife.org>"): #@EJM don't forget to fix!!
 
@@ -180,18 +209,17 @@ class GitAction(object):
         Returns the SHA of the new commit on branch.
 
         """
-        study_dir      = "{}/study/{}".format(self.repo, study_id) #TODO EJM change directory
-        study_filename = "{}/{}.json".format(study_dir, study_id) 
+        study_dir, study_filename = self.paths_for_study(study_id) 
 
         branch = self.create_or_checkout_branch(gh_user, resource_id, parent_sha)
         
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):
             os.mkdir(study_dir)
-            
+        
         shutil.copy(tmpfi.name, study_filename)
         
-        git(self.gitdir, self.gitwd, "add",study_filename)
+        git(self.gitdir, self.gitwd, "add", study_filename)
         try:
           git(self.gitdir, self.gitwd,  "commit", author=author, message="Update Study #%s via OpenTree API" % study_id)
         except Exception, e:
@@ -200,10 +228,10 @@ class GitAction(object):
             if "nothing to commit" in e.message:#@EJM is this dangerous?
                  pass
             else:
-                 raise
-                 
+                _LOG.exception('"git commit" failed')
+                self.reset_hard()
+                raise
         new_sha = git(self.gitdir, self.gitwd,  "rev-parse", "HEAD")
-
         return new_sha.strip(), branch
 
     def merge(self, branch, base_branch="master"):
@@ -215,30 +243,17 @@ class GitAction(object):
         message of the MergeException will be the
         "git status" output, so details about merge
         conflicts can be determined.
-
         """
-
         current_branch = self.current_branch()
         if current_branch != base_branch:
             git(self.gitdir, self.gitwd, "checkout", base_branch)
-
-        # Always create a merge commit, even if we could fast forward, so we know
-        # when merges occured
         try:
-            merge_output = git(self.gitdir, self.gitwd, "merge",  "--no-ff", branch)
+            git(self.gitdir, self.gitwd, "merge", branch)
         except sh.ErrorReturnCode:
-            raise
-            # attempt to reset things so other operations can
-            # continue
-            output = git(self.gitdir, self.gitwd, "status")
+            # attempt to reset things so other operations can continue
             git(self.gitdir, self.gitwd, "merge", "--abort")
+            # raise an MergeException so that caller will know that the merge failed
+            raise MergeException()
 
-            # re-raise the exception so other code can decide
-            # what to do with it
-            raise MergeException(output)
-
-        # the merge succeeded, so remove the local WIP branch
-        git(self.gitdir, self.gitwd, "branch", "-d", branch)
-
-        new_sha      = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")
+        new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")
         return new_sha.strip()

@@ -243,8 +243,8 @@ class GitAction(object):
         if not os.path.isdir(study_dir):
             os.mkdir(study_dir)
         
-        shutil.copy(tmpfi.name, study_filename)
         prev_file_sha = self.get_blob_sha_for_file(study_filename)
+        shutil.copy(tmpfi.name, study_filename)
         git(self.gitdir, self.gitwd, "add", study_filename)
         try:
             git(self.gitdir, self.gitwd,  "commit", author=author, message="Update Study #%s via OpenTree API" % study_id)

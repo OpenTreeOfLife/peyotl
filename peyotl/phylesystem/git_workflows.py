@@ -92,16 +92,15 @@ def _push_gh(git_action, branch_name, resource_id):#
         raise GitWorkflowError("Could not push deletion of study #%s! Details:\n%s" % (resource_id, e.message))
 
 
-def commit_and_try_merge2master(git_action, gh, file_content, author_name, author_email, resource_id):
+def commit_and_try_merge2master(git_action, file_content, resource_id, auth_info):
     """Actually make a local Git commit and push it to our remote
     """
     # global TIMING
-    author  = "%s <%s>" % (author_name, author_email)
-    gh_user = gh.get_user().login
+    author  = "%s <%s>" % (auth_info['name'], auth_info['email'])
 #    git_action.commit_and_try_merge2master(gh_user, file_content, resource_id, author)
 #
 #def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author):
-    branch_name  = "%s_study_%s" % (gh_user, resource_id)
+    branch_name  = "%s_study_%s" % (auth_info['login'], resource_id)
 #    fc = git_action._write_temp(file_content)
     try:
         acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=resource_id))
@@ -110,7 +109,7 @@ def commit_and_try_merge2master(git_action, gh, file_content, author_name, autho
             _pull_gh(git_action, "master")
             
             try:
-                new_sha = git_action.write_study(resource_id, file_content, branch_name,author)
+                new_sha = git_action.write_study(resource_id, file_content, branch_name, author)
                 # TIMING = api_utils.log_time_diff(_LOG, 'writing study', TIMING)
             except Exception, e:
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (resource_id, e.message))
@@ -130,10 +129,9 @@ def commit_and_try_merge2master(git_action, gh, file_content, author_name, autho
         "sha":  new_sha
     }
 
-
-def delete_and_push(git_action, gh, author_name, author_email, resource_id):
-    author = "%s <%s>" % (author_name, author_email)
-    branch_name  = "%s_study_%s" % (gh.get_user().login, resource_id)
+def delete_and_push(git_action, resource_id, auth_info):
+    author  = "%s <%s>" % (auth_info['name'], auth_info['email'])
+    branch_name  = "%s_study_%s" % (auth_info['login'], resource_id)
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % resource_id)
     try:
         _pull_gh(git_action, branch_name)

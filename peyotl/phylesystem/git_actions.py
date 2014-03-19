@@ -134,11 +134,12 @@ class GitAction(object):
         dirs.sort()
         return dirs[-1]
 
-    def return_study(self, study_id): 
+    def return_study(self, study_id, branch='master'): 
         """Return the contents of the given study_id, and the SHA1 of the HEAD.
 
         If the study_id does not exist, it returns the empty string.
         """
+        self.checkout(branch)
         study_filename = self.paths_for_study(study_id)[1]
         head_sha = get_HEAD_SHA1(self.git_dir)
         try:
@@ -167,7 +168,8 @@ class GitAction(object):
                     if branch.startswith(frag):
                          return branch
         return None
-
+    def checkout(self, branch):
+        git(self.gitdir, self.gitwd, "checkout", branch)
     def create_or_checkout_branch(self, gh_user, study_id, parent_sha):
         frag = "{ghu}_study_{rid}_".format(ghu=gh_user, rid=study_id)
         branch = self._find_head_sha(frag, parent_sha)
@@ -184,7 +186,7 @@ class GitAction(object):
                 _LOG.debug('Created branch "{b}" with parent "{a}"'.format(b=branch, a=parent_sha))
             except:
                 raise ValueError('parent sha not in git repo')
-        git(self.gitdir, self.gitwd, "checkout", branch)
+        self.checkout(branch)
         _LOG.debug('Checked out branch "{b}"'.format(b=branch))
         return branch
 

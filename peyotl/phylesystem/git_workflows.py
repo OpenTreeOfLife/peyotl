@@ -13,6 +13,7 @@ from locket import LockError
 from sh import git
 import traceback
 import json
+import os
 
 
 _LOG = get_logger(__name__)
@@ -114,12 +115,16 @@ def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, p
             try:
                 commit_resp = git_action.write_study(study_id, fc, parent_sha, auth_info)
             except Exception, e:
+                _LOG.exception('write_study exception')
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
             written_fp = git_action.paths_for_study(study_id)[1]
             branch_name = commit_resp['branch']
             new_sha = commit_resp['commit_sha']
             git_action.checkout_master()
-            b = git_action.get_blob_sha_for_file(written_fp)
+            if os.path.exists(written_fp):
+                b = git_action.get_blob_sha_for_file(written_fp)
+            else:
+                b = None
             if master_file_sha_included is None:
                 same_sha = commit_resp['prev_file_sha']
             else:

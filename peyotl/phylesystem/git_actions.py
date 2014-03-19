@@ -245,7 +245,10 @@ class GitAction(object):
         if not os.path.isdir(study_dir):
             os.mkdir(study_dir)
         
-        prev_file_sha = self.get_blob_sha_for_file(study_filename)
+        if os.path.exists(study_filename):
+            prev_file_sha = self.get_blob_sha_for_file(study_filename)
+        else:
+            prev_file_sha = None
         shutil.copy(tmpfi.name, study_filename)
         git(self.gitdir, self.gitwd, "add", study_filename)
         try:

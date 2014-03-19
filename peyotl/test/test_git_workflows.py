@@ -10,6 +10,8 @@ import codecs
 import json
 from peyotl.nexson_syntax import read_as_json
 from peyotl.test.support import pathmap
+from peyotl.utility import get_logger
+_LOG = get_logger(__name__)
 
 phylesystem = Phylesystem(pathmap.get_test_repos())
 
@@ -41,6 +43,7 @@ class TestPhylesystem(unittest.TestCase):
             curr, sha = ga.return_study(_MINI_PHYL_STUDY_ID)
         finally:
             ga.release_lock()
+        _LOG.debug('test sha = "{}"'.format(sha))
         curr_obj = json.loads(curr)
         c = curr_obj['nexml'].get("^count", 0)
         c += 1

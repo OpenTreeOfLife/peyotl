@@ -93,6 +93,7 @@ class GitAction(object):
 
     def checkout_master(self):
         git(self.gitdir, self.gitwd, "checkout", "master")
+
     def get_master_sha(self):
         x = git(self.gitdir, self.gitwd, "show-ref", "master", "--heads", "--hash")
         return x.strip()
@@ -146,8 +147,10 @@ class GitAction(object):
     def _find_head_sha(self, frag, parent_sha):
         head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
         for lin in head_shas:
+            #_LOG.debug("lin = '{l}'".format(l=lin))
             if lin.startswith(parent_sha):
                 local_branch_split = lin.split(' refs/heads/')
+                #_LOG.debug("local_branch_split = '{l}'".format(l=local_branch_split))
                 if len(local_branch_split) == 2:
                     branch = local_branch_split[1].rstrip()
                     if branch.startswith(frag):
@@ -157,6 +160,7 @@ class GitAction(object):
     def create_or_checkout_branch(self, gh_user, resource_id, parent_sha):
         frag = "{ghu}_study_{rid}_".format(ghu=gh_user, rid=resource_id)
         branch = self._find_head_sha(frag, parent_sha)
+        _LOG.debug('Found branch "{b}" for sha "{s}"'.format(b=branch, s=parent_sha))
         if branch:
             git(self.gitdir, self.gitwd, "checkout", branch)
         else:
@@ -165,8 +169,10 @@ class GitAction(object):
             while self.branch_exists(branch):
                 branch = frag + str(i)
                 i+=1
+            _LOG.debug('lowest non existing branch =' + branch)
             try:
                 git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
+                _LOG.debug('Created branch "{b}" with parent "{a}"'.format(b=branch, a=parent_sha))
             except:
                 raise ValueError('parent sha not in git repo')
         return branch
@@ -237,6 +243,7 @@ class GitAction(object):
                 self.reset_hard()
                 raise
         new_sha = git(self.gitdir, self.gitwd,  "rev-parse", "HEAD")
+        _LOG.debug('Committed study "{i}" to branch "{b}" commit SHA: "{s}"'.format(i=study_id, b=branch, s=new_sha.strip()))
         return new_sha.strip(), branch
 
     def merge(self, branch, base_branch="master"):

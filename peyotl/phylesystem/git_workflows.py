@@ -89,25 +89,18 @@ def _pull_gh(git_action, branch_name):#
             raise GitWorkflowError(msg)
 
 
-def _push_gh(git_action, branch_name, resource_id):
+def _push_gh(git_action, branch_name, study_id):
     try:
         git_env = git_action.env()
         # actually push the changes to Github
         git_action.push(git_action.repo_remote, env=git_env, branch=branch_name)
     except Exception, e:
-        raise GitWorkflowError("Could not push deletion of study #%s! Details:\n%s" % (resource_id, e.message))
+        raise GitWorkflowError("Could not push deletion of study #%s! Details:\n%s" % (study_id, e.message))
 
 
-def commit_and_try_merge2master(git_action, file_content, resource_id, auth_info, parent_sha):
+def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, parent_sha):
     """Actually make a local Git commit and push it to our remote
     """
-    # global TIMING
-    author  = "%s <%s>" % (auth_info['name'], auth_info['email'])
-    gh_user = auth_info['login']
-    return _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha)
-
-
-def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id, author, parent_sha):
     pull_needed = False
     fc = tempfile.NamedTemporaryFile()
     try:
@@ -116,29 +109,27 @@ def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id,
         else:
             write_as_json(file_content, fc)
         fc.flush()
-        acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=resource_id))
+        acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=study_id))
         try:
             try:
-                new_sha, branch_name = git_action.write_study(resource_id, fc, gh_user, resource_id, parent_sha, author)
+                commit_resp = git_action.write_study(study_id, fc, parent_sha, auth_info)
             except Exception, e:
-                raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (resource_id, e.message))
-            wip_md5 = git_action.md5_for_study(resource_id)
-            try:
-                master_sha = git_action.merge(branch_name)
-            except MergeException:
-                pull_needed = True
+                raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
+            written_fp = git_action.paths_for_study(study_id)[1]
+            branch_name = commit_resp['branch']
+            new_sha = commit_resp['commit_sha']
+            git_action.checkout_master()
+            b = git_action.get_blob_sha_for_file(written_fp)
+            if b == commit_resp['prev_file_sha']:
+                try:
+                    new_sha = git_action.merge(branch_name, 'master')
+                except MergeException:
+                    pull_needed = True
+                else:
+                    git_action.delete_branch(branch_name)
+                    branch_name = 'master'
             else:
-                master_md5 = git_action.md5_for_study(resource_id)
-                # If the master and WIP are identical, we can
-                #   merge all of the other study content so both 
-                #   master and branch_name point to the same commit...
-                #@TODO we probably just want to delete the WIP branch
-                #   and maybe just create a new branch on the master...
-                if master_md5 == wip_md5:
-                    try:
-                        new_sha = git_action.merge('master', branch_name)
-                    except MergeException:
-                        pull_needed = True
+                pull_needed = True
         finally:
             git_action.release_lock()
     finally:
@@ -146,28 +137,28 @@ def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id,
     # What other useful information should be returned on a successful write?
     return {
         "error": 0,
-        "resource_id": resource_id,
+        "resource_id": study_id,
         "branch_name": branch_name,
-        "description": "Updated study #%s" % resource_id,
+        "description": "Updated study #%s" % study_id,
         "sha":  new_sha,
         "pull_needed": pull_needed,
     }
 
 
 
-def delete_and_push(git_action, resource_id, auth_info):
+def delete_and_push(git_action, study_id, auth_info):
     author  = "%s <%s>" % (auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
-    acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % resource_id)
+    acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % study_id)
     try:
-        new_sha, branch_name = git_action.remove_study(gh_user, resource_id, parent_sha)
+        new_sha, branch_name = git_action.remove_study(gh_user, study_id, parent_sha)
     except Exception, e:
-        raise GitWorkflowError("Could not remove study #%s! Details: %s" % (resource_id, e.message))
+        raise GitWorkflowError("Could not remove study #%s! Details: %s" % (study_id, e.message))
     finally:
         git_action.release_lock()
     return {
         "error": 0,
         "branch_name": branch_name,
-        "description": "Deleted study #%s" % resource_id,
+        "description": "Deleted study #%s" % study_id,
         "sha":  new_sha
     }

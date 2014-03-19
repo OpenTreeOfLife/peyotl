@@ -15,7 +15,7 @@ import json
 
 _LOG = get_logger(__name__)
 
-parent_sha="f5f6101aad47677d41cbb613efaad54136acbe87"
+parent_sha="f5f6101aad47677d41cbb613efaad54136acbe87" #@EJM TEMPORARY
 
 class GitWorkflowError(Exception):
     def __init__(self, msg):

@@ -161,9 +161,7 @@ class GitAction(object):
         frag = "{ghu}_study_{rid}_".format(ghu=gh_user, rid=resource_id)
         branch = self._find_head_sha(frag, parent_sha)
         _LOG.debug('Found branch "{b}" for sha "{s}"'.format(b=branch, s=parent_sha))
-        if branch:
-            git(self.gitdir, self.gitwd, "checkout", branch)
-        else:
+        if not branch:
             branch = frag + '0'
             i=1
             while self.branch_exists(branch):
@@ -175,6 +173,8 @@ class GitAction(object):
                 _LOG.debug('Created branch "{b}" with parent "{a}"'.format(b=branch, a=parent_sha))
             except:
                 raise ValueError('parent sha not in git repo')
+        git(self.gitdir, self.gitwd, "checkout", branch)
+        _LOG.debug('Checked out branch "{b}"'.format(b=branch))
         return branch
 
 

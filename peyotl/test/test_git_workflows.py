@@ -48,10 +48,14 @@ class TestPhylesystem(unittest.TestCase):
         c = curr_obj['nexml'].get("^count", 0)
         c += 1
         curr_obj['nexml']["^count"] = c
-        commit_and_try_merge2master(ga, curr_obj, _MINI_PHYL_STUDY_ID, _TEST_AUTH_INFO, sha)
+        v1b = commit_and_try_merge2master(ga, curr_obj, _MINI_PHYL_STUDY_ID, _TEST_AUTH_INFO, sha)
         c += 1
         curr_obj['nexml']["^count"] = c
-        commit_and_try_merge2master(ga, curr_obj, _MINI_PHYL_STUDY_ID, _TEST_AUTH_INFO, sha)
+        v2b = commit_and_try_merge2master(ga, curr_obj, _MINI_PHYL_STUDY_ID, _TEST_AUTH_INFO, sha)
+        self.assertNotEqual(v1b['branch_name'], v2b['branch_name'])
+        self.assertNotEqual(v1b['sha'], v2b['sha'])
+        self.assertEqual(v1b['sha'], ga.get_master_sha()) # not locked!
+        
 if __name__ == "__main__":
     unittest.main()
     

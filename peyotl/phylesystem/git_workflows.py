@@ -98,7 +98,7 @@ def _push_gh(git_action, branch_name, study_id):
         raise GitWorkflowError("Could not push deletion of study #%s! Details:\n%s" % (study_id, e.message))
 
 
-def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, parent_sha):
+def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, parent_sha, master_file_sha_included=None):
     """Actually make a local Git commit and push it to our remote
     """
     pull_needed = False
@@ -120,10 +120,15 @@ def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, p
             new_sha = commit_resp['commit_sha']
             git_action.checkout_master()
             b = git_action.get_blob_sha_for_file(written_fp)
-            if b == commit_resp['prev_file_sha']:
+            if master_file_sha_included is None:
+                same_sha = commit_resp['prev_file_sha']
+            else:
+                same_sha = master_file_sha_included
+            if b == same_sha:
                 try:
                     new_sha = git_action.merge(branch_name, 'master')
                 except MergeException:
+                    _LOG.error('MergeException in a "safe" merge !!!')
                     pull_needed = True
                 else:
                     git_action.delete_branch(branch_name)

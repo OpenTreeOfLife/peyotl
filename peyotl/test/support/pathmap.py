@@ -51,8 +51,8 @@ TESTS_COVERAGE_DIR = os.path.join(TESTS_DIR, "coverage")
 TESTS_COVERAGE_REPORT_DIR = os.path.join(TESTS_COVERAGE_DIR, "report")
 TESTS_COVERAGE_SOURCE_DIR = os.path.join(TESTS_COVERAGE_DIR, "source")
 
-TEST_PHYLESYSTEM_PAR = os.path.join(TESTS_DATA_DIR, 'phyl_par')
-TEST_PHYLESYSTEM_TEMPLATE = os.path.join(TESTS_DATA_DIR, 'phyl_par')
+TEST_PHYLESYSTEM_PAR = os.path.join(TESTS_DATA_DIR, 'mini_par')
+TEST_PHYLESYSTEM_TEMPLATE = os.path.join(TESTS_DATA_DIR, 'template_mini_par')
 
 def get_test_repos():
     return { 'mini_phyl': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_phyl'),

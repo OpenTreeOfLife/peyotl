@@ -22,7 +22,7 @@ _TEST_AUTH_INFO = {
 }
 
 class TestPhylesystem(unittest.TestCase):
-    def testSimple(self):
+    def xtestSimple(self):
         ga = phylesystem.create_git_action(_MINI_PHYL_STUDY_ID)
         ga.acquire_lock()
         try:

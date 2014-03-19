@@ -17,16 +17,6 @@ class MergeException(Exception):
     pass
 
 
-def md5_for_file(f, block_size=2**10):
-    # from http://stackoverflow.com/questions/1131220/get-md5-hash-of-big-files-in-python
-    md5 = hashlib.md5()
-    while True:
-        data = f.read(block_size)
-        if not data:
-            break
-        md5.update(data)
-    return md5.digest()
-
 def get_user_author(auth_info):
     '''Return commit author info from a dict. Returns username and author string.
 
@@ -170,6 +160,7 @@ class GitAction(object):
         return None
     def checkout(self, branch):
         git(self.gitdir, self.gitwd, "checkout", branch)
+
     def create_or_checkout_branch(self, gh_user, study_id, parent_sha):
         frag = "{ghu}_study_{rid}_".format(ghu=gh_user, rid=study_id)
         branch = self._find_head_sha(frag, parent_sha)

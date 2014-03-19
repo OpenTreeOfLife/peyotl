@@ -7,7 +7,7 @@ import tempfile
 from peyotl.nexson_syntax import write_as_json
 from peyotl.nexson_validation import NexsonWarningCodes, validate_nexson
 from peyotl.nexson_syntax import convert_nexson_format
-from peyotl.phylesystem.git_actions import MergeException
+from peyotl.phylesystem.git_actions import MergeException, get_user_author
 from peyotl.utility import get_logger
 from locket import LockError
 from sh import git
@@ -102,7 +102,7 @@ def _push_gh(git_action, branch_name, study_id):
 def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, parent_sha, master_file_sha_included=None):
     """Actually make a local Git commit and push it to our remote
     """
-    pull_needed = False
+    merge_needed = False
     fc = tempfile.NamedTemporaryFile()
     try:
         if isinstance(file_content, str) or isinstance(file_content, unicode):
@@ -134,12 +134,12 @@ def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, p
                     new_sha = git_action.merge(branch_name, 'master')
                 except MergeException:
                     _LOG.error('MergeException in a "safe" merge !!!')
-                    pull_needed = True
+                    merge_needed = True
                 else:
                     git_action.delete_branch(branch_name)
                     branch_name = 'master'
             else:
-                pull_needed = True
+                merge_needed = True
         finally:
             git_action.release_lock()
     finally:
@@ -151,7 +151,7 @@ def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, p
         "branch_name": branch_name,
         "description": "Updated study #%s" % study_id,
         "sha":  new_sha,
-        "pull_needed": pull_needed,
+        "merge_needed": merge_needed,
     }
 
 
@@ -171,4 +171,32 @@ def delete_study(git_action, study_id, auth_info, parent_sha):
         "branch_name": branch_name,
         "description": "Deleted study #%s" % study_id,
         "sha":  new_sha
+    }
+
+def merge_from_master(git_action, study_id, auth_info, parent_sha):
+    """merge from master into the WIP for this study/author 
+    this is needed to allow a worker's future saves to 
+    be merged seamlessly into master.
+    """
+    gh_user, author = get_user_author(auth_info)
+    acquire_lock_raise(git_action, fail_msg="Could not acquire lock to merge study #{s}".format(s=study_id))
+    try:
+        git_action.checkout_master()
+        written_fp = git_action.paths_for_study(study_id)[1]
+        if os.path.exists(written_fp):
+            master_file_blob_sha = git_action.get_blob_sha_for_file(written_fp)
+        else:
+            raise GitWorkflowError('Study "{}" does not exist on master'.format(study_id))
+        branch = git_action.create_or_checkout_branch(gh_user, study_id, parent_sha)
+        new_sha = git_action.merge('master', branch)
+    finally:
+        git_action.release_lock()
+    # What other useful information should be returned on a successful write?
+    return {
+        "error": 0,
+        "resource_id": study_id,
+        "branch_name": branch,
+        "description": "Updated study #%s" % study_id,
+        "sha":  new_sha,
+        "merged_SHA": master_file_blob_sha,
     }

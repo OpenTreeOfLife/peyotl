@@ -33,6 +33,7 @@ def acquire_lock_raise(git_action, fail_msg=''):
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
 
+#TODO: __validate and validate_and_convert_nexson belong in a different part of peyotl
 def __validate(nexson):
     '''Returns three objects:
         an annotation dict (NexSON formmatted), 
@@ -97,7 +98,7 @@ def _push_gh(git_action, branch_name, resource_id):
         raise GitWorkflowError("Could not push deletion of study #%s! Details:\n%s" % (resource_id, e.message))
 
 
-def commit_and_try_merge2master(git_action, gh, file_content, author_name, author_email, resource_id):
+def commit_and_try_merge2master(git_action, file_content, resource_id, auth_info):
     """Actually make a local Git commit and push it to our remote
     """
     # global TIMING
@@ -131,6 +132,7 @@ def _commit_and_try_merge2master(git_action, gh_user, file_content, resource_id,
         "description": "Updated study #%s" % resource_id,
         "sha":  new_sha
     }
+
 
 
 def delete_and_push(git_action, gh, author_name, author_email, resource_id):

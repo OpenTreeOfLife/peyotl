@@ -93,6 +93,9 @@ class GitAction(object):
 
     def checkout_master(self):
         git(self.gitdir, self.gitwd, "checkout", "master")
+    def get_master_sha(self):
+        x = git(self.gitdir, self.gitwd, "show-ref", "master", "--heads", "--hash")
+        return x.strip()
 
     def newest_study_id(self):
         "Return the numeric part of the newest study_id"
@@ -210,7 +213,9 @@ class GitAction(object):
 
         """
         study_dir, study_filename = self.paths_for_study(study_id) 
-
+        if parent_sha is None:
+            self.checkout_master()
+            parent_sha = self.get_master_sha()
         branch = self.create_or_checkout_branch(gh_user, resource_id, parent_sha)
         
         # create a study directory if this is a new study EJM- what if it isn't?

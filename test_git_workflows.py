@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 from peyotl.phylesystem.git_workflows import acquire_lock_raise, \
                                              commit_and_try_merge2master, \
-                                             delete_and_push, \
+                                             delete_study, \
                                              GitWorkflowError, \
                                              validate_and_convert_nexson
 from peyotl.phylesystem import Phylesystem

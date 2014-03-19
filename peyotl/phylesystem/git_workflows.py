@@ -156,7 +156,7 @@ def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, p
 
 
 
-def delete_and_push(git_action, study_id, auth_info):
+def delete_study(git_action, study_id, auth_info):
     author  = "%s <%s>" % (auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % study_id)

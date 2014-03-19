@@ -51,23 +51,29 @@ def get_repos():
         for name in os.listdir(p):
             if os.path.isdir(os.path.join(p, name + '/.git')):
                 _repos[name] = os.path.join(p, name)
-    if len(_repos)==0:
+    if len(_repos) == 0:
         raise ValueError('No git repos in {parent}'.format(str(par_list)))
     return _repos
 
-def _initialize_study_index():
-    d = {} # Key is study id, value is repo,dir tuple
-    repos=get_repos()
-    for repo in _repos:
-        for triple in os.walk(os.path.join(_repos[repo], 'study')):
-            root, files = triple[0], triple[2]
-            for filename in files:
-                if ".json" in filename:
-                    # if file is in more than one place it gets over written.
-                    #TODO EJM Needs work 
-                    d[filename] = (repo, root)
+def create_id2repo_pair_dict(path, tag):
+    d = {}
+    for triple in os.walk(path):
+        root, files = triple[0], triple[2]
+        for filename in files:
+            if ".json" in filename:
+                # if file is in more than one place it gets over written.
+                #TODO EJM Needs work 
+                d[filename] = (tag, root)
     return d
 
+def _initialize_study_index():
+    d = {} # Key is study id, value is repo,dir tuple
+    repos = get_repos()
+    for repo in _repos:
+        p = os.path.join(_repos[repo], 'study')
+        dr = create_id2repo_pair_dict(p, repo)
+        d.update(dr)
+    return d
 
 def get_paths_for_study_id(study_id):
     global _study_index
@@ -82,7 +88,6 @@ def get_paths_for_study_id(study_id):
         raise ValueError("Study {} not found in repo".format(study_id))
     finally:
         _study_index_lock.release()
-
 
 def create_new_path_for_study_id(study_id):
     _study_index_lock.acquire()
@@ -103,4 +108,42 @@ def phylesystem_study_objs(**kwargs):
                 yield (study_id, nex_obj)
             except Exception:
                 pass
+
+class PhylesystemShard(object):
+    '''Wrapper around a git repos holding nexson studies'''
+    def __init__(self, name, path):
+        self.name = name
+        dot_git = os.path.join(path, '.git')
+        study_dir = os.path.join(path, 'study')
+        if not os.path.isdir(path):
+            raise ValueError('"{p}" is not a directory'.format(p=path))
+        if not os.path.isdir(dot_git):
+            raise ValueError('"{p}" is not a directory'.format(p=dot_git))
+        if not os.path.isdir(study_dir):
+            raise ValueError('"{p}" is not a directory'.format(p=study_dir))
+        d = create_id2repo_pair_dict(study_dir, name)
+        self._study_index = d
+        self.path = path
+        self.git_dir = dot_git
+        self.study_dir = study_dir
+    def get_study_index(self):
+        return self._study_index
+    study_index = property(get_study_index)
+
+class Phylesystem(object):
+    '''Wrapper around a set of sharded git repos'''
+    def __init__(self, repos_dict=None):
+        if repos_dict is None:
+            repos_dict = get_repos()
+        shards = []
+        for repo_name, repo_filepath in repos_dict.items():
+            shards.append(PhylesystemShard(repo_name, repo_filepath))
+        d = {}
+        for s in shards:
+            for k, v in s.study_index.items():
+                if k in d:
+                    raise KeyError('study "{i}" found in multiple repos'.format(i=k))
+                d[k] = s
+        self._study2shard_map = d
+        self._shards = shards
 

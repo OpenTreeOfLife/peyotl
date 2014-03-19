@@ -27,6 +27,7 @@ def acquire_lock_raise(git_action, fail_msg=''):
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
 
+#TODO: __validate and validate_and_convert_nexson belong in a different part of peyotl
 def __validate(nexson):
     '''Returns three objects:
         an annotation dict (NexSON formmatted), 

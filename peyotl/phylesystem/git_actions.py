@@ -276,6 +276,7 @@ class GitAction(object):
         try:
             git(self.gitdir, self.gitwd, "merge", branch)
         except sh.ErrorReturnCode:
+            _LOG.exception('merge failed')
             # attempt to reset things so other operations can continue
             git(self.gitdir, self.gitwd, "merge", "--abort")
             # raise an MergeException so that caller will know that the merge failed

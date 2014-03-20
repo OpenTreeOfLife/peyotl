@@ -45,7 +45,8 @@ def __validate(nexson):
     # stub function for hooking into NexSON validation
     codes_to_skip = [NexsonWarningCodes.UNVALIDATED_ANNOTATION]
     v_log, adaptor = validate_nexson(nexson, codes_to_skip)
-    annotation = v_log.prepare_annotation(author_name='api.opentreeoflife.org/validate')
+    annotation = v_log.prepare_annotation(author_name='api.opentreeoflife.org/validate',
+                                          description='Open Tree NexSON validation')
     return annotation, v_log, adaptor
 
 def validate_and_convert_nexson(nexson, output_version, allow_invalid):

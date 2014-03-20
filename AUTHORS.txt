@@ -1,17 +1,13 @@
 Authors
 =======
 
-Mark T. Holder mtholder@gmail.com
-Emily Jane McTavish
-Jonathan "Duke" Leto wrote parts of peyotl.phylesystem.git_actions and the tests as 
-    apart of his work on the Open Tree of Life api.opentreeoflife.org repo
+The primary authors and maintainers of peyotl are:
+    Emily Jane McTavish,
+    Mark T. Holder, and 
+    Jim Allman
 
-----------
-N: Jonathan "Duke" Leto
-E: duke@leto.net
-W: http://duke.leto.net
-S: Portland, OR
+Jonathan "Duke" Leto wrote parts of peyotl.phylesystem.git_actions and the tests as a part of his work on the Open Tree of Life api.opentreeoflife.org repo
 
-
-Feel free to contribute and add your name here!
+See the CONTRIBUTORS file for a more complete list. Feel free to contribute 
+and add your name to that file!
 

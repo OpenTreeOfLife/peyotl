@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ #!/usr/bin/env python
 '''Functions for converting between the different representations
 of NexSON and the NeXML representation.
 See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/NexSON
@@ -47,15 +47,22 @@ _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
                                   ])
 _LOG = get_logger(__name__)
 
-def get_ot_study_info_from_nexml(src,
+def get_ot_study_info_from_nexml(src=None,
+                                 nexml_content=None,
                                  encoding=u'utf8',
                                  nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     '''Converts an XML doc to JSON using the honeybadgerfish convention (see to_honeybadgerfish_dict)
     and then prunes elements not used by open tree of life study curartion.
 
-    src can be either:
-            (1) a file_object, or
-            (2) (if file_object is None) a filepath and encoding
+    If nexml_content is provided, it is interpreted as the contents
+    of an NeXML file in utf-8 encoding.
+
+    If nexml_content is None, then the src arg will be used src can be either:
+        * a file_object, or 
+        * a string
+    If `src` is a string then it will be treated as a filepath unless it 
+        begins with http:// or https:// (in which case it will be downloaded
+        using peyotl.utility.download) 
     Returns a dictionary with the keys/values encoded according to the honeybadgerfish convention
     See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/HoneyBadgerFish
 
@@ -67,10 +74,17 @@ def get_ot_study_info_from_nexml(src,
         nsv = DIRECT_HONEY_BADGERFISH
     else:
         nsv = nexson_syntax_version
-    if isinstance(src, str) or isinstance(src, unicode):
-        src = codecs.open(src, 'rU', encoding=encoding)
-    content = src.read().encode('utf-8')
-    doc = xml.dom.minidom.parseString(content)
+    if nexml_content is None:
+        if isinstance(src, str) or isinstance(src, unicode):
+            if src.startswith('http://') or src.startswith('https://'):
+                from peyotl.utility import download
+                nexml_content = download(url=src, encoding=encoding)
+            else:
+                src = codecs.open(src, 'rU', encoding=encoding)
+                nexml_content = src.read().encode('utf-8')
+        else:
+            nexml_content = src.read().encode('utf-8')
+    doc = xml.dom.minidom.parseString(nexml_content)
     doc_root = doc.documentElement
 
     ccfg = ConversionConfig(output_format=nsv, input_format=NEXML_NEXSON_VERSION)

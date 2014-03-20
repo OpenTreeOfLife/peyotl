@@ -110,3 +110,9 @@ def get_config(section=None, param=None):
         msg = mf.format(f=_CONFIG_FN, o=param, s=section)
         _LOG.error(msg)
         return None
+
+def download(url, encoding='utf-8'):
+    import requests
+    response = requests.get(url)
+    response.encoding = encoding
+    return response.text

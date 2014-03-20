@@ -38,7 +38,7 @@ import codecs
 import json
 
 _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
-                                  DEFAULT_NEXSON_VERSION,
+                                  DIRECT_HONEY_BADGERFISH,
                                   BADGER_FISH_NEXSON_VERSION,
                                   BY_ID_HONEY_BADGERFISH, 
                                   '0.0',

@@ -75,7 +75,15 @@ class Nexson2Nexml(NexsonConverter):
 
     def convert(self, blob):
         doc = xml.dom.minidom.Document()
+        converted_root_el = False
+        if 'nexml' in blob:
+            converted_root_el= True
+            blob['nex:nexml'] = blob['nexml']
+            del blob['nexml']
         self._top_level_build_xml(doc, blob)
+        if converted_root_el:
+            blob['nexml'] = blob['nex:nexml']
+            del blob['nex:nexml']
         return doc
 
     def _partition_keys_for_xml(self, o):

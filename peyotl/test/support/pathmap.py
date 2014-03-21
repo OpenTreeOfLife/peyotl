@@ -91,6 +91,11 @@ def nexson_source_path(filename=None):
         filename = ""
     return os.path.join(TESTS_DATA_DIR, "nexson", filename)
 
+def nexml_source_path(filename=None):
+    if filename is None:
+        filename = ""
+    return os.path.join(TESTS_DATA_DIR, "nexml", filename)
+
 def named_output_stream(filename=None, suffix_timestamp=True):
     return open(named_output_path(filename=filename, suffix_timestamp=suffix_timestamp), "w")
 

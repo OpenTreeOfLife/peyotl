@@ -91,18 +91,52 @@ def get_ot_study_info_from_nexml(src=None,
     converter = Nexml2Nexson(ccfg)
     o = converter.convert(doc_root)
     if _is_by_id_hbf(nexson_syntax_version):
-        return convert_nexson_format(o, BY_ID_HONEY_BADGERFISH, current_format=nsv)
+        o = convert_nexson_format(o, BY_ID_HONEY_BADGERFISH, current_format=nsv)
+    if 'nex:nexml' in o:
+        n = o['nex:nexml']
+        del o['nex:nexml']
+        o['nexml'] = n
     return o
 
-def get_ot_study_info_from_treebase_nexml(src, encoding=u'utf8', nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    '''Just a stub at this point. Intended to normalize treebase-specific metadata
-    into the locations where open tree of life software that expects it.
+def _simplify_object_by_id_del(o):
+    if isinstance(o, list):
+        return [_simplify_object_by_id_del(i) for i in o]
+    if (len(o.keys()) == 2) and ('@id' in o):
+        if ('$' in o):
+            return o['$']
+        if ('@href' in o):
+            del o['@id']
+    return o
 
-    `src` can be a string (filepath) or a input file object.
-    @TODO: need to investigate which metadata should move or be copied
+def get_ot_study_info_from_treebase_nexml(src=None,
+                                          nexml_content=None,
+                                          encoding=u'utf8',
+                                          nexson_syntax_version=DEFAULT_NEXSON_VERSION):
+    '''Normalize treebase-specific metadata into the locations where
+    open tree of life software that expects it.
+
+    See get_ot_study_info_from_nexml for the explanation of the arguments.
+
+    Actions to "normalize" TreeBase objects to ot Nexson
+        1. the meta id for any meta item that has only a value and an id
+        2. throw away rdfs:isDefinedBy
     '''
-    o = get_ot_study_info_from_nexml(src, encoding=encoding, nexson_syntax_version=nexson_syntax_version)
-    return o
+    raw = get_ot_study_info_from_nexml(src=src,
+                                     nexml_content=nexml_content,
+                                     encoding=encoding,
+                                     nexson_syntax_version=nexson_syntax_version)
+    nexml = raw['nexml']
+    for otus in nexml['otusById'].values():
+        for otu in otus['otuById'].values():
+            to_del = ['^rdfs:isDefinedBy']
+            for tag in to_del:
+                if tag in otu:
+                    del otu[tag]
+            
+            for tag in otu.keys():
+                if tag.startswith('^'):
+                    otu[tag] = _simplify_object_by_id_del(otu[tag])
+    return raw
 
 def _nexson_directly_translatable_to_nexml(vers):
     'TEMP: until we refactor nexml writing code to be more general...'

@@ -1,5 +1,5 @@
 {
-"nex:nexml": {
+"nexml": {
 "@generator": "org.opentreeoflife.api.nexsonvalidator.nexson_nexml", 
 "@id": "bogusStudyID", 
 "@nexml2json": "1.2.1", 

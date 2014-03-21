@@ -1,5 +1,5 @@
 {
-"nex:nexml": {
+"nexml": {
 "@about": "#S100", 
 "@generator": "opentree.2nexml", 
 "@nexml2json": "1.0.0", 

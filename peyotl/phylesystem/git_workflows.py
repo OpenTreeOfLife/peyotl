@@ -100,7 +100,12 @@ def _push_gh(git_action, branch_name, study_id):
         raise GitWorkflowError("Could not push deletion of study #%s! Details:\n%s" % (study_id, e.message))
 
 
-def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, parent_sha, merged_sha=None):
+def commit_and_try_merge2master(git_action,
+                                file_content,
+                                study_id,
+                                auth_info,
+                                parent_sha,
+                                merged_sha=None):
     """Actually make a local Git commit and push it to our remote
     """
     merge_needed = False
@@ -121,9 +126,13 @@ def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, p
             written_fp = git_action.paths_for_study(study_id)[1]
             branch_name = commit_resp['branch']
             new_sha = commit_resp['commit_sha']
+            _LOG.debug('write of study {s} on parent {p} returned = {c}'.format(s=study_id,
+                                                                                p=parent_sha,
+                                                                                c=str(commit_resp)))
             git_action.checkout_master()
             if os.path.exists(written_fp):
                 b = git_action.get_blob_sha_for_file(written_fp)
+                _LOG.debug('master SHA for that file path is {b}'.format(b=b))
             else:
                 b = None
             if merged_sha is None:
@@ -140,13 +149,14 @@ def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, p
                     git_action.delete_branch(branch_name)
                     branch_name = 'master'
             else:
+                _LOG.debug('Edit to different source. merge_needed <- True')
                 merge_needed = True
         finally:
             git_action.release_lock()
     finally:
         fc.close()
     # What other useful information should be returned on a successful write?
-    return {
+    r = {
         "error": 0,
         "resource_id": study_id,
         "branch_name": branch_name,
@@ -154,8 +164,8 @@ def commit_and_try_merge2master(git_action, file_content, study_id, auth_info, p
         "sha":  new_sha,
         "merge_needed": merge_needed,
     }
-
-
+    _LOG.debug('returning {r}'.format(r=str(r)))
+    return r
 
 def delete_study(git_action, study_id, auth_info, parent_sha):
     author  = "%s <%s>" % (auth_info['name'], auth_info['email'])

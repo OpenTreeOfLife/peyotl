@@ -138,7 +138,7 @@ class GitAction(object):
         try:
             f = codecs.open(study_filename, mode='rU', encoding='utf-8')
         except:
-            return '', head_sha, {}, d
+            return '', head_sha, d
         return f.read(), head_sha, d
 
     def branch_exists(self, branch):

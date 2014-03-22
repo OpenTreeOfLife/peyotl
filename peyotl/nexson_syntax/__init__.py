@@ -120,22 +120,89 @@ def get_ot_study_info_from_treebase_nexml(src=None,
     Actions to "normalize" TreeBase objects to ot Nexson
         1. the meta id for any meta item that has only a value and an id
         2. throw away rdfs:isDefinedBy
+        3. otu @label -> otu ^ot:originalLabel
+        4. ^tb:indentifier.taxon, ^tb:indentifier.taxonVariant and some skos:closeMatch
+            fields to ^ot:taxonLink
     '''
     raw = get_ot_study_info_from_nexml(src=src,
                                      nexml_content=nexml_content,
                                      encoding=encoding,
                                      nexson_syntax_version=nexson_syntax_version)
     nexml = raw['nexml']
+    RDFS_DEFINED_BY = '^rdfs:isDefinedBy'
+    SKOS_ALT_LABEL = '^skos:altLabel'
+    SKOS_CLOSE_MATCH = '^skos:closeMatch'
+    strippable_pre = {
+        'http://www.ubio.org/authority/metadata.php?lsid=urn:lsid:ubio.org:namebank:': '@ubio',
+        'http://purl.uniprot.org/taxonomy/': '@uniprot',
+    }
+    moveable2taxon_link = {"^tb:identifier.taxon": '@tb:identifier.taxon',
+                           "^tb:identifier.taxonVariant": '@tb:identifier.taxonVariant',
+                           }
     for otus in nexml['otusById'].values():
         for otu in otus['otuById'].values():
-            to_del = ['^rdfs:isDefinedBy']
+            to_del = [RDFS_DEFINED_BY]
             for tag in to_del:
                 if tag in otu:
                     del otu[tag]
-            
             for tag in otu.keys():
                 if tag.startswith('^'):
                     otu[tag] = _simplify_object_by_id_del(otu[tag])
+            otu['^ot:originalLabel'] = otu['@label']
+            del otu['@label']
+            al = otu.get(SKOS_ALT_LABEL)
+            if al is not None:
+                if isinstance(al, dict):
+                    otu[SKOS_ALT_LABEL]['source'] = 'TreeBase'
+                else:
+                    otu[SKOS_ALT_LABEL] = {'$': al, 'source': 'TreeBase'}
+            tl = {}
+            scm = otu.get(SKOS_CLOSE_MATCH)
+            #_LOG.debug('scm = ' + str(scm))
+            if scm:
+                if isinstance(scm, dict):
+                    h = scm.get('@href')
+                    if h:
+                        try:
+                            for p, t in strippable_pre.items():
+                                if h.startswith(p):
+                                    ident = h[len(p):]
+                                    tl[t] = ident
+                                    del otu[SKOS_CLOSE_MATCH]
+                        except:
+                            pass
+                else:
+                    nm = []
+                    try:
+                        for el in scm:
+                            h = el.get('@href')
+                            if h:
+                                found = False
+                                for p, t in strippable_pre.items():
+                                    if h.startswith(p):
+                                        ident = h[len(p):]
+                                        tl[t] = ident
+                                        found = True
+                                        break
+                                if not found:
+                                    nm.append(el)
+                    except:
+                        pass
+                    if len(nm) < len(scm):
+                        if len(nm) > 1:
+                            otu[SKOS_CLOSE_MATCH] = nm
+                        elif len(nm) == 1:
+                            otu[SKOS_CLOSE_MATCH] = nm[0]
+                        else:
+                            del otu[SKOS_CLOSE_MATCH]
+            #_LOG.debug('tl =' + str(tl))
+            for k, t in moveable2taxon_link.items():
+                al = otu.get(k)
+                if al:
+                    tl[t] = al
+                    del otu[k]
+            if tl:
+                otu['^ot:taxonLink'] = tl
     return raw
 
 def _nexson_directly_translatable_to_nexml(vers):

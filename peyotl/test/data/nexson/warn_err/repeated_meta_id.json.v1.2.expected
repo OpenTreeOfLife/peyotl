@@ -19,23 +19,16 @@
     }
   }, 
   "warnings": {
-    "MISSING_OPTIONAL_KEY": [
-      {
-        "data": [
-          "^ot:ottId"
-        ], 
-        "refersTo": {
-          "@idref": "otu1"
-        }
-      }, 
-      {
-        "data": [
-          "^ot:ottId"
-        ], 
-        "refersTo": {
-          "@idref": "otu2"
-        }
+    "MISSING_OPTIONAL_KEY": {
+      "data": [
+        "^ot:ottId"
+      ], 
+      "refersTo": {
+        "@idref": [
+          "otu1", 
+          "otu2"
+        ]
       }
-    ]
+    }
   }
 }

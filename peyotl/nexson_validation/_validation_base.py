@@ -410,8 +410,8 @@ class NexsonValidationAdaptor(object):
             warnings if `obj` lacks keys listed in schema.EXPECETED_KEY_SET, 
                       or if `obj` contains keys not listed in schema.ALLOWED_KEY_SET.
         '''
-        return self._validate_id_obj_list_by_schema([(obj_nex_id, obj)], vc)
-    def _validate_id_obj_list_by_schema(self, id_obj_list, vc):
+        return self._validate_id_obj_list_by_schema([(obj_nex_id, obj)], vc, group_by_warning=False)
+    def _validate_id_obj_list_by_schema(self, id_obj_list, vc, group_by_warning=False):
         #TODO: should optimize for sets of objects with the same warnings...
         element_type = vc.curr_element_type
         assert(element_type is not None)
@@ -419,6 +419,7 @@ class NexsonValidationAdaptor(object):
         schema = vc.schema
         #_LOG.debug('using schema type = ' + vc.schema_name())
         using_hbf_meta = vc._using_hbf_meta
+        _by_warn_type = {}
         for obj_nex_id, obj in id_obj_list:
             wrong_type = []
             unrec_meta_keys = []
@@ -452,12 +453,19 @@ class NexsonValidationAdaptor(object):
                     mrmk = [i for i in schema.REQUIRED_META_KEY_SET if i not in md]
                     memk = [i for i in schema.EXPECTED_META_KEY_SET if i not in md]
                     if memk:
-                        self._warn_event(element_type,
-                                         obj=obj,
-                                         err_type=gen_MissingOptionalKeyWarning,
-                                         anc=anc_list,
-                                         obj_nex_id=obj_nex_id,
-                                         key_list=memk)
+                        if group_by_warning:
+                            memk.sort()
+                            foks = frozenset(memk)
+                            t = _by_warn_type.setdefault(foks, [[], []])
+                            t[0].append(obj)
+                            t[1].append(obj_nex_id)
+                        else:
+                            self._warn_event(element_type,
+                                             obj=obj,
+                                             err_type=gen_MissingOptionalKeyWarning,
+                                             anc=anc_list,
+                                             obj_nex_id=obj_nex_id,
+                                             key_list=memk)
                     if mrmk:
                         self._error_event(element_type,
                                          obj=obj,
@@ -502,21 +510,44 @@ class NexsonValidationAdaptor(object):
                                  key_list=unrec_meta_keys)
             off_key = [k for k in schema.EXPECETED_KEY_SET if k not in obj]
             if off_key:
-                self._warn_event(element_type,
-                                 obj=obj,
-                                 err_type=gen_MissingOptionalKeyWarning,
-                                 anc=anc_list,
-                                 obj_nex_id=obj_nex_id,
-                                 key_list=off_key)
+                if group_by_warning:
+                    off_key.sort()
+                    foks = frozenset(off_key)
+                    t = _by_warn_type.setdefault(foks, [[], []])
+                    t[0].append(obj)
+                    t[1].append(obj_nex_id)
+                else:
+                    self._warn_event(element_type,
+                                     obj=obj,
+                                     err_type=gen_MissingOptionalKeyWarning,
+                                     anc=anc_list,
+                                     obj_nex_id=obj_nex_id,
+                                     key_list=off_key)
             off_key = [k for k in schema.REQUIRED_KEY_SET if k not in obj]
             if off_key:
                 self._error_event(element_type,
-                                 obj=obj,
-                                 err_type=gen_MissingMandatoryKeyWarning,
-                                 anc=anc_list,
-                                 obj_nex_id=obj_nex_id,
-                                 key_list=off_key)
+                                     obj=obj,
+                                     err_type=gen_MissingMandatoryKeyWarning,
+                                     anc=anc_list,
+                                     obj_nex_id=obj_nex_id,
+                                     key_list=off_key)
                 return errorReturn('missing key(s) according to {s} schema'.format(s=vc.schema_name()))
+        if _by_warn_type:
+            for ks, obj_lists in _by_warn_type.items():
+                mlist = list(ks)
+                mlist.sort()
+                id_arg = obj_lists[1]
+                if len(id_arg) == 1:
+                    id_arg = id_arg[0]
+                obj_arg = obj_lists[0]
+                if len(obj_arg) == 1:
+                    obj_arg = obj_arg[0]
+                self._warn_event(element_type,
+                                 obj=obj_arg,
+                                 err_type=gen_MissingOptionalKeyWarning,
+                                 anc=anc_list,
+                                 obj_nex_id=id_arg,
+                                 key_list=mlist)
         return True
     def _validate_nexml_obj(self, nex_obj, vc, top_obj):
         vc.push_context(_NEXEL.NEXML, (top_obj, None))
@@ -610,7 +641,7 @@ class NexsonValidationAdaptor(object):
         if not self._register_nexson_id_list(otu_id_obj_list, vc):
             return False
         #_LOG.debug(str(otu_id_obj_list))
-        if not self._validate_id_obj_list_by_schema(otu_id_obj_list, vc):
+        if not self._validate_id_obj_list_by_schema(otu_id_obj_list, vc, group_by_warning=True):
             return False
         return self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)
     

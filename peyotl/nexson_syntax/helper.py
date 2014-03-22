@@ -97,7 +97,39 @@ def _add_value_to_dict_bf(d, k, v):
             d[k] = x
         else:
             d[k] = [prev, v]
-
+def _add_uniq_value_to_dict_bf(d, k, v):
+    '''Like _add_value_to_dict_bf but will not add v if another
+    element in under key `k` has the same value.
+    '''
+    prev = d.get(k)
+    if prev is None:
+        d[k] = v
+    elif isinstance(prev, list):
+        if not isinstance(v, list):
+            v = [v]
+        for sel in v:
+            found = False
+            for el in prev:
+                if el == sel:
+                    found = True
+                    break
+            if not found:
+                prev.append(sel)
+    else:
+        if isinstance(v, list):
+            prev = [prev]
+            for sel in v:
+                found = False
+                for el in prev:
+                    if el == sel:
+                        found = True
+                        break
+                if not found:
+                    prev.append(sel)
+            if len(prev) > 1:
+                d[k] = prev
+        elif prev != v:
+            d[k] = [prev, v]
 _is_badgerfish_version = lambda x: x.startswith('0.')
 _is_direct_hbf = lambda x: x.startswith('1.0.')
 _is_by_id_hbf = lambda x: x.startswith('1.2')

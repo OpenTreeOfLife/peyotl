@@ -137,6 +137,13 @@ def check_hbf_meta_bool(x, obj, k, vc):
     return __TRUE_VAL if (x is False or x is True) else __FALSE_BOOL
 def check_raw_dict(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, dict)) else __FALSE_DICT
+def check_obj_meta_dict(x, obj, k, vc):
+    mo = extract_meta(x)
+    _check_id(x, obj, k, vc)
+    return check_raw_dict(mo, obj, k, vc)
+def check_hbf_meta_dict(x, obj, k, vc):
+    if isinstance(x, dict):
+        return __TRUE_VAL
 def check_href(x, obj, k, vc):
     try:
         _check_id(x, obj, k, vc)
@@ -256,10 +263,12 @@ class _VT:
     }
     _2HBFCheck = {
         BOOL: check_hbf_meta_bool,
+        DICT: check_hbf_meta_dict,
         HREF: check_href,
         INT: check_raw_int,
         FLOAT: check_raw_float,
         LIST: check_hbf_meta_list, 
+        LIST_OR_DICT: check_list_or_dict,
         STR: check_hbf_meta_str,
         STR_LIST: check_hbf_meta_str_list,
         STR_REPEATABLE_EL: check_hbf_meta_str_repeatable,
@@ -267,10 +276,12 @@ class _VT:
     
     _2BFCheck = {
         BOOL: check_obj_meta_bool,
+        DICT: check_obj_meta_dict,
         HREF: check_href, 
         INT: check_obj_meta_int,
         FLOAT: check_obj_meta_float,
         LIST: check_hbf_meta_list,
+        LIST_OR_DICT: check_list_or_dict,
         STR: check_obj_meta_str, 
         STR_LIST: check_obj_meta_str_list,
         STR_REPEATABLE_EL: check_obj_meta_str_repeatable,
@@ -310,6 +321,7 @@ _TypMNexmlEl_All = {'ot:curatorName': _VT.STR,
                     'ot:notUsingRootedTrees': _VT.BOOL,
                     'ot:studyId': _VT.STR,
                     'ot:tag': _VT.STR_REPEATABLE_EL,
+                    'ot:taxonLinkPrefixes': _VT.DICT,
                     'ot:candidateTreeForSynthesis': _VT.STR_REPEATABLE_EL,
                     'xhtml:license': _VT.HREF,
                    }
@@ -388,7 +400,9 @@ _ReqMOtuEl_All = {'ot:originalLabel': _VT.STR,
 _ExpMOtuEl_All = {'ot:ottId': _VT.INT,
                  }
 _TypMOtuEl_All = {'ot:treebaseOTUId': _VT.STR,
-                  'ot:ottTaxonName': _VT.STR
+                  'ot:ottTaxonName': _VT.STR,
+                  'ot:taxonLink': _VT.DICT,
+                  "skos:altLabel": _VT.LIST_OR_DICT,
                  }
 _v1_2_Otu = _SchemaFragment(required=_Req_OtuEl_ByI,
                             expected=_EMPTY_DICT,

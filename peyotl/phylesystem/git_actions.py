@@ -153,20 +153,21 @@ class GitAction(object):
         pat = re.compile(r'.*_study_{i}_[0-9]+'.format(i=study_id))
         head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
         ret = {}
-        for lin in head_shas:
+        _LOG.debug('find_WIP_branches head_shas = "{}"'.format(head_shas.split('\n')))
+        for lin in head_shas.split('\n'):
             try:
                 local_branch_split = lin.split(' refs/heads/')
                 if len(local_branch_split) == 2:
                     sha, branch = local_branch_split
-                    if pat.match(branch):
+                    if pat.match(branch) or branch == 'master':
                         ret[branch] = sha
             except:
-                pass
+                raise
         return ret
 
     def _find_head_sha(self, frag, parent_sha):
         head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
-        for lin in head_shas:
+        for lin in head_shas.split('\n'):
             #_LOG.debug("lin = '{l}'".format(l=lin))
             if lin.startswith(parent_sha):
                 local_branch_split = lin.split(' refs/heads/')

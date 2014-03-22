@@ -125,18 +125,21 @@ class GitAction(object):
         return dirs[-1]
 
     def return_study(self, study_id, branch='master'): 
-        """Return the contents of the given study_id, and the SHA1 of the HEAD.
-
+        """Return the 
+            blob[0] contents of the given study_id, 
+            blob[1] the SHA1 of the HEAD.
+            blob[2] dictionary of WIPs for this study.
         If the study_id does not exist, it returns the empty string.
         """
         self.checkout(branch)
         study_filename = self.paths_for_study(study_id)[1]
         head_sha = get_HEAD_SHA1(self.git_dir)
+        d = self.find_WIP_branches(study_id)
         try:
             f = codecs.open(study_filename, mode='rU', encoding='utf-8')
         except:
-            return '', head_sha
-        return f.read(), head_sha
+            return '', head_sha, {}, d
+        return f.read(), head_sha, d
 
     def branch_exists(self, branch):
         """Returns true or false depending on if a branch exists"""
@@ -145,6 +148,21 @@ class GitAction(object):
         except sh.ErrorReturnCode:
             return False
         return True
+
+    def find_WIP_branches(self, study_id):
+        pat = re.compile(r'.*_study_{i}_[0-9]+'.format(i=study_id))
+        head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
+        ret = {}
+        for lin in head_shas:
+            try:
+                local_branch_split = lin.split(' refs/heads/')
+                if len(local_branch_split) == 2:
+                    sha, branch = local_branch_split
+                    if pat.match(branch):
+                        ret[branch] = sha
+            except:
+                pass
+        return ret
 
     def _find_head_sha(self, frag, parent_sha):
         head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")

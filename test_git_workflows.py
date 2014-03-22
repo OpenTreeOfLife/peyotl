@@ -30,7 +30,7 @@ class TestPhylesystem(unittest.TestCase):
         ga = phylesystem.create_git_action(_SID)
         ga.acquire_lock()
         try:
-            curr, sha = ga.return_study(_SID)
+            curr, sha, wip_map = ga.return_study(_SID)
         finally:
             ga.release_lock()
         curr_obj = json.loads(curr)
@@ -43,7 +43,7 @@ class TestPhylesystem(unittest.TestCase):
         ga = phylesystem.create_git_action(_SID)
         ga.acquire_lock()
         try:
-            curr, sha = ga.return_study(_SID)
+            curr, sha, wip_map = ga.return_study(_SID)
         finally:
             ga.release_lock()
         _LOG.debug('test sha = "{}"'.format(sha))

@@ -1,0 +1,5377 @@
+{
+"nexml": {
+"@generator": "org.nexml.model.impl.DocumentImpl", 
+"@id": "S15515", 
+"@nexml2json": "1.2.1", 
+"@version": "0.9", 
+"@xmlns": {
+"$": "http://www.nexml.org/2009", 
+"dc": "http://purl.org/dc/elements/1.1/", 
+"dcterms": "http://purl.org/dc/terms/", 
+"nex": "http://www.nexml.org/2009", 
+"prism": "http://prismstandard.org/namespaces/1.2/basic/", 
+"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#", 
+"rdfs": "http://www.w3.org/2000/01/rdf-schema#", 
+"skos": "http://www.w3.org/2004/02/skos/core#", 
+"tb": "http://purl.org/phylo/treebase/2.0/terms#", 
+"xsd": "http://www.w3.org/2001/XMLSchema#", 
+"xsi": "http://www.w3.org/2001/XMLSchema-instance"
+}, 
+"^dc:contributor": [
+"Sch?nhofer A.L.", 
+"Bayer S."
+], 
+"^dc:creator": "Bayer S., & Sch?nhofer A.L.", 
+"^dc:date": "2014-03-13", 
+"^dc:publisher": "Invertebrate Systematics", 
+"^dc:subject": [
+"DNA barcoding.", 
+"Thailand", 
+"Laos", 
+"calamistrum", 
+"28S rRNA", 
+"COI", 
+"Zorocratidae", 
+"Zoropsidae", 
+"Oxyopidae", 
+"Pisauridae", 
+"Lycosidae", 
+"Miturgidae", 
+"Ctenidae", 
+"Thomisidae", 
+"Desidae", 
+"Tengella", 
+"Themacrys", 
+"Poaka", 
+"Stiphidion", 
+"Fecenia", 
+"Psechrus"
+], 
+"^dc:title": "Phylogenetic relationships of the spider family Psechridae inferred from molecular data, with comments on the Lycosoidea (Arachnida : Araneae).", 
+"^dcterms:bibliographicCitation": "Bayer S., & Sch?nhofer A.L. 2013. Phylogenetic relationships of the spider family Psechridae inferred from molecular data, with comments on the Lycosoidea (Arachnida : Araneae). Invertebrate Systematics, 27: 53-80.", 
+"^ot:dataDeposit": {
+"@href": "http://purl.org/phylo/treebase/phylows/study/TB2:S15515"
+}, 
+"^ot:otusElementOrder": [
+"Tls36428"
+], 
+"^ot:studyPublication": {
+"@href": "10.1071/IS12017"
+}, 
+"^ot:studyPublicationReference": "Bayer S., & Sch?nhofer A.L. 2013. Phylogenetic relationships of the spider family Psechridae inferred from molecular data, with comments on the Lycosoidea (Arachnida : Araneae). Invertebrate Systematics, 27: 53-80.", 
+"^ot:studyYear": 2013, 
+"^ot:taxonLinkPrefixes": {
+"@ubio": "http://www.ubio.org/authority/metadata.php?lsid=urn:lsid:ubio.org:namebank:", 
+"@uniprot": "http://purl.uniprot.org/taxonomy/"
+}, 
+"^ot:treesElementOrder": [
+"Tb24905"
+], 
+"^prism:creationDate": "2014-03-12", 
+"^prism:doi": "10.1071/IS12017", 
+"^prism:endingPage": "80", 
+"^prism:modificationDate": "2014-03-13", 
+"^prism:pageRange": "53-80", 
+"^prism:publicationDate": "2013", 
+"^prism:publicationName": "Invertebrate Systematics", 
+"^prism:section": "Study", 
+"^prism:startingPage": "53", 
+"^prism:volume": "27", 
+"^skos:changeNote": "Generated on Tue Mar 18 20:59:15 EDT 2014", 
+"^skos:historyNote": "Mapped from TreeBASE schema using org.cipres.treebase.domain.nexus.nexml.NexmlDocumentWriter@31fb155b $Rev: 1060 $", 
+"^tb:identifier.study": "15515", 
+"^tb:title.study": "Phylogenetic relationships of the spider family Psechridae inferred from molecular data, with comments on the Lycosoidea (Arachnida : Araneae)", 
+"otusById": {
+"Tls36428": {
+"@label": "Taxa", 
+"^skos:historyNote": "Mapped from TreeBASE schema using org.cipres.treebase.domain.nexus.nexml.NexmlOTUWriter@334b355f $Rev: 1040 $", 
+"otuById": {
+"Tl1422290": {
+"^ot:originalLabel": "Psechrus inflatus F Yunnan CHINA 946"
+}, 
+"Tl1422291": {
+"^ot:originalLabel": "Fecenia cylindrata Juv LakSao LAOS 1048", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623528, 
+"@tb:identifier.taxonVariant": 834970, 
+"@ubio": "3558009"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia cylindrata", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422292": {
+"^ot:originalLabel": "Psechrus clavis F Taichung TAIWAN 891"
+}, 
+"Tl1422293": {
+"^ot:originalLabel": "Alopecosa kochi DQ628607", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 291795, 
+"@tb:identifier.taxonVariant": 343054, 
+"@ubio": "3580623", 
+"@uniprot": "332765"
+}, 
+"^skos:altLabel": {
+"$": "Alopecosa kochi", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422294": {
+"^ot:originalLabel": "Alopecosa hirtipes GU683933", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623529, 
+"@tb:identifier.taxonVariant": 834971, 
+"@ubio": "3548185"
+}, 
+"^skos:altLabel": {
+"$": "Alopecosa hirtipes", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422295": {
+"^ot:originalLabel": "Psechrus clavis M Nantou TAIWAN 881"
+}, 
+"Tl1422296": {
+"^ot:originalLabel": "Fecenia ochracea F Wau PNG 942", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 48045, 
+"@tb:identifier.taxonVariant": 112420, 
+"@ubio": "3586663"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia ochracea", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422297": {
+"^ot:originalLabel": "Psechrus ancoralis M NamHaPA LAOS 991"
+}, 
+"Tl1422298": {
+"^ot:originalLabel": "Psechrus luangprabang M BaTav LuangPrabang LAOS 1023"
+}, 
+"Tl1422299": {
+"^ot:originalLabel": "Psechrus luangprabang Saf NamHa5 LAOS 981"
+}, 
+"Tl1422300": {
+"^ot:originalLabel": "Peucetia viridans", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 514650, 
+"@tb:identifier.taxonVariant": 683086, 
+"@ubio": "3549527", 
+"@uniprot": "593451"
+}
+}, 
+"Tl1422301": {
+"^ot:originalLabel": "Psechrus inflatus F Yunnan CHINA 854"
+}, 
+"Tl1422302": {
+"^ot:originalLabel": "Psechrus ancoralis F NamHa5 LuangNamTha LAOS 1132"
+}, 
+"Tl1422303": {
+"^ot:originalLabel": "Psechrus luangprabang M NamHaPA LAOS 1029"
+}, 
+"Tl1422304": {
+"^ot:originalLabel": "Psechrus ancoralis F Oudomxay LAOS 1028"
+}, 
+"Tl1422305": {
+"^ot:originalLabel": "Psechrus jaegeri Juv Paxuam Champasak LAOS 1433"
+}, 
+"Tl1422306": {
+"^ot:originalLabel": "Psechrus sinensis F Guizhou CHINA 899", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 102389, 
+"@tb:identifier.taxonVariant": 181687, 
+"@ubio": "3549661", 
+"@uniprot": "93691"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus sinensis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422307": {
+"^ot:originalLabel": "Psechrus clavis Saf Taichung TAIWAN 895"
+}, 
+"Tl1422308": {
+"^ot:originalLabel": "Thalassinae gen sp Sam ETHIOPIA 826"
+}, 
+"Tl1422309": {
+"^ot:originalLabel": "Psechrus jaegeri F ITou Champasak LAOS 995"
+}, 
+"Tl1422310": {
+"^ot:originalLabel": "Psechrus luangprabang F Tavan LuangNamTha LAOS 1036"
+}, 
+"Tl1422311": {
+"^ot:originalLabel": "Psechrus vivax F KheriPsechrus Koh Chang THAILAND 1003"
+}, 
+"Tl1422312": {
+"^ot:originalLabel": "Psechrus inflatus M Yunnan CHINA 947"
+}, 
+"Tl1422313": {
+"^ot:originalLabel": "Psechrus jaegeri Juv ThHou Champasak LAOS 1012"
+}, 
+"Tl1422314": {
+"^ot:originalLabel": "Psechrus ancoralis M PhouKhoun LAOS 980"
+}, 
+"Tl1422315": {
+"^ot:originalLabel": "Psechrus rani F Kadoorie HONG KONG 929", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623530, 
+"@tb:identifier.taxonVariant": 834972, 
+"@ubio": "3558033"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus rani", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422316": {
+"^ot:originalLabel": "Fecenia cylindrata F NogHoy Champasak LAOS 1044", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623528, 
+"@tb:identifier.taxonVariant": 834970, 
+"@ubio": "3558009"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia cylindrata", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422317": {
+"^ot:originalLabel": "Psechrus senoculatus F Hunan CHINA 904", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623531, 
+"@tb:identifier.taxonVariant": 834973, 
+"@ubio": "3554199", 
+"@uniprot": "303592"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus senoculatus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422318": {
+"^ot:originalLabel": "Psechrus vivax Saf Klong Koh Chang THAILAND 952"
+}, 
+"Tl1422319": {
+"^ot:originalLabel": "Psechrus laos F MangKhone LAOS 968"
+}, 
+"Tl1422320": {
+"^ot:originalLabel": "Psechrus ulcus M Banjarbaru Borneo INDONESIA 907"
+}, 
+"Tl1422321": {
+"^ot:originalLabel": "Psechrus luangprabang Juv PhouSi LAOS 982"
+}, 
+"Tl1422322": {
+"^ot:originalLabel": "Fecenia protensa F Krabi S THAILAND 911", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623532, 
+"@tb:identifier.taxonVariant": 834974, 
+"@ubio": "3586655"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia protensa", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422323": {
+"^ot:originalLabel": "Psechrus inflatus F Yunnan CHINA 853"
+}, 
+"Tl1422324": {
+"^ot:originalLabel": "Psechrus singaporensis Juv Batu MALAYSIA 928", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623533, 
+"@tb:identifier.taxonVariant": 834975, 
+"@ubio": "3586686"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus singaporensis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422325": {
+"^ot:originalLabel": "Fecenia protensa F Candidasa Bali INDONESIA 908", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623532, 
+"@tb:identifier.taxonVariant": 834974, 
+"@ubio": "3586655"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia protensa", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422326": {
+"^ot:originalLabel": "Psechrus himalayanus Saf DehraDun INDIA 875", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 23937, 
+"@tb:identifier.taxonVariant": 55902, 
+"@ubio": "3586681"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus himalayanus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422327": {
+"^ot:originalLabel": "Psechrus luangprabang M NongKhiao LAOS 1014"
+}, 
+"Tl1422328": {
+"^ot:originalLabel": "Psechrus luangprabang Sam NamHa6 LAOS 1021"
+}, 
+"Tl1422329": {
+"^ot:originalLabel": "Psechrus ancoralis F NongKhiao LAOS 1009"
+}, 
+"Tl1422330": {
+"^ot:originalLabel": "Psechrus ghecuanus Sam DoiSuthep THAILAND 1026", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623534, 
+"@tb:identifier.taxonVariant": 834976, 
+"@ubio": "3558013"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus ghecuanus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422331": {
+"^ot:originalLabel": "Psechrus clavis Imm Wushik TAIWAN 922"
+}, 
+"Tl1422332": {
+"^ot:originalLabel": "Psechrus ancoralis F PhouKhoun LAOS 973"
+}, 
+"Tl1422333": {
+"^ot:originalLabel": "Psechrus himalayanus Saf Dehra Dun INDIA 876", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 23937, 
+"@tb:identifier.taxonVariant": 55902, 
+"@ubio": "3586681"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus himalayanus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422334": {
+"^ot:originalLabel": "Psechrus rani F TaiPoKau HONG KONG 930", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623530, 
+"@tb:identifier.taxonVariant": 834972, 
+"@ubio": "3558033"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus rani", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422335": {
+"^ot:originalLabel": "Fecenia cylindrata F SiengMang LuangPrabang LAOS 1032", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623528, 
+"@tb:identifier.taxonVariant": 834970, 
+"@ubio": "3558009"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia cylindrata", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422336": {
+"^ot:originalLabel": "Hogna jacquesbreli"
+}, 
+"Tl1422337": {
+"^ot:originalLabel": "Psechrus hartmanni F Central Prov SRI LANKA 878"
+}, 
+"Tl1422338": {
+"^ot:originalLabel": "Psechrus ancoralis F LAOS NamHaPA 990"
+}, 
+"Tl1422339": {
+"^ot:originalLabel": "Psechrus ancoralis F NamHa4 LAOS 994"
+}, 
+"Tl1422340": {
+"^ot:originalLabel": "Pardosa wagleri AY560800", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 248163, 
+"@tb:identifier.taxonVariant": 308521, 
+"@ubio": "3583271", 
+"@uniprot": "280422"
+}, 
+"^skos:altLabel": {
+"$": "Pardosa wagleri", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422341": {
+"^ot:originalLabel": "Fecenia protensa Juv Tutong BRUNEI 943", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623532, 
+"@tb:identifier.taxonVariant": 834974, 
+"@ubio": "3586655"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia protensa", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422342": {
+"^ot:originalLabel": "Dolomedes triton", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623535, 
+"@tb:identifier.taxonVariant": 834977, 
+"@ubio": "3548738"
+}
+}, 
+"Tl1422343": {
+"^ot:originalLabel": "Psechrus vivax M KherPet Koh Chang THAILAND 951"
+}, 
+"Tl1422344": {
+"^ot:originalLabel": "Psechrus sp cf elachys M Terengganu MALAYSIA 906"
+}, 
+"Tl1422345": {
+"^ot:originalLabel": "Psechrus sp tauricornis? Juv sabaragamuwa SRI LANKA 939"
+}, 
+"Tl1422346": {
+"^ot:originalLabel": "Fecenia cylindrata Saf Paxuam LAOS 999", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623528, 
+"@tb:identifier.taxonVariant": 834970, 
+"@ubio": "3558009"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia cylindrata", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422347": {
+"^ot:originalLabel": "Psechrus khammouan F Kouanphavang LAOS 956"
+}, 
+"Tl1422348": {
+"^ot:originalLabel": "Psechrus ancoralis M PhouKhun LAOS 962"
+}, 
+"Tl1422349": {
+"^ot:originalLabel": "Fecenia cylindrata M PhouSi LuangPrabang LAOS 1035", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623528, 
+"@tb:identifier.taxonVariant": 834970, 
+"@ubio": "3558009"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia cylindrata", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422350": {
+"^ot:originalLabel": "Psechrus luangprabang Saf NKhiao LAOS 1011"
+}, 
+"Tl1422351": {
+"^ot:originalLabel": "Psechrus obtectus M BanThai VIETNAM 1058"
+}, 
+"Tl1422352": {
+"^ot:originalLabel": "Psechrus laos F LakSao LAOS 971"
+}, 
+"Tl1422353": {
+"^ot:originalLabel": "Psechrus vivax M Klong Koh Chang THAILAND 1565"
+}, 
+"Tl1422354": {
+"^ot:originalLabel": "Psechrus antraeus Sam PhouKham Vientiane LAOS 1566"
+}, 
+"Tl1422355": {
+"^ot:originalLabel": "Fecenia ochracea Sam PAPUA NEW GUINEA 915", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 48045, 
+"@tb:identifier.taxonVariant": 112420, 
+"@ubio": "3586663"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia ochracea", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422356": {
+"^ot:originalLabel": "Dolomedes tenebrosus 607562", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 9475, 
+"@tb:identifier.taxonVariant": 22632, 
+"@ubio": "3548737", 
+"@uniprot": "156846"
+}, 
+"^skos:altLabel": {
+"$": "Dolomedes tenebrosus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422357": {
+"^ot:originalLabel": "Fecenia cylindrata Juv BanKe Champasak LAOS 1180", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623528, 
+"@tb:identifier.taxonVariant": 834970, 
+"@ubio": "3558009"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia cylindrata", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422358": {
+"^ot:originalLabel": "Psechrus clavis Juv Wushihkeng TAIWAN 921"
+}, 
+"Tl1422359": {
+"^ot:originalLabel": "Fecenia ochracea Saf NewBritain PAPUA NG 917", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 48045, 
+"@tb:identifier.taxonVariant": 112420, 
+"@ubio": "3586663"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia ochracea", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422360": {
+"^ot:originalLabel": "Fecenia protensa M Candidasa Bali INDONESIA 909", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623532, 
+"@tb:identifier.taxonVariant": 834974, 
+"@ubio": "3586655"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia protensa", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422361": {
+"^ot:originalLabel": "Psechrus antraeus F PhouKham LAOS 979"
+}, 
+"Tl1422362": {
+"^ot:originalLabel": "Psechrus laos F LakSao LAOS 961"
+}, 
+"Tl1422363": {
+"^ot:originalLabel": "Psechrus fuscai F Yunnan CHINA 949"
+}, 
+"Tl1422364": {
+"^ot:originalLabel": "Psechrus ghecuanus M ChiangMai THAILAND 923", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623534, 
+"@tb:identifier.taxonVariant": 834976, 
+"@ubio": "3558013"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus ghecuanus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422365": {
+"^ot:originalLabel": "Psechrus luangprabang F Phoxay Vientiane LAOS 1027"
+}, 
+"Tl1422366": {
+"^ot:originalLabel": "Psechrus libelti F Tutong BRUNEI 856"
+}, 
+"Tl1422367": {
+"^ot:originalLabel": "Psechrus clavis F TaoyuanHaien TAIWAN 924"
+}, 
+"Tl1422368": {
+"^ot:originalLabel": "Fecenia protensa M Flores INDONESIA 913", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623532, 
+"@tb:identifier.taxonVariant": 834974, 
+"@ubio": "3586655"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia protensa", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422369": {
+"^ot:originalLabel": "Pardosa fuscula", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 295301, 
+"@tb:identifier.taxonVariant": 483114, 
+"@ubio": "3549484", 
+"@uniprot": "336597"
+}
+}, 
+"Tl1422370": {
+"^ot:originalLabel": "Psechrus torvus F Central Prov SRI LANKA 879", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623544, 
+"@tb:identifier.taxonVariant": 834986, 
+"@ubio": "3558132"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus torvus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422371": {
+"^ot:originalLabel": "Psechrus antraeus F PhouKham LAOS 978"
+}, 
+"Tl1422372": {
+"^ot:originalLabel": "Psechrus clavis F Nantou TAIWAN 883"
+}, 
+"Tl1422373": {
+"^ot:originalLabel": "Psechrus ghecuanus Juv DoiSuthep THAI 931", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623534, 
+"@tb:identifier.taxonVariant": 834976, 
+"@ubio": "3558013"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus ghecuanus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422374": {
+"^ot:originalLabel": "Hygropoda higenaga", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 449192, 
+"@tb:identifier.taxonVariant": 594373, 
+"@ubio": "3549037", 
+"@uniprot": "492323"
+}
+}, 
+"Tl1422375": {
+"^ot:originalLabel": "Trochosa terricola", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 29989, 
+"@tb:identifier.taxonVariant": 70083, 
+"@ubio": "3549957", 
+"@uniprot": "74993"
+}
+}, 
+"Tl1422376": {
+"^ot:originalLabel": "Psechrus khammouan F Thakek LAOS 954"
+}, 
+"Tl1422377": {
+"^ot:originalLabel": "Psechrus laos M LakSao LAOS 1022"
+}, 
+"Tl1422378": {
+"^ot:originalLabel": "Psechrus ancoralis F Huaphan LAOS 905"
+}, 
+"Tl1422379": {
+"^ot:originalLabel": "Fecenia sp M Koh Chang THAILAND 1031"
+}, 
+"Tl1422380": {
+"^ot:originalLabel": "Fecenia travancoria F Sabaragamuwa SRI LANKA 877", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623536, 
+"@tb:identifier.taxonVariant": 834978, 
+"@ubio": "3586669"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia travancoria", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422381": {
+"^ot:originalLabel": "Fecenia sp F Koh Chang THAILAND 1030"
+}, 
+"Tl1422382": {
+"^ot:originalLabel": "Fecenia cylindrata F ThaHou Champasak LAOS 1042", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623528, 
+"@tb:identifier.taxonVariant": 834970, 
+"@ubio": "3558009"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia cylindrata", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422383": {
+"^ot:originalLabel": "Psechrus senoculatus F Hunan CHINA 903", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623531, 
+"@tb:identifier.taxonVariant": 834973, 
+"@ubio": "3554199", 
+"@uniprot": "303592"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus senoculatus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422384": {
+"^ot:originalLabel": "Psechrus khammouan M Thakek LAOS 959"
+}, 
+"Tl1422385": {
+"^ot:originalLabel": "Psechrus himalayanus F Uttranchal INDIA 940", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 23937, 
+"@tb:identifier.taxonVariant": 55902, 
+"@ubio": "3586681"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus himalayanus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422386": {
+"^ot:originalLabel": "Psechrus jaegeri M Champasak LAOS 1006"
+}, 
+"Tl1422387": {
+"^ot:originalLabel": "Psechrus clavis F Taichung TAIWAN 893"
+}, 
+"Tl1422388": {
+"^ot:originalLabel": "Stiphidion facetum Sam Gerringong AUSTRALIA 933", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 28034, 
+"@tb:identifier.taxonVariant": 65428, 
+"@ubio": "3586598", 
+"@uniprot": "389065"
+}, 
+"^skos:altLabel": {
+"$": "Stiphidion facetum", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422389": {
+"^ot:originalLabel": "Psechrus crepido Saf Tamil Nadu INDIA 861"
+}, 
+"Tl1422390": {
+"^ot:originalLabel": "Psechrus clavis Juv Wushik TAIWAN 922"
+}, 
+"Tl1422391": {
+"^ot:originalLabel": "Pisaura mirabilis M Rhld Pflz GERMANY 1055", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 22599, 
+"@tb:identifier.taxonVariant": 52716, 
+"@ubio": "3557616"
+}, 
+"^skos:altLabel": {
+"$": "Pisaura mirabilis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422392": {
+"^ot:originalLabel": "Pisaurina brevipes", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623537, 
+"@tb:identifier.taxonVariant": 834979, 
+"@ubio": "3549619"
+}
+}, 
+"Tl1422393": {
+"^ot:originalLabel": "Oxyopes sp M Bolikhamxay LAOS 880"
+}, 
+"Tl1422394": {
+"^ot:originalLabel": "Desis formidabilis", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 608018, 
+"@tb:identifier.taxonVariant": 812063, 
+"@ubio": "3588594"
+}
+}, 
+"Tl1422395": {
+"^ot:originalLabel": "Castianeira sp"
+}, 
+"Tl1422396": {
+"^ot:originalLabel": "Badumna longiqua", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 514636, 
+"@tb:identifier.taxonVariant": 683061
+}
+}, 
+"Tl1422397": {
+"^ot:originalLabel": "Viridasius sp M MADAGASCAR 586"
+}, 
+"Tl1422398": {
+"^ot:originalLabel": "Spariolenus iranomaximus F IRAN 618"
+}, 
+"Tl1422399": {
+"^ot:originalLabel": "Psechrus crepido COI 863 28S 861"
+}, 
+"Tl1422400": {
+"^ot:originalLabel": "Zorocrates fuscus", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 344455, 
+"@tb:identifier.taxonVariant": 379899, 
+"@ubio": "3586636", 
+"@uniprot": "394961"
+}
+}, 
+"Tl1422401": {
+"^ot:originalLabel": "Eusparassus walckenaeri F TURKEY 804", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623538, 
+"@tb:identifier.taxonVariant": 834980, 
+"@ubio": "3600090"
+}, 
+"^skos:altLabel": {
+"$": "Eusparassus walckenaeri", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422402": {
+"^ot:originalLabel": "Tegenaria domestica COI ariadnae 28S", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 192220, 
+"@tb:identifier.taxonVariant": 812073, 
+"@ubio": "3547382", 
+"@uniprot": "209516"
+}, 
+"^skos:altLabel": {
+"$": "Tegenaria domestica", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422403": {
+"^ot:originalLabel": "Amaurobius ferox HQ979294", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 295287, 
+"@tb:identifier.taxonVariant": 483101, 
+"@ubio": "3548208", 
+"@uniprot": "336583"
+}, 
+"^skos:altLabel": {
+"$": "Amaurobius ferox", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422404": {
+"^ot:originalLabel": "Zelotes sula COI sp 28S", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623545, 
+"@tb:identifier.taxonVariant": 834987, 
+"@ubio": "3866371"
+}, 
+"^skos:altLabel": {
+"$": "Zelotes sula", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422405": {
+"^ot:originalLabel": "Leucorchestris arenicola Saf NAMIBIA 442", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623541, 
+"@tb:identifier.taxonVariant": 834983, 
+"@ubio": "3600462"
+}, 
+"^skos:altLabel": {
+"$": "Leucorchestris arenicola", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422406": {
+"^ot:originalLabel": "Marpissa sp1 COI pikei 28S"
+}, 
+"Tl1422407": {
+"^ot:originalLabel": "Trochosa terricola COI ruricola 28S", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 29989, 
+"@tb:identifier.taxonVariant": 70083, 
+"@ubio": "3549957", 
+"@uniprot": "74993"
+}, 
+"^skos:altLabel": {
+"$": "Trochosa terricola", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422408": {
+"^ot:originalLabel": "Clubiona pallidula COI pseudogermanica 28S", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 6464, 
+"@tb:identifier.taxonVariant": 15677, 
+"@ubio": "3548584"
+}, 
+"^skos:altLabel": {
+"$": "Clubiona pallidula", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422409": {
+"^ot:originalLabel": "Habronattus oregonensis COI mexicanus 28S", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 12775, 
+"@tb:identifier.taxonVariant": 30253, 
+"@ubio": "3539553", 
+"@uniprot": "130930"
+}, 
+"^skos:altLabel": {
+"$": "Habronattus oregonensis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422410": {
+"^ot:originalLabel": "Misumenops dalmasi COI nepenthicola 28S", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 305561, 
+"@tb:identifier.taxonVariant": 353714, 
+"@ubio": "3603153", 
+"@uniprot": "348408"
+}, 
+"^skos:altLabel": {
+"$": "Misumenops dalmasi", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422411": {
+"^ot:originalLabel": "Callobius sp"
+}, 
+"Tl1422412": {
+"^ot:originalLabel": "Psechrus clavis Saf Wushihkeng TAIWAN 920"
+}, 
+"Tl1422413": {
+"^ot:originalLabel": "Mituliodon tarantulinus F NSW AUSTRALIA 932"
+}, 
+"Tl1422414": {
+"^ot:originalLabel": "Psechrus singaporensis COI 912 28S 928", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623533, 
+"@tb:identifier.taxonVariant": 834975, 
+"@ubio": "3586686"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus singaporensis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422415": {
+"^ot:originalLabel": "Agelenopsis potteri COI aperta 28S", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 275181, 
+"@tb:identifier.taxonVariant": 475777, 
+"@ubio": "3548160", 
+"@uniprot": "313392"
+}, 
+"^skos:altLabel": {
+"$": "Agelenopsis potteri", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422416": {
+"^ot:originalLabel": "Cheiracanthium mildei COI sp 28S", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 295291, 
+"@tb:identifier.taxonVariant": 483104, 
+"@ubio": "3548505", 
+"@uniprot": "336587"
+}, 
+"^skos:altLabel": {
+"$": "Cheiracanthium mildei", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422417": {
+"^ot:originalLabel": "Cambridgea ambigua M Licln NEW ZEALAND 936", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623539, 
+"@tb:identifier.taxonVariant": 834981, 
+"@ubio": "3586547"
+}, 
+"^skos:altLabel": {
+"$": "Cambridgea ambigua", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422418": {
+"^ot:originalLabel": "Zoropsis spinimana Rhld Pflz GERMANY 1056", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 31306, 
+"@tb:identifier.taxonVariant": 73048, 
+"@ubio": "3546406"
+}, 
+"^skos:altLabel": {
+"$": "Zoropsis spinimana", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422419": {
+"^ot:originalLabel": "Anyphaena californica", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 339175, 
+"@tb:identifier.taxonVariant": 376430, 
+"@ubio": "3592196", 
+"@uniprot": "389028"
+}
+}, 
+"Tl1422420": {
+"^ot:originalLabel": "Allagelena gracilens", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 339173, 
+"@tb:identifier.taxonVariant": 376429, 
+"@ubio": "11302297", 
+"@uniprot": "389026"
+}
+}, 
+"Tl1422421": {
+"^ot:originalLabel": "Drassodes lapidosus", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 248133, 
+"@tb:identifier.taxonVariant": 308500, 
+"@ubio": "3548810", 
+"@uniprot": "280392"
+}
+}, 
+"Tl1422422": {
+"^ot:originalLabel": "Psechrus luangprabang M Nong Khiao LAOS 1014"
+}, 
+"Tl1422423": {
+"^ot:originalLabel": "Fecenia protensa F Bali INDONESIA 908", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623532, 
+"@tb:identifier.taxonVariant": 834974, 
+"@ubio": "3586655"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia protensa", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422424": {
+"^ot:originalLabel": "Clubiona pseudogermanica", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 252805, 
+"@tb:identifier.taxonVariant": 312107, 
+"@ubio": "3548590", 
+"@uniprot": "286077"
+}
+}, 
+"Tl1422425": {
+"^ot:originalLabel": "Poaka graminicola Saf Christchurch NEW ZEALAND 900", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623542, 
+"@tb:identifier.taxonVariant": 834984, 
+"@ubio": "3586672"
+}, 
+"^skos:altLabel": {
+"$": "Poaka graminicola", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422426": {
+"^ot:originalLabel": "Psechrus laos F Bolikhamsay LAOS 968"
+}, 
+"Tl1422427": {
+"^ot:originalLabel": "Spariolenus iranomaximus F khofash IRAN 618"
+}, 
+"Tl1422428": {
+"^ot:originalLabel": "Cheiracanthium sp"
+}, 
+"Tl1422429": {
+"^ot:originalLabel": "Amaurobius fenestralis", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 1114, 
+"@tb:identifier.taxonVariant": 2890, 
+"@ubio": "3590589"
+}
+}, 
+"Tl1422430": {
+"^ot:originalLabel": "Psechrus khammouan F Thakkek LAOS 954"
+}, 
+"Tl1422431": {
+"^ot:originalLabel": "Pardosa wagleri", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 248163, 
+"@tb:identifier.taxonVariant": 308521, 
+"@ubio": "3583271", 
+"@uniprot": "280422"
+}
+}, 
+"Tl1422432": {
+"^ot:originalLabel": "Tengella radiata", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 28667, 
+"@tb:identifier.taxonVariant": 66813, 
+"@ubio": "3591626", 
+"@uniprot": "389058"
+}
+}, 
+"Tl1422433": {
+"^ot:originalLabel": "Habronattus mexicanus", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 151610, 
+"@tb:identifier.taxonVariant": 436042, 
+"@ubio": "3539532", 
+"@uniprot": "158268"
+}
+}, 
+"Tl1422434": {
+"^ot:originalLabel": "Alopecosa kochi", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 291795, 
+"@tb:identifier.taxonVariant": 343054, 
+"@ubio": "3580623", 
+"@uniprot": "332765"
+}
+}, 
+"Tl1422435": {
+"^ot:originalLabel": "Desis formidabilis FJ948953", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 608018, 
+"@tb:identifier.taxonVariant": 812063, 
+"@ubio": "3588594"
+}, 
+"^skos:altLabel": {
+"$": "Desis formidabilis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422436": {
+"^ot:originalLabel": "Clubiona meraukensis M NEW BRITAIN PNG 914", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623540, 
+"@tb:identifier.taxonVariant": 834982, 
+"@ubio": "3593755"
+}, 
+"^skos:altLabel": {
+"$": "Clubiona meraukensis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422437": {
+"^ot:originalLabel": "Amaurobius ferox FR694065", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 295287, 
+"@tb:identifier.taxonVariant": 483101, 
+"@ubio": "3548208", 
+"@uniprot": "336583"
+}, 
+"^skos:altLabel": {
+"$": "Amaurobius ferox", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422438": {
+"^ot:originalLabel": "Fecenia cylindrata F Champasak LAOS 1042", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623528, 
+"@tb:identifier.taxonVariant": 834970, 
+"@ubio": "3558009"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia cylindrata", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422439": {
+"^ot:originalLabel": "Amaurobius similis", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 339174, 
+"@tb:identifier.taxonVariant": 501871, 
+"@ubio": "3548209", 
+"@uniprot": "389027"
+}
+}, 
+"Tl1422440": {
+"^ot:originalLabel": "Psechrus ulcus M S Kalimantan INDONESIA 907"
+}, 
+"Tl1422441": {
+"^ot:originalLabel": "Psechrus obtectus M BacThai Prov VIETNAM 1058"
+}, 
+"Tl1422442": {
+"^ot:originalLabel": "Misumenops asperatus", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 210360, 
+"@tb:identifier.taxonVariant": 453089, 
+"@ubio": "3549276", 
+"@uniprot": "231351"
+}
+}, 
+"Tl1422443": {
+"^ot:originalLabel": "Psechrus rani F NewTerritories HONG KONG 929", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623530, 
+"@tb:identifier.taxonVariant": 834972, 
+"@ubio": "3558033"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus rani", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422444": {
+"^ot:originalLabel": "Psechrus crepido F Tamil Nadu INDIA 863"
+}, 
+"Tl1422445": {
+"^ot:originalLabel": "Psechrus clavis Saf Wushikeng TAIWAN 920"
+}, 
+"Tl1422446": {
+"^ot:originalLabel": "Trochosa ruricola", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 290173, 
+"@tb:identifier.taxonVariant": 481229, 
+"@ubio": "3549956", 
+"@uniprot": "330967"
+}
+}, 
+"Tl1422447": {
+"^ot:originalLabel": "Uloborus diversus", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 287002, 
+"@tb:identifier.taxonVariant": 339261, 
+"@ubio": "3557883", 
+"@uniprot": "327109"
+}
+}, 
+"Tl1422448": {
+"^ot:originalLabel": "Mituliodon tarantulinus F NSWales AUSTRALIA 932", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 291821, 
+"@tb:identifier.taxonVariant": 343079, 
+"@ubio": "3549278", 
+"@uniprot": "332797"
+}, 
+"^skos:altLabel": {
+"$": "Mituliodon tarantulinus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422449": {
+"^ot:originalLabel": "Oxyopes sp M Bolikhamsay LAOS 880"
+}, 
+"Tl1422450": {
+"^ot:originalLabel": "Dolomedes tenebrosus", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 9475, 
+"@tb:identifier.taxonVariant": 22632, 
+"@ubio": "3548737", 
+"@uniprot": "156846"
+}
+}, 
+"Tl1422451": {
+"^ot:originalLabel": "Psechrus antraeus F Vang Vieng LAOS 978"
+}, 
+"Tl1422452": {
+"^ot:originalLabel": "Miturga gilva DQ019733", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 291823, 
+"@tb:identifier.taxonVariant": 343080, 
+"@ubio": "3591983", 
+"@uniprot": "332799"
+}, 
+"^skos:altLabel": {
+"$": "Miturga gilva", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422453": {
+"^ot:originalLabel": "Psechrus himalayanus Saf Dehradun INDIA 875"
+}, 
+"Tl1422454": {
+"^ot:originalLabel": "Themacrys sp cf ukhahlamba F SouthAFRICA 867"
+}, 
+"Tl1422455": {
+"^ot:originalLabel": "Psechrus hartmanni F Pattipola SRI LANKA 878"
+}, 
+"Tl1422456": {
+"^ot:originalLabel": "Psechrus libelti F BRUNEI DARUSSALAM 856"
+}, 
+"Tl1422457": {
+"^ot:originalLabel": "Marpissa pikei", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 16953, 
+"@tb:identifier.taxonVariant": 39710, 
+"@ubio": "3541091", 
+"@uniprot": "153405"
+}
+}, 
+"Tl1422458": {
+"^ot:originalLabel": "Mituliodon tarantulinus DQ019732", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 291821, 
+"@tb:identifier.taxonVariant": 343079, 
+"@ubio": "3549278", 
+"@uniprot": "332797"
+}, 
+"^skos:altLabel": {
+"$": "Mituliodon tarantulinus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422459": {
+"^ot:originalLabel": "Zoropsis spinimana M Mainz GERMANY 1056", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 31306, 
+"@tb:identifier.taxonVariant": 73048, 
+"@ubio": "3546406"
+}, 
+"^skos:altLabel": {
+"$": "Zoropsis spinimana", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422460": {
+"^ot:originalLabel": "Psechrus kunmingensis F Yunnan CHINA 948", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623543, 
+"@tb:identifier.taxonVariant": 834985, 
+"@ubio": "3558028"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus kunmingensis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422461": {
+"^ot:originalLabel": "Psechrus singaporensis F SINGAPORE 912", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623533, 
+"@tb:identifier.taxonVariant": 834975, 
+"@ubio": "3586686"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus singaporensis", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422462": {
+"^ot:originalLabel": "Psechrus vivax F Koh Chang THAILAND 1003"
+}, 
+"Tl1422463": {
+"^ot:originalLabel": "Cambridgea ambigua M Lincoln NEW ZEALAND 936", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623539, 
+"@tb:identifier.taxonVariant": 834981, 
+"@ubio": "3586547"
+}, 
+"^skos:altLabel": {
+"$": "Cambridgea ambigua", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422464": {
+"^ot:originalLabel": "Stiphidion facetum Sam NSWales AUSTRALIA 933", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 28034, 
+"@tb:identifier.taxonVariant": 65428, 
+"@ubio": "3586598", 
+"@uniprot": "389065"
+}, 
+"^skos:altLabel": {
+"$": "Stiphidion facetum", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422465": {
+"^ot:originalLabel": "Psechrus ghecuanus juv DoiSuthep THAILAND 931"
+}, 
+"Tl1422466": {
+"^ot:originalLabel": "Zelotes sp"
+}, 
+"Tl1422467": {
+"^ot:originalLabel": "Xysticus sp"
+}, 
+"Tl1422468": {
+"^ot:originalLabel": "Psechrus torvus F Labugolla SRI LANKA 879", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 623544, 
+"@tb:identifier.taxonVariant": 834986, 
+"@ubio": "3558132"
+}, 
+"^skos:altLabel": {
+"$": "Psechrus torvus", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422469": {
+"^ot:originalLabel": "Fecenia ochracea Saf NEW BRITAIN 917", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 48045, 
+"@tb:identifier.taxonVariant": 112420, 
+"@ubio": "3586663"
+}, 
+"^skos:altLabel": {
+"$": "Fecenia ochracea", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422470": {
+"^ot:originalLabel": "Misumenops nepenthicola", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 370742, 
+"@tb:identifier.taxonVariant": 395273, 
+"@ubio": "3603237", 
+"@uniprot": "426820"
+}
+}, 
+"Tl1422471": {
+"^ot:originalLabel": "Agelenopsis aperta", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 52182, 
+"@tb:identifier.taxonVariant": 122141, 
+"@ubio": "1582998", 
+"@uniprot": "6908"
+}
+}, 
+"Tl1422472": {
+"^ot:originalLabel": "Psechrus sp SINGAPsechrus GROUPsechrus juv Pahang MALAYSIA 927"
+}, 
+"Tl1422473": {
+"^ot:originalLabel": "Allagelena difficilis", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 183139, 
+"@tb:identifier.taxonVariant": 255909, 
+"@ubio": "11302295", 
+"@uniprot": "198407"
+}
+}, 
+"Tl1422474": {
+"^ot:originalLabel": "Tegenaria ariadnae"
+}, 
+"Tl1422475": {
+"^ot:originalLabel": "Psechrus vivax M KohChang THAILAND 1565"
+}, 
+"Tl1422476": {
+"^ot:originalLabel": "Stiphidion facetum", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 28034, 
+"@tb:identifier.taxonVariant": 65428, 
+"@ubio": "3586598", 
+"@uniprot": "389065"
+}
+}, 
+"Tl1422477": {
+"^ot:originalLabel": "Stiphidion facetum M Wellington NEW ZEALAND 937", 
+"^ot:taxonLink": {
+"@tb:identifier.taxon": 28034, 
+"@tb:identifier.taxonVariant": 65428, 
+"@ubio": "3586598", 
+"@uniprot": "389065"
+}, 
+"^skos:altLabel": {
+"$": "Stiphidion facetum", 
+"source": "TreeBase"
+}
+}, 
+"Tl1422478": {
+"^ot:originalLabel": "Psechrus argentatus F Flores INDONESIA 910"
+}
+}
+}
+}, 
+"treesById": {
+"Tb24905": {
+"@label": "Psechridae 28S Fig 2", 
+"@otus": "Tls36428", 
+"^ot:treeElementOrder": [
+"Tr71735", 
+"Tr71734", 
+"Tr71733"
+], 
+"^skos:historyNote": "Mapped from TreeBASE schema using org.cipres.treebase.domain.nexus.nexml.NexmlTreeBlockWriter@35a6d298 $Rev: 1040 $", 
+"treeById": {
+"Tr71733": {
+"@label": "Fig. 5", 
+"@xsi:type": "nex:FloatTree", 
+"^ot:rootNodeId": "Tn11218391", 
+"^tb:kind.tree": "Species Tree", 
+"^tb:ntax.tree": 103, 
+"^tb:quality.tree": "Unrated", 
+"^tb:type.tree": "Consensus", 
+"edgeBySourceId": {
+"Tn11218368": {
+"edge144638": {
+"@length": 1e-08, 
+"@source": "Tn11218368", 
+"@target": "Tn11218426"
+}, 
+"edge144640": {
+"@length": 1e-08, 
+"@source": "Tn11218368", 
+"@target": "Tn11218530"
+}
+}, 
+"Tn11218372": {
+"edge144672": {
+"@length": 0.05348154, 
+"@source": "Tn11218372", 
+"@target": "Tn11218382"
+}, 
+"edge144674": {
+"@length": 0.030012, 
+"@source": "Tn11218372", 
+"@target": "Tn11218392"
+}
+}, 
+"Tn11218376": {
+"edge144734": {
+"@length": 1e-08, 
+"@source": "Tn11218376", 
+"@target": "Tn11218507"
+}, 
+"edge144736": {
+"@length": 0.00189884, 
+"@source": "Tn11218376", 
+"@target": "Tn11218377"
+}
+}, 
+"Tn11218377": {
+"edge144738": {
+"@length": 0.00189491, 
+"@source": "Tn11218377", 
+"@target": "Tn11218440"
+}, 
+"edge144740": {
+"@length": 1e-08, 
+"@source": "Tn11218377", 
+"@target": "Tn11218511"
+}
+}, 
+"Tn11218378": {
+"edge144846": {
+"@length": 0.04347892, 
+"@source": "Tn11218378", 
+"@target": "Tn11218450"
+}, 
+"edge144848": {
+"@length": 0.03573805, 
+"@source": "Tn11218378", 
+"@target": "Tn11218508"
+}
+}, 
+"Tn11218379": {
+"edge144608": {
+"@length": 0.07609347, 
+"@source": "Tn11218379", 
+"@target": "Tn11218387"
+}, 
+"edge144610": {
+"@length": 0.07206712, 
+"@source": "Tn11218379", 
+"@target": "Tn11218374"
+}, 
+"edge144612": {
+"@length": 0.03533928, 
+"@source": "Tn11218379", 
+"@target": "Tn11218448"
+}, 
+"edge144622": {
+"@length": 0.06501427, 
+"@source": "Tn11218379", 
+"@target": "Tn11218444"
+}, 
+"edge144634": {
+"@length": 0.05383436, 
+"@source": "Tn11218379", 
+"@target": "Tn11218531"
+}, 
+"edge144668": {
+"@length": 0.02621983, 
+"@source": "Tn11218379", 
+"@target": "Tn11218476"
+}
+}, 
+"Tn11218381": {
+"edge144770": {
+"@length": 1e-08, 
+"@source": "Tn11218381", 
+"@target": "Tn11218411"
+}, 
+"edge144772": {
+"@length": 0.00188625, 
+"@source": "Tn11218381", 
+"@target": "Tn11218473"
+}
+}, 
+"Tn11218391": {
+"edge144486": {
+"@length": 0.153807595, 
+"@source": "Tn11218391", 
+"@target": "Tn11218421"
+}, 
+"edge144488": {
+"@length": 0.153807595, 
+"@source": "Tn11218391", 
+"@target": "Tn11218410"
+}
+}, 
+"Tn11218392": {
+"edge144676": {
+"@length": 0.01313461, 
+"@source": "Tn11218392", 
+"@target": "Tn11218420"
+}, 
+"edge144678": {
+"@length": 0.01315604, 
+"@source": "Tn11218392", 
+"@target": "Tn11218454"
+}
+}, 
+"Tn11218394": {
+"edge144568": {
+"@length": 0.06157045, 
+"@source": "Tn11218394", 
+"@target": "Tn11218364"
+}, 
+"edge144570": {
+"@length": 0.04241218, 
+"@source": "Tn11218394", 
+"@target": "Tn11218395"
+}
+}, 
+"Tn11218396": {
+"edge144724": {
+"@length": 1e-08, 
+"@source": "Tn11218396", 
+"@target": "Tn11218510"
+}, 
+"edge144726": {
+"@length": 1e-08, 
+"@source": "Tn11218396", 
+"@target": "Tn11218552"
+}
+}, 
+"Tn11218397": {
+"edge144564": {
+"@length": 0.07872669, 
+"@source": "Tn11218397", 
+"@target": "Tn11218518"
+}, 
+"edge144566": {
+"@length": 0.03083449, 
+"@source": "Tn11218397", 
+"@target": "Tn11218394"
+}
+}, 
+"Tn11218401": {
+"edge144730": {
+"@length": 0.0215233, 
+"@source": "Tn11218401", 
+"@target": "Tn11218463"
+}, 
+"edge144756": {
+"@length": 0.09654617, 
+"@source": "Tn11218401", 
+"@target": "Tn11218551"
+}, 
+"edge144790": {
+"@length": 0.03044363, 
+"@source": "Tn11218401", 
+"@target": "Tn11218435"
+}
+}, 
+"Tn11218403": {
+"edge144710": {
+"@length": 1e-08, 
+"@source": "Tn11218403", 
+"@target": "Tn11218493"
+}, 
+"edge144712": {
+"@length": 1e-08, 
+"@source": "Tn11218403", 
+"@target": "Tn11218544"
+}
+}, 
+"Tn11218405": {
+"edge144576": {
+"@length": 0.10867723, 
+"@source": "Tn11218405", 
+"@target": "Tn11218482"
+}, 
+"edge144578": {
+"@length": 0.01789758, 
+"@source": "Tn11218405", 
+"@target": "Tn11218470"
+}
+}, 
+"Tn11218406": {
+"edge144588": {
+"@length": 0.03281901, 
+"@source": "Tn11218406", 
+"@target": "Tn11218404"
+}, 
+"edge144590": {
+"@length": 0.05708849, 
+"@source": "Tn11218406", 
+"@target": "Tn11218550"
+}
+}, 
+"Tn11218409": {
+"edge144510": {
+"@length": 0.02726821, 
+"@source": "Tn11218409", 
+"@target": "Tn11218528"
+}, 
+"edge144512": {
+"@length": 0.00140052, 
+"@source": "Tn11218409", 
+"@target": "Tn11218545"
+}
+}, 
+"Tn11218410": {
+"edge144490": {
+"@length": 0.10432182, 
+"@source": "Tn11218410", 
+"@target": "Tn11218365"
+}, 
+"edge144492": {
+"@length": 0.02887396, 
+"@source": "Tn11218410", 
+"@target": "Tn11218474"
+}
+}, 
+"Tn11218412": {
+"edge144694": {
+"@length": 1e-08, 
+"@source": "Tn11218412", 
+"@target": "Tn11218487"
+}, 
+"edge144696": {
+"@length": 1e-08, 
+"@source": "Tn11218412", 
+"@target": "Tn11218457"
+}
+}, 
+"Tn11218413": {
+"edge144816": {
+"@length": 0.05047855, 
+"@source": "Tn11218413", 
+"@target": "Tn11218495"
+}, 
+"edge144822": {
+"@length": 0.0061243, 
+"@source": "Tn11218413", 
+"@target": "Tn11218434"
+}
+}, 
+"Tn11218415": {
+"edge144498": {
+"@length": 0.00902296, 
+"@source": "Tn11218415", 
+"@target": "Tn11218429"
+}, 
+"edge144508": {
+"@length": 0.01937572, 
+"@source": "Tn11218415", 
+"@target": "Tn11218409"
+}
+}, 
+"Tn11218417": {
+"edge144586": {
+"@length": 0.04285645, 
+"@source": "Tn11218417", 
+"@target": "Tn11218406"
+}, 
+"edge144592": {
+"@length": 0.01496479, 
+"@source": "Tn11218417", 
+"@target": "Tn11218441"
+}
+}, 
+"Tn11218418": {
+"edge144716": {
+"@length": 1e-08, 
+"@source": "Tn11218418", 
+"@target": "Tn11218389"
+}, 
+"edge144718": {
+"@length": 1e-08, 
+"@source": "Tn11218418", 
+"@target": "Tn11218492"
+}
+}, 
+"Tn11218422": {
+"edge144518": {
+"@length": 1e-08, 
+"@source": "Tn11218422", 
+"@target": "Tn11218363"
+}, 
+"edge144520": {
+"@length": 0.00397781, 
+"@source": "Tn11218422", 
+"@target": "Tn11218500"
+}
+}, 
+"Tn11218423": {
+"edge144860": {
+"@length": 0.0078571, 
+"@source": "Tn11218423", 
+"@target": "Tn11218554"
+}, 
+"edge144862": {
+"@length": 0.03185219, 
+"@source": "Tn11218423", 
+"@target": "Tn11218499"
+}
+}, 
+"Tn11218424": {
+"edge144534": {
+"@length": 1e-08, 
+"@source": "Tn11218424", 
+"@target": "Tn11218430"
+}, 
+"edge144536": {
+"@length": 1e-08, 
+"@source": "Tn11218424", 
+"@target": "Tn11218367"
+}
+}, 
+"Tn11218429": {
+"edge144500": {
+"@length": 0.03023166, 
+"@source": "Tn11218429", 
+"@target": "Tn11218548"
+}, 
+"edge144502": {
+"@length": 0.01093523, 
+"@source": "Tn11218429", 
+"@target": "Tn11218517"
+}
+}, 
+"Tn11218431": {
+"edge144574": {
+"@length": 0.02206892, 
+"@source": "Tn11218431", 
+"@target": "Tn11218405"
+}, 
+"edge144584": {
+"@length": 0.06687499, 
+"@source": "Tn11218431", 
+"@target": "Tn11218417"
+}
+}, 
+"Tn11218432": {
+"edge144744": {
+"@length": 0.00128068, 
+"@source": "Tn11218432", 
+"@target": "Tn11218373"
+}, 
+"edge144746": {
+"@length": 0.03653513, 
+"@source": "Tn11218432", 
+"@target": "Tn11218494"
+}
+}, 
+"Tn11218434": {
+"edge144824": {
+"@length": 0.03453263, 
+"@source": "Tn11218434", 
+"@target": "Tn11218524"
+}, 
+"edge144838": {
+"@length": 0.07543365, 
+"@source": "Tn11218434", 
+"@target": "Tn11218462"
+}
+}, 
+"Tn11218435": {
+"edge144792": {
+"@length": 0.13062327, 
+"@source": "Tn11218435", 
+"@target": "Tn11218526"
+}, 
+"edge144802": {
+"@length": 0.00999354, 
+"@source": "Tn11218435", 
+"@target": "Tn11218509"
+}
+}, 
+"Tn11218436": {
+"edge144760": {
+"@length": 0.00188534, 
+"@source": "Tn11218436", 
+"@target": "Tn11218472"
+}, 
+"edge144762": {
+"@length": 1e-08, 
+"@source": "Tn11218436", 
+"@target": "Tn11218455"
+}
+}, 
+"Tn11218441": {
+"edge144594": {
+"@length": 0.11046548, 
+"@source": "Tn11218441", 
+"@target": "Tn11218419"
+}, 
+"edge144596": {
+"@length": 0.02481163, 
+"@source": "Tn11218441", 
+"@target": "Tn11218479"
+}
+}, 
+"Tn11218443": {
+"edge144648": {
+"@length": 0.00547449, 
+"@source": "Tn11218443", 
+"@target": "Tn11218471"
+}, 
+"edge144654": {
+"@length": 0.01284632, 
+"@source": "Tn11218443", 
+"@target": "Tn11218529"
+}
+}, 
+"Tn11218444": {
+"edge144624": {
+"@length": 0.10007057, 
+"@source": "Tn11218444", 
+"@target": "Tn11218439"
+}, 
+"edge144626": {
+"@length": 0.12684039, 
+"@source": "Tn11218444", 
+"@target": "Tn11218390"
+}, 
+"edge144628": {
+"@length": 0.06118181, 
+"@source": "Tn11218444", 
+"@target": "Tn11218506"
+}
+}, 
+"Tn11218445": {
+"edge144706": {
+"@length": 1e-08, 
+"@source": "Tn11218445", 
+"@target": "Tn11218521"
+}, 
+"edge144708": {
+"@length": 1e-08, 
+"@source": "Tn11218445", 
+"@target": "Tn11218403"
+}
+}, 
+"Tn11218448": {
+"edge144614": {
+"@length": 0.09015274, 
+"@source": "Tn11218448", 
+"@target": "Tn11218542"
+}, 
+"edge144616": {
+"@length": 0.04354127, 
+"@source": "Tn11218448", 
+"@target": "Tn11218459"
+}
+}, 
+"Tn11218449": {
+"edge144810": {
+"@length": 1e-08, 
+"@source": "Tn11218449", 
+"@target": "Tn11218386"
+}, 
+"edge144812": {
+"@length": 1e-08, 
+"@source": "Tn11218449", 
+"@target": "Tn11218388"
+}
+}, 
+"Tn11218453": {
+"edge144682": {
+"@length": 0.13596526, 
+"@source": "Tn11218453", 
+"@target": "Tn11218425"
+}, 
+"edge144684": {
+"@length": 0.01236013, 
+"@source": "Tn11218453", 
+"@target": "Tn11218504"
+}
+}, 
+"Tn11218455": {
+"edge144764": {
+"@length": 0.00377836, 
+"@source": "Tn11218455", 
+"@target": "Tn11218477"
+}, 
+"edge144766": {
+"@length": 1e-08, 
+"@source": "Tn11218455", 
+"@target": "Tn11218553"
+}
+}, 
+"Tn11218458": {
+"edge144690": {
+"@length": 0.00181195, 
+"@source": "Tn11218458", 
+"@target": "Tn11218456"
+}, 
+"edge144692": {
+"@length": 0.0, 
+"@source": "Tn11218458", 
+"@target": "Tn11218412"
+}
+}, 
+"Tn11218459": {
+"edge144618": {
+"@length": 1e-08, 
+"@source": "Tn11218459", 
+"@target": "Tn11218384"
+}, 
+"edge144620": {
+"@length": 1e-08, 
+"@source": "Tn11218459", 
+"@target": "Tn11218469"
+}
+}, 
+"Tn11218461": {
+"edge144868": {
+"@length": 0.02092913, 
+"@source": "Tn11218461", 
+"@target": "Tn11218442"
+}, 
+"edge144870": {
+"@length": 0.04585358, 
+"@source": "Tn11218461", 
+"@target": "Tn11218535"
+}
+}, 
+"Tn11218462": {
+"edge144840": {
+"@length": 0.02138247, 
+"@source": "Tn11218462", 
+"@target": "Tn11218497"
+}, 
+"edge144858": {
+"@length": 0.03120648, 
+"@source": "Tn11218462", 
+"@target": "Tn11218423"
+}
+}, 
+"Tn11218463": {
+"edge144732": {
+"@length": 0.06527899, 
+"@source": "Tn11218463", 
+"@target": "Tn11218376"
+}, 
+"edge144742": {
+"@length": 0.06878913, 
+"@source": "Tn11218463", 
+"@target": "Tn11218432"
+}
+}, 
+"Tn11218467": {
+"edge144660": {
+"@length": 1e-08, 
+"@source": "Tn11218467", 
+"@target": "Tn11218400"
+}, 
+"edge144662": {
+"@length": 0.00377799, 
+"@source": "Tn11218467", 
+"@target": "Tn11218541"
+}
+}, 
+"Tn11218468": {
+"edge144548": {
+"@length": 1e-08, 
+"@source": "Tn11218468", 
+"@target": "Tn11218427"
+}, 
+"edge144550": {
+"@length": 1e-08, 
+"@source": "Tn11218468", 
+"@target": "Tn11218408"
+}
+}, 
+"Tn11218470": {
+"edge144580": {
+"@length": 0.06953556, 
+"@source": "Tn11218470", 
+"@target": "Tn11218407"
+}, 
+"edge144582": {
+"@length": 0.08405289, 
+"@source": "Tn11218470", 
+"@target": "Tn11218398"
+}
+}, 
+"Tn11218471": {
+"edge144650": {
+"@length": 1e-08, 
+"@source": "Tn11218471", 
+"@target": "Tn11218496"
+}, 
+"edge144652": {
+"@length": 1e-08, 
+"@source": "Tn11218471", 
+"@target": "Tn11218484"
+}
+}, 
+"Tn11218473": {
+"edge144774": {
+"@length": 1e-08, 
+"@source": "Tn11218473", 
+"@target": "Tn11218478"
+}, 
+"edge144780": {
+"@length": 1e-08, 
+"@source": "Tn11218473", 
+"@target": "Tn11218490"
+}
+}, 
+"Tn11218474": {
+"edge144494": {
+"@length": 0.07641034, 
+"@source": "Tn11218474", 
+"@target": "Tn11218515"
+}, 
+"edge144558": {
+"@length": 0.01892157, 
+"@source": "Tn11218474", 
+"@target": "Tn11218546"
+}
+}, 
+"Tn11218476": {
+"edge144670": {
+"@length": 0.03476437, 
+"@source": "Tn11218476", 
+"@target": "Tn11218372"
+}, 
+"edge144680": {
+"@length": 0.01682376, 
+"@source": "Tn11218476", 
+"@target": "Tn11218453"
+}
+}, 
+"Tn11218478": {
+"edge144776": {
+"@length": 0.00188543, 
+"@source": "Tn11218478", 
+"@target": "Tn11218466"
+}, 
+"edge144778": {
+"@length": 0.00188412, 
+"@source": "Tn11218478", 
+"@target": "Tn11218532"
+}
+}, 
+"Tn11218479": {
+"edge144598": {
+"@length": 0.10887562, 
+"@source": "Tn11218479", 
+"@target": "Tn11218522"
+}, 
+"edge144600": {
+"@length": 0.05050313, 
+"@source": "Tn11218479", 
+"@target": "Tn11218488"
+}
+}, 
+"Tn11218485": {
+"edge144806": {
+"@length": 0.00566583, 
+"@source": "Tn11218485", 
+"@target": "Tn11218539"
+}, 
+"edge144808": {
+"@length": 6.468e-07, 
+"@source": "Tn11218485", 
+"@target": "Tn11218449"
+}
+}, 
+"Tn11218488": {
+"edge144602": {
+"@length": 0.05632862, 
+"@source": "Tn11218488", 
+"@target": "Tn11218437"
+}, 
+"edge144604": {
+"@length": 0.04713098, 
+"@source": "Tn11218488", 
+"@target": "Tn11218370"
+}
+}, 
+"Tn11218489": {
+"edge144700": {
+"@length": 0.04431228, 
+"@source": "Tn11218489", 
+"@target": "Tn11218536"
+}, 
+"edge144714": {
+"@length": 0.04380438, 
+"@source": "Tn11218489", 
+"@target": "Tn11218418"
+}
+}, 
+"Tn11218490": {
+"edge144782": {
+"@length": 0.01156683, 
+"@source": "Tn11218490", 
+"@target": "Tn11218475"
+}, 
+"edge144784": {
+"@length": 0.00189461, 
+"@source": "Tn11218490", 
+"@target": "Tn11218520"
+}
+}, 
+"Tn11218492": {
+"edge144720": {
+"@length": 1e-08, 
+"@source": "Tn11218492", 
+"@target": "Tn11218534"
+}, 
+"edge144722": {
+"@length": 1e-08, 
+"@source": "Tn11218492", 
+"@target": "Tn11218396"
+}
+}, 
+"Tn11218494": {
+"edge144748": {
+"@length": 1e-08, 
+"@source": "Tn11218494", 
+"@target": "Tn11218481"
+}, 
+"edge144750": {
+"@length": 0.00561903, 
+"@source": "Tn11218494", 
+"@target": "Tn11218498"
+}
+}, 
+"Tn11218495": {
+"edge144818": {
+"@length": 0.00368679, 
+"@source": "Tn11218495", 
+"@target": "Tn11218369"
+}, 
+"edge144820": {
+"@length": 0.00413518, 
+"@source": "Tn11218495", 
+"@target": "Tn11218433"
+}
+}, 
+"Tn11218497": {
+"edge144842": {
+"@length": 0.09732173, 
+"@source": "Tn11218497", 
+"@target": "Tn11218460"
+}, 
+"edge144844": {
+"@length": 0.02490162, 
+"@source": "Tn11218497", 
+"@target": "Tn11218378"
+}
+}, 
+"Tn11218498": {
+"edge144752": {
+"@length": 1e-08, 
+"@source": "Tn11218498", 
+"@target": "Tn11218414"
+}, 
+"edge144754": {
+"@length": 1e-08, 
+"@source": "Tn11218498", 
+"@target": "Tn11218428"
+}
+}, 
+"Tn11218499": {
+"edge144864": {
+"@length": 0.0431052, 
+"@source": "Tn11218499", 
+"@target": "Tn11218513"
+}, 
+"edge144866": {
+"@length": 0.01045494, 
+"@source": "Tn11218499", 
+"@target": "Tn11218461"
+}
+}, 
+"Tn11218500": {
+"edge144522": {
+"@length": 1e-08, 
+"@source": "Tn11218500", 
+"@target": "Tn11218446"
+}, 
+"edge144524": {
+"@length": 1e-08, 
+"@source": "Tn11218500", 
+"@target": "Tn11218480"
+}
+}, 
+"Tn11218502": {
+"edge144688": {
+"@length": 0.09676863, 
+"@source": "Tn11218502", 
+"@target": "Tn11218458"
+}, 
+"edge144698": {
+"@length": 0.01771562, 
+"@source": "Tn11218502", 
+"@target": "Tn11218489"
+}
+}, 
+"Tn11218504": {
+"edge144686": {
+"@length": 0.0495428, 
+"@source": "Tn11218504", 
+"@target": "Tn11218502"
+}, 
+"edge144728": {
+"@length": 0.02839731, 
+"@source": "Tn11218504", 
+"@target": "Tn11218401"
+}
+}, 
+"Tn11218506": {
+"edge144630": {
+"@length": 0.04061661, 
+"@source": "Tn11218506", 
+"@target": "Tn11218447"
+}, 
+"edge144632": {
+"@length": 0.06349691, 
+"@source": "Tn11218506", 
+"@target": "Tn11218383"
+}
+}, 
+"Tn11218508": {
+"edge144850": {
+"@length": 0.0018815, 
+"@source": "Tn11218508", 
+"@target": "Tn11218543"
+}, 
+"edge144852": {
+"@length": 0.00334662, 
+"@source": "Tn11218508", 
+"@target": "Tn11218537"
+}
+}, 
+"Tn11218509": {
+"edge144804": {
+"@length": 0.07860944, 
+"@source": "Tn11218509", 
+"@target": "Tn11218485"
+}, 
+"edge144814": {
+"@length": 0.01148974, 
+"@source": "Tn11218509", 
+"@target": "Tn11218413"
+}
+}, 
+"Tn11218514": {
+"edge144540": {
+"@length": 1e-08, 
+"@source": "Tn11218514", 
+"@target": "Tn11218385"
+}, 
+"edge144542": {
+"@length": 0.02855824, 
+"@source": "Tn11218514", 
+"@target": "Tn11218438"
+}, 
+"edge144544": {
+"@length": 0.00192338, 
+"@source": "Tn11218514", 
+"@target": "Tn11218505"
+}, 
+"edge144546": {
+"@length": 0.01805248, 
+"@source": "Tn11218514", 
+"@target": "Tn11218468"
+}, 
+"edge144552": {
+"@length": 0.04341965, 
+"@source": "Tn11218514", 
+"@target": "Tn11218540"
+}
+}, 
+"Tn11218515": {
+"edge144496": {
+"@length": 0.04567025, 
+"@source": "Tn11218515", 
+"@target": "Tn11218415"
+}, 
+"edge144526": {
+"@length": 0.03071014, 
+"@source": "Tn11218515", 
+"@target": "Tn11218533"
+}
+}, 
+"Tn11218516": {
+"edge144562": {
+"@length": 0.04894413, 
+"@source": "Tn11218516", 
+"@target": "Tn11218397"
+}, 
+"edge144572": {
+"@length": 0.01763275, 
+"@source": "Tn11218516", 
+"@target": "Tn11218431"
+}
+}, 
+"Tn11218517": {
+"edge144504": {
+"@length": 1e-08, 
+"@source": "Tn11218517", 
+"@target": "Tn11218465"
+}, 
+"edge144506": {
+"@length": 1e-08, 
+"@source": "Tn11218517", 
+"@target": "Tn11218380"
+}
+}, 
+"Tn11218520": {
+"edge144786": {
+"@length": 1e-08, 
+"@source": "Tn11218520", 
+"@target": "Tn11218486"
+}, 
+"edge144788": {
+"@length": 0.00190154, 
+"@source": "Tn11218520", 
+"@target": "Tn11218523"
+}
+}, 
+"Tn11218524": {
+"edge144826": {
+"@length": 0.0168721, 
+"@source": "Tn11218524", 
+"@target": "Tn11218483"
+}, 
+"edge144828": {
+"@length": 0.01967966, 
+"@source": "Tn11218524", 
+"@target": "Tn11218547"
+}
+}, 
+"Tn11218525": {
+"edge144834": {
+"@length": 1e-08, 
+"@source": "Tn11218525", 
+"@target": "Tn11218452"
+}, 
+"edge144836": {
+"@length": 1e-08, 
+"@source": "Tn11218525", 
+"@target": "Tn11218556"
+}
+}, 
+"Tn11218526": {
+"edge144794": {
+"@length": 0.00372572, 
+"@source": "Tn11218526", 
+"@target": "Tn11218371"
+}, 
+"edge144796": {
+"@length": 0.0, 
+"@source": "Tn11218526", 
+"@target": "Tn11218538"
+}
+}, 
+"Tn11218529": {
+"edge144656": {
+"@length": 0.0059471, 
+"@source": "Tn11218529", 
+"@target": "Tn11218503"
+}, 
+"edge144658": {
+"@length": 0.00375873, 
+"@source": "Tn11218529", 
+"@target": "Tn11218467"
+}
+}, 
+"Tn11218530": {
+"edge144642": {
+"@length": 1e-08, 
+"@source": "Tn11218530", 
+"@target": "Tn11218366"
+}, 
+"edge144644": {
+"@length": 1e-08, 
+"@source": "Tn11218530", 
+"@target": "Tn11218393"
+}
+}, 
+"Tn11218531": {
+"edge144636": {
+"@length": 0.02572714, 
+"@source": "Tn11218531", 
+"@target": "Tn11218368"
+}, 
+"edge144646": {
+"@length": 0.02221247, 
+"@source": "Tn11218531", 
+"@target": "Tn11218443"
+}
+}, 
+"Tn11218533": {
+"edge144528": {
+"@length": 0.03249801, 
+"@source": "Tn11218533", 
+"@target": "Tn11218557"
+}, 
+"edge144538": {
+"@length": 0.07505416, 
+"@source": "Tn11218533", 
+"@target": "Tn11218514"
+}
+}, 
+"Tn11218535": {
+"edge144872": {
+"@length": 1e-08, 
+"@source": "Tn11218535", 
+"@target": "Tn11218451"
+}, 
+"edge144874": {
+"@length": 1e-08, 
+"@source": "Tn11218535", 
+"@target": "Tn11218399"
+}
+}, 
+"Tn11218536": {
+"edge144702": {
+"@length": 1e-08, 
+"@source": "Tn11218536", 
+"@target": "Tn11218416"
+}, 
+"edge144704": {
+"@length": 1e-08, 
+"@source": "Tn11218536", 
+"@target": "Tn11218445"
+}
+}, 
+"Tn11218537": {
+"edge144854": {
+"@length": 1e-08, 
+"@source": "Tn11218537", 
+"@target": "Tn11218501"
+}, 
+"edge144856": {
+"@length": 0.00522008, 
+"@source": "Tn11218537", 
+"@target": "Tn11218558"
+}
+}, 
+"Tn11218538": {
+"edge144798": {
+"@length": 1e-08, 
+"@source": "Tn11218538", 
+"@target": "Tn11218519"
+}, 
+"edge144800": {
+"@length": 1e-08, 
+"@source": "Tn11218538", 
+"@target": "Tn11218555"
+}
+}, 
+"Tn11218540": {
+"edge144554": {
+"@length": 0.00406468, 
+"@source": "Tn11218540", 
+"@target": "Tn11218491"
+}, 
+"edge144556": {
+"@length": 0.00370528, 
+"@source": "Tn11218540", 
+"@target": "Tn11218464"
+}
+}, 
+"Tn11218541": {
+"edge144664": {
+"@length": 0.00188394, 
+"@source": "Tn11218541", 
+"@target": "Tn11218375"
+}, 
+"edge144666": {
+"@length": 1e-08, 
+"@source": "Tn11218541", 
+"@target": "Tn11218527"
+}
+}, 
+"Tn11218545": {
+"edge144514": {
+"@length": 0.02617397, 
+"@source": "Tn11218545", 
+"@target": "Tn11218512"
+}, 
+"edge144516": {
+"@length": 0.01241176, 
+"@source": "Tn11218545", 
+"@target": "Tn11218422"
+}
+}, 
+"Tn11218546": {
+"edge144560": {
+"@length": 0.03468602, 
+"@source": "Tn11218546", 
+"@target": "Tn11218516"
+}, 
+"edge144606": {
+"@length": 0.04677236, 
+"@source": "Tn11218546", 
+"@target": "Tn11218379"
+}
+}, 
+"Tn11218547": {
+"edge144830": {
+"@length": 1e-08, 
+"@source": "Tn11218547", 
+"@target": "Tn11218402"
+}, 
+"edge144832": {
+"@length": 0.00184641, 
+"@source": "Tn11218547", 
+"@target": "Tn11218525"
+}
+}, 
+"Tn11218551": {
+"edge144758": {
+"@length": 0.00485768, 
+"@source": "Tn11218551", 
+"@target": "Tn11218436"
+}, 
+"edge144768": {
+"@length": 0.00085437, 
+"@source": "Tn11218551", 
+"@target": "Tn11218381"
+}
+}, 
+"Tn11218557": {
+"edge144530": {
+"@length": 0.02591796, 
+"@source": "Tn11218557", 
+"@target": "Tn11218549"
+}, 
+"edge144532": {
+"@length": 0.05467353, 
+"@source": "Tn11218557", 
+"@target": "Tn11218424"
+}
+}
+}, 
+"nodeById": {
+"Tn11218363": {
+"@otu": "Tl1422325"
+}, 
+"Tn11218364": {
+"@otu": "Tl1422356"
+}, 
+"Tn11218365": {
+"@otu": "Tl1422300"
+}, 
+"Tn11218366": {
+"@otu": "Tl1422331"
+}, 
+"Tn11218367": {
+"@otu": "Tl1422355"
+}, 
+"Tn11218368": {}, 
+"Tn11218369": {
+"@otu": "Tl1422315"
+}, 
+"Tn11218370": {
+"@otu": "Tl1422293"
+}, 
+"Tn11218371": {
+"@otu": "Tl1422347"
+}, 
+"Tn11218372": {}, 
+"Tn11218373": {
+"@otu": "Tl1422323"
+}, 
+"Tn11218374": {
+"@otu": "Tl1422306"
+}, 
+"Tn11218375": {
+"@otu": "Tl1422292"
+}, 
+"Tn11218376": {}, 
+"Tn11218377": {}, 
+"Tn11218378": {}, 
+"Tn11218379": {}, 
+"Tn11218380": {
+"@otu": "Tl1422379"
+}, 
+"Tn11218381": {}, 
+"Tn11218382": {
+"@otu": "Tl1422345"
+}, 
+"Tn11218383": {
+"@otu": "Tl1422344"
+}, 
+"Tn11218384": {
+"@otu": "Tl1422383"
+}, 
+"Tn11218385": {
+"@otu": "Tl1422382"
+}, 
+"Tn11218386": {
+"@otu": "Tl1422371"
+}, 
+"Tn11218387": {
+"@otu": "Tl1422351"
+}, 
+"Tn11218388": {
+"@otu": "Tl1422361"
+}, 
+"Tn11218389": {
+"@otu": "Tl1422318"
+}, 
+"Tn11218390": {
+"@otu": "Tl1422320"
+}, 
+"Tn11218391": {
+"@root": true
+}, 
+"Tn11218392": {}, 
+"Tn11218393": {
+"@otu": "Tl1422390"
+}, 
+"Tn11218394": {}, 
+"Tn11218395": {
+"@otu": "Tl1422342"
+}, 
+"Tn11218396": {}, 
+"Tn11218397": {}, 
+"Tn11218398": {
+"@otu": "Tl1422308"
+}, 
+"Tn11218399": {
+"@otu": "Tl1422297"
+}, 
+"Tn11218400": {
+"@otu": "Tl1422358"
+}, 
+"Tn11218401": {}, 
+"Tn11218402": {
+"@otu": "Tl1422319"
+}, 
+"Tn11218403": {}, 
+"Tn11218404": {
+"@otu": "Tl1422369"
+}, 
+"Tn11218405": {}, 
+"Tn11218406": {}, 
+"Tn11218407": {
+"@otu": "Tl1422392"
+}, 
+"Tn11218408": {
+"@otu": "Tl1422357"
+}, 
+"Tn11218409": {}, 
+"Tn11218410": {}, 
+"Tn11218411": {
+"@otu": "Tl1422310"
+}, 
+"Tn11218412": {}, 
+"Tn11218413": {}, 
+"Tn11218414": {
+"@otu": "Tl1422290"
+}, 
+"Tn11218415": {}, 
+"Tn11218416": {
+"@otu": "Tl1422386"
+}, 
+"Tn11218417": {}, 
+"Tn11218418": {}, 
+"Tn11218419": {
+"@otu": "Tl1422375"
+}, 
+"Tn11218420": {
+"@otu": "Tl1422337"
+}, 
+"Tn11218421": {
+"@otu": "Tl1422388"
+}, 
+"Tn11218422": {}, 
+"Tn11218423": {}, 
+"Tn11218424": {}, 
+"Tn11218425": {
+"@otu": "Tl1422389"
+}, 
+"Tn11218426": {
+"@otu": "Tl1422307"
+}, 
+"Tn11218427": {
+"@otu": "Tl1422316"
+}, 
+"Tn11218428": {
+"@otu": "Tl1422312"
+}, 
+"Tn11218429": {}, 
+"Tn11218430": {
+"@otu": "Tl1422359"
+}, 
+"Tn11218431": {}, 
+"Tn11218432": {}, 
+"Tn11218433": {
+"@otu": "Tl1422334"
+}, 
+"Tn11218434": {}, 
+"Tn11218435": {}, 
+"Tn11218436": {}, 
+"Tn11218437": {
+"@otu": "Tl1422294"
+}, 
+"Tn11218438": {
+"@otu": "Tl1422291"
+}, 
+"Tn11218439": {
+"@otu": "Tl1422366"
+}, 
+"Tn11218440": {
+"@otu": "Tl1422326"
+}, 
+"Tn11218441": {}, 
+"Tn11218442": {
+"@otu": "Tl1422339"
+}, 
+"Tn11218443": {}, 
+"Tn11218444": {}, 
+"Tn11218445": {}, 
+"Tn11218446": {
+"@otu": "Tl1422360"
+}, 
+"Tn11218447": {
+"@otu": "Tl1422324"
+}, 
+"Tn11218448": {}, 
+"Tn11218449": {}, 
+"Tn11218450": {
+"@otu": "Tl1422378"
+}, 
+"Tn11218451": {
+"@otu": "Tl1422302"
+}, 
+"Tn11218452": {
+"@otu": "Tl1422352"
+}, 
+"Tn11218453": {}, 
+"Tn11218454": {
+"@otu": "Tl1422370"
+}, 
+"Tn11218455": {}, 
+"Tn11218456": {
+"@otu": "Tl1422373"
+}, 
+"Tn11218457": {
+"@otu": "Tl1422330"
+}, 
+"Tn11218458": {}, 
+"Tn11218459": {}, 
+"Tn11218460": {
+"@otu": "Tl1422329"
+}, 
+"Tn11218461": {}, 
+"Tn11218462": {}, 
+"Tn11218463": {}, 
+"Tn11218464": {
+"@otu": "Tl1422349"
+}, 
+"Tn11218465": {
+"@otu": "Tl1422381"
+}, 
+"Tn11218466": {
+"@otu": "Tl1422303"
+}, 
+"Tn11218467": {}, 
+"Tn11218468": {}, 
+"Tn11218469": {
+"@otu": "Tl1422317"
+}, 
+"Tn11218470": {}, 
+"Tn11218471": {}, 
+"Tn11218472": {
+"@otu": "Tl1422321"
+}, 
+"Tn11218473": {}, 
+"Tn11218474": {}, 
+"Tn11218475": {
+"@otu": "Tl1422365"
+}, 
+"Tn11218476": {}, 
+"Tn11218477": {
+"@otu": "Tl1422327"
+}, 
+"Tn11218478": {}, 
+"Tn11218479": {}, 
+"Tn11218480": {
+"@otu": "Tl1422368"
+}, 
+"Tn11218481": {
+"@otu": "Tl1422301"
+}, 
+"Tn11218482": {
+"@otu": "Tl1422391"
+}, 
+"Tn11218483": {
+"@otu": "Tl1422362"
+}, 
+"Tn11218484": {
+"@otu": "Tl1422295"
+}, 
+"Tn11218485": {}, 
+"Tn11218486": {
+"@otu": "Tl1422298"
+}, 
+"Tn11218487": {
+"@otu": "Tl1422364"
+}, 
+"Tn11218488": {}, 
+"Tn11218489": {}, 
+"Tn11218490": {}, 
+"Tn11218491": {
+"@otu": "Tl1422335"
+}, 
+"Tn11218492": {}, 
+"Tn11218493": {
+"@otu": "Tl1422309"
+}, 
+"Tn11218494": {}, 
+"Tn11218495": {}, 
+"Tn11218496": {
+"@otu": "Tl1422372"
+}, 
+"Tn11218497": {}, 
+"Tn11218498": {}, 
+"Tn11218499": {}, 
+"Tn11218500": {}, 
+"Tn11218501": {
+"@otu": "Tl1422332"
+}, 
+"Tn11218502": {}, 
+"Tn11218503": {
+"@otu": "Tl1422367"
+}, 
+"Tn11218504": {}, 
+"Tn11218505": {
+"@otu": "Tl1422346"
+}, 
+"Tn11218506": {}, 
+"Tn11218507": {
+"@otu": "Tl1422385"
+}, 
+"Tn11218508": {}, 
+"Tn11218509": {}, 
+"Tn11218510": {
+"@otu": "Tl1422311"
+}, 
+"Tn11218511": {
+"@otu": "Tl1422333"
+}, 
+"Tn11218512": {
+"@otu": "Tl1422341"
+}, 
+"Tn11218513": {
+"@otu": "Tl1422304"
+}, 
+"Tn11218514": {}, 
+"Tn11218515": {}, 
+"Tn11218516": {}, 
+"Tn11218517": {}, 
+"Tn11218518": {
+"@otu": "Tl1422374"
+}, 
+"Tn11218519": {
+"@otu": "Tl1422376"
+}, 
+"Tn11218520": {}, 
+"Tn11218521": {
+"@otu": "Tl1422313"
+}, 
+"Tn11218522": {
+"@otu": "Tl1422336"
+}, 
+"Tn11218523": {
+"@otu": "Tl1422299"
+}, 
+"Tn11218524": {}, 
+"Tn11218525": {}, 
+"Tn11218526": {}, 
+"Tn11218527": {
+"@otu": "Tl1422387"
+}, 
+"Tn11218528": {
+"@otu": "Tl1422322"
+}, 
+"Tn11218529": {}, 
+"Tn11218530": {}, 
+"Tn11218531": {}, 
+"Tn11218532": {
+"@otu": "Tl1422328"
+}, 
+"Tn11218533": {}, 
+"Tn11218534": {
+"@otu": "Tl1422353"
+}, 
+"Tn11218535": {}, 
+"Tn11218536": {}, 
+"Tn11218537": {}, 
+"Tn11218538": {}, 
+"Tn11218539": {
+"@otu": "Tl1422354"
+}, 
+"Tn11218540": {}, 
+"Tn11218541": {}, 
+"Tn11218542": {
+"@otu": "Tl1422363"
+}, 
+"Tn11218543": {
+"@otu": "Tl1422314"
+}, 
+"Tn11218544": {
+"@otu": "Tl1422305"
+}, 
+"Tn11218545": {}, 
+"Tn11218546": {}, 
+"Tn11218547": {}, 
+"Tn11218548": {
+"@otu": "Tl1422380"
+}, 
+"Tn11218549": {
+"@otu": "Tl1422296"
+}, 
+"Tn11218550": {
+"@otu": "Tl1422340"
+}, 
+"Tn11218551": {}, 
+"Tn11218552": {
+"@otu": "Tl1422343"
+}, 
+"Tn11218553": {
+"@otu": "Tl1422350"
+}, 
+"Tn11218554": {
+"@otu": "Tl1422338"
+}, 
+"Tn11218555": {
+"@otu": "Tl1422384"
+}, 
+"Tn11218556": {
+"@otu": "Tl1422377"
+}, 
+"Tn11218557": {}, 
+"Tn11218558": {
+"@otu": "Tl1422348"
+}
+}
+}, 
+"Tr71734": {
+"@label": "Fig. 4", 
+"@xsi:type": "nex:FloatTree", 
+"^ot:rootNodeId": "Tn11218630", 
+"^tb:kind.tree": "Species Tree", 
+"^tb:ntax.tree": 65, 
+"^tb:quality.tree": "Unrated", 
+"^tb:type.tree": "Single", 
+"edgeBySourceId": {
+"Tn11218561": {
+"edge144362": {
+"@length": 0.14128999, 
+"@source": "Tn11218561", 
+"@target": "Tn11218614"
+}, 
+"edge144364": {
+"@length": 0.03732203, 
+"@source": "Tn11218561", 
+"@target": "Tn11218633"
+}
+}, 
+"Tn11218562": {
+"edge144308": {
+"@length": 0.01412959, 
+"@source": "Tn11218562", 
+"@target": "Tn11218665"
+}, 
+"edge144314": {
+"@length": 0.0059669, 
+"@source": "Tn11218562", 
+"@target": "Tn11218625"
+}
+}, 
+"Tn11218565": {
+"edge144278": {
+"@length": 0.02935828, 
+"@source": "Tn11218565", 
+"@target": "Tn11218649"
+}, 
+"edge144284": {
+"@length": 0.03196665, 
+"@source": "Tn11218565", 
+"@target": "Tn11218637"
+}
+}, 
+"Tn11218567": {
+"edge144460": {
+"@length": 0.04963779, 
+"@source": "Tn11218567", 
+"@target": "Tn11218660"
+}, 
+"edge144462": {
+"@length": 0.00540081, 
+"@source": "Tn11218567", 
+"@target": "Tn11218584"
+}
+}, 
+"Tn11218570": {
+"edge144350": {
+"@length": 0.01208442, 
+"@source": "Tn11218570", 
+"@target": "Tn11218573"
+}, 
+"edge144356": {
+"@length": 0.00934856, 
+"@source": "Tn11218570", 
+"@target": "Tn11218615"
+}
+}, 
+"Tn11218573": {
+"edge144352": {
+"@length": 0.11742083, 
+"@source": "Tn11218573", 
+"@target": "Tn11218599"
+}, 
+"edge144354": {
+"@length": 0.06449236, 
+"@source": "Tn11218573", 
+"@target": "Tn11218587"
+}
+}, 
+"Tn11218574": {
+"edge144320": {
+"@length": 0.01961638, 
+"@source": "Tn11218574", 
+"@target": "Tn11218661"
+}, 
+"edge144326": {
+"@length": 0.01003781, 
+"@source": "Tn11218574", 
+"@target": "Tn11218675"
+}
+}, 
+"Tn11218575": {
+"edge144456": {
+"@length": 0.0390782, 
+"@source": "Tn11218575", 
+"@target": "Tn11218600"
+}, 
+"edge144458": {
+"@length": 0.01087923, 
+"@source": "Tn11218575", 
+"@target": "Tn11218567"
+}
+}, 
+"Tn11218577": {
+"edge144258": {
+"@length": 0.05921154, 
+"@source": "Tn11218577", 
+"@target": "Tn11218645"
+}, 
+"edge144264": {
+"@length": 0.01732892, 
+"@source": "Tn11218577", 
+"@target": "Tn11218580"
+}
+}, 
+"Tn11218578": {
+"edge144244": {
+"@length": 0.01397457, 
+"@source": "Tn11218578", 
+"@target": "Tn11218678"
+}, 
+"edge144290": {
+"@length": 0.01250226, 
+"@source": "Tn11218578", 
+"@target": "Tn11218629"
+}
+}, 
+"Tn11218580": {
+"edge144266": {
+"@length": 0.07356952, 
+"@source": "Tn11218580", 
+"@target": "Tn11218653"
+}, 
+"edge144276": {
+"@length": 0.01104227, 
+"@source": "Tn11218580", 
+"@target": "Tn11218565"
+}
+}, 
+"Tn11218583": {
+"edge144296": {
+"@length": 0.26959202, 
+"@source": "Tn11218583", 
+"@target": "Tn11218594"
+}, 
+"edge144298": {
+"@length": 0.06679002, 
+"@source": "Tn11218583", 
+"@target": "Tn11218677"
+}
+}, 
+"Tn11218584": {
+"edge144464": {
+"@length": 0.03433442, 
+"@source": "Tn11218584", 
+"@target": "Tn11218560"
+}, 
+"edge144466": {
+"@length": 0.00589417, 
+"@source": "Tn11218584", 
+"@target": "Tn11218623"
+}
+}, 
+"Tn11218585": {
+"edge144414": {
+"@length": 0.03573009, 
+"@source": "Tn11218585", 
+"@target": "Tn11218582"
+}, 
+"edge144416": {
+"@length": 0.02789715, 
+"@source": "Tn11218585", 
+"@target": "Tn11218602"
+}
+}, 
+"Tn11218589": {
+"edge144230": {
+"@length": 0.14418285, 
+"@source": "Tn11218589", 
+"@target": "Tn11218666"
+}, 
+"edge144232": {
+"@length": 0.22679694, 
+"@source": "Tn11218589", 
+"@target": "Tn11218598"
+}
+}, 
+"Tn11218590": {
+"edge144272": {
+"@length": 0.05110104, 
+"@source": "Tn11218590", 
+"@target": "Tn11218586"
+}, 
+"edge144274": {
+"@length": 0.0669838, 
+"@source": "Tn11218590", 
+"@target": "Tn11218626"
+}
+}, 
+"Tn11218592": {
+"edge144406": {
+"@length": 0.01665735, 
+"@source": "Tn11218592", 
+"@target": "Tn11218620"
+}, 
+"edge144412": {
+"@length": 0.01068774, 
+"@source": "Tn11218592", 
+"@target": "Tn11218585"
+}
+}, 
+"Tn11218595": {
+"edge144238": {
+"@length": 0.18950996, 
+"@source": "Tn11218595", 
+"@target": "Tn11218679"
+}, 
+"edge144240": {
+"@length": 0.16805441, 
+"@source": "Tn11218595", 
+"@target": "Tn11218607"
+}
+}, 
+"Tn11218597": {
+"edge144376": {
+"@length": 0.01836313, 
+"@source": "Tn11218597", 
+"@target": "Tn11218613"
+}, 
+"edge144390": {
+"@length": 0.01130473, 
+"@source": "Tn11218597", 
+"@target": "Tn11218663"
+}
+}, 
+"Tn11218603": {
+"edge144302": {
+"@length": 0.19515507, 
+"@source": "Tn11218603", 
+"@target": "Tn11218635"
+}, 
+"edge144304": {
+"@length": 0.13825643, 
+"@source": "Tn11218603", 
+"@target": "Tn11218674"
+}
+}, 
+"Tn11218606": {
+"edge144472": {
+"@length": 0.06552169, 
+"@source": "Tn11218606", 
+"@target": "Tn11218564"
+}, 
+"edge144474": {
+"@length": 0.02351268, 
+"@source": "Tn11218606", 
+"@target": "Tn11218636"
+}
+}, 
+"Tn11218608": {
+"edge144224": {
+"@length": 0.20386067, 
+"@source": "Tn11218608", 
+"@target": "Tn11218670"
+}, 
+"edge144226": {
+"@length": 0.04891679, 
+"@source": "Tn11218608", 
+"@target": "Tn11218656"
+}
+}, 
+"Tn11218609": {
+"edge144252": {
+"@length": 0.07020781, 
+"@source": "Tn11218609", 
+"@target": "Tn11218604"
+}, 
+"edge144254": {
+"@length": 0.17000925, 
+"@source": "Tn11218609", 
+"@target": "Tn11218632"
+}
+}, 
+"Tn11218613": {
+"edge144378": {
+"@length": 0.01018557, 
+"@source": "Tn11218613", 
+"@target": "Tn11218659"
+}, 
+"edge144384": {
+"@length": 0.03024894, 
+"@source": "Tn11218613", 
+"@target": "Tn11218658"
+}
+}, 
+"Tn11218615": {
+"edge144358": {
+"@length": 0.0680661, 
+"@source": "Tn11218615", 
+"@target": "Tn11218559"
+}, 
+"edge144360": {
+"@length": 0.10678468, 
+"@source": "Tn11218615", 
+"@target": "Tn11218561"
+}
+}, 
+"Tn11218616": {
+"edge144340": {
+"@length": 0.01155051, 
+"@source": "Tn11218616", 
+"@target": "Tn11218576"
+}, 
+"edge144342": {
+"@length": 0.00325121, 
+"@source": "Tn11218616", 
+"@target": "Tn11218638"
+}
+}, 
+"Tn11218618": {
+"edge144334": {
+"@length": 0.04938178, 
+"@source": "Tn11218618", 
+"@target": "Tn11218619"
+}, 
+"edge144336": {
+"@length": 0.03845394, 
+"@source": "Tn11218618", 
+"@target": "Tn11218611"
+}
+}, 
+"Tn11218620": {
+"edge144408": {
+"@length": 0.01785818, 
+"@source": "Tn11218620", 
+"@target": "Tn11218650"
+}, 
+"edge144410": {
+"@length": 0.0139611, 
+"@source": "Tn11218620", 
+"@target": "Tn11218579"
+}
+}, 
+"Tn11218621": {
+"edge144428": {
+"@length": 0.00182654, 
+"@source": "Tn11218621", 
+"@target": "Tn11218676"
+}, 
+"edge144430": {
+"@length": 0.00098841, 
+"@source": "Tn11218621", 
+"@target": "Tn11218627"
+}
+}, 
+"Tn11218622": {
+"edge144442": {
+"@length": 1e-08, 
+"@source": "Tn11218622", 
+"@target": "Tn11218657"
+}, 
+"edge144444": {
+"@length": 1e-08, 
+"@source": "Tn11218622", 
+"@target": "Tn11218563"
+}
+}, 
+"Tn11218623": {
+"edge144468": {
+"@length": 0.01982311, 
+"@source": "Tn11218623", 
+"@target": "Tn11218568"
+}, 
+"edge144470": {
+"@length": 0.00356938, 
+"@source": "Tn11218623", 
+"@target": "Tn11218606"
+}
+}, 
+"Tn11218625": {
+"edge144316": {
+"@length": 0.18681986, 
+"@source": "Tn11218625", 
+"@target": "Tn11218566"
+}, 
+"edge144318": {
+"@length": 0.00708465, 
+"@source": "Tn11218625", 
+"@target": "Tn11218574"
+}
+}, 
+"Tn11218627": {
+"edge144432": {
+"@length": 1e-08, 
+"@source": "Tn11218627", 
+"@target": "Tn11218680"
+}, 
+"edge144434": {
+"@length": 1e-08, 
+"@source": "Tn11218627", 
+"@target": "Tn11218685"
+}
+}, 
+"Tn11218629": {
+"edge144292": {
+"@length": 0.02101863, 
+"@source": "Tn11218629", 
+"@target": "Tn11218655"
+}, 
+"edge144306": {
+"@length": 0.03262512, 
+"@source": "Tn11218629", 
+"@target": "Tn11218562"
+}
+}, 
+"Tn11218630": {
+"edge144220": {
+"@length": 0.07669146, 
+"@source": "Tn11218630", 
+"@target": "Tn11218687"
+}, 
+"edge144222": {
+"@length": 0.07669146, 
+"@source": "Tn11218630", 
+"@target": "Tn11218608"
+}
+}, 
+"Tn11218633": {
+"edge144366": {
+"@length": 0.09717996, 
+"@source": "Tn11218633", 
+"@target": "Tn11218624"
+}, 
+"edge144368": {
+"@length": 0.01392183, 
+"@source": "Tn11218633", 
+"@target": "Tn11218682"
+}
+}, 
+"Tn11218637": {
+"edge144286": {
+"@length": 0.23255088, 
+"@source": "Tn11218637", 
+"@target": "Tn11218681"
+}, 
+"edge144288": {
+"@length": 0.15144733, 
+"@source": "Tn11218637", 
+"@target": "Tn11218662"
+}
+}, 
+"Tn11218638": {
+"edge144344": {
+"@length": 0.01583822, 
+"@source": "Tn11218638", 
+"@target": "Tn11218612"
+}, 
+"edge144346": {
+"@length": 0.00531657, 
+"@source": "Tn11218638", 
+"@target": "Tn11218588"
+}
+}, 
+"Tn11218640": {
+"edge144402": {
+"@length": 0.03156529, 
+"@source": "Tn11218640", 
+"@target": "Tn11218591"
+}, 
+"edge144404": {
+"@length": 0.00823572, 
+"@source": "Tn11218640", 
+"@target": "Tn11218592"
+}
+}, 
+"Tn11218642": {
+"edge144248": {
+"@length": 0.11209296, 
+"@source": "Tn11218642", 
+"@target": "Tn11218601"
+}, 
+"edge144250": {
+"@length": 0.03431433, 
+"@source": "Tn11218642", 
+"@target": "Tn11218609"
+}
+}, 
+"Tn11218643": {
+"edge144236": {
+"@length": 0.08600722, 
+"@source": "Tn11218643", 
+"@target": "Tn11218595"
+}, 
+"edge144242": {
+"@length": 0.02499302, 
+"@source": "Tn11218643", 
+"@target": "Tn11218578"
+}
+}, 
+"Tn11218645": {
+"edge144260": {
+"@length": 0.08337192, 
+"@source": "Tn11218645", 
+"@target": "Tn11218569"
+}, 
+"edge144262": {
+"@length": 0.06757422, 
+"@source": "Tn11218645", 
+"@target": "Tn11218581"
+}
+}, 
+"Tn11218646": {
+"edge144448": {
+"@length": 0.05123491, 
+"@source": "Tn11218646", 
+"@target": "Tn11218617"
+}, 
+"edge144450": {
+"@length": 0.00280295, 
+"@source": "Tn11218646", 
+"@target": "Tn11218651"
+}
+}, 
+"Tn11218647": {
+"edge144438": {
+"@length": 0.02119414, 
+"@source": "Tn11218647", 
+"@target": "Tn11218610"
+}, 
+"edge144440": {
+"@length": 0.02095621, 
+"@source": "Tn11218647", 
+"@target": "Tn11218622"
+}
+}, 
+"Tn11218648": {
+"edge144424": {
+"@length": 0.02576092, 
+"@source": "Tn11218648", 
+"@target": "Tn11218686"
+}, 
+"edge144446": {
+"@length": 0.01245818, 
+"@source": "Tn11218648", 
+"@target": "Tn11218646"
+}
+}, 
+"Tn11218649": {
+"edge144280": {
+"@length": 0.08689599, 
+"@source": "Tn11218649", 
+"@target": "Tn11218641"
+}, 
+"edge144282": {
+"@length": 0.17780207, 
+"@source": "Tn11218649", 
+"@target": "Tn11218639"
+}
+}, 
+"Tn11218651": {
+"edge144452": {
+"@length": 0.03868753, 
+"@source": "Tn11218651", 
+"@target": "Tn11218668"
+}, 
+"edge144454": {
+"@length": 0.00870165, 
+"@source": "Tn11218651", 
+"@target": "Tn11218575"
+}
+}, 
+"Tn11218652": {
+"edge144420": {
+"@length": 0.08526128, 
+"@source": "Tn11218652", 
+"@target": "Tn11218684"
+}, 
+"edge144422": {
+"@length": 0.01306437, 
+"@source": "Tn11218652", 
+"@target": "Tn11218648"
+}
+}, 
+"Tn11218653": {
+"edge144268": {
+"@length": 0.1417493, 
+"@source": "Tn11218653", 
+"@target": "Tn11218596"
+}, 
+"edge144270": {
+"@length": 0.04466341, 
+"@source": "Tn11218653", 
+"@target": "Tn11218590"
+}
+}, 
+"Tn11218654": {
+"edge144332": {
+"@length": 0.01638934, 
+"@source": "Tn11218654", 
+"@target": "Tn11218618"
+}, 
+"edge144338": {
+"@length": 0.03561998, 
+"@source": "Tn11218654", 
+"@target": "Tn11218616"
+}
+}, 
+"Tn11218655": {
+"edge144294": {
+"@length": 0.02150864, 
+"@source": "Tn11218655", 
+"@target": "Tn11218583"
+}, 
+"edge144300": {
+"@length": 0.01725611, 
+"@source": "Tn11218655", 
+"@target": "Tn11218603"
+}
+}, 
+"Tn11218656": {
+"edge144228": {
+"@length": 0.02206402, 
+"@source": "Tn11218656", 
+"@target": "Tn11218589"
+}, 
+"edge144234": {
+"@length": 0.02458711, 
+"@source": "Tn11218656", 
+"@target": "Tn11218643"
+}
+}, 
+"Tn11218658": {
+"edge144386": {
+"@length": 0.02744558, 
+"@source": "Tn11218658", 
+"@target": "Tn11218631"
+}, 
+"edge144388": {
+"@length": 0.02826853, 
+"@source": "Tn11218658", 
+"@target": "Tn11218683"
+}
+}, 
+"Tn11218659": {
+"edge144380": {
+"@length": 0.05677868, 
+"@source": "Tn11218659", 
+"@target": "Tn11218644"
+}, 
+"edge144382": {
+"@length": 0.05200462, 
+"@source": "Tn11218659", 
+"@target": "Tn11218664"
+}
+}, 
+"Tn11218661": {
+"edge144322": {
+"@length": 0.19294451, 
+"@source": "Tn11218661", 
+"@target": "Tn11218628"
+}, 
+"edge144324": {
+"@length": 0.15753609, 
+"@source": "Tn11218661", 
+"@target": "Tn11218572"
+}
+}, 
+"Tn11218663": {
+"edge144392": {
+"@length": 0.0506566, 
+"@source": "Tn11218663", 
+"@target": "Tn11218672"
+}, 
+"edge144398": {
+"@length": 0.01082566, 
+"@source": "Tn11218663", 
+"@target": "Tn11218673"
+}
+}, 
+"Tn11218665": {
+"edge144310": {
+"@length": 0.17554698, 
+"@source": "Tn11218665", 
+"@target": "Tn11218605"
+}, 
+"edge144312": {
+"@length": 0.13819945, 
+"@source": "Tn11218665", 
+"@target": "Tn11218593"
+}
+}, 
+"Tn11218669": {
+"edge144330": {
+"@length": 0.07478157, 
+"@source": "Tn11218669", 
+"@target": "Tn11218654"
+}, 
+"edge144348": {
+"@length": 0.04845218, 
+"@source": "Tn11218669", 
+"@target": "Tn11218570"
+}
+}, 
+"Tn11218672": {
+"edge144394": {
+"@length": 0.01344763, 
+"@source": "Tn11218672", 
+"@target": "Tn11218671"
+}, 
+"edge144396": {
+"@length": 0.00576073, 
+"@source": "Tn11218672", 
+"@target": "Tn11218634"
+}
+}, 
+"Tn11218673": {
+"edge144400": {
+"@length": 0.02326322, 
+"@source": "Tn11218673", 
+"@target": "Tn11218640"
+}, 
+"edge144418": {
+"@length": 0.01079563, 
+"@source": "Tn11218673", 
+"@target": "Tn11218652"
+}
+}, 
+"Tn11218675": {
+"edge144328": {
+"@length": 0.00921041, 
+"@source": "Tn11218675", 
+"@target": "Tn11218669"
+}, 
+"edge144374": {
+"@length": 0.02633809, 
+"@source": "Tn11218675", 
+"@target": "Tn11218597"
+}
+}, 
+"Tn11218678": {
+"edge144246": {
+"@length": 0.05007523, 
+"@source": "Tn11218678", 
+"@target": "Tn11218642"
+}, 
+"edge144256": {
+"@length": 0.01701303, 
+"@source": "Tn11218678", 
+"@target": "Tn11218577"
+}
+}, 
+"Tn11218682": {
+"edge144370": {
+"@length": 0.08576407, 
+"@source": "Tn11218682", 
+"@target": "Tn11218571"
+}, 
+"edge144372": {
+"@length": 0.05385082, 
+"@source": "Tn11218682", 
+"@target": "Tn11218667"
+}
+}, 
+"Tn11218686": {
+"edge144426": {
+"@length": 0.04761821, 
+"@source": "Tn11218686", 
+"@target": "Tn11218621"
+}, 
+"edge144436": {
+"@length": 0.01188833, 
+"@source": "Tn11218686", 
+"@target": "Tn11218647"
+}
+}
+}, 
+"nodeById": {
+"Tn11218559": {
+"@otu": "Tl1422391"
+}, 
+"Tn11218560": {
+"@otu": "Tl1422371"
+}, 
+"Tn11218561": {}, 
+"Tn11218562": {}, 
+"Tn11218563": {
+"@otu": "Tl1422353"
+}, 
+"Tn11218564": {
+"@otu": "Tl1422297"
+}, 
+"Tn11218565": {}, 
+"Tn11218566": {
+"@otu": "Tl1422410"
+}, 
+"Tn11218567": {}, 
+"Tn11218568": {
+"@otu": "Tl1422315"
+}, 
+"Tn11218569": {
+"@otu": "Tl1422403"
+}, 
+"Tn11218570": {}, 
+"Tn11218571": {
+"@otu": "Tl1422336"
+}, 
+"Tn11218572": {
+"@otu": "Tl1422300"
+}, 
+"Tn11218573": {}, 
+"Tn11218574": {}, 
+"Tn11218575": {}, 
+"Tn11218576": {
+"@otu": "Tl1422380"
+}, 
+"Tn11218577": {}, 
+"Tn11218578": {}, 
+"Tn11218579": {
+"@otu": "Tl1422412"
+}, 
+"Tn11218580": {}, 
+"Tn11218581": {
+"@otu": "Tl1422411"
+}, 
+"Tn11218582": {
+"@otu": "Tl1422363"
+}, 
+"Tn11218583": {}, 
+"Tn11218584": {}, 
+"Tn11218585": {}, 
+"Tn11218586": {
+"@otu": "Tl1422415"
+}, 
+"Tn11218587": {
+"@otu": "Tl1422308"
+}, 
+"Tn11218588": {
+"@otu": "Tl1422381"
+}, 
+"Tn11218589": {}, 
+"Tn11218590": {}, 
+"Tn11218591": {
+"@otu": "Tl1422351"
+}, 
+"Tn11218592": {}, 
+"Tn11218593": {
+"@otu": "Tl1422418"
+}, 
+"Tn11218594": {
+"@otu": "Tl1422395"
+}, 
+"Tn11218595": {}, 
+"Tn11218596": {
+"@otu": "Tl1422402"
+}, 
+"Tn11218597": {}, 
+"Tn11218598": {
+"@otu": "Tl1422408"
+}, 
+"Tn11218599": {
+"@otu": "Tl1422356"
+}, 
+"Tn11218600": {
+"@otu": "Tl1422326"
+}, 
+"Tn11218601": {
+"@otu": "Tl1422405"
+}, 
+"Tn11218602": {
+"@otu": "Tl1422383"
+}, 
+"Tn11218603": {}, 
+"Tn11218604": {
+"@otu": "Tl1422401"
+}, 
+"Tn11218605": {
+"@otu": "Tl1422400"
+}, 
+"Tn11218606": {}, 
+"Tn11218607": {
+"@otu": "Tl1422406"
+}, 
+"Tn11218608": {}, 
+"Tn11218609": {}, 
+"Tn11218610": {
+"@otu": "Tl1422386"
+}, 
+"Tn11218611": {
+"@otu": "Tl1422359"
+}, 
+"Tn11218612": {
+"@otu": "Tl1422325"
+}, 
+"Tn11218613": {}, 
+"Tn11218614": {
+"@otu": "Tl1422340"
+}, 
+"Tn11218615": {}, 
+"Tn11218616": {}, 
+"Tn11218617": {
+"@otu": "Tl1422327"
+}, 
+"Tn11218618": {}, 
+"Tn11218619": {
+"@otu": "Tl1422382"
+}, 
+"Tn11218620": {}, 
+"Tn11218621": {}, 
+"Tn11218622": {}, 
+"Tn11218623": {}, 
+"Tn11218624": {
+"@otu": "Tl1422293"
+}, 
+"Tn11218625": {}, 
+"Tn11218626": {
+"@otu": "Tl1422420"
+}, 
+"Tn11218627": {}, 
+"Tn11218628": {
+"@otu": "Tl1422393"
+}, 
+"Tn11218629": {}, 
+"Tn11218630": {
+"@root": true
+}, 
+"Tn11218631": {
+"@otu": "Tl1422414"
+}, 
+"Tn11218632": {
+"@otu": "Tl1422398"
+}, 
+"Tn11218633": {}, 
+"Tn11218634": {
+"@otu": "Tl1422370"
+}, 
+"Tn11218635": {
+"@otu": "Tl1422416"
+}, 
+"Tn11218636": {
+"@otu": "Tl1422319"
+}, 
+"Tn11218637": {}, 
+"Tn11218638": {}, 
+"Tn11218639": {
+"@otu": "Tl1422394"
+}, 
+"Tn11218640": {}, 
+"Tn11218641": {
+"@otu": "Tl1422396"
+}, 
+"Tn11218642": {}, 
+"Tn11218643": {}, 
+"Tn11218644": {
+"@otu": "Tl1422366"
+}, 
+"Tn11218645": {}, 
+"Tn11218646": {}, 
+"Tn11218647": {}, 
+"Tn11218648": {}, 
+"Tn11218649": {}, 
+"Tn11218650": {
+"@otu": "Tl1422292"
+}, 
+"Tn11218651": {}, 
+"Tn11218652": {}, 
+"Tn11218653": {}, 
+"Tn11218654": {}, 
+"Tn11218655": {}, 
+"Tn11218656": {}, 
+"Tn11218657": {
+"@otu": "Tl1422311"
+}, 
+"Tn11218658": {}, 
+"Tn11218659": {}, 
+"Tn11218660": {
+"@otu": "Tl1422376"
+}, 
+"Tn11218661": {}, 
+"Tn11218662": {
+"@otu": "Tl1422388"
+}, 
+"Tn11218663": {}, 
+"Tn11218664": {
+"@otu": "Tl1422320"
+}, 
+"Tn11218665": {}, 
+"Tn11218666": {
+"@otu": "Tl1422419"
+}, 
+"Tn11218667": {
+"@otu": "Tl1422407"
+}, 
+"Tn11218668": {
+"@otu": "Tl1422312"
+}, 
+"Tn11218669": {}, 
+"Tn11218670": {
+"@otu": "Tl1422404"
+}, 
+"Tn11218671": {
+"@otu": "Tl1422337"
+}, 
+"Tn11218672": {}, 
+"Tn11218673": {}, 
+"Tn11218674": {
+"@otu": "Tl1422413"
+}, 
+"Tn11218675": {}, 
+"Tn11218676": {
+"@otu": "Tl1422373"
+}, 
+"Tn11218677": {
+"@otu": "Tl1422397"
+}, 
+"Tn11218678": {}, 
+"Tn11218679": {
+"@otu": "Tl1422409"
+}, 
+"Tn11218680": {
+"@otu": "Tl1422364"
+}, 
+"Tn11218681": {
+"@otu": "Tl1422417"
+}, 
+"Tn11218682": {}, 
+"Tn11218683": {
+"@otu": "Tl1422344"
+}, 
+"Tn11218684": {
+"@otu": "Tl1422399"
+}, 
+"Tn11218685": {
+"@otu": "Tl1422330"
+}, 
+"Tn11218686": {}, 
+"Tn11218687": {
+"@otu": "Tl1422421"
+}
+}
+}, 
+"Tr71735": {
+"@label": "Fig. 2", 
+"@xsi:type": "nex:FloatTree", 
+"^ot:rootNodeId": "Tn11218740", 
+"^tb:kind.tree": "Species Tree", 
+"^tb:ntax.tree": 82, 
+"^tb:quality.tree": "Unrated", 
+"^tb:type.tree": "Single", 
+"edgeBySourceId": {
+"Tn11218688": {
+"edge144166": {
+"@length": 0.00331561, 
+"@source": "Tn11218688", 
+"@target": "Tn11218735"
+}, 
+"edge144168": {
+"@length": 1e-08, 
+"@source": "Tn11218688", 
+"@target": "Tn11218746"
+}
+}, 
+"Tn11218690": {
+"edge143996": {
+"@length": 0.17287952, 
+"@source": "Tn11218690", 
+"@target": "Tn11218754"
+}, 
+"edge144002": {
+"@length": 0.03112098, 
+"@source": "Tn11218690", 
+"@target": "Tn11218780"
+}
+}, 
+"Tn11218691": {
+"edge144158": {
+"@length": 0.00168861, 
+"@source": "Tn11218691", 
+"@target": "Tn11218768"
+}, 
+"edge144164": {
+"@length": 0.00161857, 
+"@source": "Tn11218691", 
+"@target": "Tn11218688"
+}
+}, 
+"Tn11218696": {
+"edge144038": {
+"@length": 0.21996813, 
+"@source": "Tn11218696", 
+"@target": "Tn11218776"
+}, 
+"edge144040": {
+"@length": 0.02560172, 
+"@source": "Tn11218696", 
+"@target": "Tn11218765"
+}, 
+"edge144046": {
+"@length": 0.00574014, 
+"@source": "Tn11218696", 
+"@target": "Tn11218786"
+}
+}, 
+"Tn11218697": {
+"edge144192": {
+"@length": 1e-08, 
+"@source": "Tn11218697", 
+"@target": "Tn11218806"
+}, 
+"edge144194": {
+"@length": 0.00347749, 
+"@source": "Tn11218697", 
+"@target": "Tn11218798"
+}
+}, 
+"Tn11218699": {
+"edge144134": {
+"@length": 0.02012981, 
+"@source": "Tn11218699", 
+"@target": "Tn11218732"
+}, 
+"edge144156": {
+"@length": 0.01987364, 
+"@source": "Tn11218699", 
+"@target": "Tn11218691"
+}
+}, 
+"Tn11218702": {
+"edge143942": {
+"@length": 0.03654262, 
+"@source": "Tn11218702", 
+"@target": "Tn11218791"
+}, 
+"edge143944": {
+"@length": 0.07149577, 
+"@source": "Tn11218702", 
+"@target": "Tn11218832"
+}
+}, 
+"Tn11218703": {
+"edge144016": {
+"@length": 0.16751057, 
+"@source": "Tn11218703", 
+"@target": "Tn11218737"
+}, 
+"edge144018": {
+"@length": 0.11284939, 
+"@source": "Tn11218703", 
+"@target": "Tn11218719"
+}
+}, 
+"Tn11218704": {
+"edge144098": {
+"@length": 0.01177545, 
+"@source": "Tn11218704", 
+"@target": "Tn11218848"
+}, 
+"edge144120": {
+"@length": 0.00610749, 
+"@source": "Tn11218704", 
+"@target": "Tn11218706"
+}
+}, 
+"Tn11218706": {
+"edge144122": {
+"@length": 0.03733619, 
+"@source": "Tn11218706", 
+"@target": "Tn11218720"
+}, 
+"edge144128": {
+"@length": 0.00921683, 
+"@source": "Tn11218706", 
+"@target": "Tn11218739"
+}
+}, 
+"Tn11218707": {
+"edge143972": {
+"@length": 0.03460433, 
+"@source": "Tn11218707", 
+"@target": "Tn11218766"
+}, 
+"edge143978": {
+"@length": 0.0058496, 
+"@source": "Tn11218707", 
+"@target": "Tn11218743"
+}
+}, 
+"Tn11218708": {
+"edge144080": {
+"@length": 0.04639492, 
+"@source": "Tn11218708", 
+"@target": "Tn11218733"
+}, 
+"edge144082": {
+"@length": 0.14532801, 
+"@source": "Tn11218708", 
+"@target": "Tn11218800"
+}
+}, 
+"Tn11218712": {
+"edge143984": {
+"@length": 0.06077638, 
+"@source": "Tn11218712", 
+"@target": "Tn11218723"
+}, 
+"edge143994": {
+"@length": 0.02024881, 
+"@source": "Tn11218712", 
+"@target": "Tn11218690"
+}
+}, 
+"Tn11218713": {
+"edge144178": {
+"@length": 0.00165078, 
+"@source": "Tn11218713", 
+"@target": "Tn11218804"
+}, 
+"edge144184": {
+"@length": 0.00733232, 
+"@source": "Tn11218713", 
+"@target": "Tn11218845"
+}
+}, 
+"Tn11218718": {
+"edge144006": {
+"@length": 0.1651118, 
+"@source": "Tn11218718", 
+"@target": "Tn11218820"
+}, 
+"edge144008": {
+"@length": 0.16056495, 
+"@source": "Tn11218718", 
+"@target": "Tn11218837"
+}
+}, 
+"Tn11218720": {
+"edge144124": {
+"@length": 0.01017466, 
+"@source": "Tn11218720", 
+"@target": "Tn11218783"
+}, 
+"edge144126": {
+"@length": 0.00146413, 
+"@source": "Tn11218720", 
+"@target": "Tn11218830"
+}
+}, 
+"Tn11218722": {
+"edge143964": {
+"@length": 0.03571423, 
+"@source": "Tn11218722", 
+"@target": "Tn11218715"
+}, 
+"edge143966": {
+"@length": 0.1454295, 
+"@source": "Tn11218722", 
+"@target": "Tn11218749"
+}
+}, 
+"Tn11218723": {
+"edge143986": {
+"@length": 0.05752291, 
+"@source": "Tn11218723", 
+"@target": "Tn11218711"
+}, 
+"edge143988": {
+"@length": 0.03313791, 
+"@source": "Tn11218723", 
+"@target": "Tn11218789"
+}
+}, 
+"Tn11218724": {
+"edge144024": {
+"@length": 0.10827381, 
+"@source": "Tn11218724", 
+"@target": "Tn11218835"
+}, 
+"edge144026": {
+"@length": 0.01725897, 
+"@source": "Tn11218724", 
+"@target": "Tn11218816"
+}
+}, 
+"Tn11218725": {
+"edge143928": {
+"@length": 0.1778374, 
+"@source": "Tn11218725", 
+"@target": "Tn11218738"
+}, 
+"edge143938": {
+"@length": 0.0115445, 
+"@source": "Tn11218725", 
+"@target": "Tn11218726"
+}
+}, 
+"Tn11218726": {
+"edge143940": {
+"@length": 0.00496945, 
+"@source": "Tn11218726", 
+"@target": "Tn11218702"
+}, 
+"edge143946": {
+"@length": 0.03414014, 
+"@source": "Tn11218726", 
+"@target": "Tn11218790"
+}
+}, 
+"Tn11218727": {
+"edge144054": {
+"@length": 0.01216379, 
+"@source": "Tn11218727", 
+"@target": "Tn11218839"
+}, 
+"edge144060": {
+"@length": 0.02823419, 
+"@source": "Tn11218727", 
+"@target": "Tn11218779"
+}
+}, 
+"Tn11218728": {
+"edge144092": {
+"@length": 0.06609081, 
+"@source": "Tn11218728", 
+"@target": "Tn11218847"
+}, 
+"edge144094": {
+"@length": 0.01849638, 
+"@source": "Tn11218728", 
+"@target": "Tn11218756"
+}
+}, 
+"Tn11218729": {
+"edge144116": {
+"@length": 0.00783148, 
+"@source": "Tn11218729", 
+"@target": "Tn11218827"
+}, 
+"edge144118": {
+"@length": 0.00701049, 
+"@source": "Tn11218729", 
+"@target": "Tn11218787"
+}
+}, 
+"Tn11218732": {
+"edge144136": {
+"@length": 0.00649286, 
+"@source": "Tn11218732", 
+"@target": "Tn11218751"
+}, 
+"edge144138": {
+"@length": 0.00773652, 
+"@source": "Tn11218732", 
+"@target": "Tn11218778"
+}
+}, 
+"Tn11218734": {
+"edge144102": {
+"@length": 0.02489164, 
+"@source": "Tn11218734", 
+"@target": "Tn11218689"
+}, 
+"edge144104": {
+"@length": 0.02251495, 
+"@source": "Tn11218734", 
+"@target": "Tn11218803"
+}
+}, 
+"Tn11218736": {
+"edge143970": {
+"@length": 0.0170431, 
+"@source": "Tn11218736", 
+"@target": "Tn11218707"
+}, 
+"edge144020": {
+"@length": 0.03719913, 
+"@source": "Tn11218736", 
+"@target": "Tn11218755"
+}
+}, 
+"Tn11218738": {
+"edge143930": {
+"@length": 0.00504431, 
+"@source": "Tn11218738", 
+"@target": "Tn11218774"
+}, 
+"edge143932": {
+"@length": 0.0, 
+"@source": "Tn11218738", 
+"@target": "Tn11218813"
+}
+}, 
+"Tn11218739": {
+"edge144130": {
+"@length": 0.06155871, 
+"@source": "Tn11218739", 
+"@target": "Tn11218817"
+}, 
+"edge144132": {
+"@length": 0.00533219, 
+"@source": "Tn11218739", 
+"@target": "Tn11218699"
+}
+}, 
+"Tn11218740": {
+"edge143890": {
+"@length": 0.32213681, 
+"@source": "Tn11218740", 
+"@target": "Tn11218821"
+}, 
+"edge143892": {
+"@length": 0.32213681, 
+"@source": "Tn11218740", 
+"@target": "Tn11218838"
+}
+}, 
+"Tn11218743": {
+"edge143980": {
+"@length": 0.21264015, 
+"@source": "Tn11218743", 
+"@target": "Tn11218793"
+}, 
+"edge143982": {
+"@length": 0.00509976, 
+"@source": "Tn11218743", 
+"@target": "Tn11218712"
+}
+}, 
+"Tn11218746": {
+"edge144170": {
+"@length": 1e-08, 
+"@source": "Tn11218746", 
+"@target": "Tn11218810"
+}, 
+"edge144172": {
+"@length": 0.00164296, 
+"@source": "Tn11218746", 
+"@target": "Tn11218752"
+}
+}, 
+"Tn11218748": {
+"edge143956": {
+"@length": 0.22609509, 
+"@source": "Tn11218748", 
+"@target": "Tn11218700"
+}, 
+"edge143958": {
+"@length": 0.04348691, 
+"@source": "Tn11218748", 
+"@target": "Tn11218833"
+}
+}, 
+"Tn11218750": {
+"edge143896": {
+"@length": 0.03415772, 
+"@source": "Tn11218750", 
+"@target": "Tn11218701"
+}, 
+"edge143898": {
+"@length": 0.02331016, 
+"@source": "Tn11218750", 
+"@target": "Tn11218846"
+}
+}, 
+"Tn11218752": {
+"edge144174": {
+"@length": 1e-08, 
+"@source": "Tn11218752", 
+"@target": "Tn11218769"
+}, 
+"edge144176": {
+"@length": 1e-08, 
+"@source": "Tn11218752", 
+"@target": "Tn11218713"
+}
+}, 
+"Tn11218754": {
+"edge143998": {
+"@length": 0.14690207, 
+"@source": "Tn11218754", 
+"@target": "Tn11218836"
+}, 
+"edge144000": {
+"@length": 0.11885763, 
+"@source": "Tn11218754", 
+"@target": "Tn11218814"
+}
+}, 
+"Tn11218755": {
+"edge144022": {
+"@length": 0.06825492, 
+"@source": "Tn11218755", 
+"@target": "Tn11218724"
+}, 
+"edge144032": {
+"@length": 0.01012087, 
+"@source": "Tn11218755", 
+"@target": "Tn11218775"
+}
+}, 
+"Tn11218758": {
+"edge144012": {
+"@length": 0.11097541, 
+"@source": "Tn11218758", 
+"@target": "Tn11218747"
+}, 
+"edge144014": {
+"@length": 0.14317134, 
+"@source": "Tn11218758", 
+"@target": "Tn11218703"
+}
+}, 
+"Tn11218761": {
+"edge144052": {
+"@length": 0.08823908, 
+"@source": "Tn11218761", 
+"@target": "Tn11218727"
+}, 
+"edge144068": {
+"@length": 0.00302878, 
+"@source": "Tn11218761", 
+"@target": "Tn11218828"
+}
+}, 
+"Tn11218763": {
+"edge144072": {
+"@length": 0.01739901, 
+"@source": "Tn11218763", 
+"@target": "Tn11218831"
+}, 
+"edge144078": {
+"@length": 0.01332293, 
+"@source": "Tn11218763", 
+"@target": "Tn11218708"
+}
+}, 
+"Tn11218764": {
+"edge144206": {
+"@length": 1e-08, 
+"@source": "Tn11218764", 
+"@target": "Tn11218721"
+}, 
+"edge144208": {
+"@length": 1e-08, 
+"@source": "Tn11218764", 
+"@target": "Tn11218744"
+}
+}, 
+"Tn11218765": {
+"edge144042": {
+"@length": 0.43289456, 
+"@source": "Tn11218765", 
+"@target": "Tn11218692"
+}, 
+"edge144044": {
+"@length": 0.10541516, 
+"@source": "Tn11218765", 
+"@target": "Tn11218824"
+}
+}, 
+"Tn11218766": {
+"edge143974": {
+"@length": 0.18450552, 
+"@source": "Tn11218766", 
+"@target": "Tn11218762"
+}, 
+"edge143976": {
+"@length": 0.04225949, 
+"@source": "Tn11218766", 
+"@target": "Tn11218842"
+}
+}, 
+"Tn11218768": {
+"edge144160": {
+"@length": 1e-08, 
+"@source": "Tn11218768", 
+"@target": "Tn11218782"
+}, 
+"edge144162": {
+"@length": 0.00497922, 
+"@source": "Tn11218768", 
+"@target": "Tn11218714"
+}
+}, 
+"Tn11218773": {
+"edge144144": {
+"@length": 0.00890907, 
+"@source": "Tn11218773", 
+"@target": "Tn11218777"
+}, 
+"edge144146": {
+"@length": 0.00357197, 
+"@source": "Tn11218773", 
+"@target": "Tn11218781"
+}
+}, 
+"Tn11218775": {
+"edge144034": {
+"@length": 0.25665635, 
+"@source": "Tn11218775", 
+"@target": "Tn11218808"
+}, 
+"edge144036": {
+"@length": 0.0091299, 
+"@source": "Tn11218775", 
+"@target": "Tn11218696"
+}
+}, 
+"Tn11218778": {
+"edge144140": {
+"@length": 0.00963677, 
+"@source": "Tn11218778", 
+"@target": "Tn11218695"
+}, 
+"edge144142": {
+"@length": 0.0, 
+"@source": "Tn11218778", 
+"@target": "Tn11218773"
+}
+}, 
+"Tn11218779": {
+"edge144062": {
+"@length": 1e-08, 
+"@source": "Tn11218779", 
+"@target": "Tn11218792"
+}, 
+"edge144064": {
+"@length": 0.001677, 
+"@source": "Tn11218779", 
+"@target": "Tn11218745"
+}, 
+"edge144066": {
+"@length": 0.00167328, 
+"@source": "Tn11218779", 
+"@target": "Tn11218742"
+}
+}, 
+"Tn11218780": {
+"edge144004": {
+"@length": 0.08107243, 
+"@source": "Tn11218780", 
+"@target": "Tn11218718"
+}, 
+"edge144010": {
+"@length": 0.0378972, 
+"@source": "Tn11218780", 
+"@target": "Tn11218758"
+}
+}, 
+"Tn11218781": {
+"edge144148": {
+"@length": 0.00439401, 
+"@source": "Tn11218781", 
+"@target": "Tn11218698"
+}, 
+"edge144150": {
+"@length": 0.00229822, 
+"@source": "Tn11218781", 
+"@target": "Tn11218801"
+}
+}, 
+"Tn11218786": {
+"edge144048": {
+"@length": 0.15016433, 
+"@source": "Tn11218786", 
+"@target": "Tn11218760"
+}, 
+"edge144050": {
+"@length": 0.00832834, 
+"@source": "Tn11218786", 
+"@target": "Tn11218761"
+}
+}, 
+"Tn11218789": {
+"edge143990": {
+"@length": 0.03118985, 
+"@source": "Tn11218789", 
+"@target": "Tn11218794"
+}, 
+"edge143992": {
+"@length": 0.00408953, 
+"@source": "Tn11218789", 
+"@target": "Tn11218784"
+}
+}, 
+"Tn11218790": {
+"edge143948": {
+"@length": 0.18399676, 
+"@source": "Tn11218790", 
+"@target": "Tn11218815"
+}, 
+"edge143950": {
+"@length": 0.1223391, 
+"@source": "Tn11218790", 
+"@target": "Tn11218759"
+}
+}, 
+"Tn11218796": {
+"edge144202": {
+"@length": 0.00174509, 
+"@source": "Tn11218796", 
+"@target": "Tn11218730"
+}, 
+"edge144204": {
+"@length": 0.00174796, 
+"@source": "Tn11218796", 
+"@target": "Tn11218764"
+}
+}, 
+"Tn11218797": {
+"edge143904": {
+"@length": 0.02749752, 
+"@source": "Tn11218797", 
+"@target": "Tn11218717"
+}, 
+"edge143906": {
+"@length": 0.02249159, 
+"@source": "Tn11218797", 
+"@target": "Tn11218716"
+}
+}, 
+"Tn11218798": {
+"edge144196": {
+"@length": 1e-08, 
+"@source": "Tn11218798", 
+"@target": "Tn11218709"
+}, 
+"edge144198": {
+"@length": 1e-08, 
+"@source": "Tn11218798", 
+"@target": "Tn11218753"
+}
+}, 
+"Tn11218800": {
+"edge144084": {
+"@length": 0.19148194, 
+"@source": "Tn11218800", 
+"@target": "Tn11218843"
+}, 
+"edge144086": {
+"@length": 0.05001917, 
+"@source": "Tn11218800", 
+"@target": "Tn11218826"
+}
+}, 
+"Tn11218801": {
+"edge144152": {
+"@length": 1e-08, 
+"@source": "Tn11218801", 
+"@target": "Tn11218693"
+}, 
+"edge144154": {
+"@length": 1e-08, 
+"@source": "Tn11218801", 
+"@target": "Tn11218822"
+}
+}, 
+"Tn11218803": {
+"edge144106": {
+"@length": 0.00599934, 
+"@source": "Tn11218803", 
+"@target": "Tn11218809"
+}, 
+"edge144108": {
+"@length": 0.01316168, 
+"@source": "Tn11218803", 
+"@target": "Tn11218770"
+}
+}, 
+"Tn11218804": {
+"edge144180": {
+"@length": 0.0016516, 
+"@source": "Tn11218804", 
+"@target": "Tn11218802"
+}, 
+"edge144182": {
+"@length": 1e-08, 
+"@source": "Tn11218804", 
+"@target": "Tn11218767"
+}
+}, 
+"Tn11218805": {
+"edge143954": {
+"@length": 0.02973009, 
+"@source": "Tn11218805", 
+"@target": "Tn11218748"
+}, 
+"edge143968": {
+"@length": 0.04397961, 
+"@source": "Tn11218805", 
+"@target": "Tn11218736"
+}
+}, 
+"Tn11218807": {
+"edge143922": {
+"@length": 1e-08, 
+"@source": "Tn11218807", 
+"@target": "Tn11218799"
+}, 
+"edge143924": {
+"@length": 0.01176223, 
+"@source": "Tn11218807", 
+"@target": "Tn11218757"
+}
+}, 
+"Tn11218811": {
+"edge144112": {
+"@length": 0.00616451, 
+"@source": "Tn11218811", 
+"@target": "Tn11218825"
+}, 
+"edge144114": {
+"@length": 0.00555863, 
+"@source": "Tn11218811", 
+"@target": "Tn11218729"
+}
+}, 
+"Tn11218812": {
+"edge143912": {
+"@length": 0.08893696, 
+"@source": "Tn11218812", 
+"@target": "Tn11218819"
+}, 
+"edge143926": {
+"@length": 0.02537266, 
+"@source": "Tn11218812", 
+"@target": "Tn11218725"
+}
+}, 
+"Tn11218813": {
+"edge143934": {
+"@length": 1e-08, 
+"@source": "Tn11218813", 
+"@target": "Tn11218841"
+}, 
+"edge143936": {
+"@length": 1e-08, 
+"@source": "Tn11218813", 
+"@target": "Tn11218844"
+}
+}, 
+"Tn11218816": {
+"edge144028": {
+"@length": 0.02949089, 
+"@source": "Tn11218816", 
+"@target": "Tn11218741"
+}, 
+"edge144030": {
+"@length": 0.054142, 
+"@source": "Tn11218816", 
+"@target": "Tn11218795"
+}
+}, 
+"Tn11218819": {
+"edge143914": {
+"@length": 0.0602062, 
+"@source": "Tn11218819", 
+"@target": "Tn11218840"
+}, 
+"edge143916": {
+"@length": 0.03338791, 
+"@source": "Tn11218819", 
+"@target": "Tn11218834"
+}
+}, 
+"Tn11218823": {
+"edge144190": {
+"@length": 0.00997099, 
+"@source": "Tn11218823", 
+"@target": "Tn11218697"
+}, 
+"edge144200": {
+"@length": 0.01002765, 
+"@source": "Tn11218823", 
+"@target": "Tn11218796"
+}
+}, 
+"Tn11218826": {
+"edge144088": {
+"@length": 0.08928496, 
+"@source": "Tn11218826", 
+"@target": "Tn11218710"
+}, 
+"edge144090": {
+"@length": 0.01868868, 
+"@source": "Tn11218826", 
+"@target": "Tn11218728"
+}
+}, 
+"Tn11218828": {
+"edge144070": {
+"@length": 0.06998648, 
+"@source": "Tn11218828", 
+"@target": "Tn11218763"
+}, 
+"edge144096": {
+"@length": 0.02000824, 
+"@source": "Tn11218828", 
+"@target": "Tn11218704"
+}
+}, 
+"Tn11218829": {
+"edge143910": {
+"@length": 0.02018922, 
+"@source": "Tn11218829", 
+"@target": "Tn11218812"
+}, 
+"edge143952": {
+"@length": 0.02785003, 
+"@source": "Tn11218829", 
+"@target": "Tn11218805"
+}
+}, 
+"Tn11218831": {
+"edge144074": {
+"@length": 0.10381344, 
+"@source": "Tn11218831", 
+"@target": "Tn11218788"
+}, 
+"edge144076": {
+"@length": 0.05502408, 
+"@source": "Tn11218831", 
+"@target": "Tn11218785"
+}
+}, 
+"Tn11218833": {
+"edge143960": {
+"@length": 0.10455923, 
+"@source": "Tn11218833", 
+"@target": "Tn11218772"
+}, 
+"edge143962": {
+"@length": 0.02395872, 
+"@source": "Tn11218833", 
+"@target": "Tn11218722"
+}
+}, 
+"Tn11218834": {
+"edge143918": {
+"@length": 0.02030158, 
+"@source": "Tn11218834", 
+"@target": "Tn11218818"
+}, 
+"edge143920": {
+"@length": 0.02703287, 
+"@source": "Tn11218834", 
+"@target": "Tn11218807"
+}
+}, 
+"Tn11218838": {
+"edge143894": {
+"@length": 0.0275719, 
+"@source": "Tn11218838", 
+"@target": "Tn11218750"
+}, 
+"edge143908": {
+"@length": 0.03601321, 
+"@source": "Tn11218838", 
+"@target": "Tn11218829"
+}
+}, 
+"Tn11218839": {
+"edge144056": {
+"@length": 0.02526266, 
+"@source": "Tn11218839", 
+"@target": "Tn11218771"
+}, 
+"edge144058": {
+"@length": 0.01965776, 
+"@source": "Tn11218839", 
+"@target": "Tn11218694"
+}
+}, 
+"Tn11218845": {
+"edge144186": {
+"@length": 0.01718588, 
+"@source": "Tn11218845", 
+"@target": "Tn11218731"
+}, 
+"edge144188": {
+"@length": 0.00686742, 
+"@source": "Tn11218845", 
+"@target": "Tn11218823"
+}
+}, 
+"Tn11218846": {
+"edge143900": {
+"@length": 0.03462295, 
+"@source": "Tn11218846", 
+"@target": "Tn11218705"
+}, 
+"edge143902": {
+"@length": 0.04314836, 
+"@source": "Tn11218846", 
+"@target": "Tn11218797"
+}
+}, 
+"Tn11218848": {
+"edge144100": {
+"@length": 0.00515035, 
+"@source": "Tn11218848", 
+"@target": "Tn11218734"
+}, 
+"edge144110": {
+"@length": 0.02402686, 
+"@source": "Tn11218848", 
+"@target": "Tn11218811"
+}
+}
+}, 
+"nodeById": {
+"Tn11218688": {}, 
+"Tn11218689": {
+"@otu": "Tl1422440"
+}, 
+"Tn11218690": {}, 
+"Tn11218691": {}, 
+"Tn11218692": {
+"@otu": "Tl1422432"
+}, 
+"Tn11218693": {
+"@otu": "Tl1422292"
+}, 
+"Tn11218694": {
+"@otu": "Tl1422469"
+}, 
+"Tn11218695": {
+"@otu": "Tl1422441"
+}, 
+"Tn11218696": {}, 
+"Tn11218697": {}, 
+"Tn11218698": {
+"@otu": "Tl1422460"
+}, 
+"Tn11218699": {}, 
+"Tn11218700": {
+"@otu": "Tl1422454"
+}, 
+"Tn11218701": {
+"@otu": "Tl1422411"
+}, 
+"Tn11218702": {}, 
+"Tn11218703": {}, 
+"Tn11218704": {}, 
+"Tn11218705": {
+"@otu": "Tl1422437"
+}, 
+"Tn11218706": {}, 
+"Tn11218707": {}, 
+"Tn11218708": {}, 
+"Tn11218709": {
+"@otu": "Tl1422364"
+}, 
+"Tn11218710": {
+"@otu": "Tl1422434"
+}, 
+"Tn11218711": {
+"@otu": "Tl1422452"
+}, 
+"Tn11218712": {}, 
+"Tn11218713": {}, 
+"Tn11218714": {
+"@otu": "Tl1422453"
+}, 
+"Tn11218715": {
+"@otu": "Tl1422401"
+}, 
+"Tn11218716": {
+"@otu": "Tl1422439"
+}, 
+"Tn11218717": {
+"@otu": "Tl1422429"
+}, 
+"Tn11218718": {}, 
+"Tn11218719": {
+"@otu": "Tl1422424"
+}, 
+"Tn11218720": {}, 
+"Tn11218721": {
+"@otu": "Tl1422462"
+}, 
+"Tn11218722": {}, 
+"Tn11218723": {}, 
+"Tn11218724": {}, 
+"Tn11218725": {}, 
+"Tn11218726": {}, 
+"Tn11218727": {}, 
+"Tn11218728": {}, 
+"Tn11218729": {}, 
+"Tn11218730": {
+"@otu": "Tl1422386"
+}, 
+"Tn11218731": {
+"@otu": "Tl1422422"
+}, 
+"Tn11218732": {}, 
+"Tn11218733": {
+"@otu": "Tl1422391"
+}, 
+"Tn11218734": {}, 
+"Tn11218735": {
+"@otu": "Tl1422312"
+}, 
+"Tn11218736": {}, 
+"Tn11218737": {
+"@otu": "Tl1422436"
+}, 
+"Tn11218738": {}, 
+"Tn11218739": {}, 
+"Tn11218740": {
+"@root": true
+}, 
+"Tn11218741": {
+"@otu": "Tl1422442"
+}, 
+"Tn11218742": {
+"@otu": "Tl1422380"
+}, 
+"Tn11218743": {}, 
+"Tn11218744": {
+"@otu": "Tl1422475"
+}, 
+"Tn11218745": {
+"@otu": "Tl1422381"
+}, 
+"Tn11218746": {}, 
+"Tn11218747": {
+"@otu": "Tl1422419"
+}, 
+"Tn11218748": {}, 
+"Tn11218749": {
+"@otu": "Tl1422427"
+}, 
+"Tn11218750": {}, 
+"Tn11218751": {
+"@otu": "Tl1422383"
+}, 
+"Tn11218752": {}, 
+"Tn11218753": {
+"@otu": "Tl1422330"
+}, 
+"Tn11218754": {}, 
+"Tn11218755": {}, 
+"Tn11218756": {
+"@otu": "Tl1422446"
+}, 
+"Tn11218757": {
+"@otu": "Tl1422420"
+}, 
+"Tn11218758": {}, 
+"Tn11218759": {
+"@otu": "Tl1422435"
+}, 
+"Tn11218760": {
+"@otu": "Tl1422459"
+}, 
+"Tn11218761": {}, 
+"Tn11218762": {
+"@otu": "Tl1422395"
+}, 
+"Tn11218763": {}, 
+"Tn11218764": {}, 
+"Tn11218765": {}, 
+"Tn11218766": {}, 
+"Tn11218767": {
+"@otu": "Tl1422443"
+}, 
+"Tn11218768": {}, 
+"Tn11218769": {
+"@otu": "Tl1422426"
+}, 
+"Tn11218770": {
+"@otu": "Tl1422456"
+}, 
+"Tn11218771": {
+"@otu": "Tl1422438"
+}, 
+"Tn11218772": {
+"@otu": "Tl1422405"
+}, 
+"Tn11218773": {}, 
+"Tn11218774": {
+"@otu": "Tl1422476"
+}, 
+"Tn11218775": {}, 
+"Tn11218776": {
+"@otu": "Tl1422300"
+}, 
+"Tn11218777": {
+"@otu": "Tl1422363"
+}, 
+"Tn11218778": {}, 
+"Tn11218779": {}, 
+"Tn11218780": {}, 
+"Tn11218781": {}, 
+"Tn11218782": {
+"@otu": "Tl1422451"
+}, 
+"Tn11218783": {
+"@otu": "Tl1422455"
+}, 
+"Tn11218784": {
+"@otu": "Tl1422448"
+}, 
+"Tn11218785": {
+"@otu": "Tl1422308"
+}, 
+"Tn11218786": {}, 
+"Tn11218787": {
+"@otu": "Tl1422472"
+}, 
+"Tn11218788": {
+"@otu": "Tl1422450"
+}, 
+"Tn11218789": {}, 
+"Tn11218790": {}, 
+"Tn11218791": {
+"@otu": "Tl1422396"
+}, 
+"Tn11218792": {
+"@otu": "Tl1422423"
+}, 
+"Tn11218793": {
+"@otu": "Tl1422428"
+}, 
+"Tn11218794": {
+"@otu": "Tl1422458"
+}, 
+"Tn11218795": {
+"@otu": "Tl1422467"
+}, 
+"Tn11218796": {}, 
+"Tn11218797": {}, 
+"Tn11218798": {}, 
+"Tn11218799": {
+"@otu": "Tl1422473"
+}, 
+"Tn11218800": {}, 
+"Tn11218801": {}, 
+"Tn11218802": {
+"@otu": "Tl1422430"
+}, 
+"Tn11218803": {}, 
+"Tn11218804": {}, 
+"Tn11218805": {}, 
+"Tn11218806": {
+"@otu": "Tl1422465"
+}, 
+"Tn11218807": {}, 
+"Tn11218808": {
+"@otu": "Tl1422449"
+}, 
+"Tn11218809": {
+"@otu": "Tl1422478"
+}, 
+"Tn11218810": {
+"@otu": "Tl1422297"
+}, 
+"Tn11218811": {}, 
+"Tn11218812": {}, 
+"Tn11218813": {}, 
+"Tn11218814": {
+"@otu": "Tl1422457"
+}, 
+"Tn11218815": {
+"@otu": "Tl1422463"
+}, 
+"Tn11218816": {}, 
+"Tn11218817": {
+"@otu": "Tl1422444"
+}, 
+"Tn11218818": {
+"@otu": "Tl1422471"
+}, 
+"Tn11218819": {}, 
+"Tn11218820": {
+"@otu": "Tl1422421"
+}, 
+"Tn11218821": {
+"@otu": "Tl1422447"
+}, 
+"Tn11218822": {
+"@otu": "Tl1422445"
+}, 
+"Tn11218823": {}, 
+"Tn11218824": {
+"@otu": "Tl1422400"
+}, 
+"Tn11218825": {
+"@otu": "Tl1422344"
+}, 
+"Tn11218826": {}, 
+"Tn11218827": {
+"@otu": "Tl1422461"
+}, 
+"Tn11218828": {}, 
+"Tn11218829": {}, 
+"Tn11218830": {
+"@otu": "Tl1422468"
+}, 
+"Tn11218831": {}, 
+"Tn11218832": {
+"@otu": "Tl1422425"
+}, 
+"Tn11218833": {}, 
+"Tn11218834": {}, 
+"Tn11218835": {
+"@otu": "Tl1422470"
+}, 
+"Tn11218836": {
+"@otu": "Tl1422433"
+}, 
+"Tn11218837": {
+"@otu": "Tl1422466"
+}, 
+"Tn11218838": {}, 
+"Tn11218839": {}, 
+"Tn11218840": {
+"@otu": "Tl1422474"
+}, 
+"Tn11218841": {
+"@otu": "Tl1422477"
+}, 
+"Tn11218842": {
+"@otu": "Tl1422397"
+}, 
+"Tn11218843": {
+"@otu": "Tl1422431"
+}, 
+"Tn11218844": {
+"@otu": "Tl1422464"
+}, 
+"Tn11218845": {}, 
+"Tn11218846": {}, 
+"Tn11218847": {
+"@otu": "Tl1422336"
+}, 
+"Tn11218848": {}
+}
+}
+}
+}
+}
+}
+}

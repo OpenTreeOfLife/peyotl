@@ -326,3 +326,32 @@ def delete_first_literal_meta(obj, prop_name, version):
         k = '^' + prop_name
         if k in obj:
             del obj[k]
+
+def _simplify_object_by_id_del(o):
+    if isinstance(o, list):
+        return [_simplify_object_by_id_del(i) for i in o]
+    if not isinstance(o, dict):
+        return o
+    if ('@id' in o):
+        nk = len(o.keys())
+        if nk < 3:
+            if nk == 1:
+                return None
+            if ('$' in o):
+                return o['$']
+            if ('@href' in o):
+                del o['@id']
+    return o
+
+def _simplify_all_meta_by_id_del(el):
+    to_del = []
+    for tag in el.keys():
+        if tag.startswith('^'):
+            o = el[tag]
+            v = _simplify_object_by_id_del(o)
+            if v is None:
+                to_del.append(tag)
+            elif v is not o:
+                el[tag] = v
+    for tag in to_del:
+        del el[tag]

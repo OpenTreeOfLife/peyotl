@@ -11,11 +11,17 @@ import shutil
 import json
 import hashlib
 from peyotl.nexson_syntax import write_as_json
-
+import tempfile #@TEMPORARY for deprecated write_study
 _LOG = get_logger(__name__)
 class MergeException(Exception):
     pass
 
+
+class GitWorkflowError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return self.msg
 
 def get_user_author(auth_info):
     '''Return commit author info from a dict. Returns username and author string.
@@ -124,7 +130,7 @@ class GitAction(object):
         dirs.sort()
         return dirs[-1]
 
-    def return_study(self, study_id, branch='master'): 
+    def return_study(self, study_id, branch='master', return_WIP_map=False): 
         """Return the 
             blob[0] contents of the given study_id, 
             blob[1] the SHA1 of the HEAD.
@@ -134,12 +140,16 @@ class GitAction(object):
         self.checkout(branch)
         study_filename = self.paths_for_study(study_id)[1]
         head_sha = get_HEAD_SHA1(self.git_dir)
-        d = self.find_WIP_branches(study_id)
+        
         try:
             f = codecs.open(study_filename, mode='rU', encoding='utf-8')
+            content = f.read()
         except:
-            return '', head_sha, d
-        return f.read(), head_sha, d
+            content = ''
+        if return_WIP_map:
+            d = self.find_WIP_branches(study_id)
+            return content, head_sha, d
+        return content, head_sha
 
     def branch_exists(self, branch):
         """Returns true or false depending on if a branch exists"""
@@ -180,7 +190,19 @@ class GitAction(object):
     def checkout(self, branch):
         git(self.gitdir, self.gitwd, "checkout", branch)
 
-    def create_or_checkout_branch(self, gh_user, study_id, parent_sha):
+    def create_or_checkout_branch(self, gh_user, study_id, parent_sha, force_branch_name=False):
+        if force_branch_name:
+            #@TEMP deprecated
+            branch = "{ghu}_study_{rid}".format(ghu=gh_user, rid=study_id)
+            if not self.branch_exists(branch):
+                try:
+                    git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
+                    _LOG.debug('Created branch "{b}" with parent "{a}"'.format(b=branch, a=parent_sha))
+                except:
+                    raise ValueError('parent sha not in git repo')
+            self.checkout(branch)
+            return branch
+
         frag = "{ghu}_study_{rid}_".format(ghu=gh_user, rid=study_id)
         branch = self._find_head_sha(frag, parent_sha)
         _LOG.debug('Found branch "{b}" for sha "{s}"'.format(b=branch, s=parent_sha))
@@ -241,7 +263,55 @@ class GitAction(object):
             _LOG.exception('git ls-tree failed')
             raise
 
-    def write_study(self, study_id, tmpfi, parent_sha, auth_info):
+    #@TEMP TODO: remove this form...
+    def write_study(self, study_id, file_content, branch, author):
+        """Given a study_id, temporary filename of content, branch and auth_info
+        
+        Deprecated but needed until we merge api local-dep to master...
+
+        """
+        parent_sha = None
+        #@TODO. DANGER super-ugly hack to get gh_user 
+        #   only doing this function is going away very soon.
+        gh_user = branch.split('_study_')[0]
+        fc = tempfile.NamedTemporaryFile()
+        if isinstance(file_content, str) or isinstance(file_content, unicode):
+            fc.write(file_content)
+        else:
+            write_as_json(file_content, fc)
+        fc.flush()
+        try:
+            study_dir, study_filename = self.paths_for_study(study_id) 
+            if parent_sha is None:
+                self.checkout_master()
+                parent_sha = self.get_master_sha()
+            branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha, force_branch_name=True)
+            # create a study directory if this is a new study EJM- what if it isn't?
+            if not os.path.isdir(study_dir):
+                os.mkdir(study_dir)
+            shutil.copy(fc.name, study_filename)
+            git(self.gitdir, self.gitwd, "add", study_filename)
+            try:
+                git(self.gitdir, self.gitwd,  "commit", author=author, message="Update Study #%s via OpenTree API" % study_id)
+            except Exception, e:
+                # We can ignore this if no changes are new,
+                # otherwise raise a 400
+                if "nothing to commit" in e.message:#@EJM is this dangerous?
+                     pass
+                else:
+                    _LOG.exception('"git commit" failed')
+                    self.reset_hard()
+                    raise
+            new_sha = git(self.gitdir, self.gitwd,  "rev-parse", "HEAD")
+        except Exception, e:
+            _LOG.exception('write_study exception')
+            raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
+        finally:
+            fc.close()
+        return new_sha
+
+
+    def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info):
         """Given a study_id, temporary filename of content, branch and auth_info
         """
         gh_user, author = get_user_author(auth_info)
@@ -291,6 +361,7 @@ class GitAction(object):
         """
         current_branch = self.current_branch()
         if current_branch != destination:
+            _LOG.debug('checking out ' + destination)
             git(self.gitdir, self.gitwd, "checkout", destination)
         try:
             git(self.gitdir, self.gitwd, "merge", branch)

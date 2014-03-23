@@ -7,7 +7,9 @@ import tempfile
 from peyotl.nexson_syntax import write_as_json
 from peyotl.nexson_validation import NexsonWarningCodes, validate_nexson
 from peyotl.nexson_syntax import convert_nexson_format
-from peyotl.phylesystem.git_actions import MergeException, get_user_author
+from peyotl.phylesystem.git_actions import MergeException, \
+                                           get_user_author,
+                                           GitWorkflowError
 from peyotl.utility import get_logger
 from locket import LockError
 from sh import git
@@ -18,11 +20,6 @@ import os
 
 _LOG = get_logger(__name__)
 
-class GitWorkflowError(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-    def __str__(self):
-        return self.msg
 
 def acquire_lock_raise(git_action, fail_msg=''):
     '''Adapts LockError to HTTP. If an exception is not thrown, the git_action has the lock (and must release it!)
@@ -119,9 +116,9 @@ def commit_and_try_merge2master(git_action,
         acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=study_id))
         try:
             try:
-                commit_resp = git_action.write_study(study_id, fc, parent_sha, auth_info)
+                commit_resp = git_action.write_study_from_tmpfile(study_id, fc, parent_sha, auth_info)
             except Exception, e:
-                _LOG.exception('write_study exception')
+                _LOG.exception('write_study_from_tmpfile exception')
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
             written_fp = git_action.paths_for_study(study_id)[1]
             branch_name = commit_resp['branch']

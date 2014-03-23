@@ -148,12 +148,18 @@ class DefaultRichLogger(object):
                        invocation=tuple(),
                        author_version=VERSION,
                        url='https://github.com/OpenTreeOfLife/peyotl',
-                       description=None
+                       description=None,
+                       annotation_label=None #@TEMP arg for backward compat.
                        ):
         if description is None:
             description = "validator of NexSON constraints as well as constraints "\
                           "that would allow a study to be imported into the Open Tree "\
                           "of Life's phylogenetic synthesis tools"
+        #@TEMP. the args are in flux between the branches of api.opentreeoflife.org.
+        #    which is bad. Hopefully we don't need annotation_label and 
+        #   can get rid of it.
+        if annotation_label is not None:
+            description += annotation_label 
         checks_performed = list(NexsonWarningCodes.numeric_codes_registered)
         for code in self.codes_to_skip:
             try:

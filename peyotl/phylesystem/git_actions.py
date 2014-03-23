@@ -223,13 +223,24 @@ class GitAction(object):
         return branch
 
 
-    def remove_study(self, gh_user, study_id, parent_sha, author="OpenTree API <api@opentreeoflife.org>"):
+    #@TEMP TODO. Args should be gh_user, study_id, parent_sha, author but 
+    #   currently using the # of args as a hack to detect whether the
+    #   old or newer version of the function is required. #backward-compat. @KILL with merge of local-dep
+    def remove_study(self, first_arg, sec_arg, third_arg, fourth_arg=None):
         """Remove a study
         Given a study_id, branch and optionally an
         author, remove a study on the given branch
         and attribute the commit to author.
         Returns the SHA of the commit on branch.
         """
+        if fourth_arg is None:
+            study_id, branch_name, author = first_arg, sec_arg, third_arg
+            #@TODO. DANGER super-ugly hack to get gh_user 
+            #   only doing this function is going away very soon. @KILL with merge of local-dep
+            gh_user = branch_name.split('_study_')[0]
+            parent_sha = self.get_master_sha()
+        else:
+            gh_user, study_id, parent_sha, author = first_arg, sec_arg, third_arg, fourth_arg
         study_dir, study_filename = self.paths_for_study(study_id)
 
         branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
@@ -272,7 +283,7 @@ class GitAction(object):
         """
         parent_sha = None
         #@TODO. DANGER super-ugly hack to get gh_user 
-        #   only doing this function is going away very soon.
+        #   only doing this function is going away very soon. @KILL with merge of local-dep
         gh_user = branch.split('_study_')[0]
         fc = tempfile.NamedTemporaryFile()
         if isinstance(file_content, str) or isinstance(file_content, unicode):

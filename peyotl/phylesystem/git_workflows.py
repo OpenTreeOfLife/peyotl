@@ -169,7 +169,7 @@ def delete_study(git_action, study_id, auth_info, parent_sha):
     gh_user = auth_info['login']
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % study_id)
     try:
-        new_sha, branch_name = git_action.remove_study(gh_user, study_id, parent_sha)
+        new_sha, branch_name = git_action.remove_study(gh_user, study_id, parent_sha, author)
     except Exception, e:
         raise GitWorkflowError("Could not remove study #%s! Details: %s" % (study_id, e.message))
     finally:

@@ -30,7 +30,7 @@ class TestPhylesystem(unittest.TestCase):
         ga = phylesystem.create_git_action(_SID)
         ga.acquire_lock()
         try:
-            curr, sha, wip_map = ga.return_study(_SID)
+            curr, sha, wip_map = ga.return_study(_SID, return_WIP_map=True)
         finally:
             ga.release_lock()
         curr_obj = json.loads(curr)
@@ -43,7 +43,7 @@ class TestPhylesystem(unittest.TestCase):
         ga = phylesystem.create_git_action(_SID)
         ga.acquire_lock()
         try:
-            curr, sha, wip_map = ga.return_study(_SID)
+            curr, sha, wip_map = ga.return_study(_SID, return_WIP_map=True)
         finally:
             ga.release_lock()
         _LOG.debug('test sha = "{}"'.format(sha))
@@ -72,7 +72,7 @@ class TestPhylesystem(unittest.TestCase):
         # the existence of multiple branches for this study...
         ga.acquire_lock()
         try:
-            t, ts, wip_map = ga.return_study(_SID)
+            t, ts, wip_map = ga.return_study(_SID, return_WIP_map=True)
         finally:
             ga.release_lock()
         self.assertEquals(wip_map['master'], v1b['sha'])
@@ -81,7 +81,7 @@ class TestPhylesystem(unittest.TestCase):
         # but not for other studies...
         ga.acquire_lock()
         try:
-            t, ts, wip_map = ga.return_study('10')
+            t, ts, wip_map = ga.return_study('10', return_WIP_map=True)
         finally:
             ga.release_lock()
         self.assertEquals(wip_map['master'], v1b['sha'])
@@ -129,7 +129,7 @@ class TestPhylesystem(unittest.TestCase):
         # after the merge we should be back down to 1 branch for this study
         ga.acquire_lock()
         try:
-            t, ts, wip_map = ga.return_study(_SID)
+            t, ts, wip_map = ga.return_study(_SID, return_WIP_map=True)
         finally:
             ga.release_lock()
         self.assertEquals(wip_map.keys(), ['master'])

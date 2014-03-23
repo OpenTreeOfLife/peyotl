@@ -8,7 +8,7 @@ from peyotl.nexson_syntax import write_as_json
 from peyotl.nexson_validation import NexsonWarningCodes, validate_nexson
 from peyotl.nexson_syntax import convert_nexson_format
 from peyotl.phylesystem.git_actions import MergeException, \
-                                           get_user_author,
+                                           get_user_author, \
                                            GitWorkflowError
 from peyotl.utility import get_logger
 from locket import LockError

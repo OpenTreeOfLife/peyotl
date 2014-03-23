@@ -5,7 +5,6 @@ import re
 import os
 import locket
 import codecs
-from peyotl.phylesystem import get_HEAD_SHA1
 from peyotl import get_logger
 import shutil
 import json
@@ -15,6 +14,19 @@ import tempfile #@TEMPORARY for deprecated write_study
 _LOG = get_logger(__name__)
 class MergeException(Exception):
     pass
+
+
+def get_HEAD_SHA1(git_dir):
+    '''Not locked!
+    '''
+    head_file = os.path.join(git_dir, 'HEAD')
+    with open(head_file, 'rU') as hf:
+        head_contents = hf.read().strip()
+    assert(head_contents.startswith('ref: '))
+    ref_filename = head_contents[5:] #strip off "ref: "
+    real_ref = os.path.join(git_dir, ref_filename)
+    with open(real_ref, 'rU') as rf:
+        return rf.read().strip()
 
 
 class GitWorkflowError(Exception):
@@ -36,7 +48,12 @@ def get_user_author(auth_info):
     return auth_info['login'], ("%s <%s>" % (auth_info['name'], auth_info['email']))
 
 class GitAction(object):
-    def __init__(self, repo, remote=None, git_ssh=None, pkey=None):
+    def __init__(self,
+                 repo,
+                 remote=None,
+                 git_ssh=None,
+                 pkey=None,
+                 cache=None):
         """Create a GitAction object to interact with a Git repository
 
         Example:

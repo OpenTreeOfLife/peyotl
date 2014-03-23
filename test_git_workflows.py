@@ -3,8 +3,7 @@ from peyotl.phylesystem.git_workflows import acquire_lock_raise, \
                                              commit_and_try_merge2master, \
                                              delete_study, \
                                              GitWorkflowError, \
-                                             merge_from_master, \
-                                             validate_and_convert_nexson
+                                             merge_from_master
 from peyotl.phylesystem import Phylesystem
 import unittest
 import codecs

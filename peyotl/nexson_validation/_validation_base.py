@@ -150,7 +150,73 @@ class _ValidationContext(object):
                 return n
         return ''
 
-class NexsonValidationAdaptor(object):
+class NexsonAnnotationAdder(object):
+    def add_or_replace_annotation(self, obj, annotation, agent, add_agent_only=False):
+        '''Takes an `annotation` dictionary which is 
+        expected to have a string as the value of annotation['author']['name']
+        This function will remove all annotations from obj that:
+            1. have the same author/name, and
+            2. have no messages that are flagged as messages to be preserved (values for 'preserve' that evaluate to true)
+        '''
+        script_name = agent['@name']
+        nex = get_nexml_el(obj)
+        nvers = detect_nexson_version(obj)
+        agents_obj = find_val_literal_meta_first(nex, 'ot:agents', nvers)
+        if not agents_obj:
+            agents_obj = add_literal_meta(nex, 'ot:agents', {'agent':[]}, nvers)
+        agents_list = agents_obj.setdefault('agent', [])
+        found_agent = False
+        aid = agent['@id']
+        anid = annotation['@id']
+        for a in agents_list:
+            if a.get('@id') == aid:
+                found_agent = True
+                break
+        if not found_agent:
+            agents_list.append(agent)
+        if not add_agent_only:
+            self.replace_same_agent_annotation(obj, annotation)
+    def replace_same_agent_annotation(self, obj, annotation):
+        agent_id = annotation.get('@wasAssociatedWithAgentId')
+        self.replace_annotation(obj, annotation, agent_id=agent_id)
+
+    def get_annotation_list(self, nex_el, nexson_version):
+        ae_s_obj = find_val_literal_meta_first(nex_el, 'ot:annotationEvents', nexson_version)
+        if not ae_s_obj:
+            ae_s_obj = add_literal_meta(nex_el, 'ot:annotationEvents', {'annotation':[]}, nexson_version)
+        annotation_list = ae_s_obj.setdefault('annotation', [])
+        return annotation_list
+        
+    def replace_annotation(self, obj, annotation, agent_id=None, annot_id=None, nexson_version=None):
+        if nexson_version is None:
+            nexson_version = detect_nexson_version(obj)
+        nex_el = get_nexml_el(obj)
+        annotation_list = self.get_annotation_list(nex_el, nexson_version)
+        self.replace_annotation_from_annot_list(annotation_list, annotation, agent_id=agent_id, annot_id=annot_id)
+
+    def replace_annotation_from_annot_list(self, annotation_list, annotation, agent_id=None, annot_id=None):
+        to_remove_inds = []
+        # TODO should check preserve field...
+        if agent_id is not None:
+            for n, annot in enumerate(annotation_list):
+                if annot.get('@wasAssociatedWithAgentId') == agent_id:
+                    to_remove_inds.append(n)
+        else:
+            if annot_id is None:
+                raise ValueError('Either agent_id or annot_id must have a value')
+            for n, annot in enumerate(annotation_list):
+                if annot.get('@id') == annot_id:
+                    to_remove_inds.append(n)
+        while len(to_remove_inds) > 1:
+            n = to_remove_inds.pop(-1)
+            del annotation_list[n]
+        if to_remove_inds:
+            n = to_remove_inds.pop()
+            annotation_list[n] = annotation
+        else:
+            annotation_list.append(annotation)
+
+class NexsonValidationAdaptor(NexsonAnnotationAdder):
     '''An object created during NexSON validation.
     It holds onto the nexson object that it was instantiated for.
     When add_or_replace_annotation is called, it will annotate the 
@@ -659,69 +725,6 @@ class NexsonValidationAdaptor(object):
         raise NotImplementedError('base NexsonValidationAdaptor hook')
     def _post_key_check_validate_tree_group(self, tg_nex_id, trees_group, vc):
         raise NotImplementedError('base NexsonValidationAdaptor hook')
-    def add_or_replace_annotation(self, obj, annotation, agent):
-        '''Takes an `annotation` dictionary which is 
-        expected to have a string as the value of annotation['author']['name']
-        This function will remove all annotations from obj that:
-            1. have the same author/name, and
-            2. have no messages that are flagged as messages to be preserved (values for 'preserve' that evaluate to true)
-        '''
-        script_name = agent['@name']
-        nex = get_nexml_el(obj)
-        nvers = detect_nexson_version(obj)
-        agents_obj = find_val_literal_meta_first(nex, 'ot:agents', nvers)
-        if not agents_obj:
-            agents_obj = add_literal_meta(nex, 'ot:agents', {'agent':[]}, nvers)
-        agents_list = agents_obj.setdefault('agent', [])
-        found_agent = False
-        aid = agent['@id']
-        anid = annotation['@id']
-        for a in agents_list:
-            if a.get('@id') == aid:
-                found_agent = True
-                break
-        if not found_agent:
-            agents_list.append(agent)
-        self.replace_same_agent_annotation(obj, annotation)
-    def replace_same_agent_annotation(self, obj, annotation):
-        agent_id = annotation.get('@wasAssociatedWithAgentId')
-        self.replace_annotation(obj, annotation, agent_id=agent_id)
-
-    def get_annotation_list(self, nex_el, nexson_version):
-        ae_s_obj = find_val_literal_meta_first(nex_el, 'ot:annotationEvents', nexson_version)
-        if not ae_s_obj:
-            ae_s_obj = add_literal_meta(nex_el, 'ot:annotationEvents', {'annotation':[]}, nexson_version)
-        annotation_list = ae_s_obj.setdefault('annotation', [])
-        return annotation_list
-        
-    def replace_annotation(self, obj, annotation, agent_id=None, annot_id=None, nexson_version=None):
-        if nexson_version is None:
-            nexson_version = detect_nexson_version(obj)
-        nex_el = get_nexml_el(obj)
-        annotation_list = self.get_annotation_list(nex_el, nexson_version)
-        self.replace_annotation_from_annot_list(annotation_list, annotation, agent_id=agent_id, annot_id=annot_id)
-
-    def replace_annotation_from_annot_list(self, annotation_list, annotation, agent_id=None, annot_id=None):
-        to_remove_inds = []
-        # TODO should check preserve field...
-        if agent_id is not None:
-            for n, annot in enumerate(annotation_list):
-                if annot.get('@wasAssociatedWithAgentId') == agent_id:
-                    to_remove_inds.append(n)
-        else:
-            if annot_id is None:
-                raise ValueError('Either agent_id or annot_id must have a value')
-            for n, annot in enumerate(annotation_list):
-                if annot.get('@id') == annot_id:
-                    to_remove_inds.append(n)
-        while len(to_remove_inds) > 1:
-            n = to_remove_inds.pop(-1)
-            del annotation_list[n]
-        if to_remove_inds:
-            n = to_remove_inds.pop()
-            annotation_list[n] = annotation
-        else:
-            annotation_list.append(annotation)
 
     def get_nexson_str(self):
         return json.dumps(self._raw, sort_keys=True, indent=0)

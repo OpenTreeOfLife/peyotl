@@ -226,7 +226,10 @@ class Phylesystem(object):
         return ga, new_resource_id
 
     def add_validation_annotation(self, study_obj, sha):
+<<<<<<< HEAD
         annot_event_s = None
+=======
+>>>>>>> local
         need_to_cache = False
         adaptor = None
         if self._cache_region is not None:
@@ -248,7 +251,7 @@ class Phylesystem(object):
             adaptor = bundle[2]
         adaptor.replace_same_agent_annotation(study_obj, annot_event)
         if need_to_cache:
-            self._cache_region.set(key, anyjson.dumps(annot_event))
+            self._cache_region.set(key, annot_event)
             _LOG.debug('set cache for ' + key)
 
         return annot_event

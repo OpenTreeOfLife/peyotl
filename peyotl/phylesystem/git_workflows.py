@@ -5,7 +5,7 @@ from sh import git
 from locket import LockError
 import tempfile
 from peyotl.nexson_syntax import write_as_json
-from peyotl.nexson_validation import NexsonWarningCodes, validate_nexson
+from peyotl.nexson_validation import ot_validate
 from peyotl.nexson_syntax import convert_nexson_format
 from peyotl.phylesystem.git_actions import MergeException, \
                                            get_user_author, \
@@ -31,20 +31,7 @@ def acquire_lock_raise(git_action, fail_msg=''):
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
 
-#TODO: __validate and validate_and_convert_nexson belong in a different part of peyotl
-def __validate(nexson):
-    '''Returns three objects:
-        an annotation dict (NexSON formmatted), 
-        the validation_log object created when NexSON validation was performed, and
-        the object of class NexSON which was created from nexson. This object may
-            alias parts of the nexson dict that is passed in as an argument.
-    '''
-    # stub function for hooking into NexSON validation
-    codes_to_skip = [NexsonWarningCodes.UNVALIDATED_ANNOTATION]
-    v_log, adaptor = validate_nexson(nexson, codes_to_skip)
-    annotation = v_log.prepare_annotation(author_name='api.opentreeoflife.org/validate',
-                                          description='Open Tree NexSON validation')
-    return annotation, v_log, adaptor
+#TODO:validate_and_convert_nexson belong in a different part of peyotl
 
 def validate_and_convert_nexson(nexson, output_version, allow_invalid):
     '''Runs the nexson validator and returns a converted 4 object:

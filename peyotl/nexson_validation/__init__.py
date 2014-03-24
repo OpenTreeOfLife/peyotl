@@ -31,3 +31,16 @@ def validate_nexson(obj, warning_codes_to_skip=None, retain_deprecated=True):
     n = create_validation_adaptor(obj, v)
     return v, n
 
+def ot_validate(nexson):
+    '''Returns three objects:
+        an annotation dict (NexSON formmatted), 
+        the validation_log object created when NexSON validation was performed, and
+        the object of class NexSON which was created from nexson. This object may
+            alias parts of the nexson dict that is passed in as an argument.
+    '''
+    # stub function for hooking into NexSON validation
+    codes_to_skip = [NexsonWarningCodes.UNVALIDATED_ANNOTATION]
+    v_log, adaptor = validate_nexson(nexson, codes_to_skip)
+    annotation = v_log.prepare_annotation(author_name='api.opentreeoflife.org/validate',
+                                          description='Open Tree NexSON validation')
+    return annotation, v_log, adaptor

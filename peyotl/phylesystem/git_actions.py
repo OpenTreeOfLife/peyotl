@@ -47,6 +47,13 @@ def get_user_author(auth_info):
     '''
     return auth_info['login'], ("%s <%s>" % (auth_info['name'], auth_info['email']))
 
+class RepoLock():
+    def __init__(self, lock):
+        self._lock = lock
+    def __enter__(self):
+        self._lock.acquire()
+    def __exit__(self, _type, value, traceb):
+        self._lock.release()
 class GitAction(object):
     def __init__(self,
                  repo,
@@ -66,9 +73,9 @@ class GitAction(object):
         """
         self.repo = repo
         self.git_dir = os.path.join(repo, '.git')
-        self.lock_file = os.path.join(self.git_dir, "API_WRITE_LOCK")
-        self.lock_timeout = 30
-        self.lock = locket.lock_file(self.lock_file, timeout=self.lock_timeout)
+        self._lock_file = os.path.join(self.git_dir, "API_WRITE_LOCK")
+        self._lock_timeout = 30
+        self._lock = locket.lock_file(self._lock_file, timeout=self._lock_timeout)
         self.repo_remote = remote
         self.git_ssh = git_ssh
         self.pkey = pkey
@@ -78,6 +85,13 @@ class GitAction(object):
             self.gitwd = "--work-tree={}".format(self.repo)
         else: #EJM needs a test?
             raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
+    def lock(self):
+        ''' for syntax:
+        with git_action.lock():
+            git_action.checkout()
+        '''
+        return RepoLock(self._lock)
+
     def paths_for_study(self, study_id):
         '''Returns study_dir and study_filepath for study_id.
         '''
@@ -93,13 +107,13 @@ class GitAction(object):
     def acquire_lock(self):
         "Acquire a lock on the git repository"
         _LOG.debug('Acquiring lock')
-        self.lock.acquire()
+        self._lock.acquire()
 
     def release_lock(self):
         "Release a lock on the git repository"
         _LOG.debug('Releasing lock')
         try:
-            self.lock.release()
+            self._lock.release()
         except:
             _LOG.debug('Exception releasing lock suppressed.')
             pass

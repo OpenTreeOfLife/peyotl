@@ -12,12 +12,12 @@ except:
     anyjson = Wrapper()
     anyjson.loads = json.loads
 try:
-    from dogpile.cache import NO_VALUE
+    from dogpile.cache.api import NO_VALUE
 except:
     pass #caching is optional
 from peyotl.phylesystem.git_actions import GitAction
-from peyotl.phylesystem.git_workflows import __validate
 from peyotl.nexson_syntax import detect_nexson_version
+from peyotl.nexson_validation import ot_validate
 from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder
 import codecs
 import os
@@ -168,6 +168,7 @@ def make_phylesystem_cache_region():
                                          expiration_time = 36000,
                                          arguments = a)
         _LOG.debug('cache region set up.')
+        return region
     except:
         _LOG.exception('cache set up failed')
 
@@ -207,6 +208,7 @@ class Phylesystem(object):
         else:
             self._cache_region = None
         self.git_action_class=git_action_class
+        self._cache_hits = 0
 
     def create_git_action(self, study_id):
         shard = self._study2shard_map[study_id]
@@ -225,16 +227,32 @@ class Phylesystem(object):
             key = 'v' + sha
             annot_event = self._cache_region.get(key, ignore_expiration=True)
             if annot_event != NO_VALUE:
+                _LOG.debug('cache hit for ' + key)
                 adaptor = NexsonAnnotationAdder()
+                self._cache_hits += 1
+            else:
+                _LOG.debug('cache miss for ' + key)
+        
         if adaptor is None:
-            bundle = __validate(study_obj)
+            bundle = ot_validate(study_obj)
             annotation = bundle[0]
             annot_event = annotation['annotationEvent']
             adaptor = bundle[2]
-        adaptor.replace_same_agent_annotation(nexson, annot_event)
+        adaptor.replace_same_agent_annotation(study_obj, annot_event)
         if self._cache_region is not None:
             self._cache_region.set(key, annot_event)
+            _LOG.debug('set cache for ' + key)
 
+        return annot_event
+
+    def return_study(self, study_id, branch='master', return_WIP_map=False):
+        ga = self.create_git_action(study_id)
+        with ga.lock():
+            blob = ga.return_study(study_id, branch=branch, return_WIP_map=return_WIP_map)
+            nexson = anyjson.loads(blob[0])
+            if return_WIP_map:
+                return nexson, blob[1], blob[2]
+            return nexson, blob[1]
 
 
 # Cache keys:

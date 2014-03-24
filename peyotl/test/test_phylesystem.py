@@ -3,7 +3,6 @@ from peyotl.phylesystem import Phylesystem
 import unittest
 import codecs
 import json
-from peyotl.nexson_syntax import read_as_json
 from peyotl.test.support import pathmap
 
 class TestPhylesystem(unittest.TestCase):
@@ -17,6 +16,5 @@ class TestPhylesystem(unittest.TestCase):
         k = p._study2shard_map.keys()
         k.sort()
         self.assertEqual(k, ['10', '11', '12', '9'])
-    
 if __name__ == "__main__":
     unittest.main()

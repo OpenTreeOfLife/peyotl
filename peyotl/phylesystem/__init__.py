@@ -15,6 +15,7 @@ try:
     from dogpile.cache import NO_VALUE
 except:
     pass #caching is optional
+from peyotl.phylesystem.git_actions import GitAction
 from peyotl.phylesystem.git_workflows import __validate
 from peyotl.nexson_syntax import detect_nexson_version
 from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder
@@ -111,7 +112,9 @@ def phylesystem_study_objs(**kwargs):
 
 class PhylesystemShard(object):
     '''Wrapper around a git repos holding nexson studies'''
-    def __init__(self, name, path):
+    def __init__(self, name, path, repo_nexml2json=None, git_ssh=None, pkey=None):
+        self.git_ssh = git_ssh
+        self.pkey = pkey
         self.name = name
         dot_git = os.path.join(path, '.git')
         study_dir = os.path.join(path, 'study')
@@ -126,6 +129,12 @@ class PhylesystemShard(object):
         self.path = path
         self.git_dir = dot_git
         self.study_dir = study_dir
+        if repo_nexml2json is None:
+            try:
+                repo_nexml2json = get_config('phylesystem', 'repo_nexml2json')
+            except:
+                repo_nexml2json = self.diagnose_repo_nexml2json()
+        self.repo_nexml2json = repo_nexml2json
     def get_study_index(self):
         return self._study_index
     study_index = property(get_study_index)
@@ -134,6 +143,8 @@ class PhylesystemShard(object):
         with codecs.open(fp, mode='rU', encoding='utf-8') as fo:
             fj = json.load(fo)
             return detect_nexson_version(fj)
+    def create_git_action(self, _class=GitAction):
+        return _class(repo=self.path, git_ssh=self.git_ssh, pkey=self.pkey)
 
 
 _CACHE_REGION_CONFIGURED = False
@@ -166,12 +177,22 @@ class Phylesystem(object):
                  repos_dict=None,
                  repos_par=None,
                  with_caching=True,
-                 repo_nexml2json=None):
+                 repo_nexml2json=None,
+                 git_ssh=None,
+                 pkey=None, 
+                 git_action_class=GitAction):
         if repos_dict is None:
             repos_dict = get_repos(repos_par)
         shards = []
-        for repo_name, repo_filepath in repos_dict.items():
-            shards.append(PhylesystemShard(repo_name, repo_filepath))
+        repo_name_list = repos_dict.keys()
+        repo_name_list.sort()
+        for repo_name in repo_name_list:
+            repo_filepath = repos_dict[repo_name]
+            shards.append(PhylesystemShard(repo_name,
+                                           repo_filepath,
+                                           git_ssh=git_ssh,
+                                           pkey=pkey,
+                                           repo_nexml2json=repo_nexml2json))
         d = {}
         for s in shards:
             for k, v in s.study_index.items():
@@ -180,22 +201,23 @@ class Phylesystem(object):
                 d[k] = s
         self._study2shard_map = d
         self._shards = shards
-        if repo_nexml2json is None:
-            try:
-                repo_nexml2json = get_config('phylesystem', 'repo_nexml2json')
-            except:
-                repo_nexml2json = shards[0].diagnose_repo_nexml2json()
-        self.repo_nexml2json = repo_nexml2json
+        self._growing_shard = shards[-1] # generalize with config...
         if with_caching:
             self._cache_region = make_phylesystem_cache_region()
         else:
             self._cache_region = None
-
+        self.git_action_class=git_action_class
 
     def create_git_action(self, study_id):
         shard = self._study2shard_map[study_id]
-        from peyotl.phylesystem.git_actions import GitAction
-        return GitAction(repo=shard.path)
+        return shard.create_git_action(_class=self.git_action_class)
+
+    def create_git_action_for_new_study(self):
+        ga = self._growing_shard.create_git_action(_class=self.git_action_class)
+        # studies created by the OpenTree API start with o,
+        # so they don't conflict with new study id's from other sources
+        new_resource_id = "o%d" % (ga.newest_study_id() + 1)
+        return ga, new_resource_id
 
     def add_validation_annotation(self, study_obj, sha):
         adaptor = None
@@ -215,4 +237,5 @@ class Phylesystem(object):
 
 
 
-
+# Cache keys:
+# v+SHA = annotation event from validation

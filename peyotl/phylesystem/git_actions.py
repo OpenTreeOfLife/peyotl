@@ -85,12 +85,6 @@ class GitAction(object):
         study_filename = "{d}/{id}.json".format(d=study_dir, id=study_id)
         return study_dir, study_filename
 
-    def md5_for_study(self, study_id):
-        fd, fp = self.paths_for_study(study_id)
-        with open(fp, 'rb') as fo:
-            study_md5 = md5_for_file(fo)
-        return study_md5
-
     def env(self):
         return {'GIT_SSH': self.git_ssh,
                 'PKEY': self.pkey,

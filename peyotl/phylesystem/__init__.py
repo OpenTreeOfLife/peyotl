@@ -3,6 +3,7 @@
 copies of the phylesystem repositories.
 '''
 from peyotl.utility import get_config, expand_path, get_logger
+import json
 try:
     import anyjson
 except:
@@ -64,7 +65,7 @@ def create_id2repo_pair_dict(path, tag):
                 # if file is in more than one place it gets over written.
                 #TODO EJM Needs work 
                 study_id = filename[:-5]
-                d[study_id] = (tag, root)
+                d[study_id] = (tag, root, os.path.join(root,filename))
     return d
 
 def _initialize_study_index(repos_par=None):
@@ -133,13 +134,15 @@ class PhylesystemShard(object):
             try:
                 repo_nexml2json = get_config('phylesystem', 'repo_nexml2json')
             except:
+                pass
+            if repo_nexml2json == None:
                 repo_nexml2json = self.diagnose_repo_nexml2json()
         self.repo_nexml2json = repo_nexml2json
     def get_study_index(self):
         return self._study_index
     study_index = property(get_study_index)
     def diagnose_repo_nexml2json(self):
-        fp = self.study_index.values()[0]
+        fp = self.study_index.values()[0][2]
         with codecs.open(fp, mode='rU', encoding='utf-8') as fo:
             fj = json.load(fo)
             return detect_nexson_version(fj)
@@ -203,6 +206,7 @@ class Phylesystem(object):
         self._study2shard_map = d
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
+        self.repo_nexml2json = shards[-1].repo_nexml2json
         if with_caching:
             self._cache_region = make_phylesystem_cache_region()
         else:
@@ -222,16 +226,20 @@ class Phylesystem(object):
         return ga, new_resource_id
 
     def add_validation_annotation(self, study_obj, sha):
+        annot_event_s = None
+        need_to_cache = False
         adaptor = None
         if self._cache_region is not None:
             key = 'v' + sha
-            annot_event = self._cache_region.get(key, ignore_expiration=True)
-            if annot_event != NO_VALUE:
+            annot_event_s = self._cache_region.get(key, ignore_expiration=True)
+            if annot_event_s != NO_VALUE:
                 _LOG.debug('cache hit for ' + key)
                 adaptor = NexsonAnnotationAdder()
+                annot_event = anyjson.loads(annot_event_s)
                 self._cache_hits += 1
             else:
                 _LOG.debug('cache miss for ' + key)
+                need_to_cache = True
         
         if adaptor is None:
             bundle = ot_validate(study_obj)
@@ -239,8 +247,8 @@ class Phylesystem(object):
             annot_event = annotation['annotationEvent']
             adaptor = bundle[2]
         adaptor.replace_same_agent_annotation(study_obj, annot_event)
-        if self._cache_region is not None:
-            self._cache_region.set(key, annot_event)
+        if need_to_cache:
+            self._cache_region.set(key, anyjson.dumps(annot_event))
             _LOG.debug('set cache for ' + key)
 
         return annot_event
@@ -254,6 +262,10 @@ class Phylesystem(object):
                 return nexson, blob[1], blob[2]
             return nexson, blob[1]
 
+    def get_blob_sha_for_study_id(self, study_id, head_sha):
+        ga = self.create_git_action(study_id)
+        studypath = ga.paths_for_study(study_id)[1]
+        return ga.get_blob_sha_for_file(studypath, head_sha)
 
 # Cache keys:
 # v+SHA = annotation event from validation

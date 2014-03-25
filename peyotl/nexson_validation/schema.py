@@ -314,7 +314,7 @@ _ExpMNexmlEl_All = {'ot:dataDeposit': _VT.HREF,
                     'ot:studyPublicationReference': _VT.STR,
                     'ot:studyYear': _VT.INT,
                    }
-_TypMNexmlEl_All = {'ot:curatorName': _VT.STR,
+_TypMNexmlEl_All = {'ot:curatorName': _VT.STR_REPEATABLE_EL,
                     'ot:focalClade': _VT.INT,
                     'ot:focalCladeOTTTaxonName': _VT.STR,
                     'ot:notIntendedForSynthesis': _VT.BOOL,

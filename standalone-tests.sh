@@ -10,7 +10,7 @@ do
         stf=$(expr $stf + 1)
     fi
 done
-if test $str -gt 0
+if test $stf -gt 0
 then
     echo "Passed all standalone_tests passed."
 else

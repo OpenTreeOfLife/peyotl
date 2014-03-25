@@ -43,12 +43,12 @@ def validate_and_convert_nexson(nexson, output_version, allow_invalid):
         a GitWorkflowError will be generated before conversion.
     '''
     try:
-        annotation, validation_log, nexson_adaptor = __validate(nexson)
+        annotation, validation_log, nexson_adaptor = ot_validate(nexson)
     except:
-        msg = 'exception in __validate: ' + traceback.format_exc()
+        msg = 'exception in ot_validate: ' + traceback.format_exc()
         raise GitWorkflowError(msg)
     if (not allow_invalid) and validation_log.has_error():
-        raise GitWorkflowError('__validation failed: ' + json.dumps(annotation))
+        raise GitWorkflowError('ot_validation failed: ' + json.dumps(annotation))
     nexson = convert_nexson_format(nexson, output_version)
     return nexson, annotation, validation_log, nexson_adaptor
 

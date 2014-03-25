@@ -226,7 +226,6 @@ class Phylesystem(object):
         return ga, new_resource_id
 
     def add_validation_annotation(self, study_obj, sha):
-        annot_event_s = None
         need_to_cache = False
         adaptor = None
         if self._cache_region is not None:

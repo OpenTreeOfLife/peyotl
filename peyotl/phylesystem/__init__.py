@@ -289,10 +289,19 @@ class _Phylesystem(object):
 
         return annot_event
 
-    def return_study(self, study_id, branch='master', return_WIP_map=False):
+    def return_study(self,
+                     study_id,
+                     branch='master',
+                     commit_sha=None,
+                     return_WIP_map=False):
         ga = self.create_git_action(study_id)
         with ga.lock():
-            blob = ga.return_study(study_id, branch=branch, return_WIP_map=return_WIP_map)
+            #_LOG.debug('pylesystem.return_study({s}, {b}, {c}...)'.format(s=study_id, b=branch, c=commit_sha))
+            
+            blob = ga.return_study(study_id,
+                                   branch=branch,
+                                   commit_sha=commit_sha,
+                                   return_WIP_map=return_WIP_map)
             nexson = anyjson.loads(blob[0])
             if return_WIP_map:
                 return nexson, blob[1], blob[2]

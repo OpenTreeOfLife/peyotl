@@ -92,6 +92,7 @@ def commit_and_try_merge2master(git_action,
                                 merged_sha=None):
     """Actually make a local Git commit and push it to our remote
     """
+    #_LOG.debug('commit_and_try_merge2master study_id="{s}" parent_sha="{p}" merged_sha="{m}"'.format(s=study_id, p=parent_sha, m=merged_sha))
     merge_needed = False
     fc = tempfile.NamedTemporaryFile()
     try:

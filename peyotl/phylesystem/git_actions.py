@@ -155,17 +155,23 @@ class GitAction(object):
         dirs.sort()
         return dirs[-1]
 
-    def return_study(self, study_id, branch='master', return_WIP_map=False): 
+    def return_study(self, study_id, branch='master', commit_sha=None, return_WIP_map=False): 
         """Return the 
             blob[0] contents of the given study_id, 
-            blob[1] the SHA1 of the HEAD.
+            blob[1] the SHA1 of the HEAD of branch (or `commit_sha`)
             blob[2] dictionary of WIPs for this study.
         If the study_id does not exist, it returns the empty string.
+        If `commit_sha` is provided, that will be checked out and returned.
+            otherwise the branch will be checked out.
         """
-        self.checkout(branch)
+        #_LOG.debug('return_study({s}, {b}, {c}...)'.format(s=study_id, b=branch, c=commit_sha))
+        if commit_sha is None:
+            self.checkout(branch)
+            head_sha = get_HEAD_SHA1(self.git_dir)
+        else:
+            self.checkout(commit_sha)
+            head_sha = commit_sha
         study_filename = self.paths_for_study(study_id)[1]
-        head_sha = get_HEAD_SHA1(self.git_dir)
-        
         try:
             f = codecs.open(study_filename, mode='rU', encoding='utf-8')
             content = f.read()

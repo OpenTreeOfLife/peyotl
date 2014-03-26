@@ -41,6 +41,12 @@ def _get_phylesystem_parent():
 
 
 def get_repos(par_list=None):
+    '''Returns a dictionary of name -> filepath
+    `name` is the repo name based on the dir name (not the get repo). It is not
+        terribly useful, but it is nice to have so that any mirrored repo directory can
+        use the same naming convention.
+    `filepath` will be the full path to the repo directory (it will end in `name`)
+    '''
     _repos = {} # key is repo name, value repo location
     if par_list is None:
         par_list = _get_phylesystem_parent()
@@ -51,7 +57,7 @@ def get_repos(par_list=None):
             raise ValueError('No phylesystem parent "{p}" is not a directory'.format(p=p))            
         for name in os.listdir(p):
             if os.path.isdir(os.path.join(p, name + '/.git')):
-                _repos[name] = os.path.join(p, name)
+                _repos[name] = os.path.abspath(os.path.join(p, name))
     if len(_repos) == 0:
         raise ValueError('No git repos in {parent}'.format(str(par_list)))
     return _repos
@@ -113,7 +119,13 @@ def phylesystem_study_objs(**kwargs):
 
 class PhylesystemShard(object):
     '''Wrapper around a git repos holding nexson studies'''
-    def __init__(self, name, path, repo_nexml2json=None, git_ssh=None, pkey=None):
+    def __init__(self,
+                 name,
+                 path,
+                 repo_nexml2json=None,
+                 git_ssh=None,
+                 pkey=None,
+                 push_mirror_repo_path=None):
         self.git_ssh = git_ssh
         self.pkey = pkey
         self.name = name
@@ -214,7 +226,8 @@ def _make_phylesystem_cache_region():
 
 
 class _Phylesystem(object):
-    '''Wrapper around a set of sharded git repos'''
+    '''Wrapper around a set of sharded git repos.
+    '''
     def __init__(self,
                  repos_dict=None,
                  repos_par=None,
@@ -222,7 +235,36 @@ class _Phylesystem(object):
                  repo_nexml2json=None,
                  git_ssh=None,
                  pkey=None, 
-                 git_action_class=GitAction):
+                 git_action_class=GitAction,
+                 mirror_info=None):
+        '''
+        Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
+            or by trusting the `repos_dict` mapping of name to repo filepath.
+        `with_caching` should be True for non-debugging uses.
+        `repo_nexml2json` is optional. If specified all PhylesystemShard repos are assumed to store
+            files of this version of nexson syntax.
+        `git_ssh` is the path of an executable for git-ssh operations.
+        `pkey` is the PKEY that has to be in the env for remote, authenticated operations to work
+        `git_action_class` is a subclass of GitAction to use. the __init__ syntax must be compatible
+            with GitAction
+        If you want to use a mirrors of the repo for pushes or pulls, send in a `mirror_info` dict:
+            mirror_info['push'] and mirror_info['pull'] should be dicts with the following keys:
+            'parent_dir' - the parent directory of the mirrored repos
+            'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
+                appended to create the URL for pushing).
+        '''
+        push_mirror_repos_par = None
+        push_mirror_remote_map = {}
+        if mirror_info:
+            push_mirror_info = mirror_info.get('push', {})
+            if push_mirror_info:
+                push_mirror_repos_par = push_mirror_info['parent_dir']
+                push_mirror_remote_map = push_mirror_info.get('remote_map', {})
+                if push_mirror_repos_par:
+                    if not os.path.exists(push_mirror_repos_par):
+                        os.makedirs(push_mirror_repos_par)
+                    if not os.path.isdir(push_mirror_repos_par):
+                        raise ValueError('Specified push_mirror_repos_par, "{}", is not a directory'.format(push_mirror_repos_par))
         if repos_dict is None:
             repos_dict = get_repos(repos_par)
         shards = []
@@ -230,11 +272,31 @@ class _Phylesystem(object):
         repo_name_list.sort()
         for repo_name in repo_name_list:
             repo_filepath = repos_dict[repo_name]
-            shards.append(PhylesystemShard(repo_name,
+            push_mirror_repo_path = None
+            if push_mirror_repos_par:
+                expected_push_mirror_repo_path = os.path.join(push_mirror_repos_par, repo_name)
+                if os.path.isdir(expected_push_mirror_repo_path):
+                    push_mirror_repo_path = expected_push_mirror_repo_path
+            shard = PhylesystemShard(repo_name,
                                            repo_filepath,
                                            git_ssh=git_ssh,
                                            pkey=pkey,
-                                           repo_nexml2json=repo_nexml2json))
+                                           repo_nexml2json=repo_nexml2json,
+                                           push_mirror_repo_path=push_mirror_repo_path)
+            # if the mirror does not exist, clone it...
+            if push_mirror_repos_par and (push_mirror_repo_path is None):
+                GitAction.clone_repo(push_mirror_repos_par, repo_name, repo_filepath)
+                if not os.path.isdir(expected_push_mirror_repo_path):
+                    raise ValueError('git clone in mirror bootstrapping did not produce a directory at {}'.format(expected_push_mirror_repo_path))
+                for remote_name, remote_url_prefix in push_mirror_remote_map.items():
+                    if remote_name in ['origin', 'originssh']:
+                        raise ValueError('"{}" is a protected remote name in the mirrored repo setup'.format(remote_name))
+                    remote_url = remote_url_prefix + '/' + repo_name + '.git'
+                    GitAction.add_remote(expected_push_mirror_repo_path, remote_name, remote_url)
+                shard.push_mirror_repo_path = push_mirror_repo_path
+            shards.append(shard)
+
+
         d = {}
         for s in shards:
             for k, v in s.study_index.items():
@@ -321,7 +383,15 @@ def Phylesystem(repos_dict=None,
                 repo_nexml2json=None,
                 git_ssh=None,
                 pkey=None, 
-                git_action_class=GitAction):
+                git_action_class=GitAction,
+                mirror_info=None):
+    '''Factory function for a _Phylesystem object.
+
+    A wrapper around the _Phylesystem class instantiation for 
+    the most common use case: a singleton _Phylesystem.
+    If you need distinct _Phylesystem objects, you'll need to
+    call that class directly.
+    '''
     global _THE_PHYLESYSTEM
     if _THE_PHYLESYSTEM is None:
         _THE_PHYLESYSTEM = _Phylesystem(repos_dict=repos_dict,
@@ -329,8 +399,9 @@ def Phylesystem(repos_dict=None,
                                         with_caching=with_caching,
                                         repo_nexml2json=repo_nexml2json,
                                         git_ssh=git_ssh,
-                                        pkey=pkey,
-                                        git_action_class=git_action_class)
+                                        pkey=pkey,      
+                                        git_action_class=git_action_class,
+                                        mirror_info=mirror_info)
     return _THE_PHYLESYSTEM
 
 # Cache keys:

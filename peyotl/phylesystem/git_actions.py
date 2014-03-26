@@ -1,6 +1,6 @@
 from sh import git
 import traceback
-import sh
+import sh 
 import re
 import os
 import locket
@@ -54,7 +54,23 @@ class RepoLock():
         self._lock.acquire()
     def __exit__(self, _type, value, traceb):
         self._lock.release()
+
 class GitAction(object):
+    @staticmethod
+    def clone_repo(par_dir, repo_local_name, remote):
+        if not os.path.isdir(par_dir):
+            raise ValueError(repr(par_dir) + ' is not a directory')
+        if not (isinstance(remote, str) or isinstance(remote, unicode)):
+            raise ValueError(repr(remote) + ' is not a remote string')
+        dest = os.path.join(par_dir, repo_local_name)
+        if os.path.exists(dest):
+            raise RuntimeError('Filepath "{}" is in the way'.format(dest))
+        git('clone', remote, repo_local_name, _cwd=par_dir)
+    @staticmethod
+    def add_remote(repo_dir, remote_name, remote_url):
+        git_dir_arg = "--git-dir={}/.git".format(repo_dir)
+        git(git_dir_arg, 'remote', 'add', remote_name, remote_url)
+
     def __init__(self,
                  repo,
                  remote=None,

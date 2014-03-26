@@ -1,10 +1,10 @@
 #!/bin/sh
 stt=0
 stf=0
-./dev/refresh_for_git_tests.sh
 for f in $(ls standalone_tests/test*py)
 do 
     stt=$(expr $stt + 1)
+    ./dev/refresh_for_git_tests.sh
     if ! python $f
     then
         stf=$(expr $stf + 1)

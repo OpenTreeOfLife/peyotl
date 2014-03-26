@@ -266,11 +266,10 @@ class _Phylesystem(object):
         adaptor = None
         if self._cache_region is not None:
             key = 'v' + sha
-            annot_event_s = self._cache_region.get(key, ignore_expiration=True)
+            annot_event = self._cache_region.get(key, ignore_expiration=True)
             if annot_event_s != NO_VALUE:
                 _LOG.debug('cache hit for ' + key)
                 adaptor = NexsonAnnotationAdder()
-                annot_event = anyjson.loads(annot_event_s)
                 self._cache_hits += 1
             else:
                 _LOG.debug('cache miss for ' + key)
@@ -280,6 +279,8 @@ class _Phylesystem(object):
             bundle = ot_validate(study_obj)
             annotation = bundle[0]
             annot_event = annotation['annotationEvent']
+            del annot_event['@dateCreated'] #TEMP
+            del annot_event['@id'] #TEMP
             adaptor = bundle[2]
         adaptor.replace_same_agent_annotation(study_obj, annot_event)
         if need_to_cache:

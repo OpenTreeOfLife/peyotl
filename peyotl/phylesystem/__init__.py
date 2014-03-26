@@ -187,7 +187,7 @@ def _make_phylesystem_cache_region():
     except:
         _LOG.exception('redis cache set up failed.')
         region = None
-    _LOG.debug('Going to try dogpile.cache.dbm ...')
+    '''_LOG.debug('Going to try dogpile.cache.dbm ...')
     first_par = _get_phylesystem_parent()[0]
     cache_db_dir = os.path.split(first_par)[0]
     cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
@@ -207,7 +207,9 @@ def _make_phylesystem_cache_region():
         return region
     except:
         _LOG.exception('anydbm cache set up failed')
-        _LOG.debug('exception in the configuration of the cache. Phylesystem will not use caching')
+        _LOG.debug('exception in the configuration of the cache.')
+    '''
+    _LOG.debug('Phylesystem will not use caching')
     return None
 
 

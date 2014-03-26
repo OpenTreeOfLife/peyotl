@@ -207,7 +207,7 @@ class Phylesystem(object):
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
         self.repo_nexml2json = shards[-1].repo_nexml2json
-        if with_caching:
+        if with_caching and False: #temporary not caching.
             self._cache_region = make_phylesystem_cache_region()
         else:
             self._cache_region = None
@@ -244,6 +244,8 @@ class Phylesystem(object):
             bundle = ot_validate(study_obj)
             annotation = bundle[0]
             annot_event = annotation['annotationEvent']
+            del annot_event['@dateCreated'] #TEMP
+            del annot_event['@id'] #TEMP
             adaptor = bundle[2]
         adaptor.replace_same_agent_annotation(study_obj, annot_event)
         if need_to_cache:

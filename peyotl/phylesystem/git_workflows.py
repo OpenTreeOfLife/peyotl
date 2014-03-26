@@ -133,7 +133,7 @@ def commit_and_try_merge2master(git_action,
                     git_action.delete_branch(branch_name)
                     branch_name = 'master'
             else:
-                _LOG.debug('Edit to different source. merge_needed <- True')
+                _LOG.debug('Edit from different source. merge_needed <- True')
                 merge_needed = True
         finally:
             git_action.release_lock()

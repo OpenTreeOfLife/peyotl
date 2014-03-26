@@ -188,7 +188,7 @@ class GitAction(object):
         pat = re.compile(r'.*_study_{i}_[0-9]+'.format(i=study_id))
         head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
         ret = {}
-        _LOG.debug('find_WIP_branches head_shas = "{}"'.format(head_shas.split('\n')))
+        #_LOG.debug('find_WIP_branches head_shas = "{}"'.format(head_shas.split('\n')))
         for lin in head_shas.split('\n'):
             try:
                 local_branch_split = lin.split(' refs/heads/')

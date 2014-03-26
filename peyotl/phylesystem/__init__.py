@@ -267,7 +267,7 @@ class _Phylesystem(object):
         if self._cache_region is not None:
             key = 'v' + sha
             annot_event = self._cache_region.get(key, ignore_expiration=True)
-            if annot_event_s != NO_VALUE:
+            if annot_event != NO_VALUE:
                 _LOG.debug('cache hit for ' + key)
                 adaptor = NexsonAnnotationAdder()
                 self._cache_hits += 1

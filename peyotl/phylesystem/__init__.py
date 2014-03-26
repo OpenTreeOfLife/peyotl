@@ -151,55 +151,67 @@ class PhylesystemShard(object):
 
 
 _CACHE_REGION_CONFIGURED = False
-def make_phylesystem_cache_region():
-    global _CACHE_REGION_CONFIGURED
+_REGION = None
+def _make_phylesystem_cache_region():
+    '''Only intended to be called by the Phylesystem singleton.
+    '''
+    global _CACHE_REGION_CONFIGURED, _REGION
     if _CACHE_REGION_CONFIGURED:
-        return None
+        return _REGION
     _CACHE_REGION_CONFIGURED = True
     try:
         from dogpile.cache import make_region
     except:
         _LOG.debug('dogpile.cache not available')
         return
-    using_anydbm = False
-    using_redis = not using_anydbm
-    if using_anydbm:
-        first_par = _get_phylesystem_parent()[0]
-        cache_db_dir = os.path.split(first_par)[0]
-        cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
-        _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
+    region = None
+    trial_key = 'test_key'
+    trial_val =  {'test_val': [4, 3]}
     try:
-        
-        if using_anydbm:
-            a = {'filename': cache_db}
-            region = make_region().configure('dogpile.cache.dbm',
-                                             expiration_time = 36000,
-                                             arguments = a)
-            _LOG.debug('cache region set up with cache.dbm.')
-        if using_redis:
-            region = make_region().configure(
-            'dogpile.cache.redis',
-            arguments = {
-                'host': 'localhost',
-                'port': 6379,
-                'db': 0, # default is 0
-                'redis_expiration_time': 60*60*24*2,   # 2 days
-                'distributed_lock': False #True if multiple processes will use redis
-                }
-            )
-            _LOG.debug('cache region set up with cache.redis.')
-        _LOG.debug('testing caching...')
-        region.set('test_key', 'test_val')
-        assert('test_val' == region.get('test_key'))
-        _LOG.debug('caching works')
+        a = {
+            'host': 'localhost',
+            'port': 6379,
+            'db': 0, # default is 0
+            'redis_expiration_time': 60*60*24*2,   # 2 days
+            'distributed_lock': False #True if multiple processes will use redis
+        }
+        region = make_region().configure('dogpile.cache.redis', arguments=a)
+        _LOG.debug('cache region set up with cache.redis.')
+        _LOG.debug('testing redis caching...')
+        region.set(trial_key, trial_val)
+        assert(trial_val == region.get(trial_key))
+        _LOG.debug('redis caching works')
+        region.delete(trial_key)
+        _REGION = region
         return region
     except:
-        _LOG.exception('cache set up failed')
+        _LOG.exception('redis cache set up failed.')
+        region = None
+    _LOG.debug('Going to try dogpile.cache.dbm ...')
+    first_par = _get_phylesystem_parent()[0]
+    cache_db_dir = os.path.split(first_par)[0]
+    cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
+    _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
+    try:
+        a = {'filename': cache_db}
+        region = make_region().configure('dogpile.cache.dbm',
+                                         expiration_time = 36000,
+                                         arguments = a)
+        _LOG.debug('cache region set up with cache.dbm.')
+        _LOG.debug('testing anydbm caching...')
+        region.set(trial_key, trial_val)
+        assert(trial_val == region.get(trial_key))
+        _LOG.debug('anydbm caching works')
+        region.delete(trial_key)
+        _REGION = region
+        return region
+    except:
+        _LOG.exception('anydbm cache set up failed')
         _LOG.debug('exception in the configuration of the cache. Phylesystem will not use caching')
     return None
 
 
-class Phylesystem(object):
+class _Phylesystem(object):
     '''Wrapper around a set of sharded git repos'''
     def __init__(self,
                  repos_dict=None,
@@ -232,7 +244,7 @@ class Phylesystem(object):
         self._growing_shard = shards[-1] # generalize with config...
         self.repo_nexml2json = shards[-1].repo_nexml2json
         if with_caching:
-            self._cache_region = make_phylesystem_cache_region()
+            self._cache_region = _make_phylesystem_cache_region()
         else:
             self._cache_region = None
         self.git_action_class=git_action_class
@@ -289,6 +301,12 @@ class Phylesystem(object):
         ga = self.create_git_action(study_id)
         studypath = ga.paths_for_study(study_id)[1]
         return ga.get_blob_sha_for_file(studypath, head_sha)
+_THE_PHYLESYSTEM = None
+def Phylesystem(**kwargs):
+    global _THE_PHYLESYSTEM
+    if _THE_PHYLESYSTEM is None:
+        _THE_PHYLESYSTEM = _Phylesystem(**kwargs)
+    return _THE_PHYLESYSTEM
 
 # Cache keys:
 # v+SHA = annotation event from validation

@@ -154,26 +154,50 @@ _CACHE_REGION_CONFIGURED = False
 def make_phylesystem_cache_region():
     global _CACHE_REGION_CONFIGURED
     if _CACHE_REGION_CONFIGURED:
-        return
+        return None
     _CACHE_REGION_CONFIGURED = True
     try:
         from dogpile.cache import make_region
     except:
         _LOG.debug('dogpile.cache not available')
         return
-    first_par = _get_phylesystem_parent()[0]
-    cache_db_dir = os.path.split(first_par)[0]
-    cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
-    _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
+    using_anydbm = False
+    using_redis = not using_anydbm
+    if using_anydbm:
+        first_par = _get_phylesystem_parent()[0]
+        cache_db_dir = os.path.split(first_par)[0]
+        cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
+        _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
     try:
-        a = {'filename': cache_db}
-        region = make_region().configure('dogpile.cache.dbm',
-                                         expiration_time = 36000,
-                                         arguments = a)
-        _LOG.debug('cache region set up.')
+        
+        if using_anydbm:
+            a = {'filename': cache_db}
+            region = make_region().configure('dogpile.cache.dbm',
+                                             expiration_time = 36000,
+                                             arguments = a)
+            _LOG.debug('cache region set up with cache.dbm.')
+        if using_redis:
+            region = make_region().configure(
+            'dogpile.cache.redis',
+            arguments = {
+                'host': 'localhost',
+                'port': 6379,
+                'db': 0, # default is 0
+                'redis_expiration_time': 60*60*24*2,   # 2 days
+                'distributed_lock': False #True if multiple processes will use redis
+                }
+            )
+            _LOG.debug('cache region set up with cache.redis.')
+        _LOG.debug('testing caching...')
+        region.set('test_key', 'test_val')
+        assert('test_val' == region.get('test_key'))
+        _LOG.debug('caching works')
         return region
     except:
         _LOG.exception('cache set up failed')
+        _LOG.debug('exception in the configuration of the cache. Phylesystem will not use caching')
+    return None
+
 
 class Phylesystem(object):
     '''Wrapper around a set of sharded git repos'''

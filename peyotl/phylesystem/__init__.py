@@ -301,11 +301,24 @@ class _Phylesystem(object):
         ga = self.create_git_action(study_id)
         studypath = ga.paths_for_study(study_id)[1]
         return ga.get_blob_sha_for_file(studypath, head_sha)
+
 _THE_PHYLESYSTEM = None
-def Phylesystem(**kwargs):
+def Phylesystem(repos_dict=None,
+                repos_par=None,
+                with_caching=True,
+                repo_nexml2json=None,
+                git_ssh=None,
+                pkey=None, 
+                git_action_class=GitAction):
     global _THE_PHYLESYSTEM
     if _THE_PHYLESYSTEM is None:
-        _THE_PHYLESYSTEM = _Phylesystem(**kwargs)
+        _THE_PHYLESYSTEM = _Phylesystem(repos_dict=repos_dict,
+                                        repos_par=repos_par,
+                                        with_caching=with_caching,
+                                        repo_nexml2json=repo_nexml2json,
+                                        git_ssh=git_ssh,
+                                        pkey=pkey,
+                                        git_action_class=git_action_class)
     return _THE_PHYLESYSTEM
 
 # Cache keys:

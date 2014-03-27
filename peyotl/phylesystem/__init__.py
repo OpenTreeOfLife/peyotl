@@ -17,6 +17,7 @@ try:
 except:
     pass #caching is optional
 from peyotl.phylesystem.git_actions import GitAction
+from peyotl.phylesystem.git_workflows import commit_and_try_merge2master
 from peyotl.nexson_syntax import detect_nexson_version
 from peyotl.nexson_validation import ot_validate
 from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder
@@ -163,16 +164,22 @@ class PhylesystemShard(object):
             return detect_nexson_version(fj)
     def create_git_action(self):
         return self._ga_class(repo=self.path, git_ssh=self.git_ssh, pkey=self.pkey)
+    def _create_git_action_for_mirror(self):
+        mirror_ga = self._ga_class(repo=self.push_mirror_repo_path,
+                                   git_ssh=self.git_ssh,
+                                   pkey=self.pkey)
+        return mirror_ga
     def push_to_remote(self, remote_name):
         if self.push_mirror_repo_path is None:
             raise RuntimeError('This PhylesystemShard has no push mirror, so it cannot push to a remote.')
-        mirror_ga = self._ga_class(repo=self.push_to_remote, git_ssh=self.git_ssh, pkey=self.pkey)
-        working_ga = self(create_git_action)
+        working_ga = self.create_git_action()
+        mirror_ga = self._create_git_action_for_mirror()
         with mirror_ga.lock():
             with working_ga.lock():
                 mirror_ga.fetch(remote='origin')
             mirror_ga.merge('origin/master', destination='master')
-            mirror_ga.push_to_known_trailing(branch='master', remote=remote_name, remote_branch='master')
+            mirror_ga.push(branch='master',
+                           remote=remote_name)
         return True
 
 
@@ -309,7 +316,10 @@ class _Phylesystem(object):
                         raise ValueError('"{}" is a protected remote name in the mirrored repo setup'.format(remote_name))
                     remote_url = remote_url_prefix + '/' + repo_name + '.git'
                     GitAction.add_remote(expected_push_mirror_repo_path, remote_name, remote_url)
-                shard.push_mirror_repo_path = push_mirror_repo_path
+                shard.push_mirror_repo_path = expected_push_mirror_repo_path
+                for remote_name in push_mirror_remote_map.keys():
+                    mga = shard._create_git_action_for_mirror()
+                    mga.fetch(remote_name)
             shards.append(shard)
 
 
@@ -411,6 +421,19 @@ class _Phylesystem(object):
         shard = self.get_shard(study_id)
         return shard.push_to_remote(remote_name)
 
+    def commit_and_try_merge2master(self,
+                                    file_content,
+                                    study_id,
+                                    auth_info,
+                                    parent_sha,
+                                    merged_sha=None):
+        git_action = self.create_git_action(study_id)
+        return commit_and_try_merge2master(git_action,
+                                           file_content,
+                                           study_id,
+                                           auth_info,
+                                           parent_sha,
+                                           merged_sha=merged_sha)
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,
                 repos_par=None,

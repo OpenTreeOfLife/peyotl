@@ -273,8 +273,8 @@ class GitAction(object):
         '''fetch from a remote'''
         git(self.gitdir, "fetch", remote)
     
-    def push(branch, remote_name, remote_branch='master'):
-        git(self.gitdir, 'push', remote_name, branch, remote_branch)
+    def push(self, branch, remote):
+        git(self.gitdir, 'push', remote, branch)
 
     #@TEMP TODO. Args should be gh_user, study_id, parent_sha, author but 
     #   currently using the # of args as a hack to detect whether the

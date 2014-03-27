@@ -115,10 +115,13 @@ class GitAction(object):
         study_filename = "{d}/{id}.json".format(d=study_dir, id=study_id)
         return study_dir, study_filename
 
-    def env(self):
-        return {'GIT_SSH': self.git_ssh,
-                'PKEY': self.pkey,
-                }
+    def env(self): #@TEMP could be ref to a const singleton.
+        d = dict(os.environ)
+        if self.git_ssh:
+            d['GIT_SSH'] = self.git_ssh
+        if self.pkey:
+            d['PKEY'] = self.pkey
+        return d
 
     def acquire_lock(self):
         "Acquire a lock on the git repository"
@@ -274,7 +277,7 @@ class GitAction(object):
         git(self.gitdir, "fetch", remote)
     
     def push(self, branch, remote):
-        git(self.gitdir, 'push', remote, branch)
+        git(self.gitdir, 'push', remote, branch, _env=self.env())
 
     #@TEMP TODO. Args should be gh_user, study_id, parent_sha, author but 
     #   currently using the # of args as a hack to detect whether the

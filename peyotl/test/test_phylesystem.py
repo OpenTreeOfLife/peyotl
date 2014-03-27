@@ -8,7 +8,6 @@ from peyotl.test.support import pathmap
 class TestPhylesystem(unittest.TestCase):
     def setUp(self):
         self.r = pathmap.get_test_repos()
-        
     def testInit(self):
         p = _Phylesystem(repos_dict=self.r)
         self.assertEqual(2, len(p._shards))

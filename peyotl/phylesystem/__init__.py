@@ -125,12 +125,15 @@ class PhylesystemShard(object):
                  repo_nexml2json=None,
                  git_ssh=None,
                  pkey=None,
+                 git_action_class=GitAction,
                  push_mirror_repo_path=None):
+        self._ga_class = git_action_class
         self.git_ssh = git_ssh
         self.pkey = pkey
         self.name = name
         dot_git = os.path.join(path, '.git')
         study_dir = os.path.join(path, 'study')
+        self.push_mirror_repo_path = push_mirror_repo_path
         if not os.path.isdir(path):
             raise ValueError('"{p}" is not a directory'.format(p=path))
         if not os.path.isdir(dot_git):
@@ -158,8 +161,20 @@ class PhylesystemShard(object):
         with codecs.open(fp, mode='rU', encoding='utf-8') as fo:
             fj = json.load(fo)
             return detect_nexson_version(fj)
-    def create_git_action(self, _class=GitAction):
-        return _class(repo=self.path, git_ssh=self.git_ssh, pkey=self.pkey)
+    def create_git_action(self):
+        return self._ga_class(repo=self.path, git_ssh=self.git_ssh, pkey=self.pkey)
+    def push_to_remote(self, remote_name):
+        if self.push_mirror_repo_path is None:
+            raise RuntimeError('This PhylesystemShard has no push mirror, so it cannot push to a remote.')
+        mirror_ga = self._ga_class(repo=self.push_to_remote, git_ssh=self.git_ssh, pkey=self.pkey)
+        working_ga = self(create_git_action)
+        with mirror_ga.lock():
+            with working_ga.lock():
+                mirror_ga.fetch(remote='origin')
+            mirror_ga.merge('origin/master', destination='master')
+            mirror_ga.push_to_known_trailing(branch='master', remote=remote_name, remote_branch='master')
+        return True
+
 
 
 _CACHE_REGION_CONFIGURED = False
@@ -278,11 +293,12 @@ class _Phylesystem(object):
                 if os.path.isdir(expected_push_mirror_repo_path):
                     push_mirror_repo_path = expected_push_mirror_repo_path
             shard = PhylesystemShard(repo_name,
-                                           repo_filepath,
-                                           git_ssh=git_ssh,
-                                           pkey=pkey,
-                                           repo_nexml2json=repo_nexml2json,
-                                           push_mirror_repo_path=push_mirror_repo_path)
+                                     repo_filepath,
+                                     git_ssh=git_ssh,
+                                     pkey=pkey,
+                                     repo_nexml2json=repo_nexml2json,
+                                     git_action_class=git_action_class,
+                                     push_mirror_repo_path=push_mirror_repo_path)
             # if the mirror does not exist, clone it...
             if push_mirror_repos_par and (push_mirror_repo_path is None):
                 GitAction.clone_repo(push_mirror_repos_par, repo_name, repo_filepath)
@@ -314,12 +330,15 @@ class _Phylesystem(object):
         self.git_action_class=git_action_class
         self._cache_hits = 0
 
+    def get_shard(self, study_id):
+        return self._study2shard_map[study_id]
+
     def create_git_action(self, study_id):
-        shard = self._study2shard_map[study_id]
-        return shard.create_git_action(_class=self.git_action_class)
+        shard = self.get_shard(study_id)
+        return shard.create_git_action()
 
     def create_git_action_for_new_study(self):
-        ga = self._growing_shard.create_git_action(_class=self.git_action_class)
+        ga = self._growing_shard.create_git_action()
         # studies created by the OpenTree API start with o,
         # so they don't conflict with new study id's from other sources
         new_resource_id = "o%d" % (ga.newest_study_id() + 1)
@@ -375,6 +394,22 @@ class _Phylesystem(object):
         ga = self.create_git_action(study_id)
         studypath = ga.paths_for_study(study_id)[1]
         return ga.get_blob_sha_for_file(studypath, head_sha)
+
+    def push_study_to_remote(self, remote_name, study_id=None):
+        '''This will push the master branch to the remote named `remote_name`
+        using the mirroring strategy to cut down on locking of the working repo.
+
+        `study_id` is used to determine which shard should be pushed.
+        if `study_id is None, all shards are pushed.
+        '''
+        if study_id is None:
+            #@TODO should spawn a thread of each shard...
+            for shard in self._shards:
+                if not shard.push_to_remote(remote_name):
+                    return False
+            return True
+        shard = self.get_shard(study_id)
+        return shard.push_to_remote(remote_name)
 
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,

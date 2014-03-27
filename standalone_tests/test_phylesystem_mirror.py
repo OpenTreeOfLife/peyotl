@@ -7,10 +7,6 @@ from peyotl.test.support import pathmap
 
 class TestPhylesystemMirror(unittest.TestCase):
     def testMirrorConfig(self):
-        mi = pathmap.get_test_phylesystem_mirror_info()
-        mi['push']['remote_map'] = {'GitHubRemote': 'git@github.com:snacktavish'}
-        print mi
-        p = _Phylesystem(repos_dict=self.r, mirror_info=mi)
-
+        p = pathmap.get_test_phylesystem()
 if __name__ == "__main__":
     unittest.main()

@@ -269,6 +269,12 @@ class GitAction(object):
         _LOG.debug('Checked out branch "{b}"'.format(b=branch))
         return branch
 
+    def fetch(self, remote='origin'):
+        '''fetch from a remote'''
+        git(self.gitdir, "fetch", remote)
+    
+    def push(branch, remote_name, remote_branch='master'):
+        git(self.gitdir, 'push', remote_name, branch, remote_branch)
 
     #@TEMP TODO. Args should be gh_user, study_id, parent_sha, author but 
     #   currently using the # of args as a hack to detect whether the

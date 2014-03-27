@@ -64,6 +64,13 @@ def get_test_phylesystem_mirror_parent():
 def get_test_phylesystem_mirror_info():
     return {'push': {'parent_dir': get_test_phylesystem_mirror_parent()}}
 
+def get_test_phylesystem():
+    from peyotl.phylesystem import _Phylesystem
+    r = get_test_repos()
+    mi = get_test_phylesystem_mirror_info()
+    mi['push']['remote_map'] = {'GitHubRemote': 'git@github.com:mtholder'}
+    return _Phylesystem(repos_dict=r, mirror_info=mi)
+
 def all_files(prefix):
     d = os.path.join(TESTS_DATA_DIR, prefix)
     s = set()

@@ -75,15 +75,6 @@ def _pull_gh(git_action, branch_name):#
             raise GitWorkflowError(msg)
 
 
-def _push_gh(git_action, branch_name, study_id):
-    try:
-        git_env = git_action.env()
-        # actually push the changes to Github
-        git_action.push(git_action.repo_remote, env=git_env, branch=branch_name)
-    except Exception, e:
-        raise GitWorkflowError("Could not push deletion of study #%s! Details:\n%s" % (study_id, e.message))
-
-
 def commit_and_try_merge2master(git_action,
                                 file_content,
                                 study_id,

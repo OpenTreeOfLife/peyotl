@@ -372,8 +372,8 @@ class _Phylesystem(object):
             bundle = ot_validate(study_obj)
             annotation = bundle[0]
             annot_event = annotation['annotationEvent']
-            del annot_event['@dateCreated'] #TEMP
-            del annot_event['@id'] #TEMP
+            #del annot_event['@dateCreated'] #TEMP
+            #del annot_event['@id'] #TEMP
             adaptor = bundle[2]
         adaptor.replace_same_agent_annotation(study_obj, annot_event)
         if need_to_cache:

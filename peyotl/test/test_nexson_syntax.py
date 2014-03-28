@@ -5,9 +5,8 @@ from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  BADGER_FISH_NEXSON_VERSION, \
                                  BY_ID_HONEY_BADGERFISH, \
                                  sort_meta_elements, \
-                                 sort_arbitrarily_ordered_nexson, \
-                                 write_as_json
-from peyotl.struct_diff import DictDiff
+                                 sort_arbitrarily_ordered_nexson
+from peyotl.test.support import equal_blob_check
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
@@ -30,17 +29,6 @@ def _get_pair(par, f, s):
     return pathmap.nexson_obj(bf), pathmap.nexson_obj(hbf)
 
 class TestConvert(unittest.TestCase):
-    def _equal_blob_check(self, first, second):
-        if first != second:
-            dd = DictDiff.create(first, second)
-            ofn = pathmap.next_unique_scratch_filepath('.obtained_rt')
-            efn = pathmap.next_unique_scratch_filepath('.expected_rt')
-            write_as_json(first, ofn)
-            write_as_json(second, efn)
-            er = dd.edits_expr()
-            _LOG.info('\ndict diff: {d}'.format(d='\n'.join(er)))
-            if first != second:
-                self.assertEqual("", "Roundtrip failed see files {o} and {e}".format(o=ofn, e=efn))
     def testCanConvert(self):
         x = ["0.0.0", "1.0.0"]
         for i in x:
@@ -61,7 +49,7 @@ class TestConvert(unittest.TestCase):
             if obj is None:
                 continue
             h = convert_nexson_format(obj, DIRECT_HONEY_BADGERFISH)
-            self._equal_blob_check(h, b_expect)
+            equal_blob_check(self, '', h, b_expect)
 
     def testConvertBFtoHBF1_2(self):
         for t in RT_DIRS:
@@ -69,7 +57,7 @@ class TestConvert(unittest.TestCase):
             if obj is None:
                 continue
             b = convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH)
-            self._equal_blob_check(b, b_expect)
+            equal_blob_check(self, '', b, b_expect)
 
     def testConvertHBF1_0toBF(self):
         for t in RT_DIRS:
@@ -79,7 +67,7 @@ class TestConvert(unittest.TestCase):
             b = convert_nexson_format(obj, BADGER_FISH_NEXSON_VERSION)
             sort_meta_elements(b_expect)
             sort_meta_elements(b)
-            self._equal_blob_check(b, b_expect)
+            equal_blob_check(self, '', b, b_expect)
 
     def testConvertHBF1_2toBF(self):
         for t in RT_DIRS:
@@ -89,7 +77,7 @@ class TestConvert(unittest.TestCase):
             b = convert_nexson_format(obj, BADGER_FISH_NEXSON_VERSION)
             sort_arbitrarily_ordered_nexson(b_expect)
             sort_arbitrarily_ordered_nexson(b)
-            self._equal_blob_check(b, b_expect)
+            equal_blob_check(self, '', b, b_expect)
 
     def testConvertHBF1_2toHBF1_0(self):
         for t in RT_DIRS:
@@ -99,7 +87,7 @@ class TestConvert(unittest.TestCase):
             b = convert_nexson_format(obj, DIRECT_HONEY_BADGERFISH)
             sort_arbitrarily_ordered_nexson(b_expect)
             sort_arbitrarily_ordered_nexson(b)
-            self._equal_blob_check(b, b_expect)
+            equal_blob_check(self, '', b, b_expect)
 
     def testConvertHBF1_0toHBF1_2(self):
         for t in RT_DIRS:
@@ -107,7 +95,7 @@ class TestConvert(unittest.TestCase):
             if obj is None:
                 continue
             b = convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH)
-            self._equal_blob_check(b, b_expect)
+            equal_blob_check(self, '', b, b_expect)
 
 if __name__ == "__main__":
     unittest.main()

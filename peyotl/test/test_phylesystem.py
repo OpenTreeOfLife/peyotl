@@ -1,8 +1,6 @@
 #! /usr/bin/env python
-from peyotl.phylesystem import Phylesystem, _Phylesystem
+from peyotl.phylesystem import _Phylesystem
 import unittest
-import codecs
-import json
 from peyotl.test.support import pathmap
 
 class TestPhylesystem(unittest.TestCase):

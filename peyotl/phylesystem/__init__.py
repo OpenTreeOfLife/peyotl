@@ -7,7 +7,6 @@ import json
 try:
     import anyjson
 except:
-    import json
     class Wrapper(object):
         pass
     anyjson = Wrapper()
@@ -20,7 +19,7 @@ from peyotl.phylesystem.git_actions import GitAction
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master
 from peyotl.nexson_syntax import detect_nexson_version
 from peyotl.nexson_validation import ot_validate
-from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder
+from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, replace_same_agent_annotation
 import codecs
 import os
 from threading import Lock
@@ -63,7 +62,11 @@ def get_repos(par_list=None):
         raise ValueError('No git repos in {parent}'.format(str(par_list)))
     return _repos
 
-def create_id2repo_pair_dict(path, tag):
+def create_id2study_info(path, tag):
+    '''Searchers for *.json files in this repo and returns
+    a map of study id ==> (`tag`, dir, study filepath)
+    where `tag` is typically the shard name
+    '''
     d = {}
     for triple in os.walk(path):
         root, files = triple[0], triple[2]
@@ -72,15 +75,15 @@ def create_id2repo_pair_dict(path, tag):
                 # if file is in more than one place it gets over written.
                 #TODO EJM Needs work 
                 study_id = filename[:-5]
-                d[study_id] = (tag, root, os.path.join(root,filename))
+                d[study_id] = (tag, root, os.path.join(root, filename))
     return d
 
 def _initialize_study_index(repos_par=None):
     d = {} # Key is study id, value is repo,dir tuple
     repos = get_repos(repos_par)
-    for repo in _repos:
-        p = os.path.join(_repos[repo], 'study')
-        dr = create_id2repo_pair_dict(p, repo)
+    for repo in repos:
+        p = os.path.join(repos[repo], 'study')
+        dr = create_id2study_info(p, repo)
         d.update(dr)
     return d
 
@@ -88,35 +91,15 @@ def get_paths_for_study_id(study_id, repos_par=None):
     global _study_index
     _study_index_lock.acquire()
     if ".json" not in study_id:
-         study_id=study_id+".json" #@EJM risky?
+        study_id = study_id+".json" #@EJM risky?
     try:
         if _study_index is None:
             _study_index = _initialize_study_index(repos_par)
         return _study_index[study_id]
-    except KeyError, e:
+    except KeyError:
         raise ValueError("Study {} not found in repo".format(study_id))
     finally:
         _study_index_lock.release()
-
-def create_new_path_for_study_id(study_id):
-    _study_index_lock.acquire()
-    try:
-        pass
-    finally:
-        _study_index_lock.release()
-
-def phylesystem_study_objs(**kwargs):
-    '''Generator that iterates over all detected phylesystem studies.
-    Returns a pair (study_id, study_obj)
-    See documentation about specifying PHYLESYSTEM_PARENT
-    '''
-    for study_id, fp in phylesystem_study_paths(**kwargs):
-        with codecs.open(fp, 'rU', 'utf-8') as fo:
-            try:
-                nex_obj = anyjson.loads(fo.read())['nexml']
-                yield (study_id, nex_obj)
-            except Exception:
-                pass
 
 class PhylesystemShard(object):
     '''Wrapper around a git repos holding nexson studies'''
@@ -141,7 +124,7 @@ class PhylesystemShard(object):
             raise ValueError('"{p}" is not a directory'.format(p=dot_git))
         if not os.path.isdir(study_dir):
             raise ValueError('"{p}" is not a directory'.format(p=study_dir))
-        d = create_id2repo_pair_dict(study_dir, name)
+        d = create_id2study_info(study_dir, name)
         self._study_index = d
         self.path = path
         self.git_dir = dot_git
@@ -164,11 +147,13 @@ class PhylesystemShard(object):
             return detect_nexson_version(fj)
     def create_git_action(self):
         return self._ga_class(repo=self.path, git_ssh=self.git_ssh, pkey=self.pkey)
+
     def _create_git_action_for_mirror(self):
         mirror_ga = self._ga_class(repo=self.push_mirror_repo_path,
                                    git_ssh=self.git_ssh,
                                    pkey=self.pkey)
         return mirror_ga
+
     def push_to_remote(self, remote_name):
         if self.push_mirror_repo_path is None:
             raise RuntimeError('This PhylesystemShard has no push mirror, so it cannot push to a remote.')
@@ -182,6 +167,26 @@ class PhylesystemShard(object):
                            remote=remote_name)
         return True
 
+    def iter_study_filepaths(self, **kwargs):
+        '''Returns a pair: (study_id, absolute filepath of study file)
+        for each study in this repository.
+        Order is arbitrary.
+        '''
+        for study_id, info in self._study_index.items():
+            yield study_id, info[-1]
+
+    def iter_study_objs(self, **kwargs):
+        '''Returns a pair: (study_id, nexson_blob)
+        for each study in this repository.
+        Order is arbitrary.
+        '''
+        for study_id, fp in self.iter_study_filepaths(**kwargs):
+            with codecs.open(fp, 'rU', 'utf-8') as fo:
+                try:
+                    nex_obj = anyjson.loads(fo.read())['nexml']
+                    yield (study_id, nex_obj)
+                except Exception:
+                    pass
 
 
 _CACHE_REGION_CONFIGURED = False
@@ -221,28 +226,28 @@ def _make_phylesystem_cache_region():
     except:
         _LOG.exception('redis cache set up failed.')
         region = None
-    '''_LOG.debug('Going to try dogpile.cache.dbm ...')
-    first_par = _get_phylesystem_parent()[0]
-    cache_db_dir = os.path.split(first_par)[0]
-    cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
-    _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
-    try:
-        a = {'filename': cache_db}
-        region = make_region().configure('dogpile.cache.dbm',
-                                         expiration_time = 36000,
-                                         arguments = a)
-        _LOG.debug('cache region set up with cache.dbm.')
-        _LOG.debug('testing anydbm caching...')
-        region.set(trial_key, trial_val)
-        assert(trial_val == region.get(trial_key))
-        _LOG.debug('anydbm caching works')
-        region.delete(trial_key)
-        _REGION = region
-        return region
-    except:
-        _LOG.exception('anydbm cache set up failed')
-        _LOG.debug('exception in the configuration of the cache.')
-    '''
+    # '''_LOG.debug('Going to try dogpile.cache.dbm ...')
+    # first_par = _get_phylesystem_parent()[0]
+    # cache_db_dir = os.path.split(first_par)[0]
+    # cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
+    # _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
+    # try:
+    #     a = {'filename': cache_db}
+    #     region = make_region().configure('dogpile.cache.dbm',
+    #                                      expiration_time = 36000,
+    #                                      arguments = a)
+    #     _LOG.debug('cache region set up with cache.dbm.')
+    #     _LOG.debug('testing anydbm caching...')
+    #     region.set(trial_key, trial_val)
+    #     assert(trial_val == region.get(trial_key))
+    #     _LOG.debug('anydbm caching works')
+    #     region.delete(trial_key)
+    #     _REGION = region
+    #     return region
+    # except:
+    #     _LOG.exception('anydbm cache set up failed')
+    #     _LOG.debug('exception in the configuration of the cache.')
+    # '''
     _LOG.debug('Phylesystem will not use caching')
     return None
 
@@ -286,7 +291,9 @@ class _Phylesystem(object):
                     if not os.path.exists(push_mirror_repos_par):
                         os.makedirs(push_mirror_repos_par)
                     if not os.path.isdir(push_mirror_repos_par):
-                        raise ValueError('Specified push_mirror_repos_par, "{}", is not a directory'.format(push_mirror_repos_par))
+                        e_fmt = 'Specified push_mirror_repos_par, "{}", is not a directory'
+                        e = e_fmt.format(push_mirror_repos_par)
+                        raise ValueError(e)
         if repos_dict is None:
             repos_dict = get_repos(repos_par)
         shards = []
@@ -308,9 +315,13 @@ class _Phylesystem(object):
                                      push_mirror_repo_path=push_mirror_repo_path)
             # if the mirror does not exist, clone it...
             if push_mirror_repos_par and (push_mirror_repo_path is None):
-                GitAction.clone_repo(push_mirror_repos_par, repo_name, repo_filepath)
+                GitAction.clone_repo(push_mirror_repos_par,
+                                     repo_name,
+                                     repo_filepath)
                 if not os.path.isdir(expected_push_mirror_repo_path):
-                    raise ValueError('git clone in mirror bootstrapping did not produce a directory at {}'.format(expected_push_mirror_repo_path))
+                    e_msg = 'git clone in mirror bootstrapping did not produce a directory at {}'
+                    e = e_msg.format(expected_push_mirror_repo_path)
+                    raise ValueError(e)
                 for remote_name, remote_url_prefix in push_mirror_remote_map.items():
                     if remote_name in ['origin', 'originssh']:
                         raise ValueError('"{}" is a protected remote name in the mirrored repo setup'.format(remote_name))
@@ -325,7 +336,7 @@ class _Phylesystem(object):
 
         d = {}
         for s in shards:
-            for k, v in s.study_index.items():
+            for k in s.study_index.keys():
                 if k in d:
                     raise KeyError('study "{i}" found in multiple repos'.format(i=k))
                 d[k] = s
@@ -337,7 +348,7 @@ class _Phylesystem(object):
             self._cache_region = _make_phylesystem_cache_region()
         else:
             self._cache_region = None
-        self.git_action_class=git_action_class
+        self.git_action_class = git_action_class
         self._cache_hits = 0
 
     def get_shard(self, study_id):
@@ -375,7 +386,7 @@ class _Phylesystem(object):
             #del annot_event['@dateCreated'] #TEMP
             #del annot_event['@id'] #TEMP
             adaptor = bundle[2]
-        adaptor.replace_same_agent_annotation(study_obj, annot_event)
+        replace_same_agent_annotation(study_obj, annot_event)
         if need_to_cache:
             self._cache_region.set(key, annot_event)
             _LOG.debug('set cache for ' + key)
@@ -434,6 +445,17 @@ class _Phylesystem(object):
                                            auth_info,
                                            parent_sha,
                                            merged_sha=merged_sha)
+    def iter_study_objs(self, **kwargs):
+        '''Generator that iterates over all detected phylesystem studies.
+        and returns the study object (deserialized from nexson) for 
+        each study.
+        Order is by shard, but arbitrary within shards.
+        @TEMP not locked to prevent study creation/deletion
+        '''
+        for shard in self._shards:
+            for study_id, blob in shard.iter_study_objs(**kwargs):
+                yield study_id, blob
+
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,
                 repos_par=None,

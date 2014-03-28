@@ -24,6 +24,54 @@ _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
 _USING_IDREF_ONLY_PATHS = True
 
+def replace_same_agent_annotation(obj, annotation):
+    agent_id = annotation.get('@wasAssociatedWithAgentId')
+    replace_annotation(obj, annotation, agent_id=agent_id)
+
+def replace_annotation(obj,
+                       annotation,
+                       agent_id=None,
+                       annot_id=None,
+                       nexson_version=None):
+    if nexson_version is None:
+        nexson_version = detect_nexson_version(obj)
+    nex_el = get_nexml_el(obj)
+    annotation_list = get_annotation_list(nex_el, nexson_version)
+    replace_annotation_from_annot_list(annotation_list, annotation, agent_id=agent_id, annot_id=annot_id)
+    #_LOG.debug('oae = ' + str(find_nested_meta_first(nex_el, 'ot:annotationEvents', nexson_version)))
+
+def get_annotation_list(nex_el, nexson_version):
+    ae_s_obj = find_nested_meta_first(nex_el, 'ot:annotationEvents', nexson_version)
+    if not ae_s_obj:
+        ae_s_obj = add_literal_meta(nex_el, 'ot:annotationEvents', {'annotation':[]}, nexson_version)
+    #_LOG.debug('ae_s_obj = ' + str(ae_s_obj))
+    annotation_list = ae_s_obj.setdefault('annotation', [])
+    #_LOG.debug('annotation_list = ' + str(annotation_list))
+    return annotation_list
+
+def replace_annotation_from_annot_list(annotation_list, annotation, agent_id=None, annot_id=None):
+    to_remove_inds = []
+    # TODO should check preserve field...
+    if agent_id is not None:
+        for n, annot in enumerate(annotation_list):
+            if annot.get('@wasAssociatedWithAgentId') == agent_id:
+                to_remove_inds.append(n)
+    else:
+        if annot_id is None:
+            raise ValueError('Either agent_id or annot_id must have a value')
+        for n, annot in enumerate(annotation_list):
+            if annot.get('@id') == annot_id:
+                to_remove_inds.append(n)
+    while len(to_remove_inds) > 1:
+        n = to_remove_inds.pop(-1)
+        del annotation_list[n]
+    if to_remove_inds:
+        n = to_remove_inds.pop()
+        annotation_list[n] = annotation
+    else:
+        annotation_list.append(annotation)
+    _LOG.debug('annotation_list = ' + str(annotation_list))
+
 class LazyAddress(object):
     @staticmethod
     def _address_code_to_str(code):
@@ -159,7 +207,6 @@ class NexsonAnnotationAdder(object):
             1. have the same author/name, and
             2. have no messages that are flagged as messages to be preserved (values for 'preserve' that evaluate to true)
         '''
-        script_name = agent['@name']
         nex = get_nexml_el(obj)
         nvers = detect_nexson_version(obj)
         _LOG.debug('detected version as ' + nvers)
@@ -169,7 +216,6 @@ class NexsonAnnotationAdder(object):
         agents_list = agents_obj.setdefault('agent', [])
         found_agent = False
         aid = agent['@id']
-        anid = annotation['@id']
         for a in agents_list:
             if a.get('@id') == aid:
                 found_agent = True
@@ -177,51 +223,8 @@ class NexsonAnnotationAdder(object):
         if not found_agent:
             agents_list.append(agent)
         if not add_agent_only:
-            self.replace_same_agent_annotation(obj, annotation)
-    def replace_same_agent_annotation(self, obj, annotation):
-        agent_id = annotation.get('@wasAssociatedWithAgentId')
-        self.replace_annotation(obj, annotation, agent_id=agent_id)
+            replace_same_agent_annotation(obj, annotation)
 
-    def get_annotation_list(self, nex_el, nexson_version):
-        ae_s_obj = find_nested_meta_first(nex_el, 'ot:annotationEvents', nexson_version)
-        if not ae_s_obj:
-            ae_s_obj = add_literal_meta(nex_el, 'ot:annotationEvents', {'annotation':[]}, nexson_version)
-        _LOG.debug('ae_s_obj = ' + str(ae_s_obj))
-        annotation_list = ae_s_obj.setdefault('annotation', [])
-        _LOG.debug('annotation_list = ' + str(annotation_list))
-        return annotation_list
-        
-    def replace_annotation(self, obj, annotation, agent_id=None, annot_id=None, nexson_version=None):
-        if nexson_version is None:
-            nexson_version = detect_nexson_version(obj)
-        nex_el = get_nexml_el(obj)
-        annotation_list = self.get_annotation_list(nex_el, nexson_version)
-        self.replace_annotation_from_annot_list(annotation_list, annotation, agent_id=agent_id, annot_id=annot_id)
-        _LOG.debug('oae = ' + str(find_nested_meta_first(nex_el, 'ot:annotationEvents', nexson_version)))
-
-    def replace_annotation_from_annot_list(self, annotation_list, annotation, agent_id=None, annot_id=None):
-        to_remove_inds = []
-        # TODO should check preserve field...
-        if agent_id is not None:
-            for n, annot in enumerate(annotation_list):
-                if annot.get('@wasAssociatedWithAgentId') == agent_id:
-                    to_remove_inds.append(n)
-        else:
-            if annot_id is None:
-                raise ValueError('Either agent_id or annot_id must have a value')
-            for n, annot in enumerate(annotation_list):
-                if annot.get('@id') == annot_id:
-                    to_remove_inds.append(n)
-        while len(to_remove_inds) > 1:
-            n = to_remove_inds.pop(-1)
-            del annotation_list[n]
-        if to_remove_inds:
-            n = to_remove_inds.pop()
-            annotation_list[n] = annotation
-        else:
-            annotation_list.append(annotation)
-        _LOG.debug('annotation_list = ' + str(annotation_list))
-        
 class NexsonValidationAdaptor(NexsonAnnotationAdder):
     '''An object created during NexSON validation.
     It holds onto the nexson object that it was instantiated for.
@@ -449,9 +452,11 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
                               key_list=[key,])
             return None
         return k
+
     def _get_par_element_type(self, c):
         pc = _NEXEL.CODE_TO_PAR_CODE.get(c)
         return pc
+
     def _check_meta_id(self, nid, meta_obj, k, container_obj, vc):
         robj = self._nexson_id_to_obj.setdefault(nid, meta_obj)
         if robj is meta_obj:

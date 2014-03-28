@@ -24,12 +24,6 @@ def get_test_file_names():
     path = os.path.dirname(__file__)
     files = os.listdir(path)
     return path, files
-    test_file_pattern = re.compile(r"test.*\.py$", re.IGNORECASE)
-    test_files = []
-    for f in files:
-        if test_file_pattern.search(f):
-            test_files.append("peyotl.test." + os.path.splitext(f)[0])
-    return test_files
 
 def get_test_suite(test_file_names=None):
     """

@@ -88,7 +88,7 @@ def _move_ott_taxon_name_to_otu(obj):
                             ind_to_del = n
                             break
                     if ind_to_del:
-                        m.pop(n)
+                        m.pop(ind_to_del)
                 if to_move:
                     oid = node['@otu']
                     otu = oid2otu[oid]

@@ -235,7 +235,7 @@ class GitAction(object):
                 if len(local_branch_split) == 2:
                     branch = local_branch_split[1].rstrip()
                     if branch.startswith(frag):
-                         return branch
+                        return branch
         return None
     def checkout(self, branch):
         git(self.gitdir, self.gitwd, "checkout", branch)
@@ -364,7 +364,7 @@ class GitAction(object):
                 # We can ignore this if no changes are new,
                 # otherwise raise a 400
                 if "nothing to commit" in e.message:#@EJM is this dangerous?
-                     pass
+                    pass
                 else:
                     _LOG.exception('"git commit" failed')
                     self.reset_hard()
@@ -399,7 +399,11 @@ class GitAction(object):
         shutil.copy(tmpfi.name, study_filename)
         git(self.gitdir, self.gitwd, "add", study_filename)
         try:
-            git(self.gitdir, self.gitwd,  "commit", author=author, message="Update Study #%s via OpenTree API" % study_id)
+            git(self.gitdir,
+                self.gitwd, 
+                "commit",
+                author=author,
+                message="Update Study #%s via OpenTree API" % study_id)
         except Exception, e:
             # We can ignore this if no changes are new,
             # otherwise raise a 400

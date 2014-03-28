@@ -6,9 +6,7 @@ from peyotl.nexson_validation.helper import SeverityCodes, VERSION
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
-import datetime
 import platform
-import uuid
 import sys
 
 def _err_warn_summary(w):

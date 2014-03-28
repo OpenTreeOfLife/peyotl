@@ -77,7 +77,7 @@ class Nexson2Nexml(NexsonConverter):
         doc = xml.dom.minidom.Document()
         converted_root_el = False
         if 'nexml' in blob:
-            converted_root_el= True
+            converted_root_el = True
             blob['nex:nexml'] = blob['nexml']
             del blob['nexml']
         self._top_level_build_xml(doc, blob)

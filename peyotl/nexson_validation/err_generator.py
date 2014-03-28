@@ -153,11 +153,13 @@ class WrongValueTypeWarningType(MessageTupleAdaptor):
             rl.append({'key':k, 'type':v, 'expected':et})
         return rl
     def __init__(self):
+        MessageTupleAdaptor.__init__(self)
         self.code = NexsonWarningCodes.INCORRECT_VALUE_TYPE
         self.format = '{p}value for key not the expected type: "{d}"'
 
 class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor):
     def __init__(self):
+        MessageTupleAdaptor.__init__(self)
         self.code = NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID
         self.format = '{p}Multiple otus mapping to the same OTT ID used in the same tree: "{d}"'
     def write(self, err_tuple, outstream, prefix):

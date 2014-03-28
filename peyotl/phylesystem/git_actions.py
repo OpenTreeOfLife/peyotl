@@ -1,5 +1,4 @@
 from sh import git
-import traceback
 import sh 
 import re
 import os
@@ -7,8 +6,6 @@ import locket
 import codecs
 from peyotl import get_logger
 import shutil
-import json
-import hashlib
 from peyotl.nexson_syntax import write_as_json
 import tempfile #@TEMPORARY for deprecated write_study
 _LOG = get_logger(__name__)
@@ -135,7 +132,6 @@ class GitAction(object):
             self._lock.release()
         except:
             _LOG.debug('Exception releasing lock suppressed.')
-            pass
 
     def current_branch(self):
         "Return the current branch name"
@@ -258,10 +254,10 @@ class GitAction(object):
         _LOG.debug('Found branch "{b}" for sha "{s}"'.format(b=branch, s=parent_sha))
         if not branch:
             branch = frag + '0'
-            i=1
+            i = 1
             while self.branch_exists(branch):
                 branch = frag + str(i)
-                i+=1
+                i += 1
             _LOG.debug('lowest non existing branch =' + branch)
             try:
                 git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
@@ -297,7 +293,7 @@ class GitAction(object):
             parent_sha = self.get_master_sha()
         else:
             gh_user, study_id, parent_sha, author = first_arg, sec_arg, third_arg, fourth_arg
-        study_dir, study_filename = self.paths_for_study(study_id)
+        study_dir = self.paths_for_study(study_id)[0]
 
         branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
         if not os.path.isdir(study_dir):

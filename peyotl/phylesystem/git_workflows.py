@@ -67,10 +67,11 @@ def _pull_gh(git_action, branch_name):#
         if "not something we can merge" not in e.message:
             # Attempt to abort a merge, in case of conflicts
             try:
-                git(git_action.gitdir,"merge", "--abort")
+                git(git_action.gitdir, "merge", "--abort")
             except:
                 pass
-            msg = "Could not pull or merge latest %s branch from %s ! Details: \n%s" % (branch_name, git_action.repo_remote, e.message)
+            msg_f = "Could not pull or merge latest %s branch from %s ! Details: \n%s"
+            msg = msg_f % (branch_name, git_action.repo_remote, e.message)
             _LOG.debug(msg)
             raise GitWorkflowError(msg)
 
@@ -83,7 +84,9 @@ def commit_and_try_merge2master(git_action,
                                 merged_sha=None):
     """Actually make a local Git commit and push it to our remote
     """
-    #_LOG.debug('commit_and_try_merge2master study_id="{s}" parent_sha="{p}" merged_sha="{m}"'.format(s=study_id, p=parent_sha, m=merged_sha))
+    #_LOG.debug('commit_and_try_merge2master study_id="{s}" \
+    #            parent_sha="{p}" merged_sha="{m}"'.format(
+    #            s=study_id, p=parent_sha, m=merged_sha))
     merge_needed = False
     fc = tempfile.NamedTemporaryFile()
     try:
@@ -92,7 +95,8 @@ def commit_and_try_merge2master(git_action,
         else:
             write_as_json(file_content, fc)
         fc.flush()
-        acquire_lock_raise(git_action, fail_msg="Could not acquire lock to write to study #{s}".format(s=study_id))
+        f = "Could not acquire lock to write to study #{s}".format(s=study_id)
+        acquire_lock_raise(git_action, fail_msg=f)
         try:
             try:
                 commit_resp = git_action.write_study_from_tmpfile(study_id, fc, parent_sha, auth_info)

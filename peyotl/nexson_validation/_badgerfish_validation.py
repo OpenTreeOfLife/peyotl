@@ -403,6 +403,8 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 tree_list = []
                 for tg in trees_group_list:
                     stree_list = tg.get('tree')
+                    if not isinstance(stree_list, list):
+                        stree_list = [stree_list]
                     tree_list.extend([i.get('@id') for i in stree_list])
             self._generate_ott_warnings(ogid2og, tree_list, (nex_obj, obj_nex_id), vc)
         return True

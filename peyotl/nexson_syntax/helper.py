@@ -280,11 +280,35 @@ def find_val_for_first_bf_r_meta(d, prop_name):
             return extract_meta(m_el)
     return None
 
+
 def find_val_literal_meta_first(d, prop_name, version):
     if _is_badgerfish_version(version):
         return find_val_for_first_bf_l_meta(d, prop_name)
     p = '^' + prop_name
     return d.get(p)
+
+def find_nested_meta_first_bf(d, prop_name):
+    '''Returns the $ value of the first meta element with
+    the @property that matches @prop_name (or None).
+    '''
+    m_list = d.get('meta')
+    if not m_list:
+        return None
+    if not isinstance(m_list, list):
+        m_list = [m_list]
+    for m_el in m_list:
+        if m_el.get('@property') == prop_name or m_el.get('@rel') == prop_name:
+            return m_el
+    return None
+
+
+def find_nested_meta_first(d, prop_name, version):
+    '''Returns obj. for badgerfish and val for hbf. Appropriate for nested literals'''
+    if _is_badgerfish_version(version):
+        return find_nested_meta_first_bf(d, prop_name)
+    p = '^' + prop_name
+    return d.get(p)
+
 def find_val_resource_meta_first(d, prop_name, version):
     if _is_badgerfish_version(version):
         return find_val_for_first_bf_r_meta(d, prop_name)

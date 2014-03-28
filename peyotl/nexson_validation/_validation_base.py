@@ -14,6 +14,7 @@ from peyotl.nexson_validation.err_generator import factory2code, \
 from peyotl.nexson_syntax.helper import add_literal_meta, \
                                         get_nexml_el, \
                                         find_val_literal_meta_first, \
+                                        find_nested_meta_first, \
                                         extract_meta, \
                                         _add_value_to_dict_bf
 from peyotl.nexson_syntax import detect_nexson_version
@@ -161,6 +162,7 @@ class NexsonAnnotationAdder(object):
         script_name = agent['@name']
         nex = get_nexml_el(obj)
         nvers = detect_nexson_version(obj)
+        _LOG.debug('detected version as ' + nvers)
         agents_obj = find_val_literal_meta_first(nex, 'ot:agents', nvers)
         if not agents_obj:
             agents_obj = add_literal_meta(nex, 'ot:agents', {'agent':[]}, nvers)
@@ -181,10 +183,12 @@ class NexsonAnnotationAdder(object):
         self.replace_annotation(obj, annotation, agent_id=agent_id)
 
     def get_annotation_list(self, nex_el, nexson_version):
-        ae_s_obj = find_val_literal_meta_first(nex_el, 'ot:annotationEvents', nexson_version)
+        ae_s_obj = find_nested_meta_first(nex_el, 'ot:annotationEvents', nexson_version)
         if not ae_s_obj:
             ae_s_obj = add_literal_meta(nex_el, 'ot:annotationEvents', {'annotation':[]}, nexson_version)
+        _LOG.debug('ae_s_obj = ' + str(ae_s_obj))
         annotation_list = ae_s_obj.setdefault('annotation', [])
+        _LOG.debug('annotation_list = ' + str(annotation_list))
         return annotation_list
         
     def replace_annotation(self, obj, annotation, agent_id=None, annot_id=None, nexson_version=None):
@@ -193,6 +197,7 @@ class NexsonAnnotationAdder(object):
         nex_el = get_nexml_el(obj)
         annotation_list = self.get_annotation_list(nex_el, nexson_version)
         self.replace_annotation_from_annot_list(annotation_list, annotation, agent_id=agent_id, annot_id=annot_id)
+        _LOG.debug('oae = ' + str(find_nested_meta_first(nex_el, 'ot:annotationEvents', nexson_version)))
 
     def replace_annotation_from_annot_list(self, annotation_list, annotation, agent_id=None, annot_id=None):
         to_remove_inds = []
@@ -215,7 +220,8 @@ class NexsonAnnotationAdder(object):
             annotation_list[n] = annotation
         else:
             annotation_list.append(annotation)
-
+        _LOG.debug('annotation_list = ' + str(annotation_list))
+        
 class NexsonValidationAdaptor(NexsonAnnotationAdder):
     '''An object created during NexSON validation.
     It holds onto the nexson object that it was instantiated for.

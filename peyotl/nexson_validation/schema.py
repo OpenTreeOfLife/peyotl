@@ -436,7 +436,7 @@ _Req_TreesEl_ByI = {'@otus': _VT.STR,
                   }
 _Req_TreesEl_Dir = {'@id': _VT.STR,
                     '@otus': _VT.STR,
-                    'tree': _VT.LIST,
+                    'tree': _VT.LIST_OR_DICT,
                   }
 _All_TreesEl_Dir = {'@about': _VT.STR,
                   }

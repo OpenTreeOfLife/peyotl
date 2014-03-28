@@ -167,14 +167,14 @@ class DefaultRichLogger(object):
             except:
                 pass
         checks_performed = [NexsonWarningCodes.facets[i] for i in checks_performed]
-        aevent_id = 'ae' + str(uuid.uuid1())
         agent_id = 'peyotl-validator'
+        aevent_id = agent_id + '-event'
         ml = self.create_nexson_message_list()
         annotation = {
             '@id': aevent_id,
             '@description': description,
             '@wasAssociatedWithAgentId': agent_id,
-            '@dateCreated': datetime.datetime.utcnow().isoformat(),
+            #'@dateCreated': datetime.datetime.utcnow().isoformat(),
             '@passedChecks': not self.has_error(),
             '@preserve': False,
             'message': ml

@@ -445,6 +445,35 @@ class _Phylesystem(object):
                                            auth_info,
                                            parent_sha,
                                            merged_sha=merged_sha)
+        def annotate_and_write(self,
+                               git_data, 
+                               nexson,
+                               study_id,
+                               auth_info,
+                               adaptor,
+                               annotation,
+                               parent_sha,
+                               master_file_blob_included=None):
+            '''
+            This is the heart of the api's __finish_write_verb 
+            It was moved to phylesystem to make it easier to coordinate it
+                with the caching decisions. We have been debating whether
+                to cache @id and @dateCreated attributes for the annotations
+                or cache the whole annotation. Since these decisions are in
+                add_validation_annotation (above), it is easier to have
+                that decision and the add_or_replace_annotation call in the
+                same repo.
+            '''
+            adaptor.add_or_replace_annotation(nexson,
+                                              annotation['annotationEvent'],
+                                              annotation['agent'])
+            return commit_and_try_merge2master(git_action=git_data,
+                                               file_content=nexson,
+                                               study_id=resource_id,
+                                               auth_info=auth_info,
+                                               parent_sha=parent_sha,
+                                               merged_sha=master_file_blob_included)
+        
     def iter_study_objs(self, **kwargs):
         '''Generator that iterates over all detected phylesystem studies.
         and returns the study object (deserialized from nexson) for 

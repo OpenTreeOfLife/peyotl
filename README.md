@@ -138,6 +138,8 @@ You can tweak this by deciding on your NEXML_PARENT dir and running:
 
 # Thanks
 
+The fabulous <a href="http://karlgude.com/about/">Karl Gude</a> created the logo.
+
 Several parts of the setup.py, logging, documentation, and test suite were 
 based on Jeet Sukumraran's work in the [DendroPy](http://pythonhosted.org/DendroPy/) package.
 
@@ -154,6 +156,7 @@ The peyotl/test/data/nexson/phenoscape/nexml test file is from
     https://raw.github.com/phenoscape/phenoscape-data/master/Curation%20Files/completed-phenex-files/Characiformes/Buckup_1998.xml
     PhenoscapeKB, [U.S. National Evolutionary Synthesis Center], http://kb.phenoscape.org; [Feb 16, 2014]
     The citation for the data is in the nexml doc itself.
+
 ****************
 
 *Etymology*: According to Wikipedia, peyotl is the Nahuatl word for [*Lophophora williamsii*](http://en.wikipedia.org/wiki/Lophophora_williamsii).

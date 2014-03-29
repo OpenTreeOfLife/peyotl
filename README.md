@@ -1,4 +1,4 @@
-# peyotl
+# ![peyotl](https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/doc/peyotl-logo.png)
 
 A python package to make it easier to access web services and data
 associated with the [Open Tree of Life project] [1].

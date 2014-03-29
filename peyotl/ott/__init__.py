@@ -8,11 +8,17 @@ class OTT(object):
     def __init__(self, ott_dir=None):
         if ott_dir is None:
             ott_dir = get_config('ott', 'parent')
+        if ott_dir is None:
+            raise ValueError('Either the ott_dir arg must be used or "parent" must exist in the "[ott]" section of your config (~/.peyotl/config by default)')
         self.ott_dir = ott_dir
         if not os.path.isdir(self.ott_dir):
             raise ValueError('"{}" is not a directory'.format(self.ott_dir))
+        version = os.path.split(os.path.realpath(self.ott_dir))[-1][3:]
         taxonomy_file = os.path.join(self.ott_dir, 'taxonomy.tsv')
+        if not os.path.isfile(taxonomy_file):
+            raise ValueError('Expecting to find "{}" based on ott_dir ([ott] parent setting) of "{}"'.format(taxonomy_file, ott_dir))
         num_lines = 0
+
         id2par = {}  # UID to parent UID
         id2name = {} # UID to 'name' field
         id2uniq = {} # UID to 'uniqname' field

@@ -143,7 +143,7 @@ You can tweak this by deciding on your NEXML_PARENT dir and running:
 # Thanks
 
 peyotl is primarily written by Mark Holder, Emily Jane McTavish, and Jim Allman, 
-but see the [contributors file] [https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/CONTRIBUTORS.txt] for a more complete list
+but see the [contributors file] [6] for a more complete list
 of people who have contributed code.
 
 The fabulous <a href="http://karlgude.com/about/">Karl Gude</a> created the logo.
@@ -174,3 +174,4 @@ The peyotl/test/data/nexson/phenoscape/nexml test file is from
 [3]: https://github.com/OpenTreeOfLife/api.opentreeoflife.org/
 [4]: https://github.com/OpenTreeOfLife/taxomachine
 [5]: https://github.com/OpenTreeOfLife/treemachine
+[6]: https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/CONTRIBUTORS.txt

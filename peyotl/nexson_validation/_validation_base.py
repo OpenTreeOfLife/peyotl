@@ -200,7 +200,11 @@ class _ValidationContext(object):
         return ''
 
 class NexsonAnnotationAdder(object):
-    def add_or_replace_annotation(self, obj, annotation, agent, add_agent_only=False):
+    def add_or_replace_annotation(self,
+                                  obj,
+                                  annotation,
+                                  agent,
+                                  add_agent_only=False):
         '''Takes an `annotation` dictionary which is 
         expected to have a string as the value of annotation['author']['name']
         This function will remove all annotations from obj that:

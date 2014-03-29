@@ -206,48 +206,51 @@ def _make_phylesystem_cache_region():
     region = None
     trial_key = 'test_key'
     trial_val =  {'test_val': [4, 3]}
-    try:
-        a = {
-            'host': 'localhost',
-            'port': 6379,
-            'db': 0, # default is 0
-            'redis_expiration_time': 60*60*24*2,   # 2 days
-            'distributed_lock': False #True if multiple processes will use redis
-        }
-        region = make_region().configure('dogpile.cache.redis', arguments=a)
-        _LOG.debug('cache region set up with cache.redis.')
-        _LOG.debug('testing redis caching...')
-        region.set(trial_key, trial_val)
-        assert(trial_val == region.get(trial_key))
-        _LOG.debug('redis caching works')
-        region.delete(trial_key)
-        _REGION = region
-        return region
-    except:
-        _LOG.exception('redis cache set up failed.')
-        region = None
-    # '''_LOG.debug('Going to try dogpile.cache.dbm ...')
-    # first_par = _get_phylesystem_parent()[0]
-    # cache_db_dir = os.path.split(first_par)[0]
-    # cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
-    # _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
-    # try:
-    #     a = {'filename': cache_db}
-    #     region = make_region().configure('dogpile.cache.dbm',
-    #                                      expiration_time = 36000,
-    #                                      arguments = a)
-    #     _LOG.debug('cache region set up with cache.dbm.')
-    #     _LOG.debug('testing anydbm caching...')
-    #     region.set(trial_key, trial_val)
-    #     assert(trial_val == region.get(trial_key))
-    #     _LOG.debug('anydbm caching works')
-    #     region.delete(trial_key)
-    #     _REGION = region
-    #     return region
-    # except:
-    #     _LOG.exception('anydbm cache set up failed')
-    #     _LOG.debug('exception in the configuration of the cache.')
-    # '''
+    trying_redis = True
+    if trying_redis:
+        try:
+            a = {
+                'host': 'localhost',
+                'port': 6379,
+                'db': 0, # default is 0
+                'redis_expiration_time': 60*60*24*2,   # 2 days
+                'distributed_lock': False #True if multiple processes will use redis
+            }
+            region = make_region().configure('dogpile.cache.redis', arguments=a)
+            _LOG.debug('cache region set up with cache.redis.')
+            _LOG.debug('testing redis caching...')
+            region.set(trial_key, trial_val)
+            assert(trial_val == region.get(trial_key))
+            _LOG.debug('redis caching works')
+            region.delete(trial_key)
+            _REGION = region
+            return region
+        except:
+            _LOG.exception('redis cache set up failed.')
+            region = None
+    trying_file_dbm = False
+    if trying_file_dbm:
+        _LOG.debug('Going to try dogpile.cache.dbm ...')
+        first_par = _get_phylesystem_parent()[0]
+        cache_db_dir = os.path.split(first_par)[0]
+        cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
+        _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
+        try:
+            a = {'filename': cache_db}
+            region = make_region().configure('dogpile.cache.dbm',
+                                             expiration_time = 36000,
+                                             arguments = a)
+            _LOG.debug('cache region set up with cache.dbm.')
+            _LOG.debug('testing anydbm caching...')
+            region.set(trial_key, trial_val)
+            assert(trial_val == region.get(trial_key))
+            _LOG.debug('anydbm caching works')
+            region.delete(trial_key)
+            _REGION = region
+            return region
+        except:
+            _LOG.exception('anydbm cache set up failed')
+            _LOG.debug('exception in the configuration of the cache.')
     _LOG.debug('Phylesystem will not use caching')
     return None
 
@@ -466,7 +469,8 @@ class _Phylesystem(object):
         '''
         adaptor.add_or_replace_annotation(nexson,
                                           annotation['annotationEvent'],
-                                          annotation['agent'])
+                                          annotation['agent'],
+                                          add_agent_only=True)
         return commit_and_try_merge2master(git_action=git_data,
                                            file_content=nexson,
                                            study_id=study_id,

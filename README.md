@@ -1,6 +1,7 @@
 # ![peyotl](https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/doc/peyotl-logo.png)
 
-A python package to make it easier to access web services and data
+<code>peyotl</code> is a python package written to make it easier to
+access web services and data
 associated with the [Open Tree of Life project] [1].
 
 This is intended to hold utility code to make it easier to:
@@ -19,6 +20,9 @@ This is intended to hold utility code to make it easier to:
 
 5. call web services associated with an annotation database (that
      we have not built yet)
+
+Currently peyotl is used to implement most of the functionality in the 
+study curation [API] [3].
 
 ## Installation
 
@@ -137,6 +141,10 @@ You can tweak this by deciding on your NEXML_PARENT dir and running:
   * export to other phylogenetic file formats
 
 # Thanks
+
+peyotl is primarily written by Mark Holder, Emily Jane McTavish, and Jim Allman, 
+but see the [contributors file] [https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/CONTRIBUTORS.txt] for a more complete list
+of people who have contributed code.
 
 The fabulous <a href="http://karlgude.com/about/">Karl Gude</a> created the logo.
 

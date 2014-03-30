@@ -59,6 +59,7 @@ class Direct2OptimalNexson(NexsonConverter):
         for node in node_list:
             nodeById[node['@id']] = node
             r = node.get('@root')
+            _LOG.debug(' node {} @root={}'.format(node['@id'], r))
             if r in [True, 'true']: #@TEMP accepting true or "true"
                 assert(root_node is None)
                 root_node = node

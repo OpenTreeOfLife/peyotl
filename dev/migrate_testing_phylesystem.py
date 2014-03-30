@@ -80,7 +80,6 @@ for f in sl:
                 valid_bf]
         debug('invoc: "{}"'.format('" "'.join(invoc)))
         rc = call(invoc)
-
         if rc != 0:
             failed.append(f)
         else:
@@ -91,14 +90,17 @@ for f in sl:
                     unchecked_hbf, 
                     tmp,
                     annotation))
-            rc = call([sys.executable, validation_script, 
-                                        '--embed',
-                                        '--agent-only',
-                                        '-e',
-                                        annotation,
-                                        '-o',
-                                        tmp,
-                                        unchecked_hbf])
+            invoc = [sys.executable,
+                     validation_script, 
+                     '--embed',
+                     '--agent-only',
+                     '-e',
+                      annotation,
+                     '-o',
+                     tmp,
+                     unchecked_hbf]
+            debug('invoc: "{}"'.format('" "'.join(invoc)))
+            rc = call(invoc)
             if rc != 0:
                 if os.path.exists(dest_full):
                     os.unlink(dest_full)

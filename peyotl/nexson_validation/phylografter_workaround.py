@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 from peyotl import write_as_json
+from peyotl.nexson_syntax.helper import add_literal_meta, \
+                                        find_val_literal_meta_first
+SYNTAX_VERSION = '0.0.0'
 def _rec_resource_meta(blob, k):
     if k == 'meta' and isinstance(blob, dict):
         if blob.get('@xsi:type') == 'nex:ResourceMeta':
@@ -108,8 +111,29 @@ def _move_ott_taxon_name_to_otu(obj):
                         if not found:
                             om.append(to_move)
 
+
+def _move_otu_at_label_properties(obj):
+    nex = obj['nexml']
+    ogl = nex['otus']
+    if not isinstance(ogl, list):
+        ogl = [ogl]
+    for og in ogl:
+        od = {}
+        for otu in og['otu']:
+            oi = otu['@id']
+            ol = find_val_literal_meta_first(otu, 'ot:originalLabel', SYNTAX_VERSION)
+            assert(ol is not None)
+            label_att = otu.get('@label')
+            if label_att is not None:
+                del otu['@label']
+                if label_att != ol:
+                    ml = find_val_literal_meta_first(otu, 'ot:ottTaxonName', SYNTAX_VERSION)
+                    if (not ml) or (ml != label_att):
+                        add_literal_meta(otu, 'ot:altLabel', label_att, SYNTAX_VERSION)
+
 def workaround_phylografter_export_diffs(obj, out):
     _rec_resource_meta(obj, 'root')
     _coerce_boolean(obj, 'root')
     _move_ott_taxon_name_to_otu(obj)
+    _move_otu_at_label_properties(obj)
     write_as_json(obj, out)

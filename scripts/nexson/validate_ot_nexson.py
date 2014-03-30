@@ -21,6 +21,11 @@ if __name__ == '__main__':
                         action='store_true',
                         default=False,
                         help='verbose output')
+    parser.add_argument('--agent-only',
+                        dest='add_agent_only',
+                        action='store_true',
+                        default=False,
+                        help='If --embed and this argument are both used, only the agent info will be embedded in the annotation')
     out_syntax_choices = ["json",]
     out_syntax_choices.sort()
     s_help = 'Syntax of output. Valid choices are: "{c}"'.format(c='", "'.join(out_syntax_choices))
@@ -34,6 +39,11 @@ if __name__ == '__main__':
                         metavar="FILE",
                         required=False,
                         help="output filepath. Standard output is used if omitted.")
+    parser.add_argument("-e", "--err-stream", 
+                        metavar="FILE",
+                        required=False,
+                        dest='err_fn',
+                        help="error stream filepath. Standard error is used if omitted.")
     parser.add_argument('--meta',
                         dest='meta',
                         action='store_true',
@@ -49,6 +59,7 @@ if __name__ == '__main__':
                         type=unicode,
                         nargs=1,
                         help='filename')
+    err_stream = sys.stderr
     args = parser.parse_args()
     try:
         inp_filepath = args.input[0]
@@ -63,6 +74,12 @@ if __name__ == '__main__':
             sys.exit('validate_ot_nexson: Could not open output filepath "{fn}"\n'.format(fn=outfn))
     else:
         out = codecs.getwriter('utf-8')(sys.stdout)
+    errfn = args.err_fn
+    if errfn is not None:
+        try:
+            err_stream = codecs.open(errfn, mode='w', encoding='utf-8')
+        except:
+            sys.exit('validate_ot_nexson: Could not open err-stream filepath "{fn}"\n'.format(fn=errfn))
     try:
         obj = json.load(inp)
     except ValueError as vx:
@@ -87,8 +104,12 @@ if __name__ == '__main__':
                                               )
         adaptor.add_or_replace_annotation(obj,
                                           annotation['annotationEvent'],
-                                          annotation['agent'])
+                                          annotation['agent'],
+                                          add_agent_only=args.add_agent_only)
         write_as_json(obj, out)
+        if args.add_agent_only:
+            write_as_json(annotation['annotationEvent'], err_stream, indent=2)
+        rc = len(v_log.errors)
     else:
         if (not v_log.errors) and (not v_log.warnings):
             _LOG.info('Valid')

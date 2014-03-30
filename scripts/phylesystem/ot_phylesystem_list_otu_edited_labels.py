@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 '''Examines each otu in each study. Prints out any
 case in which the otu label is not the ot:originalLabel or
-the ot:ta'''
+the ot:ottTaxonName'''
 tax_prop_name = '^ot:ottTaxonName'
 orig_prop_name = '^ot:originalLabel'
 label_prop_name = '@label'
-from peyotl import phylesystem_study_objs, gen_otu_dict, iter_tree, iter_node
+from peyotl import gen_otu_dict, iter_tree, iter_node
+from peyotl.phylesystem import Phylesystem
 import codecs
 import sys
+phy = Phylesystem()
+
 out = codecs.getwriter('utf-8')(sys.stdout)
-for study_id, n in phylesystem_study_objs():
+for study_id, n in phy.iter_study_objs():
     otu_dict = gen_otu_dict(n)
     o_dict = {}
     for oid, o in otu_dict.items():

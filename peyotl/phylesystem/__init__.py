@@ -183,7 +183,7 @@ class PhylesystemShard(object):
         for study_id, fp in self.iter_study_filepaths(**kwargs):
             with codecs.open(fp, 'rU', 'utf-8') as fo:
                 try:
-                    nex_obj = anyjson.loads(fo.read())['nexml']
+                    nex_obj = anyjson.loads(fo.read())
                     yield (study_id, nex_obj)
                 except Exception:
                     pass

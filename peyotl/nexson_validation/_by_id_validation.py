@@ -256,9 +256,9 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         for nd_id, nd in leaves:
             otuid = nd['@otu']
             if otuid in otuid2leaf:
-                vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
+                vc.push_context(_NEXEL.LEAF_NODE, (tree_obj, tree_nex_id))
                 try:
-                    self._error_event(_NEXEL.NODE,
+                    self._error_event(_NEXEL.LEAF_NODE,
                                      obj=nd,
                                      err_type=gen_RepeatedOTUWarning,
                                      anc=vc.anc_list,

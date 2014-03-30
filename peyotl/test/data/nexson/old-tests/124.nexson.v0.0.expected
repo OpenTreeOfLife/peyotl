@@ -77,7 +77,83 @@
           "node988801", 
           "node988803", 
           "node988804"
-        ]
+        ], 
+        "@nodeID": [
+          "node988722", 
+          "node988723", 
+          "node988724", 
+          "node988725", 
+          "node988726", 
+          "node988727", 
+          "node988728", 
+          "node988729", 
+          "node988730", 
+          "node988731", 
+          "node988732", 
+          "node988733", 
+          "node988734", 
+          "node988735", 
+          "node988736", 
+          "node988737", 
+          "node988738", 
+          "node988739", 
+          "node988740", 
+          "node988741", 
+          "node988742", 
+          "node988743", 
+          "node988744", 
+          "node988745", 
+          "node988746", 
+          "node988747", 
+          "node988748", 
+          "node988750", 
+          "node988751", 
+          "node988753", 
+          "node988754", 
+          "node988755", 
+          "node988756", 
+          "node988757", 
+          "node988758", 
+          "node988759", 
+          "node988760", 
+          "node988762", 
+          "node988766", 
+          "node988767", 
+          "node988769", 
+          "node988770", 
+          "node988771", 
+          "node988772", 
+          "node988774", 
+          "node988775", 
+          "node988776", 
+          "node988778", 
+          "node988779", 
+          "node988780", 
+          "node988782", 
+          "node988784", 
+          "node988785", 
+          "node988786", 
+          "node988787", 
+          "node988788", 
+          "node988789", 
+          "node988790", 
+          "node988791", 
+          "node988792", 
+          "node988793", 
+          "node988794", 
+          "node988795", 
+          "node988796", 
+          "node988797", 
+          "node988798", 
+          "node988799", 
+          "node988800", 
+          "node988801", 
+          "node988803", 
+          "node988804"
+        ], 
+        "@top": "trees", 
+        "@treeID": "tree5781", 
+        "@treesID": "tree5781"
       }
     }
   }, 
@@ -88,7 +164,10 @@
           "@xsi:type"
         ], 
         "refersTo": {
-          "@idref": "tree5781"
+          "@idref": "tree5781", 
+          "@top": "trees", 
+          "@treeID": "tree5781", 
+          "@treesID": "tree5781"
         }
       }, 
       {
@@ -98,7 +177,10 @@
           "ot:curatedType"
         ], 
         "refersTo": {
-          "@idref": "tree5781"
+          "@idref": "tree5781", 
+          "@top": "trees", 
+          "@treeID": "tree5781", 
+          "@treesID": "tree5781"
         }
       }
     ], 
@@ -113,7 +195,9 @@
           "otu374484"
         ], 
         "refersTo": {
-          "@idref": "otus124"
+          "@idref": "otus124", 
+          "@otusID": "otus124", 
+          "@top": "otus"
         }
       }, 
       {
@@ -126,7 +210,9 @@
           "otu374497"
         ], 
         "refersTo": {
-          "@idref": "otus124"
+          "@idref": "otus124", 
+          "@otusID": "otus124", 
+          "@top": "otus"
         }
       }, 
       {
@@ -160,7 +246,9 @@
           "otu374501"
         ], 
         "refersTo": {
-          "@idref": "otus124"
+          "@idref": "otus124", 
+          "@otusID": "otus124", 
+          "@top": "otus"
         }
       }, 
       {
@@ -175,7 +263,9 @@
           "otu374496"
         ], 
         "refersTo": {
-          "@idref": "otus124"
+          "@idref": "otus124", 
+          "@otusID": "otus124", 
+          "@top": "otus"
         }
       }, 
       {
@@ -200,7 +290,9 @@
           "otu374500"
         ], 
         "refersTo": {
-          "@idref": "otus124"
+          "@idref": "otus124", 
+          "@otusID": "otus124", 
+          "@top": "otus"
         }
       }, 
       {
@@ -209,7 +301,9 @@
           "otu374466"
         ], 
         "refersTo": {
-          "@idref": "otus124"
+          "@idref": "otus124", 
+          "@otusID": "otus124", 
+          "@top": "otus"
         }
       }
     ]

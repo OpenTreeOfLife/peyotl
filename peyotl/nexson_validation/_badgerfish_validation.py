@@ -221,7 +221,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             if ch_list is None:
                 otu_id = nd.get('@otu')
                 if otu_id is None:
-                    vc.push_context(_NEXEL.NODE, (tree_nex_id, tree_obj))
+                    vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
                     try:
                         self._error_event(_NEXEL.NODE,
                                          obj=nd,
@@ -234,7 +234,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                         vc.pop_context()
                 else:
                     if otu_id in otuid2leaf:
-                        vc.push_context(_NEXEL.NODE, (tree_nex_id, tree_obj))
+                        vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
                         try:
                             self._error_event(_NEXEL.NODE,
                                              obj=nd,
@@ -260,7 +260,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 with_at_root_prop[nid] = nd
         
         if unflagged_leaves:
-            vc.push_context(_NEXEL.NODE, (tree_nex_id, tree_obj))
+            vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
             try:
                 #_LOG.debug('unflagged_leaves="{f}"'.format(f=unflagged_leaves))
                 self._error_event(_NEXEL.NODE,

@@ -9,7 +9,15 @@
           "node2", 
           "node3", 
           "node4"
-        ]
+        ], 
+        "@nodeID": [
+          "node2", 
+          "node3", 
+          "node4"
+        ], 
+        "@top": "trees", 
+        "@treeID": "tree1", 
+        "@treesID": "tree1"
       }
     }
   }, 
@@ -20,7 +28,10 @@
           "ot:ottId"
         ], 
         "refersTo": {
-          "@idref": "otu1"
+          "@idref": "otu1", 
+          "@otuID": "otu1", 
+          "@otusID": "otus1", 
+          "@top": "otus"
         }
       }, 
       {
@@ -28,7 +39,10 @@
           "@xsi:type"
         ], 
         "refersTo": {
-          "@idref": "tree1"
+          "@idref": "tree1", 
+          "@top": "trees", 
+          "@treeID": "tree1", 
+          "@treesID": "tree1"
         }
       }, 
       {
@@ -38,7 +52,10 @@
           "ot:curatedType"
         ], 
         "refersTo": {
-          "@idref": "tree1"
+          "@idref": "tree1", 
+          "@top": "trees", 
+          "@treeID": "tree1", 
+          "@treesID": "tree1"
         }
       }
     ]

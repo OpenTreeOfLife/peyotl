@@ -5,7 +5,9 @@
         "@otus=\"otus42\""
       ], 
       "refersTo": {
-        "@idref": "trees2"
+        "@idref": "trees2", 
+        "@top": "trees", 
+        "@treesID": "trees2"
       }
     }
   }, 
@@ -18,7 +20,8 @@
         "ot:studyYear"
       ], 
       "refersTo": {
-        "@idref": "some-id"
+        "@idref": "some-id", 
+        "@top": "nexml"
       }
     }
   }

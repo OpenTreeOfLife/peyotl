@@ -9,7 +9,15 @@
           "node2", 
           "node3", 
           "node4"
-        ]
+        ], 
+        "@nodeID": [
+          "node2", 
+          "node3", 
+          "node4"
+        ], 
+        "@top": "trees", 
+        "@treeID": "tree1", 
+        "@treesID": "tree1"
       }
     }, 
     "MULTIPLE_EDGES_FOR_NODES": {
@@ -17,7 +25,10 @@
         "node3"
       ], 
       "refersTo": {
-        "@idref": "tree1"
+        "@idref": "tree1", 
+        "@top": "trees", 
+        "@treeID": "tree1", 
+        "@treesID": "tree1"
       }
     }
   }, 
@@ -31,7 +42,8 @@
           "ot:studyYear"
         ], 
         "refersTo": {
-          "@idref": "some-id"
+          "@idref": "some-id", 
+          "@top": "nexml"
         }
       }, 
       {
@@ -39,7 +51,10 @@
           "@xsi:type"
         ], 
         "refersTo": {
-          "@idref": "tree1"
+          "@idref": "tree1", 
+          "@top": "trees", 
+          "@treeID": "tree1", 
+          "@treesID": "tree1"
         }
       }, 
       {
@@ -49,7 +64,10 @@
           "ot:curatedType"
         ], 
         "refersTo": {
-          "@idref": "tree1"
+          "@idref": "tree1", 
+          "@top": "trees", 
+          "@treeID": "tree1", 
+          "@treesID": "tree1"
         }
       }
     ]

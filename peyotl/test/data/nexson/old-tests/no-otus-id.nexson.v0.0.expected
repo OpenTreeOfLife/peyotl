@@ -5,7 +5,8 @@
         "otus[*]/@id"
       ], 
       "refersTo": {
-        "@idref": "some-id"
+        "@idref": "some-id", 
+        "@top": "nexml"
       }
     }
   }, 
@@ -18,7 +19,8 @@
         "ot:studyYear"
       ], 
       "refersTo": {
-        "@idref": "some-id"
+        "@idref": "some-id", 
+        "@top": "nexml"
       }
     }
   }

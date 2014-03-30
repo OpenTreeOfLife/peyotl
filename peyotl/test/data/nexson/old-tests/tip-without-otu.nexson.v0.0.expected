@@ -5,7 +5,11 @@
         "@otu"
       ], 
       "refersTo": {
-        "@idref": "node4"
+        "@idref": "node4", 
+        "@nodeID": "node4", 
+        "@top": "trees", 
+        "@treeID": "tree1", 
+        "@treesID": "tree1"
       }
     }
   }, 
@@ -19,7 +23,8 @@
           "ot:studyYear"
         ], 
         "refersTo": {
-          "@idref": "some-id"
+          "@idref": "some-id", 
+          "@top": "nexml"
         }
       }, 
       {
@@ -27,7 +32,10 @@
           "@xsi:type"
         ], 
         "refersTo": {
-          "@idref": "tree1"
+          "@idref": "tree1", 
+          "@top": "trees", 
+          "@treeID": "tree1", 
+          "@treesID": "tree1"
         }
       }, 
       {
@@ -37,7 +45,10 @@
           "ot:curatedType"
         ], 
         "refersTo": {
-          "@idref": "tree1"
+          "@idref": "tree1", 
+          "@top": "trees", 
+          "@treeID": "tree1", 
+          "@treesID": "tree1"
         }
       }
     ]

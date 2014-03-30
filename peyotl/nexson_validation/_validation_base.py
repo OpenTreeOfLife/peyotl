@@ -22,7 +22,7 @@ from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 _EMPTY_TUPLE = tuple()
-_USING_IDREF_ONLY_PATHS = True
+_USING_IDREF_ONLY_PATHS = False
 
 def replace_same_agent_annotation(obj, annotation):
     agent_id = annotation.get('@wasAssociatedWithAgentId')
@@ -88,6 +88,7 @@ class LazyAddress(object):
                 self.obj_nex_id = None
         else:
             self.obj_nex_id = obj_nex_id
+        assert(not isinstance(self.obj_nex_id, dict))
         self.par_addr = par_addr
         self._path, self._full_path = None, None
     def write_path_suffix_str(self, out):
@@ -129,7 +130,9 @@ class LazyAddress(object):
             else:
                  #_LOG.debug('c = ' + str(self.code))
                 if self.par_addr is None:
-                    assert(self.code == _NEXEL.TOP_LEVEL)
+                    if self.code not in [None, _NEXEL.TOP_LEVEL]:
+                        _LOG.debug('code = ' + _NEXEL.CODE_TO_STR[self.code])
+                        assert(self.code == _NEXEL.TOP_LEVEL)
                     self._path = {}
                 else:
                     #_LOG.debug('par ' + str(self.par_addr.path))
@@ -139,6 +142,7 @@ class LazyAddress(object):
                     self._path['@idref'] = self.obj_nex_id
                     other_id_key = _NEXEL.CODE_TO_OTHER_ID_KEY[self.code]
                     if other_id_key is not None:
+                        assert(not isinstance(self.obj_nex_id, dict))
                         self._path[other_id_key] = self.obj_nex_id
                 elif '@idref' in self._path:
                     del self._path['@idref']
@@ -168,6 +172,8 @@ class _ValidationContext(object):
         self._element_type_stack = []
         self._schema_stack = []
     def push_context(self, element_type, new_par):
+        assert(len(new_par) == 2)
+        assert(not isinstance(new_par[1], dict))
         self.anc_list.append(new_par)
         self.push_context_no_anc(element_type)
     def pop_context(self):
@@ -411,11 +417,12 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
             if len(anc) > anc_offset:
                 p_ind = -1 -anc_offset
                 p, pnid = anc[p_ind]
-                pea = self._event_address(self._get_par_element_type(element_type),
-                                          p,
-                                          anc,
-                                          pnid,
-                                          1 + anc_offset)
+                #_LOG.debug('addr is None branch... anc = ' + str(anc))
+                pea = self._event_address(element_type=self._get_par_element_type(element_type),
+                                          obj=p,
+                                          anc=anc,
+                                          obj_nex_id=pnid,
+                                          anc_offset=1 + anc_offset)
                 par_addr = pea[0]
             else:
                 par_addr = None
@@ -492,7 +499,8 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
                       or if `obj` contains keys not listed in schema.ALLOWED_KEY_SET.
         '''
         return self._validate_id_obj_list_by_schema([(obj_nex_id, obj)], vc, group_by_warning=False)
-    def _validate_id_obj_list_by_schema(self, id_obj_list, vc, group_by_warning=False):
+    def _validate_id_obj_list_by_schema(self, 
+        id_obj_list, vc, group_by_warning=False):
         #TODO: should optimize for sets of objects with the same warnings...
         element_type = vc.curr_element_type
         assert(element_type is not None)

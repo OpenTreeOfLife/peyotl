@@ -6,7 +6,8 @@
         "treesById"
       ], 
       "refersTo": {
-        "@idref": "bogusStudyID"
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
       }
     }, 
     "REPEATED_ID": {
@@ -14,7 +15,8 @@
         "^ot:dataDeposit"
       ], 
       "refersTo": {
-        "@idref": "bogusStudyID"
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
       }
     }
   }, 
@@ -27,7 +29,13 @@
         "@idref": [
           "otu1", 
           "otu2"
-        ]
+        ], 
+        "@otuID": [
+          "otu1", 
+          "otu2"
+        ], 
+        "@otusID": "og1", 
+        "@top": "otus"
       }
     }
   }

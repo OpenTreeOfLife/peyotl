@@ -5,8 +5,8 @@
         "otus"
       ], 
       "refersTo": {
-
-                "@idref": "bogusStudyID"
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
       }
     }
   }, 

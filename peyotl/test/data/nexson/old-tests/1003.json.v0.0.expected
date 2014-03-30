@@ -103,7 +103,109 @@
           "node503845", 
           "node503847", 
           "node503848"
-        ]
+        ], 
+        "@nodeID": [
+          "node503666", 
+          "node503667", 
+          "node503669", 
+          "node503670", 
+          "node503675", 
+          "node503676", 
+          "node503678", 
+          "node503679", 
+          "node503682", 
+          "node503683", 
+          "node503684", 
+          "node503688", 
+          "node503689", 
+          "node503690", 
+          "node503691", 
+          "node503696", 
+          "node503698", 
+          "node503699", 
+          "node503701", 
+          "node503702", 
+          "node503703", 
+          "node503705", 
+          "node503707", 
+          "node503712", 
+          "node503713", 
+          "node503714", 
+          "node503715", 
+          "node503716", 
+          "node503718", 
+          "node503719", 
+          "node503722", 
+          "node503723", 
+          "node503726", 
+          "node503727", 
+          "node503730", 
+          "node503731", 
+          "node503737", 
+          "node503738", 
+          "node503739", 
+          "node503740", 
+          "node503742", 
+          "node503743", 
+          "node503747", 
+          "node503748", 
+          "node503749", 
+          "node503750", 
+          "node503753", 
+          "node503754", 
+          "node503761", 
+          "node503762", 
+          "node503763", 
+          "node503764", 
+          "node503765", 
+          "node503770", 
+          "node503771", 
+          "node503773", 
+          "node503775", 
+          "node503776", 
+          "node503778", 
+          "node503779", 
+          "node503781", 
+          "node503782", 
+          "node503787", 
+          "node503788", 
+          "node503789", 
+          "node503790", 
+          "node503793", 
+          "node503795", 
+          "node503796", 
+          "node503798", 
+          "node503799", 
+          "node503801", 
+          "node503802", 
+          "node503812", 
+          "node503813", 
+          "node503816", 
+          "node503818", 
+          "node503819", 
+          "node503821", 
+          "node503822", 
+          "node503823", 
+          "node503824", 
+          "node503826", 
+          "node503827", 
+          "node503828", 
+          "node503829", 
+          "node503831", 
+          "node503832", 
+          "node503834", 
+          "node503836", 
+          "node503839", 
+          "node503841", 
+          "node503842", 
+          "node503844", 
+          "node503845", 
+          "node503847", 
+          "node503848"
+        ], 
+        "@top": "trees", 
+        "@treeID": "tree1945", 
+        "@treesID": "tree1945"
       }
     }
   }, 
@@ -114,7 +216,8 @@
           "ot:dataDeposit"
         ], 
         "refersTo": {
-          "@idref": "study"
+          "@idref": "study", 
+          "@top": "nexml"
         }
       }, 
       {
@@ -122,7 +225,10 @@
           "@xsi:type"
         ], 
         "refersTo": {
-          "@idref": "tree1945"
+          "@idref": "tree1945", 
+          "@top": "trees", 
+          "@treeID": "tree1945", 
+          "@treesID": "tree1945"
         }
       }, 
       {
@@ -132,7 +238,10 @@
           "ot:curatedType"
         ], 
         "refersTo": {
-          "@idref": "tree1945"
+          "@idref": "tree1945", 
+          "@top": "trees", 
+          "@treeID": "tree1945", 
+          "@treesID": "tree1945"
         }
       }
     ], 
@@ -143,7 +252,9 @@
           "otu213261"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -152,7 +263,9 @@
           "otu213263"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -161,7 +274,9 @@
           "otu213265"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -170,7 +285,9 @@
           "otu213267"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -180,7 +297,9 @@
           "otu213270"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -189,7 +308,9 @@
           "otu213272"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -200,7 +321,9 @@
           "otu213282"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -210,7 +333,9 @@
           "otu213287"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -219,7 +344,9 @@
           "otu213291"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -228,7 +355,9 @@
           "otu213293"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -237,7 +366,9 @@
           "otu213295"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -246,7 +377,9 @@
           "otu213297"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -256,7 +389,9 @@
           "otu213304"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -267,7 +402,9 @@
           "otu213324"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -276,7 +413,9 @@
           "otu213317"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -285,7 +424,9 @@
           "otu213319"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -294,7 +435,9 @@
           "otu213321"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -303,7 +446,9 @@
           "otu213332"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -314,7 +459,9 @@
           "otu213347"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -323,7 +470,9 @@
           "otu213345"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -333,7 +482,9 @@
           "otu213352"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -342,7 +493,9 @@
           "otu213354"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }, 
       {
@@ -351,7 +504,9 @@
           "otu213356"
         ], 
         "refersTo": {
-          "@idref": "otus1003"
+          "@idref": "otus1003", 
+          "@otusID": "otus1003", 
+          "@top": "otus"
         }
       }
     ]

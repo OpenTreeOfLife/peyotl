@@ -5,7 +5,11 @@
         "otu3"
       ], 
       "refersTo": {
-        "@idref": "node5"
+        "@idref": "node5", 
+        "@nodeID": "node5", 
+        "@top": "trees", 
+        "@treeID": "tree1", 
+        "@treesID": "tree1"
       }
     }
   }, 
@@ -16,7 +20,10 @@
           "@xsi:type"
         ], 
         "refersTo": {
-          "@idref": "tree1"
+          "@idref": "tree1", 
+          "@top": "trees", 
+          "@treeID": "tree1", 
+          "@treesID": "tree1"
         }
       }, 
       {
@@ -26,7 +33,10 @@
           "ot:curatedType"
         ], 
         "refersTo": {
-          "@idref": "tree1"
+          "@idref": "tree1", 
+          "@top": "trees", 
+          "@treeID": "tree1", 
+          "@treesID": "tree1"
         }
       }
     ]

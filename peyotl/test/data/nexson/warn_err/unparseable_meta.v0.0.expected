@@ -9,7 +9,8 @@
         }
       ], 
       "refersTo": {
-        "@idref": "bogusStudyID"
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
       }
     }, 
     "UNPARSEABLE_META": {
@@ -25,7 +26,8 @@
         true
       ], 
       "refersTo": {
-        "@idref": "bogusStudyID"
+        "@idref": "bogusStudyID", 
+        "@top": "nexml"
       }
     }
   }, 

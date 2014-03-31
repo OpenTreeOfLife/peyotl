@@ -16,10 +16,13 @@ try:
 except:
     pass #caching is optional
 from peyotl.phylesystem.git_actions import GitAction
-from peyotl.phylesystem.git_workflows import commit_and_try_merge2master
+from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
+                                             delete_study, \
+                                             validate_and_convert_nexson
 from peyotl.nexson_syntax import detect_nexson_version
 from peyotl.nexson_validation import ot_validate
-from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, replace_same_agent_annotation
+from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, \
+                                                      replace_same_agent_annotation
 import codecs
 import os
 from threading import Lock
@@ -137,16 +140,64 @@ class PhylesystemShard(object):
             if repo_nexml2json == None:
                 repo_nexml2json = self.diagnose_repo_nexml2json()
         self.repo_nexml2json = repo_nexml2json
+        self._index_lock = Lock()
+        self._next_study_id = None
+        self._study_counter_lock = None
+
+    def register_new_study(self, study_id):
+        pass
+
+    def delete_study_from_index(self, study_id):
+        with self._index_lock:
+            try:
+                del self._study_index[study_id]
+            except:
+                pass
+
+    def determine_next_study_id(self, prefix='ot_'):
+        "Return the numeric part of the newest study_id"
+        if self._study_counter_lock is None:
+            self._study_counter_lock = Lock()
+        n = 0
+        lp = len(prefix)
+        with self._index_lock:
+            for k in self._study_index.keys():
+                if k.startswith(prefix):
+                    try:
+                        pn = int(k[3:])
+                        if pn > n:
+                            n = pn
+                    except:
+                        pass
+        with self._study_counter_lock:
+            self._next_study_id = 1 + n
+
     def get_study_index(self):
         return self._study_index
     study_index = property(get_study_index)
+
     def diagnose_repo_nexml2json(self):
-        fp = self.study_index.values()[0][2]
+        with self._index_lock:
+            fp = self.study_index.values()[0][2]
         with codecs.open(fp, mode='rU', encoding='utf-8') as fo:
             fj = json.load(fo)
             return detect_nexson_version(fj)
+
     def create_git_action(self):
         return self._ga_class(repo=self.path, git_ssh=self.git_ssh, pkey=self.pkey)
+
+    def create_git_action_for_new_study(self):
+        ga = self.create_git_action()
+        # studies created by the OpenTree API start with ot_,
+        # so they don't conflict with new study id's from other sources
+        with self._study_counter_lock:
+            c = self._next_study_id
+            self._next_study_id = 1 + c
+        new_study_id = "ot_{c:d}".format(c=c)
+        fp = ga.paths_for_study(new_study_id)[1]
+        with self._index_lock:
+            self._study_index[new_study_id] = (self.name, self.study_dir, fp)
+        return ga, new_study_id
 
     def _create_git_action_for_mirror(self):
         mirror_ga = self._ga_class(repo=self.push_mirror_repo_path,
@@ -172,8 +223,9 @@ class PhylesystemShard(object):
         for each study in this repository.
         Order is arbitrary.
         '''
-        for study_id, info in self._study_index.items():
-            yield study_id, info[-1]
+        with self._index_lock:
+            for study_id, info in self._study_index.items():
+                yield study_id, info[-1]
 
     def iter_study_objs(self, **kwargs):
         '''Returns a pair: (study_id, nexson_blob)
@@ -344,8 +396,10 @@ class _Phylesystem(object):
                     raise KeyError('study "{i}" found in multiple repos'.format(i=k))
                 d[k] = s
         self._study2shard_map = d
+        self._index_lock = Lock()
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
+        self._growing_shard.determine_next_study_id()
         self.repo_nexml2json = shards[-1].repo_nexml2json
         if with_caching:
             self._cache_region = _make_phylesystem_cache_region()
@@ -355,18 +409,15 @@ class _Phylesystem(object):
         self._cache_hits = 0
 
     def get_shard(self, study_id):
-        return self._study2shard_map[study_id]
+        with self._index_lock:
+            return self._study2shard_map[study_id]
 
     def create_git_action(self, study_id):
         shard = self.get_shard(study_id)
         return shard.create_git_action()
 
     def create_git_action_for_new_study(self):
-        ga = self._growing_shard.create_git_action()
-        # studies created by the OpenTree API start with o,
-        # so they don't conflict with new study id's from other sources
-        new_resource_id = "o%d" % (ga.newest_study_id() + 1)
-        return ga, new_resource_id
+        return self._growing_shard.create_git_action_for_new_study()
 
     def add_validation_annotation(self, study_obj, sha):
         need_to_cache = False
@@ -477,7 +528,42 @@ class _Phylesystem(object):
                                            auth_info=auth_info,
                                            parent_sha=parent_sha,
                                            merged_sha=master_file_blob_included)
-        
+    def delete_study(self, study_id, auth_info, parent_sha):
+        git_action = self.create_git_action(study_id)
+        ret = delete_study(git_action, study_id, auth_info, parent_sha)
+        with self._index_lock:
+            _shard = self._study2shard_map[study_id]
+            del self._study2shard_map[study_id]
+            _shard.delete_study_from_index(study_id)
+        return ret
+
+    def ingest_new_study(self,
+                         new_study_nexson,
+                         repo_nexml2json, 
+                         auth_info):
+        gd, new_study_id = self.create_git_action_for_new_study()
+        try:
+            nexml = new_study_nexson['nexml']
+            nexml['^ot:studyId'] = new_study_id
+            bundle = validate_and_convert_nexson(new_study_nexson,
+                                                 repo_nexml2json,
+                                                 allow_invalid=True)
+            nexson, annotation, validation_log, nexson_adaptor = bundle
+            r = self.annotate_and_write(git_data=gd,
+                                        nexson=nexson,
+                                        study_id=new_study_id,
+                                        auth_info=auth_info,
+                                        adaptor=nexson_adaptor,
+                                        annotation=annotation,
+                                        parent_sha=None, 
+                                        master_file_blob_included=None)
+        except:
+            self._growing_shard.delete_study_from_index(new_study_id)
+            raise
+        with self._index_lock:
+            self._study2shard_map[new_study_id] = self._growing_shard
+        return new_study_id, r
+
     def iter_study_objs(self, **kwargs):
         '''Generator that iterates over all detected phylesystem studies.
         and returns the study object (deserialized from nexson) for 

@@ -145,19 +145,6 @@ class GitAction(object):
         x = git(self.gitdir, self.gitwd, "show-ref", "master", "--heads", "--hash")
         return x.strip()
 
-    def newest_study_id(self):
-        "Return the numeric part of the newest study_id"
-        git(self.gitdir, self.gitwd, "checkout", "master")
-        dirs = []
-        # first we look for studies already in our master branch
-        _study_dir = os.path.join(self.repo, "study")
-        for f in os.listdir(_study_dir):
-            if os.path.isdir(os.path.join(_study_dir, f)):
-                # ignore alphabetic prefix, o = created by opentree API
-                if f[0].isalpha():
-                    dirs.append(int(f[1:]))
-                else:
-                    dirs.append(int(f))
 
         # next we must look at local branch names for new studies
         # without --no-color we get terminal color codes in the branch output

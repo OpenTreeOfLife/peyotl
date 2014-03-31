@@ -73,7 +73,8 @@ class GitAction(object):
                  remote=None,
                  git_ssh=None,
                  pkey=None,
-                 cache=None):
+                 cache=None, 
+                 dir_for_study_fn=None):
         """Create a GitAction object to interact with a Git repository
 
         Example:
@@ -98,6 +99,10 @@ class GitAction(object):
             self.gitwd = "--work-tree={}".format(self.repo)
         else: #EJM needs a test?
             raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
+        if dir_for_study_fn is None:
+            self.dir_for_study_fn = lambda r, s: '{r}/study/{s}'.format(r=r, s=s)
+        else:
+            self.dir_for_study_fn = dir_for_study_fn
     def lock(self):
         ''' for syntax:
         with git_action.lock():
@@ -108,7 +113,7 @@ class GitAction(object):
     def paths_for_study(self, study_id):
         '''Returns study_dir and study_filepath for study_id.
         '''
-        study_dir = "{r}/study/{id}".format(r=self.repo, id=study_id) #TODO change directory
+        study_dir = self.dir_for_study_fn(self.repo, study_id)
         study_filename = "{d}/{id}.json".format(d=study_dir, id=study_id)
         return study_dir, study_filename
 

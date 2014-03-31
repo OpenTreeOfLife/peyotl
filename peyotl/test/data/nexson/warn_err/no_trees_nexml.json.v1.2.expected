@@ -1,16 +1,5 @@
 {
-  "errors": {
-    "MISSING_CRUCIAL_CONTENT": {
-      "data": [
-        "^ot:treesElementOrder", 
-        "treesById"
-      ], 
-      "refersTo": {
-        "@idref": "bogusStudyID", 
-        "@top": "nexml"
-      }
-    }
-  }, 
+  "errors": {}, 
   "warnings": {
     "MISSING_OPTIONAL_KEY": {
       "data": [

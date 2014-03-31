@@ -25,17 +25,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
 
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
         otu_dict = {}
-        otu_list = otus_group.get('otu')
-        if otu_list and isinstance(otu_list, dict):
+        otu_list = otus_group.get('otu', [])
+        if isinstance(otu_list, dict):
             otu_list = [otu_list]
         if not otu_list:
-            self._error_event(_NEXEL.OTUS,
-                             obj=otus_group,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=og_nex_id,
-                             key_list=['otu'])
-            return errorReturn('"otu" in "otus"')
+            return
         vc.push_context(_NEXEL.OTU, (otus_group, og_nex_id))
         try:
             without_id = []
@@ -73,10 +67,10 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                                obj_nex_id=tg_nex_id,
                                key_list=kl)
             return errorReturn('bad "@otus" in trees group')
-        tree_list = trees_group.get('tree')
+        tree_list = trees_group.get('tree', [])
         if isinstance(tree_list, dict):
             tree_list = [tree_list]
-        elif (not tree_list) or (not isinstance(tree_list, list)):
+        elif not isinstance(tree_list, list):
             self._error_event(_NEXEL.TREES,
                              obj=trees_group,
                              err_type=gen_MissingCrucialContentWarning,
@@ -321,10 +315,10 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         return True
 
     def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
-        otus_group_list = nex_obj.get('otus')
+        otus_group_list = nex_obj.get('otus', [])
         if otus_group_list and isinstance(otus_group_list, dict):
             otus_group_list = [otus_group_list]
-        if not otus_group_list:
+        if not isinstance(otus_group_list, list):
             self._error_event(_NEXEL.NEXML,
                              obj=nex_obj,
                              err_type=gen_MissingCrucialContentWarning,
@@ -355,10 +349,10 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         finally:
             vc.pop_context()
         # and now the trees...
-        trees_group_list = nex_obj.get('trees')
+        trees_group_list = nex_obj.get('trees', [])
         if trees_group_list and isinstance(trees_group_list, dict):
             trees_group_list = [trees_group_list]
-        if not trees_group_list:
+        if not isinstance(trees_group_list, list):
             self._error_event(_NEXEL.NEXML,
                              obj=nex_obj,
                              err_type=gen_MissingCrucialContentWarning,

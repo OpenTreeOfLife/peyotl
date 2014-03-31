@@ -1,15 +1,5 @@
 {
-  "errors": {
-    "MISSING_CRUCIAL_CONTENT": {
-      "data": [
-        "trees"
-      ], 
-      "refersTo": {
-        "@idref": "bogusStudyID", 
-        "@top": "nexml"
-      }
-    }
-  }, 
+  "errors": {}, 
   "warnings": {
     "MISSING_OPTIONAL_KEY": {
       "data": [

@@ -1,12 +1,13 @@
 {
   "errors": {
-    "MISSING_CRUCIAL_CONTENT": {
+    "REFERENCED_ID_NOT_FOUND": {
       "data": [
-        "otus"
+        "@otus=\"otus1\""
       ], 
       "refersTo": {
-        "@idref": "some-id", 
-        "@top": "nexml"
+        "@idref": "trees2", 
+        "@top": "trees", 
+        "@treesID": "trees2"
       }
     }
   }, 

@@ -20,7 +20,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         NexsonValidationAdaptor.__init__(self, obj, logger)
         self._syntax_version = BY_ID_HONEY_BADGERFISH
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
-        otu_obj = otus_group.get('otuById')
+        otu_obj = otus_group.get('otuById', {})
         if (not isinstance(otu_obj, dict)):
             self._error_event(_NEXEL.OTUS,
                              obj=otus_group,
@@ -60,10 +60,18 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             vc.pop_context()
 
     def _post_key_check_validate_tree_group(self, tg_nex_id, tree_group_obj, vc):
-        tree_id_order = tree_group_obj.get('^ot:treeElementOrder')
-        tree_by_id = tree_group_obj.get('treeById')
+        tree_id_order = tree_group_obj.get('^ot:treeElementOrder', [])
+        tree_by_id = tree_group_obj.get('treeById', {})
         if (not isinstance(tree_by_id, dict)) \
             or (not isinstance(tree_id_order, list)):
+            self._error_event(_NEXEL.TREES,
+                             obj=tree_group_obj,
+                             err_type=gen_WrongValueTypeWarning,
+                             anc=vc.anc_list,
+                             obj_nex_id=tg_nex_id,
+                             key_list=['treeById', '^ot:treeElementOrder'])
+            return errorReturn('no "treeById" in trees group')
+        if ((not tree_by_id) and tree_id_order) or ((not tree_id_order) and tree_by_id):
             self._error_event(_NEXEL.TREES,
                              obj=tree_group_obj,
                              err_type=gen_MissingCrucialContentWarning,
@@ -273,17 +281,24 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                         otuid2leaf=otuid2leaf)
 
     def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
-        otus = nex_obj.get('otusById')
-        otus_order_list = nex_obj.get('^ot:otusElementOrder')
-        if (not otus) or (not isinstance(otus, dict)) \
-            or (not otus_order_list) or (not isinstance(otus_order_list, list)):
+        otus = nex_obj.get('otusById', {})
+        otus_order_list = nex_obj.get('^ot:otusElementOrder', [])
+        if not isinstance(otus, dict) or (otus_order_list and (not otus)):
             self._error_event(_NEXEL.NEXML,
                              obj=nex_obj,
-                             err_type=gen_MissingCrucialContentWarning,
+                             err_type=gen_WrongValueTypeWarning,
                              anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
-                             key_list=['otusById', '^ot:otusElementOrder'])
-            return errorReturn('Missing "otusById" or "^ot:otusElementOrder"')
+                             key_list=['otusById'])
+            return errorReturn('Missing "otusById"')
+        if (not isinstance(otus_order_list, list)) or ((not otus_order_list) and otus):
+            self._error_event(_NEXEL.NEXML,
+                             obj=nex_obj,
+                             err_type=gen_WrongValueTypeWarning,
+                             anc=vc.anc_list,
+                             obj_nex_id=obj_nex_id,
+                             key_list=['^ot:otusElementOrder'])
+            return errorReturn('Missing "^ot:otusElementOrder"')
         otus_group_list = []
         missing_ogid = []
         not_dict_og = []
@@ -323,15 +338,22 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         # and now the trees...
         trees = nex_obj.get('treesById')
         trees_order_list = nex_obj.get('^ot:treesElementOrder')
-        if (not trees) or (not isinstance(trees, dict)) \
-            or (not trees_order_list) or (not isinstance(trees_order_list, list)):
+        if (not isinstance(trees, dict)) or ((not trees) and trees_order_list):
             self._error_event(_NEXEL.NEXML,
                              obj=nex_obj,
                              err_type=gen_MissingCrucialContentWarning,
                              anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
-                             key_list=['treesById', '^ot:treesElementOrder'])
-            return errorReturn('Missing "treesById" or "^ot:treesElementOrder"')
+                             key_list=['treesById'])
+            return errorReturn('Missing "treesById"')
+        if (not isinstance(trees_order_list, list)) or ((not trees_order_list) and trees):
+            self._error_event(_NEXEL.NEXML,
+                             obj=nex_obj,
+                             err_type=gen_MissingCrucialContentWarning,
+                             anc=vc.anc_list,
+                             obj_nex_id=obj_nex_id,
+                             key_list=['^ot:treesElementOrder'])
+            return errorReturn('Missing "^ot:treesElementOrder"')
         trees_group_list = []
         missing_tgid = []
         not_dict_tg = []

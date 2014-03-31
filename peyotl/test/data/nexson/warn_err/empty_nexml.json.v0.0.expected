@@ -1,14 +1,4 @@
 {
-  "errors": {
-    "MISSING_CRUCIAL_CONTENT": {
-      "data": [
-        "otus"
-      ], 
-      "refersTo": {
-        "@idref": "bogusStudyID", 
-        "@top": "nexml"
-      }
-    }
-  }, 
+  "errors": {}, 
   "warnings": {}
 }

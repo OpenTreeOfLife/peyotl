@@ -114,6 +114,7 @@ class PhylesystemShard(object):
                  pkey=None,
                  git_action_class=GitAction,
                  push_mirror_repo_path=None):
+        self._index_lock = Lock()
         self._ga_class = git_action_class
         self.git_ssh = git_ssh
         self.pkey = pkey
@@ -140,7 +141,6 @@ class PhylesystemShard(object):
             if repo_nexml2json == None:
                 repo_nexml2json = self.diagnose_repo_nexml2json()
         self.repo_nexml2json = repo_nexml2json
-        self._index_lock = Lock()
         self._next_study_id = None
         self._study_counter_lock = None
 

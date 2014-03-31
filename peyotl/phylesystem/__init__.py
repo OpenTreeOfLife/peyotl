@@ -564,6 +564,12 @@ class _Phylesystem(object):
             self._study2shard_map[new_study_id] = self._growing_shard
         return new_study_id, r
 
+    def get_study_ids(self):
+        k = []
+        with self._index_lock:
+            k.extend(self._study2shard_map.keys())
+        return k
+
     def iter_study_objs(self, **kwargs):
         '''Generator that iterates over all detected phylesystem studies.
         and returns the study object (deserialized from nexson) for 

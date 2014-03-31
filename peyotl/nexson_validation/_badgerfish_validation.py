@@ -8,7 +8,8 @@ from peyotl.nexson_validation.err_generator import gen_InvalidKeyWarning, \
                                                    gen_NoRootWarning, \
                                                    gen_ReferencedIDNotFoundWarning, \
                                                    gen_RepeatedOTUWarning, \
-                                                   gen_TreeCycleWarning
+                                                   gen_TreeCycleWarning, \
+                                                   gen_WrongValueTypeWarning
 from peyotl.nexson_syntax.helper import add_literal_meta, \
                                         BADGER_FISH_NEXSON_VERSION, \
                                         delete_first_literal_meta, \
@@ -73,7 +74,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         elif not isinstance(tree_list, list):
             self._error_event(_NEXEL.TREES,
                              obj=trees_group,
-                             err_type=gen_MissingCrucialContentWarning,
+                             err_type=gen_WrongValueTypeWarning,
                              anc=vc.anc_list,
                              obj_nex_id=tg_nex_id,
                              key_list=['tree'])
@@ -355,7 +356,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         if not isinstance(trees_group_list, list):
             self._error_event(_NEXEL.NEXML,
                              obj=nex_obj,
-                             err_type=gen_MissingCrucialContentWarning,
+                             err_type=gen_WrongValueTypeWarning,
                              anc=vc.anc_list,
                              obj_nex_id=obj_nex_id,
                              key_list=['trees'])

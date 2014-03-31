@@ -24,7 +24,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         if (not isinstance(otu_obj, dict)):
             self._error_event(_NEXEL.OTUS,
                              obj=otus_group,
-                             err_type=gen_MissingCrucialContentWarning,
+                             err_type=gen_WrongValueTypeWarning,
                              anc=vc.anc_list,
                              obj_nex_id=og_nex_id,
                              key_list=['otuById'])

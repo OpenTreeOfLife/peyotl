@@ -44,6 +44,20 @@ def get_user_author(auth_info):
     '''
     return auth_info['login'], ("%s <%s>" % (auth_info['name'], auth_info['email']))
 
+
+def get_filepath_for_namespaced_id(repo_dir, study_id):
+    if len(study_id) < 4:
+        while len(study_id) < 2:
+            study_id = '0' + study_id
+        study_id = 'pg_' + study_id
+    elif study_id[2] != '_':
+        study_id = 'pg_' + study_id
+
+    dest_topdir = study_id[:3] + study_id[-2:]
+    dest_subdir = study_id
+    dest_file = dest_subdir + '.json'
+    return os.path.join(repo_dir, dest_topdir, dest_subdir, dest_file)
+
 class RepoLock():
     def __init__(self, lock):
         self._lock = lock
@@ -74,7 +88,7 @@ class GitAction(object):
                  git_ssh=None,
                  pkey=None,
                  cache=None, 
-                 dir_for_study_fn=None):
+                 path_for_study_fn=None):
         """Create a GitAction object to interact with a Git repository
 
         Example:
@@ -99,10 +113,10 @@ class GitAction(object):
             self.gitwd = "--work-tree={}".format(self.repo)
         else: #EJM needs a test?
             raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
-        if dir_for_study_fn is None:
-            self.dir_for_study_fn = lambda r, s: '{r}/study/{s}'.format(r=r, s=s)
+        if path_for_study_fn is None:
+            self.path_for_study_fn = lambda r, s: '{r}/study/{s}/{s}.json'.format(r=r, s=s)
         else:
-            self.dir_for_study_fn = dir_for_study_fn
+            self.path_for_study_fn = path_for_study_fn
     def lock(self):
         ''' for syntax:
         with git_action.lock():
@@ -110,12 +124,11 @@ class GitAction(object):
         '''
         return RepoLock(self._lock)
 
-    def paths_for_study(self, study_id):
+    def path_for_study(self, study_id):
         '''Returns study_dir and study_filepath for study_id.
         '''
-        study_dir = self.dir_for_study_fn(self.repo, study_id)
-        study_filename = "{d}/{id}.json".format(d=study_dir, id=study_id)
-        return study_dir, study_filename
+        return self.path_for_study_fn(self.repo, study_id)
+
 
     def env(self): #@TEMP could be ref to a const singleton.
         d = dict(os.environ)
@@ -178,9 +191,9 @@ class GitAction(object):
         else:
             self.checkout(commit_sha)
             head_sha = commit_sha
-        study_filename = self.paths_for_study(study_id)[1]
+        study_filepath = self.path_for_study(study_id)
         try:
-            f = codecs.open(study_filename, mode='rU', encoding='utf-8')
+            f = codecs.open(study_filepath, mode='rU', encoding='utf-8')
             content = f.read()
         except:
             content = ''
@@ -285,7 +298,8 @@ class GitAction(object):
             parent_sha = self.get_master_sha()
         else:
             gh_user, study_id, parent_sha, author = first_arg, sec_arg, third_arg, fourth_arg
-        study_dir = self.paths_for_study(study_id)[0]
+        study_path = self.path_for_study(study_id)
+        study_dir = os.path.split(study_path)[0]
 
         branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
         if not os.path.isdir(study_dir):
@@ -336,16 +350,17 @@ class GitAction(object):
             write_as_json(file_content, fc)
         fc.flush()
         try:
-            study_dir, study_filename = self.paths_for_study(study_id) 
+            study_filepath = self.path_for_study(study_id)
+            study_dir = os.path.split(study_filepath)[0]
             if parent_sha is None:
                 self.checkout_master()
                 parent_sha = self.get_master_sha()
             branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha, force_branch_name=True)
             # create a study directory if this is a new study EJM- what if it isn't?
             if not os.path.isdir(study_dir):
-                os.mkdir(study_dir)
-            shutil.copy(fc.name, study_filename)
-            git(self.gitdir, self.gitwd, "add", study_filename)
+                os.makedirs(study_dir)
+            shutil.copy(fc.name, study_filepath)
+            git(self.gitdir, self.gitwd, "add", study_filepath)
             try:
                 git(self.gitdir, self.gitwd,  "commit", author=author, message="Update Study #%s via OpenTree API" % study_id)
             except Exception, e:
@@ -370,7 +385,8 @@ class GitAction(object):
         """Given a study_id, temporary filename of content, branch and auth_info
         """
         gh_user, author = get_user_author(auth_info)
-        study_dir, study_filename = self.paths_for_study(study_id) 
+        study_filepath = self.path_for_study(study_id)
+        study_dir = os.path.split(study_filepath)[0]
         if parent_sha is None:
             self.checkout_master()
             parent_sha = self.get_master_sha()
@@ -378,14 +394,14 @@ class GitAction(object):
         
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):
-            os.mkdir(study_dir)
+            os.makedirs(study_dir)
         
-        if os.path.exists(study_filename):
-            prev_file_sha = self.get_blob_sha_for_file(study_filename)
+        if os.path.exists(study_filepath):
+            prev_file_sha = self.get_blob_sha_for_file(study_filepath)
         else:
             prev_file_sha = None
-        shutil.copy(tmpfi.name, study_filename)
-        git(self.gitdir, self.gitwd, "add", study_filename)
+        shutil.copy(tmpfi.name, study_filepath)
+        git(self.gitdir, self.gitwd, "add", study_filepath)
         try:
             git(self.gitdir,
                 self.gitwd, 

@@ -103,7 +103,7 @@ def commit_and_try_merge2master(git_action,
             except Exception, e:
                 _LOG.exception('write_study_from_tmpfile exception')
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
-            written_fp = git_action.paths_for_study(study_id)[1]
+            written_fp = git_action.path_for_study(study_id)
             branch_name = commit_resp['branch']
             new_sha = commit_resp['commit_sha']
             _LOG.debug('write of study {s} on parent {p} returned = {c}'.format(s=study_id,
@@ -173,7 +173,7 @@ def merge_from_master(git_action, study_id, auth_info, parent_sha):
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to merge study #{s}".format(s=study_id))
     try:
         git_action.checkout_master()
-        written_fp = git_action.paths_for_study(study_id)[1]
+        written_fp = git_action.path_for_study(study_id)
         if os.path.exists(written_fp):
             master_file_blob_sha = git_action.get_blob_sha_for_file(written_fp)
         else:

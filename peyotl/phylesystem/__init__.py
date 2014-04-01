@@ -90,20 +90,6 @@ def _initialize_study_index(repos_par=None):
         d.update(dr)
     return d
 
-def get_paths_for_study_id(study_id, repos_par=None):
-    global _study_index
-    _study_index_lock.acquire()
-    if ".json" not in study_id:
-        study_id = study_id+".json" #@EJM risky?
-    try:
-        if _study_index is None:
-            _study_index = _initialize_study_index(repos_par)
-        return _study_index[study_id]
-    except KeyError:
-        raise ValueError("Study {} not found in repo".format(study_id))
-    finally:
-        _study_index_lock.release()
-
 class PhylesystemShard(object):
     '''Wrapper around a git repos holding nexson studies'''
     def __init__(self,
@@ -194,7 +180,7 @@ class PhylesystemShard(object):
             c = self._next_study_id
             self._next_study_id = 1 + c
         new_study_id = "ot_{c:d}".format(c=c)
-        fp = ga.paths_for_study(new_study_id)[1]
+        fp = ga.path_for_study(new_study_id)
         with self._index_lock:
             self._study_index[new_study_id] = (self.name, self.study_dir, fp)
         return ga, new_study_id
@@ -467,7 +453,7 @@ class _Phylesystem(object):
 
     def get_blob_sha_for_study_id(self, study_id, head_sha):
         ga = self.create_git_action(study_id)
-        studypath = ga.paths_for_study(study_id)[1]
+        studypath = ga.path_for_study(study_id)
         return ga.get_blob_sha_for_file(studypath, head_sha)
 
     def push_study_to_remote(self, remote_name, study_id=None):

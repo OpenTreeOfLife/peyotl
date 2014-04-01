@@ -52,10 +52,13 @@ def get_filepath_for_namespaced_id(repo_dir, study_id):
         study_id = 'pg_' + study_id
     elif study_id[2] != '_':
         study_id = 'pg_' + study_id
-    dest_topdir = study_id[:3] + study_id[-2:]
+    frag = study_id[-2:]
+    while len(frag) < 2:
+        frag = '0' + frag
+    dest_topdir = study_id[:3] + frag
     dest_subdir = study_id
     dest_file = dest_subdir + '.json'
-    return os.path.join(repo_dir, dest_topdir, dest_subdir, dest_file)
+    return os.path.join(repo_dir, 'study', dest_topdir, dest_subdir, dest_file)
 
 def get_filepath_for_simple_id(repo_dir, study_id):
     return '{r}/study/{s}/{s}.json'.format(r=repo_dir, s=study_id)

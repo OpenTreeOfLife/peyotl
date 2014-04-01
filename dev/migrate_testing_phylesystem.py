@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from peyotl.nexson_validation.phylografter_workaround import workaround_phylografter_export_diffs
+from peyotl.phylesystem.git_actions import get_filepath_for_namespaced_id
 from peyotl import get_logger
 from subprocess import call
 import codecs
@@ -38,17 +39,11 @@ else:
 for f in sl:
     if pg_study_pat.match(f):
         source_study = f
-        while len(f) < 2:
-            f = '0' + f
-        dest_topdir = 'pg_' + f[-2:]
-        dest_subdir = 'pg_' + f
-        dest_file = dest_subdir + '.json'
-        dest_frag = os.path.join(dest_topdir, dest_subdir, dest_file)
+        dest_full = get_filepath_for_namespaced_id(new_phylesystem_study, f)
         scratch_dir = os.path.join(scratch_par, f)
         if not os.path.exists(scratch_dir):
             os.makedirs(scratch_dir)
         full_source = os.path.join(old_phylesystem_study, source_study, source_study + '.json')
-        dest_full = os.path.join(new_phylesystem_study, dest_frag)
         dest_dir = os.path.split(dest_full)[0]
         assert(os.path.exists(full_source))
         if os.path.exists(dest_full):
@@ -102,8 +97,6 @@ for f in sl:
             debug('invoc: "{}"'.format('" "'.join(invoc)))
             rc = call(invoc)
             if rc != 0:
-                if os.path.exists(dest_full):
-                    os.unlink(dest_full)
                 failed.append(f)
             else:
                 if not os.path.isdir(dest_dir):

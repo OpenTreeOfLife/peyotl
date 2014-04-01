@@ -96,8 +96,16 @@ def _initialize_study_index(repos_par=None):
 DIGIT_PATTERN = re.compile('^\d')
 def namespaced_get_alias(study_id):
     if DIGIT_PATTERN.match(study_id):
+        if len(study_id) == 1:
+            return [study_id, '0' + study_id, 'pg_' + study_id]
+        elif len(study_id) == 2 and study_id[0] == '0':
+            return [study_id, study_id[1], 'pg_' + study_id]
         return [study_id, 'pg_' + study_id]
     if study_id.startswith('pg_'):
+        if len(study_id) == 4:
+            return [study_id[-2:], study_id[-1], study_id]
+        elif (len(study_id) == 5) and study_id[-2] == '0':
+            return [study_id[-2:], study_id[-1], study_id]
         return [study_id[3:], study_id]
     return [study_id]
 

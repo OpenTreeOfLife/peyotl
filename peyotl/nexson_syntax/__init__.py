@@ -214,9 +214,11 @@ def read_as_json(infi):
     return(n)
 
 def _recursive_sort_meta(blob, k):
+    #_LOG.debug('k=' + k)
     if isinstance(blob, list):
         for i in blob:
-            _recursive_sort_meta(i, k)
+            if isinstance(i, list) or isinstance(i, dict):
+                _recursive_sort_meta(i, k)
     else:
         for inner_k, v in blob.items():
             if inner_k == 'meta' and isinstance(v, list):

@@ -210,6 +210,7 @@ class PhylesystemShard(object):
     def diagnose_repo_nexml2json(self):
         with self._index_lock:
             fp = self.study_index.values()[0][2]
+        _LOG.debug('diagnose_repo_nexml2json with fp={}'.format(fp))
         with codecs.open(fp, mode='rU', encoding='utf-8') as fo:
             fj = json.load(fo)
             return detect_nexson_version(fj)

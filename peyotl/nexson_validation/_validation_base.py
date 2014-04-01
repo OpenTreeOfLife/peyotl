@@ -70,7 +70,7 @@ def replace_annotation_from_annot_list(annotation_list, annotation, agent_id=Non
         annotation_list[n] = annotation
     else:
         annotation_list.append(annotation)
-    _LOG.debug('annotation_list = ' + str(annotation_list))
+    #_LOG.debug('annotation_list = ' + str(annotation_list))
 
 class LazyAddress(object):
     @staticmethod

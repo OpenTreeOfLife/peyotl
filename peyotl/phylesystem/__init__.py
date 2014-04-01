@@ -15,7 +15,9 @@ try:
     from dogpile.cache.api import NO_VALUE
 except:
     pass #caching is optional
-from peyotl.phylesystem.git_actions import GitAction
+from peyotl.phylesystem.git_actions import GitAction, \
+                                           get_filepath_for_namespaced_id, \
+                                           get_filepath_for_simple_id
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
                                              delete_study, \
                                              validate_and_convert_nexson
@@ -25,6 +27,7 @@ from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, \
                                                       replace_same_agent_annotation
 import codecs
 import os
+import re
 from threading import Lock
 _LOG = get_logger(__name__)
 _study_index_lock = Lock()
@@ -90,6 +93,28 @@ def _initialize_study_index(repos_par=None):
         d.update(dr)
     return d
 
+DIGIT_PATTERN = re.compile('^\d')
+def namespaced_get_alias(study_id):
+    if DIGIT_PATTERN.match(study_id):
+        return [study_id, 'pg_' + study_id]
+    if study_id.startswith('pg_'):
+        return [study_id[3:], study_id]
+    return [study_id]
+
+def diagnose_repo_study_id_convention(repo_dir):
+    s = os.path.join(repo_dir, 'study')
+    sl = os.listdir(s)
+    for f in sl:
+        if DIGIT_PATTERN.match(f):
+            return {'convention': 'simple',
+                    'fp_fn': get_filepath_for_simple_id,
+                    'id2alias_list': lambda x: [x]
+            }
+    return {'convention': 'namespaced',
+            'fp_fn': get_filepath_for_namespaced_id,
+            'id2alias_list': namespaced_get_alias,
+    }
+
 class PhylesystemShard(object):
     '''Wrapper around a git repos holding nexson studies'''
     def __init__(self,
@@ -115,6 +140,16 @@ class PhylesystemShard(object):
         if not os.path.isdir(study_dir):
             raise ValueError('"{p}" is not a directory'.format(p=study_dir))
         d = create_id2study_info(study_dir, name)
+        rc_dict = diagnose_repo_study_id_convention(path)
+        self.filepath_for_study_id_fn = rc_dict['fp_fn']
+        self.id_alias_list_fn = rc_dict['id2alias_list']
+        if rc_dict['convention'] != 'simple':
+            a = {}
+            for k, v in d.items():
+                alias_list = self.id_alias_list_fn(k)
+                for alias in alias_list:
+                    a[alias] = v
+            d = a
         self._study_index = d
         self.path = path
         self.git_dir = dot_git
@@ -134,11 +169,13 @@ class PhylesystemShard(object):
         pass
 
     def delete_study_from_index(self, study_id):
+        alias_list = self.id_alias_list_fn(study_id)
         with self._index_lock:
-            try:
-                del self._study_index[study_id]
-            except:
-                pass
+            for i in alias_list:
+                try:
+                    del self._study_index[i]
+                except:
+                    pass
 
     def determine_next_study_id(self, prefix='ot_'):
         "Return the numeric part of the newest study_id"
@@ -170,7 +207,10 @@ class PhylesystemShard(object):
             return detect_nexson_version(fj)
 
     def create_git_action(self):
-        return self._ga_class(repo=self.path, git_ssh=self.git_ssh, pkey=self.pkey)
+        return self._ga_class(repo=self.path,
+                              git_ssh=self.git_ssh,
+                              pkey=self.pkey, 
+                              path_for_study_fn=self.filepath_for_study_id_fn)
 
     def create_git_action_for_new_study(self):
         ga = self.create_git_action()
@@ -188,7 +228,8 @@ class PhylesystemShard(object):
     def _create_git_action_for_mirror(self):
         mirror_ga = self._ga_class(repo=self.push_mirror_repo_path,
                                    git_ssh=self.git_ssh,
-                                   pkey=self.pkey)
+                                   pkey=self.pkey,
+                                   path_for_study_fn=self.filepath_for_study_id_fn)
         return mirror_ga
 
     def push_to_remote(self, remote_name):
@@ -519,7 +560,9 @@ class _Phylesystem(object):
         ret = delete_study(git_action, study_id, auth_info, parent_sha)
         with self._index_lock:
             _shard = self._study2shard_map[study_id]
-            del self._study2shard_map[study_id]
+            alias_list = _shard.id_alias_list_fn(study_id)
+            for alias in alias_list:
+                del self._study2shard_map[alias]
             _shard.delete_study_from_index(study_id)
         return ret
 

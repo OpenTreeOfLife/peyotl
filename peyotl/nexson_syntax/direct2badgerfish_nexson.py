@@ -79,9 +79,13 @@ class Direct2BadgerfishNexson(NexsonConverter):
         self._recursive_convert_dict(nex)
         nex['@nexml2json'] = str(BADGER_FISH_NEXSON_VERSION)
         self._single_el_list_to_dicts(nex, 'otus')
-        self._single_el_list_to_dicts(nex, 'otus', 'otu')
         self._single_el_list_to_dicts(nex, 'trees')
-        self._single_el_list_to_dicts(nex, 'trees', 'tree')
-        self._single_el_list_to_dicts(nex, 'trees', 'tree', 'node')
-        self._single_el_list_to_dicts(nex, 'trees', 'tree', 'edge')
+        #
+        # otu and tree are always arrays in phylografter
+        emulate_phylografter_pluralization = True
+        if not emulate_phylografter_pluralization:
+            self._single_el_list_to_dicts(nex, 'otus', 'otu')
+            self._single_el_list_to_dicts(nex, 'trees', 'tree')
+            self._single_el_list_to_dicts(nex, 'trees', 'tree', 'node')
+            self._single_el_list_to_dicts(nex, 'trees', 'tree', 'edge')
         return obj

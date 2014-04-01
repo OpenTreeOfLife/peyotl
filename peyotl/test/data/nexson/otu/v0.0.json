@@ -37,7 +37,8 @@
 "otus": {
 "@about": "#ob1", 
 "@id": "ob1", 
-"otu": {
+"otu": [
+{
 "@about": "#otu88801", 
 "@id": "otu88801", 
 "@label": "Ancyromonas sigmoides", 
@@ -85,21 +86,25 @@
 }
 ]
 }
+]
 }, 
 "trees": {
 "@about": "#tb1", 
 "@id": "tb1", 
 "@otus": "ob1", 
-"tree": {
+"tree": [
+{
 "@about": "#tr1", 
 "@id": "tr1", 
 "@xsi:type": "nex:FloatTree", 
-"edge": {
+"edge": [
+{
 "@about": "#e0", 
 "@id": "e0", 
 "@source": "n0", 
 "@target": "n1"
-}, 
+}
+], 
 "node": [
 {
 "@about": "#n0", 
@@ -121,6 +126,7 @@
 }
 ]
 }
+]
 }
 }
 }

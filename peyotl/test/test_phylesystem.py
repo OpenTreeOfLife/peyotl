@@ -14,6 +14,11 @@ class TestPhylesystem(unittest.TestCase):
         k = p._study2shard_map.keys()
         k.sort()
         self.assertEqual(k, ['10', '11', '12', '9'])
-
+    def testURL(self):
+        p = _Phylesystem(repos_dict=self.r)
+        print p.get_public_url('9')
+    def testURL(self):
+        p = _Phylesystem(repos_dict=self.r)
+        print p.get_study_ids()
 if __name__ == "__main__":
     unittest.main()

@@ -633,7 +633,7 @@ class _Phylesystem(object):
     def get_study_ids(self, include_aliases=False):
         k = []
         for shard in self._shards:
-            k.extend(shard.get_study_ids(), include_aliases=include_aliases)
+            k.extend(shard.get_study_ids(include_aliases=include_aliases))
         return k
 
     def get_repo_and_path_fragment(self, study_id):

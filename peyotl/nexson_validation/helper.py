@@ -11,7 +11,7 @@ class NexsonError(Exception):
     def __init__(self, v):
         self.value = v
     def __str__(self):
-        return repr(self.v)
+        return repr(self.value)
 
 class SeverityCodes(object):
     '''An enum of Warning/Error severity

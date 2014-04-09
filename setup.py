@@ -67,7 +67,7 @@ setup(
     version='0.0.0a',
     description='Library for interacting with Open Tree of Life resources',
     long_description=(open('README.md').read() + '\n\n' +
-                      open('AUTHORS.txt').read()),
+                      open('CONTRIBUTORS.txt').read()),
     url='https://github.com/OpenTreeOfLife/peyotl',
     license='BSD',
     author='Mark T. Holder',

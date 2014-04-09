@@ -122,6 +122,10 @@ class TestConvert(unittest.TestCase):
         aa = validate_nexson(b)
         annot = aa[0]
         self.assertFalse(annot.has_error())
+        b = get_empty_nexson(include_cc0=True)
+        aa = validate_nexson(b)
+        annot = aa[0]
+        self.assertFalse(annot.has_error())
 
 if __name__ == "__main__":
     unittest.main()

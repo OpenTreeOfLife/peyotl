@@ -1,4 +1,4 @@
-include AUTHORS.txt
+include CONTRIBUTORS.txt
 include clean.sh
 include doc/Makefile
 include ez_setup.py

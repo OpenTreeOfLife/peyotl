@@ -93,6 +93,8 @@ class Direct2OptimalNexson(NexsonConverter):
         converts it to BY_ID_HONEY_BADGERFISH version. The object is modified in place
         and returned.
         '''
+        from peyotl.nexson_validation.helper import NexsonError
+
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 
@@ -107,14 +109,29 @@ class Direct2OptimalNexson(NexsonConverter):
         trees = _get_index_list_of_values(nex, 'trees')
         treesById = dict((i['@id'], i) for i in trees)
         treesElementOrder = [i['@id'] for i in trees]
+        if len(treesById) != len(treesElementOrder):
+            trees_id_set = set()
+            for tgid in treesElementOrder:
+                if tgid in trees_id_set:
+                    raise NexsonError('Repeated trees element id "{}"'.format(tgid))
+                trees_id_set.add(tgid)
+        tree_id_set = set()
         treeContainingObjByTreesId = {}
         for tree_group in trees:
+            #_LOG.debug('converting tree group {} to by_id'.format(tree_group['@id']))
             treeById = {}
             treeElementOrder = []
             tree_array = _get_index_list_of_values(tree_group, 'tree')
             for tree in tree_array:
+                #_LOG.debug('# pre-convert keys = {}'.format(tree.keys()))
                 t_t = self.convert_tree(tree)
                 tid, tree_alias = t_t
+                if tid in tree_id_set:
+                    raise NexsonError('Repeated tree element id "{}"'.format(tid))
+                tree_id_set.add(tid)
+                
+                #_LOG.debug('converting tree {} to by_id'.format(tid))
+                #_LOG.debug('# post-convert keys = {}'.format(tree.keys()))
                 assert(tree_alias is tree)
                 treeById[tid] = tree
                 treeElementOrder.append(tid)

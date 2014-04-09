@@ -81,18 +81,31 @@ class Optimal2DirectNexson(NexsonConverter):
         return tree
 
     def convert_trees(self, treesById, treesElementOrder):
+        from peyotl.nexson_validation.helper import NexsonError
+
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
         trees_group_list = []
+        tree_id_set = set()
+        trees_id_set = set()
         for tgid in treesElementOrder:
+            #_LOG.debug('tgid = ' + tgid)
             tree_group = treesById[tgid]
+            if tgid in trees_id_set:
+                raise NexsonError('Repeated trees element id "{}"'.format(tgid))
+            trees_id_set.add(tgid)
             tree_group['@id'] = tgid
             treeElementOrder = tree_group['^ot:treeElementOrder']
             tree_list = []
             tree_by_id = tree_group['treeById']
             for tree_id in treeElementOrder:
+                if tree_id in tree_id_set:
+                    raise NexsonError('Repeated tree element id "{}"'.format(tree_id))
+                tree_id_set.add(tree_id)
                 tree = tree_by_id[tree_id]
+                #_LOG.debug('pre-convert  tree(id={}).keys = {}'.format(tree_id, tree.keys()))
                 self.convert_tree(tree)
+                #_LOG.debug('post-convert tree(id={}).keys = {}'.format(tree_id, tree.keys()))
                 tree['@id'] = tree_id
                 tree_list.append(tree)
             tree_group['tree'] = tree_list

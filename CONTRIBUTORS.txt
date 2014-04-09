@@ -9,6 +9,15 @@
     The format is that of the Linux kernel CREDITS file.  This file is
     encoded in UTF-8.
 
+    The primary authors and maintainers of peyotl are:
+    Emily Jane McTavish,
+    Mark T. Holder, and 
+    Jim Allman
+
+    Jonathan "Duke" Leto wrote parts of peyotl.phylesystem.git_actions 
+    and the tests as a part of his work on the Open Tree of Life
+    api.opentreeoflife.org repository.
+
 ----------
 
 N: Emily Jane McTavish

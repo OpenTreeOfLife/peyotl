@@ -337,6 +337,34 @@ class GitAction(object):
             _LOG.exception('git ls-tree failed')
             raise
 
+    def get_version_history_for_file(self, filepath):
+        """ Return a dict representation of this file's commit history
+        
+        This uses specially formatted git-log output for easy parsing, as described here:
+            http://blog.lost-theory.org/post/how-to-parse-git-log-output/
+        For a full list of available fields, see:
+            http://linux.die.net/man/1/git-log
+
+        """
+        from pprint import pprint
+        # define the desired fields for logout output, matching the order in these lists!
+        GIT_COMMIT_FIELDS = ['id', 'author_name', 'author_email', 'date', 'message']
+        GIT_LOG_FORMAT = ['%H', '%an', '%ae', '%ad', '%s']
+        # make the final format string, using standard ASCII field/record delimiters
+        GIT_LOG_FORMAT = '%x1f'.join(GIT_LOG_FORMAT) + '%x1e'
+        try:
+            log = git(self.gitdir, self.gitwd, 'log', '--numstat', '--format', GIT_LOG_FORMAT, '--follow', '--', filepath)
+            #_LOG.debug('log said "{}"'.format(log))
+            pprint('-------')
+            pprint(log)
+            pprint('-------')
+            log = log.strip('\n\x1e').split("\x1e")
+            log = [row.strip().split("\x1f") for row in log]
+            log = [dict(zip(GIT_COMMIT_FIELDS, row)) for row in log]
+        except:
+            _LOG.exception('git log failed')
+            raise
+
     #@TEMP TODO: remove this form...
     def write_study(self, study_id, file_content, branch, author):
         """Given a study_id, temporary filename of content, branch and auth_info

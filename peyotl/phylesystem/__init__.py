@@ -534,6 +534,11 @@ class _Phylesystem(object):
         studypath = ga.path_for_study(study_id)
         return ga.get_blob_sha_for_file(studypath, head_sha)
 
+    def get_version_history_for_study_id(self, study_id):
+        ga = self.create_git_action(study_id)
+        studypath = ga.path_for_study(study_id)
+        return ga.get_version_history_for_file(studypath)
+
     def push_study_to_remote(self, remote_name, study_id=None):
         '''This will push the master branch to the remote named `remote_name`
         using the mirroring strategy to cut down on locking of the working repo.

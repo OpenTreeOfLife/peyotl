@@ -364,6 +364,7 @@ class GitAction(object):
         except:
             _LOG.exception('git log failed')
             raise
+        return log
 
     #@TEMP TODO: remove this form...
     def write_study(self, study_id, file_content, branch, author):

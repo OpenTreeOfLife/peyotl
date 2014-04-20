@@ -534,6 +534,15 @@ class _Phylesystem(object):
         studypath = ga.path_for_study(study_id)
         return ga.get_blob_sha_for_file(studypath, head_sha)
 
+    def get_version_history_for_study_id(self, study_id):
+        ga = self.create_git_action(study_id)
+        studypath = ga.path_for_study(study_id)
+        from pprint import pprint
+        pprint('```````````````````````````````````')
+        pprint( ga.get_version_history_for_file(studypath) )
+        pprint('```````````````````````````````````')
+        return ga.get_version_history_for_file(studypath)
+
     def push_study_to_remote(self, remote_name, study_id=None):
         '''This will push the master branch to the remote named `remote_name`
         using the mirroring strategy to cut down on locking of the working repo.
@@ -555,6 +564,7 @@ class _Phylesystem(object):
                                     study_id,
                                     auth_info,
                                     parent_sha,
+                                    commit_msg='',
                                     merged_sha=None):
         git_action = self.create_git_action(study_id)
         return commit_and_try_merge2master(git_action,
@@ -562,6 +572,7 @@ class _Phylesystem(object):
                                            study_id,
                                            auth_info,
                                            parent_sha,
+                                           commit_msg,
                                            merged_sha=merged_sha)
     def annotate_and_write(self,
                            git_data, 
@@ -571,6 +582,7 @@ class _Phylesystem(object):
                            adaptor,
                            annotation,
                            parent_sha,
+                           commit_msg='',
                            master_file_blob_included=None):
         '''
         This is the heart of the api's __finish_write_verb 
@@ -591,6 +603,7 @@ class _Phylesystem(object):
                                            study_id=study_id,
                                            auth_info=auth_info,
                                            parent_sha=parent_sha,
+                                           commit_msg=commit_msg,
                                            merged_sha=master_file_blob_included)
     def delete_study(self, study_id, auth_info, parent_sha):
         git_action = self.create_git_action(study_id)

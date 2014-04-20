@@ -337,6 +337,31 @@ class GitAction(object):
             _LOG.exception('git ls-tree failed')
             raise
 
+    def get_version_history_for_file(self, filepath):
+        """ Return a dict representation of this file's commit history
+        
+        This uses specially formatted git-log output for easy parsing, as described here:
+            http://blog.lost-theory.org/post/how-to-parse-git-log-output/
+        For a full list of available fields, see:
+            http://linux.die.net/man/1/git-log
+
+        """
+        # define the desired fields for logout output, matching the order in these lists!
+        GIT_COMMIT_FIELDS = ['id', 'author_name', 'author_email', 'date', 'date_ISO_8601', 'relative_date', 'message_subject', 'message_body']
+        GIT_LOG_FORMAT = ['%H', '%an', '%ae', '%aD', '%ai', '%ar', '%s', '%b']
+        # make the final format string, using standard ASCII field/record delimiters
+        GIT_LOG_FORMAT = '%x1f'.join(GIT_LOG_FORMAT) + '%x1e'
+        try:
+            log = git(self.gitdir, self.gitwd, '--no-pager', 'log', ('--format=%s' % GIT_LOG_FORMAT), '--follow', '--', filepath)
+            #_LOG.debug('log said "{}"'.format(log))
+            log = log.strip('\n\x1e').split("\x1e")
+            log = [row.strip().split("\x1f") for row in log]
+            log = [dict(zip(GIT_COMMIT_FIELDS, row)) for row in log]
+        except:
+            _LOG.exception('git log failed')
+            raise
+        return log
+
     #@TEMP TODO: remove this form...
     def write_study(self, study_id, file_content, branch, author):
         """Given a study_id, temporary filename of content, branch and auth_info
@@ -386,7 +411,7 @@ class GitAction(object):
         return new_sha
 
 
-    def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info):
+    def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info, commit_msg=''):
         """Given a study_id, temporary filename of content, branch and auth_info
         """
         gh_user, author = get_user_author(auth_info)
@@ -397,6 +422,11 @@ class GitAction(object):
             parent_sha = self.get_master_sha()
         branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
         
+        # build complete commit message
+        if commit_msg:
+            commit_msg = "%s\n\n(Update Study #%s via OpenTree API)" % (commit_msg, study_id)
+        else:
+            commit_msg = "Update Study #%s via OpenTree API" % study_id
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):
             os.makedirs(study_dir)
@@ -412,7 +442,7 @@ class GitAction(object):
                 self.gitwd, 
                 "commit",
                 author=author,
-                message="Update Study #%s via OpenTree API" % study_id)
+                message=commit_msg)
         except Exception, e:
             # We can ignore this if no changes are new,
             # otherwise raise a 400

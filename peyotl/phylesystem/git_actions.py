@@ -347,7 +347,7 @@ class GitAction(object):
 
         """
         # define the desired fields for logout output, matching the order in these lists!
-        GIT_COMMIT_FIELDS = ['id', 'author_name', 'author_email', 'date', 'date_ISO_8601', 'relative_date', 'message subject', 'message body']
+        GIT_COMMIT_FIELDS = ['id', 'author_name', 'author_email', 'date', 'date_ISO_8601', 'relative_date', 'message_subject', 'message_body']
         GIT_LOG_FORMAT = ['%H', '%an', '%ae', '%aD', '%ai', '%ar', '%s', '%b']
         # make the final format string, using standard ASCII field/record delimiters
         GIT_LOG_FORMAT = '%x1f'.join(GIT_LOG_FORMAT) + '%x1e'

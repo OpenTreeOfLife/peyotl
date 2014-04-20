@@ -411,7 +411,7 @@ class GitAction(object):
         return new_sha
 
 
-    def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info):
+    def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info, commit_msg=''):
         """Given a study_id, temporary filename of content, branch and auth_info
         """
         gh_user, author = get_user_author(auth_info)
@@ -422,6 +422,11 @@ class GitAction(object):
             parent_sha = self.get_master_sha()
         branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
         
+        # build complete commit message
+        if commit_msg:
+            commit_msg = "%s\n\n(Update Study #%s via OpenTree API)" % (commit_msg, study_id)
+        else:
+            commit_msg = "Update Study #%s via OpenTree API" % study_id
         # create a study directory if this is a new study EJM- what if it isn't?
         if not os.path.isdir(study_dir):
             os.makedirs(study_dir)
@@ -437,7 +442,7 @@ class GitAction(object):
                 self.gitwd, 
                 "commit",
                 author=author,
-                message="Update Study #%s via OpenTree API" % study_id)
+                message=commit_msg)
         except Exception, e:
             # We can ignore this if no changes are new,
             # otherwise raise a 400

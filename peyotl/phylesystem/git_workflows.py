@@ -81,6 +81,7 @@ def commit_and_try_merge2master(git_action,
                                 study_id,
                                 auth_info,
                                 parent_sha,
+                                commit_msg='',
                                 merged_sha=None):
     """Actually make a local Git commit and push it to our remote
     """
@@ -99,7 +100,7 @@ def commit_and_try_merge2master(git_action,
         acquire_lock_raise(git_action, fail_msg=f)
         try:
             try:
-                commit_resp = git_action.write_study_from_tmpfile(study_id, fc, parent_sha, auth_info)
+                commit_resp = git_action.write_study_from_tmpfile(study_id, fc, parent_sha, auth_info, commit_msg)
             except Exception, e:
                 _LOG.exception('write_study_from_tmpfile exception')
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))

@@ -560,6 +560,7 @@ class _Phylesystem(object):
                                     study_id,
                                     auth_info,
                                     parent_sha,
+                                    commit_msg='',
                                     merged_sha=None):
         git_action = self.create_git_action(study_id)
         return commit_and_try_merge2master(git_action,
@@ -567,6 +568,7 @@ class _Phylesystem(object):
                                            study_id,
                                            auth_info,
                                            parent_sha,
+                                           commit_msg,
                                            merged_sha=merged_sha)
     def annotate_and_write(self,
                            git_data, 
@@ -576,6 +578,7 @@ class _Phylesystem(object):
                            adaptor,
                            annotation,
                            parent_sha,
+                           commit_msg='',
                            master_file_blob_included=None):
         '''
         This is the heart of the api's __finish_write_verb 
@@ -596,6 +599,7 @@ class _Phylesystem(object):
                                            study_id=study_id,
                                            auth_info=auth_info,
                                            parent_sha=parent_sha,
+                                           commit_msg=commit_msg,
                                            merged_sha=master_file_blob_included)
     def delete_study(self, study_id, auth_info, parent_sha):
         git_action = self.create_git_action(study_id)

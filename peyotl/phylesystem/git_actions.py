@@ -352,7 +352,7 @@ class GitAction(object):
         # make the final format string, using standard ASCII field/record delimiters
         GIT_LOG_FORMAT = '%x1f'.join(GIT_LOG_FORMAT) + '%x1e'
         try:
-            log = git(self.gitdir, self.gitwd, 'log', ('--format=%s' % GIT_LOG_FORMAT), '--follow', '--', filepath)
+            log = git(self.gitdir, self.gitwd, '--no-pager', 'log', ('--format=%s' % GIT_LOG_FORMAT), '--follow', '--', filepath)
             #_LOG.debug('log said "{}"'.format(log))
             log = log.strip('\n\x1e').split("\x1e")
             log = [row.strip().split("\x1f") for row in log]

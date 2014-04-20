@@ -537,6 +537,10 @@ class _Phylesystem(object):
     def get_version_history_for_study_id(self, study_id):
         ga = self.create_git_action(study_id)
         studypath = ga.path_for_study(study_id)
+        from pprint import pprint
+        pprint('```````````````````````````````````')
+        pprint( ga.get_version_history_for_file(studypath) )
+        pprint('```````````````````````````````````')
         return ga.get_version_history_for_file(studypath)
 
     def push_study_to_remote(self, remote_name, study_id=None):

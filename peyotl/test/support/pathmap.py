@@ -56,8 +56,8 @@ TEST_PHYLESYSTEM_MIRROR_PAR = os.path.join(TEST_PHYLESYSTEM_PAR, 'mirror')
 TEST_PHYLESYSTEM_TEMPLATE = os.path.join(TESTS_DATA_DIR, 'template_mini_par')
 
 def get_test_repos():
-    return { 'mini_phyl': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_phyl'),
-             'mini_system': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_system'),
+    return {'mini_phyl': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_phyl'),
+            'mini_system': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_system'),
     }
 def get_test_phylesystem_mirror_parent():
     return TEST_PHYLESYSTEM_MIRROR_PAR

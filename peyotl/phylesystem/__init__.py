@@ -43,7 +43,7 @@ def _get_phylesystem_parent():
         except:
             raise ValueError('No phylesystem parent specified in config or environmental variables')
     x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
-    return(x)
+    return x
 
 
 def get_repos(par_list=None):
@@ -60,7 +60,7 @@ def get_repos(par_list=None):
         par_list = [par_list]
     for p in par_list:
         if not os.path.isdir(p):
-            raise ValueError('No phylesystem parent "{p}" is not a directory'.format(p=p))            
+            raise ValueError('No phylesystem parent "{p}" is not a directory'.format(p=p))
         for name in os.listdir(p):
             if os.path.isdir(os.path.join(p, name + '/.git')):
                 _repos[name] = os.path.abspath(os.path.join(p, name))
@@ -79,7 +79,7 @@ def create_id2study_info(path, tag):
         for filename in files:
             if filename.endswith('.json'):
                 # if file is in more than one place it gets over written.
-                #TODO EJM Needs work 
+                #TODO EJM Needs work
                 study_id = filename[:-5]
                 d[study_id] = (tag, root, os.path.join(root, filename))
     return d
@@ -93,7 +93,7 @@ def _initialize_study_index(repos_par=None):
         d.update(dr)
     return d
 
-DIGIT_PATTERN = re.compile('^\d')
+DIGIT_PATTERN = re.compile(r'^\d')
 def namespaced_get_alias(study_id):
     if DIGIT_PATTERN.match(study_id):
         if len(study_id) == 1:
@@ -236,7 +236,7 @@ class PhylesystemShard(object):
     def create_git_action(self):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,
-                              pkey=self.pkey, 
+                              pkey=self.pkey,
                               path_for_study_fn=self.filepath_for_study_id_fn)
 
     def create_git_action_for_new_study(self):
@@ -321,7 +321,7 @@ def _make_phylesystem_cache_region():
         return
     region = None
     trial_key = 'test_key'
-    trial_val =  {'test_val': [4, 3]}
+    trial_val = {'test_val': [4, 3]}
     trying_redis = True
     if trying_redis:
         try:
@@ -336,7 +336,7 @@ def _make_phylesystem_cache_region():
             _LOG.debug('cache region set up with cache.redis.')
             _LOG.debug('testing redis caching...')
             region.set(trial_key, trial_val)
-            assert(trial_val == region.get(trial_key))
+            assert trial_val == region.get(trial_key)
             _LOG.debug('redis caching works')
             region.delete(trial_key)
             _REGION = region
@@ -354,12 +354,12 @@ def _make_phylesystem_cache_region():
         try:
             a = {'filename': cache_db}
             region = make_region().configure('dogpile.cache.dbm',
-                                             expiration_time = 36000,
-                                             arguments = a)
+                                             expiration_time=36000,
+                                             arguments=a)
             _LOG.debug('cache region set up with cache.dbm.')
             _LOG.debug('testing anydbm caching...')
             region.set(trial_key, trial_val)
-            assert(trial_val == region.get(trial_key))
+            assert trial_val == region.get(trial_key)
             _LOG.debug('anydbm caching works')
             region.delete(trial_key)
             _REGION = region
@@ -380,7 +380,7 @@ class _Phylesystem(object):
                  with_caching=True,
                  repo_nexml2json=None,
                  git_ssh=None,
-                 pkey=None, 
+                 pkey=None,
                  git_action_class=GitAction,
                  mirror_info=None):
         '''
@@ -496,7 +496,7 @@ class _Phylesystem(object):
             else:
                 _LOG.debug('cache miss for ' + key)
                 need_to_cache = True
-        
+
         if adaptor is None:
             bundle = ot_validate(study_obj)
             annotation = bundle[0]
@@ -519,7 +519,7 @@ class _Phylesystem(object):
         ga = self.create_git_action(study_id)
         with ga.lock():
             #_LOG.debug('pylesystem.return_study({s}, {b}, {c}...)'.format(s=study_id, b=branch, c=commit_sha))
-            
+
             blob = ga.return_study(study_id,
                                    branch=branch,
                                    commit_sha=commit_sha,
@@ -537,10 +537,10 @@ class _Phylesystem(object):
     def get_version_history_for_study_id(self, study_id):
         ga = self.create_git_action(study_id)
         studypath = ga.path_for_study(study_id)
-        from pprint import pprint
-        pprint('```````````````````````````````````')
-        pprint( ga.get_version_history_for_file(studypath) )
-        pprint('```````````````````````````````````')
+        #from pprint import pprint
+        #pprint('```````````````````````````````````')
+        #pprint(ga.get_version_history_for_file(studypath))
+        #pprint('```````````````````````````````````')
         return ga.get_version_history_for_file(studypath)
 
     def push_study_to_remote(self, remote_name, study_id=None):
@@ -575,7 +575,7 @@ class _Phylesystem(object):
                                            commit_msg,
                                            merged_sha=merged_sha)
     def annotate_and_write(self,
-                           git_data, 
+                           git_data,
                            nexson,
                            study_id,
                            auth_info,
@@ -585,7 +585,7 @@ class _Phylesystem(object):
                            commit_msg='',
                            master_file_blob_included=None):
         '''
-        This is the heart of the api's __finish_write_verb 
+        This is the heart of the api's __finish_write_verb
         It was moved to phylesystem to make it easier to coordinate it
             with the caching decisions. We have been debating whether
             to cache @id and @dateCreated attributes for the annotations
@@ -618,7 +618,7 @@ class _Phylesystem(object):
 
     def ingest_new_study(self,
                          new_study_nexson,
-                         repo_nexml2json, 
+                         repo_nexml2json,
                          auth_info):
         gd, new_study_id = self.create_git_action_for_new_study()
         try:
@@ -634,7 +634,7 @@ class _Phylesystem(object):
                                         auth_info=auth_info,
                                         adaptor=nexson_adaptor,
                                         annotation=annotation,
-                                        parent_sha=None, 
+                                        parent_sha=None,
                                         master_file_blob_included=None)
         except:
             self._growing_shard.delete_study_from_index(new_study_id)
@@ -661,17 +661,17 @@ class _Phylesystem(object):
         return shard.name, shard.get_rel_path_fragment(study_id)
 
     def get_public_url(self, study_id, branch='master'):
-        '''Returns a GitHub URL for the 
+        '''Returns a GitHub URL for the
         '''
         #@TEMP, TODO. should look in the remote to find this. But then it can be tough to determine
         #       which (if any) remotes are publicly visible... hmmmm
         name, path_frag = self.get_repo_and_path_fragment(study_id)
-        
+
         return 'https://raw.githubusercontent.com/OpenTreeOfLife/' + name + '/' + branch + '/' + path_frag
 
     def iter_study_objs(self, **kwargs):
         '''Generator that iterates over all detected phylesystem studies.
-        and returns the study object (deserialized from nexson) for 
+        and returns the study object (deserialized from nexson) for
         each study.
         Order is by shard, but arbitrary within shards.
         @TEMP not locked to prevent study creation/deletion
@@ -686,12 +686,12 @@ def Phylesystem(repos_dict=None,
                 with_caching=True,
                 repo_nexml2json=None,
                 git_ssh=None,
-                pkey=None, 
+                pkey=None,
                 git_action_class=GitAction,
                 mirror_info=None):
     '''Factory function for a _Phylesystem object.
 
-    A wrapper around the _Phylesystem class instantiation for 
+    A wrapper around the _Phylesystem class instantiation for
     the most common use case: a singleton _Phylesystem.
     If you need distinct _Phylesystem objects, you'll need to
     call that class directly.
@@ -703,7 +703,7 @@ def Phylesystem(repos_dict=None,
                                         with_caching=with_caching,
                                         repo_nexml2json=repo_nexml2json,
                                         git_ssh=git_ssh,
-                                        pkey=pkey,      
+                                        pkey=pkey,
                                         git_action_class=git_action_class,
                                         mirror_info=mirror_info)
     return _THE_PHYLESYSTEM

@@ -65,7 +65,7 @@ class Badgerfish2DirectNexson(NexsonConverter):
             if k not in _SUPPRESSED_RESOURCE:
                 full_obj[k] = res_bf_meta[k]
         att_key = '^' + att_key
-        assert(full_obj)
+        assert full_obj
         _cull_redundant_about(full_obj)
         return att_key, full_obj
 
@@ -83,7 +83,7 @@ class Badgerfish2DirectNexson(NexsonConverter):
             if _RESOURCE_META_PAT.match(xt):
                 mk, mv = self._transform_resource_meta(meta)
             else:
-                assert(_LITERAL_META_PAT.match(xt))
+                assert _LITERAL_META_PAT.match(xt)
                 mk, mv = self._transform_literal_meta(meta)
             _add_value_to_dict_bf(to_inject, mk, mv)
         if ('meta' in obj) and self.remove_old_structs:
@@ -119,7 +119,7 @@ class Badgerfish2DirectNexson(NexsonConverter):
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 
         nex = get_nexml_el(obj)
-        assert(nex)
+        assert nex
         self._recursive_convert_dict(nex)
         # pluralization simplifications in hbf:
         # convert dicts to lists for the primary datastructures...

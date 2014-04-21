@@ -80,7 +80,7 @@ class Nexml2Nexson(NexsonConverter):
         o = {key: val}
         try:
             n = get_nexml_el(o)
-            assert(n)
+            assert n
         except:
             return o
         # ot: discard characters...
@@ -100,7 +100,7 @@ class Nexml2Nexson(NexsonConverter):
                     edge_list = _get_index_list_of_values(tree, 'edge')
                     target_set = set([i['@target'] for i in edge_list])
                     root_id_set = set(node_id_map.keys()) - target_set
-                    assert(len(root_id_set) == 1)
+                    assert len(root_id_set) == 1
                     for ri in root_id_set:
                         node_id_map[ri]['@root'] = True
         return o
@@ -206,7 +206,7 @@ class Nexml2Nexson(NexsonConverter):
                 if handling_code == ATT_TRANSFORM_CODE.IN_XMLNS_OBJ:
                     full_obj.setdefault('@xmlns', {})[new_name] = attr.value
                 else:
-                    assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
+                    assert handling_code == ATT_TRANSFORM_CODE.HANDLED
 
         if not att_str_val:
             att_str_val, ntl = _extract_text_and_child_element_list(minidom_meta_element)
@@ -243,7 +243,7 @@ class Nexml2Nexson(NexsonConverter):
                 if handling_code == ATT_TRANSFORM_CODE.IN_XMLNS_OBJ:
                     full_obj.setdefault('@xmlns', {})[new_name] = attr.value
                 else:
-                    assert (handling_code == ATT_TRANSFORM_CODE.HANDLED)
+                    assert handling_code == ATT_TRANSFORM_CODE.HANDLED
         rel = '^' + rel
         att_str_val, ntl = _extract_text_and_child_element_list(minidom_meta_element)
         if att_str_val:

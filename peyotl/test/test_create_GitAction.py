@@ -13,6 +13,6 @@ class TestCreate(unittest.TestCase):
         gd.release_lock()
         gd.checkout_master()
         self.assertEqual(gd.current_branch(), "master")
-        
+
 if __name__ == "__main__":
     unittest.main()

@@ -39,7 +39,7 @@ import json
 _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
                                   DIRECT_HONEY_BADGERFISH,
                                   BADGER_FISH_NEXSON_VERSION,
-                                  BY_ID_HONEY_BADGERFISH, 
+                                  BY_ID_HONEY_BADGERFISH,
                                   '0.0',
                                   '1.0',
                                   '1.2',
@@ -57,11 +57,11 @@ def get_ot_study_info_from_nexml(src=None,
     of an NeXML file in utf-8 encoding.
 
     If nexml_content is None, then the src arg will be used src can be either:
-        * a file_object, or 
+        * a file_object, or
         * a string
-    If `src` is a string then it will be treated as a filepath unless it 
+    If `src` is a string then it will be treated as a filepath unless it
         begins with http:// or https:// (in which case it will be downloaded
-        using peyotl.utility.download) 
+        using peyotl.utility.download)
     Returns a dictionary with the keys/values encoded according to the honeybadgerfish convention
     See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/HoneyBadgerFish
 
@@ -122,7 +122,7 @@ def write_obj_as_nexml(obj_dict,
 def detect_nexson_version(blob):
     '''Returns the nexml2json attribute or the default code for badgerfish'''
     n = get_nexml_el(blob)
-    assert(isinstance(n, dict))
+    assert isinstance(n, dict)
     return n.get('@nexml2json', BADGER_FISH_NEXSON_VERSION)
 def resolve_nexson_format(v):
     if len(v) == 3:
@@ -180,7 +180,7 @@ def convert_nexson_format(blob,
     if _is_badgerfish_version(current_format):
         converter = Badgerfish2DirectNexson(ccfg)
     elif _is_badgerfish_version(out_nexson_format):
-        assert(_is_direct_hbf(current_format))
+        assert _is_direct_hbf(current_format)
         converter = Direct2BadgerfishNexson(ccfg)
     elif _is_direct_hbf(current_format) and (out_nexson_format == BY_ID_HONEY_BADGERFISH):
         converter = Direct2OptimalNexson(ccfg)
@@ -207,11 +207,11 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
         out.flush()
         if opened_out:
             out.close()
-    
+
 def read_as_json(infi):
     inpf = codecs.open(infi)
     n = json.load(inpf)
-    return(n)
+    return n
 
 def _recursive_sort_meta(blob, k):
     #_LOG.debug('k=' + k)
@@ -290,20 +290,20 @@ def add_resource_meta(obj, rel, href, version):
 
 
 def get_empty_nexson(vers='1.2.1', include_cc0=False):
-    assert(vers == '1.2.1')
+    assert vers == '1.2.1'
     nexson = {
         'nexml': {
-        '@about': '#study', 
+        '@about': '#study',
         '@generator': 'Open Tree API',
         '@id': 'study',
         '@nexml2json': vers,
-        '@nexmljson': 'http://purl.org/opentree/nexson', 
-        '@version': '0.9', 
+        '@nexmljson': 'http://purl.org/opentree/nexson',
+        '@version': '0.9',
         '@xmlns': {
-            '$': 'http://www.nexml.org/2009', 
-            'nex': 'http://www.nexml.org/2009', 
-            'ot': 'http://purl.org/opentree-terms#', 
-            'xsd': 'http://www.w3.org/2001/XMLSchema#', 
+            '$': 'http://www.nexml.org/2009',
+            'nex': 'http://www.nexml.org/2009',
+            'ot': 'http://purl.org/opentree-terms#',
+            'xsd': 'http://www.w3.org/2001/XMLSchema#',
             'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
             'xhtml': 'http://www.w3.org/1999/xhtml/vocab#'
         },

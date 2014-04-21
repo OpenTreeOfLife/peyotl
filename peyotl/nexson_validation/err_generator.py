@@ -13,12 +13,12 @@ from cStringIO import StringIO
 import codecs
 import json
 # monkey patching of NexsonWarningCodes causes lots of warnings
-#pylint: disable=E1101 
+#pylint: disable=E1101
 _LOG = get_logger(__name__)
 
 class MessageTupleAdaptor(object):
     '''This base class provides the basic functionality of keeping
-    track of the "address" of the element that triggered the warning, 
+    track of the "address" of the element that triggered the warning,
     the severity code, and methods for writing to free text stream or JSON.
     '''
     def write(self, err_tuple, s, prefix):

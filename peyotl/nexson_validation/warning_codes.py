@@ -51,15 +51,15 @@ NexsonWarningCodes.numeric_codes_registered = set(NexsonWarningCodes.numeric_cod
 # End of NexsonWarningCodes enum
 
 ################################################################################
-# In a burst of over-exuberant OO-coding, MTH added a class for 
+# In a burst of over-exuberant OO-coding, MTH added a class for
 #   each class of Warning/Error.
-# 
+#
 # Each subclass typically tweaks the writing of the message and the payload
 #   that constitutes the "data" blob in the JSON.
 ################################################################################
 # class WarningMessage(object):
 #     '''This base class provides the basic functionality of keeping
-#     track of the "address" of the element that triggered the warning, 
+#     track of the "address" of the element that triggered the warning,
 #     the severity code, and methods for writing to free text stream or JSON.
 #     '''
 #     def __init__(self,

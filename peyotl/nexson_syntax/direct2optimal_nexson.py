@@ -16,7 +16,7 @@ class Direct2OptimalNexson(NexsonConverter):
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
         self.suppress_label_if_ott_taxon = getattr(conv_cfg, 'suppress_label_if_ott_taxon', True)
-    
+
     def convert_otus(self, otus_list):
         otusById = dict((i['@id'], i) for i in otus_list)
         otusElementOrder = [i['@id'] for i in otus_list]
@@ -61,9 +61,9 @@ class Direct2OptimalNexson(NexsonConverter):
             r = node.get('@root')
             #_LOG.debug(' node {} @root={}'.format(node['@id'], r))
             if r in [True, 'true']: #@TEMP accepting true or "true"
-                assert(root_node is None)
+                assert root_node is None
                 root_node = node
-        assert(root_node is not None)
+        assert root_node is not None
         edgeBySourceId = {}
         edge_list = _get_index_list_of_values(tree, 'edge')
         for edge in edge_list:
@@ -99,7 +99,7 @@ class Direct2OptimalNexson(NexsonConverter):
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 
         nex = get_nexml_el(obj)
-        assert(nex)
+        assert nex
         # Create the new objects as locals. This section should not
         #   mutate obj, so that if there is an exception the object
         #   is unchanged on the error exit
@@ -129,10 +129,10 @@ class Direct2OptimalNexson(NexsonConverter):
                 if tid in tree_id_set:
                     raise NexsonError('Repeated tree element id "{}"'.format(tid))
                 tree_id_set.add(tid)
-                
+
                 #_LOG.debug('converting tree {} to by_id'.format(tid))
                 #_LOG.debug('# post-convert keys = {}'.format(tree.keys()))
-                assert(tree_alias is tree)
+                assert tree_alias is tree
                 treeById[tid] = tree
                 treeElementOrder.append(tid)
             treeContainingObjByTreesId[tree_group['@id']] = treeById

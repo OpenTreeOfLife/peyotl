@@ -49,7 +49,7 @@ class Optimal2DirectNexson(NexsonConverter):
         while True:
             curr_node = nodeById[curr_node_id]
             curr_node['@id'] = curr_node_id
-            assert(curr_node_id not in node_set_written)
+            assert curr_node_id not in node_set_written
             node_set_written.add(curr_node_id)
             node_list.append(curr_node)
             sub_edge_dict = edgeBySourceId.get(curr_node_id)
@@ -67,11 +67,11 @@ class Optimal2DirectNexson(NexsonConverter):
                 eid, edge = edge_stack.pop(-1)
             edge['@id'] = eid
             edge_list.append(edge)
-            assert(eid not in edge_set_written)
+            assert eid not in edge_set_written
             edge_set_written.add(eid)
             curr_node_id = edge['@target']
         for n in nodeById.values():
-            assert(n['@id'] in node_set_written)
+            assert n['@id'] in node_set_written
         tree['node'] = node_list
         tree['edge'] = edge_list
         if self.remove_old_structs:
@@ -124,7 +124,7 @@ class Optimal2DirectNexson(NexsonConverter):
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 
         nex = get_nexml_el(obj)
-        assert(nex)
+        assert nex
         # Create the new objects as locals. This section should not
         #   mutate obj, so that if there is an exception the object
         #   is unchanged on the error exit

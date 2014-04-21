@@ -75,7 +75,7 @@ class Direct2BadgerfishNexson(NexsonConverter):
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 
         nex = get_nexml_el(obj)
-        assert(nex)
+        assert nex
         self._recursive_convert_dict(nex)
         nex['@nexml2json'] = str(BADGER_FISH_NEXSON_VERSION)
         self._single_el_list_to_dicts(nex, 'otus')

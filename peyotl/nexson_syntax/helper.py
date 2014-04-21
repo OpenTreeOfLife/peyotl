@@ -356,14 +356,14 @@ def _simplify_object_by_id_del(o):
         return [_simplify_object_by_id_del(i) for i in o]
     if not isinstance(o, dict):
         return o
-    if ('@id' in o):
+    if '@id' in o:
         nk = len(o.keys())
         if nk < 3:
             if nk == 1:
                 return None
-            if ('$' in o):
+            if '$' in o:
                 return o['$']
-            if ('@href' in o):
+            if '@href' in o:
                 del o['@id']
     return o
 

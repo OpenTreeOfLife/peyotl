@@ -17,7 +17,7 @@ class TestPhylesystem(unittest.TestCase):
     def testURL(self):
         p = _Phylesystem(repos_dict=self.r)
         print p.get_public_url('9')
-    def testURL(self):
+    def testStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
         print p.get_study_ids()
 if __name__ == "__main__":

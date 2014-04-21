@@ -141,7 +141,7 @@ class DefaultRichLogger(object):
         return em_list
 
 
-    def prepare_annotation(self, 
+    def prepare_annotation(self,
                        author_name='',
                        invocation=tuple(),
                        author_version=VERSION,
@@ -154,10 +154,10 @@ class DefaultRichLogger(object):
                           "that would allow a study to be imported into the Open Tree "\
                           "of Life's phylogenetic synthesis tools"
         #@TEMP. the args are in flux between the branches of api.opentreeoflife.org.
-        #    which is bad. Hopefully we don't need annotation_label and 
+        #    which is bad. Hopefully we don't need annotation_label and
         #   can get rid of it.
         if annotation_label is not None:
-            description += annotation_label 
+            description += annotation_label
         checks_performed = list(NexsonWarningCodes.numeric_codes_registered)
         for code in self.codes_to_skip:
             try:

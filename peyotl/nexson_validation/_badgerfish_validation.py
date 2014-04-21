@@ -253,7 +253,6 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                     nonleaves_with_leaf_flags.append(nid)
             if nd.get('@root'):
                 with_at_root_prop[nid] = nd
-        
         if unflagged_leaves:
             vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
             try:

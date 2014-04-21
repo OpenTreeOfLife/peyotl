@@ -147,7 +147,7 @@ class Nexson2Nexml(NexsonConverter):
         #     "xmlns:tb": "http://purl.org/phylo/treebase/2.0/terms#",
         # }
         base_keys = obj_dict.keys()
-        assert(len(base_keys) == 1)
+        assert len(base_keys) == 1
         root_name = base_keys[0]
         root_obj = obj_dict[root_name]
         atts, data, children, meta_children = self._partition_keys_for_xml(root_obj)
@@ -208,7 +208,7 @@ class Nexson2Nexml(NexsonConverter):
         if key_order:
             for t in key_order:
                 k, nko = t
-                assert(nko is None or isinstance(nko, tuple))
+                assert nko is None or isinstance(nko, tuple)
                 if k in children_dict:
                     chl = _index_list_of_values(children_dict, k)
                     written.add(k)

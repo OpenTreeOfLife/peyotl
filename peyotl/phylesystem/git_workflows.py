@@ -149,7 +149,7 @@ def commit_and_try_merge2master(git_action,
     return r
 
 def delete_study(git_action, study_id, auth_info, parent_sha):
-    author  = "%s <%s>" % (auth_info['name'], auth_info['email'])
+    author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % study_id)
     try:
@@ -166,9 +166,9 @@ def delete_study(git_action, study_id, auth_info, parent_sha):
     }
 
 def merge_from_master(git_action, study_id, auth_info, parent_sha):
-    """merge from master into the WIP for this study/author 
-    this is needed to allow a worker's future saves to 
-    be merged seamlessly into master.
+    """merge from master into the WIP for this study/author
+    this is needed to allow a worker's future saves to
+    be merged seamlessly into master
     """
     gh_user, author = get_user_author(auth_info)
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to merge study #{s}".format(s=study_id))

@@ -109,7 +109,7 @@ def merge_otus_and_trees(nexson_blob):
                 have a matching or absent ot:ottId, then they are merged into
                 the same OTUs (however see C)
               C. No two leaves of a tree may share an otu (though otu should
-                be shared across different trees). It is important that 
+                be shared across different trees). It is important that
                 each leaf node be mapped to a distinct OTU. Otherwise there
                 will be no way of separating them during OTU mapping. we
                 do this indirectly by assuring to no two otu objects in the
@@ -118,7 +118,7 @@ def merge_otus_and_trees(nexson_blob):
 
         5. correct object references to deleted entities.
 
-    This function is used to patch up NexSONs created by multiple imports, hence the 
+    This function is used to patch up NexSONs created by multiple imports, hence the
     substitution of '@label' for 'ot:originalLabel'. Ids are arbitrary for imports from
     non-nexml tools, so matching is done based on names. This should mimic the behavior
     of the analysis tools that produced the trees (for most/all such tools unique names
@@ -157,10 +157,10 @@ def merge_otus_and_trees(nexson_blob):
                     m.append(t)
         # For each of the other otus elements, we:
         #   1. assure that originalLabel is filled in
-        #   2. decide (for each otu) whether it will 
+        #   2. decide (for each otu) whether it will
         #       be added to retained_og or merged with
         #       an otu already in retained_og. In the
-        #       case of the latter, we add to the 
+        #       case of the latter, we add to the
         #       replaced_otu dict (old oid as key, new otu as value)
         for ogi in otus_group_order[1:]:
             og = otus_group_by_id[ogi]
@@ -183,8 +183,7 @@ def merge_otus_and_trees(nexson_blob):
                             if m[0] not in used_matches:
                                 match_otu = m
                                 break
-                    
-                    if (match_otu is None):
+                    if match_otu is None:
                         mlist = retained_orig2otu.get(orig, [])
                         for m in mlist:
                             if m[0] not in used_matches:
@@ -195,7 +194,7 @@ def merge_otus_and_trees(nexson_blob):
                         used_matches = match_otu[0]
                         _merge_otu_do_not_fix_references(otu, match_otu[1])
                     else:
-                        assert(oid not in retained_og_otu)
+                        assert oid not in retained_og_otu
                         retained_og_otu[oid] = otu
                         m = retained_mapped2otu.setdefault(key, [])
                         t = (oid, otu)

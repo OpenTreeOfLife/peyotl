@@ -21,7 +21,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         self._syntax_version = BY_ID_HONEY_BADGERFISH
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
         otu_obj = otus_group.get('otuById', {})
-        if (not isinstance(otu_obj, dict)):
+        if not isinstance(otu_obj, dict):
             self._error_event(_NEXEL.OTUS,
                              obj=otus_group,
                              err_type=gen_WrongValueTypeWarning,
@@ -38,7 +38,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             for id_obj_pair in otu_obj.items():
                 if not isinstance(id_obj_pair[1], dict):
                     r = check_raw_dict(id_obj_pair[1], otus_group, None, vc)
-                    assert(r[0] is False)
+                    assert r[0] is False
                     t = r[1]
                     not_dict_otu.append(t)
                     ndo_id_list.append(id_obj_pair[0])
@@ -308,7 +308,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 missing_ogid.append(ogid)
             elif not isinstance(og, dict):
                 r = check_raw_dict(og, otus, ogid, vc)
-                assert(r[0] is False)
+                assert r[0] is False
                 t = r[1]
                 not_dict_og.append(t)
             else:
@@ -363,7 +363,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 missing_tgid.append(tgid)
             elif not isinstance(tg, dict):
                 r = check_raw_dict(tg, trees, tgid, vc)
-                assert(r[0] is False)
+                assert r[0] is False
                 t = r[1]
                 not_dict_tg.append(t)
             else:

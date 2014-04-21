@@ -35,20 +35,20 @@ class OTT(object):
         with codecs.open(taxonomy_file, 'rU', encoding='utf-8') as tax_fo:
             it = iter(tax_fo)
             first_line = it.next()
-            assert(first_line == 'uid\t|\tparent_uid\t|\tname\t|\trank\t|\tsourceinfo\t|\tuniqname\t|\tflags\t|\t\n')
+            assert first_line == 'uid\t|\tparent_uid\t|\tname\t|\trank\t|\tsourceinfo\t|\tuniqname\t|\tflags\t|\t\n'
             life_line = it.next()
             root_split = life_line.split('\t|\t')
             uid = int(root_split[0])
-            assert(root_split[1] == '')
+            assert root_split[1] == ''
             name, rank, sourceinfo, uniqname, flags = root_split[2:7]
-            assert(name == 'life')
-            assert(root_split[7] == '\n')
+            assert name == 'life'
+            assert root_split[7] == '\n'
             assert uid not in id2par
             id2par[uid] = NONE_PAR
             id2name[uid] = name
             if uniqname:
                 id2uniq[uid] = uniqname
-                assert(uniqname not in uniq2id)
+                assert uniqname not in uniq2id
                 uniq2id[uniqname] = uid
             if sourceinfo:
                 s_list = sourceinfo.split(',')
@@ -61,7 +61,7 @@ class OTT(object):
                     sources.add(src)
                     info[src] = sid
             if flags:
-                f_list = flag_set.split(',')
+                f_list = flags.split(',')
                 if len(f_list) > 1:
                     f_list.sort()
                 f_set = frozenset(f_list)
@@ -76,7 +76,6 @@ class OTT(object):
             if info:
                 id2info[uid] = info
                 info = {}
-                    
             for rown in it:
                 ls = rown.split('\t|\t')
                 uid, par, name, rank, sourceinfo, uniqname, flags = ls[:7]
@@ -86,7 +85,7 @@ class OTT(object):
                     continue
                 uid = int(uid)
                 par = int(par)
-                assert(ls[7] == '\n')
+                assert ls[7] == '\n'
                 assert uid not in id2par
                 if par not in id2par:
                     import sys; sys.exit(par)

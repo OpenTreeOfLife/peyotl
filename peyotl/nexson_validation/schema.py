@@ -8,7 +8,7 @@ _LOG = get_logger(__name__)
 #pylint: disable=W0613,W0212
 def add_schema_attributes(container, nexson_version):
     '''Adds several attributes to `container`:
-    _using_hbf_meta  - boolean. True for HoneyBadgerFish v1-style meta elements ('^prop': value 
+    _using_hbf_meta  - boolean. True for HoneyBadgerFish v1-style meta elements ('^prop': value
                 rather than 'meta': {'$':value})
     and the following _SchemaFragment instances:
     _NexmlEl_Schema
@@ -24,7 +24,7 @@ def add_schema_attributes(container, nexson_version):
 
 class _SchemaFragment(object):
     def __init__(self,
-                 required, 
+                 required,
                  expected,
                  allowed,
                  required_meta,
@@ -63,8 +63,8 @@ class _SchemaFragment(object):
             self.EXPECTED_META_KEY_SET = frozenset(['^' + i for i in expected_meta_keys])
             self.REQUIRED_KEY_SET = frozenset(required_keys + tuple(self.REQUIRED_META_KEY_SET))
             self.EXPECETED_KEY_SET = frozenset(expected_keys + tuple(self.EXPECTED_META_KEY_SET))
-            self.ALLOWED_KEY_SET = frozenset(tuple(self.REQUIRED_KEY_SET) 
-                                              + tuple(self.EXPECETED_KEY_SET) 
+            self.ALLOWED_KEY_SET = frozenset(tuple(self.REQUIRED_KEY_SET)
+                                              + tuple(self.EXPECETED_KEY_SET)
                                               + allowed_keys
                                               + tuple(['^' + i for i in type_checked_meta.keys()]))
         else:
@@ -81,9 +81,9 @@ class _SchemaFragment(object):
             self.ALLOWED_META_KEY_SET = frozenset(targ)
             self.REQUIRED_KEY_SET = frozenset(required_keys)
             self.EXPECETED_KEY_SET = frozenset(expected_keys)
-            self.ALLOWED_KEY_SET = frozenset(('meta', ) 
-                                              + tuple(self.REQUIRED_KEY_SET) 
-                                              + tuple(self.EXPECETED_KEY_SET) 
+            self.ALLOWED_KEY_SET = frozenset(('meta', )
+                                              + tuple(self.REQUIRED_KEY_SET)
+                                              + tuple(self.EXPECETED_KEY_SET)
                                               + allowed_keys)
         # for order-dependent
         x = list(self.REQUIRED_META_KEY_SET)
@@ -267,22 +267,22 @@ class _VT:
         HREF: check_href,
         INT: check_raw_int,
         FLOAT: check_raw_float,
-        LIST: check_hbf_meta_list, 
+        LIST: check_hbf_meta_list,
         LIST_OR_DICT: check_list_or_dict,
         STR: check_hbf_meta_str,
         STR_LIST: check_hbf_meta_str_list,
         STR_REPEATABLE_EL: check_hbf_meta_str_repeatable,
     }
-    
+
     _2BFCheck = {
         BOOL: check_obj_meta_bool,
         DICT: check_obj_meta_dict,
-        HREF: check_href, 
+        HREF: check_href,
         INT: check_obj_meta_int,
         FLOAT: check_obj_meta_float,
         LIST: check_hbf_meta_list,
         LIST_OR_DICT: check_list_or_dict,
-        STR: check_obj_meta_str, 
+        STR: check_obj_meta_str,
         STR_LIST: check_obj_meta_str_list,
         STR_REPEATABLE_EL: check_obj_meta_str_repeatable,
     }
@@ -297,7 +297,7 @@ _Req_NexmlEl_All = {'@id': _VT.STR,
 _Exp_NexmlEl_Dir = {'otus': _VT.LIST_OR_DICT,
                     'trees': _VT.LIST_OR_DICT,
                    }
-_Exp_NexmlEl_ByI = {'otusById': _VT.DICT, 
+_Exp_NexmlEl_ByI = {'otusById': _VT.DICT,
                     'treesById': _VT.DICT,
                     '^ot:otusElementOrder': _VT.STR_LIST,
                     '^ot:treesElementOrder': _VT.STR_LIST,

@@ -77,7 +77,7 @@ class LazyAddress(object):
     def _address_code_to_str(code):
         return _NEXEL.CODE_TO_STR[code]
     def __init__(self, code, obj=None, obj_nex_id=None, par_addr=None):
-        assert(code in _NEXEL.CODE_TO_STR)
+        assert code in _NEXEL.CODE_TO_STR
         self.code = code
         self.ref = obj
         #_LOG.debug('code={c} obj_nex_id = "{oni}"'.format(c=code, oni=obj_nex_id))
@@ -88,7 +88,7 @@ class LazyAddress(object):
                 self.obj_nex_id = None
         else:
             self.obj_nex_id = obj_nex_id
-        assert(not isinstance(self.obj_nex_id, dict))
+        assert not isinstance(self.obj_nex_id, dict)
         self.par_addr = par_addr
         self._path, self._full_path = None, None
     def write_path_suffix_str(self, out):
@@ -98,7 +98,7 @@ class LazyAddress(object):
     def get_full_path(self):
         if self._full_path is None:
             if self.par_addr is None:
-                assert(self.code == _NEXEL.TOP_LEVEL)
+                assert self.code == _NEXEL.TOP_LEVEL
                 self._full_path = {}
             else:
                 #_LOG.debug('par ' + str(self.par_addr.path))
@@ -119,7 +119,7 @@ class LazyAddress(object):
                     self._path = {'@idref': self.obj_nex_id}
                 else:
                     if self.par_addr is None:
-                        assert(self.code == _NEXEL.TOP_LEVEL)
+                        assert self.code == _NEXEL.TOP_LEVEL
                         self._path = {}
                     else:
                         #_LOG.debug('par ' + str(self.par_addr.path))
@@ -132,7 +132,7 @@ class LazyAddress(object):
                 if self.par_addr is None:
                     if self.code not in [None, _NEXEL.TOP_LEVEL]:
                         _LOG.debug('code = ' + _NEXEL.CODE_TO_STR[self.code])
-                        assert(self.code == _NEXEL.TOP_LEVEL)
+                        assert self.code == _NEXEL.TOP_LEVEL
                     self._path = {}
                 else:
                     #_LOG.debug('par ' + str(self.par_addr.path))
@@ -142,7 +142,7 @@ class LazyAddress(object):
                     self._path['@idref'] = self.obj_nex_id
                     other_id_key = _NEXEL.CODE_TO_OTHER_ID_KEY[self.code]
                     if other_id_key is not None:
-                        assert(not isinstance(self.obj_nex_id, dict))
+                        assert not isinstance(self.obj_nex_id, dict)
                         self._path[other_id_key] = self.obj_nex_id
                 elif '@idref' in self._path:
                     del self._path['@idref']
@@ -172,8 +172,8 @@ class _ValidationContext(object):
         self._element_type_stack = []
         self._schema_stack = []
     def push_context(self, element_type, new_par):
-        assert(len(new_par) == 2)
-        assert(not isinstance(new_par[1], dict))
+        assert len(new_par) == 2
+        assert not isinstance(new_par[1], dict)
         self.anc_list.append(new_par)
         self.push_context_no_anc(element_type)
     def pop_context(self):
@@ -185,7 +185,7 @@ class _ValidationContext(object):
         self._schema_stack.append(self.schema)
         self.curr_element_type = element_type
         self.schema = getattr(self, _ValidationContext._et2schema_name[element_type])
-        assert(self.schema is not None)
+        assert self.schema is not None
     def pop_context_no_anc(self):
         et = self.curr_element_type
         self.curr_element_type = self._element_type_stack.pop(-1)
@@ -211,11 +211,12 @@ class NexsonAnnotationAdder(object):
                                   annotation,
                                   agent,
                                   add_agent_only=False):
-        '''Takes an `annotation` dictionary which is 
+        '''Takes an `annotation` dictionary which is
         expected to have a string as the value of annotation['author']['name']
         This function will remove all annotations from obj that:
             1. have the same author/name, and
-            2. have no messages that are flagged as messages to be preserved (values for 'preserve' that evaluate to true)
+            2. have no messages that are flagged as messages to be preserved (values for 'preserve'
+                that evaluate to true)
         '''
         nex = get_nexml_el(obj)
         nvers = detect_nexson_version(obj)
@@ -238,12 +239,12 @@ class NexsonAnnotationAdder(object):
 class NexsonValidationAdaptor(NexsonAnnotationAdder):
     '''An object created during NexSON validation.
     It holds onto the nexson object that it was instantiated for.
-    When add_or_replace_annotation is called, it will annotate the 
+    When add_or_replace_annotation is called, it will annotate the
     nexson object, and when get_nexson_str is called it will
     serialize it.
 
     This class is useful merely because it allows the validation log
-        and annotations to be relatively light weight, and yet easy 
+        and annotations to be relatively light weight, and yet easy
         to efficiently add back to the orignal NexSON object.
     '''
     def __init__(self, obj, logger):
@@ -273,9 +274,9 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
         self._nexml = None
         try:
             self._nexml = get_nexml_el(obj)
-            assert(isinstance(self._nexml, dict))
+            assert isinstance(self._nexml, dict)
         except:
-            self._error_event(_NEXEL.TOP_LEVEL, 
+            self._error_event(_NEXEL.TOP_LEVEL,
                               obj=obj,
                               err_type=gen_MissingMandatoryKeyWarning,
                               anc=_EMPTY_TUPLE,
@@ -284,17 +285,17 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
             return ## EARLY EXIT!!
         self._nexson_id_to_obj = {}
         self._nexson_version = detect_nexson_version(obj)
-        
+
         #attr used in validation only should be cleaned up
         # in the finally clause
         self._otu_group_by_id = {}
         self._otu_by_otug = {}
-        
+
         try:
             # a little duck-punching
             vc = _ValidationContext(self, logger)
             add_schema_attributes(vc, self._nexson_version)
-            assert(self._nexson_version[:3] in ('0.0', '1.0', '1.2'))
+            assert self._nexson_version[:3] in ('0.0', '1.0', '1.2')
             self._validate_nexml_obj(self._nexml, vc, obj)
         finally:
             vc.adaptor = None # delete circular ref to help gc
@@ -495,17 +496,16 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
     def _validate_obj_by_schema(self, obj, obj_nex_id, vc):
         '''Creates:
             errors if `obj` does not contain keys in the schema.ALLOWED_KEY_SET,
-            warnings if `obj` lacks keys listed in schema.EXPECETED_KEY_SET, 
+            warnings if `obj` lacks keys listed in schema.EXPECETED_KEY_SET,
                       or if `obj` contains keys not listed in schema.ALLOWED_KEY_SET.
         '''
         return self._validate_id_obj_list_by_schema([(obj_nex_id, obj)], vc, group_by_warning=False)
-    def _validate_id_obj_list_by_schema(self, 
-        id_obj_list, vc, group_by_warning=False):
+    def _validate_id_obj_list_by_schema(self, id_obj_list, vc, group_by_warning=False):
         #TODO: should optimize for sets of objects with the same warnings...
         element_type = vc.curr_element_type
-        assert(element_type is not None)
-        anc_list = vc.anc_list
+        assert element_type is not None
         schema = vc.schema
+        anc_list = vc.anc_list
         #_LOG.debug('using schema type = ' + vc.schema_name())
         using_hbf_meta = vc._using_hbf_meta
         _by_warn_type = {}
@@ -513,7 +513,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
             wrong_type = []
             unrec_meta_keys = []
             unrec_non_meta_keys = []
-            
+
             if using_hbf_meta:
                 for k, v in obj.items():
                     is_meta = k[0] == '^'
@@ -725,7 +725,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
         finally:
             vc.pop_context_no_anc()
         return not self._logger.has_error()
-    
+
     def _validate_otu_list(self, otu_id_obj_list, vc):
         if not self._register_nexson_id_list(otu_id_obj_list, vc):
             return False
@@ -733,7 +733,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
         if not self._validate_id_obj_list_by_schema(otu_id_obj_list, vc, group_by_warning=True):
             return False
         return self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)
-    
+
     def _post_key_check_validate_otu_id_obj_list(self, otu_id_obj_list, vc):
         return True
     def _post_key_check_validate_tree(self,

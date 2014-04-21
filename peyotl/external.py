@@ -33,10 +33,10 @@ def get_ot_study_info_from_treebase_nexml(src=None,
     '''Normalize treebase-specific metadata into the locations where
     open tree of life software that expects it.
 
-    See get_ot_study_info_from_nexml for the explanation of the src, 
-    nexml_content, encoding, and nexson_syntax_version arguments.
+    See get_ot_study_info_from_nexml for the explanation of the src,
+    nexml_content, encoding, and nexson_syntax_version arguments
     If merge_blocks is True then peyotl.manip.merge_otus_and_trees
-    
+
     Actions to "normalize" TreeBase objects to ot Nexson
         1. the meta id for any meta item that has only a value and an id
         2. throw away rdfs:isDefinedBy

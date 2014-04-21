@@ -6,7 +6,7 @@ SYNTAX_VERSION = '0.0.0'
 def _rec_resource_meta(blob, k):
     if k == 'meta' and isinstance(blob, dict):
         if blob.get('@xsi:type') == 'nex:ResourceMeta':
-            if (blob.get('@rel') is None):
+            if blob.get('@rel') is None:
                 p = blob.get('@property')
                 if p is not None:
                     del blob['@property']
@@ -83,7 +83,7 @@ def _move_ott_taxon_name_to_otu(obj):
                         to_move = m
                         del node['meta']
                 else:
-                    assert(isinstance(m, list))
+                    assert isinstance(m, list)
                     ind_to_del = None
                     for n, ottnm in enumerate(m):
                         if ottnm.get('@property') == "ot:ottTaxonName":
@@ -102,7 +102,7 @@ def _move_ott_taxon_name_to_otu(obj):
                         if om.get('@property') != "ot:ottTaxonName":
                             otu['meta'] = [om, to_move]
                     else:
-                        assert(isinstance(om, list))
+                        assert isinstance(om, list)
                         found = False
                         for omel in om:
                             if omel.get('@property') == "ot:ottTaxonName":
@@ -118,11 +118,9 @@ def _move_otu_at_label_properties(obj):
     if not isinstance(ogl, list):
         ogl = [ogl]
     for og in ogl:
-        od = {}
         for otu in og['otu']:
-            oi = otu['@id']
             ol = find_val_literal_meta_first(otu, 'ot:originalLabel', SYNTAX_VERSION)
-            assert(ol is not None)
+            assert ol is not None
             label_att = otu.get('@label')
             if label_att is not None:
                 del otu['@label']

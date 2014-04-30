@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+from peyotl import get_logger
 from peyotl import write_as_json
 from peyotl.nexson_syntax.helper import add_literal_meta, \
                                         find_val_literal_meta_first
+_LOG = get_logger(__name__)
 SYNTAX_VERSION = '0.0.0'
 def _rec_resource_meta(blob, k):
     if k == 'meta' and isinstance(blob, dict):
@@ -129,9 +131,53 @@ def _move_otu_at_label_properties(obj):
                     if (not ml) or (ml != label_att):
                         add_literal_meta(otu, 'ot:altLabel', label_att, SYNTAX_VERSION)
 
-def workaround_phylografter_export_diffs(obj, out):
+def _add_defaults(obj):
+    nex = obj['nexml']
+    if '^ot:annotationEvents' not in nex:
+        nex['^ot:annotationEvents'] = {'annotation': []}
+    if '^ot:candidateTreeForSynthesis' not in nex:
+        nex['^ot:candidateTreeForSynthesis'] = []
+    if '^ot:messages' not in nex:
+        nex['^ot:messages'] = {'message': []}
+    if '^ot:tag' not in nex:
+        nex['^ot:tag'] = []
+    else:
+        v = nex['^ot:tag']
+        if not isinstance(v, list):
+            nex['^ot:tag'] = [v]
+    _EMPTY_STR_TAGS = ["^ot:branchLengthDescription",
+                       "^ot:branchLengthMode",
+                       "^ot:branchLengthTimeUnit",
+                       "^ot:outGroupEdge",
+                       "^ot:specifiedRoot",
+                       ]
+    #_LOG.debug('nex ' + str(nex.keys()) + '\n')
+    for tree_group in nex.get('treesById', {}).values():
+        #_LOG.debug('tg ' + str(tree_group.keys()) + '\n')
+        for tree in tree_group.get('treeById', {}).values():
+            #_LOG.debug('t ' + str(tree.keys()) + '\n')
+            for t in _EMPTY_STR_TAGS:
+                if t not in tree:
+                    tree[t] = ''
+            if '^ot:tag' not in tree:
+                tree['^ot:tag'] = []
+            else:
+                v = tree['^ot:tag']
+                if not isinstance(v, list):
+                    tree['^ot:tag'] = [v]
+    
+
+def apr_1_2014_workaround_phylografter_export_diffs(obj, out):
     _rec_resource_meta(obj, 'root')
     _coerce_boolean(obj, 'root')
     _move_ott_taxon_name_to_otu(obj)
     _move_otu_at_label_properties(obj)
+    write_as_json(obj, out)
+
+def workaround_phylografter_export_diffs(obj, out):
+    _move_otu_at_label_properties(obj)
+    write_as_json(obj, out)
+
+def add_default_prop(obj, out):
+    _add_defaults(obj) # see Jim's comment on https://groups.google.com/forum/?fromgroups&hl=en#!searchin/opentreeoflife-software/tried$20a$20commit/opentreeoflife-software/c8b_rQvUYvA/g1p-yIfmCEcJ
     write_as_json(obj, out)

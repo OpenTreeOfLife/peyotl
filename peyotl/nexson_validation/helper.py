@@ -6,7 +6,7 @@ def errorReturn(msg):
     _LOG.debug(msg)
     return False
 
-VERSION = '0.0.3a'
+VERSION = '0.0.4a'
 class NexsonError(Exception):
     def __init__(self, v):
         self.value = v

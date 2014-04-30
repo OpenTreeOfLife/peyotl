@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from peyotl.nexson_validation.phylografter_workaround import workaround_phylografter_export_diffs
+from peyotl.nexson_validation.phylografter_workaround import workaround_phylografter_export_diffs, \
+                                                             add_default_prop
 from peyotl.phylesystem.git_actions import get_filepath_for_namespaced_id
 from peyotl import get_logger
 from subprocess import call
@@ -39,7 +40,7 @@ else:
 for f in sl:
     if pg_study_pat.match(f):
         source_study = f
-        dest_full = get_filepath_for_namespaced_id(new_phylesystem_study, f)
+        dest_full = get_filepath_for_namespaced_id(new_phylesystem, f)
         scratch_dir = os.path.join(scratch_par, f)
         if not os.path.exists(scratch_dir):
             os.makedirs(scratch_dir)
@@ -78,11 +79,15 @@ for f in sl:
         if rc != 0:
             failed.append(f)
         else:
-            # Convert to 1.2.1
+            inp = codecs.open(unchecked_hbf, mode='rU', encoding='utf-8')
+            obj = json.load(inp)
+            aug_hbf = os.path.join(scratch_dir, 'augmentedv1.2.1-' + source_study + '.json')
+            add_default_prop(obj, aug_hbf)
+            # validate
             annotation = os.path.join(scratch_dir, 'validation.json')
             tmp = os.path.join(scratch_dir, 'final.json')
             debug('Writing annotated version of  "{}" to "{}" with annotations to "{}" ...'.format(
-                    unchecked_hbf, 
+                    aug_hbf, 
                     tmp,
                     annotation))
             invoc = [sys.executable,
@@ -93,7 +98,7 @@ for f in sl:
                       annotation,
                      '-o',
                      tmp,
-                     unchecked_hbf]
+                     aug_hbf]
             debug('invoc: "{}"'.format('" "'.join(invoc)))
             rc = call(invoc)
             if rc != 0:
@@ -102,7 +107,6 @@ for f in sl:
                 if not os.path.isdir(dest_dir):
                     os.makedirs(dest_dir)
                 os.rename(tmp, dest_full)
-
 if failed:
     m = '\n '.join(failed)
     sys.exit('Conversion of the following studies failed:\n {}'.format(m))

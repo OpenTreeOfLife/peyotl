@@ -178,8 +178,8 @@ class DefaultRichLogger(object):
             'message': ml
         }
         invocation_obj = {
-            'commandLine': invocation,
-            'checksPerformed': checks_performed,
+            'commandLine': [i for i in invocation if i.startswith('--')],
+            #'checksPerformed': checks_performed,
             'otherProperty': [
                 {'name': 'pythonVersion',
                 'value': platform.python_version()},

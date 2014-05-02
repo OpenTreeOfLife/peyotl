@@ -24,6 +24,38 @@ _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
 _USING_IDREF_ONLY_PATHS = False
 
+def delete_same_agent_annotation(obj, annotation):
+    agent_id = annotation.get('@wasAssociatedWithAgentId')
+    delete_annotation(obj, agent_id=agent_id)
+
+def delete_annotation(obj,
+                      agent_id=None,
+                      annot_id=None,
+                      nexson_version=None):
+    if nexson_version is None:
+        nexson_version = detect_nexson_version(obj)
+    nex_el = get_nexml_el(obj)
+    annotation_list = get_annotation_list(nex_el, nexson_version)
+    delete_annotation_from_annot_list(annotation_list, agent_id=agent_id, annot_id=annot_id)
+
+def delete_annotation_from_annot_list(annotation_list, annotation, agent_id=None, annot_id=None):
+    to_remove_inds = []
+    # TODO should check preserve field...
+    if agent_id is not None:
+        for n, annot in enumerate(annotation_list):
+            if annot.get('@wasAssociatedWithAgentId') == agent_id:
+                to_remove_inds.append(n)
+    else:
+        if annot_id is None:
+            raise ValueError('Either agent_id or annot_id must have a value')
+        for n, annot in enumerate(annotation_list):
+            if annot.get('@id') == annot_id:
+                to_remove_inds.append(n)
+    while len(to_remove_inds) > 0:
+        n = to_remove_inds.pop(-1)
+        del annotation_list[n]
+
+
 def replace_same_agent_annotation(obj, annotation):
     agent_id = annotation.get('@wasAssociatedWithAgentId')
     replace_annotation(obj, annotation, agent_id=agent_id)
@@ -233,7 +265,9 @@ class NexsonAnnotationAdder(object):
                 break
         if not found_agent:
             agents_list.append(agent)
-        if not add_agent_only:
+        if add_agent_only:
+            delete_same_agent_annotation(obj, annotation)
+        else:
             replace_same_agent_annotation(obj, annotation)
 
 class NexsonValidationAdaptor(NexsonAnnotationAdder):

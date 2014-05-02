@@ -46,10 +46,17 @@ than the config-based value.
 
 ### Logging configuration
 
-The behavior of the log is determined by environmental variables:
+The behavior of the log is NO LONGER determined by environmental variables:
    PEYOTL_LOG_FILE_PATH filepath of log file (StreamHandler if omitted)
    PEYOTL_LOGGING_LEVEL (NotSet, debug, info, warning, error, or critical)
    PEYOTL_LOGGING_FORMAT  "rich", "simple" or "None" (None is default)
+
+These settings are now controlled by a the ~/.peyotl/config file:
+
+[logging]
+level = debug
+filepath = /absolute/path/to/log/file/here
+formatter = rich
 
 # Testing
 

@@ -20,81 +20,108 @@ _LOGGING_LEVEL_ENVAR = "PEYOTL_LOGGING_LEVEL"
 _LOGGING_FORMAT_ENVAR = "PEYOTL_LOGGING_FORMAT"
 _LOGGING_FILE_PATH_VAR = "PEYOTL_LOG_FILE_PATH"
 
-def get_logging_level():
-    if _LOGGING_LEVEL_ENVAR in os.environ:
-        if os.environ[_LOGGING_LEVEL_ENVAR].upper() == "NOTSET":
-            level = logging.NOTSET
-        elif os.environ[_LOGGING_LEVEL_ENVAR].upper() == "DEBUG":
-            level = logging.DEBUG
-        elif os.environ[_LOGGING_LEVEL_ENVAR].upper() == "INFO":
-            level = logging.INFO
-        elif os.environ[_LOGGING_LEVEL_ENVAR].upper() == "WARNING":
-            level = logging.WARNING
-        elif os.environ[_LOGGING_LEVEL_ENVAR].upper() == "ERROR":
-            level = logging.ERROR
-        elif os.environ[_LOGGING_LEVEL_ENVAR].upper() == "CRITICAL":
-            level = logging.CRITICAL
-        else:
-            level = logging.NOTSET
+_LOG = None
+_READING_LOGGING_CONF = True
+_LOGGING_CONF = {}
+
+def _get_logging_level(s=None):
+    if s is None:
+        return logging.NOTSET
+    supper = s.upper()
+    if supper == "NOTSET":
+        level = logging.NOTSET
+    elif supper == "DEBUG":
+        level = logging.DEBUG
+    elif supper == "INFO":
+        level = logging.INFO
+    elif supper == "WARNING":
+        level = logging.WARNING
+    elif supper == "ERROR":
+        level = logging.ERROR
+    elif supper == "CRITICAL":
+        level = logging.CRITICAL
     else:
         level = logging.NOTSET
     return level
+
+def _get_logging_formatter(s=None):
+    if s is None:
+        s == 'NONE'
+    else:
+        s = s.upper()
+    rich_formatter = logging.Formatter("[%(asctime)s] %(filename)s (%(lineno)d): %(levelname) 8s: %(message)s")
+    simple_formatter = logging.Formatter("%(levelname) 8s: %(message)s")
+    raw_formatter = logging.Formatter("%(message)s")
+    default_formatter = None
+    logging_formatter = default_formatter
+    if s == "RICH":
+        logging_formatter = rich_formatter
+    elif s == "SIMPLE":
+        logging_formatter = simple_formatter
+    else:
+        logging_formatter = None
+    if logging_formatter is not None:
+        logging_formatter.datefmt='%H:%M:%S'
+    return logging_formatter
+
+
+def read_logging_config():
+    global _READING_LOGGING_CONF, _LOGGING_CONF
+    level = get_config('logging', 'level', 'WARNING')
+    logging_format_name = get_config('logging', 'formatter', 'NONE')
+    logging_filepath = get_config('logging', 'filepath', '')
+    if logging_filepath == '':
+        logging_filepath = None
+    _LOGGING_CONF['level_name'] = level
+    _LOGGING_CONF['formatter_name'] = logging_format_name
+    _LOGGING_CONF['filepath'] = logging_filepath
+    _READING_LOGGING_CONF = False
+    return _LOGGING_CONF
+
 
 def get_logger(name="peyotl"):
     """
     Returns a logger with name set as given, and configured
     to the level given by the environment variable _LOGGING_LEVEL_ENVAR.
     """
-
-#     package_dir = os.path.dirname(module_path)
-#     config_filepath = os.path.join(package_dir, _LOGGING_CONFIG_FILE)
-#     if os.path.exists(config_filepath):
-#         try:
-#             logging.config.fileConfig(config_filepath)
-#             logger_set = True
-#         except:
-#             logger_set = False
     logger = logging.getLogger(name)
-    if not hasattr(logger, 'is_configured'):
-        logger.is_configured = False
-    if not logger.is_configured:
-        level = get_logging_level()
-        rich_formatter = logging.Formatter("[%(asctime)s] %(filename)s (%(lineno)d): %(levelname) 8s: %(message)s")
-        simple_formatter = logging.Formatter("%(levelname) 8s: %(message)s")
-        default_formatter = None
-        logging_formatter = default_formatter
-        if _LOGGING_FORMAT_ENVAR in os.environ:
-            if os.environ[_LOGGING_FORMAT_ENVAR].upper() == "RICH":
-                logging_formatter = rich_formatter
-            elif os.environ[_LOGGING_FORMAT_ENVAR].upper() == "SIMPLE":
-                logging_formatter = simple_formatter
-            elif os.environ[_LOGGING_FORMAT_ENVAR].upper() == "NONE":
-                logging_formatter = None
+    if len(logger.handlers) == 0:
+        lc = _LOGGING_CONF
+        if 'level' not in lc:
+            if False: # TODO need some easy way to figure out whether we should use env vars or config
+                
+                lc['level_name'] = os.environ.get(_LOGGING_LEVEL_ENVAR)
+                lc['formatter_name'] = os.environ.get(_LOGGING_FORMAT_ENVAR)
+                lc['filepath'] = os.environ.get(_LOGGING_FILE_PATH_ENVAR)
             else:
-                logging_formatter = default_formatter
-        else:
-            logging_formatter = default_formatter
-        if logging_formatter is not None:
-            logging_formatter.datefmt = '%H:%M:%S'
-        logger.setLevel(level)
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-        if _LOGGING_FILE_PATH_VAR in os.environ:
-            log_fp = os.environ[_LOGGING_FILE_PATH_VAR]
-            log_dir = os.path.split(log_fp)[0]
+                lc = read_logging_config()
+            lc['level'] = _get_logging_level(lc['level_name'])
+            lc['formatter'] = _get_logging_formatter(lc['formatter_name'])
+        logger.setLevel(lc['level'])
+        if lc['filepath'] is not None:
+            log_dir = os.path.split(lc['filepath'])[0]
             if log_dir and not os.path.exists(log_dir):
                 os.makedirs(log_dir)
-            ch = logging.FileHandler(log_fp)
+            ch = logging.FileHandler(lc['filepath'])
         else:
-            ch.setFormatter(logging_formatter)
+            ch = logging.StreamHandler()
+        ch.setLevel(lc['level'])
+        ch.setFormatter(lc['formatter'])
         logger.addHandler(ch)
-        logger.is_configured = True
     return logger
-_LOG = get_logger("peyotl.utility")
+
+def _get_util_logger():
+    global _LOG
+    if _LOG is not None:
+        return _LOG
+    if _READING_LOGGING_CONF:
+        return None
+    _LOG = get_logger("peyotl.utility")
+    return _LOG
 
 _CONFIG = None
 _CONFIG_FN = None
-def get_config(section=None, param=None):
+def get_config(section=None, param=None, default=None):
     '''
     Returns the config object if `section` and `param` are None, or the
         value for the requested parameter.
@@ -114,13 +141,10 @@ def get_config(section=None, param=None):
         v = _CONFIG.get(section, param)
         return v
     except:
-        mf = 'Config file "{f}" does not contain option "{o}"" in section "{s}"\n'
-        msg = mf.format(f=_CONFIG_FN, o=param, s=section)
-        _LOG.error(msg)
-        return None
-
-def download(url, encoding='utf-8'):
-    import requests
-    response = requests.get(url)
-    response.encoding = encoding
-    return response.text
+        if default is None:
+            mf = 'Config file "{f}" does not contain option "{o}"" in section "{s}"\n'
+            msg = mf.format(f=_CONFIG_FN, o=param, s=section)
+            _ulog = _get_util_logger()
+            if _ulog is not None:
+                _ulog.error(msg)
+        return default

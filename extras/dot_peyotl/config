@@ -17,3 +17,8 @@ repo_nexml2json = 1.2.1
 #       ottVERSION_NUMBER_HERE
 parent = ~/ott/ott2.5
 cache = redis:localhost:6379
+
+[logging]
+#level = debug
+#formatter = simple
+#filepath = /tmp/peyotl.log

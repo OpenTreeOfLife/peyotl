@@ -268,7 +268,7 @@ class GitAction(object):
 
     def fetch(self, remote='origin'):
         '''fetch from a remote'''
-        git(self.gitdir, "fetch", remote)
+        git(self.gitdir, "fetch", remote, _env=self.env())
 
     def push(self, branch, remote):
         git(self.gitdir, 'push', remote, branch, _env=self.env())

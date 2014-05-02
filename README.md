@@ -44,6 +44,13 @@ your local copy of phylesystem repos.
 The environmental variable, PHYLESYSTEM_PARENT, if set will be used rather 
 than the config-based value.
 
+### Logging configuration
+
+The behavior of the log is determined by environmental variables:
+   PEYOTL_LOG_FILE_PATH filepath of log file (StreamHandler if omitted)
+   PEYOTL_LOGGING_LEVEL (NotSet, debug, info, warning, error, or critical)
+   PEYOTL_LOGGING_FORMAT  "rich", "simple" or "None" (None is default)
+
 # Testing
 
 Running

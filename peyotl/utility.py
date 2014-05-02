@@ -18,6 +18,7 @@ def pretty_timestamp(t=None, style=0):
 
 _LOGGING_LEVEL_ENVAR = "PEYOTL_LOGGING_LEVEL"
 _LOGGING_FORMAT_ENVAR = "PEYOTL_LOGGING_FORMAT"
+_LOGGING_FILE_PATH_VAR = "PEYOTL_LOG_FILE_PATH"
 
 def get_logging_level():
     if _LOGGING_LEVEL_ENVAR in os.environ:
@@ -78,7 +79,14 @@ def get_logger(name="peyotl"):
         logger.setLevel(level)
         ch = logging.StreamHandler()
         ch.setLevel(level)
-        ch.setFormatter(logging_formatter)
+        if _LOGGING_FILE_PATH_VAR in os.environ:
+            log_fp = os.environ[_LOGGING_FILE_PATH_VAR]
+            log_dir = os.path.split(log_fp)[0]
+            if log_dir and not os.path.exists(log_dir):
+                os.makedirs(log_dir)
+            ch = logging.FileHandler(log_fp)
+        else:
+            ch.setFormatter(logging_formatter)
         logger.addHandler(ch)
         logger.is_configured = True
     return logger

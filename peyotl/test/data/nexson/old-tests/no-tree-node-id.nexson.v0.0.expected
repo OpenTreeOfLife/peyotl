@@ -38,9 +38,11 @@
       }, 
       {
         "data": [
+          "ot:branchLengthDescription", 
           "ot:branchLengthMode", 
           "ot:branchLengthTimeUnit", 
-          "ot:curatedType"
+          "ot:curatedType", 
+          "ot:outGroupEdge"
         ], 
         "refersTo": {
           "@idref": "tree1", 

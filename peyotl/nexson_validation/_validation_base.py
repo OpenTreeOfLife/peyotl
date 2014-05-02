@@ -39,6 +39,7 @@ def delete_annotation(obj,
     delete_annotation_from_annot_list(annotation_list, agent_id=agent_id, annot_id=annot_id)
 
 def delete_annotation_from_annot_list(annotation_list, annotation, agent_id=None, annot_id=None):
+    _LOG.debug('delete_annotation_from_annot_list with agent_id = ' + str(agent_id))
     to_remove_inds = []
     # TODO should check preserve field...
     if agent_id is not None:

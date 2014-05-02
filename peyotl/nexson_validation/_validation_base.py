@@ -38,7 +38,7 @@ def delete_annotation(obj,
     annotation_list = get_annotation_list(nex_el, nexson_version)
     delete_annotation_from_annot_list(annotation_list, agent_id=agent_id, annot_id=annot_id)
 
-def delete_annotation_from_annot_list(annotation_list, annotation, agent_id=None, annot_id=None):
+def delete_annotation_from_annot_list(annotation_list, agent_id=None, annot_id=None):
     _LOG.debug('delete_annotation_from_annot_list with agent_id = ' + str(agent_id))
     to_remove_inds = []
     # TODO should check preserve field...

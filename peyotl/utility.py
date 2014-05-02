@@ -133,6 +133,12 @@ def get_config(section=None, param=None, default=None):
     if _CONFIG is None:
         from ConfigParser import SafeConfigParser
         _CONFIG_FN = os.path.expanduser("~/.peyotl/config")
+        if not os.path.exists(_CONFIG_FN):
+            from pkg_resources import Requirement, resource_filename
+            pr = Requirement.parse('peyotl')
+            _CONFIG_FN = resource_filename(pr, 'peyotl/default.conf')
+            print _CONFIG_FN
+        assert os.path.exists(_CONFIG_FN)
         _CONFIG = SafeConfigParser()
         _CONFIG.read(_CONFIG_FN)
     if section is None and param is None:

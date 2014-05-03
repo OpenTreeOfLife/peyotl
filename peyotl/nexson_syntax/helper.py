@@ -280,6 +280,9 @@ def find_val_for_first_bf_r_meta(d, prop_name):
             return extract_meta(m_el)
     return None
 
+def find_val_for_first_hbf_l_meta(d, prop_name):
+    p = '^' + prop_name
+    return d.get(p)
 
 def find_val_literal_meta_first(d, prop_name, version):
     if _is_badgerfish_version(version):

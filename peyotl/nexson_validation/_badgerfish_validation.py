@@ -20,9 +20,10 @@ _LOG = get_logger(__name__)
 
 class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
+        if not hasattr(self, '_syntax_version'):
+            self._syntax_version = BADGER_FISH_NEXSON_VERSION
+            self._find_first_literal_meta = find_val_for_first_bf_l_meta
         NexsonValidationAdaptor.__init__(self, obj, logger)
-        self._syntax_version = BADGER_FISH_NEXSON_VERSION
-
 
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
         otu_dict = {}
@@ -211,7 +212,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 lowest_nodeid_set.add(path_to_root[-1])
                 if first_lowest_node is None:
                     first_lowest_node = path_to_root[-1]
-            is_flagged_as_leaf = find_val_for_first_bf_l_meta(nd, 'ot:isLeaf')
+            is_flagged_as_leaf = self._find_first_literal_meta(nd, 'ot:isLeaf')
             ch_list = edge_by_source.get(nid)
             if ch_list is None:
                 otu_id = nd.get('@otu')
@@ -386,8 +387,8 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         for og in otus_group_list:
             ogid = og.get('@id')
             ogid2og[ogid] = og
-        if not find_val_for_first_bf_l_meta(nex_obj, 'ot:notIntendedForSynthesis'):
-            cs = find_val_for_first_bf_l_meta(nex_obj, 'ot:candidateTreeForSynthesis')
+        if not self._find_first_literal_meta(nex_obj, 'ot:notIntendedForSynthesis'):
+            cs = self._find_first_literal_meta(nex_obj, 'ot:candidateTreeForSynthesis')
             if cs:
                 if not isinstance(cs, list):
                     tree_list = [cs]

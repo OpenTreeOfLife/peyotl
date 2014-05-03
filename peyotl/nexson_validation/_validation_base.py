@@ -283,7 +283,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
         to efficiently add back to the orignal NexSON object.
     '''
     def __init__(self, obj, logger):
-        self._syntax_version = None
+
         self._raw = obj
         self._nexml = None
         self._pyid_to_nexson_add = {}

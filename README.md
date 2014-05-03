@@ -46,17 +46,23 @@ than the config-based value.
 
 ### Logging configuration
 
-The behavior of the log is NO LONGER determined by environmental variables:
+If PEYOTL_LOGGING_LEVEL is in the environment, then the behavior of 
+the log is determined by environmental variables:
    PEYOTL_LOG_FILE_PATH filepath of log file (StreamHandler if omitted)
    PEYOTL_LOGGING_LEVEL (NotSet, debug, info, warning, error, or critical)
    PEYOTL_LOGGING_FORMAT  "rich", "simple" or "None" (None is default)
 
-These settings are now controlled by a the ~/.peyotl/config file:
+Otherwise, these logger settings are now controlled by a
+ ~/.peyotl/config or the peyotl/default.conf file. The content to configure
+ the logger looks like:
 
 [logging]
 level = debug
 filepath = /absolute/path/to/log/file/here
 formatter = rich
+
+You probably want to replace the default behavior by specifying
+PEYOTL_LOGGING_LEVEL or having a ~/.peyotl/config file.
 
 # Testing
 

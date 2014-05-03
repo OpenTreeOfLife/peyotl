@@ -18,7 +18,7 @@ def pretty_timestamp(t=None, style=0):
 
 _LOGGING_LEVEL_ENVAR = "PEYOTL_LOGGING_LEVEL"
 _LOGGING_FORMAT_ENVAR = "PEYOTL_LOGGING_FORMAT"
-_LOGGING_FILE_PATH_VAR = "PEYOTL_LOG_FILE_PATH"
+_LOGGING_FILE_PATH_ENVAR = "PEYOTL_LOG_FILE_PATH"
 
 _LOG = None
 _READING_LOGGING_CONF = True
@@ -88,7 +88,7 @@ def get_logger(name="peyotl"):
     if len(logger.handlers) == 0:
         lc = _LOGGING_CONF
         if 'level' not in lc:
-            if False: # TODO need some easy way to figure out whether we should use env vars or config
+            if _LOGGING_LEVEL_ENVAR in os.environ: # TODO need some easy way to figure out whether we should use env vars or config
                 
                 lc['level_name'] = os.environ.get(_LOGGING_LEVEL_ENVAR)
                 lc['formatter_name'] = os.environ.get(_LOGGING_FORMAT_ENVAR)

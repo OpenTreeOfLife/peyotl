@@ -3,6 +3,7 @@
 copies of the phylesystem repositories.
 '''
 from peyotl.utility import get_config, expand_path, get_logger
+from cStringIO import StringIO
 import json
 try:
     import anyjson
@@ -34,16 +35,21 @@ _study_index_lock = Lock()
 _study_index = None
 
 
-def _get_phylesystem_parent():
+def _get_phylesystem_parent_with_source():
+    src = 'environment'
     if 'PHYLESYSTEM_PARENT' in os.environ:
         phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
     else:
         try:
             phylesystem_parent = expand_path(get_config('phylesystem', 'parent'))
+            src = 'configfile'
         except:
             raise ValueError('No phylesystem parent specified in config or environmental variables')
     x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
-    return x
+    return x, src
+
+def _get_phylesystem_parent():
+    return _get_phylesystem_parent_with_source()[0]
 
 
 def get_repos(par_list=None):
@@ -65,7 +71,7 @@ def get_repos(par_list=None):
             if os.path.isdir(os.path.join(p, name + '/.git')):
                 _repos[name] = os.path.abspath(os.path.join(p, name))
     if len(_repos) == 0:
-        raise ValueError('No git repos in {parent}'.format(str(par_list)))
+        raise ValueError('No git repos in {parent}'.format(parent=str(par_list)))
     return _repos
 
 def create_id2study_info(path, tag):
@@ -304,7 +310,52 @@ class PhylesystemShard(object):
                 except Exception:
                     pass
 
+    def write_configuration(self, out, secret_attrs=False):
+        key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json', 
+                    'git_ssh','pkey', 'has_aliases', '_next_study_id',
+                    'number of studies']
+        cd = self.get_configuration_dict(secret_attrs=secret_attrs)
+        for k in key_order:
+            if k in cd:
+                out.write('  {} = {}'.format(k, cd[k]))
+        out.write('  studies in alias groups:\n')
+        for o in cd['studies']:
+            out.write('    {} ==> {}\n'.format(o['keys'], o['relpath']))
 
+    def get_configuration_dict(self, secret_attrs=False):
+        rd = {'name': self.name,
+              'path': self.path,
+              'git_dir': self.git_dir,
+              'repo_nexml2json': self.repo_nexml2json,
+              'study_dir': self.study_dir,
+              'git_ssh': self.git_ssh,
+              }
+        if self._next_study_id is not None:
+            rd['_next_study_id'] = self._next_study_id,
+        if secret_attrs:
+            rd['pkey'] = self.pkey
+        with self._index_lock:
+            si = self._study_index
+        r = _invert_dict_list_val(si)
+        key_list = r.keys()
+        rd['number of studies'] = len(key_list)
+        key_list.sort()
+        m = []
+        for k in key_list:
+            v = r[k]
+            fp = k[2]
+            assert fp.startswith(self.study_dir)
+            rp = fp[len(self.study_dir) + 1:]
+            m.append({'keys': v, 'relpath': rp})
+        rd['studies'] = m
+        return rd
+def _invert_dict_list_val(d):
+    o = {}
+    for k, v in d.items():
+        o.setdefault(v, []).append(k)
+    for v in o.values():
+        v.sort()
+    return o
 _CACHE_REGION_CONFIGURED = False
 _REGION = None
 def _make_phylesystem_cache_region():
@@ -399,6 +450,13 @@ class _Phylesystem(object):
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
         '''
+        if repos_dict is not None:
+            self._filepath_args = 'repos_dict = {}'.format(repr(repos_dict))
+        elif repos_par is not None:
+            self._filepath_args = 'repos_par = {}'.format(repr(repos_par))
+        else:
+            self._filepath_args = '<No arg> default phylesystem_parent from {}'.format(_get_phylesystem_parent_with_source()[1])
+        
         push_mirror_repos_par = None
         push_mirror_remote_map = {}
         if mirror_info:
@@ -680,6 +738,31 @@ class _Phylesystem(object):
             for study_id, blob in shard.iter_study_objs(**kwargs):
                 yield study_id, blob
 
+    def report_configuration(self):
+        out = StringIO()
+        self.write_configuration(out)
+        return out.getvalue()
+
+    def write_configuration(self, out, secret_attrs=False):
+        key_order = ['repo_nexml2json',
+                     'number_of_shards',
+                     'initialization',]
+        cd = self.get_configuration_dict(secret_attrs=secret_attrs)
+        for k in key_order:
+            if k in cd:
+                out.write('  {} = {}'.format(k, cd[k]))
+        for n, shard in enumerate(self._shards):
+            out.write('Shard {}:\n'.format(n))
+            shard.write_configuration(out)
+    def get_configuration_dict(self, secret_attrs=False):
+        cd = {'repo_nexml2json': self.repo_nexml2json,
+              'number_of_shards': len(self._shards),
+              'initialization': self._filepath_args}
+        cd['shards'] = []
+        for i in self._shards:
+            cd['shards'].append(i.get_configuration_dict(secret_attrs=secret_attrs))
+        return cd
+        
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,
                 repos_par=None,

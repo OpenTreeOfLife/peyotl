@@ -453,6 +453,7 @@ class GitAction(object):
             # We can ignore this if no changes are new,
             # otherwise raise a 400
             if "nothing to commit" in e.message:#@EJM is this dangerous?
+                _LOG.debug('"nothing to commit" found in error response')
                 pass
             else:
                 _LOG.exception('"git commit" failed')

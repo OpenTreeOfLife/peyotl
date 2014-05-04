@@ -157,3 +157,9 @@ def get_config(section=None, param=None, default=None):
             if _ulog is not None:
                 _ulog.error(msg)
         return default
+
+def download(url, encoding='utf-8'):
+    import requests
+    response = requests.get(url)
+    response.encoding = encoding
+    return response.text

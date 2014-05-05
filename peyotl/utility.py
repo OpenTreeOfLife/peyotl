@@ -142,7 +142,7 @@ def get_config(section=None, param=None, default=None):
             try:
                 _CONFIG_FN = resource_filename(pr, 'peyotl/default.conf')
             except:
-                return None
+                return default
         assert os.path.exists(_CONFIG_FN)
         _CONFIG = SafeConfigParser()
         _CONFIG.read(_CONFIG_FN)

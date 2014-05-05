@@ -139,8 +139,10 @@ def get_config(section=None, param=None, default=None):
         if not os.path.exists(_CONFIG_FN):
             from pkg_resources import Requirement, resource_filename
             pr = Requirement.parse('peyotl')
-            _CONFIG_FN = resource_filename(pr, 'peyotl/default.conf')
-            print _CONFIG_FN
+            try:
+                _CONFIG_FN = resource_filename(pr, 'peyotl/default.conf')
+            except:
+                return None
         assert os.path.exists(_CONFIG_FN)
         _CONFIG = SafeConfigParser()
         _CONFIG.read(_CONFIG_FN)

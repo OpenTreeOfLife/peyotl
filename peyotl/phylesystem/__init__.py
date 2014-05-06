@@ -34,7 +34,7 @@ _LOG = get_logger(__name__)
 _study_index_lock = Lock()
 _study_index = None
 
-
+STUDY_ID_PATTERN = re.compile(r'^[a-zA-Z]+_+[0-9]+$')
 def _get_phylesystem_parent_with_source():
     src = 'environment'
     if 'PHYLESYSTEM_PARENT' in os.environ:
@@ -245,14 +245,18 @@ class PhylesystemShard(object):
                               pkey=self.pkey,
                               path_for_study_fn=self.filepath_for_study_id_fn)
 
-    def create_git_action_for_new_study(self):
+    def create_git_action_for_new_study(self, new_study_id=None):
         ga = self.create_git_action()
-        # studies created by the OpenTree API start with ot_,
-        # so they don't conflict with new study id's from other sources
-        with self._study_counter_lock:
-            c = self._next_study_id
-            self._next_study_id = 1 + c
-        new_study_id = "ot_{c:d}".format(c=c)
+        if new_study_id is None:
+            # studies created by the OpenTree API start with ot_,
+            # so they don't conflict with new study id's from other sources
+            with self._study_counter_lock:
+                c = self._next_study_id
+                self._next_study_id = 1 + c
+            #@TODO. This form of incrementing assumes that 
+            #   this codebase is the only service minting
+            #   new study IDs!
+            new_study_id = "ot_{c:d}".format(c=c)
         fp = ga.path_for_study(new_study_id)
         with self._index_lock:
             self._study_index[new_study_id] = (self.name, self.study_dir, fp)
@@ -538,8 +542,8 @@ class _Phylesystem(object):
         shard = self.get_shard(study_id)
         return shard.create_git_action()
 
-    def create_git_action_for_new_study(self):
-        return self._growing_shard.create_git_action_for_new_study()
+    def create_git_action_for_new_study(self, new_study_id=None):
+        return self._growing_shard.create_git_action_for_new_study(new_study_id=new_study_id)
 
     def add_validation_annotation(self, study_obj, sha):
         need_to_cache = False
@@ -677,25 +681,42 @@ class _Phylesystem(object):
     def ingest_new_study(self,
                          new_study_nexson,
                          repo_nexml2json,
-                         auth_info):
-        gd, new_study_id = self.create_git_action_for_new_study()
+                         auth_info,
+                         new_study_id=None):
+        placeholder_added = False
+        if new_study_id is not None:
+            if new_study_id.startswith('ot_'):
+                raise ValueError('Study IDs with the "ot_" prefix can only be automatically generated.')
+            if not STUDY_ID_PATTERN.match(new_study_id):
+                raise ValueError('Study ID does not match the expected pattern of alphabeticprefix_numericsuffix')
+            with self._index_lock:
+                if new_study_id in self._study2shard_map:
+                    raise ValueError('Study ID is already in use!')
+                self._study2shard_map[new_study_id] = None
+                placeholder_added = True
         try:
-            nexml = new_study_nexson['nexml']
-            nexml['^ot:studyId'] = new_study_id
-            bundle = validate_and_convert_nexson(new_study_nexson,
-                                                 repo_nexml2json,
-                                                 allow_invalid=True)
-            nexson, annotation, validation_log, nexson_adaptor = bundle
-            r = self.annotate_and_write(git_data=gd,
-                                        nexson=nexson,
-                                        study_id=new_study_id,
-                                        auth_info=auth_info,
-                                        adaptor=nexson_adaptor,
-                                        annotation=annotation,
-                                        parent_sha=None,
-                                        master_file_blob_included=None)
+            gd, new_study_id = self.create_git_action_for_new_study(new_study_id=new_study_id)
+            try:
+                nexml = new_study_nexson['nexml']
+                nexml['^ot:studyId'] = new_study_id
+                bundle = validate_and_convert_nexson(new_study_nexson,
+                                                     repo_nexml2json,
+                                                     allow_invalid=True)
+                nexson, annotation, validation_log, nexson_adaptor = bundle
+                r = self.annotate_and_write(git_data=gd,
+                                            nexson=nexson,
+                                            study_id=new_study_id,
+                                            auth_info=auth_info,
+                                            adaptor=nexson_adaptor,
+                                            annotation=annotation,
+                                            parent_sha=None,
+                                            master_file_blob_included=None)
+            except:
+                self._growing_shard.delete_study_from_index(new_study_id)
+                raise
         except:
-            self._growing_shard.delete_study_from_index(new_study_id)
+            if placeholder_added:
+                del self._study2shard_map[new_study_id]
             raise
         with self._index_lock:
             self._study2shard_map[new_study_id] = self._growing_shard

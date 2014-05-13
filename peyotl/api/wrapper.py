@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from cStringIO import StringIO
+import datetime
 import requests
 import json
 import gzip
@@ -32,7 +33,24 @@ class PhylografterWrapper(object):
     def __init__(self, domain):
         self.domain = domain
 
-
+    def get_modified_list(self, since_date="2010-01-01T00:00:00"):
+        '''Calls phylografter's modified_list.json to fetch
+        a list of all studies that have changed since `since_date`
+        `since_date` can be a datetime.datetime object or a isoformat
+        string representation of the time.
+        '''
+        if isinstance(since_date, datetime.datetime):
+            since_date = datetime.isoformat(since_date)
+        SUBMIT_URI = self.domain + '/study/modified_list.json/url'
+        args = {'from': since_date}
+        headers = {'content-type': 'application/json'}
+        resp = requests.get(SUBMIT_URI, params=args, headers=headers)
+        resp.raise_for_status()
+        try:
+            return resp.json()
+        except:
+            return resp.json
+    
     def get_nexson(self, study_id):
         '''Calls export_gzipNexSON URL and unzips response.
         Raises HTTP error, gzip module error, or RuntimeError

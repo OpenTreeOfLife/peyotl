@@ -109,7 +109,7 @@ def get_previous_list_of_dirty_nexsons(dir_dict):
         }
     return old['studies'], old
 
-def get_list_of_dirty_nexsons(dir_dict):
+def get_list_of_dirty_nexsons(dir_dict, phylografter):
     '''Returns a pair: the list of studies that need to be fetched from phylografter
     and a dict that can be serialized to disk in .to_download.json to cache the details
     of the last call to phylografter's study/modified_list service.
@@ -119,19 +119,7 @@ def get_list_of_dirty_nexsons(dir_dict):
     '''
     filename = dir_dict['nexson_state_db']
     slist, old = get_previous_list_of_dirty_nexsons(dir_dict)
-    DOMAIN = os.environ.get('PHYLOGRAFTER_DOMAIN_PREF')
-    if DOMAIN is None:
-        DOMAIN = 'http://www.reelab.net/phylografter'
-
-    SUBMIT_URI = DOMAIN + '/study/modified_list.json/url'
-    args = {'from': old['to']}
-    headers = {'content-type': 'application/json'}
-    resp = requests.get(SUBMIT_URI, params=args, headers=headers)
-    resp.raise_for_status()
-    try:
-        new_resp = resp.json()
-    except:
-        new_resp = resp.json
+    new_resp = phylografter.get_modified_list(old['to'])
     ss = set(new_resp['studies'] + old['studies'])
     sl = list(ss)
     sl.sort()
@@ -213,7 +201,6 @@ def sync_from_phylografter2nexson_api(
             sys.exit('NexSON "%s" could not be refreshed\n' % paths['nexson'])
         if len(to_download) > 0:
             time.sleep(sleep_between_downloads)
-
 
 if __name__ == '__main__':
     from peyotl.api import APIDomains

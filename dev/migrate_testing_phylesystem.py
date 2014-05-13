@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.nexson_validation.phylografter_workaround import workaround_phylografter_export_diffs, \
+from peyotl.phylografter.nexson_workaround import workaround_phylografter_export_diffs, \
                                                              add_default_prop
 from peyotl.phylesystem.git_actions import get_filepath_for_namespaced_id
 from peyotl import get_logger

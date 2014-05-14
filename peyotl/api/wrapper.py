@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from cStringIO import StringIO
+from peyotl.utility import get_config
 import datetime
 import requests
 import json
@@ -15,7 +16,18 @@ _GZIP_REQUEST_HEADERS = {
 
 class APIDomains(object):
     def __init__(self):
-        self.phylografter = 'http://www.reelab.net/phylografter'
+        self._phylografter = 'http://www.reelab.net/phylografter'
+        self._doc_store = None
+    def get_phylografter(self):
+        return self._phylografter
+    phylografter = property(get_phylografter)
+    def get_doc_store(self):
+        if self._doc_store is None:
+            self._doc_store = get_config('apis', 'doc_store')
+            if self._doc_store is None:
+                raise RuntimeError('[apis] / doc_store config setting required')
+        return self._doc_store
+    doc_store = property(get_doc_store)
 
 def get_domains_obj():
     # hook for config/env-sensitive setting of domains
@@ -27,8 +39,22 @@ class APIWrapper(object):
         if domains is None:
             domains = get_domains_obj()
         self.domains = domains
-        self.phylografter = PhylografterWrapper(domains.phylografter)
+        self._phylografter = None
+        self._doc_store = None
+    def get_phylografter(self):
+        if self._phylografter is None:
+            self._phylografter = PhylografterWrapper(self.domains.phylografter)
+        return self._phylografter
+    phylografter = property(get_phylografter)
+    def get_doc_store(self):
+        if self._doc_store is None:
+            self._doc_store = DocStoreAPIWrapper(self.domains.doc_store)
+        return self._doc_store
+    doc_store = property(get_doc_store)
 
+class DocStoreAPIWrapper(object):
+    def __init__(self, domain):
+        self.domain = domain
 class PhylografterWrapper(object):
     def __init__(self, domain):
         self.domain = domain

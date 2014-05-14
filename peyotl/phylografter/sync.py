@@ -1,78 +1,12 @@
 #!/usr/bin/env python
 import codecs
 import json
-import os
-import requests
 import stat
-import sys
 import time
+import sys
+import os
 from peyotl import get_logger
 _LOG = get_logger(__name__)
-
-class LockPolicy(object):
-    MAX_NUM_SLEEP_IN_WAITING_FOR_LOCK = os.environ.get('MAX_NUM_SLEEP_IN_WAITING_FOR_LOCK', 100)
-    try:
-        SLEEP_FOR_LOCK_TIME = float(os.environ.get('SLEEP_FOR_LOCK_TIME', 0.05))
-    except:
-        SLEEP_FOR_LOCK_TIME = 0.05 
-
-    def __init__(self):
-        self.early_exit_if_locked = False
-        self.wait_do_not_relock_if_locked = False
-        self._reset_current()
-
-    def _reset_current(self):
-        self.curr_lockfile, self.curr_owns_lock, self.curr_was_locked = False, False, False
-
-    def _wait_for_lock(self, lockfile):
-        '''Returns a pair of bools: lockfile previously existed, lockfile now owned by caller
-        '''
-        n = 0
-        pid = os.getpid()
-        previously_existed = False
-        while os.path.exists(lockfile):
-            previously_existed = True
-            n += 1
-            if self.early_exit_if_locked or n > LockPolicy.MAX_NUM_SLEEP_IN_WAITING_FOR_LOCK:
-                return True, False
-            if VERBOSE:
-                sys.stderr.write('Waiting for "%s" iter %d\n' % (lockfile, n))
-            time.sleep(LockPolicy.SLEEP_FOR_LOCK_TIME)
-        if previously_existed and self.wait_do_not_relock_if_locked:
-            return True, False
-        try:
-            o = open_for_group_write(lockfile, 'w')
-            o.write(str(pid) + '\n')
-            o.close()
-        except:
-            try:
-                self.remove_lock(lockfile)
-            except:
-                pass
-            return previously_existed, False
-        else:
-            return previously_existed, True
-    def wait_for_lock(self, lockfile):
-        t = self._wait_for_lock(lockfile)
-        self.curr_lockfile = lockfile
-        self.curr_was_locked, self.curr_owns_lock = t
-        _LOG.debug('Lockfile = "%s" was_locked=%s owns_lock=%s\n'% 
-                    (lockfile, 
-                     "TRUE" if self.curr_was_locked else "FALSE",
-                     "TRUE" if self.curr_owns_lock else "FALSE",
-                     ))
-        return t
-    def remove_lock(self):
-        try:
-            if self.curr_lockfile and self.curr_owns_lock:
-                self._remove_lock(self.curr_lockfile)
-        finally:
-            self._reset_current()
-    def _remove_lock(self, lockfile):
-        if os.path.exists(lockfile):
-            os.remove(lockfile)
-
-
 
 def get_processing_paths_from_prefix(pref,
                                      nexson_dir='.',
@@ -82,7 +16,7 @@ def get_processing_paths_from_prefix(pref,
          'study': pref,
          }
     if d['nexson_state_db'] is None:
-        d['nexson_state_db'] = os.path.abspath(os.path.join(nexson_dir, '.to_download.json')), # stores the state of this repo. *very* hacky primitive db.
+        d['nexson_state_db'] = os.path.abspath(os.path.join(nexson_dir, '.sync_status.json')), # stores the state of this repo. *very* hacky primitive db.
     return d
 
 def get_default_dir_dict(top_level=None):
@@ -111,7 +45,7 @@ def get_previous_list_of_dirty_nexsons(dir_dict):
 
 def get_list_of_dirty_nexsons(dir_dict, phylografter):
     '''Returns a pair: the list of studies that need to be fetched from phylografter
-    and a dict that can be serialized to disk in .to_download.json to cache the details
+    and a dict that can be serialized to disk in .sync_status.json to cache the details
     of the last call to phylografter's study/modified_list service.
 
     If PHYLOGRAFTER_DOMAIN_PREF is in the env, it will provide the domain the default
@@ -160,7 +94,7 @@ def download_nexson_from_phylografter(phylografter,
     was_locked, owns_lock = lock_policy.wait_for_lock(lockfile)
     try:
         if not owns_lock:
-            return False
+            return None
         study = paths['study']
         er = phylografter.get_study(study)
         should_write = False
@@ -182,31 +116,101 @@ def download_nexson_from_phylografter(phylografter,
                 store_state_JSON(download_db, paths['nexson_state_db'])
     finally:
         lock_policy.remove_lock()
-    return True
+    return er
 
+def record_sha_for_study(phylografter,
+                         paths,
+                         download_db,
+                         merged_studies,
+                         unmerged_study_to_sha,
+                         last_merged_sha):
+    '''So that the edit history of a file is accurate, we need to store the new parent SHA for any
+    future updates. For studies that merged to master, this will be the last_merged_sha. 
+    Other studies should be in the unmerged_study_to_sha dict
+    '''
 def sync_from_phylografter2nexson_api(
-        api_wrapper, 
-        to_download,
         cfg_file_paths,
-        download_db_file,
-        lock_policy):
-    while len(to_download) > 0:
-        n = to_download.pop(0)
-        study = str(n)
-        paths = get_processing_paths_from_prefix(study, **cfg_file_paths)
-        if not download_nexson_from_phylografter(api_wrapper.phylografter,
-                                                 paths,
-                                                 download_db_file,
-                                                 lock_policy):
-            sys.exit('NexSON "%s" could not be refreshed\n' % paths['nexson'])
-        if len(to_download) > 0:
-            time.sleep(sleep_between_downloads)
+        to_download=None
+        lock_policy=None,
+        api_wrapper=None,
+        sleep_between_downloads=None):
+    '''Returns the # of studies updated from phylografter to the "NexSON API"
+
+    `cfg_file_paths` should be a dict with:
+        'nexson_dir': directory that will be the parent of the nexson files
+         'nexson_state_db': a JSON file to hold the state of the phylografter <-> API interaction
+    `to_download` can be a list of study IDs (if the state is not to be preserved). If this call
+        uses the history in `cfg_file_paths['nexson_state_db']` then this should be None.
+    `lock_policy` can usually be None, it specifies how the nexson_state_db is to be locked for thread safety
+    `api_wrapper` will be the default APIWrapper() if None
+    `sleep_between_downloads` is the number of seconds to sleep between calls (to avoid stressing phylografter.)
+
+    env vars:
+        SLEEP_BETWEEN_DOWNLOADS_TIME, SLEEP_FOR_LOCK_TIME, and MAX_NUM_SLEEP_IN_WAITING_FOR_LOCK are checked
+        if lock_policy and sleep_between_downloads
+    '''
+    if api_wrapper is None:
+        from peyotl.api import APIWrapper
+        api_wrapper = APIWrapper()
+    if to_download is None:
+        to_download, download_db = get_list_of_dirty_nexsons(dd, api_wrapper.phylografter)
+        if not to_download:
+            return 0
+    else:
+        download_db = None
+    if sleep_between_downloads is None:
+        sleep_between_downloads = float(os.environ.get('SLEEP_BETWEEN_DOWNLOADS_TIME', 0.5))
+    if lock_policy is None:
+        from peyotl.utility import LockPolicy
+        lock_policy = LockPolicy(sleep_time=float(os.environ.get('SLEEP_FOR_LOCK_TIME', 0.05)),
+                                 max_num_sleep=int(os.environ.get('MAX_NUM_SLEEP_IN_WAITING_FOR_LOCK', 100)))
+    num_downloaded = len(to_download)
+    studies_with_final_sha = set()
+    unmerged_study_to_sha = {}
+    last_merged_sha = None
+    doc_store_api = api_wrapper.doc_store
+    phylografter = api_wrapper.phylografter
+    try:
+        while len(to_download) > 0:
+            n = to_download.pop(0)
+            study = str(n)
+            paths = get_processing_paths_from_prefix(study, **cfg_file_paths)
+            nexson = download_nexson_from_phylografter(phylografter,
+                                                       paths,
+                                                       download_db,
+                                                       lock_policy)
+            if nexson is None:
+                raise RuntimeError('NexSON "{}" could not be refreshed\n'.format(paths['nexson']))
+            try:
+                namespaced_id = 'pg_{s:d}'.format(s=study)
+                parent_sha = find_parent_sha_for_phylografter_nexson(nexson, download_db)
+                put_response = api_wrapper.put_study(study_id=namespaced_id, nexson=nexson, starting_commit_sha=parent_sha)
+                assert put_response['error'] == '0'
+            except:
+                download_db['studies'].add(int(study))
+                # act as if the study was not downloaded, so that when we try
+                #   again we won't skip this study
+                store_state_JSON(download_db, paths['nexson_state_db'])
+                raise
+            else:
+                if put_response['merge_needed']:
+                    unmerged_study_to_sha[study] = put_response['sha']
+                else:
+                    studies_with_final_sha.add(study)
+                    last_merged_sha = put_response['sha']
+            if len(to_download) > 0:
+                time.sleep(sleep_between_downloads)
+    finally:
+        record_sha_for_study(phylografter,
+                             download_db,
+                             studies_with_final_sha,
+                             unmerged_study_to_sha,
+                             last_merged_sha)
+    return num_downloaded
 
 if __name__ == '__main__':
-    from peyotl.api import APIDomains
-    api_wrapper = APIDomains()
     if '-h' in sys.argv:
-        sys.stderr.write('''refresh_nexsons_from_phylografter.py is a short-term hack.
+        sys.stderr.write('''sync.py is a short-term hack.
 
 It stores info about the last communication with phylografter in .to_download.json
 Based on this info, it tries to download as few studies as possible to make 
@@ -217,22 +221,11 @@ the NexSONs in treenexus/studies/#/... match the export from phylografter.
 If other arguments aree supplied, it should be the study #'s to be downloaded.
 ''')
         sys.exit(0)
-    lock_policy = LockPolicy()
+
     dd = get_default_dir_dict()
-    if len(sys.argv) == 1:
-        to_download, download_db = get_list_of_dirty_nexsons(dd)
-        if not to_download:
-            sys.stderr.write('No studies have been modified since the last refresh.\n')
-            sys.exit(0)
+    if len(sys.argv) > 1:
+        to_download = sys.argv[1:]
     else:
-        to_download, download_db = sys.argv[1:], None
-    try:
-        SLEEP_BETWEEN_DOWNLOADS_TIME = float(os.environ.get('SLEEP_BETWEEN_DOWNLOADS_TIME', 0.5))
-    except:
-        SLEEP_BETWEEN_DOWNLOADS_TIME = 0.05
-    sync_from_phylografter2nexson_api(api_wrapper=api_wrapper
-                                      to_download=to_download,
-                                      cfg_file_paths=dd,
-                                      download_db_file=download_db,
-                                      lock_policy=lock_policy)
+        to_download = None
+    sync_from_phylografter2nexson_api(cfg_file_paths=dd, to_download=to_download)
 

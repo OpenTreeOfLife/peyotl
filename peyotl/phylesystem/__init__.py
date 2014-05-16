@@ -353,6 +353,9 @@ class PhylesystemShard(object):
             m.append({'keys': v, 'relpath': rp})
         rd['studies'] = m
         return rd
+    def get_branch_list(self):
+        ga = self.create_git_action()
+        return ga.get_branch_list()
 def _invert_dict_list_val(d):
     o = {}
     for k, v in d.items():
@@ -783,6 +786,11 @@ class _Phylesystem(object):
         for i in self._shards:
             cd['shards'].append(i.get_configuration_dict(secret_attrs=secret_attrs))
         return cd
+    def get_branch_list(self):
+        a = []
+        for i in self._shards:
+            a.extend(i.get_branch_list())
+        return a
         
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,

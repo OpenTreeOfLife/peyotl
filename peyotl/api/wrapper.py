@@ -71,6 +71,9 @@ class _DocStoreAPIWrapper(_WSWrapper):
     def study_list(self):
         SUBMIT_URI = '{}/study_list'.format(self.domain)
         return self._get(SUBMIT_URI)
+    def unmerged_branches(self):
+        SUBMIT_URI = '{}/unmerged_branches'.format(self.domain)
+        return self._get(SUBMIT_URI)
 
 class _PhylografterWrapper(_WSWrapper):
     def __init__(self, domain):

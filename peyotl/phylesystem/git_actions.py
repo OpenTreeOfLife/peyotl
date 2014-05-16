@@ -164,6 +164,16 @@ class GitAction(object):
     def checkout_master(self):
         git(self.gitdir, self.gitwd, "checkout", "master")
 
+    def get_branch_list(self):
+        x = git(self.gitdir, self.gitwd, "branch", "--no-color")
+        b = []
+        for line in x.split('\n'):
+            if line.startswith('*'):
+                line = line[1:]
+            ls = line.strip()
+            if ls:
+                b.append(ls)
+        return b
     def get_master_sha(self):
         x = git(self.gitdir, self.gitwd, "show-ref", "master", "--heads", "--hash")
         return x.strip()

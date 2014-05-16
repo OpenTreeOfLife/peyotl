@@ -3,7 +3,6 @@ import codecs
 import json
 import stat
 import time
-import sys
 import os
 from peyotl import get_logger
 _LOG = get_logger(__name__)
@@ -15,17 +14,9 @@ def get_processing_paths_from_prefix(pref,
          'nexson_state_db': nexson_state_db,
          'study': pref,
          }
-    if d['nexson_state_db'] is None:
-        d['nexson_state_db'] = os.path.abspath(os.path.join(nexson_dir, '.sync_status.json')), # stores the state of this repo. *very* hacky primitive db.
+    assert nexson_state_db is not None
     return d
 
-def get_default_dir_dict(top_level=None):
-    r = '.' if top_level is None else top_level
-    t = os.path.abspath(r)
-    d = {'nexson_dir': t,
-         'nexson_state_db': os.path.join(t, '.sync_status.json'), # stores the state of this repo. *very* hacky primitive db.
-        }
-    return d
 
 
 def get_previous_list_of_dirty_nexsons(dir_dict):
@@ -101,7 +92,24 @@ class PhylografterNexsonDocStoreSync(object):
             lock_policy = LockPolicy(sleep_time=float(os.environ.get('SLEEP_FOR_LOCK_TIME', 0.05)),
                                      max_num_sleep=int(os.environ.get('MAX_NUM_SLEEP_IN_WAITING_FOR_LOCK', 100)))
         self.lock_policy = lock_policy
+        self.log = {}
+    def _reset_log(self):
+        self.log = {
+            'pull_from_phylografter_failed': [],
+            'PUT_to_docstore_failed': [],
+            'POST_to_docstore_failed': [],
+        }
 
+    def _failed_study(self, study, err_key):
+        self.log.setdefault(err_key, []).append(study)
+        _LOG.debug('{} for study {}'.format(err_key, str(study)))
+
+    def _add_study_to_download_list(self, study, paths):
+        if self.downloaded_db is not None:
+            self.download_db['studies'].add(int(study))
+            # act as if the study was not downloaded, so that when we try
+            #   again we won't skip this study
+            store_state_JSON(self.download_db, paths['nexson_state_db'])
 
     def run(self, to_download=None):
         '''Returns the # of studies updated from phylografter to the "NexSON API"
@@ -109,6 +117,7 @@ class PhylografterNexsonDocStoreSync(object):
         `to_download` can be a list of study IDs (if the state is not to be preserved). If this call
             uses the history in `cfg_file_paths['nexson_state_db']` then this should be None.
         '''
+        self._reset_log()
         if to_download is None:
             to_download, self.download_db = self.get_list_of_phylografter_dirty_nexsons()
             if not to_download:
@@ -128,20 +137,26 @@ class PhylografterNexsonDocStoreSync(object):
                 paths = get_processing_paths_from_prefix(study, **self._cfg)
                 nexson = self.download_nexson_from_phylografter(paths)
                 if nexson is None:
-                    raise RuntimeError('NexSON "{}" could not be refreshed\n'.format(paths['nexson']))
+                    self._failed_study(study, 'pull_from_phylografter_failed')
+                    continue
                 try:
                     namespaced_id = 'pg_{s:d}'.format(s=study)
                     parent_sha = self.find_parent_sha_for_phylografter_nexson(study, nexson)
-                    put_response = doc_store_api.put_study(study_id=namespaced_id,
-                                                           nexson=nexson,
-                                                           starting_commit_sha=parent_sha)
-                    assert put_response['error'] == '0'
+                    if study in self.doc_store_studies:
+                        ds_method = doc_store_api.put_study
+                        ds_verb = 'PUT'
+                    else:
+                        ds_method = doc_store_api.post_study
+                        ds_verb = 'POST'
+                    put_response = ds_method(study_id=namespaced_id,
+                                             nexson=nexson,
+                                             starting_commit_sha=parent_sha)
+                    if put_response['error'] != '0':
+                        self._failed_study(study, '{}_to_docstore_failed'.format(ds_verb))
+                        self._add_study_to_download_list(study, paths)
+                        continue
                 except:
-                    if self.downloaded_db is not None:
-                        self.download_db['studies'].add(int(study))
-                        # act as if the study was not downloaded, so that when we try
-                        #   again we won't skip this study
-                        store_state_JSON(self.download_db, paths['nexson_state_db'])
+                    self._add_study_to_download_list(study, paths)
                     raise
                 else:
                     if put_response['merge_needed']:
@@ -219,26 +234,3 @@ class PhylografterNexsonDocStoreSync(object):
         Other studies should be in the unmerged_study_to_sha dict
         '''
         pass
-
-if __name__ == '__main__':
-    if '-h' in sys.argv:
-        sys.stderr.write('''sync.py is a short-term hack.
-
-It stores info about the last communication with phylografter in .to_download.json
-Based on this info, it tries to download as few studies as possible to make 
-the NexSONs in treenexus/studies/#/... match the export from phylografter.
-
-   -h gives this help message.
-
-If other arguments aree supplied, it should be the study #'s to be downloaded.
-''')
-        sys.exit(0)
-
-    dd = get_default_dir_dict()
-    if len(sys.argv) > 1:
-        to_download = sys.argv[1:]
-    else:
-        to_download = None
-    sync = PhylografterNexsonDocStoreSync(dd)
-    sync.run(to_download=to_download)
-

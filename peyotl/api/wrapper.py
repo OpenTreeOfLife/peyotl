@@ -14,6 +14,8 @@ _GZIP_REQUEST_HEADERS = {
     'accept' : 'application/json',
 }
 
+_JSON_HEADERS = {'content-type': 'application/json'}
+
 class APIDomains(object):
     def __init__(self):
         self._phylografter = 'http://www.reelab.net/phylografter'
@@ -43,22 +45,36 @@ class APIWrapper(object):
         self._doc_store = None
     def get_phylografter(self):
         if self._phylografter is None:
-            self._phylografter = PhylografterWrapper(self.domains.phylografter)
+            self._phylografter = _PhylografterWrapper(self.domains.phylografter)
         return self._phylografter
     phylografter = property(get_phylografter)
     def get_doc_store(self):
         if self._doc_store is None:
-            self._doc_store = DocStoreAPIWrapper(self.domains.doc_store)
+            self._doc_store = _DocStoreAPIWrapper(self.domains.doc_store)
         return self._doc_store
     doc_store = property(get_doc_store)
 
-class DocStoreAPIWrapper(object):
+class _WSWrapper(object):
     def __init__(self, domain):
         self.domain = domain
-class PhylografterWrapper(object):
-    def __init__(self, domain):
-        self.domain = domain
+    def _get(self, url, headers=_JSON_HEADERS, params=None):
+        resp = requests.get(url, params=params, headers=headers)
+        resp.raise_for_status()
+        try:
+            return resp.json()
+        except:
+            return resp.json
 
+class _DocStoreAPIWrapper(_WSWrapper):
+    def __init__(self, domain):
+        _WSWrapper.__init__(self, domain)
+    def study_list(self):
+        SUBMIT_URI = '{}/study_list'.format(self.domain)
+        return self._get(SUBMIT_URI)
+
+class _PhylografterWrapper(_WSWrapper):
+    def __init__(self, domain):
+        _WSWrapper.__init__(self, domain)
     def get_modified_list(self, since_date="2010-01-01T00:00:00"):
         '''Calls phylografter's modified_list.json to fetch
         a list of all studies that have changed since `since_date`
@@ -69,14 +85,8 @@ class PhylografterWrapper(object):
             since_date = datetime.isoformat(since_date)
         SUBMIT_URI = self.domain + '/study/modified_list.json/url'
         args = {'from': since_date}
-        headers = {'content-type': 'application/json'}
-        resp = requests.get(SUBMIT_URI, params=args, headers=headers)
-        resp.raise_for_status()
-        try:
-            return resp.json()
-        except:
-            return resp.json
-    
+        return self._get(SUBMIT_URI, params=args)
+
     def get_nexson(self, study_id):
         '''Calls export_gzipNexSON URL and unzips response.
         Raises HTTP error, gzip module error, or RuntimeError
@@ -98,3 +108,10 @@ class PhylografterWrapper(object):
         if isinstance(results, unicode) or isinstance(results, str):
             return json.loads(results)
         raise RuntimeError('gzipped response from phylografter export_gzipNexSON.json, but not a string is:', results)
+
+
+def NexsonStore(domains=None):
+    return APIWrapper(domains=domains).doc_store
+
+def Phylografter(domains=None):
+    return APIWrapper(domains=domains).phylografter

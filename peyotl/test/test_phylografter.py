@@ -13,7 +13,7 @@ class TestDictDiff(unittest.TestCase):
         d = get_test_ot_service_domains()
         self.phylografter = Phylografter(d)
 
-    def xtestFetchStudy(self):
+    def testFetchStudy(self):
         x = self.phylografter.fetch_study('252')
         sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
         self.assertTrue(sid in ['252', 'pg_252'])

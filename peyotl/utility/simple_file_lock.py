@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from peyotl.utility.io import open_for_group_write
 import codecs
-import stat
 import time
 import os
 from peyotl import get_logger

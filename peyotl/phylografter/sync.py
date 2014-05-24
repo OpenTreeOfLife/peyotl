@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 from peyotl.utility.io import open_for_group_write
 import codecs
+import copy
 import json
-import stat
 import time
 import os
 from peyotl import get_logger
+
 _LOG = get_logger(__name__)
 
 def get_processing_paths_from_prefix(pref,
@@ -20,7 +21,7 @@ def get_processing_paths_from_prefix(pref,
 
 
 
-def get_previous_list_of_dirty_nexsons(dir_dict):
+def get_previous_set_of_dirty_nexsons(dir_dict):
     '''Returns the previous list of studies to be fetch and dict that contains that list and timestamps.
     The dict will be populated from the filepath `dir_dict['nexson_state_db']` if that entry is not 
     found then a default dict of no studies and old timestamps will be returned.
@@ -28,18 +29,29 @@ def get_previous_list_of_dirty_nexsons(dir_dict):
     filename = dir_dict['nexson_state_db']
     if os.path.exists(filename):
         old = json.load(codecs.open(filename, 'rU', encoding='utf-8'))
+        if 'to_download_from_pg' in old:
+            old['to_download_from_pg'] = set(old['to_download_from_pg'])
+        if 'to_upload_to_phylesystem' in old:
+            old['to_upload_to_phylesystem'] = set(old['to_upload_to_phylesystem'])
     else:
+        assert False
         old = {'from': '2010-01-01T00:00:00',
-               'to': '2010-01-01T00:00:00',
-               'studies': []
+               'to': datet,
+               'to_download_from_pg': [],
+               'to_upload_to_phylesystem': [],
         }
-    return old['studies'], old
+    return set(old['to_download_from_pg']), old
 
 def store_state_JSON(s, fp):
     tmpfilename = fp + '.tmpfile'
+    sc = copy.deepcopy(s)
+    sc['to_download_from_pg'] = list(s.get('to_download_from_pg', []))
+    sc['to_download_from_pg'].sort()
+    sc['to_upload_to_phylesystem'] = list(s.get('to_upload_to_phylesystem', []))
+    sc['to_upload_to_phylesystem'].sort()
     td = open_for_group_write(tmpfilename, 'w')
     try:
-        json.dump(s, td, sort_keys=True, indent=0)
+        json.dump(sc, td, sort_keys=True, indent=0)
     finally:
         td.close()
     os.rename(tmpfilename, fp) #atomic on POSIX
@@ -87,18 +99,44 @@ class PhylografterNexsonDocStoreSync(object):
             'PUT_to_docstore_failed': [],
             'POST_to_docstore_failed': [],
         }
-
     def _failed_study(self, study, err_key):
         self.log.setdefault(err_key, []).append(study)
         _LOG.debug('{} for study {}'.format(err_key, str(study)))
 
     def _add_study_to_download_list(self, study, paths):
-        if self.downloaded_db is not None:
-            self.download_db['studies'].add(int(study))
-            # act as if the study was not downloaded, so that when we try
-            #   again we won't skip this study
+        if self.download_db is not None:
+            self.download_db.setdefault('to_download_from_pg', set()).add(study)
             store_state_JSON(self.download_db, paths['nexson_state_db'])
-
+    def _add_study_to_push_list(self, study, paths):
+        if self.download_db is not None:
+            self.download_db.setdefault('to_upload_to_phylesystem', set()).add(study)
+            store_state_JSON(self.download_db, paths['nexson_state_db'])
+    def _remove_study_from_download_list(self, study, paths):
+        if self.download_db is not None:
+            try:
+                self.download_db.setdefault('to_download_from_pg', set()).remove(study)
+            except:
+                pass
+            else:
+                store_state_JSON(self.download_db, paths['nexson_state_db'])
+    def _remove_study_from_push_list(self, study, paths):
+        if self.download_db is not None:
+            try:
+                self.download_db.setdefault('to_upload_to_phylesystem', set()).remove(study)
+            except:
+                pass
+            else:
+                store_state_JSON(self.download_db, paths['nexson_state_db'])
+    def find_parent_sha_for_phylografter_nexson(self, study_id, nexson):
+        parent_commit_sha = nexson.get('phylesystem_commit_sha')
+        if parent_commit_sha is None:
+            # as a workaround for phylografter not storing the SHA....
+            if self.download_db is not None:
+                parent_commit_sha = self.download_db.get('study2sha', {}).get(study_id)
+        if parent_commit_sha is None:
+            if self.download_db is not None:
+                parent_commit_sha = self.download_db.get('default_sha')
+        return parent_commit_sha
     def run(self, to_download=None):
         '''Returns the # of studies updated from phylografter to the "NexSON API"
 
@@ -111,7 +149,7 @@ class PhylografterNexsonDocStoreSync(object):
             if not to_download:
                 return 0
         else:
-            self.downloaded_db = None
+            self.download_db = None
         num_downloaded = len(to_download)
         studies_with_final_sha = set()
         unmerged_study_to_sha = {}
@@ -119,6 +157,7 @@ class PhylografterNexsonDocStoreSync(object):
         doc_store_api = self.doc_store
         phylografter = self.phylografter
         first_download = True
+        self.doc_store_studies = set(doc_store_api.study_list())
         try:
             while len(to_download) > 0:
                 if not first_download:
@@ -132,35 +171,33 @@ class PhylografterNexsonDocStoreSync(object):
                 if nexson is None:
                     self._failed_study(study, 'pull_from_phylografter_failed')
                     continue
-                try:
-                    namespaced_id = 'pg_{s:d}'.format(s=study)
-                    parent_sha = self.find_parent_sha_for_phylografter_nexson(study, nexson)
-                    if study in self.doc_store_studies:
-                        ds_method = doc_store_api.put_study
-                        ds_verb = 'PUT'
-                    else:
-                        ds_method = doc_store_api.post_study
-                        ds_verb = 'POST'
-                    put_response = ds_method(study_id=namespaced_id,
-                                             nexson=nexson,
-                                             starting_commit_sha=parent_sha)
-                    if put_response['error'] != '0':
-                        self._failed_study(study, '{}_to_docstore_failed'.format(ds_verb))
-                        self._add_study_to_download_list(study, paths)
-                        continue
-                except:
-                    self._add_study_to_download_list(study, paths)
-                    raise
+                self._add_study_to_push_list(study, paths)
+                self._remove_study_from_download_list(study, paths)
+                namespaced_id = 'pg_{s}'.format(s=study)
+                parent_sha = self.find_parent_sha_for_phylografter_nexson(study, nexson)
+                if study in self.doc_store_studies:
+                    ds_method = doc_store_api.put_study
+                    ds_verb = 'PUT'
                 else:
-                    if put_response['merge_needed']:
-                        unmerged_study_to_sha[study] = put_response['sha']
-                    else:
-                        studies_with_final_sha.add(study)
-                        last_merged_sha = put_response['sha']
+                    ds_method = doc_store_api.post_study
+                    ds_verb = 'POST'
+                put_response = ds_method(study_id=namespaced_id,
+                                         nexson=nexson,
+                                         starting_commit_sha=parent_sha)
+                if put_response['error'] != '0':
+                    self._failed_study(study, '{}_to_docstore_failed'.format(ds_verb))
+                    continue
+                if put_response['merge_needed']:
+                    unmerged_study_to_sha[study] = put_response['sha']
+                else:
+                    studies_with_final_sha.add(study)
+                    last_merged_sha = put_response['sha']
+                self._remove_study_from_push_list(study, paths)
         finally:
             self.record_sha_for_study(studies_with_final_sha,
                                       unmerged_study_to_sha,
-                                      last_merged_sha)
+                                      last_merged_sha,
+                                      paths)
         return num_downloaded
 
     def get_list_of_phylografter_dirty_nexsons(self):
@@ -173,16 +210,16 @@ class PhylografterNexsonDocStoreSync(object):
         '''
         dir_dict, phylografter = self._cfg, self.phylografter
         filename = dir_dict['nexson_state_db']
-        slist, old = get_previous_list_of_dirty_nexsons(dir_dict)
-        new_resp = phylografter.get_modified_list(old['to'])
-        ss = set(new_resp['studies'] + old['studies'])
-        sl = list(ss)
-        sl.sort()
-        new_resp['studies'] = sl
-        new_resp['from'] = old['from']
-        store_state_JSON(new_resp, filename)
-        to_refresh = list(new_resp['studies'])
-        return to_refresh, new_resp
+        old_set, old = get_previous_set_of_dirty_nexsons(dir_dict)
+        new_resp = phylografter.get_modified_list(old['to'], list_only=False)
+        ss = set(new_resp['studies'])
+        ss.update(old_set)
+        old['to_download_from_pg'] = ss
+        old['to'] = old['to']
+        store_state_JSON(old, filename)
+        to_refresh = list(old['to_download_from_pg'])
+        to_refresh.sort()
+        return to_refresh, old
 
 
     def download_nexson_from_phylografter(self, paths, phylografter):
@@ -206,7 +243,7 @@ class PhylografterNexsonDocStoreSync(object):
                 store_state_JSON(er, nexson_path)
             if download_db is not None:
                 try:
-                    download_db['studies'].remove(int(study))
+                    download_db['to_download_from_pg'].remove(study)
                 except:
                     _LOG.warn('%s not in %s' % (study, paths['nexson_state_db']))
                     pass
@@ -219,9 +256,18 @@ class PhylografterNexsonDocStoreSync(object):
     def record_sha_for_study(self,
                              merged_studies,
                              unmerged_study_to_sha,
-                             last_merged_sha):
+                             last_merged_sha,
+                             paths):
         '''So that the edit history of a file is accurate, we need to store the new parent SHA for any
         future updates. For studies that merged to master, this will be the last_merged_sha. 
         Other studies should be in the unmerged_study_to_sha dict
         '''
-        pass
+        if self.download_db is None:
+            return
+        _EMPTY_DICT = {}
+        for study_id in merged_studies:
+            self.download_db.setdefault('study2sha', _EMPTY_DICT)[study_id] = last_merged_sha
+        if unmerged_study_to_sha:
+            self.download_db.setdefault('study2sha', _EMPTY_DICT).update(unmerged_study_to_sha)
+        store_state_JSON(self.download_db, paths['nexson_state_db'])
+

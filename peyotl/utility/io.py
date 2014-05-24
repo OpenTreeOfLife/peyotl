@@ -3,6 +3,7 @@
 peyotl.
 '''
 import codecs
+import stat
 import os
 
 def open_for_group_write(fp, mode, encoding='utf-8'):

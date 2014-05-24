@@ -91,6 +91,7 @@ class _DocStoreAPIWrapper(_WSWrapper):
     def __init__(self, domain):
         _WSWrapper.__init__(self, domain)
     def study_list(self):
+        '''Returns a list of strings which are the study IDs'''
         SUBMIT_URI = '{}/study_list'.format(self.domain)
         return self._get(SUBMIT_URI)
     def unmerged_branches(self):

@@ -4,8 +4,10 @@ from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config
 import datetime
 import requests
+import anyjson
 import json
 import gzip
+import os
 from peyotl import get_logger
 _LOG = get_logger(__name__)
 
@@ -67,10 +69,18 @@ def _dict_summary(d, name):
         return u'%s={%s}' % (name, ''.join(a))
     return u'%s-keys=%s' % (name, repr(dk))
 
-def _http_method_summary_str(url, verb, headers, params):
-    ps = _dict_summary(params, 'params')
+def _http_method_summary_str(url, verb, headers, params, data=None):
+    if params is None:
+        ps = 'None'
+    else:
+        ps = _dict_summary(params, 'params')
     hs = _dict_summary(headers, 'headers')
-    return 'error in HTTP {v} verb call to {u} with {p} and {h}'.format(v=verb, u=url, p=ps, h=hs)
+    if data is None:
+        ds = 'None'
+    else:
+        ds = _dict_summary(anyjson.loads(data), 'data')
+    fmt = 'error in HTTP {v} verb call to {u} with {p}, data={d} and {h}'
+    return fmt.format(v=verb, u=url, p=ps, h=hs, d=ds)
 
 class _WSWrapper(object):
     def __init__(self, domain):
@@ -81,6 +91,34 @@ class _WSWrapper(object):
             resp.raise_for_status()
         except:
             _LOG.exception(_http_method_summary_str(url, 'GET', headers, params))
+            if resp.text:
+                _LOG.debug('HTTPResponse.text = ' + resp.text)
+            raise
+        try:
+            return resp.json()
+        except:
+            return resp.json
+    def _post(self, url, headers=_JSON_HEADERS, params=None, data=None):
+        resp = requests.post(url, params=params, headers=headers, data=data)
+        try:
+            resp.raise_for_status()
+        except:
+            _LOG.exception(_http_method_summary_str(url, 'POST', headers=headers, params=params, data=data))
+            if resp.text:
+                _LOG.debug('HTTPResponse.text = ' + resp.text)
+            raise
+        try:
+            return resp.json()
+        except:
+            return resp.json
+    def _put(self, url, headers=_JSON_HEADERS, params=None, data=None):
+        resp = requests.put(url, params=params, headers=headers, data=data)
+        try:
+            resp.raise_for_status()
+        except:
+            _LOG.exception(_http_method_summary_str(url, 'PUT', headers=headers, params=params, data=data))
+            if resp.text:
+                _LOG.debug('HTTPResponse.text = ' + resp.text)
             raise
         try:
             return resp.json()
@@ -90,6 +128,19 @@ class _WSWrapper(object):
 class _DocStoreAPIWrapper(_WSWrapper):
     def __init__(self, domain):
         _WSWrapper.__init__(self, domain)
+        self._github_oauth_token = None
+    def _get_auth_token(self):
+        if self._github_oauth_token is None:
+            auth_token = os.environ.get('GITHUB_OAUTH_TOKEN')
+            if auth_token is None:
+                raise RuntimeError('''To use the write methods of the Open Tree of Life's Nexson document store
+you must supply a GitHub OAuth Token. Peyotl uses the GITHUB_OAUTH_TOKEN environmental
+variable to obtain this token. If you need to obtain your key, see the instructions at:
+   https://github.com/OpenTreeOfLife/api.opentreeoflife.org/tree/master/docs#getting-a-github-oauth-token
+''')
+            self._github_oauth_token = auth_token
+        return self._github_oauth_token
+    auth_token = property(_get_auth_token)
     def study_list(self):
         '''Returns a list of strings which are the study IDs'''
         SUBMIT_URI = '{}/study_list'.format(self.domain)
@@ -97,6 +148,35 @@ class _DocStoreAPIWrapper(_WSWrapper):
     def unmerged_branches(self):
         SUBMIT_URI = '{}/unmerged_branches'.format(self.domain)
         return self._get(SUBMIT_URI)
+    def post_study(self,
+                   nexson,
+                   study_id=None,
+                   commit_msg=None):
+        assert(nexson is not None)
+        if study_id is None:
+            SUBMIT_URI = '{d}/v1/study'.format(d=self.domain)
+        else:
+            SUBMIT_URI = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
+        params = {'auth_token': self.auth_token}
+        if commit_msg:
+            params['commit_msg'] = commit_msg
+        return self._post(SUBMIT_URI,
+                          params=params,
+                          data=anyjson.dumps({'nexson': nexson}))
+    def put_study(self,
+                  study_id,
+                  nexson,
+                  starting_commit_sha,
+                  commit_msg=None):
+        assert(nexson is not None)
+        SUBMIT_URI = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
+        params = {'starting_commit_SHA':starting_commit_sha,
+                  'auth_token': self.auth_token}
+        if commit_msg:
+            params['commit_msg'] = commit_msg
+        return self._put(SUBMIT_URI,
+                         params=params,
+                         data=anyjson.dumps({'nexson': nexson}))
 
 class _PhylografterWrapper(_WSWrapper):
     def __init__(self, domain):

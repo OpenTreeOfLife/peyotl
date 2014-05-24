@@ -160,9 +160,6 @@ class PhylografterNexsonDocStoreSync(object):
         self.doc_store_studies = set(doc_store_api.study_list())
         try:
             while len(to_download) > 0:
-                if not first_download:
-                    raise NotImplementedError('looping over studies')
-                    time.sleep(self.sleep_between_downloads)
                 first_download = False
                 n = to_download.pop(0)
                 study = str(n)
@@ -175,17 +172,20 @@ class PhylografterNexsonDocStoreSync(object):
                 self._remove_study_from_download_list(study, paths)
                 namespaced_id = 'pg_{s}'.format(s=study)
                 parent_sha = self.find_parent_sha_for_phylografter_nexson(study, nexson)
-                if study in self.doc_store_studies:
-                    ds_method = doc_store_api.put_study
+                if namespaced_id in self.doc_store_studies:
+                    put_response = doc_store_api.put_study(study_id=namespaced_id,
+                                                           nexson=nexson,
+                                                           starting_commit_sha=parent_sha,
+                                                           commit_msg='Sync from phylografter')
                     ds_verb = 'PUT'
                 else:
-                    ds_method = doc_store_api.post_study
+                    put_response = doc_store_api.post_study(nexson=nexson,
+                                                            study_id=namespaced_id,
+                                                           commit_msg='Sync from phylografter')
                     ds_verb = 'POST'
-                put_response = ds_method(study_id=namespaced_id,
-                                         nexson=nexson,
-                                         starting_commit_sha=parent_sha)
-                if put_response['error'] != '0':
+                if put_response['error'] != 0:
                     self._failed_study(study, '{}_to_docstore_failed'.format(ds_verb))
+                    _LOG.debug('response = ' + str(put_response))
                     continue
                 if put_response['merge_needed']:
                     unmerged_study_to_sha[study] = put_response['sha']

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from peyotl.utility.io import open_for_group_write
+import codecs
+import stat
 import time
 import os
 from peyotl import get_logger
@@ -17,6 +20,9 @@ class LockPolicy(object):
         '''Returns a pair of bools: lockfile previously existed, lockfile now owned by caller
         '''
         n = 0
+        par_dir = os.path.split(lockfile)[0]
+        if not os.path.exists(par_dir):
+            os.makedirs(par_dir)
         pid = os.getpid()
         previously_existed = False
         while os.path.exists(lockfile):
@@ -33,9 +39,11 @@ class LockPolicy(object):
             o.write(str(pid) + '\n')
             o.close()
         except:
+            _LOG.exception('Could not create lockfile.')
             try:
-                self.remove_lock(lockfile)
+                self._remove_lock(lockfile)
             except:
+                _LOG.exception('Could not remove lockfile.')
                 pass
             return previously_existed, False
         else:
@@ -59,3 +67,4 @@ class LockPolicy(object):
     def _remove_lock(self, lockfile):
         if os.path.exists(lockfile):
             os.remove(lockfile)
+

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from cStringIO import StringIO
+from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config
 import datetime
 import requests
@@ -31,7 +32,7 @@ class APIDomains(object):
         return self._doc_store
     doc_store = property(get_doc_store)
 
-def get_domains_obj():
+def get_domains_obj(**kwargs):
     # hook for config/env-sensitive setting of domains
     api_domains = APIDomains()
     return api_domains
@@ -90,7 +91,7 @@ class _PhylografterWrapper(_WSWrapper):
         args = {'from': since_date}
         return self._get(SUBMIT_URI, params=args)
 
-    def get_nexson(self, study_id):
+    def fetch_nexson(self, study_id, output_filepath=None, store_raw=False):
         '''Calls export_gzipNexSON URL and unzips response.
         Raises HTTP error, gzip module error, or RuntimeError
         '''
@@ -109,9 +110,17 @@ class _PhylografterWrapper(_WSWrapper):
         except:
             raise 
         if isinstance(results, unicode) or isinstance(results, str):
-            return json.loads(results)
+            if output_filepath is None:
+                return json.loads(results)
+            else:
+                if store_raw:
+                    write_to_filepath(results, output_filepath)
+                else:
+                    write_as_json()
+                return True
         raise RuntimeError('gzipped response from phylografter export_gzipNexSON.json, but not a string is:', results)
-
+    # alias fetch_nexson
+    fetch_study = fetch_nexson
 
 def NexsonStore(domains=None):
     return APIWrapper(domains=domains).doc_store

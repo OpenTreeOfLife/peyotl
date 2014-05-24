@@ -10,6 +10,7 @@ Most notable functions are:
 '''
 from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         NexsonConverter, \
+                                        detect_nexson_version, \
                                         get_nexml_el, \
                                         _add_value_to_dict_bf, \
                                         _get_index_list_of_values, \
@@ -119,11 +120,7 @@ def write_obj_as_nexml(obj_dict,
     doc = converter.convert(obj_dict)
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
 
-def detect_nexson_version(blob):
-    '''Returns the nexml2json attribute or the default code for badgerfish'''
-    n = get_nexml_el(blob)
-    assert isinstance(n, dict)
-    return n.get('@nexml2json', BADGER_FISH_NEXSON_VERSION)
+
 def resolve_nexson_format(v):
     if len(v) == 3:
         if v == '1.2':

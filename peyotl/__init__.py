@@ -56,3 +56,4 @@ def iter_node(tree):
     '''Generator over each node object in the tree object.'''
     for nd in tree.get('node', []):
         yield nd
+

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from peyotl.utility.io import open_for_group_write
 import codecs
 import json
 import stat
@@ -33,19 +34,6 @@ def get_previous_list_of_dirty_nexsons(dir_dict):
                'studies': []
         }
     return old['studies'], old
-
-
-def open_for_group_write(fp, mode):
-    '''Open with mode=mode and permissions '-rw-rw-r--' group writable is 
-    the default on some systems/accounts, but it is important that it be present on our deployment machine
-    '''
-    d = os.path.split(fp)[0]
-    if not os.path.exists(d):
-        os.makedirs(d)
-    o = codecs.open(fp, mode, encoding='utf-8')
-    o.flush()
-    os.chmod(fp, stat.S_IRGRP | stat.S_IROTH | stat.S_IRUSR | stat.S_IWGRP | stat.S_IWUSR)
-    return o
 
 def store_state_JSON(s, fp):
     tmpfilename = fp + '.tmpfile'
@@ -130,12 +118,17 @@ class PhylografterNexsonDocStoreSync(object):
         last_merged_sha = None
         doc_store_api = self.doc_store
         phylografter = self.phylografter
+        first_download = True
         try:
             while len(to_download) > 0:
+                if not first_download:
+                    raise NotImplementedError('looping over studies')
+                    time.sleep(self.sleep_between_downloads)
+                first_download = False
                 n = to_download.pop(0)
                 study = str(n)
                 paths = get_processing_paths_from_prefix(study, **self._cfg)
-                nexson = self.download_nexson_from_phylografter(paths)
+                nexson = self.download_nexson_from_phylografter(paths, phylografter)
                 if nexson is None:
                     self._failed_study(study, 'pull_from_phylografter_failed')
                     continue
@@ -164,8 +157,6 @@ class PhylografterNexsonDocStoreSync(object):
                     else:
                         studies_with_final_sha.add(study)
                         last_merged_sha = put_response['sha']
-                if len(to_download) > 0:
-                    time.sleep(self.sleep_between_downloads)
         finally:
             self.record_sha_for_study(studies_with_final_sha,
                                       unmerged_study_to_sha,
@@ -194,7 +185,7 @@ class PhylografterNexsonDocStoreSync(object):
         return to_refresh, new_resp
 
 
-    def download_nexson_from_phylografter(self, paths):
+    def download_nexson_from_phylografter(self, paths, phylografter):
         download_db, lock_policy = self.download_db, self.lock_policy
         nexson_path = paths['nexson']
         lockfile = nexson_path + '.lock'
@@ -203,7 +194,7 @@ class PhylografterNexsonDocStoreSync(object):
             if not owns_lock:
                 return None
             study = paths['study']
-            er = phylografter.get_study(study)
+            er = phylografter.fetch_study(study)
             should_write = False
             if not os.path.exists(nexson_path):
                 should_write = True
@@ -217,7 +208,7 @@ class PhylografterNexsonDocStoreSync(object):
                 try:
                     download_db['studies'].remove(int(study))
                 except:
-                    warn('%s not in %s' % (study, paths['nexson_state_db']))
+                    _LOG.warn('%s not in %s' % (study, paths['nexson_state_db']))
                     pass
                 else:
                     store_state_JSON(download_db, paths['nexson_state_db'])

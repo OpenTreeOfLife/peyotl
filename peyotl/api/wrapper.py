@@ -55,12 +55,33 @@ class APIWrapper(object):
         return self._doc_store
     doc_store = property(get_doc_store)
 
+_CUTOFF_LEN_DETAILED_VIEW = 500
+def _dict_summary(d, name):
+    dk = d.keys()
+    dk.sort()
+    sd = unicode(d)
+    if len(sd) < _CUTOFF_LEN_DETAILED_VIEW:
+        a = []
+        for k in dk:
+            a.extend([repr(k), ': ', repr(d[k]), ', '])
+        return u'%s={%s}' % (name, ''.join(a))
+    return u'%s-keys=%s' % (name, repr(dk))
+
+def _http_method_summary_str(url, verb, headers, params):
+    ps = _dict_summary(params, 'params')
+    hs = _dict_summary(headers, 'headers')
+    return 'error in HTTP {v} verb call to {u} with {p} and {h}'.format(v=verb, u=url, p=ps, h=hs)
+
 class _WSWrapper(object):
     def __init__(self, domain):
         self.domain = domain
     def _get(self, url, headers=_JSON_HEADERS, params=None):
         resp = requests.get(url, params=params, headers=headers)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except:
+            _LOG.exception(_http_method_summary_str(url, 'GET', headers, params))
+            raise
         try:
             return resp.json()
         except:
@@ -79,17 +100,31 @@ class _DocStoreAPIWrapper(_WSWrapper):
 class _PhylografterWrapper(_WSWrapper):
     def __init__(self, domain):
         _WSWrapper.__init__(self, domain)
-    def get_modified_list(self, since_date="2010-01-01T00:00:00"):
+    def get_modified_list(self, since_date="2010-01-01T00:00:00", list_only=True):
         '''Calls phylografter's modified_list.json to fetch
         a list of all studies that have changed since `since_date`
         `since_date` can be a datetime.datetime object or a isoformat
         string representation of the time.
+        If list_only is True, then the caller will just get the
+            list of studies.
+        If list_only is False, the method returns the raw response from
+          phylografter, which is a dictionary with the keys:
+            'from' -> isoformat date stamp
+            'studies' -> []
+            'to' -> isoformat date stamp
+
+        If `since_date` is specified, it should match the
+            '%Y-%m-%dT%H:%M:%S'
+        format
         '''
         if isinstance(since_date, datetime.datetime):
-            since_date = datetime.isoformat(since_date)
+            since_date = since_date.strftime('%Y-%m-%dT%H:%M:%S')
         SUBMIT_URI = self.domain + '/study/modified_list.json/url'
         args = {'from': since_date}
-        return self._get(SUBMIT_URI, params=args)
+        r = self._get(SUBMIT_URI, params=args)
+        if list_only:
+            return r['studies']
+        return r
 
     def fetch_nexson(self, study_id, output_filepath=None, store_raw=False):
         '''Calls export_gzipNexSON URL and unzips response.

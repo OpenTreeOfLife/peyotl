@@ -205,9 +205,9 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
         if opened_out:
             out.close()
 
-def read_as_json(infi):
-    inpf = codecs.open(infi)
-    n = json.load(inpf)
+def read_as_json(infi, encoding='utf-8'):
+    with codecs.open(infi, 'rU', encoding=encoding) as inpf:
+        n = json.load(inpf)
     return n
 
 def _recursive_sort_meta(blob, k):

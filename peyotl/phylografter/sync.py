@@ -192,13 +192,19 @@ class PhylografterNexsonDocStoreSync(object):
                                                                studies_with_final_sha,
                                                                last_merged_sha)
         finally:
-            paths = get_processing_paths_from_prefix('9', **self._cfg)
-            state_db = paths['nexson_state_db']
+            state_db = self._get_nexson_state_db_fp()
             self.record_sha_for_study(studies_with_final_sha,
                                       unmerged_study_to_sha,
                                       last_merged_sha,
                                       state_db)
         return num_downloaded
+    def _get_nexson_state_db_fp(self):
+        paths = get_processing_paths_from_prefix('9', **self._cfg)
+        return paths['nexson_state_db']
+    def _save_state(self):
+        if self.download_db is not None:
+            store_state_JSON(self.download_db, self._get_nexson_state_db_fp())
+
     def _do_push_to_phylesystem(self,
                                 study,
                                 nexson,
@@ -245,7 +251,7 @@ class PhylografterNexsonDocStoreSync(object):
         ss = set(new_resp['studies'])
         ss.update(old_set)
         old['to_download_from_pg'] = ss
-        old['to'] = old['to']
+        old['to'] = new_resp['to']
         store_state_JSON(old, filename)
         to_refresh = list(old['to_download_from_pg'])
         to_refresh.sort()

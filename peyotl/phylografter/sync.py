@@ -132,7 +132,6 @@ class PhylografterNexsonDocStoreSync(object):
         if self.download_db is None:
             return []
         return list(self.download_db.setdefault('to_upload_to_phylesystem', set()))
-
     def find_parent_sha_for_phylografter_nexson(self, study_id, nexson):
         parent_commit_sha = nexson.get('phylesystem_commit_sha')
         if parent_commit_sha is None:

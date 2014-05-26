@@ -177,6 +177,15 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return self._put(SUBMIT_URI,
                          params=params,
                          data=anyjson.dumps({'nexson': nexson}))
+    def phylesystem_config(self):
+        uri = '{d}/phylesystem_config'.format(d=self.domain)
+        return self._get(uri)
+    def external_url(self, study_id):
+        uri = '{d}/external_url/{i}'.format(d=self.domain, i=study_id)
+        return self._get(uri)
+    def get_study(self, study_id):
+        uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
+        return self._get(uri)
 
 class _PhylografterWrapper(_WSWrapper):
     def __init__(self, domain):

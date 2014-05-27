@@ -23,7 +23,13 @@ def get_test_file_names():
     """Get list of test file names."""
     path = os.path.dirname(__file__)
     files = os.listdir(path)
-    return path, files
+    t = []
+    pat = re.compile('^test.*\.py$')
+    for f in files:
+        if pat.match(f):
+            rp = 'peyotl.test.' + f[:-3] # [:-3] to strip ".py"
+            t.append(rp)
+    return t
 
 def get_test_suite(test_file_names=None):
     """

@@ -24,7 +24,7 @@ def get_test_file_names():
     path = os.path.dirname(__file__)
     files = os.listdir(path)
     t = []
-    pat = re.compile('^test.*\.py$')
+    pat = re.compile(r'^test.*\.py$')
     for f in files:
         if pat.match(f):
             rp = 'peyotl.test.' + f[:-3] # [:-3] to strip ".py"

@@ -45,27 +45,25 @@ def _get_logging_level(s=None):
 
 def _get_logging_formatter(s=None):
     if s is None:
-        s == 'NONE'
+        s = 'NONE'
     else:
         s = s.upper()
-    rich_formatter = logging.Formatter("[%(asctime)s] %(filename)s (%(lineno)d): %(levelname) 8s: %(message)s")
-    simple_formatter = logging.Formatter("%(levelname) 8s: %(message)s")
-    raw_formatter = logging.Formatter("%(message)s")
-    default_formatter = None
-    logging_formatter = default_formatter
+    logging_formatter = None
     if s == "RICH":
-        logging_formatter = rich_formatter
+        logging_formatter = logging.Formatter("[%(asctime)s] %(filename)s (%(lineno)d): %(levelname) 8s: %(message)s")
     elif s == "SIMPLE":
-        logging_formatter = simple_formatter
+        logging_formatter = logging.Formatter("%(levelname) 8s: %(message)s")
+    elif s == "RAW":
+        logging_formatter = logging.Formatter("%(message)s")
     else:
         logging_formatter = None
     if logging_formatter is not None:
-        logging_formatter.datefmt='%H:%M:%S'
+        logging_formatter.datefmt = '%H:%M:%S'
     return logging_formatter
 
 
 def read_logging_config():
-    global _READING_LOGGING_CONF, _LOGGING_CONF
+    global _READING_LOGGING_CONF
     level = get_config('logging', 'level', 'WARNING')
     logging_format_name = get_config('logging', 'formatter', 'NONE')
     logging_filepath = get_config('logging', 'filepath', '')
@@ -87,8 +85,8 @@ def get_logger(name="peyotl"):
     if len(logger.handlers) == 0:
         lc = _LOGGING_CONF
         if 'level' not in lc:
-            if _LOGGING_LEVEL_ENVAR in os.environ: # TODO need some easy way to figure out whether we should use env vars or config
-                
+            # TODO need some easy way to figure out whether we should use env vars or config
+            if _LOGGING_LEVEL_ENVAR in os.environ:
                 lc['level_name'] = os.environ.get(_LOGGING_LEVEL_ENVAR)
                 lc['formatter_name'] = os.environ.get(_LOGGING_FORMAT_ENVAR)
                 lc['filepath'] = os.environ.get(_LOGGING_FILE_PATH_ENVAR)

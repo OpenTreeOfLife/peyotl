@@ -2,7 +2,7 @@
 '''Classes for different forms of Warnings and Errors.
 '''
 # An enum of WARNING_CODES
-class NexsonWarningCodes():
+class NexsonWarningCodes(object):
     '''Enumeration of Warning/Error types. For internal use.
 
     NexsonWarningCodes.facets maps int -> warning name.

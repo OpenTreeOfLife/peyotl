@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from cStringIO import StringIO
+from peyotl.nexson_syntax import write_as_json
 from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config
 import datetime
@@ -152,7 +153,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                    nexson,
                    study_id=None,
                    commit_msg=None):
-        assert(nexson is not None)
+        assert nexson is not None
         if study_id is None:
             SUBMIT_URI = '{d}/v1/study'.format(d=self.domain)
         else:
@@ -168,7 +169,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                   nexson,
                   starting_commit_sha,
                   commit_msg=None):
-        assert(nexson is not None)
+        assert nexson is not None
         SUBMIT_URI = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
         params = {'starting_commit_SHA':starting_commit_sha,
                   'auth_token': self.auth_token}
@@ -223,7 +224,7 @@ class _PhylografterWrapper(_WSWrapper):
         if study_id.startswith('pg_'):
             study_id = study_id[3:] #strip pg_ prefix
         SUBMIT_URI = self.domain + '/study/export_gzipNexSON.json/' + study_id
-        _LOG.debug('Downloading %s using "%s"\n' % (study_id, SUBMIT_URI))
+        _LOG.debug('Downloading %s using "%s"\n', study_id, SUBMIT_URI)
         resp = requests.get(SUBMIT_URI,
                             headers=_GZIP_REQUEST_HEADERS,
                             allow_redirects=True)
@@ -233,7 +234,7 @@ class _PhylografterWrapper(_WSWrapper):
                                          fileobj=StringIO(resp.content)).read()
             results = uncompressed
         except:
-            raise 
+            raise
         if isinstance(results, unicode) or isinstance(results, str):
             if output_filepath is None:
                 return json.loads(results)

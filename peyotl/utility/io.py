@@ -7,7 +7,7 @@ import stat
 import os
 
 def open_for_group_write(fp, mode, encoding='utf-8'):
-    '''Open with mode=mode and permissions '-rw-rw-r--' group writable is 
+    '''Open with mode=mode and permissions '-rw-rw-r--' group writable is
     the default on some systems/accounts, but it is important that it be present on our deployment machine
     '''
     d = os.path.split(fp)[0]

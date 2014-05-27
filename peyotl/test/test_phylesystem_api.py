@@ -5,7 +5,6 @@ from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
 import requests
-import copy
 
 _LOG = get_logger(__name__)
 

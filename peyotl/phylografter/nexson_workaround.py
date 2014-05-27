@@ -165,7 +165,7 @@ def _add_defaults(obj):
                 v = tree['^ot:tag']
                 if not isinstance(v, list):
                     tree['^ot:tag'] = [v]
-    
+
 
 def apr_1_2014_workaround_phylografter_export_diffs(obj, out):
     _rec_resource_meta(obj, 'root')
@@ -179,5 +179,7 @@ def workaround_phylografter_export_diffs(obj, out):
     write_as_json(obj, out)
 
 def add_default_prop(obj, out):
-    _add_defaults(obj) # see Jim's comment on https://groups.google.com/forum/?fromgroups&hl=en#!searchin/opentreeoflife-software/tried$20a$20commit/opentreeoflife-software/c8b_rQvUYvA/g1p-yIfmCEcJ
+    # see Jim's comment on 
+    # https://groups.google.com/forum/?fromgroups&hl=en#!searchin/opentreeoflife-software/tried$20a$20commit/opentreeoflife-software/c8b_rQvUYvA/g1p-yIfmCEcJ
+    _add_defaults(obj)
     write_as_json(obj, out)

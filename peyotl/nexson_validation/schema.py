@@ -236,7 +236,7 @@ def check_hbf_meta_str_repeatable(x, obj, k, vc):
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
 
-class _VT:
+class _VT(object):
     '''Value type enum'''
     BOOL = 0
     DICT = 1

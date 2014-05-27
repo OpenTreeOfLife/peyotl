@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.utility.io import open_for_group_write
 from peyotl.nexson_syntax import read_as_json
+import datetime
 import codecs
 import copy
 import json
@@ -24,7 +25,7 @@ def get_processing_paths_from_prefix(pref,
 
 def get_previous_set_of_dirty_nexsons(dir_dict):
     '''Returns the previous list of studies to be fetch and dict that contains that list and timestamps.
-    The dict will be populated from the filepath `dir_dict['nexson_state_db']` if that entry is not 
+    The dict will be populated from the filepath `dir_dict['nexson_state_db']` if that entry is not
     found then a default dict of no studies and old timestamps will be returned.
     '''
     filename = dir_dict['nexson_state_db']
@@ -37,7 +38,7 @@ def get_previous_set_of_dirty_nexsons(dir_dict):
     else:
         assert False
         old = {'from': '2010-01-01T00:00:00',
-               'to': datet,
+               'to': datetime.datetime.now(),
                'to_download_from_pg': [],
                'to_upload_to_phylesystem': [],
         }
@@ -63,7 +64,7 @@ class PhylografterNexsonDocStoreSync(object):
                  lock_policy=None,
                  api_wrapper=None,
                  sleep_between_downloads=None):
-        '''Configures an object for controlling the 
+        '''Configures an object for controlling the
         synchronization between phylografter and the NexSON Document Store API.
 
         `cfg_file_paths` should be a dict with:
@@ -162,6 +163,8 @@ class PhylografterNexsonDocStoreSync(object):
         self.doc_store_studies = set(self.doc_store.study_list())
         try:
             while len(to_download) > 0:
+                if not first_download:
+                    time.sleep(self.sleep_between_downloads)
                 first_download = False
                 n = to_download.pop(0)
                 study = str(n)
@@ -308,7 +311,7 @@ class PhylografterNexsonDocStoreSync(object):
                              last_merged_sha,
                              state_db):
         '''So that the edit history of a file is accurate, we need to store the new parent SHA for any
-        future updates. For studies that merged to master, this will be the last_merged_sha. 
+        future updates. For studies that merged to master, this will be the last_merged_sha.
         Other studies should be in the unmerged_study_to_sha dict
         '''
         if self.download_db is None:

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from peyotl.utility.io import open_for_group_write
-import codecs
 import time
 import os
 from peyotl import get_logger
@@ -29,7 +28,7 @@ class LockPolicy(object):
             n += 1
             if self.early_exit_if_locked or n > self.max_num_sleep:
                 return True, False
-            _LOG.debug('Waiting for "%s" iter %d\n' % (lockfile, n))
+            _LOG.debug('Waiting for "%s" iter %d\n', lockfile, n)
             time.sleep(self.sleep_time)
         if previously_existed and self.wait_do_not_relock_if_locked:
             return True, False
@@ -43,7 +42,6 @@ class LockPolicy(object):
                 self._remove_lock(lockfile)
             except:
                 _LOG.exception('Could not remove lockfile.')
-                pass
             return previously_existed, False
         else:
             return previously_existed, True
@@ -51,11 +49,10 @@ class LockPolicy(object):
         t = self._wait_for_lock(lockfile)
         self.curr_lockfile = lockfile
         self.curr_was_locked, self.curr_owns_lock = t
-        _LOG.debug('Lockfile = "%s" was_locked=%s owns_lock=%s\n'% 
-                    (lockfile, 
-                     "TRUE" if self.curr_was_locked else "FALSE",
-                     "TRUE" if self.curr_owns_lock else "FALSE",
-                     ))
+        _LOG.debug('Lockfile = "%s" was_locked=%s owns_lock=%s\n',
+                    lockfile,
+                    "TRUE" if self.curr_was_locked else "FALSE",
+                    "TRUE" if self.curr_owns_lock else "FALSE")
         return t
     def remove_lock(self):
         try:

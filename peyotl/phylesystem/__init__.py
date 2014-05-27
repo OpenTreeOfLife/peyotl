@@ -219,7 +219,7 @@ class PhylesystemShard(object):
             for k in self._study_index.keys():
                 if k.startswith(prefix):
                     try:
-                        pn = int(k[3:])
+                        pn = int(k[lp:])
                         if pn > n:
                             n = pn
                     except:
@@ -253,7 +253,7 @@ class PhylesystemShard(object):
             with self._study_counter_lock:
                 c = self._next_study_id
                 self._next_study_id = 1 + c
-            #@TODO. This form of incrementing assumes that 
+            #@TODO. This form of incrementing assumes that
             #   this codebase is the only service minting
             #   new study IDs!
             new_study_id = "ot_{c:d}".format(c=c)
@@ -315,8 +315,8 @@ class PhylesystemShard(object):
                     pass
 
     def write_configuration(self, out, secret_attrs=False):
-        key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json', 
-                    'git_ssh','pkey', 'has_aliases', '_next_study_id',
+        key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json',
+                    'git_ssh', 'pkey', 'has_aliases', '_next_study_id',
                     'number of studies']
         cd = self.get_configuration_dict(secret_attrs=secret_attrs)
         for k in key_order:
@@ -462,8 +462,9 @@ class _Phylesystem(object):
         elif repos_par is not None:
             self._filepath_args = 'repos_par = {}'.format(repr(repos_par))
         else:
-            self._filepath_args = '<No arg> default phylesystem_parent from {}'.format(_get_phylesystem_parent_with_source()[1])
-        
+            fmt = '<No arg> default phylesystem_parent from {}'
+            a = _get_phylesystem_parent_with_source()[1]
+            self._filepath_args = fmt.format(a)
         push_mirror_repos_par = None
         push_mirror_remote_map = {}
         if mirror_info:

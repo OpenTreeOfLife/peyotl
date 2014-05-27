@@ -63,7 +63,7 @@ def get_filepath_for_namespaced_id(repo_dir, study_id):
 def get_filepath_for_simple_id(repo_dir, study_id):
     return '{r}/study/{s}/{s}.json'.format(r=repo_dir, s=study_id)
 
-class RepoLock():
+class RepoLock(object):
     def __init__(self, lock):
         self._lock = lock
     def __enter__(self):

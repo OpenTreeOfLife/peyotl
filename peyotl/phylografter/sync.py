@@ -260,16 +260,17 @@ class PhylografterNexsonDocStoreSync(object):
         return to_refresh, old
 
     def _read_cached_or_refetch(self, paths, phylografter):
-        download_db, lock_policy = self.download_db, self.lock_policy
+        lock_policy = self.lock_policy
         nexson_path = paths['nexson']
         lockfile = nexson_path + '.lock'
-        was_locked, owns_lock = lock_policy.wait_for_lock(lockfile)
+        owns_lock = lock_policy.wait_for_lock(lockfile)[1]
         nexson = None
         try:
             if os.path.exists(nexson_path):
                 nexson = read_as_json(nexson_path)
         finally:
-            lock_policy.remove_lock()
+            if owns_lock:
+                lock_policy.remove_lock()
         if nexson is None:
             return self.download_nexson_from_phylografter(paths, phylografter)
         return nexson
@@ -278,7 +279,7 @@ class PhylografterNexsonDocStoreSync(object):
         download_db, lock_policy = self.download_db, self.lock_policy
         nexson_path = paths['nexson']
         lockfile = nexson_path + '.lock'
-        was_locked, owns_lock = lock_policy.wait_for_lock(lockfile)
+        owns_lock = lock_policy.wait_for_lock(lockfile)[1]
         try:
             if not owns_lock:
                 return None
@@ -297,8 +298,7 @@ class PhylografterNexsonDocStoreSync(object):
                 try:
                     download_db['to_download_from_pg'].remove(study)
                 except:
-                    _LOG.warn('%s not in %s' % (study, paths['nexson_state_db']))
-                    pass
+                    _LOG.warn('%s not in %s', study, paths['nexson_state_db'])
                 else:
                     store_state_JSON(download_db, paths['nexson_state_db'])
         finally:

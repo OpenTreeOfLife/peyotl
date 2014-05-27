@@ -24,6 +24,7 @@ class APIDomains(object):
     def __init__(self):
         self._phylografter = 'http://www.reelab.net/phylografter'
         self._doc_store = None
+        self._taxomachine = None
     def get_phylografter(self):
         return self._phylografter
     phylografter = property(get_phylografter)
@@ -34,6 +35,13 @@ class APIDomains(object):
                 raise RuntimeError('[apis] / doc_store config setting required')
         return self._doc_store
     doc_store = property(get_doc_store)
+    def get_taxomachine(self):
+        if self._taxomachine is None:
+            self._taxomachine = get_config('apis', 'taxomachine')
+            if self._taxomachine is None:
+                raise RuntimeError('[apis] / taxomachine config setting required')
+        return self._taxomachine
+    taxomachine = property(get_taxomachine)
 
 def get_domains_obj(**kwargs):
     # hook for config/env-sensitive setting of domains
@@ -47,6 +55,7 @@ class APIWrapper(object):
         self.domains = domains
         self._phylografter = None
         self._doc_store = None
+        self._taxomachine = None
     def get_phylografter(self):
         if self._phylografter is None:
             self._phylografter = _PhylografterWrapper(self.domains.phylografter)
@@ -57,6 +66,11 @@ class APIWrapper(object):
             self._doc_store = _DocStoreAPIWrapper(self.domains.doc_store)
         return self._doc_store
     doc_store = property(get_doc_store)
+    def get_taxomachine(self):
+        if self._taxomachine is None:
+            self._taxomachine = _TaxomachineAPIWrapper(self.domains.taxomachine)
+        return self._taxomachine
+    taxomachine = property(get_taxomachine)
 
 _CUTOFF_LEN_DETAILED_VIEW = 500
 def _dict_summary(d, name):
@@ -78,8 +92,10 @@ def _http_method_summary_str(url, verb, headers, params, data=None):
     hs = _dict_summary(headers, 'headers')
     if data is None:
         ds = 'None'
-    else:
+    elif isinstance(data, str) or isinstance(data, unicode):
         ds = _dict_summary(anyjson.loads(data), 'data')
+    else:
+        ds = _dict_summary(data, 'data')
     fmt = 'error in HTTP {v} verb call to {u} with {p}, data={d} and {h}'
     return fmt.format(v=verb, u=url, p=ps, h=hs, d=ds)
 
@@ -188,6 +204,21 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
         return self._get(uri)
 
+class _TaxomachineAPIWrapper(_WSWrapper):
+    def __init__(self, domain):
+        _WSWrapper.__init__(self, domain)
+        self.prefix = '{d}/taxomachine/ext/TNRS/graphdb'.format(d=self.domain)
+    def contexts(self):
+        uri = '{p}/getContextsJSON'.format(p=self.prefix)
+        return self._post(uri)
+    def TNRS(self, name, contextName=None):
+        uri = '{p}/autocompleteBoxQuery'.format(p=self.prefix)
+        data = {'queryString': name}
+        if contextName:
+            data['contextName'] = contextName
+        return self._post(uri, data=anyjson.dumps(data))
+        
+
 class _PhylografterWrapper(_WSWrapper):
     def __init__(self, domain):
         _WSWrapper.__init__(self, domain)
@@ -253,3 +284,6 @@ def NexsonStore(domains=None):
 
 def Phylografter(domains=None):
     return APIWrapper(domains=domains).phylografter
+
+def Taxomachine(domains=None):
+    return APIWrapper(domains=domains).taxomachine

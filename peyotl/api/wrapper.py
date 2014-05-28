@@ -25,6 +25,7 @@ class APIDomains(object):
         self._phylografter = 'http://www.reelab.net/phylografter'
         self._doc_store = None
         self._taxomachine = None
+        self._treemachine = None
     def get_phylografter(self):
         return self._phylografter
     phylografter = property(get_phylografter)
@@ -42,6 +43,13 @@ class APIDomains(object):
                 raise RuntimeError('[apis] / taxomachine config setting required')
         return self._taxomachine
     taxomachine = property(get_taxomachine)
+    def get_treemachine(self):
+        if self._treemachine is None:
+            self._treemachine = get_config('apis', 'treemachine')
+            if self._treemachine is None:
+                raise RuntimeError('[apis] / treemachine config setting required')
+        return self._treemachine
+    treemachine = property(get_treemachine)
 
 def get_domains_obj(**kwargs):
     # hook for config/env-sensitive setting of domains
@@ -56,6 +64,7 @@ class APIWrapper(object):
         self._phylografter = None
         self._doc_store = None
         self._taxomachine = None
+        self._treemachine = None
     def get_phylografter(self):
         if self._phylografter is None:
             self._phylografter = _PhylografterWrapper(self.domains.phylografter)
@@ -71,6 +80,11 @@ class APIWrapper(object):
             self._taxomachine = _TaxomachineAPIWrapper(self.domains.taxomachine)
         return self._taxomachine
     taxomachine = property(get_taxomachine)
+    def get_treemachine(self):
+        if self._treemachine is None:
+            self._treemachine = _TreemachineAPIWrapper(self.domains.treemachine)
+        return self._treemachine
+    treemachine = property(get_treemachine)
 
 _CUTOFF_LEN_DETAILED_VIEW = 500
 def _dict_summary(d, name):
@@ -217,7 +231,37 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         if contextName:
             data['contextName'] = contextName
         return self._post(uri, data=anyjson.dumps(data))
-        
+
+class _TreemachineAPIWrapper(_WSWrapper):
+    def __init__(self, domain):
+        _WSWrapper.__init__(self, domain)
+        self.prefix = '{d}/treemachine/ext/GoLS/graphdb'.format(d=self.domain)
+    def getSyntheticTreeInfo(self):
+        uri = '{p}/getDraftTreeID'.format(p=self.prefix)
+        return self._post(uri)
+    def getSourceTreesIDList(self):
+        uri = '{p}/getSourceTreeIDs'.format(p=self.prefix)
+        return self._post(uri)
+    def  getSynthesisSourceList(self):
+        uri = '{p}/ getSynthesisSourceList'.format(p=self.prefix)
+        return self._post(uri)
+    def getSourceTree(self, treeID, format='newick', nodeID=None, maxDepth=None):
+        uri = '{p}/getSourceTree'.format(p=self.prefix)
+        return self._get_tree(uri, treeID, format=format, nodeID=nodeID, maxDepth=maxDepth)
+    def getSyntheticTree(self, treeID, format='newick', nodeID=None, maxDepth=None):
+        uri = '{p}/getSourceTree'.format(p=self.prefix)
+        return self._get_tree(uri, treeID, format=format, nodeID=nodeID, maxDepth=maxDepth)
+    def _get_tree(self, uri, treeID, format='newick', nodeID=None, maxDepth=None):
+        format_list = ['newick', 'arguson']
+        if format.lower() not in format_list:
+            raise ValueError('Tree "format" must be a value in {}'.format(repr(format_list)))
+        data = {'treeID': treeID,
+                'format': format}
+        if nodeID is not None:
+            data['subtreeNodeID'] = nodeID
+        if maxDepth is not None:
+            data['maxDepthArg'] = maxDepth
+        return self._post(uri, data=anyjson.dumps(data))
 
 class _PhylografterWrapper(_WSWrapper):
     def __init__(self, domain):
@@ -287,3 +331,6 @@ def Phylografter(domains=None):
 
 def Taxomachine(domains=None):
     return APIWrapper(domains=domains).taxomachine
+
+def Treemachine(domains=None):
+    return APIWrapper(domains=domains).treemachine

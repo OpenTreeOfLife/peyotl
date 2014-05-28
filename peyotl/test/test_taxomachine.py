@@ -12,9 +12,8 @@ class TestDictDiff(unittest.TestCase):
         self.taxomachine = Taxomachine(d)
     def testContexts(self):
         cdict = self.taxomachine.contexts()
-        print cdict
         self.assertTrue('PLANTS' in cdict)
-    def xtestBogusName(self):
+    def testBogusName(self):
         resp = self.taxomachine.TNRS('bogustaxonomicname')
         self.assertEqual(resp, [])
     def testSkunkName(self):

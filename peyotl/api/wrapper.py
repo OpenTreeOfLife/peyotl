@@ -1,18 +1,15 @@
 #!/usr/bin/env python
-from cStringIO import StringIO
 from peyotl.nexson_syntax import write_as_json
 from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config
-import datetime
 import requests
 import anyjson
 import json
-import gzip
 import os
 from peyotl import get_logger
 _LOG = get_logger(__name__)
 
-_GZIP_REQUEST_HEADERS = {
+GZIP_REQUEST_HEADERS = {
     'accept-encoding' : 'gzip',
     'content-type' : 'application/json',
     'accept' : 'application/json',
@@ -66,6 +63,7 @@ class APIWrapper(object):
         self._taxomachine = None
         self._treemachine = None
     def get_phylografter(self):
+        from peyotl.api.phylografter import _PhylografterWrapper
         if self._phylografter is None:
             self._phylografter = _PhylografterWrapper(self.domains.phylografter)
         return self._phylografter
@@ -225,69 +223,6 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
         return self._get(uri)
 
-class _PhylografterWrapper(_WSWrapper):
-    def __init__(self, domain):
-        _WSWrapper.__init__(self, domain)
-    def get_modified_list(self, since_date="2010-01-01T00:00:00", list_only=True):
-        '''Calls phylografter's modified_list.json to fetch
-        a list of all studies that have changed since `since_date`
-        `since_date` can be a datetime.datetime object or a isoformat
-        string representation of the time.
-        If list_only is True, then the caller will just get the
-            list of studies.
-        If list_only is False, the method returns the raw response from
-          phylografter, which is a dictionary with the keys:
-            'from' -> isoformat date stamp
-            'studies' -> []
-            'to' -> isoformat date stamp
-
-        If `since_date` is specified, it should match the
-            '%Y-%m-%dT%H:%M:%S'
-        format
-        '''
-        if isinstance(since_date, datetime.datetime):
-            since_date = since_date.strftime('%Y-%m-%dT%H:%M:%S')
-        SUBMIT_URI = self.domain + '/study/modified_list.json/url'
-        args = {'from': since_date}
-        r = self._get(SUBMIT_URI, params=args)
-        if list_only:
-            return r['studies']
-        return r
-
-    def fetch_nexson(self, study_id, output_filepath=None, store_raw=False):
-        '''Calls export_gzipNexSON URL and unzips response.
-        Raises HTTP error, gzip module error, or RuntimeError
-        '''
-        if study_id.startswith('pg_'):
-            study_id = study_id[3:] #strip pg_ prefix
-        SUBMIT_URI = self.domain + '/study/export_gzipNexSON.json/' + study_id
-        _LOG.debug('Downloading %s using "%s"\n', study_id, SUBMIT_URI)
-        resp = requests.get(SUBMIT_URI,
-                            headers=_GZIP_REQUEST_HEADERS,
-                            allow_redirects=True)
-        resp.raise_for_status()
-        try:
-            uncompressed = gzip.GzipFile(mode='rb',
-                                         fileobj=StringIO(resp.content)).read()
-            results = uncompressed
-        except:
-            raise
-        if isinstance(results, unicode) or isinstance(results, str):
-            if output_filepath is None:
-                return json.loads(results)
-            else:
-                if store_raw:
-                    write_to_filepath(results, output_filepath)
-                else:
-                    write_as_json()
-                return True
-        raise RuntimeError('gzipped response from phylografter export_gzipNexSON.json, but not a string is:', results)
-    # alias fetch_nexson
-    fetch_study = fetch_nexson
-
 def NexsonStore(domains=None):
     return APIWrapper(domains=domains).doc_store
-
-def Phylografter(domains=None):
-    return APIWrapper(domains=domains).phylografter
 

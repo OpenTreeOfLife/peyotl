@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import anyjson
+from peyotl import get_logger
+_LOG = get_logger(__name__)
 
 class _TaxomachineAPIWrapper(_WSWrapper):
     '''Wrapper around interactions with the taxomachine TNRS.

@@ -164,7 +164,7 @@ def check_hbf_meta_int(x, obj, k, vc):
         return check_obj_meta_int(x, obj, k, vc)
     return check_raw_int(x, obj, k, vc)
 def check_raw_float(x, obj, k, vc):
-    return  __TRUE_VAL if (isinstance(x, float)) else __FALSE_FLOAT
+    return  __TRUE_VAL if (isinstance(x, float) or isinstance(x, int)) else __FALSE_FLOAT
 def check_obj_meta_float(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)

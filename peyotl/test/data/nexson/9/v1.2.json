@@ -687,7 +687,7 @@
 "edgeBySourceId": {
 "node1": {
 "edge2": {
-"@length": 0.072146, 
+"@length": 1, 
 "@source": "node1", 
 "@target": "node2"
 }, 

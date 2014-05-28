@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.api import Treemachine
+from peyotl.api import Treemachine, Taxomachine
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
@@ -8,8 +8,8 @@ _LOG = get_logger(__name__)
 
 class TestTreemachine(unittest.TestCase):
     def setUp(self):
-        d = get_test_ot_service_domains()
-        self.treemachine = Treemachine(d)
+        self.domains = get_test_ot_service_domains()
+        self.treemachine = Treemachine(self.domains)
     def testSynthTree(self):
         cdict = self.treemachine.getSyntheticTreeInfo()
         for key in ['draftTreeName', 'startNodeTaxName', 'startNodeID', 'startNodeOTTId']:
@@ -29,6 +29,8 @@ class TestTreemachine(unittest.TestCase):
         r = self.treemachine.getSourceTree(f)
         self.assertEqual(r['treeID'], f)
         self.assertTrue(r['newick'].startswith('('))
+    def testSearchForTaxon(self):
+        taxomachine = Taxomachine(self.domains)
 
 if __name__ == "__main__":
     unittest.main()

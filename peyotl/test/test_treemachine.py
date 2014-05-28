@@ -15,10 +15,14 @@ class TestTreemachine(unittest.TestCase):
         for key in ['draftTreeName', 'startNodeTaxName', 'startNodeID', 'startNodeOTTId']:
             self.assertTrue(key in cdict)
         treeID = cdict['draftTreeName']
-        nodeID = str(cdict['startNodeID'])
-        x = self.treemachine.getSyntheticTree(treeID, format='arguson', nodeID=nodeID, maxDepth=2)
-        print x
-    def xtestSourceTree(self):
+        nodeID = str(cdict['startNodeID']) # Odd that this is a string
+        x = self.treemachine.getSyntheticTree(treeID,
+                                              format='newick',
+                                              nodeID=nodeID,
+                                              maxDepth=2)
+        self.assertEqual(x['treeID'], treeID)
+        self.assertTrue(x['newick'].startswith('('))
+    def testSourceTree(self):
         source_id_list = self.treemachine.getSourceTreesIDList()
         self.assertTrue(isinstance(source_id_list, list))
         f = source_id_list[0]

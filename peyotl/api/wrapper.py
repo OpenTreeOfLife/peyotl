@@ -249,7 +249,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
         uri = '{p}/getSourceTree'.format(p=self.prefix)
         return self._get_tree(uri, treeID, format=format, nodeID=nodeID, maxDepth=maxDepth)
     def getSyntheticTree(self, treeID, format='newick', nodeID=None, maxDepth=None):
-        uri = '{p}/getSourceTree'.format(p=self.prefix)
+        uri = '{p}/getSyntheticTree'.format(p=self.prefix)
         return self._get_tree(uri, treeID, format=format, nodeID=nodeID, maxDepth=maxDepth)
     def _get_tree(self, uri, treeID, format='newick', nodeID=None, maxDepth=None):
         format_list = ['newick', 'arguson']
@@ -261,7 +261,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
             data['subtreeNodeID'] = nodeID
         if maxDepth is not None:
             data['maxDepthArg'] = maxDepth
-        return self._post(uri, data=anyjson.dumps(data))
+        return self._post(uri, data=json.dumps(data))
 
 class _PhylografterWrapper(_WSWrapper):
     def __init__(self, domain):

@@ -130,6 +130,7 @@ class _WSWrapper(object):
         except:
             return resp.json
     def _post(self, url, headers=_JSON_HEADERS, params=None, data=None):
+        # _LOG.debug('POSTing:\n' + _http_method_summary_str(url, 'PUT', headers=headers, params=params, data=data))
         resp = requests.post(url, params=params, headers=headers, data=data)
         try:
             resp.raise_for_status()

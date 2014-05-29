@@ -49,14 +49,15 @@ class _TaxomachineAPIWrapper(_WSWrapper):
     
     https://github.com/OpenTreeOfLife/opentree/blob/master/neo4j_services_docs.md
 
-    NOTES
-        need a get_OTT_version method in taxomachine.
+    NOTES:
+        Do we need a get_OTT_version method in taxomachine?
         contextQueryForNames args are confusing
-        includeDublious for autocompleteBoxQuery ?
-        use case for getContextForNames
+        do we want an "includeDubious" for autocompleteBoxQuery ?
+        What is the use case for getContextForNames
         Is there a use case for getNodeIDJSONFromName if we don't support CQL?
         Is there any significance to the order of return for autocompleteBoxQuery ?
-    ott wrapper to add:
+        is the "name" in the autocompleteBoxQuery return the uniqname from OTT or name?
+    OTT wrapper to add:
         synonym finder ?
         parent taxon ?
         homonym finder ?

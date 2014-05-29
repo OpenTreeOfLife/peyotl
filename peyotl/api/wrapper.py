@@ -19,13 +19,18 @@ _JSON_HEADERS = {'content-type': 'application/json'}
 
 class APIDomains(object):
     def __init__(self):
+        self._oti = None
         self._phylografter = 'http://www.reelab.net/phylografter'
         self._phylesystem_api = None
         self._taxomachine = None
         self._treemachine = None
-    def get_phylografter(self):
-        return self._phylografter
-    phylografter = property(get_phylografter)
+    def get_oti(self):
+        if self._oti is None:
+            self._oti = get_config('apis', 'oti')
+            if self._oti is None:
+                raise RuntimeError('[apis] / oti config setting required')
+        return self._oti
+    oti = property(get_oti)
     def get_phylesystem_api(self):
         if self._phylesystem_api is None:
             self._phylesystem_api = get_config('apis', 'phylesystem_api')
@@ -33,6 +38,9 @@ class APIDomains(object):
                 raise RuntimeError('[apis] / phylesystem_api config setting required')
         return self._phylesystem_api
     phylesystem_api = property(get_phylesystem_api)
+    def get_phylografter(self):
+        return self._phylografter
+    phylografter = property(get_phylografter)
     def get_taxomachine(self):
         if self._taxomachine is None:
             self._taxomachine = get_config('apis', 'taxomachine')
@@ -62,18 +70,25 @@ class APIWrapper(object):
         self._phylesystem_api = None
         self._taxomachine = None
         self._treemachine = None
-    def get_phylografter(self):
-        from peyotl.api.phylografter import _PhylografterWrapper
-        if self._phylografter is None:
-            self._phylografter = _PhylografterWrapper(self.domains.phylografter)
-        return self._phylografter
-    phylografter = property(get_phylografter)
+        self._oti = None
+    def get_oti(self):
+        from peyotl.api.oti import _OTIWrapper
+        if self._oti is None:
+            self._oti = _OTIWrapper(self.domains.oti)
+        return self._oti
+    oti = property(get_oti)
     def get_phylesystem_api(self):
         from peyotl.api.phylesystem_api import _PhylesystemAPIWrapper
         if self._phylesystem_api is None:
             self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api)
         return self._phylesystem_api
     phylesystem_api = property(get_phylesystem_api)
+    def get_phylografter(self):
+        from peyotl.api.phylografter import _PhylografterWrapper
+        if self._phylografter is None:
+            self._phylografter = _PhylografterWrapper(self.domains.phylografter)
+        return self._phylografter
+    phylografter = property(get_phylografter)
     def get_taxomachine(self):
         from peyotl.api.taxomachine import _TaxomachineAPIWrapper
         if self._taxomachine is None:

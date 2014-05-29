@@ -17,8 +17,8 @@ class TestTreemachine(unittest.TestCase):
         ottId = anolis_taxon[0]['ottId']
         node_id = self.treemachine.get_node_id_for_ott_id(ottId)
         x = self.treemachine.get_synthetic_tree(format='newick', node_id=node_id, max_depth=12)
-        print '{};'.format(x['newick'])
-class T:
+        #print '{};'.format(x['newick'])
+
     def testSynthTree(self):
         cdict = self.treemachine.get_synthetic_tree_info()
         for key in ['draftTreeName', 'startNodeTaxName', 'startNodeID', 'startNodeOTTId']:

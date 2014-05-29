@@ -86,7 +86,7 @@ class PhylografterNexsonDocStoreSync(object):
             from peyotl.api import APIWrapper
             api_wrapper = APIWrapper()
         self.phylografter = api_wrapper.phylografter
-        self.doc_store = api_wrapper.doc_store
+        self.phylesystem_api = api_wrapper.phylesystem_api
         if sleep_between_downloads is None:
             sleep_between_downloads = float(os.environ.get('SLEEP_BETWEEN_DOWNLOADS_TIME', 0.5))
         self.sleep_between_downloads = sleep_between_downloads
@@ -161,7 +161,7 @@ class PhylografterNexsonDocStoreSync(object):
         last_merged_sha = None
         phylografter = self.phylografter
         first_download = True
-        self.doc_store_studies = set(self.doc_store.study_list())
+        self.phylesystem_api_studies = set(self.phylesystem_api.study_list())
         try:
             while len(to_download) > 0:
                 if not first_download:
@@ -220,14 +220,14 @@ class PhylografterNexsonDocStoreSync(object):
         # correct any disagreements between phylografter and what the peyotl 
         #   validator expects...
         workaround_phylografter_nexson(nexson) 
-        if namespaced_id in self.doc_store_studies:
-            put_response = self.doc_store.put_study(study_id=namespaced_id,
+        if namespaced_id in self.phylesystem_api_studies:
+            put_response = self.phylesystem_api.put_study(study_id=namespaced_id,
                                                     nexson=nexson,
                                                     starting_commit_sha=parent_sha,
                                                     commit_msg='Sync from phylografter')
             ds_verb = 'PUT'
         else:
-            put_response = self.doc_store.post_study(nexson=nexson,
+            put_response = self.phylesystem_api.post_study(nexson=nexson,
                                                      study_id=namespaced_id,
                                                      commit_msg='Sync from phylografter')
             ds_verb = 'POST'

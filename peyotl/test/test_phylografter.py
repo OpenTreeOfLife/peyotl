@@ -8,7 +8,7 @@ import copy
 
 _LOG = get_logger(__name__)
 
-class TestDictDiff(unittest.TestCase):
+class TestPhylografterAPI(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()
         self.phylografter = Phylografter(d)

@@ -20,19 +20,19 @@ _JSON_HEADERS = {'content-type': 'application/json'}
 class APIDomains(object):
     def __init__(self):
         self._phylografter = 'http://www.reelab.net/phylografter'
-        self._doc_store = None
+        self._phylesystem_api = None
         self._taxomachine = None
         self._treemachine = None
     def get_phylografter(self):
         return self._phylografter
     phylografter = property(get_phylografter)
-    def get_doc_store(self):
-        if self._doc_store is None:
-            self._doc_store = get_config('apis', 'doc_store')
-            if self._doc_store is None:
-                raise RuntimeError('[apis] / doc_store config setting required')
-        return self._doc_store
-    doc_store = property(get_doc_store)
+    def get_phylesystem_api(self):
+        if self._phylesystem_api is None:
+            self._phylesystem_api = get_config('apis', 'phylesystem_api')
+            if self._phylesystem_api is None:
+                raise RuntimeError('[apis] / phylesystem_api config setting required')
+        return self._phylesystem_api
+    phylesystem_api = property(get_phylesystem_api)
     def get_taxomachine(self):
         if self._taxomachine is None:
             self._taxomachine = get_config('apis', 'taxomachine')
@@ -59,7 +59,7 @@ class APIWrapper(object):
             domains = get_domains_obj()
         self.domains = domains
         self._phylografter = None
-        self._doc_store = None
+        self._phylesystem_api = None
         self._taxomachine = None
         self._treemachine = None
     def get_phylografter(self):
@@ -68,11 +68,11 @@ class APIWrapper(object):
             self._phylografter = _PhylografterWrapper(self.domains.phylografter)
         return self._phylografter
     phylografter = property(get_phylografter)
-    def get_doc_store(self):
-        if self._doc_store is None:
-            self._doc_store = _DocStoreAPIWrapper(self.domains.doc_store)
-        return self._doc_store
-    doc_store = property(get_doc_store)
+    def get_phylesystem_api(self):
+        if self._phylesystem_api is None:
+            self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api)
+        return self._phylesystem_api
+    phylesystem_api = property(get_phylesystem_api)
     def get_taxomachine(self):
         from peyotl.api.taxomachine import _TaxomachineAPIWrapper
         if self._taxomachine is None:
@@ -162,7 +162,7 @@ class _WSWrapper(object):
         self._domain = d
     domain = property(get_domain, set_domain)
 
-class _DocStoreAPIWrapper(_WSWrapper):
+class _PhylesystemAPIWrapper(_WSWrapper):
     def __init__(self, domain):
         _WSWrapper.__init__(self, domain)
         self._github_oauth_token = None
@@ -224,6 +224,6 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
         return self._get(uri)
 
-def NexsonStore(domains=None):
-    return APIWrapper(domains=domains).doc_store
+def PhylesystemAPI(domains=None):
+    return APIWrapper(domains=domains).phylesystem_api
 

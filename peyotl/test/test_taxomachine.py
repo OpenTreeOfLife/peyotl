@@ -6,7 +6,7 @@ import unittest
 
 _LOG = get_logger(__name__)
 
-class TestDictDiff(unittest.TestCase):
+class TestTaxomachine(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()
         self.taxomachine = Taxomachine(d)

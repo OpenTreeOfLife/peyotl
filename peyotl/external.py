@@ -101,10 +101,9 @@ def get_ot_study_info_from_treebase_nexml(src=None,
             del otu['@label']
             al = otu.get(SKOS_ALT_LABEL)
             if al is not None:
-                if isinstance(al, dict):
-                    otu[SKOS_ALT_LABEL]['source'] = 'TreeBase'
-                else:
-                    otu[SKOS_ALT_LABEL] = {'$': al, 'source': 'TreeBase'}
+                if otu.get('^ot:altLabel') is None:
+                    otu['^ot:altLabel'] = al
+                del otu[SKOS_ALT_LABEL]
             tl = {}
             scm = otu.get(SKOS_CLOSE_MATCH)
             #_LOG.debug('scm = ' + str(scm))

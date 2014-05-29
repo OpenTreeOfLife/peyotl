@@ -96,10 +96,7 @@
 "@tb:identifier.taxonVariant": 834970, 
 "@ubio": "3558009"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia cylindrata", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia cylindrata"
 }, 
 "Tl1422292": {
 "^ot:originalLabel": "Psechrus clavis F Taichung TAIWAN 891"
@@ -112,10 +109,7 @@
 "@ubio": "3580623", 
 "@uniprot": "332765"
 }, 
-"^skos:altLabel": {
-"$": "Alopecosa kochi", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Alopecosa kochi"
 }, 
 "Tl1422294": {
 "^ot:originalLabel": "Alopecosa hirtipes GU683933", 
@@ -124,10 +118,7 @@
 "@tb:identifier.taxonVariant": 834971, 
 "@ubio": "3548185"
 }, 
-"^skos:altLabel": {
-"$": "Alopecosa hirtipes", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Alopecosa hirtipes"
 }, 
 "Tl1422295": {
 "^ot:originalLabel": "Psechrus clavis M Nantou TAIWAN 881"
@@ -139,10 +130,7 @@
 "@tb:identifier.taxonVariant": 112420, 
 "@ubio": "3586663"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia ochracea", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia ochracea"
 }, 
 "Tl1422297": {
 "^ot:originalLabel": "Psechrus ancoralis M NamHaPA LAOS 991"
@@ -185,10 +173,7 @@
 "@ubio": "3549661", 
 "@uniprot": "93691"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus sinensis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus sinensis"
 }, 
 "Tl1422307": {
 "^ot:originalLabel": "Psechrus clavis Saf Taichung TAIWAN 895"
@@ -221,10 +206,7 @@
 "@tb:identifier.taxonVariant": 834972, 
 "@ubio": "3558033"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus rani", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus rani"
 }, 
 "Tl1422316": {
 "^ot:originalLabel": "Fecenia cylindrata F NogHoy Champasak LAOS 1044", 
@@ -233,10 +215,7 @@
 "@tb:identifier.taxonVariant": 834970, 
 "@ubio": "3558009"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia cylindrata", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia cylindrata"
 }, 
 "Tl1422317": {
 "^ot:originalLabel": "Psechrus senoculatus F Hunan CHINA 904", 
@@ -246,10 +225,7 @@
 "@ubio": "3554199", 
 "@uniprot": "303592"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus senoculatus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus senoculatus"
 }, 
 "Tl1422318": {
 "^ot:originalLabel": "Psechrus vivax Saf Klong Koh Chang THAILAND 952"
@@ -270,10 +246,7 @@
 "@tb:identifier.taxonVariant": 834974, 
 "@ubio": "3586655"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia protensa", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia protensa"
 }, 
 "Tl1422323": {
 "^ot:originalLabel": "Psechrus inflatus F Yunnan CHINA 853"
@@ -285,10 +258,7 @@
 "@tb:identifier.taxonVariant": 834975, 
 "@ubio": "3586686"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus singaporensis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus singaporensis"
 }, 
 "Tl1422325": {
 "^ot:originalLabel": "Fecenia protensa F Candidasa Bali INDONESIA 908", 
@@ -297,10 +267,7 @@
 "@tb:identifier.taxonVariant": 834974, 
 "@ubio": "3586655"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia protensa", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia protensa"
 }, 
 "Tl1422326": {
 "^ot:originalLabel": "Psechrus himalayanus Saf DehraDun INDIA 875", 
@@ -309,10 +276,7 @@
 "@tb:identifier.taxonVariant": 55902, 
 "@ubio": "3586681"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus himalayanus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus himalayanus"
 }, 
 "Tl1422327": {
 "^ot:originalLabel": "Psechrus luangprabang M NongKhiao LAOS 1014"
@@ -330,10 +294,7 @@
 "@tb:identifier.taxonVariant": 834976, 
 "@ubio": "3558013"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus ghecuanus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus ghecuanus"
 }, 
 "Tl1422331": {
 "^ot:originalLabel": "Psechrus clavis Imm Wushik TAIWAN 922"
@@ -348,10 +309,7 @@
 "@tb:identifier.taxonVariant": 55902, 
 "@ubio": "3586681"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus himalayanus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus himalayanus"
 }, 
 "Tl1422334": {
 "^ot:originalLabel": "Psechrus rani F TaiPoKau HONG KONG 930", 
@@ -360,10 +318,7 @@
 "@tb:identifier.taxonVariant": 834972, 
 "@ubio": "3558033"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus rani", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus rani"
 }, 
 "Tl1422335": {
 "^ot:originalLabel": "Fecenia cylindrata F SiengMang LuangPrabang LAOS 1032", 
@@ -372,10 +327,7 @@
 "@tb:identifier.taxonVariant": 834970, 
 "@ubio": "3558009"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia cylindrata", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia cylindrata"
 }, 
 "Tl1422336": {
 "^ot:originalLabel": "Hogna jacquesbreli"
@@ -397,10 +349,7 @@
 "@ubio": "3583271", 
 "@uniprot": "280422"
 }, 
-"^skos:altLabel": {
-"$": "Pardosa wagleri", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Pardosa wagleri"
 }, 
 "Tl1422341": {
 "^ot:originalLabel": "Fecenia protensa Juv Tutong BRUNEI 943", 
@@ -409,10 +358,7 @@
 "@tb:identifier.taxonVariant": 834974, 
 "@ubio": "3586655"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia protensa", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia protensa"
 }, 
 "Tl1422342": {
 "^ot:originalLabel": "Dolomedes triton", 
@@ -438,10 +384,7 @@
 "@tb:identifier.taxonVariant": 834970, 
 "@ubio": "3558009"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia cylindrata", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia cylindrata"
 }, 
 "Tl1422347": {
 "^ot:originalLabel": "Psechrus khammouan F Kouanphavang LAOS 956"
@@ -456,10 +399,7 @@
 "@tb:identifier.taxonVariant": 834970, 
 "@ubio": "3558009"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia cylindrata", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia cylindrata"
 }, 
 "Tl1422350": {
 "^ot:originalLabel": "Psechrus luangprabang Saf NKhiao LAOS 1011"
@@ -483,10 +423,7 @@
 "@tb:identifier.taxonVariant": 112420, 
 "@ubio": "3586663"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia ochracea", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia ochracea"
 }, 
 "Tl1422356": {
 "^ot:originalLabel": "Dolomedes tenebrosus 607562", 
@@ -496,10 +433,7 @@
 "@ubio": "3548737", 
 "@uniprot": "156846"
 }, 
-"^skos:altLabel": {
-"$": "Dolomedes tenebrosus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Dolomedes tenebrosus"
 }, 
 "Tl1422357": {
 "^ot:originalLabel": "Fecenia cylindrata Juv BanKe Champasak LAOS 1180", 
@@ -508,10 +442,7 @@
 "@tb:identifier.taxonVariant": 834970, 
 "@ubio": "3558009"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia cylindrata", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia cylindrata"
 }, 
 "Tl1422358": {
 "^ot:originalLabel": "Psechrus clavis Juv Wushihkeng TAIWAN 921"
@@ -523,10 +454,7 @@
 "@tb:identifier.taxonVariant": 112420, 
 "@ubio": "3586663"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia ochracea", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia ochracea"
 }, 
 "Tl1422360": {
 "^ot:originalLabel": "Fecenia protensa M Candidasa Bali INDONESIA 909", 
@@ -535,10 +463,7 @@
 "@tb:identifier.taxonVariant": 834974, 
 "@ubio": "3586655"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia protensa", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia protensa"
 }, 
 "Tl1422361": {
 "^ot:originalLabel": "Psechrus antraeus F PhouKham LAOS 979"
@@ -556,10 +481,7 @@
 "@tb:identifier.taxonVariant": 834976, 
 "@ubio": "3558013"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus ghecuanus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus ghecuanus"
 }, 
 "Tl1422365": {
 "^ot:originalLabel": "Psechrus luangprabang F Phoxay Vientiane LAOS 1027"
@@ -577,10 +499,7 @@
 "@tb:identifier.taxonVariant": 834974, 
 "@ubio": "3586655"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia protensa", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia protensa"
 }, 
 "Tl1422369": {
 "^ot:originalLabel": "Pardosa fuscula", 
@@ -598,10 +517,7 @@
 "@tb:identifier.taxonVariant": 834986, 
 "@ubio": "3558132"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus torvus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus torvus"
 }, 
 "Tl1422371": {
 "^ot:originalLabel": "Psechrus antraeus F PhouKham LAOS 978"
@@ -616,10 +532,7 @@
 "@tb:identifier.taxonVariant": 834976, 
 "@ubio": "3558013"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus ghecuanus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus ghecuanus"
 }, 
 "Tl1422374": {
 "^ot:originalLabel": "Hygropoda higenaga", 
@@ -658,10 +571,7 @@
 "@tb:identifier.taxonVariant": 834978, 
 "@ubio": "3586669"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia travancoria", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia travancoria"
 }, 
 "Tl1422381": {
 "^ot:originalLabel": "Fecenia sp F Koh Chang THAILAND 1030"
@@ -673,10 +583,7 @@
 "@tb:identifier.taxonVariant": 834970, 
 "@ubio": "3558009"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia cylindrata", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia cylindrata"
 }, 
 "Tl1422383": {
 "^ot:originalLabel": "Psechrus senoculatus F Hunan CHINA 903", 
@@ -686,10 +593,7 @@
 "@ubio": "3554199", 
 "@uniprot": "303592"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus senoculatus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus senoculatus"
 }, 
 "Tl1422384": {
 "^ot:originalLabel": "Psechrus khammouan M Thakek LAOS 959"
@@ -701,10 +605,7 @@
 "@tb:identifier.taxonVariant": 55902, 
 "@ubio": "3586681"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus himalayanus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus himalayanus"
 }, 
 "Tl1422386": {
 "^ot:originalLabel": "Psechrus jaegeri M Champasak LAOS 1006"
@@ -720,10 +621,7 @@
 "@ubio": "3586598", 
 "@uniprot": "389065"
 }, 
-"^skos:altLabel": {
-"$": "Stiphidion facetum", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Stiphidion facetum"
 }, 
 "Tl1422389": {
 "^ot:originalLabel": "Psechrus crepido Saf Tamil Nadu INDIA 861"
@@ -738,10 +636,7 @@
 "@tb:identifier.taxonVariant": 52716, 
 "@ubio": "3557616"
 }, 
-"^skos:altLabel": {
-"$": "Pisaura mirabilis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Pisaura mirabilis"
 }, 
 "Tl1422392": {
 "^ot:originalLabel": "Pisaurina brevipes", 
@@ -797,10 +692,7 @@
 "@tb:identifier.taxonVariant": 834980, 
 "@ubio": "3600090"
 }, 
-"^skos:altLabel": {
-"$": "Eusparassus walckenaeri", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Eusparassus walckenaeri"
 }, 
 "Tl1422402": {
 "^ot:originalLabel": "Tegenaria domestica COI ariadnae 28S", 
@@ -810,10 +702,7 @@
 "@ubio": "3547382", 
 "@uniprot": "209516"
 }, 
-"^skos:altLabel": {
-"$": "Tegenaria domestica", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Tegenaria domestica"
 }, 
 "Tl1422403": {
 "^ot:originalLabel": "Amaurobius ferox HQ979294", 
@@ -823,10 +712,7 @@
 "@ubio": "3548208", 
 "@uniprot": "336583"
 }, 
-"^skos:altLabel": {
-"$": "Amaurobius ferox", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Amaurobius ferox"
 }, 
 "Tl1422404": {
 "^ot:originalLabel": "Zelotes sula COI sp 28S", 
@@ -835,10 +721,7 @@
 "@tb:identifier.taxonVariant": 834987, 
 "@ubio": "3866371"
 }, 
-"^skos:altLabel": {
-"$": "Zelotes sula", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Zelotes sula"
 }, 
 "Tl1422405": {
 "^ot:originalLabel": "Leucorchestris arenicola Saf NAMIBIA 442", 
@@ -847,10 +730,7 @@
 "@tb:identifier.taxonVariant": 834983, 
 "@ubio": "3600462"
 }, 
-"^skos:altLabel": {
-"$": "Leucorchestris arenicola", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Leucorchestris arenicola"
 }, 
 "Tl1422406": {
 "^ot:originalLabel": "Marpissa sp1 COI pikei 28S"
@@ -863,10 +743,7 @@
 "@ubio": "3549957", 
 "@uniprot": "74993"
 }, 
-"^skos:altLabel": {
-"$": "Trochosa terricola", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Trochosa terricola"
 }, 
 "Tl1422408": {
 "^ot:originalLabel": "Clubiona pallidula COI pseudogermanica 28S", 
@@ -875,10 +752,7 @@
 "@tb:identifier.taxonVariant": 15677, 
 "@ubio": "3548584"
 }, 
-"^skos:altLabel": {
-"$": "Clubiona pallidula", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Clubiona pallidula"
 }, 
 "Tl1422409": {
 "^ot:originalLabel": "Habronattus oregonensis COI mexicanus 28S", 
@@ -888,10 +762,7 @@
 "@ubio": "3539553", 
 "@uniprot": "130930"
 }, 
-"^skos:altLabel": {
-"$": "Habronattus oregonensis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Habronattus oregonensis"
 }, 
 "Tl1422410": {
 "^ot:originalLabel": "Misumenops dalmasi COI nepenthicola 28S", 
@@ -901,10 +772,7 @@
 "@ubio": "3603153", 
 "@uniprot": "348408"
 }, 
-"^skos:altLabel": {
-"$": "Misumenops dalmasi", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Misumenops dalmasi"
 }, 
 "Tl1422411": {
 "^ot:originalLabel": "Callobius sp"
@@ -922,10 +790,7 @@
 "@tb:identifier.taxonVariant": 834975, 
 "@ubio": "3586686"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus singaporensis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus singaporensis"
 }, 
 "Tl1422415": {
 "^ot:originalLabel": "Agelenopsis potteri COI aperta 28S", 
@@ -935,10 +800,7 @@
 "@ubio": "3548160", 
 "@uniprot": "313392"
 }, 
-"^skos:altLabel": {
-"$": "Agelenopsis potteri", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Agelenopsis potteri"
 }, 
 "Tl1422416": {
 "^ot:originalLabel": "Cheiracanthium mildei COI sp 28S", 
@@ -948,10 +810,7 @@
 "@ubio": "3548505", 
 "@uniprot": "336587"
 }, 
-"^skos:altLabel": {
-"$": "Cheiracanthium mildei", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Cheiracanthium mildei"
 }, 
 "Tl1422417": {
 "^ot:originalLabel": "Cambridgea ambigua M Licln NEW ZEALAND 936", 
@@ -960,10 +819,7 @@
 "@tb:identifier.taxonVariant": 834981, 
 "@ubio": "3586547"
 }, 
-"^skos:altLabel": {
-"$": "Cambridgea ambigua", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Cambridgea ambigua"
 }, 
 "Tl1422418": {
 "^ot:originalLabel": "Zoropsis spinimana Rhld Pflz GERMANY 1056", 
@@ -972,10 +828,7 @@
 "@tb:identifier.taxonVariant": 73048, 
 "@ubio": "3546406"
 }, 
-"^skos:altLabel": {
-"$": "Zoropsis spinimana", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Zoropsis spinimana"
 }, 
 "Tl1422419": {
 "^ot:originalLabel": "Anyphaena californica", 
@@ -1014,10 +867,7 @@
 "@tb:identifier.taxonVariant": 834974, 
 "@ubio": "3586655"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia protensa", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia protensa"
 }, 
 "Tl1422424": {
 "^ot:originalLabel": "Clubiona pseudogermanica", 
@@ -1035,10 +885,7 @@
 "@tb:identifier.taxonVariant": 834984, 
 "@ubio": "3586672"
 }, 
-"^skos:altLabel": {
-"$": "Poaka graminicola", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Poaka graminicola"
 }, 
 "Tl1422426": {
 "^ot:originalLabel": "Psechrus laos F Bolikhamsay LAOS 968"
@@ -1103,10 +950,7 @@
 "@tb:identifier.taxonVariant": 812063, 
 "@ubio": "3588594"
 }, 
-"^skos:altLabel": {
-"$": "Desis formidabilis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Desis formidabilis"
 }, 
 "Tl1422436": {
 "^ot:originalLabel": "Clubiona meraukensis M NEW BRITAIN PNG 914", 
@@ -1115,10 +959,7 @@
 "@tb:identifier.taxonVariant": 834982, 
 "@ubio": "3593755"
 }, 
-"^skos:altLabel": {
-"$": "Clubiona meraukensis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Clubiona meraukensis"
 }, 
 "Tl1422437": {
 "^ot:originalLabel": "Amaurobius ferox FR694065", 
@@ -1128,10 +969,7 @@
 "@ubio": "3548208", 
 "@uniprot": "336583"
 }, 
-"^skos:altLabel": {
-"$": "Amaurobius ferox", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Amaurobius ferox"
 }, 
 "Tl1422438": {
 "^ot:originalLabel": "Fecenia cylindrata F Champasak LAOS 1042", 
@@ -1140,10 +978,7 @@
 "@tb:identifier.taxonVariant": 834970, 
 "@ubio": "3558009"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia cylindrata", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia cylindrata"
 }, 
 "Tl1422439": {
 "^ot:originalLabel": "Amaurobius similis", 
@@ -1176,10 +1011,7 @@
 "@tb:identifier.taxonVariant": 834972, 
 "@ubio": "3558033"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus rani", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus rani"
 }, 
 "Tl1422444": {
 "^ot:originalLabel": "Psechrus crepido F Tamil Nadu INDIA 863"
@@ -1213,10 +1045,7 @@
 "@ubio": "3549278", 
 "@uniprot": "332797"
 }, 
-"^skos:altLabel": {
-"$": "Mituliodon tarantulinus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Mituliodon tarantulinus"
 }, 
 "Tl1422449": {
 "^ot:originalLabel": "Oxyopes sp M Bolikhamsay LAOS 880"
@@ -1241,10 +1070,7 @@
 "@ubio": "3591983", 
 "@uniprot": "332799"
 }, 
-"^skos:altLabel": {
-"$": "Miturga gilva", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Miturga gilva"
 }, 
 "Tl1422453": {
 "^ot:originalLabel": "Psechrus himalayanus Saf Dehradun INDIA 875"
@@ -1275,10 +1101,7 @@
 "@ubio": "3549278", 
 "@uniprot": "332797"
 }, 
-"^skos:altLabel": {
-"$": "Mituliodon tarantulinus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Mituliodon tarantulinus"
 }, 
 "Tl1422459": {
 "^ot:originalLabel": "Zoropsis spinimana M Mainz GERMANY 1056", 
@@ -1287,10 +1110,7 @@
 "@tb:identifier.taxonVariant": 73048, 
 "@ubio": "3546406"
 }, 
-"^skos:altLabel": {
-"$": "Zoropsis spinimana", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Zoropsis spinimana"
 }, 
 "Tl1422460": {
 "^ot:originalLabel": "Psechrus kunmingensis F Yunnan CHINA 948", 
@@ -1299,10 +1119,7 @@
 "@tb:identifier.taxonVariant": 834985, 
 "@ubio": "3558028"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus kunmingensis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus kunmingensis"
 }, 
 "Tl1422461": {
 "^ot:originalLabel": "Psechrus singaporensis F SINGAPORE 912", 
@@ -1311,10 +1128,7 @@
 "@tb:identifier.taxonVariant": 834975, 
 "@ubio": "3586686"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus singaporensis", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus singaporensis"
 }, 
 "Tl1422462": {
 "^ot:originalLabel": "Psechrus vivax F Koh Chang THAILAND 1003"
@@ -1326,10 +1140,7 @@
 "@tb:identifier.taxonVariant": 834981, 
 "@ubio": "3586547"
 }, 
-"^skos:altLabel": {
-"$": "Cambridgea ambigua", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Cambridgea ambigua"
 }, 
 "Tl1422464": {
 "^ot:originalLabel": "Stiphidion facetum Sam NSWales AUSTRALIA 933", 
@@ -1339,10 +1150,7 @@
 "@ubio": "3586598", 
 "@uniprot": "389065"
 }, 
-"^skos:altLabel": {
-"$": "Stiphidion facetum", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Stiphidion facetum"
 }, 
 "Tl1422465": {
 "^ot:originalLabel": "Psechrus ghecuanus juv DoiSuthep THAILAND 931"
@@ -1360,10 +1168,7 @@
 "@tb:identifier.taxonVariant": 834986, 
 "@ubio": "3558132"
 }, 
-"^skos:altLabel": {
-"$": "Psechrus torvus", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Psechrus torvus"
 }, 
 "Tl1422469": {
 "^ot:originalLabel": "Fecenia ochracea Saf NEW BRITAIN 917", 
@@ -1372,10 +1177,7 @@
 "@tb:identifier.taxonVariant": 112420, 
 "@ubio": "3586663"
 }, 
-"^skos:altLabel": {
-"$": "Fecenia ochracea", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Fecenia ochracea"
 }, 
 "Tl1422470": {
 "^ot:originalLabel": "Misumenops nepenthicola", 
@@ -1430,10 +1232,7 @@
 "@ubio": "3586598", 
 "@uniprot": "389065"
 }, 
-"^skos:altLabel": {
-"$": "Stiphidion facetum", 
-"source": "TreeBase"
-}
+"^ot:altLabel": "Stiphidion facetum"
 }, 
 "Tl1422478": {
 "^ot:originalLabel": "Psechrus argentatus F Flores INDONESIA 910"

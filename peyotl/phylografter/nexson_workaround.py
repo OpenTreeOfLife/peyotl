@@ -2,6 +2,7 @@
 from peyotl import get_logger
 from peyotl import write_as_json
 from peyotl.nexson_syntax.helper import add_literal_meta, \
+                                        detect_nexson_version, \
                                         find_val_literal_meta_first
 _LOG = get_logger(__name__)
 SYNTAX_VERSION = '0.0.0'
@@ -116,20 +117,32 @@ def _move_ott_taxon_name_to_otu(obj):
 
 def _move_otu_at_label_properties(obj):
     nex = obj['nexml']
-    ogl = nex['otus']
-    if not isinstance(ogl, list):
-        ogl = [ogl]
-    for og in ogl:
-        for otu in og['otu']:
-            ol = find_val_literal_meta_first(otu, 'ot:originalLabel', SYNTAX_VERSION)
-            assert ol is not None
-            label_att = otu.get('@label')
-            if label_att is not None:
-                del otu['@label']
-                if label_att != ol:
-                    ml = find_val_literal_meta_first(otu, 'ot:ottTaxonName', SYNTAX_VERSION)
-                    if (not ml) or (ml != label_att):
-                        add_literal_meta(otu, 'ot:altLabel', label_att, SYNTAX_VERSION)
+    if 'otus' in nex:
+        syntax=SYNTAX_VERSION
+
+        ogl = nex['otus']
+        if not isinstance(ogl, list):
+            ogl = [ogl]
+        for og in ogl:
+            for otu in og['otu']:
+                _move_label_properties_for_otu(otu, syntax)
+    else:
+        syntax = detect_nexson_version(obj)
+        assert 'otusById' in nex
+        for otus_group in nex.get('otusById', {}).values():
+            assert 'otuById' in otus_group
+            for otu in otus_group.get('otuById', {}).values():
+                _move_label_properties_for_otu(otu, syntax)
+def _move_label_properties_for_otu(otu, syntax_version):
+    ol = find_val_literal_meta_first(otu, 'ot:originalLabel', syntax_version)
+    assert ol is not None
+    label_att = otu.get('@label')
+    if label_att is not None:
+        del otu['@label']
+        if label_att != ol:
+            ml = find_val_literal_meta_first(otu, 'ot:ottTaxonName', syntax_version)
+            if (not ml) or (ml != label_att):
+                add_literal_meta(otu, 'ot:altLabel', label_att, syntax_version)
 
 def _add_defaults(obj):
     nex = obj['nexml']
@@ -175,8 +188,11 @@ def apr_1_2014_workaround_phylografter_export_diffs(obj, out):
     write_as_json(obj, out)
 
 def workaround_phylografter_export_diffs(obj, out):
-    _move_otu_at_label_properties(obj)
+    workaround_phylografter_nexson(obj)
     write_as_json(obj, out)
+
+def workaround_phylografter_nexson(obj):
+    _move_otu_at_label_properties(obj)
 
 def add_default_prop(obj, out):
     # see Jim's comment on 

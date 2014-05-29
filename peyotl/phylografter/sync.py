@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from peyotl.utility.io import open_for_group_write
+from peyotl.phylografter.nexson_workaround import workaround_phylografter_nexson
 from peyotl.nexson_syntax import read_as_json
 import datetime
 import codecs
@@ -107,16 +108,16 @@ class PhylografterNexsonDocStoreSync(object):
 
     def _add_study_to_download_list(self, study, paths):
         if self.download_db is not None:
-            self.download_db.setdefault('to_download_from_pg', set()).add(study)
+            self.download_db.setdefault('to_download_from_pg', set()).add(str(study))
             store_state_JSON(self.download_db, paths['nexson_state_db'])
     def _add_study_to_push_list(self, study, paths):
         if self.download_db is not None:
-            self.download_db.setdefault('to_upload_to_phylesystem', set()).add(study)
+            self.download_db.setdefault('to_upload_to_phylesystem', set()).add(str(study))
             store_state_JSON(self.download_db, paths['nexson_state_db'])
     def _remove_study_from_download_list(self, study, paths):
         if self.download_db is not None:
             try:
-                self.download_db.setdefault('to_download_from_pg', set()).remove(study)
+                self.download_db.setdefault('to_download_from_pg', set()).remove(str(study))
             except:
                 pass
             else:
@@ -124,7 +125,7 @@ class PhylografterNexsonDocStoreSync(object):
     def _remove_study_from_push_list(self, study, paths):
         if self.download_db is not None:
             try:
-                self.download_db.setdefault('to_upload_to_phylesystem', set()).remove(study)
+                self.download_db.setdefault('to_upload_to_phylesystem', set()).remove(str(study))
             except:
                 pass
             else:
@@ -216,6 +217,9 @@ class PhylografterNexsonDocStoreSync(object):
                                 last_merged_sha):
         namespaced_id = 'pg_{s}'.format(s=study)
         parent_sha = self.find_parent_sha_for_phylografter_nexson(study, nexson)
+        # correct any disagreements between phylografter and what the peyotl 
+        #   validator expects...
+        workaround_phylografter_nexson(nexson) 
         if namespaced_id in self.doc_store_studies:
             put_response = self.doc_store.put_study(study_id=namespaced_id,
                                                     nexson=nexson,
@@ -250,7 +254,7 @@ class PhylografterNexsonDocStoreSync(object):
         filename = dir_dict['nexson_state_db']
         old_set, old = get_previous_set_of_dirty_nexsons(dir_dict)
         new_resp = phylografter.get_modified_list(old['to'], list_only=False)
-        ss = set(new_resp['studies'])
+        ss = set([str(i) for i in new_resp['studies']])
         ss.update(old_set)
         old['to_download_from_pg'] = ss
         old['to'] = new_resp['to']
@@ -296,9 +300,9 @@ class PhylografterNexsonDocStoreSync(object):
                 store_state_JSON(er, nexson_path)
             if download_db is not None:
                 try:
-                    download_db['to_download_from_pg'].remove(study)
+                    download_db['to_download_from_pg'].remove(str(study))
                 except:
-                    _LOG.warn('%s not in %s', study, paths['nexson_state_db'])
+                    _LOG.warn('%s not in %s', repr(study), paths['nexson_state_db'])
                 else:
                     store_state_JSON(download_db, paths['nexson_state_db'])
         finally:

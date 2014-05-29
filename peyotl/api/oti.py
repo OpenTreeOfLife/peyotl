@@ -23,7 +23,7 @@ class _OTIWrapper(_WSWrapper):
     matched_nodes is a list of dictionaries with:
         "nexson_id" -> string ID of the node within the tree
 
-    Supports searching for nodes by:
+    Nodes can be searched for using:
         ot:age
         ot:ageMax
         ot:ageMin
@@ -37,6 +37,46 @@ class _OTIWrapper(_WSWrapper):
         ot:parent
         ot:tag
         ot:treebaseOTUId
+    
+    Trees can be searched for using:
+        is_deprecated
+        ot:branchLengthDescription
+        ot:branchLengthMode
+        ot:branchLengthTimeUnits
+        ot:comment
+        ot:inferenceMethod
+        ot:nodeLabelDescription
+        ot:nodeLabelMode
+        ot:originalLabel
+        ot:ottId
+        ot:ottTaxonName
+        ot:studyId
+        ot:tag
+        ot:treeLastEdited
+        ot:treeModified
+        ot:treebaseOTUId
+        ot:treebaseTreeId
+        oti_tree_id
+    
+    Studies can be searched for using:
+        is_deprecated
+        ot:authorContributed
+        ot:comment
+        ot:curatorName
+        ot:dataDeposit
+        ot:focalClade
+        ot:focalCladeOTTId
+        ot:focalCladeOTTTaxonName
+        ot:focalCladeTaxonName
+        ot:studyId
+        ot:studyLabel
+        ot:studyLastEditor
+        ot:studyModified
+        ot:studyPublication
+        ot:studyPublicationReference
+        ot:studyUploaded
+        ot:studyYear
+        ot:tag
 
     wrapped methods:
         getSearchablePropertiesForStudies
@@ -76,6 +116,22 @@ class _OTIWrapper(_WSWrapper):
             self._node_search_prop = set(self._do_node_searchable_properties_call())
         return self._node_search_prop
     node_search_term_set = property(get_node_search_term_set)
+    def _do_tree_searchable_properties_call(self):
+        uri = '{p}/getSearchablePropertiesForTrees'.format(p=self.query_prefix)
+        return self._post(uri)
+    def get_tree_search_term_set(self):
+        if self._tree_search_prop is None:
+            self._tree_search_prop = set(self._do_tree_searchable_properties_call())
+        return self._tree_search_prop
+    tree_search_term_set = property(get_tree_search_term_set)
+    def _do_study_searchable_properties_call(self):
+        uri = '{p}/getSearchablePropertiesForStudies'.format(p=self.query_prefix)
+        return self._post(uri)
+    def get_study_search_term_set(self):
+        if self._study_search_prop is None:
+            self._study_search_prop = set(self._do_study_searchable_properties_call())
+        return self._study_search_prop
+    study_search_term_set = property(get_study_search_term_set)
     def _do_node_searchable_properties_call(self):
         uri = '{p}/getSearchablePropertiesForTreeNodes'.format(p=self.query_prefix)
         return self._post(uri)
@@ -85,11 +141,23 @@ class _OTIWrapper(_WSWrapper):
                               exact=exact,
                               verbose=verbose,
                               valid_keys=self.node_search_term_set)
+    def find_trees(self, query_dict, exact=False, verbose=False):
+        return self._do_query('{p}/singlePropertySearchForTrees'.format(p=self.query_prefix),
+                              query_dict=query_dict,
+                              exact=exact,
+                              verbose=verbose,
+                              valid_keys=self.tree_search_term_set)
+    def find_studies(self, query_dict, exact=False, verbose=False):
+        return self._do_query('{p}/singlePropertySearchForStudies'.format(p=self.query_prefix),
+                              query_dict=query_dict,
+                              exact=exact,
+                              verbose=verbose,
+                              valid_keys=self.study_search_term_set)
     def _do_query(self, url, query_dict, exact, verbose, valid_keys):
         data = self._prepare_query_data(query_dict=query_dict,
                                         exact=exact,
                                         verbose=verbose,
-                                        valid_keys=self.node_search_term_set)
+                                        valid_keys=valid_keys)
         response = self._post(url, data=anyjson.dumps(data))
         if 'error' in response:
             raise RuntimeError('Error reported by oti "{}"'.format(response['error']))

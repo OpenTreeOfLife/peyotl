@@ -22,8 +22,11 @@ class TestTaxomachine(unittest.TestCase):
         self.assertEqual(len(resp), 1)
         el = resp[0]
         self.assertEqual(el['name'], name)
-        #TODO
-        _LOG.warn('Skipping test of "exact" field...') # self.assertTrue(el['exact'])
+    @unittest.skip('Broken taxomachine. https://github.com/OpenTreeOfLife/taxomachine/issues/42')
+    def testSKunkNameExact(self):
+        name = u'Mephitis mephitis'
+        resp = self.taxomachine.TNRS(name, 'Mammals')
+        self.assertTrue(resp[0]['exact'])
     def testHomonymName(self):
         name = 'Nandina'
         resp = self.taxomachine.TNRS(name)
@@ -34,4 +37,4 @@ class TestTaxomachine(unittest.TestCase):
         self.assertEqual(len(resp), 1)
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=5)

@@ -24,10 +24,10 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     def study_list(self):
         '''Returns a list of strings which are the study IDs'''
         uri = '{}/study_list'.format(self.domain)
-        return self._get(uri)
+        return self.json_http_get(uri)
     def unmerged_branches(self):
         uri = '{}/unmerged_branches'.format(self.domain)
-        return self._get(uri)
+        return self.json_http_get(uri)
     def post_study(self,
                    nexson,
                    study_id=None,
@@ -40,7 +40,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         params = {'auth_token': self.auth_token}
         if commit_msg:
             params['commit_msg'] = commit_msg
-        return self._post(uri,
+        return self.json_http_post(uri,
                           params=params,
                           data=anyjson.dumps({'nexson': nexson}))
     def put_study(self,
@@ -54,18 +54,18 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                   'auth_token': self.auth_token}
         if commit_msg:
             params['commit_msg'] = commit_msg
-        return self._put(uri,
+        return self.json_http_put(uri,
                          params=params,
                          data=anyjson.dumps({'nexson': nexson}))
     def phylesystem_config(self):
         uri = '{d}/phylesystem_config'.format(d=self.domain)
-        return self._get(uri)
+        return self.json_http_get(uri)
     def external_url(self, study_id):
         uri = '{d}/external_url/{i}'.format(d=self.domain, i=study_id)
-        return self._get(uri)
+        return self.json_http_get(uri)
     def get_study(self, study_id):
         uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
-        return self._get(uri)
+        return self.json_http_get(uri)
 
 def PhylesystemAPI(domains=None):
     return APIWrapper(domains=domains).phylesystem_api

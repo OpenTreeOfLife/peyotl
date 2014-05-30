@@ -77,7 +77,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         data = {'queryString': name}
         if contextName:
             data['contextName'] = contextName
-        return self._post(uri, data=anyjson.dumps(data))
+        return self.json_http_post(uri, data=anyjson.dumps(data))
     def __init__(self, domain):
         self._contexts = None
         self._valid_contexts = None
@@ -97,7 +97,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         return self._contexts
     def _do_contexts_call(self):
         uri = '{p}/getContextsJSON'.format(p=self.prefix)
-        return self._post(uri)
+        return self.json_http_post(uri)
     def _get_valid_contexts(self):
         if self._valid_contexts is None:
             c = self.contexts()

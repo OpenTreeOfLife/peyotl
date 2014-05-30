@@ -33,7 +33,7 @@ class _PhylografterWrapper(_WSWrapper):
             since_date = since_date.strftime('%Y-%m-%dT%H:%M:%S')
         uri = self.domain + '/study/modified_list.json/url'
         args = {'from': since_date}
-        r = self._get(uri, params=args)
+        r = self.json_http_get(uri, params=args)
         if list_only:
             return r['studies']
         return r

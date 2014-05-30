@@ -36,13 +36,13 @@ try:
     import pkg_resources
     TESTS_DIR = pkg_resources.resource_filename("peyotl", "test")
     SCRIPTS_DIR = pkg_resources.resource_filename("peyotl", os.path.join(os.pardir, "scripts"))
-    _LOG.debug("using pkg_resources path mapping")
+    #_LOG.debug("using pkg_resources path mapping")
 except:
     LOCAL_DIR = os.path.dirname(__file__)
     TESTS_DIR = os.path.join(LOCAL_DIR, os.path.pardir)
     PACKAGE_DIR = os.path.join(TESTS_DIR, os.path.pardir)
     SCRIPTS_DIR = os.path.join(PACKAGE_DIR, os.path.pardir, "scripts")
-    _LOG.debug("using local filesystem path mapping")
+    #_LOG.debug("using local filesystem path mapping")
 
 TESTS_DATA_DIR = os.path.join(TESTS_DIR, "data")
 TESTS_OUTPUT_DIR = os.path.join(TESTS_DIR, "output")

@@ -25,13 +25,13 @@ class _TreemachineAPIWrapper(_WSWrapper):
     current_synth_tree_id = property(get_current_synth_tree_id)
     def get_synthetic_tree_info(self):
         uri = '{p}/getDraftTreeID'.format(p=self.prefix)
-        return self._post(uri)
+        return self.json_http_post(uri)
     def get_synthetic_tree_id_list(self):
         uri = '{p}/getSourceTreeIDs'.format(p=self.prefix)
-        return self._post(uri)
+        return self.json_http_post(uri)
     def get_synthetic_source_list(self):
         uri = '{p}/ getSyntheticSourceList'.format(p=self.prefix)
-        return self._post(uri)
+        return self.json_http_post(uri)
     def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None):
         uri = '{p}/getSourceTree'.format(p=self.prefix)
         return self._get_tree(uri, tree_id, format=format, node_id=node_id, max_depth=max_depth)
@@ -50,11 +50,11 @@ class _TreemachineAPIWrapper(_WSWrapper):
             data['subtreeNodeID'] = str(node_id)
         if max_depth is not None:
             data['maxDepth'] = max_depth
-        return self._post(uri, data=anyjson.dumps(data))
+        return self.json_http_post(uri, data=anyjson.dumps(data))
     def get_node_id_for_ott_id(self, ott_id):
         uri = '{p}/getNodeIDForottId'.format(p=self.prefix)
         data = {'ottId': str(ott_id)}
-        return self._post(uri, data=anyjson.dumps(data))
+        return self.json_http_post(uri, data=anyjson.dumps(data))
 
 def Treemachine(domains=None):
     return APIWrapper(domains=domains).treemachine

@@ -3,6 +3,7 @@ from peyotl.nexson_syntax import write_as_json
 from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config
 import requests
+import codecs
 import anyjson
 import json
 import os
@@ -10,12 +11,38 @@ from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 GZIP_REQUEST_HEADERS = {
-    'accept-encoding' : 'gzip',
-    'content-type' : 'application/json',
-    'accept' : 'application/json',
+    'Accept-Encoding' : 'gzip',
+    'Content-Type' : 'application/json',
+    'Accept' : 'application/json',
 }
 
-_JSON_HEADERS = {'content-type': 'application/json'}
+_JSON_HEADERS = {'Content-Type': 'application/json',
+                 'Accept': 'application/json',
+                 }
+
+CURL_LOGGER = os.environ.get('PEYOTL_CURL_LOG_FILE')
+
+def escape_dq(s):
+    if '"' in s:
+        ss = s.split('"')
+        return '\\"'.join(ss)
+    return s
+
+def log_request_as_curl(curl_log, url, verb, headers, params, data):
+    if not curl_log:
+        return
+    raise NotImplementedError('log_request_as_curl')
+    with codecs.open(curl_log, 'a', encoding='utf-8') as curl_fo:
+        if headers:
+            hargs = ' '.join(['-H "{}:{}"'.format(escape_dq(k), escape_dq(v)) for k, v in headers.items()])
+        else:
+            hargs = ''
+        dargs_contents = ', '.join(['"{}": "{}"'.format(escape_dq(k), escape_dq(v)) for k, v in headers.items()])
+        dargs = "'{" + dargs_contents + "}'"
+        curl_fo.write('curl -X {v} {h} {u} --data {d}'.format(v=verb,
+                                               u=url,
+                                               h=hargs,
+                                               d=dargs))
 
 class APIDomains(object):
     def __init__(self):
@@ -129,42 +156,29 @@ def _http_method_summary_str(url, verb, headers, params, data=None):
     fmt = 'error in HTTP {v} verb call to {u} with {p}, {d} and {h}'
     return fmt.format(v=verb, u=url, p=ps, h=hs, d=ds)
 
+_VERB_TO_METHOD_DICT = {
+    'GET': requests.get,
+    'POST': requests.post,
+    'PUT': requests.put
+}
 class _WSWrapper(object):
     def __init__(self, domain):
         self._domain = domain
-    def _get(self, url, headers=_JSON_HEADERS, params=None):
-        resp = requests.get(url, params=params, headers=headers)
+    def json_http_get(self, url, headers=_JSON_HEADERS, params=None):
+        return self._do_http(url, 'GET', headers=headers, params=params, data=None)
+    def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None):
+        return self._do_http(url, 'PUT', headers=headers, params=params, data=data)
+    def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None):
+        return self._do_http(url, 'POST', headers=headers, params=params, data=data)
+    def _do_http(self, url, verb, headers, params, data):
+        if CURL_LOGGER is not None:
+            log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)
+        func = _VERB_TO_METHOD_DICT[verb]
+        resp = func(url, params=params, headers=headers, data=data)
         try:
             resp.raise_for_status()
         except:
-            _LOG.exception(_http_method_summary_str(url, 'GET', headers, params))
-            if resp.text:
-                _LOG.debug('HTTPResponse.text = ' + resp.text)
-            raise
-        try:
-            return resp.json()
-        except:
-            return resp.json
-    def _post(self, url, headers=_JSON_HEADERS, params=None, data=None):
-        # _LOG.debug('POSTing:\n' + _http_method_summary_str(url, 'PUT', headers=headers, params=params, data=data))
-        resp = requests.post(url, params=params, headers=headers, data=data)
-        try:
-            resp.raise_for_status()
-        except:
-            _LOG.exception(_http_method_summary_str(url, 'POST', headers=headers, params=params, data=data))
-            if resp.text:
-                _LOG.debug('HTTPResponse.text = ' + resp.text)
-            raise
-        try:
-            return resp.json()
-        except:
-            return resp.json
-    def _put(self, url, headers=_JSON_HEADERS, params=None, data=None):
-        resp = requests.put(url, params=params, headers=headers, data=data)
-        try:
-            resp.raise_for_status()
-        except:
-            _LOG.exception(_http_method_summary_str(url, 'PUT', headers=headers, params=params, data=data))
+            _LOG.exception(_http_method_summary_str(url, verb, headers, params))
             if resp.text:
                 _LOG.debug('HTTPResponse.text = ' + resp.text)
             raise

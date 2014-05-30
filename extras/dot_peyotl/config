@@ -15,10 +15,16 @@ repo_nexml2json = 1.2.1
 # directory of holding ott. The directory name
 #   is expected to have the form:
 #       ottVERSION_NUMBER_HERE
-parent = ~/ott/ott2.5
-cache = redis:localhost:6379
+#parent = ~/ott/ott2.5
+#cache = redis:localhost:6379
 
 [logging]
-#level = debug
-#formatter = simple
-#filepath = /tmp/peyotl.log
+level = debug
+filepath = /tmp/peyotl-log
+formatter = rich
+
+[apis]
+phylesystem_api = http://ashby.opentreeoflife.org/api
+oti_api = http://ashby.opentreeoflife.org/api
+taxomachine = http://ot9.opentreeoflife.org/
+treemachine = http://ot9.opentreeoflife.org/

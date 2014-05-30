@@ -23,23 +23,36 @@ _JSON_HEADERS = {'Content-Type': 'application/json',
 CURL_LOGGER = os.environ.get('PEYOTL_CURL_LOG_FILE')
 
 def escape_dq(s):
+    if not (isinstance(s, str) or isinstance(s, unicode)):
+        if isinstance(s, bool):
+            if s:
+                return 'true'
+            return 'false'
+
+        return s
     if '"' in s:
         ss = s.split('"')
-        return '\\"'.join(ss)
-    return s
+        return '"{}"'.format('\\"'.join(ss))
+    return '"{}"'.format(s)
 
 def log_request_as_curl(curl_log, url, verb, headers, params, data):
     if not curl_log:
         return
-    raise NotImplementedError('log_request_as_curl')
     with codecs.open(curl_log, 'a', encoding='utf-8') as curl_fo:
         if headers:
-            hargs = ' '.join(['-H "{}:{}"'.format(escape_dq(k), escape_dq(v)) for k, v in headers.items()])
+            hargs = ' '.join(['-H {}:{}'.format(escape_dq(k), escape_dq(v)) for k, v in headers.items()])
         else:
             hargs = ''
-        dargs_contents = ', '.join(['"{}": "{}"'.format(escape_dq(k), escape_dq(v)) for k, v in headers.items()])
-        dargs = "'{" + dargs_contents + "}'"
-        curl_fo.write('curl -X {v} {h} {u} --data {d}'.format(v=verb,
+        if params and not data:
+            raise NotImplementedError('log_request_as_curl url encoding')
+        if data:
+            if isinstance(data, str) or isinstance(data, unicode):
+                data = anyjson.loads(data)
+            dargs_contents = ', '.join(['{}: {}'.format(escape_dq(k), escape_dq(v)) for k, v in data.items()])
+            dargs = "'{" + dargs_contents + "}'"
+        else:
+            dargs = ''
+        curl_fo.write('curl -X {v} {h} {u} --data {d}\n'.format(v=verb,
                                                u=url,
                                                h=hargs,
                                                d=dargs))

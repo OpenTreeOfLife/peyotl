@@ -36,6 +36,7 @@ from cStringIO import StringIO
 import xml.dom.minidom
 import codecs
 import json
+import re
 
 _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
                                   DIRECT_HONEY_BADGERFISH,
@@ -328,3 +329,144 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
     if include_cc0:
         nexson['nexml']['^xhtml:license'] = {'@href': 'http://creativecommons.org/publicdomain/zero/1.0/'}
     return nexson
+
+_ARG2PROP = {'ot:originallabel': '^ot:originalLabel', 
+             'ot:ottid': '^ot:ottId',
+             'ot:otttaxonname': '^ot:ottTaxonName',
+            }
+_NEWICK_PROP_VALS = _ARG2PROP.values()
+_EMPTY_TUPLE = tuple
+_NEWICK_NEEDING_QUOTING = re.compile(r'(\s|[\[\]():,;])')
+def quote_newick_name(s):
+    if "'" in s:
+        return "'{}'".format("''".join(s.split("'")))
+    if _NEWICK_NEEDING_QUOTING.search(s):
+        return "'{}'".format(s)
+    return s
+
+def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter):
+    otu_id = node['@otu']
+    otu = otu_group[otu_id]
+    label = otu.get(label_key)
+    if label is None:
+        unlabeled_counter += 1
+        label = "'*unlabeled tip #{n:d}'".format(n=unlabeled_counter)
+    else:
+        label = quote_newick_name(label)
+    if leaf_labels is not None:
+        leaf_labels.append(label)
+    out.write(label)
+    return unlabeled_counter
+
+def _write_newick_internal_label(out, node, otu_group, label_key):
+    otu_id = node.get('@otu')
+    if otu_id is None:
+        return
+    otu = otu_group[otu_id]
+    label = otu.get(label_key)
+    if label is not None:
+        label = quote_newick_name(label)
+        out.write(label)
+
+def _write_newick_edge_len(out, edge):
+    if edge is None:
+        return
+    e_len = edge.get('@length')
+    if e_len is not None:
+        out.write(':{e}'.format(e=e_len))
+    
+def convert_tree(tree_id, tree, otu_group, format, label_key):
+    if format == 'nexus':
+        leaf_labels = []
+    else:
+        leaf_labels = None
+        assert format == 'newick'
+    assert label_key in _NEWICK_PROP_VALS
+    unlabeled_counter = 0
+    root_id = tree['^ot:rootNodeId']
+    edges = tree['edgeBySourceId']
+    nodes = tree['nodeById']
+    curr_node_id = root_id
+    curr_edge = None
+    curr_sib_list = []
+    curr_stack = []
+    out = StringIO()
+    going_tipward = True
+    while True:
+        if going_tipward:
+            outgoing_edges = edges.get(curr_node_id)
+            if outgoing_edges is None:
+                curr_node = nodes[curr_node_id]
+                unlabeled_counter = _write_newick_leaf_label(out, curr_node, otu_group, label_key, leaf_labels, unlabeled_counter)
+                _write_newick_edge_len(out, curr_edge)
+                going_tipward = False
+            else:
+                te = [(i, e) for i, e in outgoing_edges.items()]
+                te.sort() # produce a consistent rotation... Necessary?
+                out.write('(')
+                next_p = te.pop(0)
+                curr_stack.append((curr_edge, curr_node_id, curr_sib_list))
+                curr_edge, curr_sib_list = next_p[1], te
+                curr_node_id = curr_edge['@target']
+        if not going_tipward:
+            next_up_edge_id= None
+            while True:
+                if curr_sib_list:
+                    out.write(',')
+                    next_up_edge_id, next_up_edge = curr_sib_list.pop(0)
+                    break
+                if curr_stack:
+                    curr_edge, curr_node_id, curr_sib_list = curr_stack.pop(-1)
+                    curr_node = nodes[curr_node_id]
+                    out.write(')')
+                    _write_newick_internal_label(out, curr_node, otu_group, label_key)
+                    _write_newick_edge_len(out, curr_edge)
+                else:
+                    break
+            if next_up_edge_id is None:
+                break
+            curr_edge = next_up_edge
+            curr_node_id = curr_edge['@target']
+            going_tipward = True
+    out.write(';')
+    newick = out.getvalue()
+    if format == 'nexus':
+        return '''#NEXUS
+BEGIN TAXA;
+    Dimensions NTax = {s};
+    TaxLabels {l} ;
+END;
+BEGIN TREES;
+    Tree {t} = {n}
+END;
+'''.format(s=len(leaf_labels),
+           l=' '.join(leaf_labels),
+           t=quote_newick_name(tree_id),
+           n=newick)
+    else:
+        return newick
+
+def extract_tree(nexson, tree_id, output_format):
+    try:
+        format, arg = output_format
+        arg = arg.lower()
+        if arg.startswith('^'):
+            arg = arg[1:]
+        assert format in ['newick', 'nexus']
+        assert arg in ('ot:originallabel', 'ot:ottid', 'ot:otttaxonname')
+        arg = _ARG2PROP[arg]
+    except:
+        raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
+    if not _is_by_id_hbf(detect_nexson_version(nexson)):
+        nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
+
+    nexml_el = get_nexml_el(nexson)
+    tree_groups = nexml_el['treesById']
+    for tree_group in tree_groups.values():
+        tree = tree_group['treeById'].get(tree_id)
+        if tree:
+            otu_groups = nexml_el['otusById']
+            ogi = tree_group['@otus']
+            otu_group = otu_groups[ogi]['otuById']
+            return convert_tree(tree_id, tree, otu_group, format, arg)
+    return None

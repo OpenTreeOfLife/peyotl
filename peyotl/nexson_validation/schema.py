@@ -403,6 +403,7 @@ _ExpMOtuEl_All = {'ot:ottId': _VT.INT,
                  }
 _TypMOtuEl_All = {'ot:treebaseOTUId': _VT.STR,
                   'ot:ottTaxonName': _VT.STR,
+                  'ot:altLabel': _VT.STR,
                   'ot:taxonLink': _VT.DICT,
                   "skos:altLabel": _VT.LIST_OR_DICT,
                  }

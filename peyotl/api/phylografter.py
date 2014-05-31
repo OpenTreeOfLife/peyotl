@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from cStringIO import StringIO
 from peyotl.api.wrapper import _WSWrapper, APIWrapper, GZIP_REQUEST_HEADERS
+from peyotl.nexson_syntax import write_as_json
 import datetime
 import anyjson
 import requests
@@ -63,7 +64,7 @@ class _PhylografterWrapper(_WSWrapper):
                 if store_raw:
                     write_to_filepath(results, output_filepath)
                 else:
-                    write_as_json()
+                    write_as_json(anyjson.loads(results), output_filepath)
                 return True
         raise RuntimeError('gzipped response from phylografter export_gzipNexSON.json, but not a string is:', results)
     # alias fetch_nexson

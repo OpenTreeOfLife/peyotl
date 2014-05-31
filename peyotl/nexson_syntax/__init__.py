@@ -340,6 +340,7 @@ _NEWICK_NEEDING_QUOTING = re.compile(r'(\s|[\[\]():,;])')
 _NEXUS_NEEDING_QUOTING = re.compile(r'(\s|[-()\[\]{}/\,;:=*"`+<>])')
 
 def quote_newick_name(s, needs_quotes_pattern=_NEWICK_NEEDING_QUOTING):
+    s = str(s)
     if "'" in s:
         return "'{}'".format("''".join(s.split("'")))
     if needs_quotes_pattern.search(s):

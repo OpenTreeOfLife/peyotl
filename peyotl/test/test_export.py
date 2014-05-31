@@ -25,7 +25,7 @@ class TestExtract(unittest.TestCase):
 
     def testTreeExport(self):
         n = pathmap.nexson_obj('10/pg_10.json')
-        newick = extract_tree(n, 'tree3', ('nexus', 'ot:originalLabel'))
+        newick = extract_tree(n, 'tree3', ('nexus', 'ot:ottTaxonName'))
         print newick
 
 if __name__ == "__main__":

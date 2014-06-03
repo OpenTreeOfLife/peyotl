@@ -52,6 +52,12 @@ class TestPhyloSchema(unittest.TestCase):
         nex = ps.serialize(o)
         self.assertTrue(nex.startswith('#'))
 
+    def testNexusConvViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema(None, type_ext='.nex', content='tree', content_id='tree3')
+        nex = ps.serialize(o)
+        self.assertTrue(nex.startswith('#'))
+
     def testNewickConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('newick', content='tree', content_id='tree3')

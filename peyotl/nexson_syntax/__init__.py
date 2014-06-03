@@ -58,7 +58,7 @@ class PhyloSchema(object):
     _extension2format = {
         '.nexson' : 'nexson',
         '.nexml': 'nexml',
-        '.nex': 'nex',
+        '.nex': 'nexus',
         '.tre': 'newick',
         '.nwk': 'newick',
     }

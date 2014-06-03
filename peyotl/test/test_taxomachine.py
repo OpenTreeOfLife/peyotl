@@ -23,7 +23,7 @@ class TestTaxomachine(unittest.TestCase):
         el = resp[0]
         self.assertEqual(el['name'], name)
     @unittest.skip('Broken taxomachine. https://github.com/OpenTreeOfLife/taxomachine/issues/42')
-    def testSKunkNameExact(self):
+    def testSkunkNameExact(self):
         name = u'Mephitis mephitis'
         resp = self.taxomachine.TNRS(name, 'Mammals')
         self.assertTrue(resp[0]['exact'])

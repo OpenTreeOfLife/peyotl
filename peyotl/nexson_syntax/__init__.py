@@ -18,6 +18,7 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         _is_badgerfish_version, \
                                         _is_by_id_hbf, \
                                         _is_direct_hbf, \
+                                        _is_supported_nexson_vers, \
                                         BADGER_FISH_NEXSON_VERSION, \
                                         DEFAULT_NEXSON_VERSION, \
                                         DIRECT_HONEY_BADGERFISH, \
@@ -47,6 +48,130 @@ _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
                                   '1.2',
                                   ])
 _LOG = get_logger(__name__)
+
+class PhyloSchema(object):
+    '''Simple container for holding the set of variables needed to
+    convert from one format to another (with error checking)
+    '''
+    _format_list = ('newick', 'nexson', 'nexml', 'nexus')
+    NEWICK, NEXSON, NEXML, NEXUS = range(4)
+    _extension2format = {
+        '.nexson' : 'nexson',
+        '.nexml': 'nexml',
+        '.nex': 'nex',
+        '.tre': 'newick',
+        '.nwk': 'newick',
+    }
+    _otu_label_list = ('ot:originallabel', 'ot:ottid', 'ot:otttaxonname')
+    def __init__(self, schema='nexson', **kwargs):
+        '''Checks:
+            'format',
+            'type_ext', then 
+            'output_nexml2json' (implicitly NexSON)
+        '''
+        self.content = kwargs.get('content', 'study')
+        content_types = ['study', 'tree']
+        if self.content not in content_types:
+            raise ValueError('"content" must be one of: "{}"'.format('", "'.join(content_types)))
+        if schema is not None:
+            self.format_str = schema.lower()
+        elif kwargs.get('type_ext') is not None:
+            ext = kwargs['type_ext'].lower()
+            try:
+                self.format_str = PhyloSchema._extension2format[ext]
+            except:
+                raise ValueError('file extension "{}" not recognized'.format(kwargs['type_ext']))
+        elif 'output_nexml2json' in kwargs:
+            self.format_str = 'nexson'
+            self.version = kwargs['output_nexml2json']
+        else:
+            raise ValueError('Expecting "format" or "type_ext" argument')
+        try:
+            self.format_code = PhyloSchema._format_list.index(self.format_str)
+        except:
+            raise ValueError('format "{}" not recognized'.format(self.format_str))
+        if self.format_code == PhyloSchema.NEXSON:
+            try:
+                if not hasattr(self, 'version'):
+                    if 'output_nexml2json' in kwargs:
+                        self.version = kwargs['output_nexml2json']
+                    else:
+                        self.version = kwargs['version']
+                if self.version == 'native':
+                    self.version = kwargs['repo_nexml2json']
+                if not _is_supported_nexson_vers(self.version):
+                    raise ValueError('The "{}" version of NexSON is not supported'.format(self.version))
+            except:
+                raise ValueError('Expecting version of NexSON to be specified using "output_nexml2json" argument (or via some other mechanism)')
+        else:
+            if 'otu_label' in kwargs:
+                self.otu_label = kwargs['otu_label'].lower()
+            else:
+                self.otu_label = kwargs.get('tip_label', 'ot:originallabel').lower()
+            if (self.otu_label not in PhyloSchema._otu_label_list) \
+               and ('ot:{}'.format(self.otu_label) not in PhyloSchema._otu_label_list):
+                m = '"tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list))
+                raise ValueError(m)
+    def get_description(self):
+        if self.format_code == PhyloSchema.NEXSON:
+            return 'NexSON v{v}'.format(v=self.version)
+        elif self.format_code == PhyloSchema.NEXML:
+            return 'NeXML'
+        elif self.format_code == PhyloSchema.NEXUS:
+            return 'NEXUS'
+        elif self.format_code == PhyloSchema.NEWICK:
+            return 'Newick'
+    description = property(get_description)
+    def can_convert_from(self, src_schema=None):
+        if self.content == 'study':
+            return True
+        assert self.content == 'tree'
+        if self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS]:
+            return True
+        return False
+    def serialize(self, src, content='study', output_dest=None, src_schema=None):
+        return self.convert(src, content=content, serialize=True, output_dest=output_dest, src_schema=src_schema)
+    def convert(self, src, content='study', serialize=False, output_dest=None, src_schema=None):
+        if not self.can_convert_from():
+            raise NotImplementedError('Conversion of {c} to {d} is not supported'.format(c=self.content, d=self.description))
+        if src_schema is None:
+            src_format = PhyloSchema.NEXSON
+            current_format = None
+        else:
+            src_format = src_schema.format_code
+            current_format = src_schema.version
+        if src_format != PhyloSchema.NEXSON:
+            raise NotImplementedError('Only conversion from NexSON is currently supported')
+        if self.format_code == PhyloSchema.NEXSON:
+            d = convert_nexson_format(src,
+                                      output_format=self.version,
+                                      current_format=current_format,
+                                      remove_old_structs=True,
+                                      pristine_if_invalid=False,
+                                      sort_arbitrary=False)
+            if serialize:
+                if output_dest:
+                    write_as_json(d, output_dest)
+                    return None
+                else:
+                    f = StringIO()
+                    wrapper = codecs.getwriter("utf8")(f)
+                    write_as_json(d, wrapper)
+                    wrapper.reset()
+                    return f.getvalue()
+            else:
+                return d
+        if not serialize:
+            raise ValueError('Conversion without serialization is only supported for the NexSON format')
+        if self.format_code == PhyloSchema.NEXML:
+            if output_dest:
+                if isinstance(output_dest, str) or isinstance(output_dest, unicode):
+                    output_dest = codecs.open(output_dest, 'w', encoding='utf-8')
+                write_obj_as_nexml(src, output_dest, addindent=' ', newl='\n')
+                return
+            return convert_to_nexml(src)
+
+
 
 def get_ot_study_info_from_nexml(src=None,
                                  nexml_content=None,
@@ -109,18 +234,30 @@ def write_obj_as_nexml(obj_dict,
                        file_obj,
                        addindent='',
                        newl='',
-                       use_default_root_atts=True):
+                       use_default_root_atts=True,
+                       otu_label='ot:originalLabel'):
     nsv = detect_nexson_version(obj_dict)
     if not _nexson_directly_translatable_to_nexml(nsv):
         convert_nexson_format(obj_dict, DIRECT_HONEY_BADGERFISH)
         nsv = DIRECT_HONEY_BADGERFISH
     ccfg = ConversionConfig(NEXML_NEXSON_VERSION,
                             input_format=nsv,
-                            use_default_root_atts=use_default_root_atts)
+                            use_default_root_atts=use_default_root_atts,
+                            otu_label=otu_label)
     converter = Nexson2Nexml(ccfg)
     doc = converter.convert(obj_dict)
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
 
+def convert_to_nexml(obj_dict, addindent='', newl='', use_default_root_atts=True):
+    f = StringIO()
+    wrapper = codecs.getwriter("utf8")(f)
+    write_obj_as_nexml(obj_dict,
+                       file_obj=wrapper,
+                       addindent=addindent,
+                       newl=newl,
+                       use_default_root_atts=use_default_root_atts)
+    wrapper.reset()
+    return f.getvalue()
 
 def resolve_nexson_format(v):
     if len(v) == 3:
@@ -490,6 +627,7 @@ def extract_tree(nexson, tree_id, output_format):
         assert arg in ('ot:originallabel', 'ot:ottid', 'ot:otttaxonname')
         arg = _ARG2PROP[arg]
     except:
+        raise
         raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
     if not _is_by_id_hbf(detect_nexson_version(nexson)):
         nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)

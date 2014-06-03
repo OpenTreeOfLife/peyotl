@@ -16,6 +16,13 @@ NEXML_NEXSON_VERSION = 'nexml'
 SUPPORTED_NEXSON_VERSIONS = frozenset([BADGER_FISH_NEXSON_VERSION,
                                        DIRECT_HONEY_BADGERFISH,
                                        BY_ID_HONEY_BADGERFISH])
+SUPPORTED_NEXSON_VERSIONS_AND_ALIASES = frozenset([BADGER_FISH_NEXSON_VERSION,
+                                                   DIRECT_HONEY_BADGERFISH,
+                                                   BY_ID_HONEY_BADGERFISH,
+                                                   '0',
+                                                   '0.0',
+                                                   '1.0',
+                                                   '1.2'])
 # TODO: in lieu of real namespace support...
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
@@ -139,6 +146,7 @@ def _add_uniq_value_to_dict_bf(d, k, v):
 _is_badgerfish_version = lambda x: x.startswith('0.')
 _is_direct_hbf = lambda x: x.startswith('1.0.')
 _is_by_id_hbf = lambda x: x.startswith('1.2')
+_is_supported_nexson_vers = lambda x: x in SUPPORTED_NEXSON_VERSIONS_AND_ALIASES
 
 def _debug_dump_dom(el):
     '''Debugging helper. Prints out `el` contents.'''

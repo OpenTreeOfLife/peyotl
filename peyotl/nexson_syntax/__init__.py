@@ -62,7 +62,13 @@ class PhyloSchema(object):
         '.tre': 'newick',
         '.nwk': 'newick',
     }
-    _otu_label_list = ('ot:originallabel', 'ot:ottid', 'ot:otttaxonname')
+    _otu_label2prop = {'ot:originallabel': '^ot:originalLabel', 
+                       'ot:ottid': '^ot:ottId',
+                       'ot:otttaxonname': '^ot:ottTaxonName',
+                       }
+    _otu_label_list = _otu_label2prop.keys()
+    _NEWICK_PROP_VALS = _otu_label2prop.values()
+
     def __init__(self, schema='nexson', **kwargs):
         '''Checks:
             'format',
@@ -70,6 +76,7 @@ class PhyloSchema(object):
             'output_nexml2json' (implicitly NexSON)
         '''
         self.content = kwargs.get('content', 'study')
+        self.content_id = kwargs.get('content_id')
         content_types = ['study', 'tree']
         if self.content not in content_types:
             raise ValueError('"content" must be one of: "{}"'.format('", "'.join(content_types)))
@@ -110,8 +117,9 @@ class PhyloSchema(object):
                 self.otu_label = kwargs.get('tip_label', 'ot:originallabel').lower()
             if (self.otu_label not in PhyloSchema._otu_label_list) \
                and ('ot:{}'.format(self.otu_label) not in PhyloSchema._otu_label_list):
-                m = '"tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list))
+                m = '"otu_label" or "tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list))
                 raise ValueError(m)
+            self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
     def get_description(self):
         if self.format_code == PhyloSchema.NEXSON:
             return 'NexSON v{v}'.format(v=self.version)
@@ -170,6 +178,12 @@ class PhyloSchema(object):
                 write_obj_as_nexml(src, output_dest, addindent=' ', newl='\n')
                 return
             return convert_to_nexml(src)
+        elif self.format_code in [PhyloSchema.NEXUS, PhyloSchema.NEWICK]:
+            if self.content == 'tree':
+                return extract_tree(src, self.content_id, self)
+            else:
+                assert False
+        assert False
 
 
 
@@ -467,11 +481,6 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
         nexson['nexml']['^xhtml:license'] = {'@href': 'http://creativecommons.org/publicdomain/zero/1.0/'}
     return nexson
 
-_ARG2PROP = {'ot:originallabel': '^ot:originalLabel', 
-             'ot:ottid': '^ot:ottId',
-             'ot:otttaxonname': '^ot:ottTaxonName',
-            }
-_NEWICK_PROP_VALS = _ARG2PROP.values()
 _EMPTY_TUPLE = tuple
 _NEWICK_NEEDING_QUOTING = re.compile(r'(\s|[\[\]():,;])')
 _NEXUS_NEEDING_QUOTING = re.compile(r'(\s|[-()\[\]{}/\,;:=*"`+<>])')
@@ -517,11 +526,10 @@ def _write_newick_edge_len(out, edge):
 
 def convert_tree_to_newick(tree,
                            otu_group,
-                           format,
                            label_key,
                            leaf_labels,
                            needs_quotes_pattern):
-    assert label_key in _NEWICK_PROP_VALS
+    assert label_key in PhyloSchema._NEWICK_PROP_VALS
     unlabeled_counter = 0
     root_id = tree['^ot:rootNodeId']
     edges = tree['edgeBySourceId']
@@ -587,21 +595,21 @@ def convert_tree_to_newick(tree,
     out.write(';')
     return out.getvalue()
 
-def convert_tree(tree_id, tree, otu_group, format, label_key):
-    if format == 'nexus':
+def convert_tree(tree_id, tree, otu_group, schema):
+    label_key = schema.otu_label_prop
+    if schema.format_str == 'nexus':
         leaf_labels = []
         needs_quotes_pattern = _NEXUS_NEEDING_QUOTING
     else:
         leaf_labels = None
         needs_quotes_pattern = _NEWICK_NEEDING_QUOTING
-        assert format == 'newick'
+        assert schema.format_str == 'newick'
     newick = convert_tree_to_newick(tree,
                                     otu_group,
-                                    format,
                                     label_key,
                                     leaf_labels,
                                     needs_quotes_pattern)
-    if format == 'nexus':
+    if schema.format_str == 'nexus':
         return '''#NEXUS
 BEGIN TAXA;
     Dimensions NTax = {s};
@@ -617,15 +625,9 @@ END;
     else:
         return newick
 
-def extract_tree(nexson, tree_id, output_format):
+def extract_tree(nexson, tree_id, schema):
     try:
-        format, arg = output_format
-        arg = arg.lower()
-        if arg.startswith('^'):
-            arg = arg[1:]
-        assert format in ['newick', 'nexus']
-        assert arg in ('ot:originallabel', 'ot:ottid', 'ot:otttaxonname')
-        arg = _ARG2PROP[arg]
+        assert schema.format_str in ['newick', 'nexus']
     except:
         raise
         raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
@@ -640,5 +642,5 @@ def extract_tree(nexson, tree_id, output_format):
             otu_groups = nexml_el['otusById']
             ogi = tree_group['@otus']
             otu_group = otu_groups[ogi]['otuById']
-            return convert_tree(tree_id, tree, otu_group, format, arg)
+            return convert_tree(tree_id, tree, otu_group, schema)
     return None

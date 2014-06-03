@@ -40,11 +40,23 @@ class TestPhyloSchema(unittest.TestCase):
         self.assertRaises(ValueError, PhyloSchema, schema='newick', tip_label='bogus')
         self.assertRaises(ValueError, PhyloSchema, schema='nexus', tip_label='bogus')
         self.assertRaises(ValueError, PhyloSchema, schema='nexml', tip_label='bogus')
-    def testConvViaPS(self):
+    def testNexmlConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexml')
-        nex = ps.serialize(o, output_dest='t.xml')
+        nex = ps.serialize(o)
+        self.assertTrue(nex.startswith('<'))
 
+    def testNexusConvViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema('nexus', content='tree', content_id='tree3')
+        nex = ps.serialize(o)
+        self.assertTrue(nex.startswith('#'))
+
+    def testNewickConvViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema('newick', content='tree', content_id='tree3')
+        nex = ps.serialize(o)
+        self.assertTrue(nex.startswith('('))
 
         """_format_list = ('newick', 'nexson', 'nexml', 'nexus')
     NEWICK, NEXSON, NEXML, NEXUS = range(4)
@@ -94,7 +106,7 @@ class TestPhyloSchema(unittest.TestCase):
                 m = '"tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list)
                     """
 
-"""
+
 class TestConvert(unittest.TestCase):
     def testCanConvert(self):
         x = ["0.0.0", "1.0.0"]
@@ -163,6 +175,6 @@ class TestConvert(unittest.TestCase):
                 continue
             b = convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH)
             equal_blob_check(self, '', b, b_expect)
-"""
+
 if __name__ == "__main__":
     unittest.main()

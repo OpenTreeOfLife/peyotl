@@ -71,7 +71,7 @@ class PhyloSchema(object):
 
     def __init__(self, schema='nexson', **kwargs):
         '''Checks:
-            'format',
+            'schema',
             'type_ext', then 
             'output_nexml2json' (implicitly NexSON)
         '''
@@ -137,22 +137,29 @@ class PhyloSchema(object):
         if self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS]:
             return True
         return False
+    def is_json(self):
+        return self.format_code == PhyloSchema.NEXSON
+    def is_xml(self):
+        return self.format_code == PhyloSchema.NEXML
+    def is_text(self):
+        return self.format_code in (PhyloSchema.NEXUS, PhyloSchema.NEWICK)
+
     def serialize(self, src, content='study', output_dest=None, src_schema=None):
         return self.convert(src, content=content, serialize=True, output_dest=output_dest, src_schema=src_schema)
     def convert(self, src, content='study', serialize=False, output_dest=None, src_schema=None):
-        if not self.can_convert_from():
-            raise NotImplementedError('Conversion of {c} to {d} is not supported'.format(c=self.content, d=self.description))
         if src_schema is None:
             src_format = PhyloSchema.NEXSON
             current_format = None
         else:
             src_format = src_schema.format_code
             current_format = src_schema.version
+        if not self.can_convert_from():
+            raise NotImplementedError('Conversion of {c} to {d} is not supported'.format(c=self.content, d=self.description))
         if src_format != PhyloSchema.NEXSON:
             raise NotImplementedError('Only conversion from NexSON is currently supported')
         if self.format_code == PhyloSchema.NEXSON:
             d = convert_nexson_format(src,
-                                      output_format=self.version,
+                                      out_nexson_format=self.version,
                                       current_format=current_format,
                                       remove_old_structs=True,
                                       pristine_if_invalid=False,

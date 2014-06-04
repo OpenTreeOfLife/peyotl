@@ -115,10 +115,13 @@ class PhyloSchema(object):
                 self.otu_label = kwargs['otu_label'].lower()
             else:
                 self.otu_label = kwargs.get('tip_label', 'ot:originallabel').lower()
-            if (self.otu_label not in PhyloSchema._otu_label_list) \
-               and ('ot:{}'.format(self.otu_label) not in PhyloSchema._otu_label_list):
-                m = '"otu_label" or "tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list))
-                raise ValueError(m)
+            if self.otu_label not in PhyloSchema._otu_label_list:
+                with_ns = 'ot:{}'.format(self.otu_label)
+                if with_ns in PhyloSchema._otu_label_list:
+                    self.otu_label = with_ns
+                else:
+                    m = '"otu_label" or "tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list))
+                    raise ValueError(m)
             self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
     def get_description(self):
         if self.format_code == PhyloSchema.NEXSON:
@@ -134,7 +137,7 @@ class PhyloSchema(object):
         if self.content == 'study':
             return True
         assert self.content == 'tree'
-        if self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS]:
+        if self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS,]:
             return True
         return False
     def is_json(self):
@@ -182,9 +185,9 @@ class PhyloSchema(object):
             if output_dest:
                 if isinstance(output_dest, str) or isinstance(output_dest, unicode):
                     output_dest = codecs.open(output_dest, 'w', encoding='utf-8')
-                write_obj_as_nexml(src, output_dest, addindent=' ', newl='\n')
+                write_obj_as_nexml(src, output_dest, addindent=' ', newl='\n', otu_label=self.otu_label_prop)
                 return
-            return convert_to_nexml(src, addindent=' ', newl='\n')
+            return convert_to_nexml(src, addindent=' ', newl='\n', otu_label=self.otu_label_prop)
         elif self.format_code in [PhyloSchema.NEXUS, PhyloSchema.NEWICK]:
             if self.content == 'tree':
                 ci = self.content_id
@@ -270,14 +273,15 @@ def write_obj_as_nexml(obj_dict,
     doc = converter.convert(obj_dict)
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
 
-def convert_to_nexml(obj_dict, addindent='', newl='', use_default_root_atts=True):
+def convert_to_nexml(obj_dict, addindent='', newl='', use_default_root_atts=True, otu_label='ot:originalLabel'):
     f = StringIO()
     wrapper = codecs.getwriter("utf8")(f)
     write_obj_as_nexml(obj_dict,
                        file_obj=wrapper,
                        addindent=addindent,
                        newl=newl,
-                       use_default_root_atts=use_default_root_atts)
+                       use_default_root_atts=use_default_root_atts,
+                       otu_label=otu_label)
     wrapper.reset()
     return f.getvalue()
 

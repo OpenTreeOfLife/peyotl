@@ -30,6 +30,11 @@ def _get_pair(par, f, s):
     return pathmap.nexson_obj(bf), pathmap.nexson_obj(hbf)
 
 class TestPhyloSchema(unittest.TestCase):
+    def testNexmlConvByExtViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema(type_ext='.nexml', otu_label='otttaxonname')
+        nex = ps.serialize(o, content='study', src_schema=PhyloSchema('nexson', version='1.2.1'))
+        self.assertTrue(nex.startswith('<'))
     def testPS(self):
         self.assertRaises(ValueError, PhyloSchema, schema='bogus')
         self.assertRaises(ValueError, PhyloSchema, content='bogus')
@@ -44,11 +49,6 @@ class TestPhyloSchema(unittest.TestCase):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexml')
         nex = ps.serialize(o)
-        self.assertTrue(nex.startswith('<'))
-    def testNexmlConvByExtViaPS(self):
-        o = pathmap.nexson_obj('10/pg_10.json')
-        ps = PhyloSchema(type_ext='.nexml')
-        nex = ps.serialize(o, content='study', src_schema=PhyloSchema('nexson', version='1.2.1'))
         self.assertTrue(nex.startswith('<'))
 
     def testNexusConvViaPS(self):
@@ -80,54 +80,6 @@ class TestPhyloSchema(unittest.TestCase):
         ps = PhyloSchema('newick', content='tree', content_id='tree3')
         nex = ps.serialize(o)
         self.assertTrue(nex.startswith('('))
-
-        """_format_list = ('newick', 'nexson', 'nexml', 'nexus')
-    NEWICK, NEXSON, NEXML, NEXUS = range(4)
-    _extension2format = {
-        '.nexson' : 'nexson',
-        '.nexml': 'nexml',
-        '.nex': 'nex',
-        '.tre': 'newick',
-        '.nwk': 'newick',
-    }
-    _otu_label_list = ('ot:originallabel', 'ot:ottid', 'ot:otttaxonname')
-    def __init__(self, **kwargs):
-        '''Checks:
-            'format',
-            'type_ext', then 
-            'output_nexml2json' (implicitly NexSON)
-        '''
-        if kwargs.get('format') is not None:
-            self.format_str = kwargs['format'].lower()
-        elif kwargs.get('type_ext') is not None:
-            ext = kwargs['type_ext'].lower()
-            try:
-                self.format_str = PhyloSchema._extension2format[ext]
-            except:
-                raise ValueError('file extension "{}" not recognized'.format(kwargs['type_ext']))
-        elif 'output_nexml2json' in kwargs:
-            self.format_str = 'nexson'
-            self.version = kwargs['output_nexml2json']
-        else:
-            raise ValueError('Expecting "format" or "type_ext" argument')
-        try:
-            self.format_code = PhyloSchema._format_list.index(self.format_str)
-        except:
-            raise ValueError('format "{}" not recognized'.format(self.format_str))
-        if self.format_code == PhyloSchema.NEXSON
-            try:
-                if not hasattr(self, 'version'):
-                    self.version = kwargs['version']
-                if self.version == 'native':
-                    self.version = kwargs['repo_nexml2json']
-            except:
-                raise ValueError('Expecting version of NexSON to be specified using "output_nexml2json" argument (or via some other mechanism)')
-        else:
-            self.otu_label = kwargs.get('tip_label', 'ot:originallabel').lower()
-            if (self.otu_label not in PhyloSchema._otu_label_list) \
-               and ('ot:{}'.format(self.otu_label) not in PhyloSchema._otu_label_list):
-                m = '"tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list)
-                    """
 
 
 class TestConvert(unittest.TestCase):

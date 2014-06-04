@@ -187,9 +187,10 @@ class PhyloSchema(object):
             return convert_to_nexml(src, addindent=' ', newl='\n')
         elif self.format_code in [PhyloSchema.NEXUS, PhyloSchema.NEWICK]:
             if self.content == 'tree':
-                return extract_tree(src, self.content_id, self)
+                ci = self.content_id
             else:
-                assert False
+                ci = None
+            return extract_tree(src, self.content_id, self)
         assert False
 
 
@@ -501,6 +502,8 @@ def quote_newick_name(s, needs_quotes_pattern=_NEWICK_NEEDING_QUOTING):
     return s
 
 def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
+    '''`leaf_labels` is a (list, dict) pair where the list is the order encountered, and the dict maps name to index in the list
+    '''
     otu_id = node['@otu']
     otu = otu_group[otu_id]
     label = otu.get(label_key)
@@ -510,7 +513,9 @@ def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlab
     else:
         label = quote_newick_name(label, needs_quotes_pattern)
     if leaf_labels is not None:
-        leaf_labels.append(label)
+        if label not in leaf_labels[1]:
+            leaf_labels[1][label] = len(leaf_labels[0])
+            leaf_labels[0].append(label)
     out.write(label)
     return unlabeled_counter
 
@@ -602,10 +607,28 @@ def convert_tree_to_newick(tree,
     out.write(';')
     return out.getvalue()
 
+def _write_nexus_format(quoted_leaf_labels, tree_name_newick_list):
+    f = StringIO()
+    wrapper = codecs.getwriter("utf8")(f)
+    wrapper.write('''#NEXUS
+BEGIN TAXA;
+    Dimensions NTax = {s};
+    TaxLabels {l} ;
+END;
+BEGIN TREES;
+'''.format(s=len(quoted_leaf_labels), l=' '.join(quoted_leaf_labels)))
+    for name, newick in tree_name_newick_list:
+        wrapper.write('    Tree ')
+        wrapper.write(name)
+        wrapper.write(' = ')
+        wrapper.write(name)
+    wrapper.write('\nEND;\n')
+    wrapper.reset()
+    return f.getvalue()
 def convert_tree(tree_id, tree, otu_group, schema):
     label_key = schema.otu_label_prop
     if schema.format_str == 'nexus':
-        leaf_labels = []
+        leaf_labels = ([], {})
         needs_quotes_pattern = _NEXUS_NEEDING_QUOTING
     else:
         leaf_labels = None
@@ -617,20 +640,28 @@ def convert_tree(tree_id, tree, otu_group, schema):
                                     leaf_labels,
                                     needs_quotes_pattern)
     if schema.format_str == 'nexus':
-        return '''#NEXUS
-BEGIN TAXA;
-    Dimensions NTax = {s};
-    TaxLabels {l} ;
-END;
-BEGIN TREES;
-    Tree {t} = {n}
-END;
-'''.format(s=len(leaf_labels),
-           l=' '.join(leaf_labels),
-           t=quote_newick_name(tree_id, needs_quotes_pattern),
-           n=newick)
+        tl = [(quote_newick_name(tree_id, needs_quotes_pattern), newick)]
+        return _write_nexus_format(leaf_labels[0], tl)
     else:
         return newick
+
+def convert_trees(tid_tree_otus_list, schema):
+    label_key = schema.otu_label_prop
+    if schema.format_str == 'nexus':
+        leaf_labels = ([], {})
+        needs_quotes_pattern = _NEXUS_NEEDING_QUOTING
+        conv_tree_list = []
+        for tree_id, tree, otu_group in tid_tree_otus_list:
+            newick = convert_tree_to_newick(tree,
+                                            otu_group,
+                                            label_key,
+                                            leaf_labels,
+                                            needs_quotes_pattern)
+            t = (quote_newick_name(tree_id, needs_quotes_pattern), newick)
+            conv_tree_list.append(t)
+        return _write_nexus_format(leaf_labels[0], conv_tree_list)
+    else:
+        raise NotImplementedError('convert_tree for {}'.format(schema.format_str))
 
 def extract_tree(nexson, tree_id, schema):
     try:
@@ -643,11 +674,26 @@ def extract_tree(nexson, tree_id, schema):
 
     nexml_el = get_nexml_el(nexson)
     tree_groups = nexml_el['treesById']
+    tree_str_list = []
+    tree_obj_otus_group_list = []
     for tree_group in tree_groups.values():
-        tree = tree_group['treeById'].get(tree_id)
-        if tree:
-            otu_groups = nexml_el['otusById']
-            ogi = tree_group['@otus']
-            otu_group = otu_groups[ogi]['otuById']
-            return convert_tree(tree_id, tree, otu_group, schema)
-    return None
+        if tree_id:
+            tree_list = [(tree_id, tree_group['treeById'].get(tree_id))]
+        else:
+            tree_list = tree_group['treeById'].items()
+        for tid, tree in tree_list:
+            if tree is not None:
+                otu_groups = nexml_el['otusById']
+                ogi = tree_group['@otus']
+                otu_group = otu_groups[ogi]['otuById']
+                if (schema.format_str == 'newick') or (tree_id is not None):
+                    s = convert_tree(tid, tree, otu_group, schema)
+                    if tree_id is not None:
+                        return s
+                    else:
+                        tree_str_list.append(s)
+                else:
+                    tree_obj_otus_group_list.append((tid, tree, otu_group))
+    if tree_obj_otus_group_list:
+        return convert_trees(tree_obj_otus_group_list, schema)
+    return '\n'.join(tree_str_list)

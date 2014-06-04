@@ -621,7 +621,7 @@ BEGIN TREES;
         wrapper.write('    Tree ')
         wrapper.write(name)
         wrapper.write(' = ')
-        wrapper.write(name)
+        wrapper.write(newick)
     wrapper.write('\nEND;\n')
     wrapper.reset()
     return f.getvalue()

@@ -205,14 +205,26 @@ class Nexson2Nexml(NexsonConverter):
             if isinstance(child, dict):
                 self._add_subtree_to_xml_doc(doc, par, child, key, key_order)
             else:
-                assert not (isinstance(child, list) or isinstance(child, tuple))
                 ca = {}
-                cd = child
                 cc = {}
                 mc = {}
-                cel = _create_sub_el(doc, par, key, ca, cd)
-                self._add_meta_dict_to_xml(doc, cel, mc)
-                self._add_dict_of_subtree_to_xml_doc(doc, cel, cc, key_order=None)
+                    
+                if isinstance(child, list) or isinstance(child, tuple) or isinstance(child, set):
+                    #open('/tmp/pey-log', 'a').write('unexpeceted list/tuple child for key {k} = {v}'.format(k=key, v=str(child)))
+                    #assert(False)
+                    for sc in child:
+                        if isinstance(sc, dict):
+                            self._add_subtree_to_xml_doc(doc, par, sc, key, key_order)
+                        else:
+                            cd = sc
+                            cel = _create_sub_el(doc, par, key, ca, cd)
+                            self._add_meta_dict_to_xml(doc, cel, mc)
+                            self._add_dict_of_subtree_to_xml_doc(doc, cel, cc, key_order=None)
+                else:
+                    cd = child
+                    cel = _create_sub_el(doc, par, key, ca, cd)
+                    self._add_meta_dict_to_xml(doc, cel, mc)
+                    self._add_dict_of_subtree_to_xml_doc(doc, cel, cc, key_order=None)
         
 
     def _add_dict_of_subtree_to_xml_doc(self,

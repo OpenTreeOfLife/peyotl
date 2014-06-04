@@ -69,7 +69,7 @@ class PhyloSchema(object):
     _otu_label_list = _otu_label2prop.keys()
     _NEWICK_PROP_VALS = _otu_label2prop.values()
 
-    def __init__(self, schema='nexson', **kwargs):
+    def __init__(self, schema=None, **kwargs):
         '''Checks:
             'schema',
             'type_ext', then 
@@ -184,7 +184,7 @@ class PhyloSchema(object):
                     output_dest = codecs.open(output_dest, 'w', encoding='utf-8')
                 write_obj_as_nexml(src, output_dest, addindent=' ', newl='\n')
                 return
-            return convert_to_nexml(src)
+            return convert_to_nexml(src, addindent=' ', newl='\n')
         elif self.format_code in [PhyloSchema.NEXUS, PhyloSchema.NEWICK]:
             if self.content == 'tree':
                 return extract_tree(src, self.content_id, self)

@@ -45,6 +45,11 @@ class TestPhyloSchema(unittest.TestCase):
         ps = PhyloSchema('nexml')
         nex = ps.serialize(o)
         self.assertTrue(nex.startswith('<'))
+    def testNexmlConvByExtViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema(type_ext='.nexml')
+        nex = ps.serialize(o, content='study', src_schema=PhyloSchema('nexson', version='1.2.1'))
+        self.assertTrue(nex.startswith('<'))
 
     def testNexusConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
@@ -52,7 +57,13 @@ class TestPhyloSchema(unittest.TestCase):
         nex = ps.serialize(o)
         self.assertTrue(nex.startswith('#'))
 
-    def testNexusConvViaPS(self):
+    def testNexusConvStudyViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema('nexus')
+        nex = ps.serialize(o)
+        self.assertTrue(nex.startswith('#'))
+
+    def testNexusConvByExtViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema(None, type_ext='.nex', content='tree', content_id='tree3')
         nex = ps.serialize(o)

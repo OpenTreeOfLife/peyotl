@@ -12,6 +12,7 @@
 "xsd": "http://www.w3.org/2001/XMLSchema#", 
 "xsi": "http://www.w3.org/2001/XMLSchema-instance"
 }, 
+"^bogus_timestamp": "2014-06-04T17:22:59.070265", 
 "^ot:agents": {
 "agent": [
 {
@@ -40,7 +41,40 @@
 ]
 }, 
 "^ot:annotationEvents": {
-"annotation": []
+"annotation": [
+{
+"@description": "Open Tree NexSON validation", 
+"@id": "peyotl-validator-event", 
+"@passedChecks": true, 
+"@preserve": false, 
+"@wasAssociatedWithAgentId": "peyotl-validator", 
+"message": [
+{
+"@code": "UNRECOGNIZED_KEY", 
+"@severity": "WARNING", 
+"data": [
+"^bogus_timestamp", 
+"^ot:agents"
+], 
+"refersTo": {
+"@idref": "study", 
+"@top": "nexml"
+}
+}, 
+{
+"@code": "MISSING_OPTIONAL_KEY", 
+"@severity": "WARNING", 
+"data": [
+"^ot:dataDeposit"
+], 
+"refersTo": {
+"@idref": "study", 
+"@top": "nexml"
+}
+}
+]
+}
+]
 }, 
 "^ot:candidateTreeForSynthesis": [], 
 "^ot:curatorName": "Rick Ree", 

@@ -49,6 +49,34 @@ _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
                                   ])
 _LOG = get_logger(__name__)
 
+def strip_to_meta_only(blob, nexson_version):
+    nex = get_nexml_el(blob)
+    if _is_by_id_hbf(nexson_version):
+        for otus_group in nex.get('otusById', {}).values():
+            if 'otuById' in otus_group:
+                del otus_group['otuById']
+        for trees_group in nex.get('treesById', {}).values():
+            tree_group = trees_group['treeById']
+            key_list = tree_group.keys()
+            for k in key_list:
+                tree_group[k] = None
+    else:
+        otus = nex['otus']
+        if not isinstance(otus, list):
+            otus = [otus]
+        for otus_group in otus:
+            if 'otu' in otus_group:
+                del otus_group['otu']
+        trees = nex['trees']
+        if not isinstance(trees, list):
+            trees = [trees]
+        for trees_group in trees:
+            tree_list = trees_group.get('tree')
+            if not isinstance(tree_list, list):
+                tree_list = [tree_list]
+            t = [{'id': i.get('@id')} for i in tree_list]
+            trees_group['tree'] = t
+
 class PhyloSchema(object):
     '''Simple container for holding the set of variables needed to
     convert from one format to another (with error checking)
@@ -77,7 +105,7 @@ class PhyloSchema(object):
         '''
         self.content = kwargs.get('content', 'study')
         self.content_id = kwargs.get('content_id')
-        content_types = ['study', 'tree']
+        content_types = ['study', 'tree', 'meta']
         if self.content not in content_types:
             raise ValueError('"content" must be one of: "{}"'.format('", "'.join(content_types)))
         if schema is not None:
@@ -111,6 +139,8 @@ class PhyloSchema(object):
             except:
                 raise ValueError('Expecting version of NexSON to be specified using "output_nexml2json" argument (or via some other mechanism)')
         else:
+            if self.content in ['meta']:
+                raise ValueError('The "{}" content can only be returned in NexSON'.format(self.content))
             if 'otu_label' in kwargs:
                 self.otu_label = kwargs['otu_label'].lower()
             else:
@@ -136,9 +166,10 @@ class PhyloSchema(object):
     def can_convert_from(self, src_schema=None):
         if self.content == 'study':
             return True
-        assert self.content == 'tree'
-        if self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS,]:
-            return True
+        if self.content == 'tree':
+            return self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS]
+        if self.content == 'meta':
+            return self.format_code in [PhyloSchema.NEXSON]
         return False
     def is_json(self):
         return self.format_code == PhyloSchema.NEXSON
@@ -167,6 +198,8 @@ class PhyloSchema(object):
                                       remove_old_structs=True,
                                       pristine_if_invalid=False,
                                       sort_arbitrary=False)
+            if self.content == 'meta':
+                strip_to_meta_only(d, self.version)
             if serialize:
                 if output_dest:
                     write_as_json(d, output_dest)

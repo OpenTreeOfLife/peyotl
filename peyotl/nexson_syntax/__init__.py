@@ -241,7 +241,7 @@ class PhyloSchema(object):
                 for i, t, o in i_t_o_list:
                     d[i] = t
             elif self.content == 'meta':
-                strip_to_meta_only(d, self.version)
+                strip_to_meta_only(d, current_format)
             elif self.content == 'otus':
                 d = extract_otus_nexson(d, self.content_id, current_format)
             elif self.content == 'otu':
@@ -843,6 +843,7 @@ def extract_tree(nexson, tree_id, schema, subtree_id=None):
     i_t_o_list = extract_tree_nexson(nexson, tree_id, None)
     if schema.format_str == 'newick':
         tree_str_list = [convert_tree(i, t, o, schema, subtree_id=subtree_id) for i, t, o in i_t_o_list]
+        tree_str_list = [i for i in tree_str_list if i is not None]
         return '\n'.join(tree_str_list)
     return convert_trees(i_t_o_list, schema, subtree_id=subtree_id)
     

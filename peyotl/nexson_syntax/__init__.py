@@ -97,6 +97,7 @@ def _otu_dict_to_otumap(otu_dict):
             if mvv is not None:
                         mv[mk] = mvv
     return d
+
 class PhyloSchema(object):
     '''Simple container for holding the set of variables needed to
     convert from one format to another (with error checking)
@@ -116,8 +117,10 @@ class PhyloSchema(object):
                        }
     _otu_label_list = _otu_label2prop.keys()
     _NEWICK_PROP_VALS = _otu_label2prop.values()
-    _content_types = set(['study', 'tree', 'meta', 'otus', 'otu', 'otumap'])
-        
+    _no_content_id_types = set(['study', 'meta'])
+    _tup_content_id_types = set(['subtree'])
+    _str_content_id_types = set(['tree', 'otus', 'otu', 'otumap'])
+    _content_types = set(['study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree'])
     def __init__(self, schema=None, **kwargs):
         '''Checks:
             'schema',
@@ -128,6 +131,16 @@ class PhyloSchema(object):
         self.content_id = kwargs.get('content_id')
         if self.content not in PhyloSchema._content_types:
             raise ValueError('"content" must be one of: "{}"'.format('", "'.join(PhyloSchema._content_types)))
+        if self.content in PhyloSchema._no_content_id_types:
+            if self.content_id is not None:
+                raise ValueError('No content_id expected for "{}" content'.format(self.content))
+        elif self.content in PhyloSchema._str_content_id_types:
+            if not (self.content_id is None or isinstance(self.content_id, str) or isinstance(self.content_id, unicode)):
+                raise ValueError('content_id for "{}" content must be a string (if provided)'.format(self.content))
+        else:
+            is_list = isinstance(self.content_id, list) or isinstance(self.content_id, tuple)
+            if (self.content_id is None) or (not is_list) or len(self.content_id) != 2:
+                raise ValueError('Expecting 2 content_ids for the "subtree" content')
         if schema is not None:
             self.format_str = schema.lower()
         elif kwargs.get('type_ext') is not None:
@@ -185,10 +198,10 @@ class PhyloSchema(object):
     description = property(get_description)
     def can_convert_from(self, src_schema=None):
         if self.format_code == PhyloSchema.NEXSON:
-            return True
+            return self.content != 'subtree'
         if self.content == 'study':
             return True
-        if self.content == 'tree':
+        if self.content in set(['tree', 'subtree']):
             return self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS]
         return False
     def is_json(self):
@@ -220,8 +233,10 @@ class PhyloSchema(object):
                                       remove_old_structs=True,
                                       pristine_if_invalid=False,
                                       sort_arbitrary=False)
-            elif self.content == 'tree':
-                i_t_o_list = extract_tree_nexson(d, self.content_id, current_format)
+            elif self.content in ('tree', 'subtree'):
+                i_t_o_list = extract_tree_nexson(d,
+                                                 self.content_id,
+                                                 current_format)
                 d = {}
                 for i, t, o in i_t_o_list:
                     d[i] = t
@@ -269,11 +284,14 @@ class PhyloSchema(object):
                 return
             return convert_to_nexml(src, addindent=' ', newl='\n', otu_label=self.otu_label_prop)
         elif self.format_code in [PhyloSchema.NEXUS, PhyloSchema.NEWICK]:
-            if self.content == 'tree':
-                ci = self.content_id
+            if self.content in ('tree', 'subtree'):
+                if isinstance(self.content_id, list) or isinstance(self.content_id, tuple):
+                    ci, subtree_id = self.content_id
+                else:
+                    ci, subtree_id = self.content_id, None
             else:
-                ci = None
-            return extract_tree(src, self.content_id, self)
+                ci, subtree_id = None, None
+            return extract_tree(src, ci, self, subtree_id=subtree_id)
         assert False
 
 
@@ -624,13 +642,23 @@ def convert_tree_to_newick(tree,
                            otu_group,
                            label_key,
                            leaf_labels,
-                           needs_quotes_pattern):
+                           needs_quotes_pattern,
+                           subtree_id=None):
     assert label_key in PhyloSchema._NEWICK_PROP_VALS
     unlabeled_counter = 0
-    root_id = tree['^ot:rootNodeId']
-    edges = tree['edgeBySourceId']
-    nodes = tree['nodeById']
     ingroup_node_id = tree.get('^ot:inGroupClade')
+    if subtree_id:
+        if subtree_id == 'ingroup':
+            root_id = ingroup_node_id
+            ingroup_node_id = None # turns of the comment pre-ingroup-marker
+        else:
+            root_id = subtree_id
+    else:
+        root_id = tree['^ot:rootNodeId']
+    edges = tree['edgeBySourceId']
+    if root_id not in edges:
+        return None
+    nodes = tree['nodeById']
     curr_node_id = root_id
     curr_edge = None
     curr_sib_list = []
@@ -709,7 +737,7 @@ BEGIN TREES;
     wrapper.write('\nEND;\n')
     wrapper.reset()
     return f.getvalue()
-def convert_tree(tree_id, tree, otu_group, schema):
+def convert_tree(tree_id, tree, otu_group, schema, subtree_id=None):
     label_key = schema.otu_label_prop
     if schema.format_str == 'nexus':
         leaf_labels = ([], {})
@@ -722,14 +750,15 @@ def convert_tree(tree_id, tree, otu_group, schema):
                                     otu_group,
                                     label_key,
                                     leaf_labels,
-                                    needs_quotes_pattern)
+                                    needs_quotes_pattern,
+                                    subtree_id=subtree_id)
     if schema.format_str == 'nexus':
         tl = [(quote_newick_name(tree_id, needs_quotes_pattern), newick)]
         return _write_nexus_format(leaf_labels[0], tl)
     else:
         return newick
 
-def convert_trees(tid_tree_otus_list, schema):
+def convert_trees(tid_tree_otus_list, schema, subtree_id=None):
     label_key = schema.otu_label_prop
     if schema.format_str == 'nexus':
         leaf_labels = ([], {})
@@ -740,9 +769,11 @@ def convert_trees(tid_tree_otus_list, schema):
                                             otu_group,
                                             label_key,
                                             leaf_labels,
-                                            needs_quotes_pattern)
-            t = (quote_newick_name(tree_id, needs_quotes_pattern), newick)
-            conv_tree_list.append(t)
+                                            needs_quotes_pattern,
+                                            subtree_id=subtree_id)
+            if newick:
+                t = (quote_newick_name(tree_id, needs_quotes_pattern), newick)
+                conv_tree_list.append(t)
         return _write_nexus_format(leaf_labels[0], conv_tree_list)
     else:
         raise NotImplementedError('convert_tree for {}'.format(schema.format_str))
@@ -803,7 +834,7 @@ def extract_tree_nexson(nexson, tree_id, curr_version):
                     return tree_obj_otus_group_list
     return tree_obj_otus_group_list
 
-def extract_tree(nexson, tree_id, schema):
+def extract_tree(nexson, tree_id, schema, subtree_id=None):
     try:
         assert schema.format_str in ['newick', 'nexus']
     except:
@@ -811,7 +842,7 @@ def extract_tree(nexson, tree_id, schema):
         raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
     i_t_o_list = extract_tree_nexson(nexson, tree_id, None)
     if schema.format_str == 'newick':
-        tree_str_list = [convert_tree(i, t, o, schema) for i, t, o in i_t_o_list]
+        tree_str_list = [convert_tree(i, t, o, schema, subtree_id=subtree_id) for i, t, o in i_t_o_list]
         return '\n'.join(tree_str_list)
-    return convert_trees(i_t_o_list, schema)
+    return convert_trees(i_t_o_list, schema, subtree_id=subtree_id)
     

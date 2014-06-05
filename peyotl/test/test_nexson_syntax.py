@@ -45,9 +45,19 @@ class TestPhyloSchema(unittest.TestCase):
         self.assertRaises(ValueError, PhyloSchema, schema='newick', tip_label='bogus')
         self.assertRaises(ValueError, PhyloSchema, schema='nexus', tip_label='bogus')
         self.assertRaises(ValueError, PhyloSchema, schema='nexml', tip_label='bogus')
+    def testTreesConvViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema('nexson', content='tree', content_id='tree3', version='1.2.1')
+        x = ps.serialize(o)
+        self.assertTrue(x.startswith('{'))
     def testMetaConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexson', content='meta', version='1.2.1')
+        x = ps.serialize(o)
+        self.assertTrue(x.startswith('{'))
+    def testOtusConvViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema('nexson', content='otus', version='1.2.1')
         x = ps.serialize(o)
         self.assertTrue(x.startswith('{'))
 

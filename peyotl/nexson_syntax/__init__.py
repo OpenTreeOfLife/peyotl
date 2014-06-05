@@ -77,6 +77,26 @@ def strip_to_meta_only(blob, nexson_version):
             t = [{'id': i.get('@id')} for i in tree_list]
             trees_group['tree'] = t
 
+def _otu_dict_to_otumap(otu_dict):
+    d = {}
+    for v in otu_dict.values():
+        k = v['^ot:originalLabel']
+        mv = d.get(k)
+        if mv is None:
+            mv = {}
+            d[k] = mv
+        elif isinstance(mv, list):
+            mv.append({})
+            mv = mv[-1]
+        else:
+            mv = [mv, {}]
+            mv = mv[-1]
+            d[k] = mv
+        for mk in ['^ot:ottId', '^ot:ottTaxonName']:
+            mvv = v.get(mk)
+            if mvv is not None:
+                        mv[mk] = mvv
+    return d
 class PhyloSchema(object):
     '''Simple container for holding the set of variables needed to
     convert from one format to another (with error checking)
@@ -96,7 +116,8 @@ class PhyloSchema(object):
                        }
     _otu_label_list = _otu_label2prop.keys()
     _NEWICK_PROP_VALS = _otu_label2prop.values()
-
+    _content_types = set(['study', 'tree', 'meta', 'otus', 'otu', 'otumap'])
+        
     def __init__(self, schema=None, **kwargs):
         '''Checks:
             'schema',
@@ -105,9 +126,8 @@ class PhyloSchema(object):
         '''
         self.content = kwargs.get('content', 'study')
         self.content_id = kwargs.get('content_id')
-        content_types = ['study', 'tree', 'meta', 'otus']
-        if self.content not in content_types:
-            raise ValueError('"content" must be one of: "{}"'.format('", "'.join(content_types)))
+        if self.content not in PhyloSchema._content_types:
+            raise ValueError('"content" must be one of: "{}"'.format('", "'.join(PhyloSchema._content_types)))
         if schema is not None:
             self.format_str = schema.lower()
         elif kwargs.get('type_ext') is not None:
@@ -170,8 +190,6 @@ class PhyloSchema(object):
             return True
         if self.content == 'tree':
             return self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS]
-        if self.content in ['meta', 'otus']:
-            return self.format_code in [PhyloSchema.NEXSON]
         return False
     def is_json(self):
         return self.format_code == PhyloSchema.NEXSON
@@ -203,14 +221,30 @@ class PhyloSchema(object):
             if self.content == 'study':
                 pass
             elif self.content == 'tree':
-                i_t_o_list = extract_tree_nexson(d, self.content_id, self.version)
+                i_t_o_list = extract_tree_nexson(d, self.content_id, current_format)
                 d = {}
                 for i, t, o in i_t_o_list:
                     d[i] = t
             elif self.content == 'meta':
                 strip_to_meta_only(d, self.version)
             elif self.content == 'otus':
-                d = extract_otus_nexson(d, self.content_id, self.version)
+                d = extract_otus_nexson(d, self.content_id, current_format)
+            elif self.content == 'otu':
+                d = extract_otu_nexson(d, self.content_id, current_format)
+            elif self.content == 'otumap':
+                if self.content_id is None:
+                    r = extract_otu_nexson(d, None, current_format)
+                else:
+                    p = extract_otus_nexson(d, self.content_id, current_format)
+                    if p is None:
+                        r = extract_otu_nexson(d, self.content_id, current_format)
+                    else:
+                        r = {}
+                        for v in p.values():
+                            r.update(v.get('otuById', {}))
+                if not r:
+                    return None
+                d = _otu_dict_to_otumap(r)
             if d is None:
                 return None
             if serialize:
@@ -713,10 +747,10 @@ def convert_trees(tid_tree_otus_list, schema):
     else:
         raise NotImplementedError('convert_tree for {}'.format(schema.format_str))
 
-def extract_otus_nexson(nexson, otus_id, version):
-    if version is None:
-        version = detect_nexson_version(nexson)
-    if not _is_by_id_hbf(version):
+def extract_otus_nexson(nexson, otus_id, curr_version):
+    if curr_version is None:
+        curr_version = detect_nexson_version(nexson)
+    if not _is_by_id_hbf(curr_version):
         nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
     nexml_el = get_nexml_el(nexson)
     o = nexml_el['otusById']
@@ -724,13 +758,31 @@ def extract_otus_nexson(nexson, otus_id, version):
         return o
     n = o.get(otus_id)
     if n is None:
-        return n
+        return None
     return {otus_id: n}
 
-def extract_tree_nexson(nexson, tree_id, version):
-    if version is None:
-        version = detect_nexson_version(nexson)
-    if not _is_by_id_hbf(version):
+def extract_otu_nexson(nexson, otu_id, curr_version):
+    if curr_version is None:
+        curr_version = detect_nexson_version(nexson)
+    if not _is_by_id_hbf(curr_version):
+        nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
+    nexml_el = get_nexml_el(nexson)
+    o = nexml_el['otusById']
+    if otu_id is None:
+        r = {}
+        for g in o.values():
+            r.update(g.get('otuById', {}))
+        return r
+    else:
+        for g in o.values():
+            go = g['otuById']
+            if otu_id in go:
+                return {otu_id: go[otu_id]}
+    return None
+def extract_tree_nexson(nexson, tree_id, curr_version):
+    if curr_version is None:
+        curr_version = detect_nexson_version(nexson)
+    if not _is_by_id_hbf(curr_version):
         nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
 
     nexml_el = get_nexml_el(nexson)

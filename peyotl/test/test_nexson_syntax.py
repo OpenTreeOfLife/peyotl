@@ -60,7 +60,16 @@ class TestPhyloSchema(unittest.TestCase):
         ps = PhyloSchema('nexson', content='otus', version='1.2.1')
         x = ps.serialize(o)
         self.assertTrue(x.startswith('{'))
-
+    def testOtuConvViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema('nexson', content='otu', content_id='otu190', version='1.2.1')
+        x = ps.serialize(o)
+        self.assertTrue(x.startswith('{'))
+    def testOtuMapConvViaPS(self):
+        o = pathmap.nexson_obj('10/pg_10.json')
+        ps = PhyloSchema('nexson', content='otumap', version='1.2.1')
+        x = ps.serialize(o)
+        self.assertTrue(x.startswith('{'))
     def testNexmlConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexml')

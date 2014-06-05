@@ -212,14 +212,14 @@ class PhyloSchema(object):
         if src_format != PhyloSchema.NEXSON:
             raise NotImplementedError('Only conversion from NexSON is currently supported')
         if self.format_code == PhyloSchema.NEXSON:
-            d = convert_nexson_format(src,
+            d = src
+            if self.content == 'study':
+                d = convert_nexson_format(src,
                                       out_nexson_format=self.version,
                                       current_format=current_format,
                                       remove_old_structs=True,
                                       pristine_if_invalid=False,
                                       sort_arbitrary=False)
-            if self.content == 'study':
-                pass
             elif self.content == 'tree':
                 i_t_o_list = extract_tree_nexson(d, self.content_id, current_format)
                 d = {}

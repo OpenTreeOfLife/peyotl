@@ -1,16 +1,14 @@
 # ![peyotl](https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/doc/peyotl-logo.png)
 
 <code>peyotl</code> is a python package written to make it easier to
-access web services and data
-associated with the [Open Tree of Life project] [1].
-
-This is intended to hold utility code to make it easier to:
+interact with the software produced by the [Open Tree of Life project] [1].
+Specifically, to:
 
 1. interact with a local version of the [phylesystem] [2] repository of 
     curated phylogenetic studies ;
 
 2. call web services associated with the studies (served by web app 
-    running the [api.opentree.org code] [3]);
+    running the [phylesystem-api code] [3]);
 
 3. call web services associated with taxonomic resolution services
     (running [taxomachine] [4] );
@@ -22,7 +20,7 @@ This is intended to hold utility code to make it easier to:
      we have not built yet)
 
 Currently peyotl is used to implement most of the functionality in the 
-study curation [API] [3].
+[phylesystem-api] [3] backend of the study curation tool.
 
 ## Installation
 

@@ -50,6 +50,8 @@ _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
 _LOG = get_logger(__name__)
 
 def strip_to_meta_only(blob, nexson_version):
+    if nexson_version is None:
+        nexson_version = detect_nexson_version(blob)
     nex = get_nexml_el(blob)
     if _is_by_id_hbf(nexson_version):
         for otus_group in nex.get('otusById', {}).values():

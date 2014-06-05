@@ -164,6 +164,8 @@ class PhyloSchema(object):
             return 'Newick'
     description = property(get_description)
     def can_convert_from(self, src_schema=None):
+        if self.format_code == PhyloSchema.NEXSON:
+            return True
         if self.content == 'study':
             return True
         if self.content == 'tree':
@@ -200,6 +202,11 @@ class PhyloSchema(object):
                                       sort_arbitrary=False)
             if self.content == 'meta':
                 strip_to_meta_only(d, self.version)
+            elif self.content == 'tree':
+                i_t_o_list = extract_tree_nexson(d, self.content_id, self.version)
+                d = {}
+                for i, t, o in i_t_o_list:
+                    d[i] = t
             if serialize:
                 if output_dest:
                     write_as_json(d, output_dest)
@@ -700,18 +707,14 @@ def convert_trees(tid_tree_otus_list, schema):
     else:
         raise NotImplementedError('convert_tree for {}'.format(schema.format_str))
 
-def extract_tree(nexson, tree_id, schema):
-    try:
-        assert schema.format_str in ['newick', 'nexus']
-    except:
-        raise
-        raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
-    if not _is_by_id_hbf(detect_nexson_version(nexson)):
+def extract_tree_nexson(nexson, tree_id, version):
+    if version is None:
+        version = detect_nexson_version(nexson)
+    if not _is_by_id_hbf(version):
         nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
 
     nexml_el = get_nexml_el(nexson)
     tree_groups = nexml_el['treesById']
-    tree_str_list = []
     tree_obj_otus_group_list = []
     for tree_group in tree_groups.values():
         if tree_id:
@@ -723,14 +726,20 @@ def extract_tree(nexson, tree_id, schema):
                 otu_groups = nexml_el['otusById']
                 ogi = tree_group['@otus']
                 otu_group = otu_groups[ogi]['otuById']
-                if (schema.format_str == 'newick') or (tree_id is not None):
-                    s = convert_tree(tid, tree, otu_group, schema)
-                    if tree_id is not None:
-                        return s
-                    else:
-                        tree_str_list.append(s)
-                else:
-                    tree_obj_otus_group_list.append((tid, tree, otu_group))
-    if tree_obj_otus_group_list:
-        return convert_trees(tree_obj_otus_group_list, schema)
-    return '\n'.join(tree_str_list)
+                tree_obj_otus_group_list.append((tid, tree, otu_group))
+                if tree_id is not None:
+                    return tree_obj_otus_group_list
+    return tree_obj_otus_group_list
+
+def extract_tree(nexson, tree_id, schema):
+    try:
+        assert schema.format_str in ['newick', 'nexus']
+    except:
+        raise
+        raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
+    i_t_o_list = extract_tree_nexson(nexson, tree_id, None)
+    if schema.format_str == 'newick':
+        tree_str_list = [convert_tree(i, t, o, schema) for i, t, o in i_t_o_list]
+        return '\n'.join(tree_str_list)
+    return convert_trees(i_t_o_list, schema)
+    

@@ -141,6 +141,18 @@ class PhylesystemShardBase(object):
     def get_study_index(self):
         return self._study_index
     study_index = property(get_study_index)
+    def get_study_ids(self, include_aliases=False):
+        with self._index_lock:
+            k = self._study_index.keys()
+        if self.has_aliases and (not include_aliases):
+            x = []
+            for i in k:
+                if DIGIT_PATTERN.match(i) or ((len(i) > 1) and (i[-2] == '_')):
+                    pass
+                else:
+                    x.append(i)
+            return x
+        return k
 
 class PhylesystemShard(PhylesystemShardBase):
     '''Wrapper around a git repos holding nexson studies'''
@@ -198,18 +210,6 @@ class PhylesystemShard(PhylesystemShardBase):
         self._next_study_id = None
         self._study_counter_lock = None
 
-    def get_study_ids(self, include_aliases=False):
-        with self._index_lock:
-            k = self._study_index.keys()
-        if self.has_aliases and (not include_aliases):
-            x = []
-            for i in k:
-                if DIGIT_PATTERN.match(i) or ((len(i) > 1) and (i[-2] == '_')):
-                    pass
-                else:
-                    x.append(i)
-            return x
-        return k
     def register_new_study(self, study_id):
         pass
 
@@ -461,8 +461,12 @@ class PhylesystemShardProxy(PhylesystemShardBase):
         self.name = config['name']
         self.repo_nexml2json = config['repo_nexml2json']
         self.path = ' ' # mimics place of the abspath of repo in path -> relpath mapping
+        self.has_aliases = False
         d = {}
         for study in config['studies']:
+            kl = study['keys']
+            if len(kl) > 1:
+                self.has_aliases = True
             for k in study['keys']:
                 d[k] = (self.name, self.path, self.path + '/study/' + study['relpath'])
         self._study_index = d

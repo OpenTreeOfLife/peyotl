@@ -64,8 +64,14 @@ class _PhylesystemAPIWrapper(_WSWrapper):
     repo_nexml2json = property(get_repo_nexml2json)
     def get_external_url(self, study_id):
         if self._src_code == _GET_API:
-            return self._remote_external_url(study_id)
+            return self._remote_external_url(study_id)['url']
         return self.phylesystem_obj.get_external_url(study_id)
+    def get_study_list(self):
+        if self._src_code == _GET_API:
+            return self._remote_study_list()
+        return self.phylesystem_obj.get_study_ids()
+    study_list = property(get_study_list)
+        
     def get(self, study_id, content=None, schema=None, **kwargs):
         '''Syntactic sugar around to make it easier to get fine-grained access
         to the parts of a file without composing a PhyloSchema object.
@@ -101,7 +107,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
                 if schema is None:
                     schema = _DEFAULT_SCHEMA
             r = self._remote_get_study(study_id, schema)
-        if ('data' in r) and (self._trans_code == _TRANS_CLIENT) and (schema is not None):
+        if (isinstance(r, dict) and 'data' in r) and (self._trans_code == _TRANS_CLIENT) and (schema is not None):
             r['data'] = schema.convert(r['data'])
         return r
     def _get_auth_token(self):
@@ -158,17 +164,19 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     def _remote_external_url(self, study_id):
         uri = '{d}/external_url/{i}'.format(d=self.domain, i=study_id)
         return self.json_http_get(uri)
-    def _remote_get_study(self, study_id, schema=None):
+    def _remote_get_study(self, study_id, schema):
         data = {}
-        if self._trans_code != _TRANS_SERVER:
+        expect_json = True
+        if self._trans_code == _TRANS_SERVER:
             uri, params = schema.phylesystem_api_url(self.domain, study_id)
-            data.update()
+            data.update(params)
+            expect_json = schema.is_json()
         else:
             uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
             data['output_nexml2json'] = 'native'
         if not data:
             data = None
-        return self.json_http_get(uri, params=data)
+        return self.json_http_get(uri, params=data, text=not expect_json)
 
 def PhylesystemAPI(domains=None, **kwargs):
     return APIWrapper(domains=domains).wrap_phylesystem_api(**kwargs)

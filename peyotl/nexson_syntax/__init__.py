@@ -246,7 +246,6 @@ class PhyloSchema(object):
                 if not _is_supported_nexson_vers(self.version):
                     raise ValueError('The "{}" version of NexSON is not supported'.format(self.version))
             except:
-                raise
                 raise ValueError('Expecting version of NexSON to be specified using "output_nexml2json" argument (or via some other mechanism)')
         else:
             if self.content in ['meta']:

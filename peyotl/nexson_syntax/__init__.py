@@ -251,7 +251,7 @@ class PhyloSchema(object):
         else:
             if self.content in ['meta']:
                 raise ValueError('The "{}" content can only be returned in NexSON'.format(self.content))
-            if 'otu_label' in kwargs:
+            if kwargs.get('otu_label') is not None:
                 self.otu_label = kwargs['otu_label'].lower()
             else:
                 self.otu_label = kwargs.get('tip_label', 'ot:originallabel').lower()
@@ -335,7 +335,7 @@ class PhyloSchema(object):
 
     def serialize(self, src, output_dest=None, src_schema=None):
         return self.convert(src, serialize=True, output_dest=output_dest, src_schema=src_schema)
-    def convert(self, src, serialize=False, output_dest=None, src_schema=None):
+    def convert(self, src, serialize=None, output_dest=None, src_schema=None):
         if src_schema is None:
             src_format = PhyloSchema.NEXSON
             current_format = None
@@ -396,7 +396,7 @@ class PhyloSchema(object):
                     return f.getvalue()
             else:
                 return d
-        if not serialize:
+        if (serialize is not None) and (not serialize):
             raise ValueError('Conversion without serialization is only supported for the NexSON format')
         if self.format_code == PhyloSchema.NEXML:
             if output_dest:

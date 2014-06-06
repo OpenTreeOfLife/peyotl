@@ -80,7 +80,10 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             schema = create_content_spec(content=content,
                                          repo_nexml2json=self.repo_nexml2json,
                                          **kwargs)
-        return self.get_study(study_id, schema)
+        r = self.get_study(study_id, schema)
+        if schema.content == 'study' and schema.format_str == 'nexson':
+            return r
+        return r['data']
 
     def get_study(self, study_id, schema=None):
         if self._src_code == _GET_EXTERNAL:
@@ -88,7 +91,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             nexson = self.json_http_get(url)
             r = {'data': nexson}
         elif self._src_code == _GET_LOCAL:
-            nexson, sha = self.phylesystem.return_study(study_id)
+            nexson, sha = self.phylesystem_obj.return_study(study_id)
             r = {'data': nexson,
                     'sha': sha
                    }

@@ -89,7 +89,9 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         r = self.get_study(study_id, schema)
         if schema.content == 'study' and schema.format_str == 'nexson':
             return r
-        return r['data']
+        if (isinstance(r, dict) and 'data' in r):
+            return r['data']
+        return r
 
     def get_study(self, study_id, schema=None):
         if self._src_code == _GET_EXTERNAL:

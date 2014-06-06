@@ -10,21 +10,39 @@ _LOG = get_logger(__name__)
 
 class TestPhylesystemAPI(unittest.TestCase):
     def setUp(self):
-        d = get_test_ot_service_domains()
-        self.nexson_store = PhylesystemAPI(d)
-    def testStudyList(self):
-        sl = self.nexson_store.study_list()
-        self.assertTrue(len(sl) > 100)
-    def testFetchStudy(self):
-        x = self.nexson_store.get_study('pg_10')['data']
+        self.domains = get_test_ot_service_domains()
+        self.nexson_store = PhylesystemAPI(self.domains, get_from='local')
+    def _do_sugar_tests(self, pa):
+        x = pa.get('pg_10')['data']
         sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
         self.assertTrue(sid in ['10', 'pg_10'])
+        y = pa.get('pg_10', tree_id='tree3', format='newick')
+        self.assertTrue(y.startswith('('))
+    def testRemoteTransSugar(self):
+        pa = PhylesystemAPI(self.domains, get_from='api', transform='server')
+        self._do_sugar_tests(pa)
+    def testStudyList(self):
+        sl = self.nexson_store.study_list
+        self.assertTrue(len(sl) > 100)
+    def testFetchStudyRemote(self):
+        pa = PhylesystemAPI(self.domains, get_from='api')
+        x = pa.get_study('pg_10')['data']
+        sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
+        self.assertTrue(sid in ['10', 'pg_10'])
+    def testRemoteSugar(self):
+        pa = PhylesystemAPI(self.domains, get_from='api')
+        self._do_sugar_tests(pa)
+    def testExternalSugar(self):
+        pa = PhylesystemAPI(self.domains, get_from='external')
+        self._do_sugar_tests(pa)
+    def testLocalSugar(self):
+        pa = PhylesystemAPI(self.domains, get_from='local')
+        self._do_sugar_tests(pa)
     def testConfig(self):
-        x = self.nexson_store.phylesystem_config()
+        x = self.nexson_store.phylesystem_config
         self.assertTrue('repo_nexml2json' in x.keys())
     def testExternalURL(self):
-        x = self.nexson_store.external_url('pg_10')
-        u = x['url']
+        u = self.nexson_store.get_external_url('pg_10')
         r = requests.get(u).json()
         sid = find_val_literal_meta_first(r['nexml'], 'ot:studyId', detect_nexson_version(r))
         self.assertTrue(sid in ['10', 'pg_10'])

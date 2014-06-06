@@ -100,9 +100,81 @@ def _otu_dict_to_otumap(otu_dict):
                         mv[mk] = mvv
     return d
 
+def _get_content_id_from(content, **kwargs):
+    if content in PhyloSchema._no_content_id_types:
+        return None
+    elif content == 'tree':
+        return kwargs.get('tree_id')
+    elif content == 'subtree':
+        subtree_id = kwargs.get('subtree_id')
+        if subtree_id is None:
+            subtree_id = kwargs.get('node_id')
+        return (kwargs.get('tree_id'), subtree_id)
+    elif content == 'otus':
+        return kwargs.get('otus_id')
+    elif content == 'otu':
+        return kwargs.get('otu_id')
+    elif content == ('otus', 'otumap'):
+        return kwargs.get('otus_id')
+
+def _sniff_content_from_kwargs(**kwargs):
+    c_id = kwargs.get('tree_id')
+    if c_id is not None:
+        s_id = kwargs.get('subtree_id')
+        if s_id is None:
+            s_id =  kwargs.get('node_id')
+        if s_id is None:
+            return 'tree', c_id
+        return 'subtree', (c_id, s_id)
+    c_id = kwargs.get('otus_id')
+    if c_id is not None:
+        return 'otus', c_id
+    c_id = kwargs.get('otu_id')
+    if c_id is not None:
+        return 'otu', c_id
+    return 'study', None
+
+def create_content_spec(**kwargs):
+    '''Sugar. factory for a PhyloSchema object.
+
+    Repackages the kwargs to kwargs for PhyloSchema so that our
+    PhyloSchema.__init__ does not have to be soo rich 
+    '''
+    format_str = kwargs.get('format', 'nexson')
+    nexson_version = kwargs.get('nexson_version', 'native')
+    otu_label = kwargs.get('otu_label')
+    if otu_label is None:
+        otu_label = kwargs.get('tip_label')
+    content = kwargs.get('content')
+    if content is not None:
+        content_id = kwargs.get('content_id')
+        if content_id is None:
+            content_id = _get_content_id_from(**kwargs)
+    else:
+        content, content_id = _sniff_content_from_kwargs(**kwargs)
+    if content is None:
+        content = 'study'
+    return PhyloSchema(content=content,
+                       content_id=content_id,
+                       format_str=format_str,
+                       version=nexson_version,
+                       otu_label=otu_label,
+                       repo_nexml2json=kwargs.get('repo_nexml2json'))
+
 class PhyloSchema(object):
     '''Simple container for holding the set of variables needed to
-    convert from one format to another (with error checking)
+    convert from one format to another (with error checking).
+
+    The primary motivation for this class is to:
+        1. generate type conversion errors up front when some one requests
+            a particular coercion. For example, this allows the phylesystem
+            api to raise an error before it fetches the data in cases in which
+            the user is requesting a format/content combination is not 
+            currently supported (or not possible)
+        2. allow that agreed-upon coercion to be done later with a simple
+            call to convert or serialize. So the class acts like a closure 
+            that can transform any nexson to the desired format (if NexSON
+            has the necessary content)
     '''
     _format_list = ('newick', 'nexson', 'nexml', 'nexus')
     NEWICK, NEXSON, NEXML, NEXUS = range(4)
@@ -151,11 +223,13 @@ class PhyloSchema(object):
                 self.format_str = PhyloSchema._extension2format[ext]
             except:
                 raise ValueError('file extension "{}" not recognized'.format(kwargs['type_ext']))
-        elif 'output_nexml2json' in kwargs:
+        elif kwargs.get('output_nexml2json') is not None:
             self.format_str = 'nexson'
             self.version = kwargs['output_nexml2json']
         else:
-            raise ValueError('Expecting "format" or "type_ext" argument')
+            self.format_str = kwargs.get('format_str')
+        if self.format_str is None:
+            raise ValueError('Expecting "format_str", "schema", or "type_ext" argument')
         try:
             self.format_code = PhyloSchema._format_list.index(self.format_str)
         except:
@@ -176,7 +250,7 @@ class PhyloSchema(object):
         else:
             if self.content in ['meta']:
                 raise ValueError('The "{}" content can only be returned in NexSON'.format(self.content))
-            if 'otu_label' in kwargs:
+            if kwargs.get('otu_label') is not None:
                 self.otu_label = kwargs['otu_label'].lower()
             else:
                 self.otu_label = kwargs.get('tip_label', 'ot:originallabel').lower()
@@ -212,10 +286,55 @@ class PhyloSchema(object):
         return self.format_code == PhyloSchema.NEXML
     def is_text(self):
         return self.format_code in (PhyloSchema.NEXUS, PhyloSchema.NEWICK)
+    def _phylesystem_api_params(self):
+        if self.format_code == PhyloSchema.NEXSON:
+            return {'output_nexml2json': self.version}
+        return {}
+    def _phylesystem_api_ext(self):
+        if self.format_code == PhyloSchema.NEXSON:
+            return '.nexson'
+        elif self.format_code == PhyloSchema.NEWICK:
+            return '.tre'
+        elif self.format_code == PhyloSchema.NEXUS:
+            return '.nex'
+        elif self.format_code == PhyloSchema.NEXML:
+            return '.nexml'
+        else:
+            assert False
+    def phylesystem_api_url(self, base_url, study_id):
+        '''Returns URL and param dict for a GET call to phylesystem_api
+        '''
+        p = self._phylesystem_api_params()
+        e = self._phylesystem_api_ext()
+        if self.content == 'study':
+            return '{d}/v1/study/{i}{e}'.format(d=base_url, i=study_id, e=e), p
+        elif self.content == 'tree':
+            if self.content_id is None:
+                return '{d}/v1/study/{i}/tree{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/v1/study/{i}/tree/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
+        elif self.content == 'subtree':
+            assert self.content_id is not None
+            t, n = self.content_id
+            p['subtree_id'] = n
+            return '{d}/v1/study/{i}/tree/{t}{e}'.format(d=base_url, i=study_id, t=t, e=e), p
+        elif self.content == 'meta':
+            return '{d}/v1/study/{i}/meta{e}'.format(d=base_url, i=study_id, e=e), p
+        elif self.content == 'otus':
+            if self.content_id is None:
+                return '{d}/v1/study/{i}/otus{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/v1/study/{i}/otus/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
+        elif self.content == 'otu':
+            if self.content_id is None:
+                return '{d}/v1/study/{i}/otu{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/v1/study/{i}/otu/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
+        elif self.content == 'otumap':
+            return '{d}/v1/otumap/{i}{e}'.format(d=base_url, i=study_id, e=e), p
+        else:
+            assert False
 
-    def serialize(self, src, content='study', output_dest=None, src_schema=None):
-        return self.convert(src, content=content, serialize=True, output_dest=output_dest, src_schema=src_schema)
-    def convert(self, src, content='study', serialize=False, output_dest=None, src_schema=None):
+    def serialize(self, src, output_dest=None, src_schema=None):
+        return self.convert(src, serialize=True, output_dest=output_dest, src_schema=src_schema)
+    def convert(self, src, serialize=None, output_dest=None, src_schema=None):
         if src_schema is None:
             src_format = PhyloSchema.NEXSON
             current_format = None
@@ -276,7 +395,7 @@ class PhyloSchema(object):
                     return f.getvalue()
             else:
                 return d
-        if not serialize:
+        if (serialize is not None) and (not serialize):
             raise ValueError('Conversion without serialization is only supported for the NexSON format')
         if self.format_code == PhyloSchema.NEXML:
             if output_dest:

@@ -117,10 +117,19 @@ class APIWrapper(object):
             self._oti = _OTIWrapper(self.domains.oti)
         return self._oti
     oti = property(get_oti)
-    def get_phylesystem_api(self):
+    def wrap_phylesystem_api(self, **kwargs):
         from peyotl.api.phylesystem_api import _PhylesystemAPIWrapper
+        cfrom = get_config('apis', 'phylesystem_get_from', 'local')
+        ctrans = get_config('apis', 'phylesystem_transform', 'client').lower()
+        crefresh = get_config('apis', 'phylesystem_refresh', 'never').lower()
+        kwargs.setdefault('get_from', cfrom)
+        kwargs.setdefault('transform', ctrans)
+        kwargs.setdefault('refresh', crefresh)
+        self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api, **kwargs)
+        return self._phylesystem_api
+    def get_phylesystem_api(self):
         if self._phylesystem_api is None:
-            self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api)
+            self.wrap_phylesystem_api()
         return self._phylesystem_api
     phylesystem_api = property(get_phylesystem_api)
     def get_phylografter(self):
@@ -177,13 +186,13 @@ _VERB_TO_METHOD_DICT = {
 class _WSWrapper(object):
     def __init__(self, domain):
         self._domain = domain
-    def json_http_get(self, url, headers=_JSON_HEADERS, params=None):
-        return self._do_http(url, 'GET', headers=headers, params=params, data=None)
-    def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None):
-        return self._do_http(url, 'PUT', headers=headers, params=params, data=data)
-    def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None):
-        return self._do_http(url, 'POST', headers=headers, params=params, data=data)
-    def _do_http(self, url, verb, headers, params, data):
+    def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False):
+        return self._do_http(url, 'GET', headers=headers, params=params, data=None, text=text)
+    def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
+        return self._do_http(url, 'PUT', headers=headers, params=params, data=data, text=text)
+    def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
+        return self._do_http(url, 'POST', headers=headers, params=params, data=data, text=text)
+    def _do_http(self, url, verb, headers, params, data, text=False):
         if CURL_LOGGER is not None:
             log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)
         func = _VERB_TO_METHOD_DICT[verb]
@@ -195,10 +204,9 @@ class _WSWrapper(object):
             if resp.text:
                 _LOG.debug('HTTPResponse.text = ' + resp.text)
             raise
-        try:
-            return resp.json()
-        except:
-            return resp.json
+        if text:
+            return resp.text
+        return resp.json()
     def get_domain(self):
         return self._domain
     def set_domain(self, d):

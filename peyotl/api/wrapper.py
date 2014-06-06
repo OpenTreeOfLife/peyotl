@@ -117,10 +117,19 @@ class APIWrapper(object):
             self._oti = _OTIWrapper(self.domains.oti)
         return self._oti
     oti = property(get_oti)
-    def get_phylesystem_api(self):
+    def wrap_phylesystem_api(self, **kwargs):
         from peyotl.api.phylesystem_api import _PhylesystemAPIWrapper
+        cfrom = get_config('apis', 'phylesystem_get_from', 'local')
+        ctrans = get_config('apis', 'phylesystem_transform', 'client').lower()
+        crefresh = get_config('apis', 'phylesystem_refresh', 'never').lower()
+        kwargs.setdefault('get_from', cfrom)
+        kwargs.setdefault('transform', ctrans)
+        kwargs.setdefault('refresh', crefresh)
+        self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api, **kwargs)
+        return self._phylesystem_api
+    def get_phylesystem_api(self):
         if self._phylesystem_api is None:
-            self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api)
+            self.wrap_phylesystem_api()
         return self._phylesystem_api
     phylesystem_api = property(get_phylesystem_api)
     def get_phylografter(self):

@@ -10,18 +10,22 @@ _LOG = get_logger(__name__)
 
 class TestPhylesystemAPI(unittest.TestCase):
     def setUp(self):
-        d = get_test_ot_service_domains()
-        self.nexson_store = PhylesystemAPI(d)
+        self.domains = get_test_ot_service_domains()
+        self.nexson_store = PhylesystemAPI(self.domains)
+    @unittest.skip("test skipped cuz of timing")
     def testStudyList(self):
         sl = self.nexson_store.study_list()
         self.assertTrue(len(sl) > 100)
     def testFetchStudy(self):
-        x = self.nexson_store.get_study('pg_10')['data']
+        pa = PhylesystemAPI(self.domains, get_from='api')
+        x = pa.get_study('pg_10')['data']
         sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
         self.assertTrue(sid in ['10', 'pg_10'])
+    @unittest.skip("test skipped cuz of timing")
     def testConfig(self):
         x = self.nexson_store.phylesystem_config()
         self.assertTrue('repo_nexml2json' in x.keys())
+    @unittest.skip("test skipped cuz of timing")
     def testExternalURL(self):
         x = self.nexson_store.external_url('pg_10')
         u = x['url']

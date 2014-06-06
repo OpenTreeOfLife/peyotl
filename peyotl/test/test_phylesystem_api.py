@@ -16,11 +16,23 @@ class TestPhylesystemAPI(unittest.TestCase):
     def testStudyList(self):
         sl = self.nexson_store.study_list()
         self.assertTrue(len(sl) > 100)
-    def testFetchStudy(self):
+    @unittest.skip("test skipped cuz of timing")
+    def testFetchStudyRemote(self):
         pa = PhylesystemAPI(self.domains, get_from='api')
         x = pa.get_study('pg_10')['data']
         sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
         self.assertTrue(sid in ['10', 'pg_10'])
+    def _do_sugar_tests(self, pa):
+        x = pa.get('pg_10')['data']
+        sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
+        self.assertTrue(sid in ['10', 'pg_10'])
+    @unittest.skip("test skipped cuz of timing")
+    def testRemoteSugar(self):
+        pa = PhylesystemAPI(self.domains, get_from='api')
+        self._do_sugar_tests(pa)
+    def testExternalSugar(self):
+        pa = PhylesystemAPI(self.domains, get_from='external')
+        self._do_sugar_tests(pa)
     @unittest.skip("test skipped cuz of timing")
     def testConfig(self):
         x = self.nexson_store.phylesystem_config()

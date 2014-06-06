@@ -33,7 +33,7 @@ class TestPhyloSchema(unittest.TestCase):
     def testNexmlConvByExtViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema(type_ext='.nexml', otu_label='otttaxonname')
-        nex = ps.serialize(o, content='study', src_schema=PhyloSchema('nexson', version='1.2.1'))
+        nex = ps.serialize(o, src_schema=PhyloSchema('nexson', version='1.2.1'))
         self.assertTrue(nex.startswith('<'))
     def testPS(self):
         self.assertRaises(ValueError, PhyloSchema, schema='bogus')
@@ -101,13 +101,13 @@ class TestPhyloSchema(unittest.TestCase):
     def testNexusConvStudyViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema(type_ext='.nex')
-        nex = ps.convert(o, serialize=True, content='study')
+        nex = ps.convert(o, serialize=True)
         self.assertTrue(nex.startswith('#'))
 
     def testNewickConvStudyViaPS(self):
         o = pathmap.nexson_obj('9/v1.2.json')
         ps = PhyloSchema(type_ext='.tre')
-        nex = ps.convert(o, serialize=True, content='study')
+        nex = ps.convert(o, serialize=True)
         self.assertTrue(nex.startswith('('))
 
     def testNexusConvByExtViaPS(self):

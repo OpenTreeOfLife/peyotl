@@ -68,14 +68,16 @@ class APIDomains(object):
         if self._oti is None:
             self._oti = get_config('apis', 'oti')
             if self._oti is None:
-                raise RuntimeError('[apis] / oti config setting required')
+                self._oti = 'http://api.opentreeoflife.org'
+                _LOG.debug('defaulting to "{u}" for {s}'.format(u=self._oti, s='oti'))
         return self._oti
     oti = property(get_oti)
     def get_phylesystem_api(self):
         if self._phylesystem_api is None:
             self._phylesystem_api = get_config('apis', 'phylesystem_api')
             if self._phylesystem_api is None:
-                raise RuntimeError('[apis] / phylesystem_api config setting required')
+                self._phylesystem_api = 'http://api.opentreeoflife.org'
+                _LOG.debug('defaulting to "{u}" for {s}'.format(u=self._phylesystem_api, s='phylesystem'))
         return self._phylesystem_api
     phylesystem_api = property(get_phylesystem_api)
     def get_phylografter(self):
@@ -85,14 +87,16 @@ class APIDomains(object):
         if self._taxomachine is None:
             self._taxomachine = get_config('apis', 'taxomachine')
             if self._taxomachine is None:
-                raise RuntimeError('[apis] / taxomachine config setting required')
+                self._taxomachine = 'http://api.opentreeoflife.org'
+                _LOG.debug('defaulting to "{u}" for {s}'.format(u=self._taxomachine, s='taxomachine'))
         return self._taxomachine
     taxomachine = property(get_taxomachine)
     def get_treemachine(self):
         if self._treemachine is None:
             self._treemachine = get_config('apis', 'treemachine')
             if self._treemachine is None:
-                raise RuntimeError('[apis] / treemachine config setting required')
+                self._treemachine = 'http://api.opentreeoflife.org'
+                _LOG.debug('defaulting to "{u}" for {s}'.format(u=self._treemachine, s='treemachine'))
         return self._treemachine
     treemachine = property(get_treemachine)
 

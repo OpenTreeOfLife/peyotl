@@ -1,4 +1,14 @@
 #!/bin/sh
+if ! test -d peyotl/test/data/mini_par/mini_phyl
+then
+    echo "skipping mini_phyl tests (this is normal unless you are MTH or EJBM)"
+    exit 0
+fi
+if ! test -d peyotl/test/data/mini_par/mini_system
+then
+    echo "skipping mini_system tests (this is normal unless you are MTH or EJBM)"
+    exit 0
+fi
 stf=0
 #if ! python standalone_tests/test_caching.py
 #then

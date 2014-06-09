@@ -2,10 +2,18 @@
 from peyotl.phylesystem import _Phylesystem
 import unittest
 from peyotl.test.support import pathmap
+import os
+_repos = pathmap.get_test_repos()
+ms, mp = _repos['mini_system'], _repos['mini_phyl']
+print ms, mp
 
+@unittest.skipIf((not os.path.isdir(ms)) or (not os.path.isdir(ms)) , 
+                'Peyotl not configured for maintainer test of mini_phyl/system. \
+Skipping this test is normal (for everyone other than MTH and EJBM).')
 class TestPhylesystem(unittest.TestCase):
     def setUp(self):
-        self.r = pathmap.get_test_repos()
+        self.r = dict(_repos)
+        print self.r
     def testInit(self):
         p = _Phylesystem(repos_dict=self.r)
         self.assertEqual(2, len(p._shards))
@@ -21,4 +29,4 @@ class TestPhylesystem(unittest.TestCase):
         p = _Phylesystem(repos_dict=self.r)
         print p.get_study_ids()
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=5)

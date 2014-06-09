@@ -74,6 +74,11 @@ will invoke python unittest, and running:
 
 will run these test and some shell-based tests of interest to some developers.
 
+You will seem some tests skipped because of lack of mini_system or mini_phyl. This
+is normal. Mark and Emily Jane have some unittests of git interactions that require
+privileged access to a particular testing repository. Tests involving this repo
+should be skipped.
+
 ## NexSON/NeXML
 
 See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/HoneyBadgerFish for full documentation

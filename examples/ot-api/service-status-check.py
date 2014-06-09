@@ -45,7 +45,7 @@ def _ot_call(tag, expected_fn, func, *valist, **kwargs):
 if __name__ == '__main__':
     from peyotl.api import APIWrapper
     from requests import HTTPError
-    otwrap = APIWrapper()
+    otwrap = APIWrapper(phylesystem_api_kwargs={'get_from':'api'})
     summary_list = []
 
     summary = _ot_call('treemachine/getSyntheticTree',
@@ -68,6 +68,26 @@ if __name__ == '__main__':
                        'curl-versions/getSynthesisSourceList.json',
                        otwrap.treemachine.get_synthetic_source_list,
                        )
+    summary_list.append(summary)
+    
+    summary = _ot_call('taxomachine/autocompleteBoxQuery',
+                       'curl-versions/autocompleteBoxQuery.json',
+                       otwrap.taxomachine.TNRS,
+                       'Endoxyla',
+                       'All life'
+                       )
+    summary_list.append(summary)
+    
+    summary = _ot_call('phylesystem/study_list',
+                       'curl-versions/study_list.json',
+                       otwrap.phylesystem_api.get_study_list,
+                       )
+    summary_list.append(summary)
+    
+    summary = _ot_call('phylesystem/pg_719',
+                       'curl-versions/pg_719.json',
+                       otwrap.phylesystem_api.get_study,
+                       'pg_719')
     summary_list.append(summary)
     
     print summary_list

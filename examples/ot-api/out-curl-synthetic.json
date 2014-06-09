@@ -1,0 +1,18 @@
+{
+  "name" : "Chloroflexi",
+  "nodeid" : 3534540,
+  "children" : [ "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@5f10e780", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@4eceb542", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@64de2879", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@353353ab", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@3cba1ad6", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@5e37f6bf", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@2c28a5ec", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@20a53f9a", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@40f2a834", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@7b010f3b", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@28f2994", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@4f2b4dc", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@5a3fda0d", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@1604b9c5", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@10403fce", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@6a1cf5b7", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@1347f7ce", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@59ddff45", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@7da2391a", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@25531a66" ],
+  "maxnodedepth" : 3,
+  "nleaves" : 53,
+  "taxSource" : "silva:D32255/#2,ncbi:200795,gbif:84,irmng:1154",
+  "taxRank" : "phylum",
+  "ottId" : "1041335",
+  "pathToRoot" : [ "org.neo4j.server.rest.repr.GeneralizedMappingRepresentation$1@72ea31ae", "org.neo4j.server.rest.repr.GeneralizedMappingRepresentation$1@6d63d172" ],
+  "sourceToMetaMap" : {
+    "taxonomy" : {
+      "study" : {
+        "source" : "taxonomy"
+      }
+    }
+  }
+}

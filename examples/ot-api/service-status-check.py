@@ -37,11 +37,10 @@ def _ot_call(tag, expected_fn, func, *valist, **kwargs):
         start_t = time.time()
         result = func(*valist, **kwargs)
         end_t = time.time()
-        summ = report_results(tag, end_t - start_t, expected_fn, result)
+        return report_results(tag, end_t - start_t, expected_fn, result)
     except HTTPError, x:
         end_t = time.time()
-        summ = report_error(tag, end_t - start_t, x)
-    summary_list.append(summ)
+        return report_error(tag, end_t - start_t, x)
 
 if __name__ == '__main__':
     from peyotl.api import APIWrapper
@@ -57,4 +56,18 @@ if __name__ == '__main__':
                        node_id=3534540,
                        max_depth=3)
     summary_list.append(summary)
+    
+    summary = _ot_call('treemachine/getDraftTreeSubtreeForNodes',
+                       'curl-versions/getDraftTreeSubtreeForNodes.json',
+                       otwrap.treemachine.get_synth_tree_pruned,
+                       ott_ids=[515698,515712,149491,876340,505091,840022,692350,451182,301424,876348,515698,1045579,267484,128308,380453,678579,883864,863991,3898562,23821,673540,122251,106729,1084532,541659]
+                       )
+    summary_list.append(summary)
+    
+    summary = _ot_call('treemachine/getSynthesisSourceList',
+                       'curl-versions/getSynthesisSourceList.json',
+                       otwrap.treemachine.get_synthetic_source_list,
+                       )
+    summary_list.append(summary)
+    
     print summary_list

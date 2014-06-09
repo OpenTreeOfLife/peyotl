@@ -34,7 +34,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
         uri = '{p}/getSourceTreeIDs'.format(p=self.prefix)
         return self.json_http_post(uri)
     def get_synthetic_source_list(self):
-        uri = '{p}/ getSyntheticSourceList'.format(p=self.prefix)
+        uri = '{p}/getSynthesisSourceList'.format(p=self.prefix)
         return self.json_http_post(uri)
     def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None):
         uri = '{p}/getSourceTree'.format(p=self.prefix)

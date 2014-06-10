@@ -69,9 +69,14 @@ class Nexson2Nexml(NexsonConverter):
         NexsonConverter.__init__(self, conv_cfg)
         self.input_format = conv_cfg.input_format
         self.use_default_root_atts = conv_cfg.get('use_default_root_atts', True)
+        self.otu_label = conv_cfg.get('otu_label', 'ot:originalLabel')
+        if self.otu_label.startswith('^'):
+            self.otu_label = self.otu_label[1:]
         self._migrating_from_bf = _is_badgerfish_version(self.input_format)
         # TreeBase and phylografter trees often lack the tree xsi:type
         self._adding_tree_xsi_type = True
+        # we have started using ot:ottTaxonName, ot:originalLabel or ot:ottId
+        self._creating_otu_label = True
 
     def convert(self, blob):
         doc = xml.dom.minidom.Document()
@@ -84,6 +89,7 @@ class Nexson2Nexml(NexsonConverter):
         if converted_root_el:
             blob['nexml'] = blob['nex:nexml']
             del blob['nex:nexml']
+
         return doc
 
     def _partition_keys_for_xml(self, o):
@@ -97,6 +103,7 @@ class Nexson2Nexml(NexsonConverter):
         tk = None
         ck = {}
         mc = {}
+        #_LOG.debug('o = {o}'.format(o=o))
         for k, v in o.items():
             if k.startswith('@'):
                 if k == '@xmlns':
@@ -197,7 +204,30 @@ class Nexson2Nexml(NexsonConverter):
 
     def _add_subtree_list_to_xml_doc(self, doc, par, ch_list, key, key_order):
         for child in ch_list:
-            self._add_subtree_to_xml_doc(doc, par, child, key, key_order)
+            if isinstance(child, dict):
+                self._add_subtree_to_xml_doc(doc, par, child, key, key_order)
+            else:
+                ca = {}
+                cc = {}
+                mc = {}
+                    
+                if isinstance(child, list) or isinstance(child, tuple) or isinstance(child, set):
+                    #open('/tmp/pey-log', 'a').write('unexpeceted list/tuple child for key {k} = {v}'.format(k=key, v=str(child)))
+                    #assert(False)
+                    for sc in child:
+                        if isinstance(sc, dict):
+                            self._add_subtree_to_xml_doc(doc, par, sc, key, key_order)
+                        else:
+                            cd = sc
+                            cel = _create_sub_el(doc, par, key, ca, cd)
+                            self._add_meta_dict_to_xml(doc, cel, mc)
+                            self._add_dict_of_subtree_to_xml_doc(doc, cel, cc, key_order=None)
+                else:
+                    cd = child
+                    cel = _create_sub_el(doc, par, key, ca, cd)
+                    self._add_meta_dict_to_xml(doc, cel, mc)
+                    self._add_dict_of_subtree_to_xml_doc(doc, cel, cc, key_order=None)
+        
 
     def _add_dict_of_subtree_to_xml_doc(self,
                                         doc,
@@ -238,6 +268,16 @@ class Nexson2Nexml(NexsonConverter):
         if self._adding_tree_xsi_type:
             if (key == 'tree') and (parent.tagName == 'trees') and ('xsi:type' not in ca):
                 ca['xsi:type'] = 'nex:FloatTree'
+        if self._creating_otu_label and (key == 'otu') and (parent.tagName == 'otus'):
+            key_to_promote = self.otu_label # need to verify that we are converting from 1.0 not 0.0..
+            #_LOG.debug(str((key_to_promote, mc.keys())))
+            if key_to_promote in mc:
+                val = mc[key_to_promote]
+                if isinstance(val, dict):
+                    val = val['$']
+                ca['label'] = str(val)
+            elif key_to_promote in ca:
+                ca['label'] = str(ca[key_to_promote])
         cel = _create_sub_el(doc, parent, key, ca, cd)
         self._add_meta_dict_to_xml(doc, cel, mc)
         self._add_dict_of_subtree_to_xml_doc(doc, cel, cc, key_order)

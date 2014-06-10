@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.nexson_syntax import extract_tree
+from peyotl.nexson_syntax import extract_tree, PhyloSchema
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
@@ -25,8 +25,8 @@ class TestExtract(unittest.TestCase):
 
     def testTreeExport(self):
         n = pathmap.nexson_obj('10/pg_10.json')
-        newick = extract_tree(n, 'tree3', ('nexus', 'ot:ottTaxonName'))
-        print newick
+        newick = extract_tree(n, 'tree3', PhyloSchema('nexus', tip_label='ot:ottTaxonName'))
+        self.assertTrue(newick.startswith('#'))
 
 if __name__ == "__main__":
     unittest.main()

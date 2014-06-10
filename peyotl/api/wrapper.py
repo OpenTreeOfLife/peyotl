@@ -68,14 +68,16 @@ class APIDomains(object):
         if self._oti is None:
             self._oti = get_config('apis', 'oti')
             if self._oti is None:
-                raise RuntimeError('[apis] / oti config setting required')
+                self._oti = 'http://api.opentreeoflife.org'
+                _LOG.debug('defaulting to "{u}" for {s}'.format(u=self._oti, s='oti'))
         return self._oti
     oti = property(get_oti)
     def get_phylesystem_api(self):
         if self._phylesystem_api is None:
             self._phylesystem_api = get_config('apis', 'phylesystem_api')
             if self._phylesystem_api is None:
-                raise RuntimeError('[apis] / phylesystem_api config setting required')
+                self._phylesystem_api = 'http://api.opentreeoflife.org'
+                _LOG.debug('defaulting to "{u}" for {s}'.format(u=self._phylesystem_api, s='phylesystem'))
         return self._phylesystem_api
     phylesystem_api = property(get_phylesystem_api)
     def get_phylografter(self):
@@ -85,14 +87,16 @@ class APIDomains(object):
         if self._taxomachine is None:
             self._taxomachine = get_config('apis', 'taxomachine')
             if self._taxomachine is None:
-                raise RuntimeError('[apis] / taxomachine config setting required')
+                self._taxomachine = 'http://api.opentreeoflife.org'
+                _LOG.debug('defaulting to "{u}" for {s}'.format(u=self._taxomachine, s='taxomachine'))
         return self._taxomachine
     taxomachine = property(get_taxomachine)
     def get_treemachine(self):
         if self._treemachine is None:
             self._treemachine = get_config('apis', 'treemachine')
             if self._treemachine is None:
-                raise RuntimeError('[apis] / treemachine config setting required')
+                self._treemachine = 'http://api.opentreeoflife.org'
+                _LOG.debug('defaulting to "{u}" for {s}'.format(u=self._treemachine, s='treemachine'))
         return self._treemachine
     treemachine = property(get_treemachine)
 
@@ -102,7 +106,7 @@ def get_domains_obj(**kwargs):
     return api_domains
 
 class APIWrapper(object):
-    def __init__(self, domains=None):
+    def __init__(self, domains=None, phylesystem_api_kwargs=None):
         if domains is None:
             domains = get_domains_obj()
         self.domains = domains
@@ -111,16 +115,38 @@ class APIWrapper(object):
         self._taxomachine = None
         self._treemachine = None
         self._oti = None
+        if phylesystem_api_kwargs is None:
+            self._phylesystem_api_kwargs = {}
+        else:
+            self._phylesystem_api_kwargs = dict(phylesystem_api_kwargs)
     def get_oti(self):
         from peyotl.api.oti import _OTIWrapper
         if self._oti is None:
             self._oti = _OTIWrapper(self.domains.oti)
         return self._oti
     oti = property(get_oti)
-    def get_phylesystem_api(self):
+    def wrap_phylesystem_api(self, **kwargs):
         from peyotl.api.phylesystem_api import _PhylesystemAPIWrapper
+        cfrom = get_config('apis', 
+                           'phylesystem_get_from',
+                           self._phylesystem_api_kwargs.get('get_from'))
+        ctrans = get_config('apis',
+                            'phylesystem_transform',
+                            self._phylesystem_api_kwargs.get('transform'))
+        crefresh = get_config('apis',
+                              'phylesystem_refresh',
+                              self._phylesystem_api_kwargs.get('refresh'))
+        if cfrom:
+            kwargs.setdefault('get_from', cfrom)
+        if ctrans:
+            kwargs.setdefault('transform', ctrans)
+        if crefresh:
+            kwargs.setdefault('refresh', crefresh)
+        self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api, **kwargs)
+        return self._phylesystem_api
+    def get_phylesystem_api(self):
         if self._phylesystem_api is None:
-            self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api)
+            self.wrap_phylesystem_api()
         return self._phylesystem_api
     phylesystem_api = property(get_phylesystem_api)
     def get_phylografter(self):
@@ -177,13 +203,13 @@ _VERB_TO_METHOD_DICT = {
 class _WSWrapper(object):
     def __init__(self, domain):
         self._domain = domain
-    def json_http_get(self, url, headers=_JSON_HEADERS, params=None):
-        return self._do_http(url, 'GET', headers=headers, params=params, data=None)
-    def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None):
-        return self._do_http(url, 'PUT', headers=headers, params=params, data=data)
-    def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None):
-        return self._do_http(url, 'POST', headers=headers, params=params, data=data)
-    def _do_http(self, url, verb, headers, params, data):
+    def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False):
+        return self._do_http(url, 'GET', headers=headers, params=params, data=None, text=text)
+    def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
+        return self._do_http(url, 'PUT', headers=headers, params=params, data=data, text=text)
+    def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
+        return self._do_http(url, 'POST', headers=headers, params=params, data=data, text=text)
+    def _do_http(self, url, verb, headers, params, data, text=False):
         if CURL_LOGGER is not None:
             log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)
         func = _VERB_TO_METHOD_DICT[verb]
@@ -195,10 +221,9 @@ class _WSWrapper(object):
             if resp.text:
                 _LOG.debug('HTTPResponse.text = ' + resp.text)
             raise
-        try:
-            return resp.json()
-        except:
-            return resp.json
+        if text:
+            return resp.text
+        return resp.json()
     def get_domain(self):
         return self._domain
     def set_domain(self, d):

@@ -122,19 +122,20 @@ class Nexml2Nexson(NexsonConverter):
         # add the attributes to the dictionary
         att_container = x.attributes
         ns_obj = {}
-        for i in xrange(att_container.length):
-            attr = att_container.item(i)
-            n = attr.name
-            t = None
-            if n.startswith('xmlns'):
-                if n == 'xmlns':
-                    t = '$'
-                elif n.startswith('xmlns:'):
-                    t = n[6:] # strip off the xmlns:
-            if t is None:
-                obj['@' + n] = attr.value
-            else:
-                ns_obj[t] = attr.value
+        if att_container is not None:
+            for i in xrange(att_container.length):
+                attr = att_container.item(i)
+                n = attr.name
+                t = None
+                if n.startswith('xmlns'):
+                    if n == 'xmlns':
+                        t = '$'
+                    elif n.startswith('xmlns:'):
+                        t = n[6:] # strip off the xmlns:
+                if t is None:
+                    obj['@' + n] = attr.value
+                else:
+                    ns_obj[t] = attr.value
         if ns_obj:
             obj['@xmlns'] = ns_obj
 

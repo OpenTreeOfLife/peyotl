@@ -289,6 +289,24 @@ class _VT(object):
 
 _SchemaFragment._VT = _VT
 
+# In the "schema definitions" below, the names are concatenations:
+# first:
+#   _ to make the vars private
+# second, an element to indicate when the element is expected:
+#   Req = "required. error if not present"
+#   Exp = "expected, warn if not present"
+#   All = "allowed (no warning if absent or present"
+#   Typ = "type-checked" like allowed (but only used for Meta)
+# third:
+#   _ = non-meta
+#   M = meta
+# fourth:
+#   Parent element + El_ (NexmlEl_, OtusEl_...)
+# last is mneumonic for the nexson variant:
+#   All = all variants
+#   Dir = 1.0.0 ("direct" hbf translation of nexml)
+#   ByI = 1.2   (the "by ID" hbf)
+#   
 _EMPTY_DICT = {}
 ####################################################################
 # nexml element schema
@@ -315,6 +333,7 @@ _ExpMNexmlEl_All = {'ot:dataDeposit': _VT.HREF,
                     'ot:studyYear': _VT.INT,
                    }
 _TypMNexmlEl_All = {'ot:annotationEvents': _VT.DICT,
+                    'ot:agents': _VT.DICT,
                     'ot:curatorName': _VT.STR_REPEATABLE_EL,
                     'ot:focalClade': _VT.INT,
                     'ot:focalCladeOTTTaxonName': _VT.STR,

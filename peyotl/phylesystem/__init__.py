@@ -129,7 +129,33 @@ def diagnose_repo_study_id_convention(repo_dir):
             'id2alias_list': namespaced_get_alias,
     }
 
-class PhylesystemShard(object):
+class PhylesystemShardBase(object):
+    def get_rel_path_fragment(self, study_id):
+        '''For `study_id` returns the path from the
+        repo to the study file. This is useful because
+        (if you know the remote), it lets you construct the full path.
+        '''
+        with self._index_lock:
+            r = self._study_index[study_id]
+        fp = r[-1]
+        return fp[(len(self.path) + 1):] # "+ 1" to remove the /
+    def get_study_index(self):
+        return self._study_index
+    study_index = property(get_study_index)
+    def get_study_ids(self, include_aliases=False):
+        with self._index_lock:
+            k = self._study_index.keys()
+        if self.has_aliases and (not include_aliases):
+            x = []
+            for i in k:
+                if DIGIT_PATTERN.match(i) or ((len(i) > 1) and (i[-2] == '_')):
+                    pass
+                else:
+                    x.append(i)
+            return x
+        return k
+
+class PhylesystemShard(PhylesystemShardBase):
     '''Wrapper around a git repos holding nexson studies'''
     def __init__(self,
                  name,
@@ -185,18 +211,6 @@ class PhylesystemShard(object):
         self._next_study_id = None
         self._study_counter_lock = None
 
-    def get_study_ids(self, include_aliases=False):
-        with self._index_lock:
-            k = self._study_index.keys()
-        if self.has_aliases and (not include_aliases):
-            x = []
-            for i in k:
-                if DIGIT_PATTERN.match(i) or ((len(i) > 1) and (i[-2] == '_')):
-                    pass
-                else:
-                    x.append(i)
-            return x
-        return k
     def register_new_study(self, study_id):
         pass
 
@@ -226,10 +240,6 @@ class PhylesystemShard(object):
                         pass
         with self._study_counter_lock:
             self._next_study_id = 1 + n
-
-    def get_study_index(self):
-        return self._study_index
-    study_index = property(get_study_index)
 
     def diagnose_repo_nexml2json(self):
         with self._index_lock:
@@ -281,16 +291,6 @@ class PhylesystemShard(object):
             mirror_ga.push(branch='master',
                            remote=remote_name)
         return True
-
-    def get_rel_path_fragment(self, study_id):
-        '''For `study_id` returns the path from the
-        repo to the study file. This is useful because
-        (if you know the remote), it lets you construct the full path.
-        '''
-        with self._index_lock:
-            r = self._study_index[study_id]
-        fp = r[-1]
-        return fp[(len(self.path) + 1):] # "+ 1" to remove the /
 
     def iter_study_filepaths(self, **kwargs):
         '''Returns a pair: (study_id, absolute filepath of study file)
@@ -429,7 +429,74 @@ def _make_phylesystem_cache_region():
     return None
 
 
-class _Phylesystem(object):
+class _PhylesystemBase(object):
+    '''Impl. of some basic functionality that a _Phylesystem or _PhylesystemProxy
+    can provide.
+    '''
+    def get_repo_and_path_fragment(self, study_id):
+        '''For `study_id` returns a list of:
+            [0] the repo name and,
+            [1] the path from the repo to the study file.
+        This is useful because
+        (if you know the remote), it lets you construct the full path.
+        '''
+        with self._index_lock:
+            shard = self._study2shard_map[study_id]
+        return shard.name, shard.get_rel_path_fragment(study_id)
+
+    def get_public_url(self, study_id, branch='master'):
+        '''Returns a GitHub URL for the
+        '''
+        #@TEMP, TODO. should look in the remote to find this. But then it can be tough to determine
+        #       which (if any) remotes are publicly visible... hmmmm
+        name, path_frag = self.get_repo_and_path_fragment(study_id)
+        return 'https://raw.githubusercontent.com/OpenTreeOfLife/' + name + '/' + branch + '/' + path_frag
+    get_external_url = get_public_url
+
+    def get_study_ids(self, include_aliases=False):
+        k = []
+        for shard in self._shards:
+            k.extend(shard.get_study_ids(include_aliases=include_aliases))
+        return k
+
+class PhylesystemShardProxy(PhylesystemShardBase):
+    '''Proxy for interacting with external resources if given the
+    configuration of a remote Phylesystem
+    '''
+    def __init__(self, config):
+        self._index_lock = Lock() #TODO should invent a fake lock for the proxies
+        self.name = config['name']
+        self.repo_nexml2json = config['repo_nexml2json']
+        self.path = ' ' # mimics place of the abspath of repo in path -> relpath mapping
+        self.has_aliases = False
+        d = {}
+        for study in config['studies']:
+            kl = study['keys']
+            if len(kl) > 1:
+                self.has_aliases = True
+            for k in study['keys']:
+                d[k] = (self.name, self.path, self.path + '/study/' + study['relpath'])
+        self._study_index = d
+
+class PhylesystemProxy(_PhylesystemBase):
+    '''Proxy for interacting with external resources if given the
+    configuration of a remote Phylesystem
+    '''
+    def __init__(self, config):
+        self._index_lock = Lock() #TODO should invent a fake lock for the proxies
+        self.repo_nexml2json = config['repo_nexml2json']
+        self._shards = []
+        for s in config.get('shards', []):
+            self._shards.append(PhylesystemShardProxy(s))
+        d = {}
+        for s in self._shards:
+            for k in s.study_index.keys():
+                if k in d:
+                    raise KeyError('study "{i}" found in multiple repos'.format(i=k))
+                d[k] = s
+        self._study2shard_map = d
+
+class _Phylesystem(_PhylesystemBase):
     '''Wrapper around a set of sharded git repos.
     '''
     def __init__(self,
@@ -725,32 +792,6 @@ class _Phylesystem(object):
         with self._index_lock:
             self._study2shard_map[new_study_id] = self._growing_shard
         return new_study_id, r
-
-    def get_study_ids(self, include_aliases=False):
-        k = []
-        for shard in self._shards:
-            k.extend(shard.get_study_ids(include_aliases=include_aliases))
-        return k
-
-    def get_repo_and_path_fragment(self, study_id):
-        '''For `study_id` returns a list of:
-            [0] the repo name and,
-            [1] the path from the repo to the study file.
-        This is useful because
-        (if you know the remote), it lets you construct the full path.
-        '''
-        with self._index_lock:
-            shard = self._study2shard_map[study_id]
-        return shard.name, shard.get_rel_path_fragment(study_id)
-
-    def get_public_url(self, study_id, branch='master'):
-        '''Returns a GitHub URL for the
-        '''
-        #@TEMP, TODO. should look in the remote to find this. But then it can be tough to determine
-        #       which (if any) remotes are publicly visible... hmmmm
-        name, path_frag = self.get_repo_and_path_fragment(study_id)
-
-        return 'https://raw.githubusercontent.com/OpenTreeOfLife/' + name + '/' + branch + '/' + path_frag
 
     def iter_study_objs(self, **kwargs):
         '''Generator that iterates over all detected phylesystem studies.

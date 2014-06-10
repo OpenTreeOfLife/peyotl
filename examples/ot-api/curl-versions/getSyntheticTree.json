@@ -1,18 +1,950 @@
 {
-  "name" : "Chloroflexi",
-  "nodeid" : 3534540,
-  "children" : [ "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@769fd730", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@77e8cd27", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@54f4f8f1", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@1f03c1ca", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@2fa7c4ae", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@2f6193f3", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@2f384ed2", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@19bed536", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@3f9fd96e", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@177be564", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@47111447", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@324a65c4", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@325f40a7", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@b8dadc7", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@28be9be", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@2f9eba40", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@5dd5d82c", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@26360d5", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@4a6a412c", "org.neo4j.server.rest.repr.ArgusonRepresentationConverter$1@5dcd5df" ],
-  "maxnodedepth" : 3,
-  "nleaves" : 53,
-  "taxSource" : "silva:D32255/#2,ncbi:200795,gbif:84,irmng:1154",
-  "taxRank" : "phylum",
-  "ottId" : "1041335",
-  "pathToRoot" : [ "org.neo4j.server.rest.repr.GeneralizedMappingRepresentation$1@655d267a", "org.neo4j.server.rest.repr.GeneralizedMappingRepresentation$1@46894793" ],
-  "sourceToMetaMap" : {
-    "taxonomy" : {
-      "study" : {
-        "source" : "taxonomy"
-      }
-    }
-  }
+"children": [
+{
+"hasChildren": false, 
+"name": "JG37-AG-4", 
+"nleaves": 0, 
+"nodeid": 3534877, 
+"ottId": "5246220", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB234283/#3"
+}, 
+{
+"hasChildren": false, 
+"name": "SHA-26", 
+"nleaves": 0, 
+"nodeid": 3534947, 
+"ottId": "5246217", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AF407406/#3"
+}, 
+{
+"hasChildren": false, 
+"name": "P2-11E", 
+"nleaves": 0, 
+"nodeid": 3534951, 
+"ottId": "5246223", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AY192295/#3"
+}, 
+{
+"children": [
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Caldilineaceae", 
+"nleaves": 0, 
+"nodeid": 3534852, 
+"ottId": "533636", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:X84607/#5,ncbi:475964,gbif:4698,irmng:104266"
+}
+], 
+"name": "Caldilineales", 
+"nleaves": 1, 
+"nodeid": 3534851, 
+"ottId": "533645", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:X84607/#4,ncbi:475963,gbif:1205,irmng:10246"
+}
+], 
+"name": "Caldilineae", 
+"nleaves": 1, 
+"nodeid": 3534850, 
+"ottId": "533647", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "class", 
+"taxSource": "silva:X84607/#3,ncbi:475962,gbif:299,irmng:1149"
+}, 
+{
+"children": [
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Oscillochloridaceae", 
+"nleaves": 0, 
+"nodeid": 3534631, 
+"ottId": "101829", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:AF093427/#5,ncbi:104174,gbif:8108,irmng:104981"
+}, 
+{
+"hasChildren": true, 
+"name": "Roseiflexaceae", 
+"nleaves": 0, 
+"nodeid": 3534607, 
+"ottId": "5248104", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:X84565/#5"
+}, 
+{
+"hasChildren": false, 
+"name": "FFCH7168", 
+"nleaves": 0, 
+"nodeid": 3534650, 
+"ottId": "5248103", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:EU133961/#5"
+}, 
+{
+"hasChildren": true, 
+"name": "Chloroflexaceae", 
+"nleaves": 0, 
+"nodeid": 3534549, 
+"ottId": "973293", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:D32255/#5,ncbi:1106,gbif:8107,irmng:108705"
+}
+], 
+"name": "Chloroflexales", 
+"nleaves": 4, 
+"nodeid": 3534545, 
+"ottId": "984934", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:D32255/#4,ncbi:32064,gbif:1206,irmng:12318"
+}, 
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Herpetosiphonaceae", 
+"nleaves": 0, 
+"nodeid": 3534654, 
+"ottId": "1085861", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:X86447/#5,ncbi:189773,gbif:4699,irmng:112517"
+}
+], 
+"name": "Herpetosiphonales", 
+"nleaves": 1, 
+"nodeid": 3534651, 
+"ottId": "1085858", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:X86447/#4,ncbi:189772,gbif:573,irmng:12544"
+}, 
+{
+"hasChildren": false, 
+"name": "AKIW781", 
+"nleaves": 0, 
+"nodeid": 3534675, 
+"ottId": "5246972", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB473922/#4"
+}
+], 
+"name": "Chloroflexia", 
+"nleaves": 6, 
+"nodeid": 3534544, 
+"ottId": "5246211", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:D32255/#3"
+}, 
+{
+"hasChildren": false, 
+"name": "Elev-1554", 
+"nleaves": 0, 
+"nodeid": 3534953, 
+"ottId": "5246222", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:DQ404640/#3"
+}, 
+{
+"children": [
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Ardenticatenaceae", 
+"nleaves": 0, 
+"nodeid": 3534957, 
+"ottId": "5245629", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "ncbi:1382930"
+}
+], 
+"name": "Ardenticatenales", 
+"nleaves": 1, 
+"nodeid": 3534956, 
+"ottId": "5245628", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "ncbi:1382929"
+}
+], 
+"name": "Ardenticatenia", 
+"nleaves": 1, 
+"nodeid": 3534955, 
+"ottId": "5245627", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "class", 
+"taxSource": "ncbi:1382928"
+}, 
+{
+"hasChildren": false, 
+"name": "SL56 marine group", 
+"nleaves": 0, 
+"nodeid": 3534952, 
+"ottId": "5246214", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AY466492/#3"
+}, 
+{
+"hasChildren": false, 
+"name": "MSB-5B2", 
+"nleaves": 0, 
+"nodeid": 3534879, 
+"ottId": "5246225", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB300063/#3"
+}, 
+{
+"hasChildren": false, 
+"name": "KZNMV-5-B42", 
+"nleaves": 0, 
+"nodeid": 3534954, 
+"ottId": "5246224", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:FJ712467/#3"
+}, 
+{
+"children": [
+{
+"hasChildren": false, 
+"name": "AKYG1722", 
+"nleaves": 0, 
+"nodeid": 3534690, 
+"ottId": "5246974", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AM934991/#4"
+}, 
+{
+"children": [
+{
+"hasChildren": false, 
+"name": "bacterium Ellin6537", 
+"nleaves": 0, 
+"nodeid": 3534688, 
+"ottId": "4751620", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "species", 
+"taxSource": "silva:HM748685,ncbi:871802"
+}
+], 
+"name": "JG30-KF-CM45", 
+"nleaves": 1, 
+"nodeid": 3534687, 
+"ottId": "5246973", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB374393/#4"
+}, 
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Sphaerobacterales", 
+"nleaves": 0, 
+"nodeid": 3534692, 
+"ottId": "282099", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:AJ420142/#4,ncbi:85001,gbif:1202,irmng:12153"
+}
+], 
+"name": "Sphaerobacteridae", 
+"nleaves": 1, 
+"nodeid": 3534691, 
+"ottId": "282097", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "subclass", 
+"taxSource": "ncbi:85000"
+}, 
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Thermomicrobiaceae", 
+"nleaves": 0, 
+"nodeid": 3534678, 
+"ottId": "1085867", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:M34115/#5,ncbi:189777,gbif:9544,irmng:105176"
+}
+], 
+"name": "Thermomicrobiales", 
+"nleaves": 1, 
+"nodeid": 3534677, 
+"ottId": "1085865", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:M34115/#4,ncbi:189776,gbif:1478,irmng:10614"
+}
+], 
+"name": "Thermomicrobia", 
+"nleaves": 4, 
+"nodeid": 3534676, 
+"ottId": "1085863", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "class", 
+"taxSource": "silva:M34115/#3,ncbi:189775,gbif:113,irmng:252"
+}, 
+{
+"children": [
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Ktedonobacteraceae", 
+"nleaves": 0, 
+"nodeid": 3534891, 
+"ottId": "818909", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:AB510917/#5,ncbi:388449,gbif:4899883,irmng:104418"
+}, 
+{
+"hasChildren": true, 
+"name": "Thermosporotrichaceae", 
+"nleaves": 0, 
+"nodeid": 3534886, 
+"ottId": "795255", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:AB500145/#5,ncbi:768649"
+}, 
+{
+"hasChildren": false, 
+"name": "1959-1", 
+"nleaves": 0, 
+"nodeid": 3534915, 
+"ottId": "5248108", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AY425771/#5"
+}, 
+{
+"hasChildren": false, 
+"name": "JG30a-KF-32", 
+"nleaves": 0, 
+"nodeid": 3534914, 
+"ottId": "5248111", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AJ536876/#5"
+}, 
+{
+"hasChildren": false, 
+"name": "HSB OF53-F07", 
+"nleaves": 0, 
+"nodeid": 3534917, 
+"ottId": "5248109", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:DQ128986/#5"
+}, 
+{
+"hasChildren": false, 
+"name": "G12-WMSP1", 
+"nleaves": 0, 
+"nodeid": 3534918, 
+"ottId": "5248107", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:DQ450739/#5"
+}, 
+{
+"hasChildren": false, 
+"name": "BacC-u-018", 
+"nleaves": 0, 
+"nodeid": 3534920, 
+"ottId": "5248113", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:EU335378/#5"
+}, 
+{
+"hasChildren": false, 
+"name": "FCPS473", 
+"nleaves": 0, 
+"nodeid": 3534919, 
+"ottId": "5248110", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:EF516054/#5"
+}, 
+{
+"hasChildren": false, 
+"name": "1921-3", 
+"nleaves": 0, 
+"nodeid": 3534916, 
+"ottId": "5248112", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AY425780/#5"
+}
+], 
+"name": "Ktedonobacterales", 
+"nleaves": 9, 
+"nodeid": 3534883, 
+"ottId": "818912", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:AB500145/#4,ncbi:388448,irmng:10396"
+}, 
+{
+"hasChildren": false, 
+"name": "B12-WMSP1", 
+"nleaves": 0, 
+"nodeid": 3534942, 
+"ottId": "5246984", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:DQ450730/#4"
+}, 
+{
+"hasChildren": false, 
+"name": "C0119", 
+"nleaves": 0, 
+"nodeid": 3534882, 
+"ottId": "5246983", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB488119/#4"
+}, 
+{
+"hasChildren": false, 
+"name": "FFCH11981", 
+"nleaves": 0, 
+"nodeid": 3534943, 
+"ottId": "5246987", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:EU132570/#4"
+}, 
+{
+"children": [
+{
+"hasChildren": false, 
+"name": "Chloroflexi bacterium Ellin7237", 
+"nleaves": 0, 
+"nodeid": 3534940, 
+"ottId": "4795943", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "species", 
+"taxSource": "silva:AY673403,ncbi:305053"
+}
+], 
+"name": "JG30-KF-AS9", 
+"nleaves": 1, 
+"nodeid": 3534939, 
+"ottId": "5246986", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB672175/#4"
+}, 
+{
+"children": [
+{
+"hasChildren": false, 
+"name": "1921-2", 
+"nleaves": 0, 
+"nodeid": 3534938, 
+"ottId": "5248114", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AY425778/#5"
+}, 
+{
+"hasChildren": true, 
+"name": "Thermogemmatisporaceae", 
+"nleaves": 0, 
+"nodeid": 3534922, 
+"ottId": "846244", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:AB547912/#5,ncbi:768668"
+}
+], 
+"name": "Thermogemmatisporales", 
+"nleaves": 2, 
+"nodeid": 3534921, 
+"ottId": "846246", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:AB547912/#4,ncbi:768667"
+}, 
+{
+"hasChildren": false, 
+"name": "B10-SB3A", 
+"nleaves": 0, 
+"nodeid": 3534944, 
+"ottId": "5246985", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:FJ592911/#4"
+}
+], 
+"name": "Ktedonobacteria", 
+"nleaves": 16, 
+"nodeid": 3534880, 
+"ottId": "818896", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "class", 
+"taxSource": "silva:AB488119/#3,ncbi:388447,irmng:1486"
+}, 
+{
+"children": [
+{
+"hasChildren": false, 
+"name": "Sh765B-AG-111", 
+"nleaves": 0, 
+"nodeid": 3534718, 
+"ottId": "5246975", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB177189/#4"
+}, 
+{
+"hasChildren": false, 
+"name": "MSBL5", 
+"nleaves": 0, 
+"nodeid": 3534806, 
+"ottId": "5246978", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AM086136/#4"
+}, 
+{
+"hasChildren": false, 
+"name": "FS117-23B-02", 
+"nleaves": 0, 
+"nodeid": 3534808, 
+"ottId": "5246982", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AY704391/#4"
+}, 
+{
+"hasChildren": false, 
+"name": "GIF3", 
+"nleaves": 0, 
+"nodeid": 3534717, 
+"ottId": "5246976", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB177188/#4"
+}, 
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Dehalococcoidaceae", 
+"nleaves": 0, 
+"nodeid": 3534720, 
+"ottId": "438716", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:AF427909/#5,ncbi:1202464"
+}
+], 
+"name": "Dehalococcoidales", 
+"nleaves": 1, 
+"nodeid": 3534719, 
+"ottId": "438718", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:AB186888/#4,ncbi:1202465"
+}, 
+{
+"hasChildren": false, 
+"name": "FW22", 
+"nleaves": 0, 
+"nodeid": 3534805, 
+"ottId": "5246980", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB252960/#4"
+}, 
+{
+"hasChildren": false, 
+"name": "GIF9", 
+"nleaves": 0, 
+"nodeid": 3534716, 
+"ottId": "5246981", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB177126/#4"
+}, 
+{
+"hasChildren": false, 
+"name": "vadinBA26", 
+"nleaves": 0, 
+"nodeid": 3534715, 
+"ottId": "5246977", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:U81649/#4"
+}, 
+{
+"hasChildren": false, 
+"name": "Napoli-4B-65", 
+"nleaves": 0, 
+"nodeid": 3534807, 
+"ottId": "5246979", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AY592730/#4"
+}
+], 
+"name": "Dehalococcoidia", 
+"nleaves": 9, 
+"nodeid": 3534713, 
+"ottId": "346927", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "class", 
+"taxSource": "silva:U81649/#3,ncbi:301297"
+}, 
+{
+"children": [
+{
+"hasChildren": false, 
+"name": "bacterium Ellin6519", 
+"nleaves": 0, 
+"nodeid": 3534871, 
+"ottId": "4766623", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "species", 
+"taxSource": "silva:HM748667,ncbi:871784"
+}, 
+{
+"hasChildren": false, 
+"name": "bacterium Ellin6543", 
+"nleaves": 0, 
+"nodeid": 3534875, 
+"ottId": "4751618", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "species", 
+"taxSource": "silva:HM748691,ncbi:871808"
+}, 
+{
+"hasChildren": false, 
+"name": "Chloroflexi bacterium JEA33", 
+"nleaves": 0, 
+"nodeid": 3534873, 
+"ottId": "4795936", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "species", 
+"taxSource": "silva:JX125583,ncbi:1215912"
+}
+], 
+"name": "TK10", 
+"nleaves": 3, 
+"nodeid": 3534870, 
+"ottId": "5246215", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB186887/#3"
+}, 
+{
+"children": [
+{
+"hasChildren": false, 
+"name": "unidentified eubacterium clone SAR202", 
+"nleaves": 0, 
+"nodeid": 3534710, 
+"ottId": "5204716", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "species", 
+"taxSource": "silva:U20797,ncbi:38176"
+}
+], 
+"name": "SAR202 clade", 
+"nleaves": 1, 
+"nodeid": 3534709, 
+"ottId": "5246212", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:U20797/#3"
+}, 
+{
+"hasChildren": false, 
+"name": "S085", 
+"nleaves": 0, 
+"nodeid": 3534945, 
+"ottId": "5246218", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB694424/#3"
+}, 
+{
+"children": [
+{
+"hasChildren": false, 
+"name": "bacterium Ellin6529", 
+"nleaves": 0, 
+"nodeid": 3534949, 
+"ottId": "4752704", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "species", 
+"taxSource": "silva:HM748677,ncbi:871794"
+}
+], 
+"name": "KD4-96", 
+"nleaves": 1, 
+"nodeid": 3534948, 
+"ottId": "5246213", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AM709744/#3"
+}, 
+{
+"hasChildren": false, 
+"name": "Gitt-GS-136", 
+"nleaves": 0, 
+"nodeid": 3534946, 
+"ottId": "5246216", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AF234128/#3"
+}, 
+{
+"children": [
+{
+"children": [
+{
+"hasChildren": true, 
+"name": "Anaerolineaceae", 
+"nleaves": 0, 
+"nodeid": 3534812, 
+"ottId": "974237", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "family", 
+"taxSource": "silva:X84472/#5,ncbi:292628,gbif:4903399,irmng:104980"
+}
+], 
+"name": "Anaerolineales", 
+"nleaves": 1, 
+"nodeid": 3534810, 
+"ottId": "974234", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "order", 
+"taxSource": "silva:X84472/#4,ncbi:292629,gbif:572,irmng:10903"
+}
+], 
+"name": "Anaerolineae", 
+"nleaves": 1, 
+"nodeid": 3534809, 
+"ottId": "974241", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "class", 
+"taxSource": "silva:X84472/#3,ncbi:292625,gbif:298,irmng:1132"
+}, 
+{
+"hasChildren": false, 
+"name": "JG30-KF-CM66", 
+"nleaves": 0, 
+"nodeid": 3534878, 
+"ottId": "5246219", 
+"supportedBy": [
+"taxonomy"
+], 
+"taxRank": "no rank", 
+"taxSource": "silva:AB240237/#3"
+}
+], 
+"maxnodedepth": 3, 
+"name": "Chloroflexi", 
+"nleaves": 53, 
+"nodeid": 3534540, 
+"ottId": "1041335", 
+"pathToRoot": [
+{
+"name": "Bacteria", 
+"nodeid": 3223305
+}, 
+{
+"name": "cellular organisms", 
+"nodeid": 215
+}
+], 
+"sourceToMetaMap": {
+"taxonomy": {
+"study": {
+"source": "taxonomy"
+}
+}
+}, 
+"taxRank": "phylum", 
+"taxSource": "silva:D32255/#2,ncbi:200795,gbif:84,irmng:1154"
 }

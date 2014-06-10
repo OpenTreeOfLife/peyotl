@@ -3,6 +3,7 @@ from peyotl import write_as_json
 import codecs
 import json
 import time
+import sys
 
 def report_results(tag, duration, expected_fn, result):
     expected = json.load(codecs.open(expected_fn, 'rU', encoding='utf-8'))
@@ -23,7 +24,6 @@ def report_error(tag, duration, err):
             'duration': duration,
             'expected-output':False,
             'returned': False,
-            'returned': True,
             'status': err.response.status_code,
             'url': err.response.url,
             }
@@ -45,6 +45,9 @@ def _ot_call(tag, expected_fn, func, *valist, **kwargs):
 if __name__ == '__main__':
     from peyotl.api import APIWrapper
     from requests import HTTPError
+    import datetime
+    timestamp = datetime.datetime.utcnow()
+    
     otwrap = APIWrapper(phylesystem_api_kwargs={'get_from':'api'})
     summary_list = []
 
@@ -90,4 +93,9 @@ if __name__ == '__main__':
                        'pg_719')
     summary_list.append(summary)
     
-    print summary_list
+    blob = { 'time': timestamp.isoformat(),
+             'time_string': timestamp.strftime('%A %H:%M:%S.%f (UTC) %d %B, %Y'),
+             'summary': summary_list
+    }
+    out = codecs.getwriter('utf-8')(sys.stdout)
+    write_as_json(blob, out, indent=1)

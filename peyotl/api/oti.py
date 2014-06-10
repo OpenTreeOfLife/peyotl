@@ -160,6 +160,7 @@ class _OTIWrapper(_WSWrapper):
         self._study_search_prop = None
         self.indexing_prefix = None
         self.query_prefix = None
+        self._raw_urls = True #TODO should be configurable
         _WSWrapper.__init__(self, domain)
         self.set_domain(domain)
     def set_domain(self, d):
@@ -167,8 +168,12 @@ class _OTIWrapper(_WSWrapper):
         self._tree_search_prop = None
         self._study_search_prop = None
         self._domain = d
-        self.indexing_prefix = '{d}/oti/ext/IndexServices/graphdb'.format(d=d)
-        self.query_prefix = '{d}/oti/ext/QueryServices/graphdb'.format(d=d)
+        if self._raw_urls:
+            self.indexing_prefix = '{d}/oti/ext/IndexServices/graphdb'.format(d=d)
+            self.query_prefix = '{d}/oti/ext/QueryServices/graphdb'.format(d=d)
+        else:
+            self.indexing_prefix = '{d}/oti/IndexServices/graphdb'.format(d=d)
+            self.query_prefix = '{d}/oti/QueryServices/graphdb'.format(d=d)
     domain = property(_WSWrapper.get_domain, set_domain)
     def get_node_search_term_set(self):
         if self._node_search_prop is None:

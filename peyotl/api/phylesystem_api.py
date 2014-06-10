@@ -26,7 +26,9 @@ _REFRESH_VALUES = ('never',    # *DEFAULT* never call "git pull"
 
 class _PhylesystemAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
+        self._prefix = None
         _WSWrapper.__init__(self, domain)
+        self.set_domain(domain)
         self._github_oauth_token = None
         self._get_from = kwargs.setdefault('get_from', 'external').lower()
         self._transform = kwargs.setdefault('transform', 'client').lower()
@@ -37,6 +39,13 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         self._repo_nexml2json = None
         self._phylesystem_config = None
         self._phylesystem_obj = None
+        self._use_raw = False #TODO should be config dependent...
+    def get_domain(self):
+        return self._domain
+    def set_domain(self, d):
+        self._domain = d
+        self._prefix = '{d}/api'.format(d=d) #TODO this should change to phylesystem
+    domain = property(get_domain, set_domain)
     def get_phylesystem_obj(self):
         if self._phylesystem_obj is None:
             if self._src_code == _GET_LOCAL:
@@ -126,10 +135,10 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     auth_token = property(_get_auth_token)
     def _remote_study_list(self):
         '''Returns a list of strings which are the study IDs'''
-        uri = '{}/study_list'.format(self.domain)
+        uri = '{}/study_list'.format(self._prefix)
         return self.json_http_get(uri)
     def unmerged_branches(self):
-        uri = '{}/unmerged_branches'.format(self.domain)
+        uri = '{}/unmerged_branches'.format(self._prefix)
         return self.json_http_get(uri)
     def post_study(self,
                    nexson,
@@ -137,9 +146,9 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                    commit_msg=None):
         assert nexson is not None
         if study_id is None:
-            uri = '{d}/v1/study'.format(d=self.domain)
+            uri = '{d}/v1/study'.format(d=self._prefix)
         else:
-            uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
+            uri = '{d}/v1/study/{i}'.format(d=self._prefix, i=study_id)
         params = {'auth_token': self.auth_token}
         if commit_msg:
             params['commit_msg'] = commit_msg
@@ -152,7 +161,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                   starting_commit_sha,
                   commit_msg=None):
         assert nexson is not None
-        uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
+        uri = '{d}/v1/study/{i}'.format(d=self._prefix, i=study_id)
         params = {'starting_commit_SHA':starting_commit_sha,
                   'auth_token': self.auth_token}
         if commit_msg:
@@ -161,20 +170,20 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                          params=params,
                          data=anyjson.dumps({'nexson': nexson}))
     def _remote_phylesystem_config(self):
-        uri = '{d}/phylesystem_config'.format(d=self.domain)
+        uri = '{d}/phylesystem_config'.format(d=self._prefix)
         return self.json_http_get(uri)
     def _remote_external_url(self, study_id):
-        uri = '{d}/external_url/{i}'.format(d=self.domain, i=study_id)
+        uri = '{d}/external_url/{i}'.format(d=self._prefix, i=study_id)
         return self.json_http_get(uri)
     def _remote_get_study(self, study_id, schema):
         data = {}
         expect_json = True
         if self._trans_code == _TRANS_SERVER:
-            uri, params = schema.phylesystem_api_url(self.domain, study_id)
+            uri, params = schema.phylesystem_api_url(self._prefix, study_id)
             data.update(params)
             expect_json = schema.is_json()
         else:
-            uri = '{d}/v1/study/{i}'.format(d=self.domain, i=study_id)
+            uri = '{d}/v1/study/{i}'.format(d=self._prefix, i=study_id)
             data['output_nexml2json'] = 'native'
         if not data:
             data = None

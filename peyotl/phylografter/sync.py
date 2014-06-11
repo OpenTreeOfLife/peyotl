@@ -182,8 +182,6 @@ class PhylografterNexsonDocStoreSync(object):
                                                                unmerged_study_to_sha,
                                                                studies_with_final_sha,
                                                                last_merged_sha)
-                _LOG.warning('breaking early...')
-                break
             tpl = self._get_to_push_list()
             tpl.sort()
             while len(tpl) > 0:

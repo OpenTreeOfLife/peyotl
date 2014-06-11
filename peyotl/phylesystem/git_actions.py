@@ -301,18 +301,20 @@ class GitAction(object):
             parent_sha = self.get_master_sha()
         else:
             gh_user, study_id, parent_sha, author = first_arg, sec_arg, third_arg, fourth_arg
-        study_path = self.path_for_study(study_id)
-        study_dir = os.path.split(study_path)[0]
+        study_filepath = self.path_for_study(study_id)
+        study_dir = os.path.split(study_filepath)[0]
 
         branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
-        if not os.path.isdir(study_dir):
-            # branch already exists locally with study removed
-            # so just return the commit SHA
-            return git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip(), branch
-        git(self.gitdir, self.gitwd, "rm", "-rf", study_dir)
-        git(self.gitdir, self.gitwd, "commit", author=author, message="Delete Study #%s via OpenTree API" % study_id)
-        new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")
-        return new_sha.strip(), branch
+        prev_file_sha = None
+        if os.path.exists(study_filepath):
+            prev_file_sha = self.get_blob_sha_for_file(study_filepath)
+            git(self.gitdir, self.gitwd, "rm", "-rf", study_dir)
+            git(self.gitdir, self.gitwd, "commit", author=author, message="Delete Study #%s via OpenTree API" % study_id)
+        new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip()
+        return {'commit_sha': new_sha,
+                'branch': branch,
+                'prev_file_sha': prev_file_sha,
+               }
 
 
     def reset_hard(self):

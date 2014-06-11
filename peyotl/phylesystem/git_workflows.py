@@ -92,6 +92,38 @@ def _pull_gh(git_action, branch_name):#
             raise GitWorkflowError(msg)
 
 
+def _do_merge2master_commit(git_action,
+                     new_sha,
+                     branch_name,
+                     study_filepath,
+                     merged_sha,
+                     prev_file_sha):
+    merge_needed = False
+    git_action.checkout_master()
+    if os.path.exists(study_filepath):
+        b = git_action.get_blob_sha_for_file(study_filepath)
+        _LOG.debug('master SHA for that file path is {b}'.format(b=b))
+    else:
+        b = None
+    if merged_sha is None:
+        same_sha = prev_file_sha
+    else:
+        same_sha = merged_sha
+    if b == same_sha:
+        try:
+            new_sha = git_action.merge(branch_name, 'master')
+        except MergeException:
+            _LOG.error('MergeException in a "safe" merge !!!')
+            merge_needed = True
+        else:
+            _LOG.debug('merge to master succeeded')
+            git_action.delete_branch(branch_name)
+            branch_name = 'master'
+    else:
+        _LOG.debug('Edit from different source. merge_needed <- True')
+        merge_needed = True
+    return new_sha, branch_name, merge_needed
+
 def commit_and_try_merge2master(git_action,
                                 file_content,
                                 study_id,
@@ -126,29 +158,13 @@ def commit_and_try_merge2master(git_action,
             _LOG.debug('write of study {s} on parent {p} returned = {c}'.format(s=study_id,
                                                                                 p=parent_sha,
                                                                                 c=str(commit_resp)))
-            git_action.checkout_master()
-            if os.path.exists(written_fp):
-                b = git_action.get_blob_sha_for_file(written_fp)
-                _LOG.debug('master SHA for that file path is {b}'.format(b=b))
-            else:
-                b = None
-            if merged_sha is None:
-                same_sha = commit_resp['prev_file_sha']
-            else:
-                same_sha = merged_sha
-            if b == same_sha:
-                try:
-                    new_sha = git_action.merge(branch_name, 'master')
-                except MergeException:
-                    _LOG.error('MergeException in a "safe" merge !!!')
-                    merge_needed = True
-                else:
-                    _LOG.debug('merge to master succeeded')
-                    git_action.delete_branch(branch_name)
-                    branch_name = 'master'
-            else:
-                _LOG.debug('Edit from different source. merge_needed <- True')
-                merge_needed = True
+            m_resp = _do_merge2master_commit(git_action,
+                                             new_sha,
+                                              branch_name,
+                                              written_fp,
+                                              merged_sha=merged_sha,
+                                              prev_file_sha=commit_resp.get('prev_file_sha'))
+            new_sha, branch_name, merge_needed = m_resp
         finally:
             git_action.release_lock()
     finally:
@@ -165,12 +181,22 @@ def commit_and_try_merge2master(git_action,
     _LOG.debug('returning {r}'.format(r=str(r)))
     return r
 
-def delete_study(git_action, study_id, auth_info, parent_sha):
+def delete_study(git_action, study_id, auth_info, parent_sha, commit_msg='', merged_sha=None):
     author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % study_id)
     try:
-        new_sha, branch_name = git_action.remove_study(gh_user, study_id, parent_sha, author)
+        study_fp = git_action.path_for_study(study_id)
+        rs_resp = git_action.remove_study(gh_user, study_id, parent_sha, author)
+        new_sha = rs_resp['commit_sha']
+        branch_name = rs_resp['branch']
+        m_resp = _do_merge2master_commit(git_action,
+                                         new_sha,
+                                         branch_name,
+                                         study_fp,
+                                         merged_sha=merged_sha,
+                                         prev_file_sha=rs_resp.get('prev_file_sha'))
+        new_sha, branch_name, merge_needed = m_resp
     except Exception, e:
         raise GitWorkflowError("Could not remove study #%s! Details: %s" % (study_id, e.message))
     finally:
@@ -179,7 +205,8 @@ def delete_study(git_action, study_id, auth_info, parent_sha):
         "error": 0,
         "branch_name": branch_name,
         "description": "Deleted study #%s" % study_id,
-        "sha":  new_sha
+        "sha":  new_sha,
+        "merge_needed": merge_needed,
     }
 
 def merge_from_master(git_action, study_id, auth_info, parent_sha):

@@ -3,6 +3,7 @@ from peyotl.phylesystem import Phylesystem, PhylesystemProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.nexson_syntax import create_content_spec
 import anyjson
+import urllib
 import os
 from peyotl import get_logger
 _LOG = get_logger(__name__)
@@ -175,6 +176,12 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     def _remote_external_url(self, study_id):
         uri = '{d}/external_url/{i}'.format(d=self._prefix, i=study_id)
         return self.json_http_get(uri)
+    def url_for_api_get_study(self, study_id, schema):
+        u, d = schema.phylesystem_api_url(self._prefix, study_id)
+        if d:
+            return '{u}?{d}'.format(u=u, d=urllib.urlencode(d))
+        return u
+
     def _remote_get_study(self, study_id, schema):
         data = {}
         expect_json = True

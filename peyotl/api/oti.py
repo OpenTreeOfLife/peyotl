@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
+from peyotl.nexson_syntax import create_content_spec
 import anyjson
 from peyotl import get_logger
 _LOG = get_logger(__name__)
+_OTI_NEXSON_SCHEMA = create_content_spec(format='nexson', nexson_version='0.0.0')
 
 
 class _OTIWrapper(_WSWrapper):
@@ -110,6 +112,7 @@ class _OTIWrapper(_WSWrapper):
         unindexNexsons (called by phylesystem-api)
         indexNexsons (called by phylesystem-api)
     '''
+
     def find_nodes(self, query_dict=None, exact=False, verbose=False, **kwargs):
         '''Query on node properties. See documentation for _OTIWrapper class.'''
         return self._do_query('{p}/singlePropertySearchForTreeNodes'.format(p=self.query_prefix),
@@ -238,5 +241,16 @@ class _OTIWrapper(_WSWrapper):
         if not (isinstance(v, str) or isinstance(v, unicode)):
             v = unicode(v)
         return (k, v)
+    def trigger_index(self, phylesystem_api, study_id):
+        url = '{p}/indexNexsons'.format(p=self.indexing_prefix)
+        nexson_url = phylesystem_api.url_for_api_get_study(study_id, schema=_OTI_NEXSON_SCHEMA)
+        data = {'urls': [nexson_url]}
+        return self.json_http_post(url, data=anyjson.dumps(data))
+    def trigger_unindex(self, study_id):
+        url = '{p}/unindexNexsons'.format(p=self.indexing_prefix)
+        if isinstance(study_id, str) or isinstance(study_id, unicode):
+            study_id = [study_id]
+        data = {'ids': study_id}
+        return self.json_http_post(url, data=anyjson.dumps(data))
 def OTI(domains=None):
     return APIWrapper(domains=domains).oti

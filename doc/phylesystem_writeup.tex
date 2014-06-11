@@ -1,0 +1,52 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+
+%opening
+\title{Using a git-based datastore for community curated phylogenies}
+\author{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The Open Tree of Life project is collating and synthesizing hundreds of phylogenies into a unified tree of life. 
+The base data for for this project are community contributed phylogenies. 
+Via the OpenTree curator tool, these phylogenies are updated to reflect consistent tip names across studies, and accurate rooting. 
+Using a git-based datastore to hold these phylogenies automatically version controls data as updates are made. 
+In addition, hosting this datastore on GitHub provides a straightforward and familiar method for researchers to access these data. 
+The talk will cover our implementation of wrappers around git, interaction with github, and developing tools to return readable diffs for complex data structures.
+\end{abstract}
+
+\section{}
+The Open Tree of Life project is creating a synthetic phylogeney, incorporating published phylogenies from across the tree of life.
+We are using a git based datastore, mirror to github, to simulataneously track study curation and disseminate the phylogenies.
+
+
+Key Points:
+Pros
+ - Versioned
+ - Familiar to users
+ - Comes with a lot of great machineray already enabled
+
+diffing doesn't always behave well.
+simple data structures behave oddly...
+
+Meaningful merges
+ -- immutable
+ -- can't
+
+Is this model applicable for database store
+
+General model based decisions:
+- Decisions that studies won't move.
+
+- given the study ID what shard will it be in.
+
+- scales better in general.
+
+- Data is so open.
+
+
+
+\end{document}

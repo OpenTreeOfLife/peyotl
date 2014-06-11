@@ -644,6 +644,10 @@ class _Phylesystem(_PhylesystemBase):
 
         return annot_event
 
+    def get_filepath_for_study(self, study_id):
+        ga = self.create_git_action(study_id)
+        return ga.path_for_study(study_id)
+
     def return_study(self,
                      study_id,
                      branch='master',

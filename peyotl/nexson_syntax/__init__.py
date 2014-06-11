@@ -858,6 +858,7 @@ BEGIN TREES;
     wrapper.write('\nEND;\n')
     wrapper.reset()
     return f.getvalue()
+
 def convert_tree(tree_id, tree, otu_group, schema, subtree_id=None):
     label_key = schema.otu_label_prop
     if schema.format_str == 'nexus':
@@ -931,7 +932,11 @@ def extract_otu_nexson(nexson, otu_id, curr_version):
             if otu_id in go:
                 return {otu_id: go[otu_id]}
     return None
-def extract_tree_nexson(nexson, tree_id, curr_version):
+
+def extract_tree_nexson(nexson, tree_id, curr_version=None):
+    '''Returns a list of (id, tree, otus_group) tuples for the 
+    specified tree_id (all trees if tree_id is None)
+    '''
     if curr_version is None:
         curr_version = detect_nexson_version(nexson)
     if not _is_by_id_hbf(curr_version):

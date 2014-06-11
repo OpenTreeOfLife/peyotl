@@ -84,7 +84,7 @@ class PhylografterNexsonDocStoreSync(object):
         self._cfg = cfg_file_paths
         if api_wrapper is None:
             from peyotl.api import APIWrapper
-            api_wrapper = APIWrapper()
+            api_wrapper = APIWrapper(phylesystem_api_kwargs={'get_from':'api'})
         self.phylografter = api_wrapper.phylografter
         self.phylesystem_api = api_wrapper.phylesystem_api
         if sleep_between_downloads is None:
@@ -161,7 +161,7 @@ class PhylografterNexsonDocStoreSync(object):
         last_merged_sha = None
         phylografter = self.phylografter
         first_download = True
-        self.phylesystem_api_studies = set(self.phylesystem_api.study_list())
+        self.phylesystem_api_studies = set(self.phylesystem_api.study_list)
         try:
             while len(to_download) > 0:
                 if not first_download:
@@ -233,9 +233,10 @@ class PhylografterNexsonDocStoreSync(object):
             ds_verb = 'POST'
         if put_response['error'] != 0:
             self._failed_study(study, '{}_to_docstore_failed'.format(ds_verb))
-            _LOG.debug('response = ' + str(put_response))
+            _LOG.debug('phylesystem_api error response = ' + str(put_response))
         else:
             if put_response['merge_needed']:
+                _LOG.debug('study {s} was not merged to master'.format(s=study))
                 unmerged_study_to_sha[study] = put_response['sha']
             else:
                 studies_with_final_sha.add(study)

@@ -4,6 +4,8 @@ from peyotl import write_as_json
 from peyotl.nexson_syntax.helper import add_literal_meta, \
                                         detect_nexson_version, \
                                         find_val_literal_meta_first
+from peyotl.nexson_syntax import convert_nexson_format, BY_ID_HONEY_BADGERFISH
+
 _LOG = get_logger(__name__)
 SYNTAX_VERSION = '0.0.0'
 def _rec_resource_meta(blob, k):
@@ -192,7 +194,11 @@ def workaround_phylografter_export_diffs(obj, out):
     write_as_json(obj, out)
 
 def workaround_phylografter_nexson(obj):
+    '''Also coerce's to NexSON 1.2.1
+    '''
     _move_otu_at_label_properties(obj)
+    convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH, sort_arbitrary=True)
+    _add_defaults(obj)
 
 def add_default_prop(obj, out):
     # see Jim's comment on 

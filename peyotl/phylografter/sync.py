@@ -182,6 +182,8 @@ class PhylografterNexsonDocStoreSync(object):
                                                                unmerged_study_to_sha,
                                                                studies_with_final_sha,
                                                                last_merged_sha)
+                _LOG.warning('breaking early...')
+                break
             tpl = self._get_to_push_list()
             tpl.sort()
             while len(tpl) > 0:
@@ -219,7 +221,7 @@ class PhylografterNexsonDocStoreSync(object):
         parent_sha = self.find_parent_sha_for_phylografter_nexson(study, nexson)
         # correct any disagreements between phylografter and what the peyotl 
         #   validator expects...
-        workaround_phylografter_nexson(nexson) 
+        workaround_phylografter_nexson(nexson)
         if namespaced_id in self.phylesystem_api_studies:
             put_response = self.phylesystem_api.put_study(study_id=namespaced_id,
                                                     nexson=nexson,

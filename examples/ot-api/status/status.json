@@ -1,0 +1,48 @@
+{
+ "summary": [
+  {
+   "duration": 0.45413804054260254, 
+   "expected-output": true, 
+   "returned": true, 
+   "status": 200, 
+   "tag": "treemachine/getSyntheticTree"
+  }, 
+  {
+   "duration": 0.7900841236114502, 
+   "expected-output": true, 
+   "returned": true, 
+   "status": 200, 
+   "tag": "treemachine/getDraftTreeSubtreeForNodes"
+  }, 
+  {
+   "duration": 0.21481609344482422, 
+   "expected-output": true, 
+   "returned": true, 
+   "status": 200, 
+   "tag": "treemachine/getSynthesisSourceList"
+  }, 
+  {
+   "duration": 0.43393898010253906, 
+   "expected-output": true, 
+   "returned": true, 
+   "status": 200, 
+   "tag": "taxomachine/autocompleteBoxQuery"
+  }, 
+  {
+   "duration": 0.2420358657836914, 
+   "expected-output": false, 
+   "returned": true, 
+   "status": 200, 
+   "tag": "phylesystem/study_list"
+  }, 
+  {
+   "duration": 0.6243691444396973, 
+   "expected-output": false, 
+   "returned": true, 
+   "status": 200, 
+   "tag": "phylesystem/pg_719"
+  }
+ ], 
+ "time": "2014-06-10T01:26:48.748218", 
+ "time_string": "Tuesday 01:26:48.748218 (UTC) 10 June, 2014"
+}

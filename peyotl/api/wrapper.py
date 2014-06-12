@@ -48,8 +48,7 @@ def log_request_as_curl(curl_log, url, verb, headers, params, data):
         if data:
             if isinstance(data, str) or isinstance(data, unicode):
                 data = anyjson.loads(data)
-            dargs_contents = ', '.join(['{}: {}'.format(escape_dq(k), escape_dq(v)) for k, v in data.items()])
-            dargs = "'{" + dargs_contents + "}'"
+            dargs = "'" + anyjson.dumps(data) + "'"
         else:
             dargs = ''
         curl_fo.write('curl -X {v} {h} {u} --data {d}\n'.format(v=verb,

@@ -292,6 +292,14 @@ class PhylesystemShard(PhylesystemShardBase):
                            remote=remote_name)
         return True
 
+    def _is_alias(self, study_id):
+        alias_list = self.id_alias_list_fn(study_id)
+        if len(alias_list) > 1:
+            ml = max([len(i) for i in alias_list])
+            if ml > len(study_id):
+                return True
+        return False
+
     def iter_study_filepaths(self, **kwargs):
         '''Returns a pair: (study_id, absolute filepath of study file)
         for each study in this repository.
@@ -299,7 +307,8 @@ class PhylesystemShard(PhylesystemShardBase):
         '''
         with self._index_lock:
             for study_id, info in self._study_index.items():
-                yield study_id, info[-1]
+                if not self._is_alias(study_id):
+                    yield study_id, info[-1]
 
     def iter_study_objs(self, **kwargs):
         '''Returns a pair: (study_id, nexson_blob)
@@ -307,12 +316,13 @@ class PhylesystemShard(PhylesystemShardBase):
         Order is arbitrary.
         '''
         for study_id, fp in self.iter_study_filepaths(**kwargs):
-            with codecs.open(fp, 'rU', 'utf-8') as fo:
-                try:
-                    nex_obj = anyjson.loads(fo.read())
-                    yield (study_id, nex_obj)
-                except Exception:
-                    pass
+            if not self._is_alias(study_id):
+                with codecs.open(fp, 'rU', 'utf-8') as fo:
+                    try:
+                        nex_obj = anyjson.loads(fo.read())
+                        yield (study_id, nex_obj)
+                    except Exception:
+                        pass
 
     def write_configuration(self, out, secret_attrs=False):
         key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json',
@@ -806,6 +816,17 @@ class _Phylesystem(_PhylesystemBase):
         '''
         for shard in self._shards:
             for study_id, blob in shard.iter_study_objs(**kwargs):
+                yield study_id, blob
+
+    def iter_study_filepaths(self, **kwargs):
+        '''Generator that iterates over all detected phylesystem studies.
+        and returns the study object (deserialized from nexson) for
+        each study.
+        Order is by shard, but arbitrary within shards.
+        @TEMP not locked to prevent study creation/deletion
+        '''
+        for shard in self._shards:
+            for study_id, blob in shard.iter_study_filepaths(**kwargs):
                 yield study_id, blob
 
     def report_configuration(self):

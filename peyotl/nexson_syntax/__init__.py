@@ -307,28 +307,28 @@ class PhyloSchema(object):
         p = self._phylesystem_api_params()
         e = self._phylesystem_api_ext()
         if self.content == 'study':
-            return '{d}/v1/study/{i}{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/study/{i}{e}'.format(d=base_url, i=study_id, e=e), p
         elif self.content == 'tree':
             if self.content_id is None:
-                return '{d}/v1/study/{i}/tree{e}'.format(d=base_url, i=study_id, e=e), p
-            return '{d}/v1/study/{i}/tree/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
+                return '{d}/study/{i}/tree{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/study/{i}/tree/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
         elif self.content == 'subtree':
             assert self.content_id is not None
             t, n = self.content_id
             p['subtree_id'] = n
-            return '{d}/v1/study/{i}/tree/{t}{e}'.format(d=base_url, i=study_id, t=t, e=e), p
+            return '{d}/study/{i}/tree/{t}{e}'.format(d=base_url, i=study_id, t=t, e=e), p
         elif self.content == 'meta':
-            return '{d}/v1/study/{i}/meta{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/study/{i}/meta{e}'.format(d=base_url, i=study_id, e=e), p
         elif self.content == 'otus':
             if self.content_id is None:
-                return '{d}/v1/study/{i}/otus{e}'.format(d=base_url, i=study_id, e=e), p
-            return '{d}/v1/study/{i}/otus/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
+                return '{d}/study/{i}/otus{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/study/{i}/otus/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
         elif self.content == 'otu':
             if self.content_id is None:
-                return '{d}/v1/study/{i}/otu{e}'.format(d=base_url, i=study_id, e=e), p
-            return '{d}/v1/study/{i}/otu/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
+                return '{d}/study/{i}/otu{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/study/{i}/otu/{t}{e}'.format(d=base_url, i=study_id, t=self.content_id, e=e), p
         elif self.content == 'otumap':
-            return '{d}/v1/otumap/{i}{e}'.format(d=base_url, i=study_id, e=e), p
+            return '{d}/otumap/{i}{e}'.format(d=base_url, i=study_id, e=e), p
         else:
             assert False
 

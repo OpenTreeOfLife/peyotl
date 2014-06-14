@@ -364,7 +364,8 @@ class GitAction(object):
                       '--no-pager',
                       'log',
                       '--format=%s' % GIT_LOG_FORMAT,
-                      '--follow',
+                      '--follow',               # Track file's history when moved/renamed...
+                      '--find-renames=100%',    # ... but only if the contents are identical!
                       '--',
                       filepath)
             #_LOG.debug('log said "{}"'.format(log))

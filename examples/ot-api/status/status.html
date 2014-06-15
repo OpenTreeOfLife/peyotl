@@ -22,35 +22,17 @@
   </table>
   <h3>On Demand Calls via Javascript </h3>
   <p>Where "on demand" = "on click".</p>
-  <table id="jsapiresults" border="0">
+  <table id="jsapiresults" border="1">
     <tr>
       <th>Call</th>
       <th></th>
     </tr>
-    <tr>
-      <td>treemachine/getSyntheticTree</td>
-      <td><span id="getSyntheticTree">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>treemachine/getDraftTreeSubtreeForNodes</td>
-      <td><span id="getDraftTreeSubtreeForNodes">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>treemachine/getSynthesisSourceList</td>
-      <td><span id="getSynthesisSourceList">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>taxomachine/autocompleteBoxQuery</td>
-      <td><span id="autocompleteBoxQuery">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>phylesystem/study_list</td>
-      <td><span id="study_list">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>phylesystem/pg_719</td>
-      <td><span id="pg_719">Click to check</span></td>
-    </tr>
+    <tr id="getSyntheticTree"/>
+    <tr id="getDraftTreeSubtreeForNodes" />
+    <tr id="getSynthesisSourceList" />
+    <tr id="autocompleteBoxQuery" />
+    <tr id="study_list" />
+    <tr id="pg_719" />
 </table>
 <script>
 var u = document.URL;
@@ -58,10 +40,13 @@ u = u.replace(/\.[^/.]+$/, "");
 var jurl = u + '.json'
 var apidomain = 'api.opentreeoflife.org'; //'api.opentreeoflife.org';
 var apisd = 'http://' + apidomain;
-var addWSCheckOnClick = function (target,
+var addWSCheckOnClick = function (targetpar,
                                   url, 
                                   data,
                                   verb) {
+  $('<td class="urlEl">' + url + '</td>').appendTo(targetpar);
+  $('<td class="triggerEl">Click to test.</td>').appendTo(targetpar);
+  var target = targetpar.find('.triggerEl');
   target.on("click", function() {
     target.css('background-color', 'white');
     target.text('checking...')
@@ -104,11 +89,6 @@ addWSCheckOnClick($("#autocompleteBoxQuery"),
                   '{"queryString":"Endoxyla","contextName":"All life"}',
                   "POST");
 
-addWSCheckOnClick($("#autocompleteBoxQuery"),
-                  apisd + '/taxomachine/v1/autocompleteBoxQuery',
-                  '{"queryString":"Endoxyla","contextName":"All life"}',
-                  "POST");
-
 addWSCheckOnClick($("#study_list"),
                   apisd + '/phylesystem/v1/study_list',
                   null,
@@ -122,6 +102,9 @@ addWSCheckOnClick($("#pg_719"),
 $.ajax({
     url: jurl,
 }).done(function (data) {
+    if (typeof data == 'string') {
+      data = JSON.parse(data);
+    }
     var row, rowd, i, nf;
     $("#pyts").text(data["time_string"]);
     var pd = Date.parse(data["time"]);

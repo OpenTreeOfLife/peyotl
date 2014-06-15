@@ -108,9 +108,12 @@ $.ajax({
     var row, rowd, i, nf;
     $("#pyts").text(data["time_string"]);
     var pd = Date.parse(data["time"]);
-    var nowd = Date();
-    var dd = nowd - pd
-    $("#pytd").text(dd);
+    var nowd = new Date().getTime();
+    var diffSeconds = (nowd - pd)/1000;
+    var diffMinutes = Math.floor(diffSeconds/60);
+    diffSeconds = diffSeconds % 60;
+
+    $("#pytd").text(diffMinutes.toFixed(0) + " minute(s) and " + diffSeconds.toFixed(0) + " seconds ago");
     nf = 0;
     for (i = 0; i < data.summary.length; ++i) {
         rowd = data.summary[i];

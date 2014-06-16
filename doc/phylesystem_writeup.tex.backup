@@ -33,17 +33,6 @@ The Open Tree of life project is a collaborative efforet to synthesise phylogene
 This ambitious undertaking uses supertree methods to combine large numbers of individual phylogenies with a taxonomic backbone into a synthetic tree comprising all named species.
 This synthic tree is built upon a datastore of individually published phylogenies with their associated metadata. 
 
-   3. Community curation\\
-Curation of the phylogenies included in the datastore is intregral to both the ability to incorporate them into the synthetic tree, and to make them available for resuse.
-Primaary among the suration tasks is taxonaomic name recognition.
-Many phylogenies, even those placed in an open data store such as Dryad, include tip names which are not readily interpreatble to researchers not involved in the original study.
-
-
-The metadata associated with phylogenetic trees carries important information about how the analyses were conducted which are essential to interpreating those data.
-In addition, 
-
-Differentiating between 
-
 
 In addition, this data set is itself useful to other researchers in biology.
 Most published phylogenies are available only as images in the archives of the journals in which they were published \cite{drew?}
@@ -52,7 +41,8 @@ A secondary goal of the OpenTree of life project is to make the datastore of pub
    
 While several projects have been developed to store phylogenetic information, most notably Treebase \cite{treebas} and Phylografter \cite{phylografter}.
 
-
+   3. Community curation\\
+   
    4. Choice of Git
 
 

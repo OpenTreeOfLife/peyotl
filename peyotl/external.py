@@ -178,7 +178,7 @@ def get_ot_study_info_from_treebase_nexml(src=None,
             for node in tree['nodeById'].values():
                 nl = node.get('@label')
                 if nl:
-                    no = node['@otu']
+                    no = node.get('@otu')
                     if no and _otu2label[no] == nl:
                         del node['@label']
 

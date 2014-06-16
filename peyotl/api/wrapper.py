@@ -44,7 +44,9 @@ def log_request_as_curl(curl_log, url, verb, headers, params, data):
         else:
             hargs = ''
         if params and not data:
-            raise NotImplementedError('log_request_as_curl url encoding')
+            import urllib
+            url = url + '?' + urllib.urlencode(params)
+            dargs = ''
         if data:
             if isinstance(data, str) or isinstance(data, unicode):
                 data = anyjson.loads(data)

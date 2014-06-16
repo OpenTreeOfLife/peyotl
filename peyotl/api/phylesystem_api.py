@@ -45,7 +45,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         return self._domain
     def set_domain(self, d):
         self._domain = d
-        self._prefix = '{d}/api'.format(d=d) #TODO this should change to phylesystem
+        self._prefix = '{d}/phylesystem/v1'.format(d=d) #TODO this should change to phylesystem
     domain = property(get_domain, set_domain)
     def get_phylesystem_obj(self):
         if self._phylesystem_obj is None:
@@ -147,9 +147,9 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                    commit_msg=None):
         assert nexson is not None
         if study_id is None:
-            uri = '{d}/v1/study'.format(d=self._prefix)
+            uri = '{d}/study'.format(d=self._prefix)
         else:
-            uri = '{d}/v1/study/{i}'.format(d=self._prefix, i=study_id)
+            uri = '{d}/study/{i}'.format(d=self._prefix, i=study_id)
         params = {'auth_token': self.auth_token}
         if commit_msg:
             params['commit_msg'] = commit_msg
@@ -162,7 +162,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                   starting_commit_sha,
                   commit_msg=None):
         assert nexson is not None
-        uri = '{d}/v1/study/{i}'.format(d=self._prefix, i=study_id)
+        uri = '{d}/study/{i}'.format(d=self._prefix, i=study_id)
         params = {'starting_commit_SHA':starting_commit_sha,
                   'auth_token': self.auth_token}
         if commit_msg:
@@ -190,7 +190,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             data.update(params)
             expect_json = schema.is_json()
         else:
-            uri = '{d}/v1/study/{i}'.format(d=self._prefix, i=study_id)
+            uri = '{d}/study/{i}'.format(d=self._prefix, i=study_id)
             data['output_nexml2json'] = 'native'
         if not data:
             data = None

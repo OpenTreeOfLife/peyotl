@@ -20,52 +20,33 @@
       <th>Succeeded?</th>
     </tr>
   </table>
-  <h3>Javascript On Demand</h3>
-  <table id="jsapiresults" border="0">
+  <h3>On Demand Calls via Javascript </h3>
+  <p>Where "on demand" = "on click".</p>
+  <table id="jsapiresults" border="1">
     <tr>
       <th>Call</th>
       <th></th>
     </tr>
-    <tr>
-      <td>treemachine/getSyntheticTree</td>
-      <td><span id="getSyntheticTree">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>treemachine/getDraftTreeSubtreeForNodes</td>
-      <td><span id="getDraftTreeSubtreeForNodes">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>treemachine/getSynthesisSourceList</td>
-      <td><span id="getSynthesisSourceList">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>taxomachine/autocompleteBoxQuery</td>
-      <td><span id="autocompleteBoxQuery">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>phylesystem/study_list</td>
-      <td><span id="study_list">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>phylesystem/pg_719</td>
-      <td><span id="pg_719">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>undoc. w/o redirection phylesystem/study_list</td>
-      <td><span id="nr_study_list">Click to check</span></td>
-    </tr>
-    <tr>
-      <td>undoc. w/o redirection phylesystem/pg_719</td>
-      <td><span id="nr_pg_719">Click to check</span></td>
-    </tr>
+    <tr id="getSyntheticTree"/>
+    <tr id="getDraftTreeSubtreeForNodes" />
+    <tr id="getSynthesisSourceList" />
+    <tr id="autocompleteBoxQuery" />
+    <tr id="study_list" />
+    <tr id="pg_719" />
 </table>
 <script>
-var apidomain = 'api.opentreeoflife.org';
+var u = document.URL;
+u = u.replace(/\.[^/.]+$/, "");
+var jurl = u + '.json'
+var apidomain = 'api.opentreeoflife.org'; //'api.opentreeoflife.org';
 var apisd = 'http://' + apidomain;
-var addWSCheckOnClick = function (target,
+var addWSCheckOnClick = function (targetpar,
                                   url, 
                                   data,
                                   verb) {
+  $('<td class="urlEl">' + url + '</td>').appendTo(targetpar);
+  $('<td class="triggerEl">Click to test.</td>').appendTo(targetpar);
+  var target = targetpar.find('.triggerEl');
   target.on("click", function() {
     target.css('background-color', 'white');
     target.text('checking...')
@@ -108,11 +89,6 @@ addWSCheckOnClick($("#autocompleteBoxQuery"),
                   '{"queryString":"Endoxyla","contextName":"All life"}',
                   "POST");
 
-addWSCheckOnClick($("#autocompleteBoxQuery"),
-                  apisd + '/taxomachine/v1/autocompleteBoxQuery',
-                  '{"queryString":"Endoxyla","contextName":"All life"}',
-                  "POST");
-
 addWSCheckOnClick($("#study_list"),
                   apisd + '/phylesystem/v1/study_list',
                   null,
@@ -123,25 +99,21 @@ addWSCheckOnClick($("#pg_719"),
                   null,
                   "GET");
 
-
-addWSCheckOnClick($("#nr_study_list"),
-                  apisd + '/api/study_list',
-                  null,
-                  "GET");
-
-addWSCheckOnClick($("#nr_pg_719"),
-                  apisd + '/api/v1/study/pg_719',
-                  null,
-                  "GET");
-
 $.ajax({
-    url: "http://127.0.0.1/status/status.json",
+    url: jurl,
 }).done(function (data) {
+    if (typeof data == 'string') {
+      data = JSON.parse(data);
+    }
     var row, rowd, i, nf;
     $("#pyts").text(data["time_string"]);
-    var pd = Date.parse(data["time_string"]);
-    var nowd = Date();
-    $("#pytd").text(pd);
+    var pd = Date.parse(data["time"]);
+    var nowd = new Date().getTime();
+    var diffSeconds = (nowd - pd)/1000;
+    var diffMinutes = Math.floor(diffSeconds/60);
+    diffSeconds = diffSeconds % 60;
+
+    $("#pytd").text(diffMinutes.toFixed(0) + " minute(s) and " + diffSeconds.toFixed(0) + " seconds ago");
     nf = 0;
     for (i = 0; i < data.summary.length; ++i) {
         rowd = data.summary[i];

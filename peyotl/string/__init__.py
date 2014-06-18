@@ -213,10 +213,20 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
     leading = set()
     trailing = set()
     has_empty = False
+    maxl, minl = None, None
     for word in word_list:
         if not word:
             has_empty = True
+            minl = 0
         else:
+            if minl is None:
+                maxl = len(word)
+            else:
+                minl = min(minl, len(word))
+            if maxl is None:
+                maxl = len(word)
+            else:
+                maxl = max(maxl, len(word))
             non_empty.append(word)
             leading.add(word[0])
             trailing.add(word[-1])
@@ -224,30 +234,38 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
     if not has_empty and _matches_all(non_empty, _GENBANK):
         full_pat =  {'pat': _GENBANK, 'code': FragType.CF, 'num_groups':1}
     else:
-        if preceding is None:
-            if not non_empty:
-                return {'pat': '^', 'num_groups':0, 'code': FragType.EMPTY}
-            ws_ind = 0
-            leading_pat = dict(pat='^', code=FragType.START, num_groups=0)
-        else:
-            ws_ind = 1
-            leading_pat = _char_set2char_class(leading)
-            if leading_pat is None:
+        if minl == maxl and minl == 1:
+            full_pat = _char_set2char_class(leading)
+            if full_pat is None:
+                _LOG.debug('could not find a single letter pattern')
                 return None
-        if following is None:
-            if not non_empty:
-                return {'pat': '$', 'num_groups':0, 'code': FragType.EMPTY}
-            trail_pat = dict(pat='$', code=FragType.END, num_groups=0)
-            we_ind = None
         else:
-            we_ind = -1
-            trail_pat = _char_set2char_class(trailing)
-            if trail_pat is None:
+            if preceding is None:
+                if not non_empty:
+                    return {'pat': '^', 'num_groups':0, 'code': FragType.EMPTY}
+                ws_ind = 0
+                leading_pat = dict(pat='^', code=FragType.START, num_groups=0)
+            else:
+                ws_ind = 1
+                leading_pat = _char_set2char_class(leading)
+                if leading_pat is None:
+                    _LOG.debug('could not find a leading pattern')
+                    return None
+            if following is None:
+                if not non_empty:
+                    return {'pat': '$', 'num_groups':0, 'code': FragType.EMPTY}
+                trail_pat = dict(pat='$', code=FragType.END, num_groups=0)
+                we_ind = None
+            else:
+                we_ind = -1
+                trail_pat = _char_set2char_class(trailing)
+                if trail_pat is None:
+                    _LOG.debug('could not find a trailing pattern')
+                    return None
+            mid_pat = _midwords2char_class(non_empty, ws_ind, we_ind)
+            if mid_pat is None:
                 return None
-        mid_pat = _midwords2char_class(non_empty, ws_ind, we_ind)
-        if mid_pat is None:
-            return None
-        full_pat = (leading_pat, mid_pat, trail_pat)
+            full_pat = (leading_pat, mid_pat, trail_pat)
     if not _can_transition(preceding, full_pat, following, has_empty):
         return None
     if isinstance(full_pat, tuple):

@@ -22,15 +22,46 @@ class FragType:
     LC_LETTER = 14
     START = 15
     END = 16
-_HIGHER_TAXON_CS = '([-A-Z][a-z]{2,})'
-_TAXON_CI = '([-A-Za-z]{3,})'
-_EPITHET_CS = '([[-a-z]{3,})'
-_GENBANK = '([A-Z]{1,2}[0-9]{5,6})'
-_VAR = '([vV][aA][rR]\.?)'
-_SP = '([sS][pP]\.?)'
-_SSP = '([sS][sS][pP]\.?)'
-_CF = '([cC][fF]\.?)'
-_AFF = '([aA][fF][fF]\.?)'
+
+_ANY_FRAG = frozenset([FragType.EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.NUMBER, FragType.UC_LETTER, FragType.LC_LETTER, FragType.START, FragType.END])
+_NONLETTERS = frozenset([FragType.EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.NUMBER, FragType.START, FragType.END])
+_NON_UC_LETTERS = frozenset([FragType.EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.NUMBER,  FragType.LC_LETTER, FragType.START, FragType.END])
+_NON_LC_LETTERS = frozenset([FragType.EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.NUMBER,  FragType.UC_LETTER, FragType.START, FragType.END])
+_NON_NUMBERS = frozenset([FragType.EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.UC_LETTER, FragType.LC_LETTER, FragType.START, FragType.END])
+_CAN_FOLLOW = {
+    FragType.HIGHER_TAXON_CASE_S: _NON_LC_LETTERS,
+    FragType.TAXON_CASE_I: _NONLETTERS,
+    FragType.EPITHET_CASE_S: _NON_LC_LETTERS,
+    FragType.GENBANK_ACCESSION: _NON_NUMBERS,
+    FragType.VAR: _NONLETTERS,
+    FragType.SP: _NONLETTERS,
+    FragType.SSP: _NONLETTERS,
+    FragType.CF: _NONLETTERS,
+    FragType.AFF: _NONLETTERS,
+}
+_CAN_PRECEED = {
+    FragType.HIGHER_TAXON_CASE_S: frozenset(list(_NON_UC_LETTERS)+ [FragType.HIGHER_TAXON_CASE_S, FragType.EPITHET_CASE_S, FragType.GENBANK_ACCESSION ,
+]),
+    FragType.TAXON_CASE_I: _NONLETTERS,
+    FragType.EPITHET_CASE_S: _NON_LC_LETTERS,
+    FragType.GENBANK_ACCESSION: frozenset(list(_NON_UC_LETTERS) + [FragType.HIGHER_TAXON_CASE_S, FragType.EPITHET_CASE_S, FragType.GENBANK_ACCESSION ,
+]),
+    FragType.VAR: _NONLETTERS,
+    FragType.SP: _NONLETTERS,
+    FragType.SSP: _NONLETTERS,
+    FragType.CF: _NONLETTERS,
+    FragType.AFF: _NONLETTERS,
+}
+
+_HIGHER_TAXON_CS = re.compile(r'([-A-Z][a-z]{2,})')
+_TAXON_CI = re.compile(r'([-A-Za-z]{3,})')
+_EPITHET_CS = re.compile(r'([-a-z]{3,})')
+_GENBANK = re.compile(r'([A-Z]{1,2}[0-9]{5,6})')
+_VAR = re.compile(r'([vV][aA][rR]\.?)')
+_SP = re.compile(r'([sS][pP]\.?)')
+_SSP = re.compile(r'([sS][sS][pP]\.?)')
+_CF = re.compile(r'([cC][fF]\.?)')
+_AFF = re.compile(r'([aA][fF][fF]\.?)')
 
 
 class OTULabelStringCruncher(object):
@@ -90,69 +121,93 @@ def _char_set2char_class(cs):
     if len(cs) == 1:
         c = list(cs)[0]
         if c == ' ':
-            return dict(pat=' ', code=FragType.SPACE)
+            return dict(pat=' ', code=FragType.SPACE, num_groups=0)
         if _WHITESPACE.match(c):
-            return dict(pat=r'\s', code=FragType.WHITESPACE)
+            return dict(pat=r'\s', code=FragType.WHITESPACE, num_groups=0)
         if _PUNCTUATION.match(c):
-            return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION)
+            return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
         if _NUMBER.match(c):
-            return dict(pat=r'[0-9]', code=FragType.NUMBER)
+            return dict(pat=r'[0-9]', code=FragType.NUMBER, num_groups=0)
         if _UC_LETTER.match(c):
-            return dict(pat=r'[A-Z]', code=FragType.UC_LETTER)
+            return dict(pat=r'[A-Z]', code=FragType.UC_LETTER, num_groups=0)
         if _LC_LETTER.match(c):
-            return dict(pat=r'[A-Z]', code=FragType.LC_LETTER)
+            return dict(pat=r'[A-Z]', code=FragType.LC_LETTER, num_groups=0)
         raise NotImplementedError('regex for "{}"'.format(c))
 
     if _matches_all(cs, _SPACE):
-        return dict(pat=' ', code=FragType.SPACE)
+        return dict(pat=' ', code=FragType.SPACE, num_groups=0)
     if _matches_all(cs, _WHITESPACE):
-        return dict(pat=r'\s', code=FragType.WHITESPACE)
-    if _matches_all(cs, _PUNCTUATION_STR):
-        return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION)
+        return dict(pat=r'\s', code=FragType.WHITESPACE, num_groups=0)
+    if _matches_all(cs, _PUNCTUATION):
+        return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
     if _matches_all(cs, _NUMBER):
-        return dict(pat=r'[0-9]', code=FragType.NUMBER)
+        return dict(pat=r'[0-9]', code=FragType.NUMBER, num_groups=0)
     if _matches_all(cs, _UC_LETTER):
-        return dict(pat=r'[A-Z]', code=FragType.UC_LETTER)
+        return dict(pat=r'[A-Z]', code=FragType.UC_LETTER, num_groups=0)
     if _matches_all(cs, _LC_LETTER):
-        return dict(pat=r'[A-Z]', code=FragType.LC_LETTER)
+        return dict(pat=r'[A-Z]', code=FragType.LC_LETTER, num_groups=0)
     return None
 
+def _can_transition_preceding(preceding, full_pat):
+    pc = preceding['code']
+    fc = full_pat['code']
+    return fc in _CAN_FOLLOW[pc]
 
+def _can_transition_following(full_pat, following):
+    pc = full_pat['code']
+    fc = following['code']
+    return pc in _CAN_PRECEED[fc]
+
+def _can_transition(preceding, full_pat, following, has_empty):
+    if isinstance(full_pat, tuple) or isinstance(full_pat, list):
+        pa =  full_pat[0]
+        fa =  full_pat[-1]
+    else:
+        pa, fa, = full_pat, full_pat
+    if preceding is not None:
+        if not _can_transition_preceding(preceding, pa):
+            return False
+    if following is not None:
+        if not _can_transition_following(fa, following):
+            return False
+    if has_empty and (preceding is not None) and (following is not None):
+        if not _can_transition_following(preceding, following):
+            return False
+
+    return True
 def _midwords2char_class(word_list, start_ind, end_ind):
-    if not isinstance(cs, set):
-        cs = set(cs)
-    if len(cs) == 1:
-        c = list(cs)[0]
-        if c == ' ':
-            return dict(pat=' ', code=FragType.SPACE)
-        if _WHITESPACE.match(c):
-            return dict(pat=r'\s', code=FragType.WHITESPACE)
-        if _PUNCTUATION.match(c):
-            return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION)
-        if _NUMBER.match(c):
-            return dict(pat=r'[0-9]', code=FragType.NUMBER)
-        if _UC_LETTER.match(c):
-            return dict(pat=r'[A-Z]', code=FragType.UC_LETTER)
-        if _LC_LETTER.match(c):
-            return dict(pat=r'[A-Z]', code=FragType.LC_LETTER)
-        raise NotImplementedError('regex for "{}"'.format(c))
-
-    if _matches_all(cs, _SPACE):
-        return dict(pat=' ', code=FragType.SPACE)
-    if _matches_all(cs, _WHITESPACE):
-        return dict(pat=r'\s', code=FragType.WHITESPACE)
-    if _matches_all(cs, _PUNCTUATION_STR):
-        return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION)
-    if _matches_all(cs, _NUMBER):
-        return dict(pat=r'[0-9]', code=FragType.NUMBER)
-    if _matches_all(cs, _UC_LETTER):
-        return dict(pat=r'[A-Z]', code=FragType.UC_LETTER)
-    if _matches_all(cs, _LC_LETTER):
-        return dict(pat=r'[A-Z]', code=FragType.LC_LETTER)
+    if start_ind > 0 or (end_ind is not None):
+        if end_ind is not None:
+            word_list = [i[start_ind:end_ind] for i in word_list]
+        else:
+            word_list = [i[start_ind:] for i in word_list]
+    if not isinstance(word_list, set):
+        word_list = set(word_list)
+    minl, maxl = None, None
+    for word in word_list:
+        if minl is None:
+            minl = len(word)
+        if maxl is None:
+            maxl = len(word)
+        minl = min(minl, len(word))
+        maxl = max(maxl, len(word))
+    if _matches_all(word_list, _SPACE):
+        return dict(pat=' ', code=FragType.SPACE, minl=minl, maxl=maxl, num_groups=0)
+    if _matches_all(word_list, _WHITESPACE):
+        return dict(pat=r'\s', code=FragType.WHITESPACE, minl=minl, maxl=maxl, num_groups=0)
+    if _matches_all(word_list, _PUNCTUATION):
+        return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION, minl=minl, maxl=maxl, num_groups=0)
+    if _matches_all(word_list, _NUMBER):
+        return dict(pat=r'[0-9]', code=FragType.NUMBER, minl=minl, maxl=maxl, num_groups=0)
+    if _matches_all(word_list, _UC_LETTER):
+        return dict(pat=r'[A-Z]', code=FragType.UC_LETTER, minl=minl, maxl=maxl, num_groups=0)
+    if _matches_all(word_list, _LC_LETTER):
+        return dict(pat=r'[A-Z]', code=FragType.LC_LETTER, minl=minl, maxl=maxl, num_groups=0)
     return None
 
 def attempt_to_create_intervening_regex_from_words(preceding, word_list, following):
     if not isinstance(word_list, set):
+        print 'word_list = ', word_list
         word_list = set(word_list)
     non_empty = []
     leading = set()
@@ -167,13 +222,13 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
             trailing.add(word[-1])
 
     if not has_empty and _matches_all(non_empty, _GENBANK):
-        full_pat =  {'regex': _GENBANK, 'code': FragType.CF, 'num_groups':1}
+        full_pat =  {'pat': _GENBANK, 'code': FragType.CF, 'num_groups':1}
     else:
         if preceding is None:
             if not non_empty:
-                return {'regex': '^', 'num_groups':0, 'code': FragType.EMPTY}
+                return {'pat': '^', 'num_groups':0, 'code': FragType.EMPTY}
             ws_ind = 0
-            leading_pat = dict(pat='^', code=FragType.START)
+            leading_pat = dict(pat='^', code=FragType.START, num_groups=0)
         else:
             ws_ind = 1
             leading_pat = _char_set2char_class(leading)
@@ -181,8 +236,8 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
                 return None
         if following is None:
             if not non_empty:
-                return {'regex': '$', 'num_groups':0, 'code': FragType.EMPTY}
-            trail_pat = dict(pat='$', code=FragType.END)
+                return {'pat': '$', 'num_groups':0, 'code': FragType.EMPTY}
+            trail_pat = dict(pat='$', code=FragType.END, num_groups=0)
             we_ind = None
         else:
             we_ind = -1
@@ -193,11 +248,17 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
         if mid_pat is None:
             return None
         full_pat = (leading_pat, mid_pat, trail_pat)
-    if not _can_transition(preceding, full_pat, following):
+    if not _can_transition(preceding, full_pat, following, has_empty):
         return None
     if isinstance(full_pat, tuple):
         return _join_patterns(full_pat)
     return full_pat
+
+def _join_patterns(pt):
+    assert len(pt) == 3
+    p = '{f}{s}{t}'.format(f=pt[0]['pat'],s=pt[1]['pat'],t=pt[2]['pat'])
+    ng = pt[0]['num_groups'] + pt[1]['num_groups'] + pt[2]['num_groups'] 
+    return dict(pat=p, num_groups=ng, minl=pt[1]['minl'], maxl=pt[1]['maxl'])
 
 def attempt_to_create_taxonomic_regex_from_lib(save_odd_el_list):
     '''Takes a list of lists of strings. The goal is to return a set of regex patterns
@@ -209,16 +270,21 @@ def attempt_to_create_taxonomic_regex_from_lib(save_odd_el_list):
     '''
     if not save_odd_el_list:
         return None
-    nw = len(save_odd_el_list[0])
+    nw = len(save_odd_el_list[0][0])
     assert (nw % 2) == 1
     str_collections = [list() for i in range(nw)]
+    _LOG.debug('save_odd_el_list = {}'.format(str(save_odd_el_list)))
     for el in save_odd_el_list:
-        assert len(el) == nw
-        for i, word in enumerate(el):
-            str_collections[i].append(word)
+        for i in range(1): #TODO should look at more than the first...
+            assert len(el[i]) == nw
+            for i, word in enumerate(el[i]): 
+                str_collections[i].append(word)
+    _LOG.debug('str_collections = {}'.format(str(str_collections)))
     pat_list = [None for i in range(nw)]
     for i in range(1, nw - 1, 2):
-        p = attempt_to_create_taxonomic_regex_from_words(str_collections[i])
+        is_first = i == 1
+        p = attempt_to_create_taxonomic_regex_from_words(str_collections[i], is_first=is_first)
+        _LOG.debug('pat_list[{i}] = {p}'.format(i=i, p=p))
         if p is None:
             return
         pat_list[i] = p
@@ -232,9 +298,11 @@ def attempt_to_create_taxonomic_regex_from_lib(save_odd_el_list):
         else:
             following = pat_list[i + 1]
         p = attempt_to_create_intervening_regex_from_words(preceding, str_collections[i], following)
+        _LOG.debug('pat_list[{i}] = {p} from ({s})'.format(i=i, p=p, s=str(str_collections[i])))
         if p is None:
             return
         pat_list[i] = p
+    _LOG.debug('pat_list = ' + str(pat_list))
     return OTULabelStringCruncher(pat_list)
 
 

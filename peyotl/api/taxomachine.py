@@ -62,7 +62,28 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         parent taxon ?
         homonym finder ?
     '''
-    def TNRS(self, name, contextName=None):
+    def TNRS(self, names, contextName=None):
+        '''Takes a name and optional contextName returns a list of matches.
+        Each match is a dict with:
+           'higher' boolean DEF???
+           'exact' boolean for exact match
+           'ottId' int
+           'name'  name (or uniqname???) for the taxon in OTT
+           'nodeId' int ID of not in the taxomachine db. probably not of use to anyone...
+        '''
+        #if contextName is None:
+        #    contextName = 'All life'
+        if contextName and contextName not in self.valid_contexts:
+            raise ValueError('"{}" is not a valid context name'.format(contextName))
+        if not (isinstance(names, list) or isinstance(names, tuple)):
+            names = [names]
+        uri = '{p}/contextQueryForNames'.format(p=self.prefix)
+        data = {'names': names}
+        if contextName:
+            data['contextName'] = contextName
+        return self.json_http_post(uri, data=anyjson.dumps(data))
+
+    def autocomplete(self, name, contextName=None):
         '''Takes a name and optional contextName returns a list of matches.
         Each match is a dict with:
            'higher' boolean DEF???

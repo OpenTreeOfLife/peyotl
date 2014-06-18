@@ -238,6 +238,18 @@ def attempt_to_create_taxonomic_regex_from_lib(save_odd_el_list):
     return OTULabelStringCruncher(pat_list)
 
 
+def build_taxonomic_regex(input_output_list):
+    lib = create_library_of_intervening_fragments(input_output_list)
+    regex_list = []
+    for el in lib[-1::-1]:
+        if not el:
+            continue
+        r = attempt_to_create_taxonomic_regex_from_lib(el)
+        if r is not None:
+            regex_list.append(r)
+    if regex_list:
+        return regex_list
+    return None
 
 
 def create_library_of_intervening_fragments(input_output_list):

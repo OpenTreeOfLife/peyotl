@@ -53,25 +53,34 @@ _CAN_PRECEED = {
     FragType.AFF: _NONLETTERS,
 }
 
-_HIGHER_TAXON_CS = re.compile(r'([-A-Z][a-z]{2,})')
-_TAXON_CI = re.compile(r'([-A-Za-z]{3,})')
-_EPITHET_CS = re.compile(r'([-a-z]{3,})')
-_GENBANK = re.compile(r'([A-Z]{1,2}[0-9]{5,6})')
-_VAR = re.compile(r'([vV][aA][rR]\.?)')
-_SP = re.compile(r'([sS][pP]\.?)')
-_SSP = re.compile(r'([sS][sS][pP]\.?)')
-_CF = re.compile(r'([cC][fF]\.?)')
-_AFF = re.compile(r'([aA][fF][fF]\.?)')
+_HIGHER_TAXON_CS_STR = r'([-A-Z][a-z]{2,})'
+_TAXON_CI_STR = r'([-A-Za-z]{3,})'
+_EPITHET_CS_STR = r'([-a-z]{3,})'
+_GENBANK_STR = r'([A-Z]{1,2}[0-9]{5,6})'
+_VAR_STR = r'([vV][aA][rR]\.?)'
+_SP_STR = r'([sS][pP]\.?)'
+_SSP_STR = r'([sS][sS][pP]\.?)'
+_CF_STR = r'([cC][fF]\.?)'
+_AFF_STR = r'([aA][fF][fF]\.?)'
+_HIGHER_TAXON_CS = re.compile(_HIGHER_TAXON_CS_STR)
+_TAXON_CI = re.compile(_TAXON_CI_STR)
+_EPITHET_CS = re.compile(_EPITHET_CS_STR)
+_GENBANK = re.compile(_GENBANK_STR)
+_VAR = re.compile(_VAR_STR)
+_SP = re.compile(_SP_STR)
+_SSP = re.compile(_SSP_STR)
+_CF = re.compile(_CF_STR)
+_AFF = re.compile(_AFF_STR)
 
 
 class OTULabelStringCruncher(object):
     def __init__(self, pat_list):
         self.pat_list = pat_list
         self.gb_accession_index = None
-        for n, p in pat_list[1:-1:2]:
-            if p['code'] == FragType.GENBANK_ACCESSION:
+        for n, p in enumerate(pat_list):
+            if p.get('code') == FragType.GENBANK_ACCESSION:
                 self.gb_accession_index = (n - 1)/2 # each odd-indexed pattern will have one group
-        self.pattern = ''.join(pat_list)
+        self.pattern = ''.join([i['regex'] for i in pat_list])
 
 def _matches_all(word_list, pat):
     for word in word_list:
@@ -89,22 +98,24 @@ def attempt_to_create_taxonomic_regex_from_words(word_list, is_first):
         word_list = set(word_list)
     if is_first:
         if _matches_all(word_list, _HIGHER_TAXON_CS):
-            return {'regex': _HIGHER_TAXON_CS, 'code': FragType.HIGHER_TAXON_CASE_S, 'num_groups':1}
+            return {'regex': _HIGHER_TAXON_CS_STR, 'code': FragType.HIGHER_TAXON_CASE_S, 'num_groups':1}
     else:
         if _matches_all(word_list, _VAR):
-            return {'regex': _VAR, 'code': FragType.VAR, 'num_groups':1}
+            return {'regex': _VAR_STR, 'code': FragType.VAR, 'num_groups':1}
         if _matches_all(word_list, _SP):
-            return {'regex': _SP, 'code': FragType.SP, 'num_groups':1}
+            return {'regex': _SP_STR, 'code': FragType.SP, 'num_groups':1}
         if _matches_all(word_list, _SSP):
-            return {'regex': _SSP, 'code': FragType.SSP, 'num_groups':1}
+            return {'regex': _SSP_STR, 'code': FragType.SSP, 'num_groups':1}
         if _matches_all(word_list, _CF):
-            return {'regex': _CF, 'code': FragType.CF, 'num_groups':1}
+            return {'regex': _CF_STR, 'code': FragType.CF, 'num_groups':1}
         if _matches_all(word_list, _AFF):
-            return {'regex': _AFF, 'code': FragType.AFF, 'num_groups':1}
+            return {'regex': _AFF_STR, 'code': FragType.AFF, 'num_groups':1}
+        if _matches_all(word_list, _EPITHET_CS):
+            return {'regex': _EPITHET_CS_STR, 'code': FragType.EPITHET_CASE_S, 'num_groups':1}
     if _matches_all(word_list, _GENBANK):
-        return {'regex': _GENBANK, 'code': FragType.CF, 'num_groups':1}
+        return {'regex': _GENBANK_STR, 'code': FragType.CF, 'num_groups':1}
     if _matches_all(word_list, _TAXON_CI):
-        return {'regex': _TAXON_CI, 'code': FragType.TAXON_CASE_I, 'num_groups':1}
+        return {'regex': _TAXON_CI_STR, 'code': FragType.TAXON_CASE_I, 'num_groups':1}
     return None
 
 _SPACE = re.compile(r'\s')
@@ -121,31 +132,31 @@ def _char_set2char_class(cs):
     if len(cs) == 1:
         c = list(cs)[0]
         if c == ' ':
-            return dict(pat=' ', code=FragType.SPACE, num_groups=0)
+            return dict(regex=' ', code=FragType.SPACE, num_groups=0)
         if _WHITESPACE.match(c):
-            return dict(pat=r'\s', code=FragType.WHITESPACE, num_groups=0)
+            return dict(regex=r'\s', code=FragType.WHITESPACE, num_groups=0)
         if _PUNCTUATION.match(c):
-            return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
+            return dict(regex=_PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
         if _NUMBER.match(c):
-            return dict(pat=r'[0-9]', code=FragType.NUMBER, num_groups=0)
+            return dict(regex=r'[0-9]', code=FragType.NUMBER, num_groups=0)
         if _UC_LETTER.match(c):
-            return dict(pat=r'[A-Z]', code=FragType.UC_LETTER, num_groups=0)
+            return dict(regex=r'[A-Z]', code=FragType.UC_LETTER, num_groups=0)
         if _LC_LETTER.match(c):
-            return dict(pat=r'[A-Z]', code=FragType.LC_LETTER, num_groups=0)
+            return dict(regex=r'[A-Z]', code=FragType.LC_LETTER, num_groups=0)
         raise NotImplementedError('regex for "{}"'.format(c))
 
     if _matches_all(cs, _SPACE):
-        return dict(pat=' ', code=FragType.SPACE, num_groups=0)
+        return dict(regex=' ', code=FragType.SPACE, num_groups=0)
     if _matches_all(cs, _WHITESPACE):
-        return dict(pat=r'\s', code=FragType.WHITESPACE, num_groups=0)
+        return dict(regex=r'\s', code=FragType.WHITESPACE, num_groups=0)
     if _matches_all(cs, _PUNCTUATION):
-        return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
+        return dict(regex=_PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
     if _matches_all(cs, _NUMBER):
-        return dict(pat=r'[0-9]', code=FragType.NUMBER, num_groups=0)
+        return dict(regex=r'[0-9]', code=FragType.NUMBER, num_groups=0)
     if _matches_all(cs, _UC_LETTER):
-        return dict(pat=r'[A-Z]', code=FragType.UC_LETTER, num_groups=0)
+        return dict(regex=r'[A-Z]', code=FragType.UC_LETTER, num_groups=0)
     if _matches_all(cs, _LC_LETTER):
-        return dict(pat=r'[A-Z]', code=FragType.LC_LETTER, num_groups=0)
+        return dict(regex=r'[A-Z]', code=FragType.LC_LETTER, num_groups=0)
     return None
 
 def _can_transition_preceding(preceding, full_pat):
@@ -192,22 +203,21 @@ def _midwords2char_class(word_list, start_ind, end_ind):
         minl = min(minl, len(word))
         maxl = max(maxl, len(word))
     if _matches_all(word_list, _SPACE):
-        return dict(pat=' ', code=FragType.SPACE, minl=minl, maxl=maxl, num_groups=0)
+        return dict(regex=' ', code=FragType.SPACE, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, _WHITESPACE):
-        return dict(pat=r'\s', code=FragType.WHITESPACE, minl=minl, maxl=maxl, num_groups=0)
+        return dict(regex=r'\s', code=FragType.WHITESPACE, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, _PUNCTUATION):
-        return dict(pat=_PUNCTUATION_STR, code=FragType.PUNCTUATION, minl=minl, maxl=maxl, num_groups=0)
+        return dict(regex=_PUNCTUATION_STR, code=FragType.PUNCTUATION, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, _NUMBER):
-        return dict(pat=r'[0-9]', code=FragType.NUMBER, minl=minl, maxl=maxl, num_groups=0)
+        return dict(regex=r'[0-9]', code=FragType.NUMBER, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, _UC_LETTER):
-        return dict(pat=r'[A-Z]', code=FragType.UC_LETTER, minl=minl, maxl=maxl, num_groups=0)
+        return dict(regex=r'[A-Z]', code=FragType.UC_LETTER, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, _LC_LETTER):
-        return dict(pat=r'[A-Z]', code=FragType.LC_LETTER, minl=minl, maxl=maxl, num_groups=0)
+        return dict(regex=r'[A-Z]', code=FragType.LC_LETTER, minl=minl, maxl=maxl, num_groups=0)
     return None
 
 def attempt_to_create_intervening_regex_from_words(preceding, word_list, following):
     if not isinstance(word_list, set):
-        print 'word_list = ', word_list
         word_list = set(word_list)
     non_empty = []
     leading = set()
@@ -220,7 +230,7 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
             minl = 0
         else:
             if minl is None:
-                maxl = len(word)
+                minl = len(word)
             else:
                 minl = min(minl, len(word))
             if maxl is None:
@@ -230,21 +240,25 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
             non_empty.append(word)
             leading.add(word[0])
             trailing.add(word[-1])
-
+    _LOG.debug('non_empty = ' + str(non_empty))
     if not has_empty and _matches_all(non_empty, _GENBANK):
-        full_pat =  {'pat': _GENBANK, 'code': FragType.CF, 'num_groups':1}
+        full_pat =  {'regex': _GENBANK, 'code': FragType.CF, 'num_groups':1}
+        _LOG.debug('full_pat is  ' + str(full_pat))
     else:
-        if minl == maxl and minl == 1:
+        if (minl == maxl) and (minl == 1):
             full_pat = _char_set2char_class(leading)
+            _LOG.debug('full_pat is  ' + str(full_pat))
             if full_pat is None:
                 _LOG.debug('could not find a single letter pattern')
                 return None
         else:
+            _LOG.debug('minl, maxl  ' + str((minl, maxl)))
             if preceding is None:
                 if not non_empty:
-                    return {'pat': '^', 'num_groups':0, 'code': FragType.EMPTY}
+                    _LOG.debug('empty leading pattern')
+                    return {'regex': '^', 'num_groups':0, 'code': FragType.EMPTY}
                 ws_ind = 0
-                leading_pat = dict(pat='^', code=FragType.START, num_groups=0)
+                leading_pat = dict(regex='^', code=FragType.START, num_groups=0)
             else:
                 ws_ind = 1
                 leading_pat = _char_set2char_class(leading)
@@ -253,8 +267,9 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
                     return None
             if following is None:
                 if not non_empty:
-                    return {'pat': '$', 'num_groups':0, 'code': FragType.EMPTY}
-                trail_pat = dict(pat='$', code=FragType.END, num_groups=0)
+                    _LOG.debug('empty trailing pattern')
+                    return {'regex': '$', 'num_groups':0, 'code': FragType.EMPTY}
+                trail_pat = dict(regex='$', code=FragType.END, num_groups=0)
                 we_ind = None
             else:
                 we_ind = -1
@@ -267,16 +282,20 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
                 return None
             full_pat = (leading_pat, mid_pat, trail_pat)
     if not _can_transition(preceding, full_pat, following, has_empty):
+        _LOG.debug('Cannot transition')
         return None
     if isinstance(full_pat, tuple):
         return _join_patterns(full_pat)
+    _LOG.debug('full_pat is  ' + str(full_pat))
     return full_pat
 
 def _join_patterns(pt):
     assert len(pt) == 3
-    p = '{f}{s}{t}'.format(f=pt[0]['pat'],s=pt[1]['pat'],t=pt[2]['pat'])
+    p = '{f}{s}{t}'.format(f=pt[0]['regex'],s=pt[1]['regex'],t=pt[2]['regex'])
     ng = pt[0]['num_groups'] + pt[1]['num_groups'] + pt[2]['num_groups'] 
-    return dict(pat=p, num_groups=ng, minl=pt[1]['minl'], maxl=pt[1]['maxl'])
+    d = dict(regex=p, num_groups=ng, minl=pt[1]['minl'], maxl=pt[1]['maxl'])
+    _LOG.debug('_join_patterns returning ' + str(d))
+    return d
 
 def attempt_to_create_taxonomic_regex_from_lib(save_odd_el_list):
     '''Takes a list of lists of strings. The goal is to return a set of regex patterns

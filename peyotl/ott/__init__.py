@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from peyotl.utility import get_config, get_logger
+import pickle
 import codecs
 import os
 _LOG = get_logger(__name__)
@@ -53,6 +54,15 @@ class OTT(object):
         if not os.path.isdir(self.ott_dir):
             raise ValueError('"{}" is not a directory'.format(self.ott_dir))
         self.skip_prefixes = ('environmental samples (', 'uncultured (', 'Incertae Sedis (')
+        self._ott_id_to_names = None
+    def _load_pickled(self, fn):
+        fp = os.path.join(self.ott_dir, fn)
+        return pickle.load(open(fp, 'rb'))
+    def get_ott_id_to_names(self):
+        if self._ott_id_to_names is None:
+            self._ott_id_to_names = self._load_pickled('ottID2names.pickle')
+        return self._ott_id_to_names
+    ott_id_to_names = property(get_ott_id_to_names)
     def create_pickle_files(self, out_dir=None):
         '''
            preorder2tuple.pickle maps a preorder number to a node definition. Each node
@@ -277,7 +287,6 @@ class OTT(object):
         pass
 
 def _write_pickle(dir, fn, obj):
-    import pickle
     fp = os.path.join(dir, fn)
     _LOG.debug('Creating "{p}"'.format(p=fp))
     with open(fp, 'wb') as fo:

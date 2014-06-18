@@ -49,6 +49,16 @@ _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
                                   ])
 _LOG = get_logger(__name__)
 
+def iter_otu(nexson, nexson_version=None):
+    if nexson_version is None:
+        nexson_version = detect_nexson_version(nexson)
+    if not _is_by_id_hbf(nexson_version):
+        raise NotImplementedError('iter_otu is only supported for nexson 1.2 at this point')
+    nexml = get_nexml_el(nexson)
+    for og in nexml.get('otusById', {}).values():
+        for otu_id, otu in og.get('otuById', {}).items():
+            yield otu_id, otu
+
 def strip_to_meta_only(blob, nexson_version):
     if nexson_version is None:
         nexson_version = detect_nexson_version(blob)

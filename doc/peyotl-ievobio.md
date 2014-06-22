@@ -40,3 +40,23 @@ by Open Tree of Life developers (primarily Mark T. Holder, Emily Jane McTavish, 
 * make accessing the API simpler and more "pythonic"
 * improve stability - when the Open Tree of Life API version changes, the `peyotl` interface won't (hopefully)
 
+---
+# Taxonomic Name Resolution Service
+* calling in "taxomachine" by Cody Hinchliff.
+
+<pre>
+from peyotl.sugar import taxomachine
+print taxomachine.TNRS('Anolis sagrei')
+</pre>
+
+---
+# Searching the input trees
+* calling in "oti" by Cody Hinchliff.
+
+<pre>
+from peyotl.sugar import oti
+n = 'Aponogeoton ulvaceus'
+print oti.find_trees(ottTaxonName=n)
+</pre>
+
+---

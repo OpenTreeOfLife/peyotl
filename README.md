@@ -22,45 +22,13 @@ Specifically, to:
 Currently peyotl is used to implement most of the functionality in the 
 [phylesystem-api] [3] backend of the study curation tool.
 
-## Installation
+# Instructions
+For full(er) documentation, check out [the wiki](https://github.com/OpenTreeOfLife/peyotl/wiki).
 
-The code has been run on python 2.7.5. To install in developer mode:
+## Quick Installation
 
     $ pip install -r requirements.txt
     $ python setup.py develop
-
-## Configuration
-
-If you run:
-
-    $ cp extras/dot_peyotl ~/.peyotl
-
-and then edit ~/.peyotl/config in your text editor to reflect the paths to 
-the parent directory of the phylesystem, then the peyotl library can find
-your local copy of phylesystem repos.
-
-The environmental variable, PHYLESYSTEM_PARENT, if set will be used rather 
-than the config-based value.
-
-### Logging configuration
-
-If PEYOTL_LOGGING_LEVEL is in the environment, then the behavior of 
-the log is determined by environmental variables:
-   PEYOTL_LOG_FILE_PATH filepath of log file (StreamHandler if omitted)
-   PEYOTL_LOGGING_LEVEL (NotSet, debug, info, warning, error, or critical)
-   PEYOTL_LOGGING_FORMAT  "rich", "simple" or "None" (None is default)
-
-Otherwise, these logger settings are now controlled by a
- ~/.peyotl/config or the peyotl/default.conf file. The content to configure
- the logger looks like:
-
-[logging]
-level = debug
-filepath = /absolute/path/to/log/file/here
-formatter = rich
-
-You probably want to replace the default behavior by specifying
-PEYOTL_LOGGING_LEVEL or having a ~/.peyotl/config file.
 
 # Testing
 

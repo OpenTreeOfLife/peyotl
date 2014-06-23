@@ -8,8 +8,6 @@ iEvoBio, June 2014
 
 <img src="OpenTree-final.png" />
 
-.notes: Pressing 2 will display these fascinating notes
-
 .fx: titleslide
 
 

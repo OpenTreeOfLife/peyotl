@@ -13,7 +13,7 @@ by Open Tree of Life developers (primarily Mark T. Holder, Emily Jane McTavish, 
 
 * Python library
 1. implements much of the [phylesystem-api](https://github.com/OpenTreeOfLife/phylesystem-api)
-1. manages local instances of the [phylesystem](https://github.com/OpenTreeOfLife/phylesystem).
+1. manages local instances of the [phylesystem](https://github.com/OpenTreeOfLife/phylesystem)
 2. call open tree web services for:
     * interacting with the "central" phylesystem-api
     * resolve names to the [Open Tree Taxonomy](https://github.com/OpenTreeOfLife/reference-taxonomy/wiki)

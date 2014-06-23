@@ -67,24 +67,15 @@ Smith, Cranston et al. *Submitted*
  
  <img src="git.jpeg" />
 
----
-# Organization
-
-- Indexed by Open Tree Taxonomy Index (OTI)
-- Updates pushed to GitHub after each commit
 
 ---
 # Curation
-- Work in progress branch is created upon curation
+- Work in progress branch is created upon curation  
 If study hasn't been edited by someone else, changes are automatically merged.  
 Otherwise, merged changes are returned to curator to accept or reject
+- Updates pushed to GitHub after each commit
 
----
-# Curation
-- Open Tree Curation 
- <img src="DiffDemo.png" style="width: 750px;"/>
 
- 
 ---
 # Features
  - Tracking curation attribution  
@@ -92,6 +83,11 @@ Otherwise, merged changes are returned to curator to accept or reject
  - Non-trivial effort 
  - Taxonomic name recognition services
  - Some subjective choices, edits made by many in the community over time
+
+---
+# Curation
+ <img src="DiffDemo.png" style="width: 750px;"/>
+
  
 ---
 # Features
@@ -99,6 +95,7 @@ Otherwise, merged changes are returned to curator to accept or reject
 ## the synthetic tree!
  - but also a useful datastore for other researchers
  - Repo is hosted on GitHub, entire data store can be easily cloned and updated
+ - Anyone can download all the data!
  
 ---
 # Features

@@ -6,16 +6,18 @@
 
 by Open Tree of Life developers (primarily Mark T. Holder, Emily Jane McTavish, Duke Leto, and Jim Allman)
 
+**Big Thanks to NSF!**
+
 ---
 # peyotl
 
 * Python library
 1. implements much of the [phylesystem-api](https://github.com/OpenTreeOfLife/phylesystem-api)
-1. helps you interact with a local version of the [phylesystem](https://github.com/OpenTreeOfLife/phylesystem).
+1. manages local instances of the [phylesystem](https://github.com/OpenTreeOfLife/phylesystem).
 2. call open tree web services for:
     * interacting with the "central" phylesystem-api
-    * resolution of taxonomic names to the [Open Tree Taxonomy](https://github.com/OpenTreeOfLife/reference-taxonomy/wiki)
-    * queries against an estimate of the Tree of Life
+    * resolve names to the [Open Tree Taxonomy](https://github.com/OpenTreeOfLife/reference-taxonomy/wiki)
+    * query against an estimate of the Tree of Life
 
 ---
 # Open Tree of Life
@@ -95,17 +97,17 @@ pa = PhylesystemAPI(get_from='api',
                     transform='client')
 </pre>
 <pre id="snippet">
-pa = PhylesystemAPI(get_from='local')
-</pre>
-<pre id="snippet">
 pa = PhylesystemAPI(get_from='external')
 t =  pa.get('pg_10',...
+</pre>
+<pre id="snippet">
+pa = PhylesystemAPI(get_from='local')
 </pre>
 
 ---
 # "api" mode
 <pre id="client">
-request tree and format
+request tree
 </pre>
 <pre id="server">
 look up location of study NexSON file
@@ -124,9 +126,9 @@ return to client
 </pre>
 
 ---
-# "api"+ transform
+# "api" + transform=client
 <pre id="client">
-request tree and format
+request tree
 </pre>
 <pre id="server">
 look up location of study NexSON file
@@ -143,3 +145,56 @@ extract tree
 <pre id="client">
 convert to newick
 </pre>
+
+---
+# "external" mode
+<pre id="client">
+request tree
+</pre>
+<pre id="server">
+look up GitHub URL of study NexSON file
+</pre>
+<pre id="github">
+return to study NexSON client
+</pre>
+<pre id="client">
+extract tree
+</pre>
+<pre id="client">
+convert to newick
+</pre>
+
+
+---
+# "local" mode
+<pre id="client">
+request tree
+</pre>
+<pre id="client">
+look up location of study NexSON file
+</pre>
+<pre id="client">
+read NexSON file
+</pre>
+<pre id="client"
+extract tree
+</pre>
+<pre id="client">
+convert to newick
+</pre>
+
+---
+# "eviscerated web-services"
+
+In the `phylesystem-API`:
+
+* the datastore is publicly accessible as the git repo (Emily Jane McTavish's talk)
+
+* the library (`peyotl`) adding functionality to the data was designed to be a server-side and a client-side library.
+
+---
+I'm *hoping* that `peyotl` will be:
+
+1. a useful tool for Python programmers,
+
+2. a easy-to-grok entry point to the intimidating set of services offered by the Open Tree of Life effort.

@@ -62,7 +62,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         parent taxon ?
         homonym finder ?
     '''
-    def TNRS(self, name, contextName=None):
+    def TNRS(self, names, context_name=None):
         '''Takes a name and optional contextName returns a list of matches.
         Each match is a dict with:
            'higher' boolean DEF???
@@ -71,12 +71,33 @@ class _TaxomachineAPIWrapper(_WSWrapper):
            'name'  name (or uniqname???) for the taxon in OTT
            'nodeId' int ID of not in the taxomachine db. probably not of use to anyone...
         '''
-        if contextName and contextName not in self.valid_contexts:
-            raise ValueError('"{}" is not a valid context name'.format(contextName))
+        #if context_name is None:
+        #    context_name = 'All life'
+        if context_name and context_name not in self.valid_contexts:
+            raise ValueError('"{}" is not a valid context name'.format(context_name))
+        if not (isinstance(names, list) or isinstance(names, tuple)):
+            names = [names]
+        uri = '{p}/contextQueryForNames'.format(p=self.prefix)
+        data = {'names': names}
+        if context_name:
+            data['contextName'] = context_name
+        return self.json_http_post(uri, data=anyjson.dumps(data))
+
+    def autocomplete(self, name, context_name=None):
+        '''Takes a name and optional context_name returns a list of matches.
+        Each match is a dict with:
+           'higher' boolean DEF???
+           'exact' boolean for exact match
+           'ottId' int
+           'name'  name (or uniqname???) for the taxon in OTT
+           'nodeId' int ID of not in the taxomachine db. probably not of use to anyone...
+        '''
+        if context_name and context_name not in self.valid_contexts:
+            raise ValueError('"{}" is not a valid context name'.format(context_name))
         uri = '{p}/autocompleteBoxQuery'.format(p=self.prefix)
         data = {'queryString': name}
-        if contextName:
-            data['contextName'] = contextName
+        if context_name:
+            data['contextName'] = context_name
         return self.json_http_post(uri, data=anyjson.dumps(data))
     def __init__(self, domain):
         self._contexts = None

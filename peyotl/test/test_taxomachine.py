@@ -15,26 +15,26 @@ class TestTaxomachine(unittest.TestCase):
         self.assertTrue('PLANTS' in cdict)
     def testBogusName(self):
         resp = self.taxomachine.TNRS('bogustaxonomicname')
-        self.assertEqual(resp, [])
+        self.assertEqual(resp['results'], [])
     def testSkunkName(self):
         name = u'Mephitis mephitis'
         resp = self.taxomachine.TNRS(name, 'Mammals')
-        self.assertEqual(len(resp), 1)
-        el = resp[0]
-        self.assertEqual(el['name'], name)
-    @unittest.skip('Broken taxomachine. https://github.com/OpenTreeOfLife/taxomachine/issues/42')
+        self.assertEqual(len(resp['results']), 1)
+        el = resp['results'][0]['matches'][0]
+        self.assertEqual(el['matched_name'], name)
     def testSkunkNameExact(self):
         name = u'Mephitis mephitis'
         resp = self.taxomachine.TNRS(name, 'Mammals')
-        self.assertTrue(resp[0]['exact'])
+        self.assertFalse(resp['results'][0]['matches'][0]['is_approximate_match'])
+    @unittest.skip('taxomachine bug https://github.com/OpenTreeOfLife/taxomachine/issues/52')
     def testHomonymName(self):
         name = 'Nandina'
         resp = self.taxomachine.TNRS(name)
-        self.assertEqual(len(resp), 2)
+        self.assertEqual(len(resp['results'][0]['matches']), 2)
         resp = self.taxomachine.TNRS(name, 'Animals')
-        self.assertEqual(len(resp), 1)
+        self.assertEqual(len(resp['results'][0]['matches']), 1)
         resp = self.taxomachine.TNRS(name, 'Flowering plants')
-        self.assertEqual(len(resp), 1)
+        self.assertEqual(len(resp['results'][0]['matches']), 1)
 
 if __name__ == "__main__":
     unittest.main(verbosity=5)

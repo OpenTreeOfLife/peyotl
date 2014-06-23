@@ -75,7 +75,7 @@ if __name__ == '__main__':
     
     summary = _ot_call('taxomachine/autocompleteBoxQuery',
                        'curl-versions/autocompleteBoxQuery.json',
-                       otwrap.taxomachine.TNRS,
+                       otwrap.taxomachine.autocomplete,
                        'Endoxyla',
                        'All life'
                        )

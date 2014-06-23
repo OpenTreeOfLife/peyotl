@@ -15,6 +15,7 @@ iEvoBio, June 2014
 
 # presenter notes
 Notes go here
+
 ---
 
 # Open Tree of Life
@@ -24,23 +25,35 @@ Notes go here
 .fx: imageslide whiteheading
 
 ---
-# The data set
+# The current (as of May) data set
 ## Community contributed phylogenies
 
  - 6745 trees from 2914 published studies
  - 1188 trees from 991 studies partly curated 
  - 335 trees from 327 studies completely curated and included in the synthetic tree.
 
+<img src="Fig1.png"" style="width: 750px;" />
+
+Smith, Cranston et al. *Submitted*
 
 ---
-# The problem!
- - Large data set!
- - Thousands of phylogenies, and always growing (hopefully!)
- - Each requires some hand curation
- - Need to be readily accessible, and manipulable by interested researchers
+# The problem:
+ - Large data set: Thousands of phylogenies, and always growing (hopefully!)
+ - Each phylogeny requires some hand curation, often by multiple people
+ - Need to be readily accessible, and editable by interested researchers
+ <br> <br> <br>
  
+<img src="Fig1.png"" style="width: 750px;" /> 
+
+Smith, Cranston et al. *Submitted*
+
 ---
-# Potential alternatives
+# Curation
+- Open Tree Curation 
+ <img src="curator.png" style="width: 750px;"/>
+
+---
+# Potential options:
  - SQL database
  - Mongo, couchDB
  - git/github
@@ -48,60 +61,79 @@ Notes go here
 ---
 # We chose git!
 
- - trees and annotations by study in Nexson format
+ - Trees and annotations by study in Nexson format  
+(JSON serialization of NeXML)
  - Whole datastore is a git repo!  
+ 
  <img src="git.jpeg" />
 
----
-# Organization
-
-- Each study is a nexson file (can be easily translated to nexml, nexus, or newick using peyotl)
-- Open Tree Taxonomy Index
-- given the study ID what shard will it be in.
-- scales better in general.
-
-- Data is so open.
 
 ---
-#Pros:
- - Familiarity
- No navigating someone else's complex schema
+# Curation
+- Work in progress branch is created upon curation  
+If study hasn't been edited by someone else, changes are automatically merged.  
+Otherwise, merged changes are returned to curator to accept or reject
+- Updates pushed to GitHub after each commit
+
 
 ---
-#Pros:
- - Tracking curation attribution
+# Features
+ - Tracking curation attribution  
 ## Curation of phylogenies
  - Non-trivial effort 
  - Taxonomic name recognition services
  - Some subjective choices, edits made by many in the community over time
+
+---
+# Curation
+ <img src="DiffDemo.png" style="width: 750px;"/>
+
  
 ---
-#Pros:
- - These trees are the backend for OpenTree Showpiece,  
+# Features
+ - These trees are the backend for OpenTree prize pig  
 ## the synthetic tree!
- - but also a useful datastore for otehr phylogeneticists
+ - but also a useful datastore for other researchers
  - Repo is hosted on GitHub, entire data store can be easily cloned and updated
+ - Anyone can download all the data!
  
 ---
-# Pros
-## Hosting on Github
- - Free
- - Familar
----
-# Cons:
- - Phylogenies are hard to diff - rerooting changes everything!
- - simple data structures behave oddly...
- - repo size limits on github
- 
-# 
+# Features
+- Hosting on Github  
+- Free  
+- Familar to  many in the field
+<img src="github.png" />
 
 ---
-# Is a git datastore right for you?
+# Potential issues:
+ - Phylogenies are hard to diff - e.g. rerooting changes everything!
+ - Nexson are not a line based format
+ - Repo size limits on github
 
- - How am I supposedd to know?!
+---
+# In the future:
+<br><br>
+ - Semantic diffs
+ - Pull requests
+---
+# Take a look!
+
+<a href="https://github.com/OpenTreeOfLife/phylesystem-1/"> github.com/OpenTreeOfLife/phylesystem-1 </a>
+    
+---
+# Is a git-based datastore right for your project?
+<br><br>
+ - Maybe! Any of the OpenTree software team are happy to chat about pros and cons.
 
 ---
 # Thank you
+Mark Holder  
+University of Kansas
+OpenTree of Life project  
+Especially the Software team  
+NSF AVATOL #1208809  
+
+ <img src="software.JPG"  style="width: 750px;"/>
 
 
 

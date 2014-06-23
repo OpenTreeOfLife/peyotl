@@ -47,11 +47,11 @@ Smith, Cranston et al. *Submitted*
 
 ---
 # Curation
-- Open Tree Curation 
+
  <img src="curator.png" style="width: 750px;"/>
 
 ---
-# Potential options:
+# Potential data store options:
  - SQL database
  - Mongo, couchDB
  - git/github
@@ -69,17 +69,11 @@ Smith, Cranston et al. *Submitted*
 ---
 # Curation
 - Work in progress branch is created upon curation  
-If study hasn't been edited by someone else, changes are automatically merged.  
-Otherwise, merged changes are returned to curator to accept or reject
+- If study hasn't been edited by someone else, changes are automatically merged.  
+- Otherwise, merged changes are returned to curator to accept or reject
 - Updates pushed to GitHub after each commit
-
-
----
-# Features
+## Features
  - Tracking curation attribution  
-## Curation of phylogenies
- - Non-trivial effort 
- - Taxonomic name recognition services
  - Some subjective choices, edits made by many in the community over time
 
 ---
@@ -89,11 +83,11 @@ Otherwise, merged changes are returned to curator to accept or reject
  
 ---
 # Features
- - These trees are the backend for OpenTree prize pig  
+ - These trees are the backend for OpenTree showpiece  
 ## the synthetic tree!
  - but also a useful datastore for other researchers
  - Repo is hosted on GitHub, entire data store can be easily cloned and updated
- - Anyone can download all the data!
+ - Anyone can easily download all the data!
  
 ---
 # Features
@@ -110,11 +104,12 @@ Otherwise, merged changes are returned to curator to accept or reject
 
 ---
 # In the future:
-<br><br>
- - Semantic diffs
+
+ - Semantic diffs  
  - Pull requests
+ 
 ---
-# Take a look!
+# Take a look! 
 
 <a href="https://github.com/OpenTreeOfLife/phylesystem-1/"> github.com/OpenTreeOfLife/phylesystem-1 </a>
     
@@ -126,12 +121,12 @@ Otherwise, merged changes are returned to curator to accept or reject
 ---
 # Thank you
 Mark Holder  
-University of Kansas
+University of Kansas  
 OpenTree of Life project  
 Especially the Software team  
 NSF AVATOL #1208809  
 
- <img src="software.JPG"  style="width: 750px;"/>
+ <img src="Software.png"  style="width: 750px;"/>
 
 
 

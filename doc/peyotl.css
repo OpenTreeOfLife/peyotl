@@ -6,3 +6,24 @@
         max-height:95%;
 }
 
+#snippet {
+    font-size: 100%;
+    color: black;
+    background-color: #DDDDFF;
+}
+
+#client {
+    font-size: 100%;
+    color: black;
+    background-color: #AAFFFF;
+}
+#server {
+    font-size: 100%;
+    color: black;
+    background-color: #FFBBBB;
+}
+#github {
+    font-size: 100%;
+    color: black;
+    background-color: #FFAAFF;
+}

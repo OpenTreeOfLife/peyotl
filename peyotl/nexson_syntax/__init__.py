@@ -326,7 +326,7 @@ class PhyloSchema(object):
             assert self.content_id is not None
             t, n = self.content_id
             p['subtree_id'] = n
-            return '{d}/study/{i}/tree/{t}{e}'.format(d=base_url, i=study_id, t=t, e=e), p
+            return '{d}/study/{i}/subtree/{t}{e}'.format(d=base_url, i=study_id, t=t, e=e), p
         elif self.content == 'meta':
             return '{d}/study/{i}/meta{e}'.format(d=base_url, i=study_id, e=e), p
         elif self.content == 'otus':

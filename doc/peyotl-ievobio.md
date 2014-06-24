@@ -46,7 +46,7 @@ by Open Tree of Life developers (primarily Mark T. Holder, Emily Jane McTavish, 
 # Taxonomic Name Resolution Service
 * calling in "taxomachine" by Cody Hinchliff.
 
-<pre  id="snippet">
+<pre  class="snippet">
 from peyotl.sugar import taxomachine
 print taxomachine.TNRS('Anolis sagrei')
 </pre>
@@ -54,7 +54,7 @@ returns a object summarizing the possible matches.
 
 ---
 # Getting a pruned version of the "full tree"
-<pre id="snippet">
+<pre class="longsnippet">
 from peyotl.sugar import treemachine as tm
 o = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579, 267484, 128308, 380453, 678579, 883864, 863991, 3898562, 23821, 673540, 122251, 106729, 1084532, 541659]
 r = tm.get_synth_tree_pruned(ott_ids=o)
@@ -66,7 +66,7 @@ returns the tree (currently only in an odd, in-house format called "Arguson")
 # Searching the input trees
 * calling in "oti" by Cody Hinchliff.
 
-<pre id="snippet">
+<pre class="snippet">
 from peyotl.sugar import oti
 n = 'Aponogeoton ulvaceus'
 print oti.find_trees(ottTaxonName=n)
@@ -76,7 +76,7 @@ returns a list of objects listing studyID and treeID
 
 ---
 # Obtaining an input tree
-<pre id="snippet">
+<pre class="snippet">
 from peyotl.api import PhylesystemAPI
 pa = PhylesystemAPI(get_from='api')
 print pa.get('pg_10',
@@ -87,99 +87,101 @@ print pa.get('pg_10',
 returns the ingroup of "tree3¨ from study "pg_10" in newick.
 
 ---
-# get an input tree
-<pre id="snippet">
+# 4 routes to an input tree
+<pre class="snippet">
 pa = PhylesystemAPI(get_from='api',
                     transform='server')
 </pre>
-<pre id="snippet">
+<pre class="snippet">
 pa = PhylesystemAPI(get_from='api',
                     transform='client')
 </pre>
-<pre id="snippet">
+<pre class="snippet">
 pa = PhylesystemAPI(get_from='external')
-t =  pa.get('pg_10',...
 </pre>
-<pre id="snippet">
+<pre class="snippet">
 pa = PhylesystemAPI(get_from='local')
+</pre>
+<pre class="snippet">
+t =  pa.get('pg_10',...
 </pre>
 
 ---
 # "api" mode
-<pre id="client">
+<pre class="client">
 request tree
 </pre>
-<pre id="server">
+<pre class="server">
 look up location of study NexSON file
 </pre>
-<pre id="server">
+<pre class="server">
 read NexSON file
 </pre>
-<pre id="server">
+<pre class="server">
 extract tree
 </pre>
-<pre id="server">
+<pre class="server">
 convert to newick
 </pre>
-<pre id="server">
+<pre class="server">
 return to client
 </pre>
 
 ---
 # "api" + transform=client
-<pre id="client">
+<pre class="client">
 request tree
 </pre>
-<pre id="server">
+<pre class="server">
 look up location of study NexSON file
 </pre>
-<pre id="server">
+<pre class="server">
 read NexSON file
 </pre>
-<pre id="server">
+<pre class="server">
 return to client
 </pre>
-<pre id="client">
+<pre class="client">
 extract tree
 </pre>
-<pre id="client">
+<pre class="client">
 convert to newick
 </pre>
 
 ---
 # "external" mode
-<pre id="client">
+<pre class="client">
 request tree
 </pre>
-<pre id="server">
+<pre class="server">
 look up GitHub URL of study NexSON file
 </pre>
-<pre id="github">
+<pre class="github">
 return to study NexSON client
 </pre>
-<pre id="client">
+<pre class="client">
 extract tree
 </pre>
-<pre id="client">
+<pre class="client">
 convert to newick
 </pre>
 
 
 ---
 # "local" mode
-<pre id="client">
+<pre class="client">
 request tree
 </pre>
-<pre id="client">
+<pre class="client">
 look up location of study NexSON file
 </pre>
-<pre id="client">
+<pre class="client">
 read NexSON file
 </pre>
-<pre id="client"
+<pre class="client">
 extract tree
 </pre>
-<pre id="client">
+<pre class="client">
 convert to newick
 </pre>
 

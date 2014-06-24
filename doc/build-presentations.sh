@@ -17,3 +17,4 @@ then
 fi
 
 landslide peyotl-slides.cfg
+landslide phylesystem-slides.cfg

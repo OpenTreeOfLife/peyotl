@@ -1,5 +1,7 @@
 \documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{setspace}
+\doublespacing
 
 %opening
 \title{Using a git-based datastore for community curated phylogenies}
@@ -18,35 +20,76 @@ Via the OpenTree curator tool, these phylogenies are updated to reflect consiste
 Results:
 Using a git-based datastore to hold these phylogenies automatically version controls data as updates are made. 
 In addition, hosting this datastore on GitHub provides a straightforward and familiar method for researchers to access these data. 
-We have developed an API ``Phylesystem'' to implement wrappers around git, interaction with github, and to return readable diffs for complex data structures.
-Availabilty:
+We have developed an API ``Phylesystem'' to implement wrappers around git, interaction with GitHub, and to return readable diffs for complex data structures.
+Availability:
 Source code for the API is available ...
 The git database is available ...
 \end{abstract}
 
 \section{}
-The Open Tree of Life project is creating a synthetic phylogeney, incorporating published phylogenies from across the tree of life.
-We are using a git based datastore, mirror to github, to simulataneously track study curation and disseminate the phylogenies.
+The Open Tree of Life project is creating a synthetic phylogeny, incorporating published phylogenies from across the tree of life.
+We are using a git based datastore, mirror to GitHub, to simultaneously track study curation and disseminate the phylogenies.
 
 Outline:
  Introduction:
- While characterizing and systematizing relationships among species has been a goal of biologists since Linneaus \cite{Linneaus}, 
- the recent revolution in availability of molcular data has greatly increased the rate at which phylogenetic ananlyses are bring performed.
- The National Science foundation has funded many 'tree of life' efforts to resolve phylogenetic reationships among taxa within specific groups.
- The Open tree of life project 
+ While characterizing and systematizing relationships among species has been a goal of biologists since Linnaeus \cite{Linneaus}, 
+ the recent revolution in availability of molecular data has greatly increased the rate at which phylogenetic analyses are bring performed.
+ The National Science foundation has funded many 'tree of life' efforts to resolve phylogenetic relationships among taxa within specific groups.
+ The Open tree of life project is a collaboration working to combine data from across these domain specific phylogenies into one inclusive synthetic tree of life.
  
  
   Background:
+Recent pushes to understand the evolutionary relationships among species have resulted in a wealth of phylogenetic information. 
+IN the past 5 years there have been major publications on XXXX angiosperms, ??? bird tree of life, ?? other major trees.
+Additionally, much finer resolution studies capturing relationships at a lower phylogenetic level are being published daily.
+The information contained in these phylogenies is essential not only for understanding the evolutionary history and systematics of these groups,
+but are also an essential framework for studying evolutionary processes, such as trait evolution (REF), dispersal (REF), and speciation (REF)
+among many others.
+
+Trees 
+     However,
      TOL projects
      Tree base and Phylografter
-  
+
+In order for this data to be reusable for follow-up studies, or inclusion in a synthetic tree, it must be digitally available and accessible \cite{Cranston Harmon etc}.
+Sadly, despite much progress on data sharing and digital repositories, the vast majorities of phylogenies are not available \cite{Drew}.
+Several previous projects have attempted to curate and collate phylogenetic data, most notably TreeBase (REF) and Phylografter (REF).
+We have developed a new database for phylogenies which incorporates the trees included ind these previous efforts, 
+and builds upon their utility by allowing for community curation and tracking of changes through time, as well as a readily accessible data store.
+
   Purpose:
+There are several requirements for phylogenetic data store.
       - Accessible data store
-      - Version control
+Accessibility is extremely important.
+OpenTree supports open science, and data availability.
+For a phylogenetic database to gain adoption it must be readily usable by end users.
+Licenses? UGH.
+          - Version control
           - OTU mapping
+However, making phylogenies re-usable by researchers not involved in the original analyses often requires fairly extensive curation.
+The tip labels on trees often have meaning in the context of that analysis that are not easily translated across studies. 
+For example, the tip labels may contain abbreviations, or lab sample codes.
+Data reuse requires standardizing labels so that they are meaningful across studies.
+Taxonomic name recognition services, such as ?? Plant something, or ?? taxomachine, can attempt to automatically map names to
+operational taxonomic units, but this process also requires come subjective human intervention. 
+
           - rerooting
+Additionally, many phylogenetic inference programs (e.g. ????) return unrooted phylogenies, 
+which researchers then manually root for inclusion in figures or inference. 
+If these rootings are not included in the shared tree file, 
+these phylogenies need to be manually rooted for inclusion in a synthetic tree or downstream analyses
+
+These curation steps require human input and are therefore somewhat subjective.
+A sustainable database requires a mechanism for correcting and updating these trees,
+while retaining provenance for individual changes.
+
+Ideally, a widely adopted database could support multiple editors curating contributed phylogenies simultaneously.
+Thus a system for merging and combining inputs in necessary.
+
+By supporting contribution and curation in an open and accessible manner, we hope to provide a database with longterm utility and widespread adoption.
+
           - many curators!, possibly editing studies at the same time!
-          - long term usef, ideally.
+          - long term used, ideally.
 
           
  Implementation of database (structure):

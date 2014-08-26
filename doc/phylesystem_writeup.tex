@@ -2,6 +2,17 @@
 \usepackage[utf8]{inputenc}
 \usepackage{setspace}
 \doublespacing
+% cite package, to clean up citations in the main text. Do not remove.
+\usepackage{cite}
+\usepackage{color} 
+\usepackage{hyperref}
+\bibliographystyle{plain}
+
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
 
 %opening
 \title{Using a git-based datastore for community curated phylogenies}
@@ -10,6 +21,14 @@
 \begin{document}
 
 \maketitle
+
+Target: Bioinformatics\\
+Scope: Databases and ontologies\\
+Type: Original Papers (up to 7 pages; this is approx. 5000 words).
+Original papers that describe new research developments in computational molecular biology, for example: 
+models, algorithms, software involving new methods, biological databases and network information services, and their impact on molecular biology or computer science. 
+Actual biological data, as opposed to purely simulated data, must be used.
+
 
 \begin{abstract}
 Motivation:
@@ -26,21 +45,21 @@ Source code for the API is available ...
 The git database is available ...
 \end{abstract}
 
-\section{}
+\section{DRAFT}
 The Open Tree of Life project is creating a synthetic phylogeny, incorporating published phylogenies from across the tree of life.
 We are using a git based datastore, mirror to GitHub, to simultaneously track study curation and disseminate the phylogenies.
 
-Outline:
- Introduction:
+
+\subsection{Introduction}
  While characterizing and systematizing relationships among species has been a goal of biologists since Linnaeus \cite{Linneaus}, 
  the recent revolution in availability of molecular data has greatly increased the rate at which phylogenetic analyses are bring performed.
  The National Science foundation has funded many 'tree of life' efforts to resolve phylogenetic relationships among taxa within specific groups.
  The Open tree of life project is a collaboration working to combine data from across these domain specific phylogenies into one inclusive synthetic tree of life.
  
  
-  Background:
+\subsection{Background}
 Recent pushes to understand the evolutionary relationships among species have resulted in a wealth of phylogenetic information. 
-IN the past 5 years there have been major publications on XXXX angiosperms, ??? bird tree of life, ?? other major trees.
+In the past 5 years there have been major publications on XXXX angiosperms, ??? bird tree of life, ?? other major trees.
 Additionally, much finer resolution studies capturing relationships at a lower phylogenetic level are being published daily.
 The information contained in these phylogenies is essential not only for understanding the evolutionary history and systematics of these groups,
 but are also an essential framework for studying evolutionary processes, such as trait evolution (REF), dispersal (REF), and speciation (REF)
@@ -52,13 +71,12 @@ Trees
      Tree base and Phylografter
 
 In order for this data to be reusable for follow-up studies, or inclusion in a synthetic tree, it must be digitally available and accessible \cite{cranston_best_2014}.
-Cranston et. \cite{}
-Sadly, despite recent developments in data sharing and digital repositories, the vast majorities of phylogenies are not available \cite{Drew}.
+Sadly, despite recent developments in data sharing and digital repositories, the vast majorities of phylogenies are not digitally available \cite{Drew}.
 Several previous projects have attempted to curate and collate phylogenetic data, most notably TreeBase (REF) and Phylografter (REF).
 We have developed a new database for phylogenies which incorporates the trees included ind these previous efforts, 
 and builds upon their utility by allowing for community curation and tracking of changes through time, as well as a readily accessible data store.
 
-  Purpose:
+\subsection{Purpose}
 There are several requirements for phylogenetic data store.
       - Accessible data store
 Accessibility is extremely important.
@@ -92,8 +110,7 @@ By supporting contribution and curation in an open and accessible manner, we hop
           - many curators!, possibly editing studies at the same time!
           - long term used, ideally.
 
-          
- Implementation of database (structure):
+           Implementation of database (structure):
       - FIGURE TO REPRESENT!
       - File Formats
          - Explain Nexson... UGH
@@ -118,13 +135,17 @@ By supporting contribution and curation in an open and accessible manner, we hop
   Future directions
 
   
-  
+\bibliography{Phylesystem.bib}  
+
+
+
+\section{notes}
   --------------------------------------------------------------------
 Key Points:
 Pros
  - Versioned
  - Familiar to users
- - Comes with a lot of great machineray already enabled
+ - Comes with a lot of great machinery already enabled
 
 diffing doesn't always behave well.
 simple data structures behave oddly...

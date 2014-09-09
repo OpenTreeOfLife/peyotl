@@ -698,11 +698,12 @@ class _Phylesystem(_PhylesystemBase):
         if `study_id is None, all shards are pushed.
         '''
         if study_id is None:
+            ret = True
             #@TODO should spawn a thread of each shard...
             for shard in self._shards:
                 if not shard.push_to_remote(remote_name):
-                    return False
-            return True
+                    ret = False
+            return ret
         shard = self.get_shard(study_id)
         return shard.push_to_remote(remote_name)
 

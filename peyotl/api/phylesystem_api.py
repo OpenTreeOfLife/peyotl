@@ -45,7 +45,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         return self._domain
     def set_domain(self, d):
         self._domain = d
-        self._prefix = '{d}/phylesystem/v1'.format(d=d) #TODO this should change to phylesystem
+        self._prefix = '{d}/phylesystem/v1'.format(d=d)
     domain = property(get_domain, set_domain)
     def get_phylesystem_obj(self):
         if self._phylesystem_obj is None:
@@ -81,7 +81,17 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             return self._remote_study_list()
         return self.phylesystem_obj.get_study_ids()
     study_list = property(get_study_list)
-        
+    def get_push_failure_state(self):
+        '''Returns a tuple: the boolean for whether or not pushes succeed, and the 
+        entire object returned by a call to push_failure on the phylesystem-api.
+        This should only be called with wrappers around remote services (RuntimeError
+        will be raised if you call this with a local wrapper.
+        '''
+        if self._src_code == _GET_LOCAL:
+            raise RuntimeError('push_failure_state only pertains to work with remote phyleysystem instances')
+        r = self._remote_push_failure()
+        return r['pushes_succeeding'], r
+    push_failure_state = property(get_push_failure_state)
     def get(self, study_id, content=None, schema=None, **kwargs):
         '''Syntactic sugar around to make it easier to get fine-grained access
         to the parts of a file without composing a PhyloSchema object.
@@ -137,6 +147,10 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     def _remote_study_list(self):
         '''Returns a list of strings which are the study IDs'''
         uri = '{}/study_list'.format(self._prefix)
+        return self.json_http_get(uri)
+    def _remote_push_failure(self):
+        '''Returns a list of strings which are the study IDs'''
+        uri = '{}/push_failure'.format(self._prefix)
         return self.json_http_get(uri)
     def unmerged_branches(self):
         uri = '{}/unmerged_branches'.format(self._prefix)

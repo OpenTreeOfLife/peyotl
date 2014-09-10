@@ -24,6 +24,10 @@ class TestPhylesystemAPI(unittest.TestCase):
     def testStudyList(self):
         sl = self.nexson_store.study_list
         self.assertTrue(len(sl) > 100)
+    def testPushFailureState(self):
+        pa = PhylesystemAPI(self.domains, get_from='api')
+        sl = pa.push_failure_state
+        self.assertTrue(sl[0] is True)
     def testFetchStudyRemote(self):
         pa = PhylesystemAPI(self.domains, get_from='api')
         x = pa.get_study('pg_10')['data']

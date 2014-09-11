@@ -129,5 +129,5 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         return self._valid_contexts
     valid_contexts = property(_get_valid_contexts)
 
-def Taxomachine(domains=None):
-    return APIWrapper(domains=domains).taxomachine
+def Taxomachine(domains=None, **kwargs):
+    return APIWrapper(domains=domains, **kwargs).taxomachine

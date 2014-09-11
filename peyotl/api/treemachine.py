@@ -73,5 +73,5 @@ class _TreemachineAPIWrapper(_WSWrapper):
         data = {'ottId': str(ott_id)}
         return self.json_http_post(uri, data=anyjson.dumps(data))
 
-def Treemachine(domains=None):
-    return APIWrapper(domains=domains).treemachine
+def Treemachine(domains=None, **kwargs):
+    return APIWrapper(domains=domains, **kwargs).treemachine

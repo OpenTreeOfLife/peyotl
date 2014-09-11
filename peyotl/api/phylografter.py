@@ -70,5 +70,5 @@ class _PhylografterWrapper(_WSWrapper):
     # alias fetch_nexson
     fetch_study = fetch_nexson
 
-def Phylografter(domains=None):
-    return APIWrapper(domains=domains).phylografter
+def Phylografter(domains=None, **kwargs):
+    return APIWrapper(domains=domains, **kwargs).phylografter

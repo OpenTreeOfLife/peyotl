@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.nexson_syntax import create_content_spec
+from peyotl.utility import doi2url
 import anyjson
 from peyotl import get_logger
 _LOG = get_logger(__name__)
@@ -240,6 +241,8 @@ class _OTIWrapper(_WSWrapper):
         v = query_dict[k]
         if not (isinstance(v, str) or isinstance(v, unicode)):
             v = unicode(v)
+        if k == 'ot:studyPublication':
+            v = doi2url(v)
         return (k, v)
     def trigger_index(self, phylesystem_api, study_id):
         url = '{p}/indexNexsons'.format(p=self.indexing_prefix)
@@ -252,5 +255,5 @@ class _OTIWrapper(_WSWrapper):
             study_id = [study_id]
         data = {'ids': study_id}
         return self.json_http_post(url, data=anyjson.dumps(data))
-def OTI(domains=None):
-    return APIWrapper(domains=domains).oti
+def OTI(domains=None, **kwargs):
+    return APIWrapper(domains=domains, **kwargs).oti

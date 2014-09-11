@@ -211,5 +211,5 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return self.json_http_get(uri, params=data, text=not expect_json)
 
 def PhylesystemAPI(domains=None, **kwargs):
-    return APIWrapper(domains=domains).wrap_phylesystem_api(**kwargs)
+    return APIWrapper(domains=domains, **kwargs).wrap_phylesystem_api(**kwargs)
 

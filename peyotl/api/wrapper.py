@@ -17,8 +17,7 @@ GZIP_REQUEST_HEADERS = {
 }
 
 _JSON_HEADERS = {'Content-Type': 'application/json',
-                 'Accept': 'application/json',
-                 }
+                 'Accept': 'application/json', }
 
 CURL_LOGGER = os.environ.get('PEYOTL_CURL_LOG_FILE')
 
@@ -53,18 +52,21 @@ def log_request_as_curl(curl_log, url, verb, headers, params, data):
             dargs = "'" + anyjson.dumps(data) + "'"
         else:
             dargs = ''
-        curl_fo.write('curl -X {v} {h} {u} --data {d}\n'.format(v=verb,
-                                               u=url,
-                                               h=hargs,
-                                               d=dargs))
+        data_arg = ''
+        if dargs:
+            data_arg = ' --data {d}'.format(d=dargs)
+        curl_fo.write('curl -X {v} {h} {u}{d}\n'.format(v=verb,
+                                                        u=url,
+                                                        h=hargs,
+                                                        d=data_arg))
 
 class APIDomains(object):
-    def __init__(self):
-        self._oti = None
+    def __init__(self, **kwargs):
+        self._oti = kwargs.get('oti')
         self._phylografter = 'http://www.reelab.net/phylografter'
-        self._phylesystem_api = None
-        self._taxomachine = None
-        self._treemachine = None
+        self._phylesystem_api = kwargs.get('phylesystem')
+        self._taxomachine = kwargs.get('taxomachine')
+        self._treemachine = kwargs.get('treemachine')
     def get_oti(self):
         if self._oti is None:
             self._oti = get_config('apis', 'oti')
@@ -103,13 +105,13 @@ class APIDomains(object):
 
 def get_domains_obj(**kwargs):
     # hook for config/env-sensitive setting of domains
-    api_domains = APIDomains()
+    api_domains = APIDomains(**kwargs)
     return api_domains
 
 class APIWrapper(object):
-    def __init__(self, domains=None, phylesystem_api_kwargs=None):
+    def __init__(self, domains=None, phylesystem_api_kwargs=None, **kwargs):
         if domains is None:
-            domains = get_domains_obj()
+            domains = get_domains_obj(**kwargs)
         self.domains = domains
         self._phylografter = None
         self._phylesystem_api = None

@@ -156,3 +156,9 @@ def get_config(section=None, param=None, default=None):
             if _ulog is not None:
                 _ulog.error(msg)
         return default
+def doi2url(v):
+    if v.startswith('http'):
+        return v
+    if v.startswith('doi:'):
+        v = v[4:] # trim doi:
+    return 'http://dx.doi.org/' + v

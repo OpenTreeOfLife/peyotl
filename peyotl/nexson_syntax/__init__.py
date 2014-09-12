@@ -201,8 +201,8 @@ class PhyloSchema(object):
     _NEWICK_PROP_VALS = _otu_label2prop.values()
     _no_content_id_types = set(['study', 'meta'])
     _tup_content_id_types = set(['subtree'])
-    _str_content_id_types = set(['tree', 'otus', 'otu', 'otumap'])
-    _content_types = set(['study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree'])
+    _str_content_id_types = set(['tree', 'otus', 'otu', 'otumap', 'file'])
+    _content_types = set(['file', 'study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree'])
     def __init__(self, schema=None, **kwargs):
         '''Checks:
             'schema',

@@ -21,7 +21,6 @@ _REFR_NEVER, _REFR_SESSION, _REFR_ALWAYS = range(3)
 _REFRESH_VALUES = ('never',    # *DEFAULT* never call "git pull"
                    'session',  # call "git pull" before the first access
                    'always', ) # do a "git pull" before each data access
-_DEFAULT_SCHEMA = create_content_spec()
 
 class _PhylesystemAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
@@ -124,7 +123,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             assert self._src_code == _GET_API
             if self._trans_code == _TRANS_SERVER:
                 if schema is None:
-                    schema = _DEFAULT_SCHEMA
+                    schema = create_content_spec(nexson_version=self.repo_nexml2json)
             r = self._remote_get_study(study_id, schema)
         if (isinstance(r, dict) and 'data' in r) and (self._trans_code == _TRANS_CLIENT) and (schema is not None):
             r['data'] = schema.convert(r['data'])

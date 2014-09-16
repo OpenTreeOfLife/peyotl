@@ -64,6 +64,12 @@ class _TreemachineAPIWrapper(_WSWrapper):
         else:
             uri = '{p}/subtree'.format(p=self.prefix)
         return self._get_tree(uri, tree_id=tree_id, format=format, node_id=node_id, max_depth=max_depth)
+    def mrca(self, ott_ids=None, node_ids=None):
+        assert(ott_ids or node_ids)
+        assert not self.use_v1
+        uri = '{p}/mrca'.format(p=self.prefix)
+        data = {'ott_ids':ott_ids, 'node_ids': node_ids}
+        return self.json_http_post(uri, data=anyjson.dumps(data))
     def get_synth_tree_pruned(self, tree_id=None, node_ids=None, ott_ids=None):
         if (tree_id is not None) and (tree_id != self.current_synth_tree_id):
             #TODO getDraftTreeSubtreeForNodes should take a treeID arg

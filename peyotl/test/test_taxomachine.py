@@ -26,7 +26,6 @@ class TestTaxomachine(unittest.TestCase):
         name = u'Mephitis mephitis'
         resp = self.taxomachine.TNRS(name, 'Mammals')
         self.assertFalse(resp['results'][0]['matches'][0]['is_approximate_match'])
-    @unittest.skip('taxomachine bug https://github.com/OpenTreeOfLife/taxomachine/issues/52')
     def testHomonymName(self):
         name = 'Nandina'
         resp = self.taxomachine.TNRS(name)

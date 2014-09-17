@@ -144,7 +144,33 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             self.prefix = '{d}/taxomachine/ext/TNRS/graphdb'.format(d=d)
         else:
             self.prefix = '{d}/v2/tnrs'.format(d=d)
+            self.taxonomy_prefix = '{d}/v2/taxonomy'.format(d=d)
     domain = property(_WSWrapper.get_domain, set_domain)
+    def info(self):
+        if self.use_v1:
+            raise NotImplementedError('"about" method not implemented')
+        uri = '{p}/about'.format(p=self.taxonomy_prefix)
+        return self.json_http_post(uri)
+    def taxon(self, ott_id, include_lineage=False):
+        if self.use_v1:
+            raise NotImplementedError('"taxon" method not implemented')
+        data = {'ott_id': int(ott_id), 
+                'include_lineage': bool(include_lineage)}
+        uri = '{p}/taxon'.format(p=self.taxonomy_prefix)
+        return self.json_http_post(uri, data=anyjson.dumps(data))
+    def subtree(self, ott_id):
+        if self.use_v1:
+            raise NotImplementedError('"subtree" method not implemented')
+        data = {'ott_id': int(ott_id), }
+        uri = '{p}/subtree'.format(p=self.taxonomy_prefix)
+        return self.json_http_post(uri, data=anyjson.dumps(data))
+    def lica(self, ott_ids, include_lineage=False):
+        if self.use_v1:
+            raise NotImplementedError('"lica" method not implemented')
+        data = {'ott_ids': [int(i) for i in ott_ids],
+                'include_lineage': bool(include_lineage)}
+        uri = '{p}/lica'.format(p=self.taxonomy_prefix)
+        return self.json_http_post(uri, data=anyjson.dumps(data))
     def contexts(self):
         # Taxonomic name contexts. These are cached in _contexts
         if self._contexts is None:

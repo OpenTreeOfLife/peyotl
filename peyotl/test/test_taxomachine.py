@@ -10,6 +10,28 @@ class TestTaxomachine(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()
         self.taxomachine = Taxomachine(d)
+    def testTaxon(self):
+        if not self.taxomachine.use_v1:
+            r = self.taxomachine.taxon(515698, include_lineage=True)
+            for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
+                self.assertTrue(k in r)
+    def testLica(self):
+        if not self.taxomachine.use_v1:
+            r = self.taxomachine.subtree(515698)
+            self.assertTrue(r['subtree'].startswith('('))
+    def testLica(self):
+        if not self.taxomachine.use_v1:
+            r = self.taxomachine.lica([515698, 590452, 409712, 643717], include_lineage=True)
+            self.assertTrue('lica' in r)
+            self.assertTrue('ott_ids_not_found' in r)
+            l = r['lica']
+            for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
+                self.assertTrue(k in l)
+    def testInfo(self):
+        if not self.taxomachine.use_v1:
+            cdict = self.taxomachine.info()
+            for k in ['source', 'weburl', 'author']:
+                self.assertTrue(k in cdict)
     def testContexts(self):
         cdict = self.taxomachine.contexts()
         self.assertTrue('PLANTS' in cdict)

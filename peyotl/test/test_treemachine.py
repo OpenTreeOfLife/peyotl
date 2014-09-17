@@ -54,7 +54,7 @@ class TestTreemachine(unittest.TestCase):
             self.assertEqual(len(ott_ids), len(r['found_nodes']))
         else:
             r = self.treemachine.induced_subtree(ott_ids=ott_ids)
-            for key in ['ott_ids_not_in_tree', u'node_ids_not_in_tree' ]:
+            for key in ['ott_ids_not_in_tree', u'node_ids_not_in_tree']:
                 self.assertEqual(r[key], [])
         self.assertTrue(r['subtree'].startswith('('))
     def testMRCA(self):
@@ -62,6 +62,7 @@ class TestTreemachine(unittest.TestCase):
         if not self.treemachine.use_v1:
             r = self.treemachine.mrca(ott_ids=ott_ids)
             self.assertTrue('mrca_node_id' in r)
+            print 'node_info is', self.treemachine.node_info(r['mrca_node_id'])
 class Skip:
     def testSearchForTaxon(self):
         taxomachine = Taxomachine(self.domains)

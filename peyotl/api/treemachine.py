@@ -54,8 +54,11 @@ class _TreemachineAPIWrapper(_WSWrapper):
             return self._get_tree(uri, tree_id, format=format, node_id=node_id, max_depth=max_depth)
         else:
             uri = '{p}/source_tree'.format(p=self.graph_prefix)
+            study_id = kwargs.get('study_id', '') # should not be kwarg #TODO
+            if len(study_id) < 3 or study_id[2] != '_':
+                study_id = 'pg_' + study_id
             data = {'git_sha': kwargs.get('git_sha', ''),
-                    'study_id': kwargs.get('study_id', ''),
+                    'study_id': study_id,
                     'tree_id': tree_id}
             return self.json_http_post(uri, data=anyjson.dumps(data))
     def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, ott_id=None):
@@ -64,6 +67,21 @@ class _TreemachineAPIWrapper(_WSWrapper):
         else:
             uri = '{p}/subtree'.format(p=self.prefix)
         return self._get_tree(uri, tree_id=tree_id, format=format, node_id=node_id, max_depth=max_depth)
+    def node_info(self, node_id=None, ott_id=None, include_lineage=False):
+        if self.use_v1:
+            raise NotImplemented('node_info was added in v2 of the API')
+        uri = '{p}/node_info'.format(p=self.graph_prefix)
+        data = {'include_lineage': bool(include_lineage)}
+        if node_id and ott_id:
+            raise ValueError('You can only specify one of node_id or ott_id')
+        if not node_id and not ott_id:
+            raise ValueError('You must specify one of node_id or ott_id')
+        if node_id:
+            data['node_id'] = int(node_id)
+        else:
+            data['ott_id'] = int(ott_id)
+        return self.json_http_post(uri, data=anyjson.dumps(data))
+
     def mrca(self, ott_ids=None, node_ids=None):
         assert(ott_ids or node_ids)
         assert not self.use_v1

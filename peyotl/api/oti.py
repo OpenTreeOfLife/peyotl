@@ -172,6 +172,7 @@ class _OTIWrapper(_WSWrapper):
     def __init__(self, domain):
         self.use_v1 = False
         self._node_search_prop = None
+        self._search_terms = None
         self._tree_search_prop = None
         self._study_search_prop = None
         self.indexing_prefix = None
@@ -181,6 +182,7 @@ class _OTIWrapper(_WSWrapper):
         self.set_domain(domain)
     def set_domain(self, d):
         self._node_search_prop = None
+        self._search_terms = None
         self._tree_search_prop = None
         self._study_search_prop = None
         self._domain = d
@@ -205,9 +207,17 @@ class _OTIWrapper(_WSWrapper):
             raise NotImplementedError('properties call added in v2')
         uri = '{p}/properties'.format(p=self.query_prefix)
         return self.json_http_post(uri)
+    def get_search_terms(self):
+        if self._search_terms is None:
+            self._search_terms = {}
+            d = self._do_searchable_properties_call()
+            for k, v in d.items():
+                self._search_terms[k] = frozenset(v)
+        return dict(self._search_terms)
+    search_terms = property(get_search_terms)
     def _do_tree_searchable_properties_call(self):
         if not self.use_v1:
-            return self._do_searchable_properties_call()['tree_properties']
+            return self.search_terms['tree_properties']
         uri = '{p}/getSearchablePropertiesForTrees'.format(p=self.query_prefix)
         return self.json_http_post(uri)
     def get_tree_search_term_set(self):
@@ -217,7 +227,7 @@ class _OTIWrapper(_WSWrapper):
     tree_search_term_set = property(get_tree_search_term_set)
     def _do_study_searchable_properties_call(self):
         if not self.use_v1:
-            return self._do_searchable_properties_call()['tree_properties']
+            return self.search_terms['study_properties']
         uri = '{p}/getSearchablePropertiesForStudies'.format(p=self.query_prefix)
         return self.json_http_post(uri)
     def get_study_search_term_set(self):

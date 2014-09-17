@@ -15,7 +15,7 @@ class TestTaxomachine(unittest.TestCase):
             r = self.taxomachine.taxon(515698, include_lineage=True)
             for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
                 self.assertTrue(k in r)
-    def testLica(self):
+    def testSubtree(self):
         if not self.taxomachine.use_v1:
             r = self.taxomachine.subtree(515698)
             self.assertTrue(r['subtree'].startswith('('))

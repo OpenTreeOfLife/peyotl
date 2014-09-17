@@ -151,6 +151,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             raise NotImplementedError('"about" method not implemented')
         uri = '{p}/about'.format(p=self.taxonomy_prefix)
         return self.json_http_post(uri)
+    about = info
     def taxon(self, ott_id, include_lineage=False):
         if self.use_v1:
             raise NotImplementedError('"taxon" method not implemented')

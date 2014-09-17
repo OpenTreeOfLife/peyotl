@@ -120,6 +120,7 @@ class APIWrapper(object):
         self._oti = None
         self._tree_of_life_wrapper = None
         self._graph_wrapper = None
+        self._taxonomy_wrapper = None
         self._tnrs_wrapper = None
         self._studies_wrapper = None
         self._study_wrapper = None
@@ -229,6 +230,7 @@ class _TaxonomyServicesWrapper(object):
         self.taxomachine = taxomachine_wrapper
     def about(self, *valist, **kwargs):
         return self.taxomachine.about(*valist, **kwargs)
+    info = about
     def lica(self, *valist, **kwargs):
         return self.taxomachine.lica(*valist, **kwargs)
     def subtree(self, *valist, **kwargs):
@@ -258,7 +260,7 @@ class _GraphOfLifeServicesWrapper(object):
         return self.treemachine.get_graph_info()
     about = info
     def source_tree(self, *valist, **kwargs):
-        return self.treemachine.source_tree(*valist, **kwargs)
+        return self.treemachine.get_source_tree(*valist, **kwargs)
     def node_info(self, *valist, **kwargs):
         return self.treemachine.node_info(*valist, **kwargs)
 class _TreeOfLifeServicesWrapper(object):
@@ -270,7 +272,7 @@ class _TreeOfLifeServicesWrapper(object):
     def mrca(self, *valist, **kwargs):
         return self.treemachine.mrca(*valist, **kwargs)
     def subtree(self, *valist, **kwargs):
-        return self.treemachine.subtree(*valist, **kwargs)
+        return self.treemachine.get_synthetic_tree(*valist, **kwargs)
     def induced_subtree(self, *valist, **kwargs):
         return self.treemachine.induced_subtree(*valist, **kwargs)
 

@@ -21,30 +21,33 @@ class TestOTI(unittest.TestCase):
         r = self.oti.find_studies({'ot:studyPublication': '10.1073/pnas.0709121104'})
         self.assertTrue(len(r) > 0)
     def testNodeTerms(self):
-        t_set = self.oti.node_search_term_set
-        self.assertTrue('ot:ottId' in t_set)
-        nl = self.oti.find_nodes(ottId=990437)
-        self.assertTrue(len(nl) > 0)
-        f = nl[0]
-        self.assertTrue('matched_trees' in f)
-        t = f['matched_trees']
-        self.assertTrue(len(t) > 0)
-        tr = t[0]
-        self.assertTrue('matched_nodes' in tr)
-        n = tr['matched_nodes']
-        self.assertTrue(len(n) > 0)
+        if self.oti.use_v1:
+            t_set = self.oti.node_search_term_set
+            self.assertTrue('ot:ottId' in t_set)
+            nl = self.oti.find_nodes(ottId=990437)
+            self.assertTrue(len(nl) > 0)
+            f = nl[0]
+            self.assertTrue('matched_trees' in f)
+            t = f['matched_trees']
+            self.assertTrue(len(t) > 0)
+            tr = t[0]
+            self.assertTrue('matched_nodes' in tr)
+            n = tr['matched_nodes']
+            self.assertTrue(len(n) > 0)
     def testBadNodeTerms(self):
-        qd = {'bogus key': 'Aponogeoton ulvaceus 1 2'}
-        self.assertRaises(ValueError, self.oti.find_nodes, qd)
+        if self.oti.use_v1:
+            qd = {'bogus key': 'Aponogeoton ulvaceus 1 2'}
+            self.assertRaises(ValueError, self.oti.find_nodes, qd)
     def testTreeTerms(self):
         t_set = self.oti.tree_search_term_set
         qd = {'ot:ottTaxonName': 'Aponogeton ulvaceus'}
-        nl = self.oti.find_trees(qd)
-        self.assertTrue(len(nl) > 0)
-        f = nl[0]
-        self.assertTrue('matched_trees' in f)
-        t = f['matched_trees']
-        self.assertTrue(len(t) > 0)
+        if self.oti.use_v1:
+            nl = self.oti.find_trees(qd)
+            self.assertTrue(len(nl) > 0)
+            f = nl[0]
+            self.assertTrue('matched_trees' in f)
+            t = f['matched_trees']
+            self.assertTrue(len(t) > 0)
     def testBadTreeTerms(self):
         qd = {'bogus key': 'Aponogeoton ulvaceus 1 2'}
         self.assertRaises(ValueError, self.oti.find_trees, qd)

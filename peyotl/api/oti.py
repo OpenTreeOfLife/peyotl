@@ -116,6 +116,7 @@ class _OTIWrapper(_WSWrapper):
 
     def find_nodes(self, query_dict=None, exact=False, verbose=False, **kwargs):
         '''Query on node properties. See documentation for _OTIWrapper class.'''
+        assert self.use_v1
         return self._do_query('{p}/singlePropertySearchForTreeNodes'.format(p=self.query_prefix),
                               query_dict=query_dict,
                               exact=exact,
@@ -124,7 +125,11 @@ class _OTIWrapper(_WSWrapper):
                               kwargs=kwargs)
     def find_trees(self, query_dict=None, exact=False, verbose=False, **kwargs):
         '''Query on tree properties. See documentation for _OTIWrapper class.'''
-        return self._do_query('{p}/singlePropertySearchForTrees'.format(p=self.query_prefix),
+        if self.use_v1:
+            uri = '{p}/singlePropertySearchForTrees'.format(p=self.query_prefix)
+        else:
+            uri = '{p}/find_trees'.format(p=self.query_prefix)
+        return self._do_query(uri,
                               query_dict=query_dict,
                               exact=exact,
                               verbose=verbose,
@@ -132,7 +137,11 @@ class _OTIWrapper(_WSWrapper):
                               kwargs=kwargs)
     def find_studies(self, query_dict=None, exact=False, verbose=False,**kwargs):
         '''Query on study properties. See documentation for _OTIWrapper class.'''
-        return self._do_query('{p}/singlePropertySearchForStudies'.format(p=self.query_prefix),
+        if self.use_v1:
+            uri = '{p}/singlePropertySearchForStudies'.format(p=self.query_prefix)
+        else:
+            uri = '{p}/find_studies'.format(p=self.query_prefix)
+        return self._do_query(uri,
                               query_dict=query_dict,
                               exact=exact,
                               verbose=verbose,
@@ -153,18 +162,21 @@ class _OTIWrapper(_WSWrapper):
         If include_trees is True, then a matched_trees list may be contained in each
             dict.
         '''
+        if not self.use_v1:
+            return self.find_studies(verbose=verbose)
         url = '{p}/findAllStudies'.format(p=self.query_prefix)
         data = {'includeTreeMetadata': include_trees,
                 'verbose': verbose,}
         response = self.json_http_post(url, data=anyjson.dumps(data))
         return response
     def __init__(self, domain):
+        self.use_v1 = False
         self._node_search_prop = None
         self._tree_search_prop = None
         self._study_search_prop = None
         self.indexing_prefix = None
         self.query_prefix = None
-        self._raw_urls = True #TODO should be configurable
+        self._raw_urls = False #TODO should be configurable
         _WSWrapper.__init__(self, domain)
         self.set_domain(domain)
     def set_domain(self, d):
@@ -176,15 +188,26 @@ class _OTIWrapper(_WSWrapper):
             self.indexing_prefix = '{d}/oti/ext/IndexServices/graphdb'.format(d=d)
             self.query_prefix = '{d}/oti/ext/QueryServices/graphdb'.format(d=d)
         else:
-            self.indexing_prefix = '{d}/oti/IndexServices/graphdb'.format(d=d)
-            self.query_prefix = '{d}/oti/QueryServices/graphdb'.format(d=d)
+            if self.use_v1:
+                self.indexing_prefix = '{d}/oti/IndexServices/graphdb'.format(d=d)
+                self.query_prefix = '{d}/oti/QueryServices/graphdb'.format(d=d)
+            else:
+                self.indexing_prefix = '{d}/oti/IndexServices/graphdb'.format(d=d)
+                self.query_prefix = '{d}/v2/studies'.format(d=d)
     domain = property(_WSWrapper.get_domain, set_domain)
     def get_node_search_term_set(self):
         if self._node_search_prop is None:
             self._node_search_prop = set(self._do_node_searchable_properties_call())
         return self._node_search_prop
     node_search_term_set = property(get_node_search_term_set)
+    def _do_searchable_properties_call(self):
+        if self.use_v1:
+            raise NotImplementedError('properties call added in v2')
+        uri = '{p}/properties'.format(p=self.query_prefix)
+        return self.json_http_post(uri)
     def _do_tree_searchable_properties_call(self):
+        if not self.use_v1:
+            return self._do_searchable_properties_call()['tree_properties']
         uri = '{p}/getSearchablePropertiesForTrees'.format(p=self.query_prefix)
         return self.json_http_post(uri)
     def get_tree_search_term_set(self):
@@ -193,6 +216,8 @@ class _OTIWrapper(_WSWrapper):
         return self._tree_search_prop
     tree_search_term_set = property(get_tree_search_term_set)
     def _do_study_searchable_properties_call(self):
+        if not self.use_v1:
+            return self._do_searchable_properties_call()['tree_properties']
         uri = '{p}/getSearchablePropertiesForStudies'.format(p=self.query_prefix)
         return self.json_http_post(uri)
     def get_study_search_term_set(self):
@@ -201,6 +226,8 @@ class _OTIWrapper(_WSWrapper):
         return self._study_search_prop
     study_search_term_set = property(get_study_search_term_set)
     def _do_node_searchable_properties_call(self):
+        if not self.use_v1:
+            return self._do_searchable_properties_call().get('tree_properties', [])
         uri = '{p}/getSearchablePropertiesForTreeNodes'.format(p=self.query_prefix)
         return self.json_http_post(uri)
     def _do_query(self, url, query_dict, exact, verbose, valid_keys, kwargs):
@@ -216,12 +243,13 @@ class _OTIWrapper(_WSWrapper):
         return response['matched_studies']
 
     def _prepare_query_data(self, query_dict, exact, verbose, valid_keys, kwargs):
-        p, v = self._process_query_dict(query_dict, valid_keys, kwargs)
-        return {'property': p,
-                'value': v,
-                'exact': exact,
+        r = self._process_query_dict(query_dict, valid_keys, kwargs)
+        data = {'exact': exact,
                 'verbose': verbose}
-        
+        if r:
+            data['property'] = r[0]
+            data['value'] = r[1]
+        return data
     def _process_query_dict(self, query_dict, valid_keys, kwargs):
         if query_dict is None:
             query_dict = {}
@@ -231,9 +259,11 @@ class _OTIWrapper(_WSWrapper):
             else:
                 query_dict['ot:' + k] = v
         nq = len(query_dict)
-        if nq != 1:
-            if nq == 0:
+        if nq == 0:
+            if self.use_v1:
                 raise ValueError('The property/value pairs for the query should be passed in as keyword arguments')
+            return None
+        if nq > 1:
             raise NotImplementedError('Currently only searches for one property/value pair are supported')
         k = query_dict.keys()[0]
         if k not in valid_keys:

@@ -69,6 +69,15 @@ for fn in test_files:
                     self.assertRaises(et, bound_m, **args)
                 else:
                     response = bound_m(**args)
+                    key_list = ['contains', 'equals', 'of_type']
+                    for k in expected.keys():
+                        assert k in key_list
+                    for k in key_list:
+                        tests4k = expected.get(k, [])
+                        if k == 'contains':
+                            for t in tests4k:
+                                ec, em = t
+                                self.assertTrue(ec in response, em)
             except:
                 STOP = True
                 _LOG.exception('failed!')

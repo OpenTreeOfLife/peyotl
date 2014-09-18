@@ -23,15 +23,18 @@ if update_shared_tests:
     for fn in test_files:
         content = requests.get(prefix + '/' + fn).json()
         local_fp = os.path.join(shared_tests_par, fn)
-        write_as_json(content, local_fp, indent=2)
+        write_as_json(content, local_fp, indent=4)
 
 
 class TestSharedTests(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()
         self.ot = APIWrapper(d)
-
+STOP = False
 OI_FUNC_TO_PEYOTL = {'gol': 'graph', 'tol': 'tree_of_life'}
+_EXC_STR_TO_EXC_CLASS = {'ValueError': ValueError,
+                         'KeyError': KeyError,
+                         'OpenTreeService.OpenTreeError': Exception,}
 for fn in test_files:
     local_fp = os.path.join(shared_tests_par, fn)
     blob = read_as_json(local_fp)
@@ -41,16 +44,34 @@ for fn in test_files:
         curr_test = blob[k]
         print k, curr_test['tests'].keys()
         def nf(self, n=k, blob=curr_test):
+            global STOP
+            if STOP or n == 'test_subtree_demo':
+                return
             oi_name = blob['test_function']
-            print oi_name
+            expected = blob['tests']
             s = oi_name.split('_')[0]
             peyotl_meth = '_'.join(oi_name.split('_')[1:])
             trans = OI_FUNC_TO_PEYOTL.get(s, s)
-            print 'in test', n, s, trans, peyotl_meth
             wrapper = getattr(self.ot, trans)
             bound_m = getattr(wrapper, peyotl_meth)
-            print '    ', bound_m
-            response = bound_m(**blob['test_input'])
+            args = blob['test_input']
+            try:
+                if args == 'null':
+                    args = {}
+            except:
+                pass
+            print '    in', n, ' Calling', bound_m, 'with', args
+            try:
+                if 'error' in expected:
+                    exc_class = expected['error'][0][0]
+                    et = _EXC_STR_TO_EXC_CLASS[exc_class]
+                    print args
+                    self.assertRaises(et, bound_m, **args)
+                else:
+                    response = bound_m(**args)
+            except:
+                STOP = True
+                _LOG.exception('failed!')
         setattr(TestSharedTests, k, nf)
 if __name__ == "__main__":
     unittest.main()

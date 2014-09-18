@@ -62,7 +62,14 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         parent taxon ?
         homonym finder ?
     '''
-    def TNRS(self, names, context_name=None, id_list=None, fuzzy_matching=False, include_deprecated=False, include_dubious=False):
+    def TNRS(self,
+             names,
+             context_name=None,
+             id_list=None,
+             fuzzy_matching=False,
+             include_deprecated=False,
+             include_dubious=False,
+             do_approximate_matching=None):
         '''Takes a name and optional contextName returns a list of matches.
         Each match is a dict with:
            'higher' boolean DEF???
@@ -73,6 +80,8 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         '''
         #if context_name is None:
         #    context_name = 'All life'
+        if do_approximate_matching is not None:
+            fuzzy_matching = do_approximate_matching
         if context_name and context_name not in self.valid_contexts:
             raise ValueError('"{}" is not a valid context name'.format(context_name))
         if not (isinstance(names, list) or isinstance(names, tuple)):

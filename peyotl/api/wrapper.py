@@ -275,6 +275,7 @@ class _TreeOfLifeServicesWrapper(object):
         return self.treemachine.get_synthetic_tree(*valist, **kwargs)
     def induced_subtree(self, *valist, **kwargs):
         return self.treemachine.induced_subtree(*valist, **kwargs)
+    induced_tree = induced_subtree
 
 _CUTOFF_LEN_DETAILED_VIEW = 500
 def _dict_summary(d, name):
@@ -317,6 +318,11 @@ class _WSWrapper(object):
         return self._do_http(url, 'PUT', headers=headers, params=params, data=data, text=text)
     def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
         return self._do_http(url, 'POST', headers=headers, params=params, data=data, text=text)
+    def json_http_post_raise(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
+        r = self.json_http_post(url, headers=headers, params=params, data=data, text=text)
+        if 'error' in r:
+            raise ValueError(r['error'])
+        return r
     def _do_http(self, url, verb, headers, params, data, text=False):
         if CURL_LOGGER is not None:
             log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)

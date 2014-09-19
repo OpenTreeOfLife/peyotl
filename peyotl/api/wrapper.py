@@ -327,7 +327,11 @@ class _WSWrapper(object):
         if CURL_LOGGER is not None:
             log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)
         func = _VERB_TO_METHOD_DICT[verb]
-        resp = func(url, params=params, headers=headers, data=data)
+        try:
+            resp = func(url, params=params, headers=headers, data=data)
+        except requests.exceptions.ConnectionError:
+            raise RuntimeError('Could not connect in call of {v} to "{u"}'.format(v=verb, u=url))
+
         try:
             resp.raise_for_status()
         except:

@@ -330,7 +330,7 @@ class _WSWrapper(object):
         try:
             resp = func(url, params=params, headers=headers, data=data)
         except requests.exceptions.ConnectionError:
-            raise RuntimeError('Could not connect in call of {v} to "{u"}'.format(v=verb, u=url))
+            raise RuntimeError('Could not connect in call of {v} to "{u}"'.format(v=verb, u=url))
 
         try:
             resp.raise_for_status()

@@ -4,6 +4,6 @@ python:
 install:
     - pip install -r requirements.txt
 script:
-    - source dev/travis.config ; sh tests.sh
+    - source dev/travis.config ; sh test.sh
 
 

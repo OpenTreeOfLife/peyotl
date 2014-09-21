@@ -27,7 +27,7 @@ class TestPhylesystemAPI(unittest.TestCase):
     def testRemoteTransSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='api', transform='server')
         self._do_sugar_tests(pa)
-    @unittest.skipIf(HAS_LOCAL_PHYLESYSTEM_REPOS, 'only available if you are have a [phylesystem] section with "parent" variable in your peyotl config')
+    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS, 'only available if you are have a [phylesystem] section with "parent" variable in your peyotl config')
     def testStudyList(self):
         pa = PhylesystemAPI(self.domains, get_from='local')
         sl = pa.study_list
@@ -47,7 +47,7 @@ class TestPhylesystemAPI(unittest.TestCase):
     def testExternalSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='external')
         self._do_sugar_tests(pa)
-    @unittest.skipIf(HAS_LOCAL_PHYLESYSTEM_REPOS, 'only available if you are have a [phylesystem] section with "parent" variable in your peyotl config')
+    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS, 'only available if you are have a [phylesystem] section with "parent" variable in your peyotl config')
     def testLocalSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='local')
         self._do_sugar_tests(pa)

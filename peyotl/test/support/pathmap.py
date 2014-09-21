@@ -105,7 +105,7 @@ def nexson_file_obj(filename):
     return codecs.open(fp, mode='rU', encoding='utf-8')
 
 def shared_test_dir():
-    return os.path.join(TESTS_DATA_DIR, "shared")
+    return os.path.join(TESTS_DATA_DIR, "shared-api-tests")
 def nexson_source_path(filename=None):
     if filename is None:
         filename = ""

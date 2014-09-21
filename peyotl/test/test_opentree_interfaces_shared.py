@@ -5,6 +5,7 @@ from peyotl.nexson_syntax.helper import detect_nexson_version
 from peyotl.nexson_syntax import read_as_json, write_as_json
 from peyotl.api import APIWrapper
 from peyotl.utility import get_logger
+import subprocess
 import unittest
 import requests
 import json
@@ -16,14 +17,13 @@ test_files = ['tree_of_life.json', 'graph_of_life.json', 'tnrs.json', 'taxonomy.
 _LOG = get_logger(__name__)
 shared_tests_par = shared_test_dir()
 if not os.path.exists(shared_tests_par):
-    os.mkdir(shared_tests_par)
+    shared_test_grandpar = os.path.split(shared_tests_par)[0]
+    _LOG.debug('cloning shared-api-tests dir "{}"'.format(shared_test_grandpar))
+    invoc = ['git', 'clone', 'https://github.com/OpenTreeOfLife/shared-api-tests']
+    _LOG.debug('cloning invoc "{}"'.format(repr(invoc)))
+    git_clone = subprocess.Popen(invoc, cwd=shared_test_grandpar)
+    assert 0 == git_clone.wait()
 
-update_shared_tests = False
-if update_shared_tests:
-    for fn in test_files:
-        content = requests.get(prefix + '/' + fn).json()
-        local_fp = os.path.join(shared_tests_par, fn)
-        write_as_json(content, local_fp, indent=4)
 
 
 class TestSharedTests(unittest.TestCase):
@@ -35,53 +35,89 @@ OI_FUNC_TO_PEYOTL = {'gol': 'graph', 'tol': 'tree_of_life'}
 _EXC_STR_TO_EXC_CLASS = {'ValueError': ValueError,
                          'KeyError': KeyError,
                          'OpenTreeService.OpenTreeError': Exception,}
-if False:#TEMP #TODO
-#for fn in test_files:
-    local_fp = os.path.join(shared_tests_par, fn)
-    blob = read_as_json(local_fp)
-    keys = blob.keys()
-    keys.sort()
-    for k in keys:
-        curr_test = blob[k]
-        print k, curr_test['tests'].keys()
-        def nf(self, n=k, blob=curr_test):
-            global STOP
-            if STOP or n == 'test_subtree_demo':
-                return
-            oi_name = blob['test_function']
-            expected = blob['tests']
-            s = oi_name.split('_')[0]
-            peyotl_meth = '_'.join(oi_name.split('_')[1:])
-            trans = OI_FUNC_TO_PEYOTL.get(s, s)
-            wrapper = getattr(self.ot, trans)
-            bound_m = getattr(wrapper, peyotl_meth)
-            args = blob['test_input']
-            try:
-                if args == 'null':
-                    args = {}
-            except:
-                pass
-            print '    in', n, ' Calling', bound_m, 'with', args
-            try:
-                if 'error' in expected:
-                    exc_class = expected['error'][0][0]
-                    et = _EXC_STR_TO_EXC_CLASS[exc_class]
-                    print args
-                    self.assertRaises(et, bound_m, **args)
-                else:
-                    response = bound_m(**args)
-                    key_list = ['contains', 'equals', 'of_type']
-                    for k in expected.keys():
-                        assert k in key_list
-                    for k in key_list:
-                        tests4k = expected.get(k, [])
-                        if k == 'contains':
-                            for t in tests4k:
-                                ec, em = t
-                                self.assertTrue(ec in response, em)
-            except:
-                STOP = True
-                _LOG.exception('failed!')
-        setattr(TestSharedTests, k, nf)
+_TYPE_MAP = {'dict': dict}
+if not os.path.exists(shared_tests_par):
+    _LOG.debug('skipping shared tests due to lack of "{}" dir'.format(shared_tests_par))
+else:
+    update_shared_tests = True
+    if update_shared_tests:
+        _LOG.debug('updating shared-api-tests dir "{}"'.format(shared_tests_par))
+        git_wait = subprocess.Popen(['git', 'pull', 'origin', 'master'],
+                                      cwd=shared_tests_par)
+        try:
+            git_pull.wait()
+        except:
+            pass # we want the pass to test when we are offline...
+    for fn in test_files:
+        local_fp = os.path.join(shared_tests_par, fn)
+        blob = read_as_json(local_fp)
+        keys = blob.keys()
+        keys.sort()
+        for k in keys:
+            curr_test = blob[k]
+            print k, curr_test['tests'].keys()
+            def nf(self, n=k, blob=curr_test):
+                global STOP
+                if STOP or n == 'test_subtree_demo':
+                    return
+                oi_name = blob['test_function']
+                expected = blob['tests']
+                s = oi_name.split('_')[0]
+                peyotl_meth = '_'.join(oi_name.split('_')[1:])
+                trans = OI_FUNC_TO_PEYOTL.get(s, s)
+                wrapper = getattr(self.ot, trans)
+                bound_m = getattr(wrapper, peyotl_meth)
+                args = blob['test_input']
+                try:
+                    if args == 'null':
+                        args = {}
+                except:
+                    pass
+                print '    in', n, ' Calling', bound_m, 'with', args
+                try:
+                    if ('parameters_error' in expected) or ('contains_error' in expected):
+                        ec = expected.get('parameters_error')
+                        if ec is None:
+                            ec = expected['contains_error']
+                        exc_class = ec[0]
+                        et = _EXC_STR_TO_EXC_CLASS[exc_class]
+                        print args
+                        self.assertRaises(et, bound_m, **args)
+                    else:
+                        response = bound_m(**args)
+                        key_list = ['contains', 'deep_equals', 'equals', 'of_type']
+                        _LOG.debug('kl = ' + str(expected.keys()))
+                        for k in expected.keys():
+                            assert k in key_list
+                        for k in key_list:
+                            tests4k = expected.get(k, [])
+                            if k == 'contains':
+                                for t in tests4k:
+                                    ec, em = t
+                                    self.assertTrue(ec in response, em)
+                            elif k == 'deep_equals':
+                                for t in tests4k:
+                                    ec, em = t
+                                    rkey_list, rexp = ec
+                                    curr = response
+                                    while rkey_list:
+                                        nk = rkey_list.pop(0)
+                                        curr = curr[nk]
+                                    self.assertEqual(curr, rexp, em)
+                            elif k == 'equals':
+                                for t in tests4k:
+                                    ec, em = t
+                                    rkey, rexp = ec
+                                    self.assertEqual(response[rkey], rexp, em)
+                            elif tests4k:
+                                assert k == 'of_type'
+                                _LOG.debug('tests4k = {}'.format(repr(tests4k)))
+                                ec, em = tests4k
+                                py_typ = _TYPE_MAP[ec]
+                                self.assertTrue(isinstance(response, py_typ), em)
+                except:
+                    STOP = True
+                    _LOG.exception('failed!')
+            setattr(TestSharedTests, k, nf)
 if __name__ == "__main__":
     unittest.main()

@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 from peyotl.test.support.pathmap import get_test_ot_service_domains, \
                                         shared_test_dir
-from peyotl.nexson_syntax.helper import detect_nexson_version
-from peyotl.nexson_syntax import read_as_json, write_as_json
+from peyotl.nexson_syntax import read_as_json
 from peyotl.api import APIWrapper
 from peyotl.utility import get_logger
 import subprocess
 import unittest
-import requests
-import json
-import sys
 import os
 prefix = 'https://raw.githubusercontent.com/OpenTreeOfLife/opentree-interfaces/master/python/test'
 test_files = ['tree_of_life.json', 'graph_of_life.json', 'tnrs.json', 'taxonomy.json']
@@ -42,7 +38,7 @@ else:
     update_shared_tests = True
     if update_shared_tests:
         _LOG.debug('updating shared-api-tests dir "{}"'.format(shared_tests_par))
-        git_wait = subprocess.Popen(['git', 'pull', 'origin', 'master'],
+        git_pull = subprocess.Popen(['git', 'pull', 'origin', 'master'],
                                       cwd=shared_tests_par)
         try:
             git_pull.wait()
@@ -50,11 +46,11 @@ else:
             pass # we want the pass to test when we are offline...
     for fn in test_files:
         local_fp = os.path.join(shared_tests_par, fn)
-        blob = read_as_json(local_fp)
-        keys = blob.keys()
+        tblob = read_as_json(local_fp)
+        keys = tblob.keys()
         keys.sort()
         for k in keys:
-            curr_test = blob[k]
+            curr_test = tblob[k]
             #print k, curr_test['tests'].keys()
             def nf(self, n=k, blob=curr_test):
                 global STOP
@@ -89,15 +85,15 @@ else:
                         response = bound_m(**args)
                         key_list = ['contains', 'deep_equals', 'equals', 'of_type']
                         #_LOG.debug('kl = ' + str(expected.keys()))
-                        for k in expected.keys():
-                            assert k in key_list
-                        for k in key_list:
-                            tests4k = expected.get(k, [])
-                            if k == 'contains':
+                        for ek in expected.keys():
+                            assert ek in key_list
+                        for ek in key_list:
+                            tests4k = expected.get(ek, [])
+                            if ek == 'contains':
                                 for t in tests4k:
                                     ec, em = t
                                     self.assertTrue(ec in response, em)
-                            elif k == 'deep_equals':
+                            elif ek == 'deep_equals':
                                 for t in tests4k:
                                     ec, em = t
                                     rkey_list, rexp = ec
@@ -106,13 +102,13 @@ else:
                                         nk = rkey_list.pop(0)
                                         curr = curr[nk]
                                     self.assertEqual(curr, rexp, em)
-                            elif k == 'equals':
+                            elif ek == 'equals':
                                 for t in tests4k:
                                     ec, em = t
                                     rkey, rexp = ec
                                     self.assertEqual(response[rkey], rexp, em)
                             elif tests4k:
-                                assert k == 'of_type'
+                                assert ek == 'of_type'
                                 #_LOG.debug('tests4k = {}'.format(repr(tests4k)))
                                 ec, em = tests4k
                                 py_typ = _TYPE_MAP[ec]

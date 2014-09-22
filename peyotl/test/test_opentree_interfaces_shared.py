@@ -55,7 +55,7 @@ else:
         keys.sort()
         for k in keys:
             curr_test = blob[k]
-            print k, curr_test['tests'].keys()
+            #print k, curr_test['tests'].keys()
             def nf(self, n=k, blob=curr_test):
                 global STOP
                 if STOP or n == 'test_subtree_demo':
@@ -73,20 +73,22 @@ else:
                         args = {}
                 except:
                     pass
-                print '    in', n, ' Calling', bound_m, 'with', args
+                #print '    in', n, ' Calling', bound_m, 'with', args
                 try:
                     if ('parameters_error' in expected) or ('contains_error' in expected):
                         ec = expected.get('parameters_error')
                         if ec is None:
                             ec = expected['contains_error']
-                        exc_class = ec[0]
-                        et = _EXC_STR_TO_EXC_CLASS[exc_class]
-                        print args
+                            et = Exception
+                        else:
+                            exc_class = ec[0]
+                            et = _EXC_STR_TO_EXC_CLASS[exc_class]
+                        #print args
                         self.assertRaises(et, bound_m, **args)
                     else:
                         response = bound_m(**args)
                         key_list = ['contains', 'deep_equals', 'equals', 'of_type']
-                        _LOG.debug('kl = ' + str(expected.keys()))
+                        #_LOG.debug('kl = ' + str(expected.keys()))
                         for k in expected.keys():
                             assert k in key_list
                         for k in key_list:
@@ -111,7 +113,7 @@ else:
                                     self.assertEqual(response[rkey], rexp, em)
                             elif tests4k:
                                 assert k == 'of_type'
-                                _LOG.debug('tests4k = {}'.format(repr(tests4k)))
+                                #_LOG.debug('tests4k = {}'.format(repr(tests4k)))
                                 ec, em = tests4k
                                 py_typ = _TYPE_MAP[ec]
                                 self.assertTrue(isinstance(response, py_typ), em)

@@ -30,7 +30,7 @@ class TestTreemachine(unittest.TestCase):
                 self.assertEqual(x['treeID'], tree_id)
                 self.assertTrue(x['newick'].startswith('('))
         else:
-            for key in [u'date', 
+            for key in [u'date',
                         u'num_source_studies',
                         u'root_taxon_name',
                         u'study_list',

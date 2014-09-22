@@ -50,14 +50,14 @@ class TestPhyloSchema(unittest.TestCase):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('newick',
                          content='subtree',
-                         content_id=('tree3','node508'),
+                         content_id=('tree3', 'node508'),
                          version='1.2.1')
         x = ps.serialize(o)
         self.assertTrue(x.startswith('('))
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('newick',
                          content='subtree',
-                         content_id=('tree3','ingroup'),
+                         content_id=('tree3', 'ingroup'),
                          version='1.2.1')
         x = ps.serialize(o)
         self.assertTrue(x.startswith('('))

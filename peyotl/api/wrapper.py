@@ -67,41 +67,41 @@ class APIDomains(object):
         self._phylesystem_api = kwargs.get('phylesystem')
         self._taxomachine = kwargs.get('taxomachine')
         self._treemachine = kwargs.get('treemachine')
-    def get_oti(self):
+    @property
+    def oti(self):
         if self._oti is None:
             self._oti = get_config('apis', 'oti')
             if self._oti is None:
                 self._oti = 'http://api.opentreeoflife.org'
             #_LOG.debug('using  "{u}" for {s}'.format(u=self._oti, s='oti'))
         return self._oti
-    oti = property(get_oti)
-    def get_phylesystem_api(self):
+    @property
+    def phylesystem_api(self):
         if self._phylesystem_api is None:
             self._phylesystem_api = get_config('apis', 'phylesystem_api')
             if self._phylesystem_api is None:
                 self._phylesystem_api = 'http://api.opentreeoflife.org'
             #_LOG.debug('using "{u}" for {s}'.format(u=self._phylesystem_api, s='phylesystem'))
         return self._phylesystem_api
-    phylesystem_api = property(get_phylesystem_api)
-    def get_phylografter(self):
+    @property
+    def phylografter(self):
         return self._phylografter
-    phylografter = property(get_phylografter)
-    def get_taxomachine(self):
+    @property
+    def taxomachine(self):
         if self._taxomachine is None:
             self._taxomachine = get_config('apis', 'taxomachine')
             if self._taxomachine is None:
                 self._taxomachine = 'http://api.opentreeoflife.org'
             #_LOG.debug('using "{u}" for {s}'.format(u=self._taxomachine, s='taxomachine'))
         return self._taxomachine
-    taxomachine = property(get_taxomachine)
-    def get_treemachine(self):
+    @property
+    def treemachine(self):
         if self._treemachine is None:
             self._treemachine = get_config('apis', 'treemachine')
             if self._treemachine is None:
                 self._treemachine = 'http://api.opentreeoflife.org'
             #_LOG.debug('using "{u}" for {s}'.format(u=self._treemachine, s='treemachine'))
         return self._treemachine
-    treemachine = property(get_treemachine)
 
 def get_domains_obj(**kwargs):
     # hook for config/env-sensitive setting of domains
@@ -128,12 +128,12 @@ class APIWrapper(object):
             self._phylesystem_api_kwargs = {}
         else:
             self._phylesystem_api_kwargs = dict(phylesystem_api_kwargs)
-    def get_oti(self):
+    @property
+    def oti(self):
         from peyotl.api.oti import _OTIWrapper
         if self._oti is None:
             self._oti = _OTIWrapper(self.domains.oti)
         return self._oti
-    oti = property(get_oti)
     def wrap_phylesystem_api(self, **kwargs):
         from peyotl.api.phylesystem_api import _PhylesystemAPIWrapper
         cfrom = get_config('apis', 
@@ -153,59 +153,59 @@ class APIWrapper(object):
             kwargs.setdefault('refresh', crefresh)
         self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api, **kwargs)
         return self._phylesystem_api
-    def get_phylesystem_api(self):
+    @property
+    def phylesystem_api(self):
         if self._phylesystem_api is None:
             self.wrap_phylesystem_api()
         return self._phylesystem_api
-    phylesystem_api = property(get_phylesystem_api)
-    def get_phylografter(self):
+    @property
+    def phylografter(self):
         from peyotl.api.phylografter import _PhylografterWrapper
         if self._phylografter is None:
             self._phylografter = _PhylografterWrapper(self.domains.phylografter)
         return self._phylografter
-    phylografter = property(get_phylografter)
-    def get_taxomachine(self):
+    @property
+    def taxomachine(self):
         from peyotl.api.taxomachine import _TaxomachineAPIWrapper
         if self._taxomachine is None:
             self._taxomachine = _TaxomachineAPIWrapper(self.domains.taxomachine)
         return self._taxomachine
-    taxomachine = property(get_taxomachine)
-    def get_treemachine(self):
+    @property
+    def treemachine(self):
         from peyotl.api.treemachine import _TreemachineAPIWrapper
         if self._treemachine is None:
             self._treemachine = _TreemachineAPIWrapper(self.domains.treemachine)
         return self._treemachine
-    treemachine = property(get_treemachine)
-    def get_tree_of_life_wrapper(self):
+    @property
+    def tree_of_life(self):
         if self._tree_of_life_wrapper is None:
             self._tree_of_life_wrapper = _TreeOfLifeServicesWrapper(self.treemachine)
         return self._tree_of_life_wrapper
-    tree_of_life = property(get_tree_of_life_wrapper)
-    def get_graph_wrapper(self):
+    @property
+    def graph(self):
         if self._graph_wrapper is None:
             self._graph_wrapper = _GraphOfLifeServicesWrapper(self.treemachine)
         return self._graph_wrapper
-    graph = property(get_graph_wrapper)
-    def get_study_wrapper(self):
+    @property
+    def study(self):
         if self._study_wrapper is None:
             self._study_wrapper = _StudyServicesWrapper(self.phylesystem_api)
         return self._study_wrapper
-    study = property(get_study_wrapper)
-    def get_tnrs_wrapper(self):
+    @property
+    def tnrs(self):
         if self._tnrs_wrapper is None:
             self._tnrs_wrapper = _TNRSServicesWrapper(self.taxomachine)
         return self._tnrs_wrapper
-    tnrs = property(get_tnrs_wrapper)
-    def get_taxonomy_wrapper(self):
+    @property
+    def taxonomy(self):
         if self._taxonomy_wrapper is None:
             self._taxonomy_wrapper = _TaxonomyServicesWrapper(self.taxomachine)
         return self._taxonomy_wrapper
-    taxonomy = property(get_taxonomy_wrapper)
-    def get_studies_wrapper(self):
+    @property
+    def studies(self):
         if self._studies_wrapper is None:
             self._studies_wrapper = _StudiesServicesWrapper(self.oti)
         return self._studies_wrapper
-    studies = property(get_studies_wrapper)
 
 class _StudiesServicesWrapper(object):
     def __init__(self, oti_wrapper):
@@ -257,7 +257,7 @@ class _GraphOfLifeServicesWrapper(object):
     def __init__(self, treemachine_wrapper):
         self.treemachine = treemachine_wrapper
     def info(self):
-        return self.treemachine.get_graph_info()
+        return self.treemachine.graph_info
     about = info
     def source_tree(self, *valist, **kwargs):
         return self.treemachine.get_source_tree(*valist, **kwargs)
@@ -267,7 +267,7 @@ class _TreeOfLifeServicesWrapper(object):
     def __init__(self, treemachine_wrapper):
         self.treemachine = treemachine_wrapper
     def info(self):
-        return self.treemachine.get_synthetic_tree_info()
+        return self.treemachine.synthetic_tree_info
     about = info
     def mrca(self, *valist, **kwargs):
         return self.treemachine.mrca(*valist, **kwargs)
@@ -342,8 +342,9 @@ class _WSWrapper(object):
         if text:
             return resp.text
         return resp.json()
-    def get_domain(self):
+    @property
+    def domain(self):
         return self._domain
-    def set_domain(self, d):
+    @domain.setter
+    def domain(self, d):
         self._domain = d
-    domain = property(get_domain, set_domain)

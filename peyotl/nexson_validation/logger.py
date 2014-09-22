@@ -82,12 +82,12 @@ class DefaultRichLogger(object):
         self.codes_to_skip = set()
     def has_error(self):
         return bool(self._err_by_type)
-    def get_errors(self):
+    @property
+    def errors(self):
         return self._err_by_type.values()
-    errors = property(get_errors)
-    def get_warnings(self):
+    @property
+    def warnings(self):
         return self._warn_by_type.values()
-    warnings = property(get_warnings)
     def is_logging_type(self, t):
         #pylint: disable=W0613,R0201
         return True

@@ -144,8 +144,12 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         self._valid_contexts = None
         self.prefix = None
         _WSWrapper.__init__(self, domain)
-        self.set_domain(domain)
-    def set_domain(self, d):
+        self.domain = domain
+    @property
+    def domain(self):
+        return self._domain
+    @domain.setter
+    def domain(self, d):
         self._contexts = None
         self._valid_contexts = None
         self._domain = d
@@ -154,7 +158,6 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         else:
             self.prefix = '{d}/v2/tnrs'.format(d=d)
             self.taxonomy_prefix = '{d}/v2/taxonomy'.format(d=d)
-    domain = property(_WSWrapper.get_domain, set_domain)
     def info(self):
         if self.use_v1:
             raise NotImplementedError('"about" method not implemented')
@@ -192,7 +195,8 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         else:
             uri = '{p}/contexts'.format(p=self.prefix)
         return self.json_http_post(uri)
-    def _get_valid_contexts(self):
+    @property
+    def valid_contexts(self):
         if self._valid_contexts is None:
             c = self.contexts()
             v = set()
@@ -200,7 +204,6 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 v.update(cn)
             self._valid_contexts = v
         return self._valid_contexts
-    valid_contexts = property(_get_valid_contexts)
 
 def Taxomachine(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).taxomachine

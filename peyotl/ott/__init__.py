@@ -58,11 +58,11 @@ class OTT(object):
     def _load_pickled(self, fn):
         fp = os.path.join(self.ott_dir, fn)
         return pickle.load(open(fp, 'rb'))
-    def get_ott_id_to_names(self):
+    @property
+    def ott_id_to_names(self):
         if self._ott_id_to_names is None:
             self._ott_id_to_names = self._load_pickled('ottID2names.pickle')
         return self._ott_id_to_names
-    ott_id_to_names = property(get_ott_id_to_names)
     def create_pickle_files(self, out_dir=None):
         '''
            preorder2tuple.pickle maps a preorder number to a node definition. Each node

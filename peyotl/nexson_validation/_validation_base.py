@@ -145,7 +145,8 @@ class LazyAddress(object):
             elif '@idref' in self._full_path:
                 del self._full_path['@idref']
         return self._full_path
-    def get_path(self):
+    @property
+    def path(self):
         if self._path is None:
             if _USING_IDREF_ONLY_PATHS:
                 if self.obj_nex_id is not None:
@@ -180,7 +181,6 @@ class LazyAddress(object):
                 elif '@idref' in self._path:
                     del self._path['@idref']
         return self._path
-    path = property(get_path)
 
 class _ValidationContext(object):
     '''Holds references to the adaptor and logger

@@ -12,13 +12,13 @@ class TestTreemachine(unittest.TestCase):
         self.domains = get_test_ot_service_domains()
         self.treemachine = Treemachine(self.domains)
     def testSourceTree(self):
-        source_id_list = self.treemachine.get_synthetic_tree_id_list()
+        source_id_list = self.treemachine.synthetic_tree_id_list
         self.assertTrue(isinstance(source_id_list, list))
         f = source_id_list[0]
         r = self.treemachine.get_source_tree(**f)
         self.assertTrue(r['newick'].startswith('('))
     def testSynthTree(self):
-        cdict = self.treemachine.get_synthetic_tree_info()
+        cdict = self.treemachine.synthetic_tree_info
         if self.treemachine.use_v1:
             for key in ['draftTreeName', 'startNodeTaxName', 'startNodeID', 'startNodeOTTId']:
                 self.assertTrue(key in cdict)

@@ -179,8 +179,12 @@ class _OTIWrapper(_WSWrapper):
         self.query_prefix = None
         self._raw_urls = False #TODO should be configurable
         _WSWrapper.__init__(self, domain)
-        self.set_domain(domain)
-    def set_domain(self, d):
+        self.domain = domain
+    @property
+    def domain(self):
+        return self._domain
+    @domain.setter
+    def domain(self, d):
         self._node_search_prop = None
         self._search_terms = None
         self._tree_search_prop = None
@@ -196,45 +200,44 @@ class _OTIWrapper(_WSWrapper):
             else:
                 self.indexing_prefix = '{d}/oti/IndexServices/graphdb'.format(d=d)
                 self.query_prefix = '{d}/v2/studies'.format(d=d)
-    domain = property(_WSWrapper.get_domain, set_domain)
-    def get_node_search_term_set(self):
+    @property
+    def node_search_term_set(self):
         if self._node_search_prop is None:
             self._node_search_prop = set(self._do_node_searchable_properties_call())
         return self._node_search_prop
-    node_search_term_set = property(get_node_search_term_set)
     def _do_searchable_properties_call(self):
         if self.use_v1:
             raise NotImplementedError('properties call added in v2')
         uri = '{p}/properties'.format(p=self.query_prefix)
         return self.json_http_post(uri)
-    def get_search_terms(self):
+    @property
+    def search_terms(self):
         if self._search_terms is None:
             self._search_terms = {}
             d = self._do_searchable_properties_call()
             for k, v in d.items():
                 self._search_terms[k] = frozenset(v)
         return dict(self._search_terms)
-    search_terms = property(get_search_terms)
     def _do_tree_searchable_properties_call(self):
         if not self.use_v1:
             return self.search_terms['tree_properties']
         uri = '{p}/getSearchablePropertiesForTrees'.format(p=self.query_prefix)
         return self.json_http_post(uri)
-    def get_tree_search_term_set(self):
+    @property
+    def tree_search_term_set(self):
         if self._tree_search_prop is None:
             self._tree_search_prop = set(self._do_tree_searchable_properties_call())
         return self._tree_search_prop
-    tree_search_term_set = property(get_tree_search_term_set)
     def _do_study_searchable_properties_call(self):
         if not self.use_v1:
             return self.search_terms['study_properties']
         uri = '{p}/getSearchablePropertiesForStudies'.format(p=self.query_prefix)
         return self.json_http_post(uri)
-    def get_study_search_term_set(self):
+    @property
+    def study_search_term_set(self):
         if self._study_search_prop is None:
             self._study_search_prop = set(self._do_study_searchable_properties_call())
         return self._study_search_prop
-    study_search_term_set = property(get_study_search_term_set)
     def _do_node_searchable_properties_call(self):
         if not self.use_v1:
             return self._do_searchable_properties_call().get('tree_properties', [])

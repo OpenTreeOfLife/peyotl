@@ -272,7 +272,8 @@ class PhyloSchema(object):
                     m = '"otu_label" or "tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list))
                     raise ValueError(m)
             self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
-    def get_description(self):
+    @property
+    def description(self):
         if self.format_code == PhyloSchema.NEXSON:
             return 'NexSON v{v}'.format(v=self.version)
         elif self.format_code == PhyloSchema.NEXML:
@@ -281,7 +282,6 @@ class PhyloSchema(object):
             return 'NEXUS'
         elif self.format_code == PhyloSchema.NEWICK:
             return 'Newick'
-    description = property(get_description)
     def can_convert_from(self, src_schema=None):
         if self.format_code == PhyloSchema.NEXSON:
             return self.content != 'subtree'

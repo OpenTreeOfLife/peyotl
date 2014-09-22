@@ -139,9 +139,9 @@ class PhylesystemShardBase(object):
             r = self._study_index[study_id]
         fp = r[-1]
         return fp[(len(self.path) + 1):] # "+ 1" to remove the /
-    def get_study_index(self):
+    @property
+    def study_index(self):
         return self._study_index
-    study_index = property(get_study_index)
     def get_study_ids(self, include_aliases=False):
         with self._index_lock:
             k = self._study_index.keys()

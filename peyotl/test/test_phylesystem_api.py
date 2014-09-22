@@ -27,7 +27,9 @@ class TestPhylesystemAPI(unittest.TestCase):
     def testRemoteTransSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='api', transform='server')
         self._do_sugar_tests(pa)
-    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS, 'only available if you are have a [phylesystem] section with "parent" variable in your peyotl config')
+    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
+                     'only available if you are have a [phylesystem] section with "parent" '\
+                     'variable in your peyotl config')
     def testStudyList(self):
         pa = PhylesystemAPI(self.domains, get_from='local')
         sl = pa.study_list
@@ -47,7 +49,9 @@ class TestPhylesystemAPI(unittest.TestCase):
     def testExternalSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='external')
         self._do_sugar_tests(pa)
-    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS, 'only available if you are have a [phylesystem] section with "parent" variable in your peyotl config')
+    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
+                     'only available if you are have a [phylesystem] section with "parent" '\
+                     'variable in your peyotl config')
     def testLocalSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='local')
         self._do_sugar_tests(pa)
@@ -59,9 +63,10 @@ class TestPhylesystemAPI(unittest.TestCase):
     def testExternalURL(self):
         pa = PhylesystemAPI(self.domains, get_from='api')
         u = pa.get_external_url('pg_10')
-        r = requests.get(u).json()
-        sid = find_val_literal_meta_first(r['nexml'], 'ot:studyId', detect_nexson_version(r))
+        re = requests.get(u).json()
+        sid = find_val_literal_meta_first(re['nexml'], 'ot:studyId', detect_nexson_version(re))
         self.assertTrue(sid in ['10', 'pg_10'])
 
 if __name__ == "__main__":
     unittest.main()
+

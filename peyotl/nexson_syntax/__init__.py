@@ -554,7 +554,7 @@ def convert_nexson_format(blob,
             sort_arbitrarily_ordered_nexson(blob)
         return blob
     if (_is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
-        or _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)):
+      or _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)):
         # go from 0.0 -> 1.0 then the 1.0->1.2 should succeed without nexml...
         blob = convert_nexson_format(blob,
                                      DIRECT_HONEY_BADGERFISH,
@@ -683,36 +683,36 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
     assert vers == '1.2.1'
     nexson = {
         'nexml': {
-        '@about': '#study',
-        '@generator': 'Open Tree API',
-        '@id': 'study',
-        '@nexml2json': vers,
-        '@nexmljson': 'http://purl.org/opentree/nexson',
-        '@version': '0.9',
-        '@xmlns': {
-            '$': 'http://www.nexml.org/2009',
-            'nex': 'http://www.nexml.org/2009',
-            'ot': 'http://purl.org/opentree-terms#',
-            'xsd': 'http://www.w3.org/2001/XMLSchema#',
-            'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-            'xhtml': 'http://www.w3.org/1999/xhtml/vocab#'
-        },
-        '^ot:otusElementOrder': [
-            'otus1',
-        ],
-        'otusById': {
-            'otus1': {
-                'otuById':{},
+            '@about': '#study',
+            '@generator': 'Open Tree API',
+            '@id': 'study',
+            '@nexml2json': vers,
+            '@nexmljson': 'http://purl.org/opentree/nexson',
+            '@version': '0.9',
+            '@xmlns': {
+                '$': 'http://www.nexml.org/2009',
+                'nex': 'http://www.nexml.org/2009',
+                'ot': 'http://purl.org/opentree-terms#',
+                'xsd': 'http://www.w3.org/2001/XMLSchema#',
+                'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+                'xhtml': 'http://www.w3.org/1999/xhtml/vocab#'
             },
-        },
-        '^ot:treesElementOrder': [
-            'trees1',
-        ],
-        'treesById': {
-            'trees1': {
-                '@otus': 'otus1',
-                '^ot:treeElementOrder':[],
-                'treeById': {},
+            '^ot:otusElementOrder': [
+                'otus1',
+            ],
+            'otusById': {
+                'otus1': {
+                    'otuById':{},
+                },
+            },
+            '^ot:treesElementOrder': [
+                'trees1',
+            ],
+            'treesById': {
+                'trees1': {
+                    '@otus': 'otus1',
+                    '^ot:treeElementOrder':[],
+                    'treeById': {},
                 },
             },
         }
@@ -735,7 +735,8 @@ def quote_newick_name(s, needs_quotes_pattern=_NEWICK_NEEDING_QUOTING):
     return s
 
 def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
-    '''`leaf_labels` is a (list, dict) pair where the list is the order encountered, and the dict maps name to index in the list
+    '''`leaf_labels` is a (list, dict) pair where the list is the order encountered,
+    and the dict maps name to index in the list
     '''
     otu_id = node['@otu']
     otu = otu_group[otu_id]
@@ -973,7 +974,9 @@ def extract_tree(nexson, tree_id, schema, subtree_id=None):
     try:
         assert schema.format_str in ['newick', 'nexus']
     except:
-        raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
+        f = 'Only newick tree export with tip labeling as one of "{}" is currently supported'
+        m = f.format('", "'.join(PhyloSchema._NEWICK_PROP_VALS))
+        raise ValueError(m)
     i_t_o_list = extract_tree_nexson(nexson, tree_id, None)
     if schema.format_str == 'newick':
         tree_str_list = [convert_tree(i, t, o, schema, subtree_id=subtree_id) for i, t, o in i_t_o_list]
@@ -1005,3 +1008,4 @@ def extract_supporting_file_messages(nexson):
         for tree in tree_group.get('treeById', {}).values():
             m_list.extend(_get_supporting_file_messages_for_this_obj(tree))
     return m_list
+

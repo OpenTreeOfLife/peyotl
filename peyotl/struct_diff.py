@@ -255,7 +255,7 @@ class ListElModification(ListEdit):
     def __init__(self, src_ind, obj):
         ListEdit.__init__(self, src_ind, obj)
     def __repr__(self):
-        return 'ListElModification({s}, {o}, {d})'.format(s=self.src_index,
+        return 'ListElModification({s}, {o})'.format(s=self.src_index,
                                                           o=repr(self.obj))
     def __str__(self):
         return repr(self)

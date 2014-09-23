@@ -42,7 +42,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
     def domain(self):
         return self._domain
     @domain.setter
-    def domain(self, d):
+    def domain(self, d):#pylint: disable=W0221
         self._domain = d
         self._prefix = '{d}/phylesystem/v1'.format(d=d)
     @property

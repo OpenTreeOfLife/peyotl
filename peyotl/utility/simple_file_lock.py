@@ -57,10 +57,11 @@ class LockPolicy(object):
     def remove_lock(self):
         try:
             if self.curr_lockfile and self.curr_owns_lock:
-                self._remove_lock(self.curr_lockfile)
+                LockPolicy._remove_lock(self.curr_lockfile)
         finally:
             self._reset_current()
-    def _remove_lock(self, lockfile):
+    @staticmethod
+    def _remove_lock(lockfile):
         if os.path.exists(lockfile):
             os.remove(lockfile)
 

@@ -110,7 +110,7 @@ def _otu_dict_to_otumap(otu_dict):
     return d
 
 def _get_content_id_from(content, **kwargs):
-    if content in PhyloSchema._no_content_id_types:
+    if content in PhyloSchema._no_content_id_types:  #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212 #pylint: disable=W0212#pylint: disable=W0212
         return None
     elif content == 'tree':
         return kwargs.get('tree_id')
@@ -256,7 +256,8 @@ class PhyloSchema(object):
                 if not _is_supported_nexson_vers(self.version):
                     raise ValueError('The "{}" version of NexSON is not supported'.format(self.version))
             except:
-                raise ValueError('Expecting version of NexSON to be specified using "output_nexml2json" argument (or via some other mechanism)')
+                raise ValueError('Expecting version of NexSON to be specified using "output_nexml2json"' \
+                                 'argument (or via some other mechanism)')
         else:
             if self.content in ['meta']:
                 raise ValueError('The "{}" content can only be returned in NexSON'.format(self.content))
@@ -269,7 +270,8 @@ class PhyloSchema(object):
                 if with_ns in PhyloSchema._otu_label_list:
                     self.otu_label = with_ns
                 else:
-                    m = '"otu_label" or "tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list))
+                    f = '"otu_label" or "tip_label" must be one of "{}"'
+                    m = f.format('", "'.join(PhyloSchema._otu_label_list))
                     raise ValueError(m)
             self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
     @property
@@ -282,7 +284,7 @@ class PhyloSchema(object):
             return 'NEXUS'
         elif self.format_code == PhyloSchema.NEWICK:
             return 'Newick'
-    def can_convert_from(self, src_schema=None):
+    def can_convert_from(self, src_schema=None): #pylint: disable=W0613
         if self.format_code == PhyloSchema.NEXSON:
             return self.content != 'subtree'
         if self.content == 'study':
@@ -352,7 +354,8 @@ class PhyloSchema(object):
             src_format = src_schema.format_code
             current_format = src_schema.version
         if not self.can_convert_from():
-            raise NotImplementedError('Conversion of {c} to {d} is not supported'.format(c=self.content, d=self.description))
+            raise NotImplementedError('Conversion of {c} to {d} is not supported'.format(c=self.content,
+                                                                                         d=self.description))
         if src_format != PhyloSchema.NEXSON:
             raise NotImplementedError('Only conversion from NexSON is currently supported')
         if self.format_code == PhyloSchema.NEXSON:
@@ -369,7 +372,7 @@ class PhyloSchema(object):
                                                  self.content_id,
                                                  current_format)
                 d = {}
-                for i, t, o in i_t_o_list:
+                for i, t, o in i_t_o_list: #pylint: disable=W0612
                     d[i] = t
             elif self.content == 'meta':
                 strip_to_meta_only(d, current_format)
@@ -553,8 +556,9 @@ def convert_nexson_format(blob,
         if sort_arbitrary:
             sort_arbitrarily_ordered_nexson(blob)
         return blob
-    if (_is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
-      or _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)):
+    two2zero = _is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
+    zero2two = _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)
+    if two2zero or zero2two:
         # go from 0.0 -> 1.0 then the 1.0->1.2 should succeed without nexml...
         blob = convert_nexson_format(blob,
                                      DIRECT_HONEY_BADGERFISH,
@@ -776,7 +780,7 @@ def convert_tree_to_newick(tree,
                            leaf_labels,
                            needs_quotes_pattern,
                            subtree_id=None):
-    assert label_key in PhyloSchema._NEWICK_PROP_VALS
+    assert label_key in PhyloSchema._NEWICK_PROP_VALS #pylint: disable=W0212
     unlabeled_counter = 0
     ingroup_node_id = tree.get('^ot:inGroupClade')
     if subtree_id:
@@ -975,7 +979,7 @@ def extract_tree(nexson, tree_id, schema, subtree_id=None):
         assert schema.format_str in ['newick', 'nexus']
     except:
         f = 'Only newick tree export with tip labeling as one of "{}" is currently supported'
-        m = f.format('", "'.join(PhyloSchema._NEWICK_PROP_VALS))
+        m = f.format('", "'.join(PhyloSchema._NEWICK_PROP_VALS)) #pylint: disable=W0212
         raise ValueError(m)
     i_t_o_list = extract_tree_nexson(nexson, tree_id, None)
     if schema.format_str == 'newick':

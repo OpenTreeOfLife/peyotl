@@ -19,7 +19,7 @@ def _err_warn_summary(w):
         _add_value_to_dict_bf(d, key, r)
     return d
 
-def _create_message_list(key, w, severity):
+def _create_message_list(key, w, severity): #pylint: disable=W0613
     d = []
     for el in w:
         msg_adapt_inst = el[0]

@@ -1,11 +1,10 @@
 #! /usr/bin/env python
-from peyotl.api import Treemachine, Taxomachine
+from peyotl.api import Treemachine
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
-
 _LOG = get_logger(__name__)
-
+ #pylint: disable=W0713
 class TestTreemachine(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()
@@ -67,7 +66,8 @@ class TestTreemachine(unittest.TestCase):
             r = self.treemachine.mrca(ott_ids=ott_ids)
             self.assertTrue('mrca_node_id' in r)
             print 'node_info is', self.treemachine.node_info(r['mrca_node_id'])
-class Skip:
+_LOG.debug('test to be moved to integration skipped')
+'''class Skip:
     def testSearchForTaxon(self):
         taxomachine = Taxomachine(self.domains)
         anolis_taxon = taxomachine.autocomplete('Anolis')
@@ -75,6 +75,7 @@ class Skip:
         node_id = self.treemachine.get_node_id_for_ott_id(ottId)
         x = self.treemachine.get_synthetic_tree(format='newick', node_id=node_id, max_depth=12)
         #print '{};'.format(x['newick'])
+'''
 
 if __name__ == "__main__":
     unittest.main()

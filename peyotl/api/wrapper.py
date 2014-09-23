@@ -1,11 +1,8 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax import write_as_json
-from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config
 import requests
 import codecs
 import anyjson
-import json
 import os
 from peyotl import get_logger
 _LOG = get_logger(__name__)
@@ -136,7 +133,7 @@ class APIWrapper(object):
         return self._oti
     def wrap_phylesystem_api(self, **kwargs):
         from peyotl.api.phylesystem_api import _PhylesystemAPIWrapper
-        cfrom = get_config('apis', 
+        cfrom = get_config('apis',
                            'phylesystem_get_from',
                            self._phylesystem_api_kwargs.get('get_from'))
         ctrans = get_config('apis',
@@ -216,15 +213,6 @@ class _StudiesServicesWrapper(object):
         return self.oti.find_trees(*valist, **kwargs)
     def properties(self):
         return self.oti.search_terms
-class _TNRSServicesWrapper(object):
-    def __init__(self, taxomachine_wrapper):
-        self.taxomachine = taxomachine_wrapper
-    def match_names(self, *valist, **kwargs):
-        return self.taxomachine.TNRS(*valist, **kwargs)
-    def autocomplete_name(self, *valist, **kwargs):
-        return self.taxomachine.autocomplete(*valist, **kwargs)
-    def contexts(self, *valist, **kwargs):
-        return self.taxomachine.contexts(*valist, **kwargs)
 class _TaxonomyServicesWrapper(object):
     def __init__(self, taxomachine_wrapper):
         self.taxomachine = taxomachine_wrapper
@@ -248,7 +236,7 @@ class _TNRSServicesWrapper(object):
         return self.taxomachine.contexts(*valist, **kwargs)
     def infer_context(self, *valist, **kwargs):
         return self.taxomachine.infer_context(*valist, **kwargs)
-class _StudyServicesWrapper (object):
+class _StudyServicesWrapper(object):
     def __init__(self, phylesystem_api):
         self.phylesytem_wrapper = phylesystem_api
     def get(self, *valist, **kwargs):
@@ -312,18 +300,18 @@ _VERB_TO_METHOD_DICT = {
 class _WSWrapper(object):
     def __init__(self, domain):
         self._domain = domain
-    def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False):
+    def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False): #pylint: disable=W0102
         return self._do_http(url, 'GET', headers=headers, params=params, data=None, text=text)
-    def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
+    def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False): #pylint: disable=W0102
         return self._do_http(url, 'PUT', headers=headers, params=params, data=data, text=text)
-    def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
+    def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False): #pylint: disable=W0102
         return self._do_http(url, 'POST', headers=headers, params=params, data=data, text=text)
-    def json_http_post_raise(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):
+    def json_http_post_raise(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False): #pylint: disable=W0102
         r = self.json_http_post(url, headers=headers, params=params, data=data, text=text)
         if 'error' in r:
             raise ValueError(r['error'])
         return r
-    def _do_http(self, url, verb, headers, params, data, text=False):
+    def _do_http(self, url, verb, headers, params, data, text=False): #pylint: disable=R0201
         if CURL_LOGGER is not None:
             log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)
         func = _VERB_TO_METHOD_DICT[verb]

@@ -100,8 +100,8 @@ else:
                     cov.stop()
                     if not self.no_annotate:
                         cov.annotate(omit=self.omit,
-                                directory=pathmap.TESTS_COVERAGE_SOURCE_DIR)
+                                     directory=pathmap.TESTS_COVERAGE_SOURCE_DIR)
                     if not self.no_html:
                         cov.html_report(omit=self.omit,
-                                directory=pathmap.TESTS_COVERAGE_REPORT_DIR)
+                                        directory=pathmap.TESTS_COVERAGE_REPORT_DIR)
                     cov.report(omit=self.omit)

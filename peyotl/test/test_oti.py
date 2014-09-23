@@ -2,7 +2,6 @@
 from peyotl.api import OTI
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
-import sys
 import unittest
 
 _LOG = get_logger(__name__)

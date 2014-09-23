@@ -62,7 +62,14 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         parent taxon ?
         homonym finder ?
     '''
-    def TNRS(self, names, context_name=None):
+    def TNRS(self,
+             names,
+             context_name=None,
+             id_list=None,
+             fuzzy_matching=False,
+             include_deprecated=False,
+             include_dubious=False,
+             do_approximate_matching=None):
         '''Takes a name and optional contextName returns a list of matches.
         Each match is a dict with:
            'higher' boolean DEF???
@@ -73,17 +80,35 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         '''
         #if context_name is None:
         #    context_name = 'All life'
+        if do_approximate_matching is not None:
+            fuzzy_matching = do_approximate_matching
         if context_name and context_name not in self.valid_contexts:
             raise ValueError('"{}" is not a valid context name'.format(context_name))
         if not (isinstance(names, list) or isinstance(names, tuple)):
             names = [names]
-        uri = '{p}/contextQueryForNames'.format(p=self.prefix)
+        if id_list and len(id_list) != len(names):
+            raise ValueError('"id_list must be the same size as "names"')
         data = {'names': names}
+        if self.use_v1:
+            uri = '{p}/contextQueryForNames'.format(p=self.prefix)
+        else:
+            uri = '{p}/match_names'.format(p=self.prefix)
         if context_name:
-            data['contextName'] = context_name
+            if self.use_v1:
+                data['contextName'] = context_name
+            else:
+                data['context_name'] = context_name
+                if fuzzy_matching:
+                    data['do_approximate_matching'] = True
+                if id_list:
+                    data['ids'] = list(id_list)
+                if include_deprecated:
+                    data['include_deprecated'] = True
+                if include_dubious:
+                    data['include_dubious'] = True
         return self.json_http_post(uri, data=anyjson.dumps(data))
 
-    def autocomplete(self, name, context_name=None):
+    def autocomplete(self, name, context_name=None, include_dubious=False):
         '''Takes a name and optional context_name returns a list of matches.
         Each match is a dict with:
            'higher' boolean DEF???
@@ -94,12 +119,27 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         '''
         if context_name and context_name not in self.valid_contexts:
             raise ValueError('"{}" is not a valid context name'.format(context_name))
-        uri = '{p}/autocompleteBoxQuery'.format(p=self.prefix)
-        data = {'queryString': name}
-        if context_name:
-            data['contextName'] = context_name
+        if self.use_v1:
+            uri = '{p}/autocompleteBoxQuery'.format(p=self.prefix)
+            data = {'queryString': name}
+            if context_name:
+                data['contextName'] = context_name
+        else:
+            uri = '{p}/autocomplete_name'.format(p=self.prefix)
+            data = {'name': name}
+            if context_name:
+                data['context_name'] = context_name
+            if include_dubious:
+                data['include_dubious'] = True
+        return self.json_http_post(uri, data=anyjson.dumps(data))
+    def infer_context(self, names):
+        if self.use_v1:
+            raise NotImplementedError("infer_context not wrapped in v1")
+        uri = '{p}/infer_context'.format(p=self.prefix)
+        data = {'names': names}
         return self.json_http_post(uri, data=anyjson.dumps(data))
     def __init__(self, domain):
+        self.use_v1 = False
         self._contexts = None
         self._valid_contexts = None
         self.prefix = None
@@ -109,15 +149,48 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         self._contexts = None
         self._valid_contexts = None
         self._domain = d
-        self.prefix = '{d}/taxomachine/ext/TNRS/graphdb'.format(d=d)
+        if self.use_v1:
+            self.prefix = '{d}/taxomachine/ext/TNRS/graphdb'.format(d=d)
+        else:
+            self.prefix = '{d}/v2/tnrs'.format(d=d)
+            self.taxonomy_prefix = '{d}/v2/taxonomy'.format(d=d)
     domain = property(_WSWrapper.get_domain, set_domain)
+    def info(self):
+        if self.use_v1:
+            raise NotImplementedError('"about" method not implemented')
+        uri = '{p}/about'.format(p=self.taxonomy_prefix)
+        return self.json_http_post(uri)
+    about = info
+    def taxon(self, ott_id, include_lineage=False):
+        if self.use_v1:
+            raise NotImplementedError('"taxon" method not implemented')
+        data = {'ott_id': int(ott_id), 
+                'include_lineage': bool(include_lineage)}
+        uri = '{p}/taxon'.format(p=self.taxonomy_prefix)
+        return self.json_http_post(uri, data=anyjson.dumps(data))
+    def subtree(self, ott_id):
+        if self.use_v1:
+            raise NotImplementedError('"subtree" method not implemented')
+        data = {'ott_id': int(ott_id), }
+        uri = '{p}/subtree'.format(p=self.taxonomy_prefix)
+        return self.json_http_post(uri, data=anyjson.dumps(data))
+    def lica(self, ott_ids, include_lineage=False):
+        if self.use_v1:
+            raise NotImplementedError('"lica" method not implemented')
+        data = {'ott_ids': [int(i) for i in ott_ids],
+                'include_lineage': bool(include_lineage)}
+        uri = '{p}/lica'.format(p=self.taxonomy_prefix)
+        return self.json_http_post(uri, data=anyjson.dumps(data))
     def contexts(self):
         # Taxonomic name contexts. These are cached in _contexts
         if self._contexts is None:
             self._contexts = self._do_contexts_call()
         return self._contexts
     def _do_contexts_call(self):
-        uri = '{p}/getContextsJSON'.format(p=self.prefix)
+        if self.use_v1:
+            uri = '{p}/getContextsJSON'.format(p=self.prefix)
+        else:
+            uri = '{p}/contexts'.format(p=self.prefix)
         return self.json_http_post(uri)
     def _get_valid_contexts(self):
         if self._valid_contexts is None:

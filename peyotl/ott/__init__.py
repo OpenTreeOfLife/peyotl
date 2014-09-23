@@ -49,7 +49,8 @@ class OTT(object):
         if ott_dir is None:
             ott_dir = get_config('ott', 'parent')
         if ott_dir is None:
-            raise ValueError('Either the ott_dir arg must be used or "parent" must exist in the "[ott]" section of your config (~/.peyotl/config by default)')
+            raise ValueError('Either the ott_dir arg must be used or "parent" must exist in '\
+                             'the "[ott]" section of your config (~/.peyotl/config by default)')
         self.ott_dir = ott_dir
         if not os.path.isdir(self.ott_dir):
             raise ValueError('"{}" is not a directory'.format(self.ott_dir))
@@ -63,7 +64,7 @@ class OTT(object):
         if self._ott_id_to_names is None:
             self._ott_id_to_names = self._load_pickled('ottID2names.pickle')
         return self._ott_id_to_names
-    def create_pickle_files(self, out_dir=None):
+    def create_pickle_files(self, out_dir=None): #pylint: disable=R0914,R0915
         '''
            preorder2tuple.pickle maps a preorder number to a node definition. Each node
                 definition is a tuple of preorder numbers:
@@ -78,7 +79,7 @@ class OTT(object):
             out_dir = self.ott_dir
         taxonomy_file = os.path.join(self.ott_dir, 'taxonomy.tsv')
         if not os.path.isfile(taxonomy_file):
-            raise ValueError('Expecting to find "{}" based on ott_dir of "{}"'.format(taxonomy_file, ott_dir))
+            raise ValueError('Expecting to find "{}" based on ott_dir of "{}"'.format(taxonomy_file, self.ott_dir))
         num_lines = 0
         _LOG.debug('Reading "{f}"...'.format(f=taxonomy_file))
         id2par = {}  # UID to parent UID
@@ -89,7 +90,6 @@ class OTT(object):
                      # where the value for f is a key in flag_set_id2flag_set
         flag_set_id2flag_set = {}
         flag_set2flag_set_id = {}
-        info_fields = set()
         sources = set()
         flag_set = set()
         f_set_id = 0
@@ -104,7 +104,7 @@ class OTT(object):
             uid = int(root_split[0])
             root_ott_id = uid
             assert root_split[1] == ''
-            name, rank, sourceinfo, uniqname, flags = root_split[2:7]
+            name, rank, sourceinfo, uniqname, flags = root_split[2:7] #pylint: disable=W0612
             assert name == 'life'
             assert root_split[7] == '\n'
             assert uid not in id2par
@@ -154,8 +154,7 @@ class OTT(object):
                 par = int(par)
                 assert ls[7] == '\n'
                 assert uid not in id2par
-                if par not in id2par:
-                    import sys; sys.exit(par)
+                assert par in id2par
                 id2par[uid] = par
                 id2name[uid] = name
                 if uniqname:
@@ -200,7 +199,7 @@ class OTT(object):
         synonyms_file = os.path.join(self.ott_dir, 'synonyms.tsv')
         _LOG.debug('Reading "{f}"...'.format(f=synonyms_file))
         if not os.path.isfile(synonyms_file):
-            raise ValueError('Expecting to find "{}" based on ott_dir of "{}"'.format(synonyms_file, ott_dir))
+            raise ValueError('Expecting to find "{}" based on ott_dir of "{}"'.format(synonyms_file, self.ott_dir))
         num_lines = 0
         with codecs.open(synonyms_file, 'rU', encoding='utf-8') as syn_fo:
             it = iter(syn_fo)
@@ -217,7 +216,9 @@ class OTT(object):
                     else:
                         id2name[ott_id] = [n, name]
                 else:
-                    _LOG.debug(u'synonym "{n}" maps to an ott_id ({u}) that was not in the taxonomy!'.format(n=name, u=ott_id))
+                    _f = u'synonym "{n}" maps to an ott_id ({u}) that was not in the taxonomy!'
+                    _m = _f.format(n=name, u=ott_id)
+                    _LOG.debug(_m)
                 num_lines += 1
                 if num_lines % 100000 == 0:
                     _LOG.debug('read {n:d} lines...'.format(n=num_lines))
@@ -251,11 +252,9 @@ class OTT(object):
         name2id = _swap
         _LOG.debug('Making heavy tree')
         tt = make_tree_from_taxonomy(id2par)
-        
         _LOG.debug('preorder numbering nodes')
         root = tt[root_ott_id]
         root.number_tree(0)
-        
         _LOG.debug('creating ott_id <--> preorder maps')
         ott_id2preorder = {}
         preorder2ott_id = {}
@@ -286,8 +285,8 @@ class OTT(object):
     def write_newick(self, out, taxon):
         pass
 
-def _write_pickle(dir, fn, obj):
-    fp = os.path.join(dir, fn)
+def _write_pickle(directory, fn, obj):
+    fp = os.path.join(directory, fn)
     _LOG.debug('Creating "{p}"'.format(p=fp))
     with open(fp, 'wb') as fo:
         pickle.dump(obj, fo)

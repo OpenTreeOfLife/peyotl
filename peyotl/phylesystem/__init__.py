@@ -198,7 +198,6 @@ class PhylesystemShard(PhylesystemShardBase):
         self.parent_path = os.path.split(path)[0] + '/'
         self.git_dir = dot_git
         self.study_dir = study_dir
- 
         self.push_mirror_repo_path = push_mirror_repo_path
         self._ga_class = git_action_class
         self.git_ssh = git_ssh
@@ -798,7 +797,7 @@ class _Phylesystem(_PhylesystemBase):
                 bundle = validate_and_convert_nexson(new_study_nexson,
                                                      repo_nexml2json,
                                                      allow_invalid=True)
-                nexson, annotation, validation_log, nexson_adaptor = bundle
+                nexson, annotation, validation_log, nexson_adaptor = bundle #pylint: disable=W0612
                 r = self.annotate_and_write(git_data=gd,
                                             nexson=nexson,
                                             study_id=new_study_id,
@@ -869,7 +868,6 @@ class _Phylesystem(_PhylesystemBase):
         for i in self._shards:
             a.extend(i.get_branch_list())
         return a
-        
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,
                 repos_par=None,

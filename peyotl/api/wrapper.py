@@ -127,7 +127,7 @@ class APIWrapper(object):
             self._phylesystem_api_kwargs = dict(phylesystem_api_kwargs)
     @property
     def oti(self):
-        from peyotl.api.oti import _OTIWrapper
+        from peyotl.api.oti import _OTIWrapper #pylint: disable=R0401
         if self._oti is None:
             self._oti = _OTIWrapper(self.domains.oti)
         return self._oti

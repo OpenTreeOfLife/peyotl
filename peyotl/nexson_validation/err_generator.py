@@ -144,8 +144,8 @@ class InvalidKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.INVALID_PROPERTY_VALUE
         self.format = '{p}Invalid or inappropriate key: "{d}"'
-
-class WrongValueTypeWarningType(MessageTupleAdaptor): #pylint: disable=R0921
+#pylint: disable=R0921
+class WrongValueTypeWarningType(MessageTupleAdaptor):
     def write(self, err_tuple, outstream, prefix):
         raise NotImplementedError('WrongValueTypeWarningType.write')
     def convert_data_for_json(self, err_tuple):

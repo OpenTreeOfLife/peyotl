@@ -43,10 +43,17 @@ def iter_trees(nexson, nexson_version=None):
     nex = get_nexml_el(nexson)
     if _is_by_id_hbf(nexson_version):
         trees_group_by_id = nex['treesById']
-        for trees_group_id in nex.get('^ot:treesElementOrder', []):
+        group_order = nex.get('^ot:treesElementOrder', [])
+        if len(group_order) < len(trees_group_by_id):
+            group_order = list(trees_group_by_id.keys())
+            group_order.sort()
+        for trees_group_id in group_order:
             trees_group = trees_group_by_id[trees_group_id]
             tree_by_id = trees_group['treeById']
-            ti_order = trees_group['^ot:treeElementOrder']
+            ti_order = trees_group.get('^ot:treeElementOrder', [])
+            if len(ti_order) < len(tree_by_id):
+                ti_order = list(tree_by_id.keys())
+                ti_order.sort()
             for tree_id in ti_order:
                 tree = tree_by_id[tree_id]
                 yield trees_group_id, tree_id, tree

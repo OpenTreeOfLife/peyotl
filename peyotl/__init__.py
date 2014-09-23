@@ -47,14 +47,3 @@ def gen_otu_dict(nex_obj, nexson_version=None):
             o_dict[oid] = o
     return o_dict
 
-def iter_tree(nex_obj):
-    '''Generator over each tree object in the NexSON object.'''
-    for tb in nex_obj.get('trees', []):
-        for tree in tb.get('tree', []):
-            yield tree
-
-def iter_node(tree):
-    '''Generator over each node object in the tree object.'''
-    for nd in tree.get('node', []):
-        yield nd
-

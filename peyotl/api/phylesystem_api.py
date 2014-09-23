@@ -11,19 +11,16 @@ _LOG = get_logger(__name__)
 _GET_LOCAL, _GET_EXTERNAL, _GET_API = range(3)
 _GET_FROM_VALUES = ('local',    # only from local copy of phylesystem
                     'external', # *DEFAULT* from external URLs
-                    'api',      # from the GET calls of the phylesystem-api
-                    )
+                    'api', )    # from the GET calls of the phylesystem-api
 # TRANSFORM only relevant when get_from is "api"
 _TRANS_CLIENT, _TRANS_SERVER = range(2)
 _TRANSFORM_VALUES = ('client', # *DEFAULT* transform to the desired output format on the client side
-                     'server', # request data transformation take place on the server
-                     )
+                     'server', ) # request data transformation take place on the server
 # REFRESH is only relevant when get_from is "local"
 _REFR_NEVER, _REFR_SESSION, _REFR_ALWAYS = range(3)
 _REFRESH_VALUES = ('never',    # *DEFAULT* never call "git pull"
                    'session',  # call "git pull" before the first access
-                   'always',   # do a "git pull" before each data access
-                   )
+                   'always', ) # do a "git pull" before each data access
 
 class _PhylesystemAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
@@ -64,12 +61,12 @@ class _PhylesystemAPIWrapper(_WSWrapper):
     def get_phylesystem_config(self):
         if self._phylesystem_config is None:
             self._phylesystem_config = self._fetch_phylesystem_config()
-        return self._phylesystem_config 
+        return self._phylesystem_config
     phylesystem_config = property(get_phylesystem_config)
 
     def get_repo_nexml2json(self):
         if self._repo_nexml2json is None:
-            self._repo_nexml2json =  self.phylesystem_config['repo_nexml2json']
+            self._repo_nexml2json = self.phylesystem_config['repo_nexml2json']
         return self._repo_nexml2json
     repo_nexml2json = property(get_repo_nexml2json)
     def get_external_url(self, study_id):
@@ -82,7 +79,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         return self.phylesystem_obj.get_study_ids()
     study_list = property(get_study_list)
     def get_push_failure_state(self):
-        '''Returns a tuple: the boolean for whether or not pushes succeed, and the 
+        '''Returns a tuple: the boolean for whether or not pushes succeed, and the
         entire object returned by a call to push_failure on the phylesystem-api.
         This should only be called with wrappers around remote services (RuntimeError
         will be raised if you call this with a local wrapper.
@@ -109,7 +106,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         r = self.get_study(study_id, schema)
         if schema.content == 'study' and schema.format_str == 'nexson':
             return r
-        if (isinstance(r, dict) and 'data' in r):
+        if isinstance(r, dict) and ('data' in r):
             return r['data']
         return r
 
@@ -121,13 +118,12 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         elif self._src_code == _GET_LOCAL:
             nexson, sha = self.phylesystem_obj.return_study(study_id)
             r = {'data': nexson,
-                    'sha': sha
-                   }
+                 'sha': sha}
         else:
             assert self._src_code == _GET_API
             if self._trans_code == _TRANS_SERVER:
                 if schema is None:
-                    schema = _DEFAULT_SCHEMA
+                    schema = create_content_spec(nexson_version=self.repo_nexml2json)
             r = self._remote_get_study(study_id, schema)
         if (isinstance(r, dict) and 'data' in r) and (self._trans_code == _TRANS_CLIENT) and (schema is not None):
             r['data'] = schema.convert(r['data'])
@@ -168,8 +164,8 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         if commit_msg:
             params['commit_msg'] = commit_msg
         return self.json_http_post(uri,
-                          params=params,
-                          data=anyjson.dumps({'nexson': nexson}))
+                                   params=params,
+                                   data=anyjson.dumps({'nexson': nexson}))
     def put_study(self,
                   study_id,
                   nexson,
@@ -182,8 +178,8 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         if commit_msg:
             params['commit_msg'] = commit_msg
         return self.json_http_put(uri,
-                         params=params,
-                         data=anyjson.dumps({'nexson': nexson}))
+                                  params=params,
+                                  data=anyjson.dumps({'nexson': nexson}))
     def _remote_phylesystem_config(self):
         uri = '{d}/phylesystem_config'.format(d=self._prefix)
         return self.json_http_get(uri)

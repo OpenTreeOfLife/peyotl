@@ -118,6 +118,12 @@ class APIWrapper(object):
         self._taxomachine = None
         self._treemachine = None
         self._oti = None
+        self._tree_of_life_wrapper = None
+        self._graph_wrapper = None
+        self._taxonomy_wrapper = None
+        self._tnrs_wrapper = None
+        self._studies_wrapper = None
+        self._study_wrapper = None
         if phylesystem_api_kwargs is None:
             self._phylesystem_api_kwargs = {}
         else:
@@ -170,6 +176,105 @@ class APIWrapper(object):
             self._treemachine = _TreemachineAPIWrapper(self.domains.treemachine)
         return self._treemachine
     treemachine = property(get_treemachine)
+    def get_tree_of_life_wrapper(self):
+        if self._tree_of_life_wrapper is None:
+            self._tree_of_life_wrapper = _TreeOfLifeServicesWrapper(self.treemachine)
+        return self._tree_of_life_wrapper
+    tree_of_life = property(get_tree_of_life_wrapper)
+    def get_graph_wrapper(self):
+        if self._graph_wrapper is None:
+            self._graph_wrapper = _GraphOfLifeServicesWrapper(self.treemachine)
+        return self._graph_wrapper
+    graph = property(get_graph_wrapper)
+    def get_study_wrapper(self):
+        if self._study_wrapper is None:
+            self._study_wrapper = _StudyServicesWrapper(self.phylesystem_api)
+        return self._study_wrapper
+    study = property(get_study_wrapper)
+    def get_tnrs_wrapper(self):
+        if self._tnrs_wrapper is None:
+            self._tnrs_wrapper = _TNRSServicesWrapper(self.taxomachine)
+        return self._tnrs_wrapper
+    tnrs = property(get_tnrs_wrapper)
+    def get_taxonomy_wrapper(self):
+        if self._taxonomy_wrapper is None:
+            self._taxonomy_wrapper = _TaxonomyServicesWrapper(self.taxomachine)
+        return self._taxonomy_wrapper
+    taxonomy = property(get_taxonomy_wrapper)
+    def get_studies_wrapper(self):
+        if self._studies_wrapper is None:
+            self._studies_wrapper = _StudiesServicesWrapper(self.oti)
+        return self._studies_wrapper
+    studies = property(get_studies_wrapper)
+
+class _StudiesServicesWrapper(object):
+    def __init__(self, oti_wrapper):
+        self.oti = oti_wrapper
+    def find_studies(self, *valist, **kwargs):
+        return self.oti.find_studies(*valist, **kwargs)
+    def find_trees(self, *valist, **kwargs):
+        return self.oti.find_trees(*valist, **kwargs)
+    def properties(self):
+        return self.oti.search_terms
+class _TNRSServicesWrapper(object):
+    def __init__(self, taxomachine_wrapper):
+        self.taxomachine = taxomachine_wrapper
+    def match_names(self, *valist, **kwargs):
+        return self.taxomachine.TNRS(*valist, **kwargs)
+    def autocomplete_name(self, *valist, **kwargs):
+        return self.taxomachine.autocomplete(*valist, **kwargs)
+    def contexts(self, *valist, **kwargs):
+        return self.taxomachine.contexts(*valist, **kwargs)
+class _TaxonomyServicesWrapper(object):
+    def __init__(self, taxomachine_wrapper):
+        self.taxomachine = taxomachine_wrapper
+    def about(self, *valist, **kwargs):
+        return self.taxomachine.about(*valist, **kwargs)
+    info = about
+    def lica(self, *valist, **kwargs):
+        return self.taxomachine.lica(*valist, **kwargs)
+    def subtree(self, *valist, **kwargs):
+        return self.taxomachine.subtree(*valist, **kwargs)
+    def taxon(self, *valist, **kwargs):
+        return self.taxomachine.taxon(*valist, **kwargs)
+class _TNRSServicesWrapper(object):
+    def __init__(self, taxomachine_wrapper):
+        self.taxomachine = taxomachine_wrapper
+    def match_names(self, *valist, **kwargs):
+        return self.taxomachine.TNRS(*valist, **kwargs)
+    def autocomplete_name(self, *valist, **kwargs):
+        return self.taxomachine.autocomplete(*valist, **kwargs)
+    def contexts(self, *valist, **kwargs):
+        return self.taxomachine.contexts(*valist, **kwargs)
+    def infer_context(self, *valist, **kwargs):
+        return self.taxomachine.infer_context(*valist, **kwargs)
+class _StudyServicesWrapper (object):
+    def __init__(self, phylesystem_api):
+        self.phylesytem_wrapper = phylesystem_api
+    def get(self, *valist, **kwargs):
+        return self.phylesytem_wrapper.get(*valist, **kwargs)
+class _GraphOfLifeServicesWrapper(object):
+    def __init__(self, treemachine_wrapper):
+        self.treemachine = treemachine_wrapper
+    def info(self):
+        return self.treemachine.get_graph_info()
+    about = info
+    def source_tree(self, *valist, **kwargs):
+        return self.treemachine.get_source_tree(*valist, **kwargs)
+    def node_info(self, *valist, **kwargs):
+        return self.treemachine.node_info(*valist, **kwargs)
+class _TreeOfLifeServicesWrapper(object):
+    def __init__(self, treemachine_wrapper):
+        self.treemachine = treemachine_wrapper
+    def info(self):
+        return self.treemachine.get_synthetic_tree_info()
+    about = info
+    def mrca(self, *valist, **kwargs):
+        return self.treemachine.mrca(*valist, **kwargs)
+    def subtree(self, *valist, **kwargs):
+        return self.treemachine.get_synthetic_tree(*valist, **kwargs)
+    def induced_subtree(self, *valist, **kwargs):
+        return self.treemachine.induced_subtree(*valist, **kwargs)
 
 _CUTOFF_LEN_DETAILED_VIEW = 500
 def _dict_summary(d, name):

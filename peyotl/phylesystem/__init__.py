@@ -210,7 +210,7 @@ class PhylesystemShard(PhylesystemShardBase):
             if repo_nexml2json == None:
                 repo_nexml2json = self.diagnose_repo_nexml2json()
         self.repo_nexml2json = repo_nexml2json
-        self._rext_study_id = None
+        self._next_study_id = None
         self._study_counter_lock = None
 
     def register_new_study(self, study_id):
@@ -225,7 +225,7 @@ class PhylesystemShard(PhylesystemShardBase):
                 except:
                     pass
 
-    def determine_next_study_id(self):
+    def _determine_next_study_id(self):
         "Return the numeric part of the newest study_id"
         prefix = self._new_study_prefix
         if self._study_counter_lock is None:
@@ -616,7 +616,7 @@ class _Phylesystem(_PhylesystemBase):
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
         self._new_study_prefix = new_study_prefix
-        self._growing_shard.determine_next_study_id()
+        self._growing_shard._determine_next_study_id()
         self.repo_nexml2json = shards[-1].repo_nexml2json
         if with_caching:
             self._cache_region = _make_phylesystem_cache_region()

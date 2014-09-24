@@ -164,8 +164,10 @@ class PhylesystemShard(PhylesystemShardBase):
                  git_ssh=None,
                  pkey=None,
                  git_action_class=GitAction,
-                 push_mirror_repo_path=None):
+                 push_mirror_repo_path=None,
+                 new_study_prefix='ot_'):
         self._index_lock = Lock()
+        self._new_study_prefix = new_study_prefix
         self._ga_class = git_action_class
         self.git_ssh = git_ssh
         self.pkey = pkey
@@ -208,7 +210,7 @@ class PhylesystemShard(PhylesystemShardBase):
             if repo_nexml2json == None:
                 repo_nexml2json = self.diagnose_repo_nexml2json()
         self.repo_nexml2json = repo_nexml2json
-        self._next_study_id = None
+        self._rext_study_id = None
         self._study_counter_lock = None
 
     def register_new_study(self, study_id):
@@ -223,8 +225,9 @@ class PhylesystemShard(PhylesystemShardBase):
                 except:
                     pass
 
-    def determine_next_study_id(self, prefix='ot_'):
+    def determine_next_study_id(self):
         "Return the numeric part of the newest study_id"
+        prefix = self._new_study_prefix
         if self._study_counter_lock is None:
             self._study_counter_lock = Lock()
         n = 0
@@ -240,7 +243,9 @@ class PhylesystemShard(PhylesystemShardBase):
                         pass
         with self._study_counter_lock:
             self._next_study_id = 1 + n
-
+    @property
+    def next_study_id(self):
+        return self._next_study_id
     def diagnose_repo_nexml2json(self):
         with self._index_lock:
             fp = self.study_index.values()[0][2]
@@ -254,19 +259,21 @@ class PhylesystemShard(PhylesystemShardBase):
                               git_ssh=self.git_ssh,
                               pkey=self.pkey,
                               path_for_study_fn=self.filepath_for_study_id_fn)
+    def _mint_new_study_id(self):
+        # studies created by the OpenTree API start with ot_,
+        # so they don't conflict with new study id's from other sources
+        with self._study_counter_lock:
+            c = self._next_study_id
+            self._next_study_id = 1 + c
+        #@TODO. This form of incrementing assumes that
+        #   this codebase is the only service minting
+        #   new study IDs!
+        return "{p}{c:d}".format(p=self._new_study_prefix, c=c)
 
     def create_git_action_for_new_study(self, new_study_id=None):
         ga = self.create_git_action()
         if new_study_id is None:
-            # studies created by the OpenTree API start with ot_,
-            # so they don't conflict with new study id's from other sources
-            with self._study_counter_lock:
-                c = self._next_study_id
-                self._next_study_id = 1 + c
-            #@TODO. This form of incrementing assumes that
-            #   this codebase is the only service minting
-            #   new study IDs!
-            new_study_id = "ot_{c:d}".format(c=c)
+            new_study_id = self._mint_new_study_id()
         fp = ga.path_for_study(new_study_id)
         with self._index_lock:
             self._study_index[new_study_id] = (self.name, self.study_dir, fp)
@@ -517,7 +524,8 @@ class _Phylesystem(_PhylesystemBase):
                  git_ssh=None,
                  pkey=None,
                  git_action_class=GitAction,
-                 mirror_info=None):
+                 mirror_info=None,
+                 new_study_prefix='ot_'):
         '''
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
@@ -574,7 +582,8 @@ class _Phylesystem(_PhylesystemBase):
                                      pkey=pkey,
                                      repo_nexml2json=repo_nexml2json,
                                      git_action_class=git_action_class,
-                                     push_mirror_repo_path=push_mirror_repo_path)
+                                     push_mirror_repo_path=push_mirror_repo_path,
+                                     new_study_prefix=new_study_prefix)
             # if the mirror does not exist, clone it...
             if push_mirror_repos_par and (push_mirror_repo_path is None):
                 GitAction.clone_repo(push_mirror_repos_par,
@@ -606,6 +615,7 @@ class _Phylesystem(_PhylesystemBase):
         self._index_lock = Lock()
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
+        self._new_study_prefix = new_study_prefix
         self._growing_shard.determine_next_study_id()
         self.repo_nexml2json = shards[-1].repo_nexml2json
         if with_caching:
@@ -615,6 +625,11 @@ class _Phylesystem(_PhylesystemBase):
         self.git_action_class = git_action_class
         self._cache_hits = 0
 
+    def _mint_new_study_id(self):
+        return self._growing_shard._mint_new_study_id()
+    @property
+    def next_study_id(self):
+        return self._growing_shard.next_study_id
     def get_shard(self, study_id):
         with self._index_lock:
             return self._study2shard_map[study_id]
@@ -859,7 +874,7 @@ class _Phylesystem(_PhylesystemBase):
         for i in self._shards:
             a.extend(i.get_branch_list())
         return a
-        
+
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,
                 repos_par=None,
@@ -868,7 +883,8 @@ def Phylesystem(repos_dict=None,
                 git_ssh=None,
                 pkey=None,
                 git_action_class=GitAction,
-                mirror_info=None):
+                mirror_info=None,
+                new_study_prefix='ot_'):
     '''Factory function for a _Phylesystem object.
 
     A wrapper around the _Phylesystem class instantiation for
@@ -885,7 +901,8 @@ def Phylesystem(repos_dict=None,
                                         git_ssh=git_ssh,
                                         pkey=pkey,
                                         git_action_class=git_action_class,
-                                        mirror_info=mirror_info)
+                                        mirror_info=mirror_info,
+                                        new_study_prefix=new_study_prefix)
     return _THE_PHYLESYSTEM
 
 # Cache keys:

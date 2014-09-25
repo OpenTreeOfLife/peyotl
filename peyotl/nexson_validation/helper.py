@@ -20,7 +20,7 @@ class SeverityCodes(object):
     facets = ['ERROR', 'WARNING']
     numeric_codes_registered = set(range(len(facets)))
 
-class _NEXEL:
+class _NEXEL: #pylint: disable=C1001
     TOP_LEVEL = 0
     NEXML = 1
     OTUS = 2

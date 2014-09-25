@@ -145,7 +145,8 @@ class LazyAddress(object):
             elif '@idref' in self._full_path:
                 del self._full_path['@idref']
         return self._full_path
-    def get_path(self):
+    @property
+    def path(self):
         if self._path is None:
             if _USING_IDREF_ONLY_PATHS:
                 if self.obj_nex_id is not None:
@@ -180,7 +181,6 @@ class LazyAddress(object):
                 elif '@idref' in self._path:
                     del self._path['@idref']
         return self._path
-    path = property(get_path)
 
 class _ValidationContext(object):
     '''Holds references to the adaptor and logger
@@ -239,7 +239,7 @@ class _ValidationContext(object):
         return ''
 
 class NexsonAnnotationAdder(object):
-    def add_or_replace_annotation(self,
+    def add_or_replace_annotation(self, #pylint: disable=R0201
                                   obj,
                                   annotation,
                                   agent,
@@ -271,7 +271,7 @@ class NexsonAnnotationAdder(object):
         else:
             replace_same_agent_annotation(obj, annotation)
 
-class NexsonValidationAdaptor(NexsonAnnotationAdder):
+class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
     '''An object created during NexSON validation.
     It holds onto the nexson object that it was instantiated for.
     When add_or_replace_annotation is called, it will annotate the
@@ -283,7 +283,6 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
         to efficiently add back to the orignal NexSON object.
     '''
     def __init__(self, obj, logger):
-
         self._raw = obj
         self._nexml = None
         self._pyid_to_nexson_add = {}
@@ -403,11 +402,11 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
                     og = ogid2og_map[ogid]
                     for otu_set in otuid2dup_set:
                         self._warn_event(_NEXEL.OTUS,
-                                          obj=og,
-                                          err_type=gen_MultipleTipsToSameOttIdWarning,
-                                          anc=vc.anc_list,
-                                          obj_nex_id=ogid,
-                                          otu_sets=list(otu_set))
+                                         obj=og,
+                                         err_type=gen_MultipleTipsToSameOttIdWarning,
+                                         anc=vc.anc_list,
+                                         obj_nex_id=ogid,
+                                         otu_sets=list(otu_set))
                 finally:
                     vc.pop_context()
 
@@ -500,11 +499,11 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
             return None
         return k
 
-    def _get_par_element_type(self, c):
+    def _get_par_element_type(self, c): #pylint: disable=R0201
         pc = _NEXEL.CODE_TO_PAR_CODE.get(c)
         return pc
 
-    def _check_meta_id(self, nid, meta_obj, k, container_obj, vc):
+    def _check_meta_id(self, nid, meta_obj, k, container_obj, vc): #pylint: disable=W0613
         robj = self._nexson_id_to_obj.setdefault(nid, meta_obj)
         if robj is meta_obj:
             return True
@@ -542,7 +541,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
         schema = vc.schema
         anc_list = vc.anc_list
         #_LOG.debug('using schema type = ' + vc.schema_name())
-        using_hbf_meta = vc._using_hbf_meta
+        using_hbf_meta = vc._using_hbf_meta #pylint: disable=W0212
         _by_warn_type = {}
         for obj_nex_id, obj in id_obj_list:
             wrong_type = []
@@ -592,11 +591,11 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
                                              key_list=memk)
                     if mrmk:
                         self._error_event(element_type,
-                                         obj=obj,
-                                         err_type=gen_MissingMandatoryKeyWarning,
-                                         anc=anc_list,
-                                         obj_nex_id=obj_nex_id,
-                                         key_list=mrmk)
+                                          obj=obj,
+                                          err_type=gen_MissingMandatoryKeyWarning,
+                                          anc=anc_list,
+                                          obj_nex_id=obj_nex_id,
+                                          key_list=mrmk)
                         msgf = 'missing mandatory meta key(s) according to {s} schema'
                         msg = msgf.format(s=vc.schema_name())
                         return errorReturn(msg)
@@ -611,11 +610,11 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
                                 wrong_type.append((k, v, info))
             if wrong_type:
                 self._error_event(element_type,
-                                 obj=obj,
-                                 err_type=gen_WrongValueTypeWarning,
-                                 anc=anc_list,
-                                 obj_nex_id=obj_nex_id,
-                                 key_val_type_list=wrong_type)
+                                  obj=obj,
+                                  err_type=gen_WrongValueTypeWarning,
+                                  anc=anc_list,
+                                  obj_nex_id=obj_nex_id,
+                                  key_val_type_list=wrong_type)
                 return errorReturn('wrong value type according to {s} schema'.format(s=vc.schema_name()))
             if unrec_non_meta_keys:
                 self._warn_event(element_type,
@@ -650,11 +649,11 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
             off_key = [k for k in schema.REQUIRED_KEY_SET if k not in obj]
             if off_key:
                 self._error_event(element_type,
-                                     obj=obj,
-                                     err_type=gen_MissingMandatoryKeyWarning,
-                                     anc=anc_list,
-                                     obj_nex_id=obj_nex_id,
-                                     key_list=off_key)
+                                  obj=obj,
+                                  err_type=gen_MissingMandatoryKeyWarning,
+                                  anc=anc_list,
+                                  obj_nex_id=obj_nex_id,
+                                  key_list=off_key)
                 return errorReturn('missing key(s) according to {s} schema'.format(s=vc.schema_name()))
         if _by_warn_type:
             for ks, obj_lists in _by_warn_type.items():
@@ -769,7 +768,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
             return False
         return self._post_key_check_validate_otu_id_obj_list(otu_id_obj_list, vc)
 
-    def _post_key_check_validate_otu_id_obj_list(self, otu_id_obj_list, vc):
+    def _post_key_check_validate_otu_id_obj_list(self, otu_id_obj_list, vc): #pylint: disable=W0613,R0201
         return True
     def _post_key_check_validate_tree(self,
                                       tree_nex_id,
@@ -786,3 +785,4 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
 
     def get_nexson_str(self):
         return json.dumps(self._raw, sort_keys=True, indent=0)
+

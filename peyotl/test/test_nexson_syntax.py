@@ -13,7 +13,9 @@ from peyotl.utility import get_logger
 import unittest
 import os
 _LOG = get_logger(__name__)
-
+#pylint does not realize that serialize returns a string, so generates lots of
+#   spurious errors
+#pylint: disable=E1103
 # round trip filename tuples
 RT_DIRS = ['otu', '9', ]
 
@@ -50,14 +52,14 @@ class TestPhyloSchema(unittest.TestCase):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('newick',
                          content='subtree',
-                         content_id=('tree3','node508'),
+                         content_id=('tree3', 'node508'),
                          version='1.2.1')
         x = ps.serialize(o)
         self.assertTrue(x.startswith('('))
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('newick',
                          content='subtree',
-                         content_id=('tree3','ingroup'),
+                         content_id=('tree3', 'ingroup'),
                          version='1.2.1')
         x = ps.serialize(o)
         self.assertTrue(x.startswith('('))

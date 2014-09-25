@@ -4,7 +4,7 @@ import re
 import os
 import locket
 import codecs
-from peyotl import get_logger
+from peyotl.utility import get_logger
 import shutil
 from peyotl.nexson_syntax import write_as_json
 import tempfile #@TEMPORARY for deprecated write_study
@@ -92,7 +92,7 @@ class GitAction(object):
                  remote=None,
                  git_ssh=None,
                  pkey=None,
-                 cache=None,
+                 cache=None, #pylint: disable=W0613
                  path_for_study_fn=None):
         """Create a GitAction object to interact with a Git repository
 
@@ -309,7 +309,11 @@ class GitAction(object):
         if os.path.exists(study_filepath):
             prev_file_sha = self.get_blob_sha_for_file(study_filepath)
             git(self.gitdir, self.gitwd, "rm", "-rf", study_dir)
-            git(self.gitdir, self.gitwd, "commit", author=author, message="Delete Study #%s via OpenTree API" % study_id)
+            git(self.gitdir,
+                self.gitwd,
+                "commit",
+                author=author,
+                message="Delete Study #%s via OpenTree API" % study_id)
         new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip()
         return {'commit_sha': new_sha,
                 'branch': branch,
@@ -467,7 +471,6 @@ class GitAction(object):
             # otherwise raise a 400
             if "nothing to commit" in e.message:#@EJM is this dangerous?
                 _LOG.debug('"nothing to commit" found in error response')
-                pass
             else:
                 _LOG.exception('"git commit" failed')
                 self.reset_hard()

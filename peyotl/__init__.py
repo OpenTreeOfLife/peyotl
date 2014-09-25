@@ -14,7 +14,8 @@ for file_path in phylesystem_studies('parent/of/phylesystem/repo'):
 
 from peyotl.utility import get_config, \
                            expand_path, \
-                           get_logger
+                           get_logger, \
+                           pretty_dict_str
 from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \

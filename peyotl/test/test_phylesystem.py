@@ -27,5 +27,15 @@ class TestPhylesystem(unittest.TestCase):
     def testStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
         print p.get_study_ids()
+    def testNextStudyIds(self):
+        p = _Phylesystem(repos_dict=self.r)
+        nsi = p._mint_new_study_id()
+        self.assertTrue(nsi.startswith('ot_'))
+        r = _Phylesystem(repos_dict=self.r, new_study_prefix='ab_')
+        nsi = r._mint_new_study_id()
+        print nsi
+        self.assertTrue(nsi.startswith('ab_'))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=5)

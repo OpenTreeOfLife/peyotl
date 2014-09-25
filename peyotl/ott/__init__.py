@@ -71,6 +71,12 @@ class OTT(object):
         self.skip_prefixes = ('environmental samples (', 'uncultured (', 'Incertae Sedis (')
         self._ott_id_to_names = None
         self._ott_id2par_ott_id = None
+        self._version = None
+    @property
+    def version(self):
+        if self._version is None:
+            self._version = codecs.open(os.path.join(self.ott_dir, 'version.txt'), 'rU', encoding='utf-8').read().strip()
+        return self._version
     @property
     def taxonomy_filepath(self):
         return os.path.abspath(os.path.join(self.ott_dir, 'taxonomy.tsv'))

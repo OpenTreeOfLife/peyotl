@@ -8,7 +8,11 @@ import json
 import time
 import os
 
-from peyotl.utility.io import open_for_group_write, write_to_filepath, expand_path, download
+from peyotl.utility.io import download, \
+                              expand_path, \
+                              open_for_group_write, \
+                              parse_study_tree_list, \
+                              write_to_filepath
 
 def pretty_timestamp(t=None, style=0):
     if t is None:
@@ -120,17 +124,9 @@ def _get_util_logger():
 
 _CONFIG = None
 _CONFIG_FN = None
-def get_config(section=None, param=None, default=None):
-    '''
-    Returns the config object if `section` and `param` are None, or the
-        value for the requested parameter.
-
-    If the parameter (or the section) is missing, the exception is logged and
-        None is returned.
-    '''
-    global _CONFIG, _CONFIG_FN
-    if _CONFIG is None:
-        from ConfigParser import SafeConfigParser
+def get_default_config_filename():
+    global _CONFIG_FN
+    if _CONFIG_FN is None:
         if 'PEYOTL_CONFIG_FILE' in os.environ:
             _CONFIG_FN = os.environ['PEYOTL_CONFIG_FILE']
         else:
@@ -138,26 +134,63 @@ def get_config(section=None, param=None, default=None):
         if not os.path.exists(_CONFIG_FN):
             from pkg_resources import Requirement, resource_filename
             pr = Requirement.parse('peyotl')
-            try:
-                _CONFIG_FN = resource_filename(pr, 'peyotl/default.conf')
-            except:
-                return default
+            _CONFIG_FN = resource_filename(pr, 'peyotl/default.conf')
         assert os.path.exists(_CONFIG_FN)
-        _CONFIG = SafeConfigParser()
-        _CONFIG.read(_CONFIG_FN)
+    return _CONFIG_FN
+def read_config(filepaths=None):
+    global _CONFIG
+    from ConfigParser import SafeConfigParser
+    if filepaths is None:
+        if _CONFIG is None:
+            _CONFIG = SafeConfigParser()
+            read_files = _CONFIG.read(get_default_config_filename())
+        else:
+            read_files = [get_default_config_filename()]
+        cfg = _CONFIG
+    else:
+        if isinstance(filepaths, list) and None in filepaths:
+            def_fn = get_default_config_filename()
+            f = []
+            for i in filepaths:
+                f.append(def_fn if i is None else i)
+            filepaths = f
+        cfg = SafeConfigParser()
+        read_files = cfg.read(filepaths)
+    return cfg, read_files
+
+def get_config(section=None, param=None, default=None, cfg=None):
+    '''
+    Returns the config object if `section` and `param` are None, or the
+        value for the requested parameter.
+
+    If the parameter (or the section) is missing, the exception is logged and
+        None is returned.
+    '''
+    read_filenames = None
+    if cfg is None:
+        try:
+            cfg, read_filenames = read_config()
+        except:
+            return default
     if section is None and param is None:
-        return _CONFIG
+        return cfg
     try:
-        v = _CONFIG.get(section, param)
+        v = cfg.get(section, param)
         return v
     except:
         if default is None:
-            mf = 'Config file "{f}" does not contain option "{o}"" in section "{s}"\n'
-            msg = mf.format(f=_CONFIG_FN, o=param, s=section)
+            if read_filenames:
+                f = '"{}" '.format('", "'.join(read_filenames))
+            else:
+                f = ''
+            mf = 'Config file {f}does not contain option "{o}"" in section "{s}"\n'
+            msg = mf.format(f=f, o=param, s=section)
             _ulog = _get_util_logger()
             if _ulog is not None:
                 _ulog.error(msg)
         return default
+get_config_var = get_config
+
 def doi2url(v):
     if v.startswith('http'):
         return v
@@ -179,4 +212,20 @@ def write_pretty_dict_str(out, obj, indent=2):
               separators=(',', ': '),
               ensure_ascii=False,
               encoding="utf-8")
+def get_unique_filepath(stem):
+    '''NOT thread-safe!
+    return stems or stem# where # is the smallest
+    positive integer for which the path does not exist.
+    useful for temp dirs where the client code wants an
+    obvious ordering.
+    '''
+    fp = stem
+    if os.path.exists(stem):
+        n = 1
+        fp = stem + str(n)
+        while os.path.exists(fp):
+            n += 1j
+            fp = stem + str(n)
+    return fp
+
 

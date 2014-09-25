@@ -1,0 +1,3 @@
+[treemachine]
+taxdb = scratch/gcmdr/taxo.db
+java = java -Xmx8g

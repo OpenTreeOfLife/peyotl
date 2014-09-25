@@ -82,10 +82,7 @@ class TestOTI(unittest.TestCase):
             self.assertTrue(key in cdict)
         tree_id = cdict['tree_id']
         node_id = str(cdict['root_node_id']) # Odd that this is a string
-        x = self.ot.tree_of_life.subtree(tree_id,
-                                         format='newick',
-                                         node_id=node_id)
-        self.assertTrue(x.keys() == ['error']) # requesting the root is an error.
+        self.assertRaises(ValueError, self.ot.tree_of_life.subtree, tree_id, format='newick', node_id=node_id)
     def testPrunedTree(self):
         ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579, 267484, 128308, 380453, 678579, 883864, 863991, 3898562, 23821, 673540, 122251, 106729, 1084532, 541659]
         r = self.ot.tree_of_life.induced_subtree(ott_ids=ott_ids)

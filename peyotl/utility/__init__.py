@@ -2,7 +2,9 @@
 '''Simple utility functions that do not depend on any other part of
 peyotl.
 '''
+from StringIO import StringIO
 import logging
+import json
 import time
 import os
 
@@ -162,3 +164,19 @@ def doi2url(v):
     if v.startswith('doi:'):
         v = v[4:] # trim doi:
     return 'http://dx.doi.org/' + v
+
+def pretty_dict_str(d, indent=2):
+    '''shows JSON indented representation of d'''
+    b = StringIO()
+    write_pretty_dict_str(b, d, indent=indent)
+    return b.getvalue()
+def write_pretty_dict_str(out, obj, indent=2):
+    '''writes JSON indented representation of obj to out'''
+    json.dump(obj,
+              out,
+              indent=indent,
+              sort_keys=True,
+              separators=(',', ': '),
+              ensure_ascii=False,
+              encoding="utf-8")
+

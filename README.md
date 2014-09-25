@@ -1,4 +1,5 @@
 # ![peyotl](https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/doc/peyotl-logo.png)
+[![Build Status](https://secure.travis-ci.org/OpenTreeOfLife/peyotl.png)](http://travis-ci.org/OpenTreeOfLife/peyotl)
 
 <code>peyotl</code> is a python package written to make it easier to
 interact with the software produced by the [Open Tree of Life project] [1].

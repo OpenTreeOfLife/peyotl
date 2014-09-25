@@ -165,7 +165,7 @@ class PhylesystemShard(PhylesystemShardBase):
                  pkey=None,
                  git_action_class=GitAction,
                  push_mirror_repo_path=None,
-                 new_study_prefix='ot_'):
+                 new_study_prefix=None):
         self._index_lock = Lock()
         self._new_study_prefix = new_study_prefix
         self._ga_class = git_action_class
@@ -182,6 +182,17 @@ class PhylesystemShard(PhylesystemShardBase):
             raise ValueError('"{p}" is not a directory'.format(p=dot_git))
         if not os.path.isdir(study_dir):
             raise ValueError('"{p}" is not a directory'.format(p=study_dir))
+        if self._new_study_prefix is None:
+            prefix_file = os.path.join(path, 'new_study_prefix')
+            if os.path.exists(prefix_file):
+                pre_content = open(prefix_file, 'rU').read().strip()
+                valid_pat = re.compile('^[a-zA-Z0-9]+_$')
+                if len(pre_content) != 3 or not valid_pat.match(pre_content):
+                    raise ValueError('Expecting prefix in new_study_prefix file to be two '\
+                                     'letters followed by an underscore')
+                self._new_study_prefix = pre_content
+            else:
+                self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
         d = create_id2study_info(study_dir, name)
         rc_dict = diagnose_repo_study_id_convention(path)
         self.filepath_for_study_id_fn = rc_dict['fp_fn']
@@ -525,7 +536,7 @@ class _Phylesystem(_PhylesystemBase):
                  pkey=None,
                  git_action_class=GitAction,
                  mirror_info=None,
-                 new_study_prefix='ot_'):
+                 new_study_prefix=None):
         '''
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
@@ -615,7 +626,7 @@ class _Phylesystem(_PhylesystemBase):
         self._index_lock = Lock()
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
-        self._new_study_prefix = new_study_prefix
+        self._new_study_prefix = self._growing_shard._new_study_prefix
         self._growing_shard._determine_next_study_id()
         self.repo_nexml2json = shards[-1].repo_nexml2json
         if with_caching:
@@ -786,8 +797,8 @@ class _Phylesystem(_PhylesystemBase):
                          new_study_id=None):
         placeholder_added = False
         if new_study_id is not None:
-            if new_study_id.startswith('ot_'):
-                raise ValueError('Study IDs with the "ot_" prefix can only be automatically generated.')
+            if new_study_id.startswith(self._new_study_prefix):
+                raise ValueError('Study IDs with the "{}" prefix can only be automatically generated.'.format(self._new_study_prefix))
             if not STUDY_ID_PATTERN.match(new_study_id):
                 raise ValueError('Study ID does not match the expected pattern of alphabeticprefix_numericsuffix')
             with self._index_lock:
@@ -884,7 +895,7 @@ def Phylesystem(repos_dict=None,
                 pkey=None,
                 git_action_class=GitAction,
                 mirror_info=None,
-                new_study_prefix='ot_'):
+                new_study_prefix=None):
     '''Factory function for a _Phylesystem object.
 
     A wrapper around the _Phylesystem class instantiation for

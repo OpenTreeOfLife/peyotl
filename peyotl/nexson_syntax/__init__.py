@@ -45,8 +45,7 @@ _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
                                   BY_ID_HONEY_BADGERFISH,
                                   '0.0',
                                   '1.0',
-                                  '1.2',
-                                  ])
+                                  '1.2', ])
 _LOG = get_logger(__name__)
 
 def iter_otu(nexson, nexson_version=None):
@@ -107,7 +106,7 @@ def _otu_dict_to_otumap(otu_dict):
         for mk in ['^ot:ottId', '^ot:ottTaxonName']:
             mvv = v.get(mk)
             if mvv is not None:
-                        mv[mk] = mvv
+                mv[mk] = mvv
     return d
 
 def _get_content_id_from(content, **kwargs):
@@ -132,7 +131,7 @@ def _sniff_content_from_kwargs(**kwargs):
     if c_id is not None:
         s_id = kwargs.get('subtree_id')
         if s_id is None:
-            s_id =  kwargs.get('node_id')
+            s_id = kwargs.get('node_id')
         if s_id is None:
             return 'tree', c_id
         return 'subtree', (c_id, s_id)
@@ -148,7 +147,7 @@ def create_content_spec(**kwargs):
     '''Sugar. factory for a PhyloSchema object.
 
     Repackages the kwargs to kwargs for PhyloSchema so that our
-    PhyloSchema.__init__ does not have to be soo rich 
+    PhyloSchema.__init__ does not have to be soo rich
     '''
     format_str = kwargs.get('format', 'nexson')
     nexson_version = kwargs.get('nexson_version', 'native')
@@ -179,10 +178,10 @@ class PhyloSchema(object):
         1. generate type conversion errors up front when some one requests
             a particular coercion. For example, this allows the phylesystem
             api to raise an error before it fetches the data in cases in which
-            the user is requesting a format/content combination is not 
+            the user is requesting a format/content combination is not
             currently supported (or not possible)
         2. allow that agreed-upon coercion to be done later with a simple
-            call to convert or serialize. So the class acts like a closure 
+            call to convert or serialize. So the class acts like a closure
             that can transform any nexson to the desired format (if NexSON
             has the necessary content)
     '''
@@ -195,20 +194,19 @@ class PhyloSchema(object):
         '.tre': 'newick',
         '.nwk': 'newick',
     }
-    _otu_label2prop = {'ot:originallabel': '^ot:originalLabel', 
+    _otu_label2prop = {'ot:originallabel': '^ot:originalLabel',
                        'ot:ottid': '^ot:ottId',
-                       'ot:otttaxonname': '^ot:ottTaxonName',
-                       }
+                       'ot:otttaxonname': '^ot:ottTaxonName', }
     _otu_label_list = _otu_label2prop.keys()
     _NEWICK_PROP_VALS = _otu_label2prop.values()
     _no_content_id_types = set(['study', 'meta'])
     _tup_content_id_types = set(['subtree'])
-    _str_content_id_types = set(['tree', 'otus', 'otu', 'otumap'])
-    _content_types = set(['study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree'])
+    _str_content_id_types = set(['tree', 'otus', 'otu', 'otumap', 'file'])
+    _content_types = set(['file', 'study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree'])
     def __init__(self, schema=None, **kwargs):
         '''Checks:
             'schema',
-            'type_ext', then 
+            'type_ext', then
             'output_nexml2json' (implicitly NexSON)
         '''
         self.content = kwargs.get('content', 'study')
@@ -219,7 +217,9 @@ class PhyloSchema(object):
             if self.content_id is not None:
                 raise ValueError('No content_id expected for "{}" content'.format(self.content))
         elif self.content in PhyloSchema._str_content_id_types:
-            if not (self.content_id is None or isinstance(self.content_id, str) or isinstance(self.content_id, unicode)):
+            if not (self.content_id is None
+                    or isinstance(self.content_id, str)
+                    or isinstance(self.content_id, unicode)):
                 raise ValueError('content_id for "{}" content must be a string (if provided)'.format(self.content))
         else:
             is_list = isinstance(self.content_id, list) or isinstance(self.content_id, tuple)
@@ -359,11 +359,11 @@ class PhyloSchema(object):
             d = src
             if self.content == 'study':
                 d = convert_nexson_format(src,
-                                      out_nexson_format=self.version,
-                                      current_format=current_format,
-                                      remove_old_structs=True,
-                                      pristine_if_invalid=False,
-                                      sort_arbitrary=False)
+                                          out_nexson_format=self.version,
+                                          current_format=current_format,
+                                          remove_old_structs=True,
+                                          pristine_if_invalid=False,
+                                          sort_arbitrary=False)
             elif self.content in ('tree', 'subtree'):
                 i_t_o_list = extract_tree_nexson(d,
                                                  self.content_id,
@@ -821,7 +821,7 @@ def convert_tree_to_newick(tree,
                 curr_edge, curr_sib_list = next_p[1], te
                 curr_node_id = curr_edge['@target']
         if not going_tipward:
-            next_up_edge_id= None
+            next_up_edge_id = None
             while True:
                 if curr_sib_list:
                     out.write(',')
@@ -839,7 +839,6 @@ def convert_tree_to_newick(tree,
                     _write_newick_edge_len(out, curr_edge)
                     if ingroup_node_id == curr_node_id:
                         out.write('[post-ingroup-marker]')
-                
                 else:
                     break
             if next_up_edge_id is None:
@@ -944,7 +943,7 @@ def extract_otu_nexson(nexson, otu_id, curr_version):
     return None
 
 def extract_tree_nexson(nexson, tree_id, curr_version=None):
-    '''Returns a list of (id, tree, otus_group) tuples for the 
+    '''Returns a list of (id, tree, otus_group) tuples for the
     specified tree_id (all trees if tree_id is None)
     '''
     if curr_version is None:
@@ -974,7 +973,6 @@ def extract_tree(nexson, tree_id, schema, subtree_id=None):
     try:
         assert schema.format_str in ['newick', 'nexus']
     except:
-        raise
         raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
     i_t_o_list = extract_tree_nexson(nexson, tree_id, None)
     if schema.format_str == 'newick':
@@ -982,4 +980,28 @@ def extract_tree(nexson, tree_id, schema, subtree_id=None):
         tree_str_list = [i for i in tree_str_list if i is not None]
         return '\n'.join(tree_str_list)
     return convert_trees(i_t_o_list, schema, subtree_id=subtree_id)
-    
+
+_DEF_MESSAGES_OBJ = {"message": tuple()}
+def _get_supporting_file_messages_for_this_obj(o):
+    m = []
+    for i in o.get('^ot:messages', _DEF_MESSAGES_OBJ).get("message", []):
+        if i.get("@code") == "SUPPORTING_FILE_INFO":
+            m.append(i)
+    return m
+
+def extract_supporting_file_messages(nexson):
+    curr_version = detect_nexson_version(nexson)
+    if not _is_by_id_hbf(curr_version):
+        nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
+    nex = nexson['nexml']
+    m_list = []
+    m_list.extend(_get_supporting_file_messages_for_this_obj(nex))
+    for otus in nex.get('otusById', {}).values():
+        m_list.extend(_get_supporting_file_messages_for_this_obj(otus))
+        for otu in otus.get('otuById', {}).values():
+            m_list.extend(_get_supporting_file_messages_for_this_obj(otu))
+    for tree_group in nex.get('treesById', {}).values():
+        m_list.extend(_get_supporting_file_messages_for_this_obj(tree_group))
+        for tree in tree_group.get('treeById', {}).values():
+            m_list.extend(_get_supporting_file_messages_for_this_obj(tree))
+    return m_list

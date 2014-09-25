@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+from peyotl.api import APIWrapper
+from peyotl import pretty_dict_str
+import sys
+taxo = APIWrapper().taxonomy
+for n in sys.argv[1:]:
+    print pretty_dict_str(taxo.taxon(int(n)))

@@ -5,3 +5,4 @@ peyotl/test/data/mini_system
 env
 dist
 *~
+peyotl/test/data/shared-api-tests

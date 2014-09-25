@@ -86,7 +86,7 @@ class GraphCommander(object):
     @property
     def taxonomy_db(self):
         if self._taxonomy_db is None:
-            self._taxonomy_db = self._get_config_var('taxonomy_db', 'treemachine', 'taxdb')
+            self._taxonomy_db = self._get_config_var('taxonomy_db', 'treemachine', 'tax_db')
         return self._taxonomy_db
     def _remove_filepath(self, fp):
         if os.path.exists(fp):

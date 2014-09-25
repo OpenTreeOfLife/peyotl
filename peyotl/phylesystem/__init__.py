@@ -171,12 +171,10 @@ class PhylesystemShard(PhylesystemShardBase):
                  push_mirror_repo_path=None,
                  new_study_prefix=None):
         PhylesystemShardBase.__init__(self, name)
-        self._index_lock = Lock()
         self._new_study_prefix = new_study_prefix
         self._ga_class = git_action_class
         self.git_ssh = git_ssh
         self.pkey = pkey
-        self.name = name
         path = os.path.abspath(path)
         dot_git = os.path.join(path, '.git')
         study_dir = os.path.join(path, 'study')
@@ -217,9 +215,6 @@ class PhylesystemShard(PhylesystemShardBase):
         self.git_dir = dot_git
         self.study_dir = study_dir
         self.push_mirror_repo_path = push_mirror_repo_path
-        self._ga_class = git_action_class
-        self.git_ssh = git_ssh
-        self.pkey = pkey
         if repo_nexml2json is None:
             try:
                 repo_nexml2json = get_config('phylesystem', 'repo_nexml2json')

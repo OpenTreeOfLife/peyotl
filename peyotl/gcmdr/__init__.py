@@ -180,6 +180,16 @@ class GraphCommander(PropertiesFromConfig):
     tree_log = taxonomy_db
     treemachine_jar = taxonomy_db
     # end dummy property defs
+    def write_used_config(self, filename):
+        import ConfigParser
+        config = ConfigParser.ConfigParser()
+        for k, v in self._used_var.items():
+            val, sect, param = v
+            if not config.has_section(sect):
+                config.add_section(sect)
+            config.set(sect, param, val)
+        with open(filename, 'wb') as cfgfile:
+            config.write(cfgfile)
     @property
     def ott(self):
         if self._ott is None:

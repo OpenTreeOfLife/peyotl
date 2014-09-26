@@ -22,6 +22,6 @@ gcmdr_script="${peyotl_dir}/scripts/gcmdr.py"
 #"$gcmdr_script" -c "${config}" synthesize
 #"$gcmdr_script" -c "${config}" extractSynthesis
 
-"$gcmdr_script" -c "${config}" --studies="${script_dir}/studies.txt" cleanRebuild
+"$gcmdr_script" -c "${config}" --studies="${script_dir}/studies.txt" cleanRebuild -z=out.cfg
 
 

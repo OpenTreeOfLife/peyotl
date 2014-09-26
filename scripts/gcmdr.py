@@ -24,6 +24,11 @@ if __name__ == '__main__':
                                      epilog=_EPILOG)
     parser.add_argument("command",
                         help='a command from: {}'.format(' '.join(commands)))
+    parser.add_argument("-z",
+                        metavar='FILE',
+                        required=False,
+                        help='if specified, it will overwrite the file with INI format of the used' \
+                        'config settings at the end of the run')
     parser.add_argument("--reinitialize",
                         action='store_true',
                         help='if used, with the loadGraph command, the studies database will'\
@@ -78,3 +83,5 @@ if __name__ == '__main__':
         gcmdr.load_graph(tree_list, reinitialize=True)
         gcmdr.synthesize()
         gcmdr.extract_synthesis()
+    if args.z:
+        gcmdr.write_used_config(args.z)

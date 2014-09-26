@@ -67,12 +67,15 @@ def validate_and_convert_nexson(nexson, output_version, allow_invalid):
     return nexson, annotation, validation_log, nexson_adaptor
 
 
-def _pull_gh(git_action, branch_name):#
+def _pull_gh(git_action, remote, branch_name):#
     try:
         git_env = git_action.env()
         # TIMING = api_utils.log_time_diff(_LOG, 'lock acquisition', TIMING)
-        git(git_action.gitdir, "fetch", git_action.repo_remote, _env=git_env)
-        git(git_action.gitdir, git_action.gitwd, "merge", git_action.repo_remote + '/' + branch_name, _env=git_env)
+        git(git_action.gitdir, "fetch", remote, _env=git_env)
+        git(git_action.gitdir, git_action.gitwd, "merge", remote + '/' + branch_name, _env=git_env)
+        _LOG.debug('performed a git pull from branch "{b}" of "{r}" in "{d}"'.format(r=remote,
+                                                                                     b=branch_name,
+                                                                                     d=git_action.gitwd))
         # TIMING = api_utils.log_time_diff(_LOG, 'git pull', TIMING)
     except Exception, e:
         # We can ignore this if the branch doesn't exist yet on the remote,

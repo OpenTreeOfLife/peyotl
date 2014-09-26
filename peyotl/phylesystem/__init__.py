@@ -281,15 +281,14 @@ class PhylesystemShard(PhylesystemShardBase):
                               git_ssh=self.git_ssh,
                               pkey=self.pkey,
                               path_for_study_fn=self.filepath_for_study_id_fn)
-    def pull(self, branch_name='master'):
+    def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:
             ga = self.create_git_action()
             from peyotl.phylesystem.git_workflows import _pull_gh
-            _pull_gh(ga, branch_name)
+            _pull_gh(ga, remote, branch_name)
             self._locked_refresh_study_ids()
 
 
-            
     def _mint_new_study_id(self):
         # studies created by the OpenTree API start with ot_,
         # so they don't conflict with new study id's from other sources
@@ -886,10 +885,10 @@ class _Phylesystem(_PhylesystemBase):
         for shard in self._shards:
             for study_id, blob in shard.iter_study_filepaths(**kwargs):
                 yield study_id, blob
-    def pull(self, branch_name='master'):
+    def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:
             for shard in self._shards:
-                studies = shard.pull()
+                studies = shard.pull(remote=remote, branch_name=branch_name)
             self._locked_refresh_study_ids()
 
     def report_configuration(self):

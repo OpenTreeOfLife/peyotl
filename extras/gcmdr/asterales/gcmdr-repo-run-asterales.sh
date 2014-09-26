@@ -17,5 +17,6 @@ peyotl_dir=$(dirname "${extras_dir}")
 gcmdr_script="${peyotl_dir}/scripts/gcmdr.py"
 
 #"$gcmdr_script" -c "${config}" taxonomy
-"$gcmdr_script" -c "${config}" --studies="${script_dir}/studies.txt" fetchNexsons
+#"$gcmdr_script" -c "${config}" --studies="${script_dir}/studies.txt" fetchNexsons --download
+"$gcmdr_script" -c "${config}" --studies="${script_dir}/studies.txt" loadGraph --reinitialize
 

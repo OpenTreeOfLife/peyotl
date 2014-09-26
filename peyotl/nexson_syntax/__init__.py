@@ -143,6 +143,9 @@ def _sniff_content_from_kwargs(**kwargs):
         return 'otu', c_id
     return 'study', None
 
+def get_git_sha(blob):
+    return blob['sha']
+
 def create_content_spec(**kwargs):
     '''Sugar. factory for a PhyloSchema object.
 

@@ -19,8 +19,9 @@
     api.opentreeoflife.org repository.
 
     The gcmdr functionality in peyotl is a direct port of the gcmdr
-        at https://github.com/OpenTreeOfLife/gcmdr
-    by Stephen A. Smith and Joseph W. Brown
+    from https://github.com/OpenTreeOfLife/gcmdr with lots of code
+    copyied over. That code was written by Stephen A. Smith 
+    and Joseph W. Brown
 
 ----------
 

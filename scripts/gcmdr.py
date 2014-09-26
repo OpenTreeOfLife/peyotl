@@ -16,14 +16,23 @@ if __name__ == '__main__':
     GCMDR_CONFIG_FILE higher priority than PEYOTL_CONFIG, but lower than
         command-line options
 '''
-    commands = ['taxonomy', 'fetchNexsons']
+    commands = ['taxonomy', 'fetchNexsons', 'loadGraph']
     lc_commands = [i.lower() for i in commands]
-    requires_studies = ['fetchnexsons']
+    requires_studies = ['fetchnexsons', 'loadgraph']
     parser = argparse.ArgumentParser(description=_HELP_MESSAGE,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=_EPILOG)
     parser.add_argument("command",
                         help='a command from: {}'.format(' '.join(commands)))
+    parser.add_argument("--reinitialize",
+                        action='store_true',
+                        help='if used, with the loadGraph command, the studies database will'\
+                        'be removed and repopulated with just the taxonomy before studies are loaded')
+    parser.add_argument("--download",
+                        action='store_true',
+                        help='if used, with the fetchNexsons command, the git repo will be refreshed with a pull '\
+                        'the NexSONs are transformed into th form treemachine needs. Without this option, the '\
+                        'studies will be fetched from your local phyleystem repo, but that repo will not be touched.')
     parser.add_argument("--studies",
                         help='filepath to input JSON. Should contain an array of tree specifiers: '\
                         'either strings of the form pg_<#>_<treeid> or objects with "study_id" and '\
@@ -56,4 +65,6 @@ if __name__ == '__main__':
     if cmd == 'taxonomy':
         gcmdr.load_taxonomy()
     elif cmd == 'fetchnexsons':
-        gcmdr.fetch_nexsons(tree_list)
+        gcmdr.fetch_nexsons(tree_list, download=args.download)
+    elif cmd == 'loadgraph':
+        gcmdr.load_graph(tree_list, reinitialize=args.reinitialize)

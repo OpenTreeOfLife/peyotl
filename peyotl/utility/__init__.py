@@ -224,7 +224,7 @@ def get_unique_filepath(stem):
         n = 1
         fp = stem + str(n)
         while os.path.exists(fp):
-            n += 1j
+            n += 1
             fp = stem + str(n)
     return fp
 

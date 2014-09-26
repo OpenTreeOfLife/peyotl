@@ -446,7 +446,7 @@ def _make_phylesystem_cache_region():
             _REGION = region
             return region
         except:
-            _LOG.exception('redis cache set up failed.')
+            _LOG.debug('redis cache set up failed.')
             region = None
     trying_file_dbm = False
     if trying_file_dbm:
@@ -469,7 +469,7 @@ def _make_phylesystem_cache_region():
             _REGION = region
             return region
         except:
-            _LOG.exception('anydbm cache set up failed')
+            _LOG.debug('anydbm cache set up failed')
             _LOG.debug('exception in the configuration of the cache.')
     _LOG.debug('Phylesystem will not use caching')
     return None

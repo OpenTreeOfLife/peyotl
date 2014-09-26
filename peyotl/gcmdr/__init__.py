@@ -10,6 +10,7 @@ import codecs
 import shutil
 import os
 _LOG = get_logger(__name__)
+VERBOSE = True
 def _bail_if_file_not_found(p, fp):
     if not os.path.exists(fp):
         fp = os.path.abspath(fp)
@@ -28,6 +29,10 @@ def _treemachine_start(java_invoc,
 
 def _run(cmd, stdout=None, stderr=subprocess.STDOUT):
     try:
+        if VERBOSE:
+            f = "Calling:\n  '{i}'\nfrom '{d}'..."
+            m = f.format(i="' '".join(cmd), d=os.path.abspath(os.curdir))
+            _LOG.debug(m)
         pr = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
         rc = pr.wait()
     except:
@@ -73,22 +78,34 @@ def treemachine_load_one_tree(java_invoc,
         _run(java_invoc, stdout=logf)
     return sha
 
+def treemachine_map_compat_one_tree(java_invoc, treemachine_jar, db_path, study_id, tree_id, sha):
+    _bail_if_file_not_found('load db', db_path)
+    java_invoc = _treemachine_start(java_invoc, treemachine_jar)
+    tm_key = '{s}_{t}_{g}'.format(s=study_id, t=tree_id, g=sha)
+    java_invoc.extend(['mapcompat', db_path, tm_key])
+    _LOG.debug('calling mapcompat for tree key {}'.format(tm_key))
+    return _run_return_content(java_invoc)
+
+def _run_return_content(invoc):
+    tmpfh, tmpfn = tempfile.mkstemp()
+    os.close(tmpfh)
+    try:
+        with codecs.open(tmpfn, 'w', encoding='utf-8') as tmpfo:
+            _run(invoc, stdout=tmpfo, stderr=subprocess.PIPE)
+        with codecs.open(tmpfn, 'rU', encoding='utf-8') as tmpfo:
+            content = tmpfo.read()
+        return content
+    finally:
+        os.remove(tmpfn)
+
+
 def treemachine_source_explorer(java_invoc, treemachine_jar, db, study_id, tree_id, sha):
     '''Runs sourceexplorer and returns the stdout.'''
     _bail_if_file_not_found('load db', db)
     java_invoc = _treemachine_start(java_invoc, treemachine_jar)
     tm_key = '{s}_{t}_{g}'.format(s=study_id, t=tree_id, g=sha)
     java_invoc.extend(['sourceexplorer', tm_key, db])
-    tmpfh, tmpfn = tempfile.mkstemp()
-    os.close(tmpfh)
-    try:
-        with codecs.open(tmpfn, 'w', encoding='utf-8') as tmpfo:
-            _run(java_invoc, stdout=tmpfo, stderr=subprocess.PIPE)
-        with codecs.open(tmpfn, 'rU', encoding='utf-8') as tmpfo:
-            content = tmpfo.read().strip()
-        return content
-    finally:
-        os.remove(tmpfn)
+    return _run_return_content(java_invoc).strip()
 
 class PropertiesFromConfig(object):
     def __init__(self, config=None, read_config_files=None):
@@ -129,8 +146,11 @@ class GraphCommander(PropertiesFromConfig):
     java_invoc = taxonomy_db
     load_db = taxonomy_db
     log_filepath = taxonomy_db
+    loaded_trees_json = taxonomy_db
     nexson_cache = taxonomy_db
     ott_dir = taxonomy_db
+    synthesis_db = taxonomy_db
+    synth_ott_id = taxonomy_db
     tree_log = taxonomy_db
     treemachine_jar = taxonomy_db
     # end dummy property defs
@@ -179,17 +199,43 @@ class GraphCommander(PropertiesFromConfig):
             nexson = pa.get_study(study_id, schema=schema)
             path = os.path.join(nc, study_id)
             write_as_json(nexson, path)
-    def load_graph(self, tree_list, reinitialize=False, testing=False, report=True):
+    def synthesize(self,
+                   reinitialize=True):
+        synth_db = self.synthesis_db
+
+        log_filepath = self.log_filepath
+        if reinitialize:
+            load_db = self.load_db
+            if os.path.abspath(load_db) != os.path.abspath(synth_db):
+                if not os.path.exists(load_db):
+                    f = 'loading a graph with reinitialize requies that the trees have been loaded into a loading db'
+                    raise RuntimeError(f)
+                self._remove_filepath(synth_db)
+                _LOG.debug('copying "{s}" to "{d}"'.format(s=load_db, d=synth_db))
+                shutil.copytree(load_db, synth_db)
+
+
+    def load_graph(self,
+                   tree_list,
+                   reinitialize=False,
+                   testing=False,
+                   report=True,
+                   map_compat=True):
         tb = self.load_db
         nc = self.nexson_cache
         log_filepath = self.log_filepath
         tree_log = self.tree_log
+        loaded_trees_json = self.loaded_trees_json
         for id_obj in tree_list:
             study_id = id_obj['study_id']
             path = os.path.join(nc, study_id)
             if not os.path.exists(path):
                 f = 'Study file not found at "{p}". All studies must be fetched before they can be loaded.'
                 raise RuntimeError(f.format(p=path))
+        if os.path.exists(loaded_trees_json):
+            loaded = read_as_json(loaded_trees_json)
+        else:
+            loaded = []
         if reinitialize:
             tax_db = self.taxonomy_db
             if os.path.abspath(tax_db) != os.path.abspath(tb):
@@ -199,6 +245,9 @@ class GraphCommander(PropertiesFromConfig):
                 self._remove_filepath(tb)
                 _LOG.debug('copying "{s}" to "{d}"'.format(s=tax_db, d=tb))
                 shutil.copytree(tax_db, tb)
+                if os.path.exists(loaded_trees_json):
+                    os.remove(loaded_trees_json)
+                loaded = []
 
         for id_obj in tree_list:
             study_id = id_obj['study_id']
@@ -211,12 +260,24 @@ class GraphCommander(PropertiesFromConfig):
                                             tree_id,
                                             log_filepath,
                                             testing=testing)
+            loaded.append({'study_id':study_id, 'tree_id': tree_id, 'sha': sha})
+            write_as_json(loaded, loaded_trees_json)
             if report:
                 tree_str = self._report_source_tree(tb, study_id, tree_id, sha)
                 with codecs.open(tree_log, 'a', encoding='utf-8') as tree_fo:
                     tree_fo.write(tree_str)
                     tree_fo.write('\n')
                 print tree_str
+            if map_compat:
+                map_content = treemachine_map_compat_one_tree(self.java_invoc,
+                                                              self.treemachine_jar,
+                                                              tb,
+                                                              study_id,
+                                                              tree_id,
+                                                              sha)
+                with codecs.open(log_filepath, 'a', encoding='utf-8') as log_fo:
+                    log_fo.write(map_content)
+                print map_content
 
     def _report_source_tree(self, db, study_id, tree_id, sha):
         return treemachine_source_explorer(self.java_invoc,
@@ -249,9 +310,12 @@ def monkey_patch_with_config_vars(_class, _properties):
 
 _PROPERTIES = {'java_invoc': ('treemachine', 'java', ['java', '-Xmx8g']),
                'load_db': ('treemachine', 'load_db', None),
+               'loaded_trees_json': ('treemachine', 'loaded_trees_json', None),
                'log_filepath': ('treemachine', 'log', None),
                'nexson_cache': ('treemachine', 'nexson_cache', None),
                'ott_dir': ('ott', 'parent', None),
+               'synth_db': ('treemachine', 'synth_db', None),
+               'synth_ott_id': ('treemachine', 'synth_ott_id', None),
                'taxonomy_db': ('treemachine', 'tax_db', None),
                'tree_log': ('treemachine', 'out_tree_file', None),
                'treemachine_jar': ('treemachine', 'jar', None), }

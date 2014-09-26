@@ -112,7 +112,19 @@ def treemachine_source_explorer(java_invoc, treemachine_jar, db, study_id, tree_
     tm_key = to_treemachine_name(study_id, tree_id, sha)
     java_invoc.extend(['sourceexplorer', tm_key, db])
     return _run_return_content(java_invoc).strip()
-
+def treemachine_extract_synthesis(java_invoc, treemachine_jar, synth_db, synth_ott_id):
+    _bail_if_file_not_found('synthesis db', synth_db)
+    java_invoc = _treemachine_start(java_invoc, treemachine_jar)
+    tmpfh, tmpfn = tempfile.mkstemp()
+    os.close(tmpfh)
+    java_invoc.extend(['extractdrafttree_ottid', synth_ott_id, tmpfn, synth_db])
+    try:
+        _run(java_invoc)
+        with codecs.open(tmpfn, 'rU', encoding='utf-8') as tmpfo:
+            content = tmpfo.read()
+        return content
+    finally:
+        os.remove(tmpfn)
 def treemachine_synthesize(java_invoc, treemachine_jar, synth_db, synth_ott_id, loaded, log_filepath):
     _bail_if_file_not_found('synthesis db', synth_db)
     java_invoc = _treemachine_start(java_invoc, treemachine_jar)
@@ -234,6 +246,18 @@ class GraphCommander(PropertiesFromConfig):
         loaded = read_as_json(loaded_trees_json)
         return treemachine_synthesize(self.java_invoc, self.treemachine_jar, synth_db, synth_ott_id, loaded, log_filepath)
 
+    def extract_synthesis(self):
+        synth_db = self.synthesis_db
+        synth_ott_id = self.synth_ott_id
+        tree_log = self.tree_log
+        tree_str = treemachine_extract_synthesis(self.java_invoc,
+                                                 self.treemachine_jar,
+                                                 synth_db,
+                                                 synth_ott_id)
+        with codecs.open(tree_log, 'a', encoding='utf-8') as tree_fo:
+            tree_fo.write(tree_str)
+            tree_fo.write('\n')
+        print tree_str
 
     def load_graph(self,
                    tree_list,

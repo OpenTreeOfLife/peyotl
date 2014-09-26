@@ -81,7 +81,7 @@ def treemachine_load_one_tree(java_invoc,
 def treemachine_map_compat_one_tree(java_invoc, treemachine_jar, db_path, study_id, tree_id, sha):
     _bail_if_file_not_found('load db', db_path)
     java_invoc = _treemachine_start(java_invoc, treemachine_jar)
-    tm_key = '{s}_{t}_{g}'.format(s=study_id, t=tree_id, g=sha)
+    tm_key = to_treemachine_name(study_id, tree_id, sha)
     java_invoc.extend(['mapcompat', db_path, tm_key])
     _LOG.debug('calling mapcompat for tree key {}'.format(tm_key))
     return _run_return_content(java_invoc)
@@ -98,14 +98,28 @@ def _run_return_content(invoc):
     finally:
         os.remove(tmpfn)
 
+def to_treemachine_name(study_id=None, tree_id=None, sha=None, obj=None):
+    if obj is not None:
+        study_id = obj.get('study_id', study_id)
+        tree_id = obj.get('tree_id', tree_id)
+        sha = obj.get('sha', sha)
+    return '{s}_{t}_{g}'.format(s=study_id, t=tree_id, g=sha)
 
 def treemachine_source_explorer(java_invoc, treemachine_jar, db, study_id, tree_id, sha):
     '''Runs sourceexplorer and returns the stdout.'''
     _bail_if_file_not_found('load db', db)
     java_invoc = _treemachine_start(java_invoc, treemachine_jar)
-    tm_key = '{s}_{t}_{g}'.format(s=study_id, t=tree_id, g=sha)
+    tm_key = to_treemachine_name(study_id, tree_id, sha)
     java_invoc.extend(['sourceexplorer', tm_key, db])
     return _run_return_content(java_invoc).strip()
+
+def treemachine_synthesize(java_invoc, treemachine_jar, synth_db, synth_ott_id, loaded, log_filepath):
+    _bail_if_file_not_found('synthesis db', synth_db)
+    java_invoc = _treemachine_start(java_invoc, treemachine_jar)
+    tm_list = [to_treemachine_name(obj=i) for i in loaded]
+    tm_list.append('taxonomy')
+    java_invoc.extend(['synthesizedrafttreelist_ottid', synth_ott_id, ','.join(tm_list), synth_db])
+    _run(java_invoc, stdout=codecs.open(log_filepath, 'a', encoding='utf-8'))
 
 class PropertiesFromConfig(object):
     def __init__(self, config=None, read_config_files=None):
@@ -202,7 +216,7 @@ class GraphCommander(PropertiesFromConfig):
     def synthesize(self,
                    reinitialize=True):
         synth_db = self.synthesis_db
-
+        synth_ott_id = self.synth_ott_id
         log_filepath = self.log_filepath
         if reinitialize:
             load_db = self.load_db
@@ -213,6 +227,12 @@ class GraphCommander(PropertiesFromConfig):
                 self._remove_filepath(synth_db)
                 _LOG.debug('copying "{s}" to "{d}"'.format(s=load_db, d=synth_db))
                 shutil.copytree(load_db, synth_db)
+        loaded_trees_json = self.loaded_trees_json
+        if not os.path.exists(loaded_trees_json):
+            f = '"{}" does not exist, so I can not tell what studies have been loaded'
+            raise RuntimeError(f.format(loaded_trees_json))
+        loaded = read_as_json(loaded_trees_json)
+        return treemachine_synthesize(self.java_invoc, self.treemachine_jar, synth_db, synth_ott_id, loaded, log_filepath)
 
 
     def load_graph(self,
@@ -314,7 +334,7 @@ _PROPERTIES = {'java_invoc': ('treemachine', 'java', ['java', '-Xmx8g']),
                'log_filepath': ('treemachine', 'log', None),
                'nexson_cache': ('treemachine', 'nexson_cache', None),
                'ott_dir': ('ott', 'parent', None),
-               'synth_db': ('treemachine', 'synth_db', None),
+               'synthesis_db': ('treemachine', 'synthesis_db', None),
                'synth_ott_id': ('treemachine', 'synth_ott_id', None),
                'taxonomy_db': ('treemachine', 'tax_db', None),
                'tree_log': ('treemachine', 'out_tree_file', None),

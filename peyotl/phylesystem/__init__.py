@@ -184,19 +184,31 @@ class PhylesystemShard(PhylesystemShardBase):
             raise ValueError('"{p}" is not a directory'.format(p=dot_git))
         if not os.path.isdir(study_dir):
             raise ValueError('"{p}" is not a directory'.format(p=study_dir))
+        self.path = path
         if self._new_study_prefix is None:
-            prefix_file = os.path.join(path, 'new_study_prefix')
-            if os.path.exists(prefix_file):
-                pre_content = open(prefix_file, 'rU').read().strip()
-                valid_pat = re.compile('^[a-zA-Z0-9]+_$')
-                if len(pre_content) != 3 or not valid_pat.match(pre_content):
-                    raise ValueError('Expecting prefix in new_study_prefix file to be two '\
-                                     'letters followed by an underscore')
-                self._new_study_prefix = pre_content
-            else:
-                self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
-        d = create_id2study_info(study_dir, name)
-        rc_dict = diagnose_repo_study_id_convention(path)
+            self.inferred_study_prefix = True
+            self.infer_study_prefix()
+        else:
+            self.inferred_study_prefix = False
+        self.study_dir = study_dir
+        with self._index_lock:
+            self._locked_refresh_study_ids()
+        self.parent_path = os.path.split(path)[0] + '/'
+        self.git_dir = dot_git
+        self.push_mirror_repo_path = push_mirror_repo_path
+        if repo_nexml2json is None:
+            try:
+                repo_nexml2json = get_config('phylesystem', 'repo_nexml2json')
+            except:
+                pass
+            if repo_nexml2json == None:
+                repo_nexml2json = self.diagnose_repo_nexml2json()
+        self.repo_nexml2json = repo_nexml2json
+        self._next_study_id = None
+        self._study_counter_lock = None
+    def _locked_refresh_study_ids(self):
+        d = create_id2study_info(self.study_dir, self.name)
+        rc_dict = diagnose_repo_study_id_convention(self.path)
         self.filepath_for_study_id_fn = rc_dict['fp_fn']
         self.id_alias_list_fn = rc_dict['id2alias_list']
         if rc_dict['convention'] != 'simple':
@@ -210,21 +222,17 @@ class PhylesystemShard(PhylesystemShardBase):
         else:
             self.has_aliases = False
         self._study_index = d
-        self.path = path
-        self.parent_path = os.path.split(path)[0] + '/'
-        self.git_dir = dot_git
-        self.study_dir = study_dir
-        self.push_mirror_repo_path = push_mirror_repo_path
-        if repo_nexml2json is None:
-            try:
-                repo_nexml2json = get_config('phylesystem', 'repo_nexml2json')
-            except:
-                pass
-            if repo_nexml2json == None:
-                repo_nexml2json = self.diagnose_repo_nexml2json()
-        self.repo_nexml2json = repo_nexml2json
-        self._next_study_id = None
-        self._study_counter_lock = None
+    def infer_study_prefix(self):
+        prefix_file = os.path.join(self.path, 'new_study_prefix')
+        if os.path.exists(prefix_file):
+            pre_content = open(prefix_file, 'rU').read().strip()
+            valid_pat = re.compile('^[a-zA-Z0-9]+_$')
+            if len(pre_content) != 3 or not valid_pat.match(pre_content):
+                raise ValueError('Expecting prefix in new_study_prefix file to be two '\
+                                 'letters followed by an underscore')
+            self._new_study_prefix = pre_content
+        else:
+            self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
 
     def register_new_study(self, study_id):
         pass
@@ -255,7 +263,8 @@ class PhylesystemShard(PhylesystemShardBase):
                     except:
                         pass
         with self._study_counter_lock:
-            self._next_study_id = 1 + n
+            if self._next_study_id is None or (1 + n) > self._next_study_id:
+                self._next_study_id = 1 + n
     @property
     def next_study_id(self):
         return self._next_study_id
@@ -272,6 +281,15 @@ class PhylesystemShard(PhylesystemShardBase):
                               git_ssh=self.git_ssh,
                               pkey=self.pkey,
                               path_for_study_fn=self.filepath_for_study_id_fn)
+    def pull(self, branch_name='master'):
+        with self._index_lock:
+            ga = self.create_git_action()
+            from peyotl.phylesystem.git_workflows import _pull_gh
+            _pull_gh(ga, branch_name)
+            self._locked_refresh_study_ids()
+
+
+            
     def _mint_new_study_id(self):
         # studies created by the OpenTree API start with ot_,
         # so they don't conflict with new study id's from other sources
@@ -625,18 +643,10 @@ class _Phylesystem(_PhylesystemBase):
                     mga.fetch(remote_name)
             shards.append(shard)
 
-
-        d = {}
-        for s in shards:
-            for k in s.study_index.keys():
-                if k in d:
-                    raise KeyError('study "{i}" found in multiple repos'.format(i=k))
-                d[k] = s
-        self._study2shard_map = d
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
-        self._new_study_prefix = self._growing_shard._new_study_prefix
-        self._growing_shard._determine_next_study_id()
+        with self._index_lock:
+            self._locked_refresh_study_ids()
         self.repo_nexml2json = shards[-1].repo_nexml2json
         if with_caching:
             self._cache_region = _make_phylesystem_cache_region()
@@ -644,6 +654,18 @@ class _Phylesystem(_PhylesystemBase):
             self._cache_region = None
         self.git_action_class = git_action_class
         self._cache_hits = 0
+    def _locked_refresh_study_ids(self):
+        '''Assumes that the caller has the _index_lock !
+        '''
+        d = {}
+        for s in self._shards:
+            for k in s.study_index.keys():
+                if k in d:
+                    raise KeyError('study "{i}" found in multiple repos'.format(i=k))
+                d[k] = s
+        self._study2shard_map = d
+        self._new_study_prefix = self._growing_shard._new_study_prefix
+        self._growing_shard._determine_next_study_id()
 
     def _mint_new_study_id(self):
         return self._growing_shard._mint_new_study_id()
@@ -864,6 +886,11 @@ class _Phylesystem(_PhylesystemBase):
         for shard in self._shards:
             for study_id, blob in shard.iter_study_filepaths(**kwargs):
                 yield study_id, blob
+    def pull(self, branch_name='master'):
+        with self._index_lock:
+            for shard in self._shards:
+                studies = shard.pull()
+            self._locked_refresh_study_ids()
 
     def report_configuration(self):
         out = StringIO()

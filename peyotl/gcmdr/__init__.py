@@ -22,8 +22,11 @@ def _treemachine_start(java_invoc,
     return java_invoc
 
 def _run(cmd):
-    pr = subprocess.Popen(cmd)
-    rc = pr.wait()
+    try:
+        pr = subprocess.Popen(cmd)
+        rc = pr.wait()
+    except:
+       rc = -1
     if rc != 0:
         f = "The external program invocation:\n  '{i}'\nfrom '{d}' failed."
         m = f.format(i="' '".join(cmd), d=os.path.abspath(os.curdir))
@@ -39,19 +42,13 @@ def treemachine_load_taxonomy(java_invoc,
     java_invoc.extend(['inittax', ott.taxonomy_filepath, ott.synonyms_filepath, ott.version, taxonomy_db])
     _run(java_invoc)
 
-class GraphCommander(object):
+class PropertiesFromConfig(object):
     def __init__(self, config=None, read_config_files=None):
         if config is None:
             config = read_config()
         self._read_cfg_files = read_config_files
         self._cfg_obj = config
         self._used_var = {}
-        self._taxonomy_db = None
-        self._treemachine_jar = None
-        self._java_invoc = None
-        self._ott_dir = None
-        self._ott = None
-        self._trash_dir = None
     def _get_config_var(self, attr, section, param, default=None):
         value = get_config_var(section, param, default=default, cfg=self._cfg_obj)
         if value is None:
@@ -63,32 +60,27 @@ class GraphCommander(object):
         # store the values that we read, so that we can summarize, what config vars mattered...
         self._used_var[attr] = (value, section, param)
         return value
+class GraphCommander(PropertiesFromConfig):
+    def __init__(self, config=None, read_config_files=None):
+        PropertiesFromConfig.__init__(self, config=config, read_config_files=read_config_files)
+        self._java_invoc = None
+        self._ott_dir = None
+        self._ott = None
+        self._taxonomy_db = None
+        self._treemachine_jar = None
+        self._trash_dir = None
+    def taxonomy_db(self):
+        return ''
+    java_invoc = taxonomy_db
+    ott_dir = taxonomy_db
+    treemachine_jar = taxonomy_db
     @property
     def ott(self):
         if self._ott is None:
             self._ott = OTT(self.ott_dir)
         return self._ott
-    @property
-    def ott_dir(self):
-        if self._ott_dir is None:
-            self._ott_dir = self._get_config_var('ott_dir', 'ott', 'parent')
-        return self._ott_dir
-    @property
-    def java_invoc(self):
-        if self._java_invoc is None:
-            self._java_invoc = self._get_config_var('java_invoc', 'treemachine', 'java', ['java', '-Xmx8g'])
-        return self._java_invoc
-    @property
-    def treemachine_jar(self):
-        if self._treemachine_jar is None:
-            self._treemachine_jar = self._get_config_var('treemachine_jar', 'treemachine', 'jar')
-        return self._treemachine_jar
-    @property
-    def taxonomy_db(self):
-        if self._taxonomy_db is None:
-            self._taxonomy_db = self._get_config_var('taxonomy_db', 'treemachine', 'tax_db')
-        return self._taxonomy_db
     def _remove_filepath(self, fp):
+        assert fp is not None
         if os.path.exists(fp):
             self._remove_existing_filepath(fp)
     def _remove_existing_filepath(self, fp):
@@ -108,4 +100,25 @@ class GraphCommander(object):
         self._remove_filepath(tb)
         treemachine_load_taxonomy(self.java_invoc, self.treemachine_jar, self.ott, tb)
 
+def monkey_patch_with_config_vars(_class, _properties):
+    '''_class will have new read-only properites added.
+    _properties keys will be the names. The
+    value for the key should be (config section, config param name, default)
+    _class should be derived from PropertiesFromConfig
+    '''
+    for prop_name, config_info in _properties.items():
+        real_att_name = '_' + prop_name
+        def getter(self, ran=real_att_name, ci=config_info, pn=prop_name):
+            v = getattr(self, ran, None) 
+            if v is None:
+                v = self._get_config_var(pn, ci[0], ci[1], ci[2])
+                setattr(self, ran, v)
+            return v
+        setattr(GraphCommander, prop_name, property(getter))
 
+_PROPERTIES = {'java_invoc': ('treemachine', 'java', ['java', '-Xmx8g']),
+               'ott_dir': ('ott', 'parent', None),
+               'taxonomy_db': ('treemachine', 'tax_db', None),
+               'treemachine_jar': ('treemachine', 'jar', None), }
+
+monkey_patch_with_config_vars(GraphCommander, _PROPERTIES)

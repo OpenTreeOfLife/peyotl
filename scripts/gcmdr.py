@@ -13,10 +13,10 @@ if __name__ == '__main__':
     _EPILOG = ''' Environmental variables used:
     PEYOTL_CONFIG_FILE (lowest priority settings)
     PEYOTL_LOGGING_LEVEL set to "debug" for more verbose output
-    GCMR_CONFIG_FILE higher priority than PEYOTL_CONFIG, but lower than
+    GCMDR_CONFIG_FILE higher priority than PEYOTL_CONFIG, but lower than
         command-line options
 '''
-    commands = ['taxonomy', ]
+    commands = ['taxonomy', 'fetchNexsons']
     lc_commands = [i.lower() for i in commands]
     parser = argparse.ArgumentParser(description=_HELP_MESSAGE,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -34,13 +34,13 @@ if __name__ == '__main__':
                         required=False,
                         help='config file (highest priority value of settings; this overrides the '\
                         'setting values found in the peyotl config and the values in the config '\
-                        'specified by the GCMR_CONFIG_FILE env var (if used).')
+                        'specified by the GCMDR_CONFIG_FILE env var (if used).')
     args = parser.parse_args()
     cmd = args.command.lower()
     if cmd not in lc_commands:
         sys.exit('Expecting the command to be one of: {}'.format(', '.join(commands)))
     cfg_filepaths = [None] # always read the default peyotl config
-    ecfg = os.environ.get('GCMR_CONFIG_FILE')
+    ecfg = os.environ.get('GCMDR_CONFIG_FILE')
     if ecfg is not None:
         cfg_filepaths.append(ecfg)
     if args.config:
@@ -50,3 +50,5 @@ if __name__ == '__main__':
     gcmdr = GraphCommander(cfg)
     if cmd == 'taxonomy':
         gcmdr.load_taxonomy()
+    elif cmd == 'fetchnexsons':
+        gcmdr.fetch_nexsons()

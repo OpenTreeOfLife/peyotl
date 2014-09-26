@@ -16,9 +16,9 @@ if __name__ == '__main__':
     GCMDR_CONFIG_FILE higher priority than PEYOTL_CONFIG, but lower than
         command-line options
 '''
-    commands = ['taxonomy', 'fetchNexsons', 'loadGraph', 'synthesize', 'extractSynthesis']
+    commands = ['taxonomy', 'fetchNexsons', 'loadGraph', 'synthesize', 'extractSynthesis', 'cleanRebuild']
     lc_commands = [i.lower() for i in commands]
-    requires_studies = ['fetchnexsons', 'loadgraph']
+    requires_studies = ['fetchnexsons', 'loadgraph', 'cleanrebuild']
     parser = argparse.ArgumentParser(description=_HELP_MESSAGE,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=_EPILOG)
@@ -72,3 +72,9 @@ if __name__ == '__main__':
         gcmdr.synthesize()
     elif cmd == 'extractsynthesis':
         print gcmdr.extract_synthesis()
+    elif cmd == 'cleanrebuild':
+        gcmdr.load_taxonomy()
+        gcmdr.fetch_nexsons(tree_list, download=args.download)
+        gcmdr.load_graph(tree_list, reinitialize=True)
+        gcmdr.synthesize()
+        gcmdr.extract_synthesis()

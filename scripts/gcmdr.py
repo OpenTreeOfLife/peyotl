@@ -18,6 +18,7 @@ if __name__ == '__main__':
 '''
     commands = ['taxonomy', 'fetchNexsons']
     lc_commands = [i.lower() for i in commands]
+    requires_studies = ['fetchnexsons']
     parser = argparse.ArgumentParser(description=_HELP_MESSAGE,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=_EPILOG)
@@ -47,8 +48,12 @@ if __name__ == '__main__':
         cfg_filepaths.append(args.config)
     cfg, read_cfg_files = read_config(cfg_filepaths)
     _LOG.debug('read configuration in lowest->highest priority from: "{}"'.format('", "'.join(read_cfg_files)))
-    gcmdr = GraphCommander(cfg)
+    if cmd in requires_studies:
+        if args.studies is None:
+            sys.exit('A list of trees in studies (--studies arg) must be specified when using the "{}" command'.format(cmd))
+        tree_list = parse_study_tree_list(args.studies)
+    gcmdr = GraphCommander(config=cfg, read_config_files=read_cfg_files)
     if cmd == 'taxonomy':
         gcmdr.load_taxonomy()
     elif cmd == 'fetchnexsons':
-        gcmdr.fetch_nexsons()
+        gcmdr.fetch_nexsons(tree_list)

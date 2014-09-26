@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-from peyotl.ott import OTT
 from peyotl.utility import read_config, get_config_var, get_unique_filepath
+from peyotl.nexson_syntax import create_content_spec, write_as_json
+from peyotl.api import PhylesystemAPI
 from peyotl import get_logger
+from peyotl.ott import OTT
 import subprocess
 import os
 _LOG = get_logger(__name__)
@@ -42,6 +44,7 @@ def treemachine_load_taxonomy(java_invoc,
     java_invoc.extend(['inittax', ott.taxonomy_filepath, ott.synonyms_filepath, ott.version, taxonomy_db])
     _run(java_invoc)
 
+
 class PropertiesFromConfig(object):
     def __init__(self, config=None, read_config_files=None):
         if config is None:
@@ -64,21 +67,36 @@ class GraphCommander(PropertiesFromConfig):
     def __init__(self, config=None, read_config_files=None):
         PropertiesFromConfig.__init__(self, config=config, read_config_files=read_config_files)
         self._java_invoc = None
+        self._nexson_cache = None
         self._ott_dir = None
         self._ott = None
         self._taxonomy_db = None
         self._treemachine_jar = None
         self._trash_dir = None
+        self._phylesystem_api = None
+    # this set of dummy functions are replaced by monkey punching below.
+    # the definitions here keep pylint from complaining.
     def taxonomy_db(self):
         return ''
     java_invoc = taxonomy_db
+    nexson_cache = taxonomy_db
     ott_dir = taxonomy_db
     treemachine_jar = taxonomy_db
+    # end dummy property defs
     @property
     def ott(self):
         if self._ott is None:
             self._ott = OTT(self.ott_dir)
         return self._ott
+    @property
+    def phyleystem_api(self):
+        if self._phylesystem_api is None:
+            # trigger helpful message
+            p = self._get_config_var('phylesystem_api_parent', 'phylesystem', 'parent', None)
+            pa = PhylesystemAPI(get_from='local')
+            self._phylesystem_api = pa
+        return self._phylesystem_api
+
     def _remove_filepath(self, fp):
         assert fp is not None
         if os.path.exists(fp):
@@ -99,6 +117,18 @@ class GraphCommander(PropertiesFromConfig):
         tb = self.taxonomy_db
         self._remove_filepath(tb)
         treemachine_load_taxonomy(self.java_invoc, self.treemachine_jar, self.ott, tb)
+    def fetch_nexsons(self, tree_list):
+        nc = self.nexson_cache
+        pa = self.phyleystem_api
+        schema = create_content_spec(nexson_version='0.0.0')
+        for id_obj in tree_list:
+            study_id = id_obj['study_id']
+            nexson = pa.get_study(study_id, schema=schema)
+            path = os.path.join(nc, study_id)
+            write_as_json(nexson, path)
+            
+
+
 
 def monkey_patch_with_config_vars(_class, _properties):
     '''_class will have new read-only properites added.
@@ -117,6 +147,7 @@ def monkey_patch_with_config_vars(_class, _properties):
         setattr(GraphCommander, prop_name, property(getter))
 
 _PROPERTIES = {'java_invoc': ('treemachine', 'java', ['java', '-Xmx8g']),
+               'nexson_cache': ('treemachine', 'nexson_cache', None),
                'ott_dir': ('ott', 'parent', None),
                'taxonomy_db': ('treemachine', 'tax_db', None),
                'treemachine_jar': ('treemachine', 'jar', None), }

@@ -15,8 +15,7 @@ gcmdr_ex_dir=$(dirname "${script_dir}")
 extras_dir=$(dirname "${gcmdr_ex_dir}")
 peyotl_dir=$(dirname "${extras_dir}")
 gcmdr_script="${peyotl_dir}/scripts/gcmdr.py"
-export GCMDR_CONFIG_FILE="${config}"
 
-"$gcmdr_script" taxonomy
-"$gcmdr_script" fetchNexsons
+#"$gcmdr_script" -c "${config}" taxonomy
+"$gcmdr_script" -c "${config}" --studies="${script_dir}/studies.txt" fetchNexsons
 

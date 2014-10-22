@@ -29,3 +29,4 @@ else
     echo "Failed at least one standalone_test."
 fi
 exit $(expr $f + $k + $s)
+

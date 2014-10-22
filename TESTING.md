@@ -1,4 +1,4 @@
-Runnint test.sh will install with:
+Running test.sh will install with:
 
     $ pip install -r requirements.txt
     $ python setup.py develop

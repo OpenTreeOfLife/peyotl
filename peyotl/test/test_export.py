@@ -23,10 +23,20 @@ def _get_pair(par, f, s):
 
 class TestExtract(unittest.TestCase):
 
+    def testNewickExport(self):
+        n = pathmap.nexson_obj('10/pg_10.json')
+        newick = extract_tree(n, 'tree3', PhyloSchema('newick', tip_label='ot:ottTaxonName', bracket_ingroup=True))
+        self.assertTrue('[pre-ingroup-marker' in newick)
+        self.assertTrue('[post-ingroup-marker' in newick)
+        self.assertTrue(newick.startswith('('))
+        newick = extract_tree(n, 'tree3', PhyloSchema('newick', tip_label='ot:ottTaxonName'))
+        self.assertTrue('[pre-ingroup-marker' not in newick)
+        self.assertTrue('[post-ingroup-marker' not in newick)
+        self.assertTrue(newick.startswith('('))
+
     def testTreeExport(self):
         n = pathmap.nexson_obj('10/pg_10.json')
         newick = extract_tree(n, 'tree3', PhyloSchema('nexus', tip_label='ot:ottTaxonName'))
         self.assertTrue(newick.startswith('#'))
-
 if __name__ == "__main__":
     unittest.main()

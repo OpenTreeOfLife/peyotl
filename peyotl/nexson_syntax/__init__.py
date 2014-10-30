@@ -168,7 +168,8 @@ def create_content_spec(**kwargs):
                        format_str=format_str,
                        version=nexson_version,
                        otu_label=otu_label,
-                       repo_nexml2json=kwargs.get('repo_nexml2json'))
+                       repo_nexml2json=kwargs.get('repo_nexml2json'),
+                       bracket_ingroup=bool(kwargs.get('bracket_ingroup', False)))
 
 class PhyloSchema(object):
     '''Simple container for holding the set of variables needed to
@@ -184,6 +185,9 @@ class PhyloSchema(object):
             call to convert or serialize. So the class acts like a closure
             that can transform any nexson to the desired format (if NexSON
             has the necessary content)
+    `bracket_ingroup` is currently only used in newick string export. If True, then
+        [pre-ingroup-marker] and [post-ingroup-marker] comments will surround the ingroup
+        definition in the tree.
     '''
     _format_list = ('newick', 'nexson', 'nexml', 'nexus')
     NEWICK, NEXSON, NEXML, NEXUS = range(4)
@@ -210,6 +214,7 @@ class PhyloSchema(object):
             'output_nexml2json' (implicitly NexSON)
         '''
         self.content = kwargs.get('content', 'study')
+        self.bracket_ingroup = bool(kwargs.get('bracket_ingroup', False))
         self.content_id = kwargs.get('content_id')
         if self.content not in PhyloSchema._content_types:
             raise ValueError('"content" must be one of: "{}"'.format('", "'.join(PhyloSchema._content_types)))
@@ -774,7 +779,8 @@ def convert_tree_to_newick(tree,
                            label_key,
                            leaf_labels,
                            needs_quotes_pattern,
-                           subtree_id=None):
+                           subtree_id=None,
+                           bracket_ingroup=False):
     assert label_key in PhyloSchema._NEWICK_PROP_VALS
     unlabeled_counter = 0
     ingroup_node_id = tree.get('^ot:inGroupClade')
@@ -813,7 +819,7 @@ def convert_tree_to_newick(tree,
             else:
                 te = [(i, e) for i, e in outgoing_edges.items()]
                 te.sort() # produce a consistent rotation... Necessary?
-                if ingroup_node_id == curr_node_id:
+                if bracket_ingroup and (ingroup_node_id == curr_node_id):
                     out.write('[pre-ingroup-marker]')
                 out.write('(')
                 next_p = te.pop(0)
@@ -837,7 +843,7 @@ def convert_tree_to_newick(tree,
                                                  label_key,
                                                  needs_quotes_pattern)
                     _write_newick_edge_len(out, curr_edge)
-                    if ingroup_node_id == curr_node_id:
+                    if bracket_ingroup and (ingroup_node_id == curr_node_id):
                         out.write('[post-ingroup-marker]')
                 else:
                     break
@@ -882,7 +888,8 @@ def convert_tree(tree_id, tree, otu_group, schema, subtree_id=None):
                                     label_key,
                                     leaf_labels,
                                     needs_quotes_pattern,
-                                    subtree_id=subtree_id)
+                                    subtree_id=subtree_id,
+                                    bracket_ingroup=schema.bracket_ingroup)
     if schema.format_str == 'nexus':
         tl = [(quote_newick_name(tree_id, needs_quotes_pattern), newick)]
         return _write_nexus_format(leaf_labels[0], tl)
@@ -901,7 +908,8 @@ def convert_trees(tid_tree_otus_list, schema, subtree_id=None):
                                             label_key,
                                             leaf_labels,
                                             needs_quotes_pattern,
-                                            subtree_id=subtree_id)
+                                            subtree_id=subtree_id,
+                                            bracket_ingroup=schema.bracket_ingroup)
             if newick:
                 t = (quote_newick_name(tree_id, needs_quotes_pattern), newick)
                 conv_tree_list.append(t)

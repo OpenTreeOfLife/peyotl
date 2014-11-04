@@ -33,13 +33,13 @@ Actual biological data, as opposed to purely simulated data, must be used.
 \begin{abstract}
 Motivation:
 The lack of an accessible, reusable, and well curated database has hindered biological research into evolutionary questions.
-The Open Tree of Life project is collating and synthesizing hundreds of phylogenies into a unified tree of life. 
-The base data for for this project are community contributed phylogenies. 
-Via the OpenTree curator tool, these phylogenies are updated to reflect consistent tip names across studies, and accurate rooting. 
+The Open Tree of Life project is curationg phylogenetic estimates and attempting to produce into a unified estimate of the tree of life. 
+Curation primarily entails mapping the tips of published trees to a common taxonomy and determining the correct rooting of the estimates.
+Here we describe the datastore that underlies the collection of input trees.
 Results:
-Using a git-based datastore to hold these phylogenies automatically version controls data as updates are made. 
-In addition, hosting this datastore on GitHub provides a straightforward and familiar method for researchers to access these data. 
-We have developed an API ``Phylesystem'' to implement wrappers around git, interaction with GitHub, and to return readable diffs for complex data structures.
+A record of the history of edits to a published estimate can be preserved by using a datastore base on the git version control system.
+Hosting this datastore on GitHub provides a straightforward and familiar method for researchers to access these data. 
+We have developed a ``phylesystem-api'' to implement wrappers around git, interaction with GitHub, and to return readable diffs for complex data structures.
 Availability:
 Source code for the API is available ...
 The git database is available ...

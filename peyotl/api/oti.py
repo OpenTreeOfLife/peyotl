@@ -177,7 +177,7 @@ class _OTIWrapper(_WSWrapper):
         self._study_search_prop = None
         self.indexing_prefix = None
         self.query_prefix = None
-        self._raw_urls = False #TODO should be configurable
+        self._raw_urls = False
         _WSWrapper.__init__(self, domain)
         self.set_domain(domain)
     def set_domain(self, d):

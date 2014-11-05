@@ -370,7 +370,7 @@ def attempt_to_create_taxonomic_regex_from_lib(save_odd_el_list):
     str_collections = [list() for i in range(nw)]
     _LOG.debug('save_odd_el_list = {}'.format(str(save_odd_el_list)))
     for el in save_odd_el_list:
-        for i in range(1): #TODO should look at more than the first...
+        for i in range(1):
             assert len(el[i]) == nw
             for i, word in enumerate(el[i]):
                 str_collections[i].append(word)

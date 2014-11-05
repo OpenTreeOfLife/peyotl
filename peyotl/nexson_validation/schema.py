@@ -322,7 +322,7 @@ _Exp_NexmlEl_ByI = {'otusById': _VT.DICT,
                    }
 _All_NexmlEl_All = {'@about': _VT.STR,
                     '@generator': _VT.STR,
-                    '@nexmljson': _VT.STR, # TODO: should be the purl. Move to xmlns?
+                    '@nexmljson': _VT.STR,
                     '@version': _VT.STR,
                     '@xmlns': _VT.DICT,
                     '@nexml2json': _VT.STR,

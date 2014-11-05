@@ -143,7 +143,8 @@ class OTT(object):
                 info = {}
             for rown in it:
                 ls = rown.split('\t|\t')
-                uid, par, name, rank, sourceinfo, uniqname, flags = ls[:7]
+                uid, par, name = ls[:3]
+                sourceinfo, uniqname, flags = ls[4:7]
                 skip = False
                 for p in self.skip_prefixes:
                     if uniqname.startswith(p):

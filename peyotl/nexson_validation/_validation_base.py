@@ -41,7 +41,6 @@ def delete_annotation(obj,
 def delete_annotation_from_annot_list(annotation_list, agent_id=None, annot_id=None):
     _LOG.debug('delete_annotation_from_annot_list with agent_id = ' + str(agent_id))
     to_remove_inds = []
-    # TODO should check preserve field...
     if agent_id is not None:
         for n, annot in enumerate(annotation_list):
             if annot.get('@wasAssociatedWithAgentId') == agent_id:
@@ -84,7 +83,6 @@ def get_annotation_list(nex_el, nexson_version):
 
 def replace_annotation_from_annot_list(annotation_list, annotation, agent_id=None, annot_id=None):
     to_remove_inds = []
-    # TODO should check preserve field...
     if agent_id is not None:
         for n, annot in enumerate(annotation_list):
             if annot.get('@wasAssociatedWithAgentId') == agent_id:
@@ -536,7 +534,6 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
         '''
         return self._validate_id_obj_list_by_schema([(obj_nex_id, obj)], vc, group_by_warning=False)
     def _validate_id_obj_list_by_schema(self, id_obj_list, vc, group_by_warning=False):
-        #TODO: should optimize for sets of objects with the same warnings...
         element_type = vc.curr_element_type
         assert element_type is not None
         schema = vc.schema

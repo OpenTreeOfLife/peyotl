@@ -273,9 +273,6 @@ class PhylesystemShard(PhylesystemShardBase):
         with self._study_counter_lock:
             c = self._next_study_id
             self._next_study_id = 1 + c
-        #@TODO. This form of incrementing assumes that
-        #   this codebase is the only service minting
-        #   new study IDs!
         return "{p}{c:d}".format(p=self._new_study_prefix, c=c)
 
     def create_git_action_for_new_study(self, new_study_id=None):
@@ -476,8 +473,6 @@ class _PhylesystemBase(object):
     def get_public_url(self, study_id, branch='master'):
         '''Returns a GitHub URL for the
         '''
-        #@TEMP, TODO. should look in the remote to find this. But then it can be tough to determine
-        #       which (if any) remotes are publicly visible... hmmmm
         name, path_frag = self.get_repo_and_path_fragment(study_id)
         return 'https://raw.githubusercontent.com/OpenTreeOfLife/' + name + '/' + branch + '/' + path_frag
     get_external_url = get_public_url
@@ -493,7 +488,7 @@ class PhylesystemShardProxy(PhylesystemShardBase):
     configuration of a remote Phylesystem
     '''
     def __init__(self, config):
-        self._index_lock = Lock() #TODO should invent a fake lock for the proxies
+        self._index_lock = Lock()
         self.name = config['name']
         self.repo_nexml2json = config['repo_nexml2json']
         self.path = ' ' # mimics place of the abspath of repo in path -> relpath mapping
@@ -512,7 +507,7 @@ class PhylesystemProxy(_PhylesystemBase):
     configuration of a remote Phylesystem
     '''
     def __init__(self, config):
-        self._index_lock = Lock() #TODO should invent a fake lock for the proxies
+        self._index_lock = Lock()
         self.repo_nexml2json = config['repo_nexml2json']
         self._shards = []
         for s in config.get('shards', []):

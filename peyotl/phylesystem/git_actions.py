@@ -92,7 +92,7 @@ class GitAction(object):
                  remote=None,
                  git_ssh=None,
                  pkey=None,
-                 cache=None,
+                 cache=None, #pylint: disable=W0613
                  path_for_study_fn=None):
         """Create a GitAction object to interact with a Git repository
 
@@ -168,7 +168,7 @@ class GitAction(object):
         '''Returns the set of studies that have changed on the master since
         commit `ancestral_commit_sha` or `False` (on an error)
 
-        if `study_ids_to_check` is passed in, it should be an iterable list of 
+        if `study_ids_to_check` is passed in, it should be an iterable list of
             IDs. Only IDs in this list will be returned.
         '''
         try:
@@ -340,7 +340,11 @@ class GitAction(object):
         if os.path.exists(study_filepath):
             prev_file_sha = self.get_blob_sha_for_file(study_filepath)
             git(self.gitdir, self.gitwd, "rm", "-rf", study_dir)
-            git(self.gitdir, self.gitwd, "commit", author=author, message="Delete Study #%s via OpenTree API" % study_id)
+            git(self.gitdir,
+                self.gitwd,
+                "commit",
+                author=author,
+                message="Delete Study #%s via OpenTree API" % study_id)
         new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip()
         return {'commit_sha': new_sha,
                 'branch': branch,
@@ -498,7 +502,6 @@ class GitAction(object):
             # otherwise raise a 400
             if "nothing to commit" in e.message:#@EJM is this dangerous?
                 _LOG.debug('"nothing to commit" found in error response')
-                pass
             else:
                 _LOG.exception('"git commit" failed')
                 self.reset_hard()
@@ -540,3 +543,4 @@ class GitAction(object):
 
     def delete_branch(self, branch):
         git(self.gitdir, self.gitwd, 'branch', '-d', branch)
+

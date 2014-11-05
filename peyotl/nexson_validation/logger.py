@@ -19,7 +19,7 @@ def _err_warn_summary(w):
         _add_value_to_dict_bf(d, key, r)
     return d
 
-def _create_message_list(key, w, severity):
+def _create_message_list(key, w, severity): #pylint: disable=W0613
     d = []
     for el in w:
         msg_adapt_inst = el[0]
@@ -142,13 +142,13 @@ class DefaultRichLogger(object):
 
 
     def prepare_annotation(self,
-                       author_name='',
-                       invocation=tuple(),
-                       author_version=VERSION,
-                       url='https://github.com/OpenTreeOfLife/peyotl',
-                       description=None,
-                       annotation_label=None #@TEMP arg for backward compat.
-                       ):
+                           author_name='',
+                           invocation=tuple(),
+                           author_version=VERSION,
+                           url='https://github.com/OpenTreeOfLife/peyotl',
+                           description=None,
+                           annotation_label=None #@TEMP arg for backward compat.
+                          ):
         if description is None:
             description = "validator of NexSON constraints as well as constraints "\
                           "that would allow a study to be imported into the Open Tree "\
@@ -182,9 +182,9 @@ class DefaultRichLogger(object):
             #'checksPerformed': checks_performed,
             'otherProperty': [
                 {'name': 'pythonVersion',
-                'value': platform.python_version()},
+                 'value': platform.python_version()},
                 {'name': 'pythonImplementation',
-                'value': platform.python_implementation(),
+                 'value': platform.python_implementation(),
                 },
             ]
         }
@@ -221,3 +221,4 @@ class FilteringLogger(ValidationLogger):
                 self.registered.remove(el)
     def is_logging_type(self, t):
         return (t not in self.codes_to_skip) and (t in self.registered)
+

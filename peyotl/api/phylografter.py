@@ -2,6 +2,7 @@
 from cStringIO import StringIO
 from peyotl.api.wrapper import _WSWrapper, APIWrapper, GZIP_REQUEST_HEADERS
 from peyotl.nexson_syntax import write_as_json
+from peyotl.utility import write_to_filepath
 import datetime
 import anyjson
 import requests
@@ -31,7 +32,7 @@ class _PhylografterWrapper(_WSWrapper):
         format
         '''
         if isinstance(since_date, datetime.datetime):
-            since_date = since_date.strftime('%Y-%m-%dT%H:%M:%S')
+            since_date = since_date.strftime('%Y-%m-%dT%H:%M:%S') #pylint: disable=E1103
         uri = self.domain + '/study/modified_list.json/url'
         args = {'from': since_date}
         r = self.json_http_get(uri, params=args)

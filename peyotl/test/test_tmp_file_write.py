@@ -17,7 +17,9 @@ n = read_as_json(pathmap.json_source_path('1003.json'))
 #repodir = phylesystem.get_repos()[reponame]
 
 class TestCreate(unittest.TestCase):
-    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS, 'only available if you are have a [phylesystem] section with "parent" variable in your peyotl config')
+    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
+                     'only available if you are have a [phylesystem] section with' \
+                     ' "parent" variable in your peyotl config')
     def testWriteStudy(self):
         self.reponame = phylesystem.get_repos().keys()[0]
         self.repodir = phylesystem.get_repos()[self.reponame]

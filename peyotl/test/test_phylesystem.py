@@ -6,9 +6,9 @@ import os
 _repos = pathmap.get_test_repos()
 ms, mp = _repos['mini_system'], _repos['mini_phyl']
 
-@unittest.skipIf((not os.path.isdir(ms)) or (not os.path.isdir(ms)) , 
-                'Peyotl not configured for maintainer test of mini_phyl/system. \
-Skipping this test is normal (for everyone other than MTH and EJBM).')
+@unittest.skipIf((not os.path.isdir(ms)) or (not os.path.isdir(ms)),
+                 'Peyotl not configured for maintainer test of mini_phyl/system.' \
+                 'Skipping this test is normal (for everyone other than MTH and EJBM).')
 class TestPhylesystem(unittest.TestCase):
     def setUp(self):
         self.r = dict(_repos)

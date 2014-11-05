@@ -51,7 +51,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
     def get_synthetic_source_list(self):
         uri = '{p}/getSynthesisSourceList'.format(p=self.prefix)
         return self.json_http_post_raise(uri)
-    def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, **kwargs):
+    def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, **kwargs): #pylint: disable=W0622
         if self.use_v1:
             uri = '{p}/getSourceTree'.format(p=self.prefix)
             return self._get_tree(uri, tree_id, format=format, node_id=node_id, max_depth=max_depth)
@@ -64,7 +64,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
                     'study_id': study_id,
                     'tree_id': tree_id}
             return self.json_http_post_raise(uri, data=anyjson.dumps(data))
-    def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, ott_id=None):
+    def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, ott_id=None): #pylint: disable=W0622
         if self.use_v1:
             uri = '{p}/getSyntheticTree'.format(p=self.prefix)
         else:
@@ -77,7 +77,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
                               ott_id=ott_id)
     def node_info(self, node_id=None, ott_id=None, include_lineage=False):
         if self.use_v1:
-            raise NotImplemented('node_info was added in v2 of the API')
+            raise NotImplementedError('node_info was added in v2 of the API')
         uri = '{p}/node_info'.format(p=self.graph_prefix)
         data = {'include_lineage': bool(include_lineage)}
         if node_id and ott_id:
@@ -121,7 +121,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
             uri = '{p}/induced_subtree'.format(p=self.prefix)
         return self.json_http_post_raise(uri, data=anyjson.dumps(data))
     induced_subtree = get_synth_tree_pruned
-    def _get_tree(self, uri, tree_id, format='newick', node_id=None, max_depth=None, ott_id=None):
+    def _get_tree(self, uri, tree_id, format='newick', node_id=None, max_depth=None, ott_id=None): #pylint: disable=W0622
         if tree_id is None:
             tree_id = self.current_synth_tree_id
         if node_id is None and ott_id is None:

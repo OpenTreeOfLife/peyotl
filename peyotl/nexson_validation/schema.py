@@ -64,9 +64,9 @@ class _SchemaFragment(object):
             self.REQUIRED_KEY_SET = frozenset(required_keys + tuple(self.REQUIRED_META_KEY_SET))
             self.EXPECETED_KEY_SET = frozenset(expected_keys + tuple(self.EXPECTED_META_KEY_SET))
             self.ALLOWED_KEY_SET = frozenset(tuple(self.REQUIRED_KEY_SET)
-                                              + tuple(self.EXPECETED_KEY_SET)
-                                              + allowed_keys
-                                              + tuple(['^' + i for i in type_checked_meta.keys()]))
+                                             + tuple(self.EXPECETED_KEY_SET)
+                                             + allowed_keys
+                                             + tuple(['^' + i for i in type_checked_meta.keys()]))
         else:
             for k, v in required_meta.items():
                 self.K2VT[k] = _VT._2BFCheck[v]
@@ -82,9 +82,9 @@ class _SchemaFragment(object):
             self.REQUIRED_KEY_SET = frozenset(required_keys)
             self.EXPECETED_KEY_SET = frozenset(expected_keys)
             self.ALLOWED_KEY_SET = frozenset(('meta', )
-                                              + tuple(self.REQUIRED_KEY_SET)
-                                              + tuple(self.EXPECETED_KEY_SET)
-                                              + allowed_keys)
+                                             + tuple(self.REQUIRED_KEY_SET)
+                                             + tuple(self.EXPECETED_KEY_SET)
+                                             + allowed_keys)
         # for order-dependent
         x = list(self.REQUIRED_META_KEY_SET)
         x.sort()
@@ -306,7 +306,7 @@ _SchemaFragment._VT = _VT
 #   All = all variants
 #   Dir = 1.0.0 ("direct" hbf translation of nexml)
 #   ByI = 1.2   (the "by ID" hbf)
-#   
+#
 _EMPTY_DICT = {}
 ####################################################################
 # nexml element schema
@@ -321,12 +321,12 @@ _Exp_NexmlEl_ByI = {'otusById': _VT.DICT,
                     '^ot:treesElementOrder': _VT.STR_LIST,
                    }
 _All_NexmlEl_All = {'@about': _VT.STR,
-                     '@generator': _VT.STR,
-                     '@nexmljson': _VT.STR, # TODO: should be the purl. Move to xmlns?
-                     '@version': _VT.STR,
-                     '@xmlns': _VT.DICT,
-                     '@nexml2json': _VT.STR,
-                    }
+                    '@generator': _VT.STR,
+                    '@nexmljson': _VT.STR, # TODO: should be the purl. Move to xmlns?
+                    '@version': _VT.STR,
+                    '@xmlns': _VT.DICT,
+                    '@nexml2json': _VT.STR,
+                   }
 _ExpMNexmlEl_All = {'ot:dataDeposit': _VT.HREF,
                     'ot:studyPublication': _VT.HREF,
                     'ot:studyPublicationReference': _VT.STR,
@@ -383,28 +383,28 @@ _All_OtusEl_Dir = {'@about': _VT.STR,
                   }
 
 _v1_2_Otus = _SchemaFragment(required=_Req_OtusEl_ByI,
-                              expected=_EMPTY_DICT,
-                              allowed=_EMPTY_DICT,
-                              required_meta=_EMPTY_DICT,
-                              expected_meta=_EMPTY_DICT,
-                              type_checked_meta=_EMPTY_DICT,
-                              using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_EMPTY_DICT,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=True)
 
 _v1_0_Otus = _SchemaFragment(required=_Req_OtusEl_Dir,
-                              expected=_EMPTY_DICT,
-                              allowed=_All_OtusEl_Dir,
-                              required_meta=_EMPTY_DICT,
-                              expected_meta=_EMPTY_DICT,
-                              type_checked_meta=_EMPTY_DICT,
-                              using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_OtusEl_Dir,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=True)
 
 _v0_0_Otus = _SchemaFragment(required=_Req_OtusEl_Dir,
-                              expected=_EMPTY_DICT,
-                              allowed=_All_OtusEl_Dir,
-                              required_meta=_EMPTY_DICT,
-                              expected_meta=_EMPTY_DICT,
-                              type_checked_meta=_EMPTY_DICT,
-                              using_hbf_meta=False)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_OtusEl_Dir,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=False)
 
 ####################################################################
 # otu element schema
@@ -455,13 +455,13 @@ _v0_0_Otu = _SchemaFragment(required=_Req_OtuEl_Dir,
 _Req_TreesEl_ByI = {'@otus': _VT.STR,
                     'treeById': _VT.DICT,
                     '^ot:treeElementOrder': _VT.STR_LIST,
-                  }
+                   }
 _Req_TreesEl_Dir = {'@id': _VT.STR,
                     '@otus': _VT.STR,
                     'tree': _VT.LIST_OR_DICT,
-                  }
+                   }
 _All_TreesEl_Dir = {'@about': _VT.STR,
-                  }
+                   }
 
 _v1_2_Trees = _SchemaFragment(required=_Req_TreesEl_ByI,
                               expected=_EMPTY_DICT,
@@ -500,12 +500,12 @@ _Req_TreeEl_Dir = {'edge': _VT.LIST,
 _Exp_TreeEl_All = {'@xsi:type': _VT.STR, # could be a choice...
                   }
 _All_TreeEl_ByI = {'@label': _VT.STR,
-                 }
+                  }
 _All_TreeEl_Dir = {'@about': _VT.STR,
-                  '@label': _VT.STR,
-                 }
+                   '@label': _VT.STR,
+                  }
 _ReqMTreeEl_ByI = {'ot:rootNodeId': _VT.STR,
-                 }
+                  }
 _ReqMTreeEl_Dir = _EMPTY_DICT
 _ExpMTreeEl_All = {'ot:branchLengthDescription': _VT.STR,
                    'ot:branchLengthTimeUnit': _VT.STR,
@@ -513,33 +513,33 @@ _ExpMTreeEl_All = {'ot:branchLengthDescription': _VT.STR,
                    'ot:curatedType': _VT.STR,
                    'ot:inGroupClade': _VT.STR,
                    'ot:outGroupEdge': _VT.STR,
-                   }
+                  }
 _TypMTreeEl_All = {'ot:specifiedRoot': _VT.STR,
                    'ot:tag': _VT.STR_REPEATABLE_EL,
                    'ot:unrootedTree': _VT.BOOL,
-                   }
+                  }
 _v1_2_Tree = _SchemaFragment(required=_Req_TreeEl_ByI,
-                            expected=_Exp_TreeEl_All,
-                            allowed=_All_TreeEl_ByI,
-                            required_meta=_ReqMTreeEl_ByI,
-                            expected_meta=_ExpMTreeEl_All,
-                            type_checked_meta=_TypMTreeEl_All,
-                            using_hbf_meta=True)
+                             expected=_Exp_TreeEl_All,
+                             allowed=_All_TreeEl_ByI,
+                             required_meta=_ReqMTreeEl_ByI,
+                             expected_meta=_ExpMTreeEl_All,
+                             type_checked_meta=_TypMTreeEl_All,
+                             using_hbf_meta=True)
 _v1_0_Tree = _SchemaFragment(required=_Req_TreeEl_Dir,
-                            expected=_Exp_TreeEl_All,
-                            allowed=_All_TreesEl_Dir,
-                            required_meta=_ReqMTreeEl_Dir,
-                            expected_meta=_ExpMTreeEl_All,
-                            type_checked_meta=_TypMTreeEl_All,
-                            using_hbf_meta=True)
+                             expected=_Exp_TreeEl_All,
+                             allowed=_All_TreesEl_Dir,
+                             required_meta=_ReqMTreeEl_Dir,
+                             expected_meta=_ExpMTreeEl_All,
+                             type_checked_meta=_TypMTreeEl_All,
+                             using_hbf_meta=True)
 
 _v0_0_Tree = _SchemaFragment(required=_Req_TreeEl_Dir,
-                            expected=_Exp_TreeEl_All,
-                            allowed=_All_TreesEl_Dir,
-                            required_meta=_ReqMTreeEl_Dir,
-                            expected_meta=_ExpMTreeEl_All,
-                            type_checked_meta=_TypMTreeEl_All,
-                            using_hbf_meta=False)
+                             expected=_Exp_TreeEl_All,
+                             allowed=_All_TreesEl_Dir,
+                             required_meta=_ReqMTreeEl_Dir,
+                             expected_meta=_ExpMTreeEl_All,
+                             type_checked_meta=_TypMTreeEl_All,
+                             using_hbf_meta=False)
 #####################################################################
 
 ####################################################################
@@ -554,26 +554,26 @@ _All_LeafEl_Dir = {'@about': _VT.STR,
 _ReqMLeafEl_Dir = {'ot:isLeaf': _VT.BOOL,
                   }
 _v1_2_Leaf = _SchemaFragment(required=_Req_LeafEl_ByI,
-                            expected=_EMPTY_DICT,
-                            allowed=_EMPTY_DICT,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_EMPTY_DICT,
-                            using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_EMPTY_DICT,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=True)
 _v1_0_Leaf = _SchemaFragment(required=_Req_LeafEl_Dir,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_LeafEl_Dir,
-                            required_meta=_ReqMLeafEl_Dir,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_EMPTY_DICT,
-                            using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_LeafEl_Dir,
+                             required_meta=_ReqMLeafEl_Dir,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=True)
 _v0_0_Leaf = _SchemaFragment(required=_Req_LeafEl_Dir,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_LeafEl_Dir,
-                            required_meta=_ReqMLeafEl_Dir,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_EMPTY_DICT,
-                            using_hbf_meta=False)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_LeafEl_Dir,
+                             required_meta=_ReqMLeafEl_Dir,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=False)
 #####################################################################
 
 ####################################################################
@@ -584,32 +584,32 @@ _Req_IntNEl_Dir = {'@id': _VT.STR,
 _All_IntNEl_ByI = {'@root': _VT.BOOL,
                   }
 _All_IntNEl_Dir = {'@about': _VT.STR,
-                  '@root': _VT.BOOL,
+                   '@root': _VT.BOOL,
                   }
 
 _TypMIntNEl_Dir = {'ot:isLeaf': _VT.BOOL,
                   }
 _v1_2_IntN = _SchemaFragment(required=_Req_IntNEl_ByI,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_IntNEl_ByI,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_EMPTY_DICT,
-                            using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_IntNEl_ByI,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=True)
 _v1_0_IntN = _SchemaFragment(required=_Req_IntNEl_Dir,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_IntNEl_Dir,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_TypMIntNEl_Dir,
-                            using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_IntNEl_Dir,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_TypMIntNEl_Dir,
+                             using_hbf_meta=True)
 _v0_0_IntN = _SchemaFragment(required=_Req_IntNEl_Dir,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_IntNEl_Dir,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_TypMIntNEl_Dir,
-                            using_hbf_meta=False)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_IntNEl_Dir,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_TypMIntNEl_Dir,
+                             using_hbf_meta=False)
 #####################################################################
 
 ####################################################################
@@ -627,26 +627,26 @@ _All_NodeEl_Dir = {'@about': _VT.STR,
 _TypMNodeEl_Dir = {'ot:isLeaf': _VT.BOOL,
                   }
 _v1_2_Node = _SchemaFragment(required=_Req_NodeEl_ByI,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_NodeEl_ByI,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_EMPTY_DICT,
-                            using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_NodeEl_ByI,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=True)
 _v1_0_Node = _SchemaFragment(required=_Req_NodeEl_Dir,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_NodeEl_Dir,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_TypMNodeEl_Dir,
-                            using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_NodeEl_Dir,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_TypMNodeEl_Dir,
+                             using_hbf_meta=True)
 _v0_0_Node = _SchemaFragment(required=_Req_NodeEl_Dir,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_NodeEl_Dir,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_TypMNodeEl_Dir,
-                            using_hbf_meta=False)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_NodeEl_Dir,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_TypMNodeEl_Dir,
+                             using_hbf_meta=False)
 #####################################################################
 
 ####################################################################
@@ -664,26 +664,26 @@ _All_EdgeEl_Dir = {'@about': _VT.STR,
                    '@length': _VT.FLOAT,
                   }
 _v1_2_Edge = _SchemaFragment(required=_Req_EdgeEl_ByI,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_EdgeEl_ByI,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_EMPTY_DICT,
-                            using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_EdgeEl_ByI,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=True)
 _v1_0_Edge = _SchemaFragment(required=_Req_EdgeEl_Dir,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_EdgeEl_Dir,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_EMPTY_DICT,
-                            using_hbf_meta=True)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_EdgeEl_Dir,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=True)
 _v0_0_Edge = _SchemaFragment(required=_Req_EdgeEl_Dir,
-                            expected=_EMPTY_DICT,
-                            allowed=_All_EdgeEl_Dir,
-                            required_meta=_EMPTY_DICT,
-                            expected_meta=_EMPTY_DICT,
-                            type_checked_meta=_EMPTY_DICT,
-                            using_hbf_meta=False)
+                             expected=_EMPTY_DICT,
+                             allowed=_All_EdgeEl_Dir,
+                             required_meta=_EMPTY_DICT,
+                             expected_meta=_EMPTY_DICT,
+                             type_checked_meta=_EMPTY_DICT,
+                             using_hbf_meta=False)
 #####################################################################
 
 def _add_by_id_nexson_schema_attributes(container):
@@ -720,4 +720,4 @@ def _add_badgerfish_nexson_schema_attributes(container):
     container._IntNEl_Schema = _v0_0_IntN
     container._EdgeEl_Schema = _v0_0_Edge
     container._NodeEl_Schema = _v0_0_Node
-    
+

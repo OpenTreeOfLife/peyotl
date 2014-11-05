@@ -18,7 +18,7 @@ def get_processing_paths_from_prefix(pref,
     d = {'nexson': os.path.abspath(os.path.join(nexson_dir, 'study', pref + '.json')),
          'nexson_state_db': nexson_state_db,
          'study': pref,
-         }
+        }
     assert nexson_state_db is not None
     return d
 
@@ -42,7 +42,7 @@ def get_previous_set_of_dirty_nexsons(dir_dict):
                'to': datetime.datetime.now(),
                'to_download_from_pg': [],
                'to_upload_to_phylesystem': [],
-        }
+              }
     return set(old['to_download_from_pg']), old
 
 def store_state_JSON(s, fp):
@@ -217,19 +217,19 @@ class PhylografterNexsonDocStoreSync(object):
                                 last_merged_sha):
         namespaced_id = 'pg_{s}'.format(s=study)
         parent_sha = self.find_parent_sha_for_phylografter_nexson(study, nexson)
-        # correct any disagreements between phylografter and what the peyotl 
+        # correct any disagreements between phylografter and what the peyotl
         #   validator expects...
         workaround_phylografter_nexson(nexson)
         if namespaced_id in self.phylesystem_api_studies:
             put_response = self.phylesystem_api.put_study(study_id=namespaced_id,
-                                                    nexson=nexson,
-                                                    starting_commit_sha=parent_sha,
-                                                    commit_msg='Sync from phylografter')
+                                                          nexson=nexson,
+                                                          starting_commit_sha=parent_sha,
+                                                          commit_msg='Sync from phylografter')
             ds_verb = 'PUT'
         else:
             put_response = self.phylesystem_api.post_study(nexson=nexson,
-                                                     study_id=namespaced_id,
-                                                     commit_msg='Sync from phylografter')
+                                                           study_id=namespaced_id,
+                                                           commit_msg='Sync from phylografter')
             ds_verb = 'POST'
         if put_response['error'] != 0:
             self._failed_study(study, '{}_to_docstore_failed'.format(ds_verb))

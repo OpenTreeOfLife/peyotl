@@ -35,15 +35,15 @@ class MessageTupleAdaptor(object):
         return self.__unicode__(err_tuple, prefix=prefix)
     def as_dict(self, err_tuple):
         addr = err_tuple[2]
-        return {
-            '@code': NexsonWarningCodes.facets[self.code],
-            #'comment': self.__unicode__(err_tuple),
-            'data': self.convert_data_for_json(err_tuple),
-            'refersTo': addr.path
-        }
-    def convert_data_for_json(self, err_tuple):
+        assert self.code is not None
+        return {'@code': NexsonWarningCodes.facets[self.code], #pylint: disable=E1126
+                #'comment': self.__unicode__(err_tuple),
+                'data': self.convert_data_for_json(err_tuple),
+                'refersTo': addr.path
+               }
+    def convert_data_for_json(self, err_tuple): #pylint: disable=R0201
         return err_tuple[3]
-    def _write_message_suffix(self, err_tuple, out):
+    def _write_message_suffix(self, err_tuple, out): #pylint: disable=R0201
         addr = err_tuple[2]
         addr.write_path_suffix_str(out)
 
@@ -144,7 +144,8 @@ class InvalidKeyWarningType(_StrListDataWarningType):
         self.code = NexsonWarningCodes.INVALID_PROPERTY_VALUE
         self.format = '{p}Invalid or inappropriate key: "{d}"'
 
-class WrongValueTypeWarningType(MessageTupleAdaptor):
+#pylint: disable=R0921
+class WrongValueTypeWarningType(MessageTupleAdaptor): #pylint: disable=W0613
     def write(self, err_tuple, outstream, prefix):
         raise NotImplementedError('WrongValueTypeWarningType.write')
     def convert_data_for_json(self, err_tuple):
@@ -157,7 +158,7 @@ class WrongValueTypeWarningType(MessageTupleAdaptor):
         self.code = NexsonWarningCodes.INCORRECT_VALUE_TYPE
         self.format = '{p}value for key not the expected type: "{d}"'
 
-class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor):
+class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor): #pylint: disable=R0921, W0613
     def __init__(self):
         MessageTupleAdaptor.__init__(self)
         self.code = NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID
@@ -219,7 +220,7 @@ def gen_NodeWithMultipleParents(addr, pyid, logger, severity, **kwargs):
 def gen_TreeCycleWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(TreeCycleWarning, kwargs['node_id_list'], addr, pyid, logger, severity)
 
-def gen_NoRootWarning(addr, pyid, logger, severity, **kwargs):
+def gen_NoRootWarning(addr, pyid, logger, severity, **kwargs): #pylint: disable=W0613
     _argumentless_warning(NoRootWarning, addr, pyid, logger, severity)
 
 def gen_ReferencedIDNotFoundWarning(addr, pyid, logger, severity, **kwargs):

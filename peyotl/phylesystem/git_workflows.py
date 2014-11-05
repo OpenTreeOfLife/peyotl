@@ -11,8 +11,6 @@ from peyotl.phylesystem.git_actions import MergeException, \
                                            get_user_author, \
                                            GitWorkflowError
 from peyotl.utility import get_logger
-from locket import LockError
-from sh import git
 import traceback
 import json
 import os
@@ -93,11 +91,11 @@ def _pull_gh(git_action, branch_name):#
 
 
 def _do_merge2master_commit(git_action,
-                     new_sha,
-                     branch_name,
-                     study_filepath,
-                     merged_sha,
-                     prev_file_sha):
+                            new_sha,
+                            branch_name,
+                            study_filepath,
+                            merged_sha,
+                            prev_file_sha):
     merge_needed = False
     git_action.checkout_master()
     if os.path.exists(study_filepath):
@@ -160,10 +158,10 @@ def commit_and_try_merge2master(git_action,
                                                                                 c=str(commit_resp)))
             m_resp = _do_merge2master_commit(git_action,
                                              new_sha,
-                                              branch_name,
-                                              written_fp,
-                                              merged_sha=merged_sha,
-                                              prev_file_sha=commit_resp.get('prev_file_sha'))
+                                             branch_name,
+                                             written_fp,
+                                             merged_sha=merged_sha,
+                                             prev_file_sha=commit_resp.get('prev_file_sha'))
             new_sha, branch_name, merge_needed = m_resp
         finally:
             git_action.release_lock()

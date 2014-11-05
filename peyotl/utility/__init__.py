@@ -8,7 +8,7 @@ import json
 import time
 import os
 
-from peyotl.utility.io import *
+from peyotl.utility.io import * #pylint: disable=W0401
 
 def pretty_timestamp(t=None, style=0):
     if t is None:

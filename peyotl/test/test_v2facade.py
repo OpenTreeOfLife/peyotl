@@ -3,7 +3,6 @@ from peyotl.api import APIWrapper
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_meta_first
 from peyotl.utility import get_logger
-import sys
 import unittest
 
 _LOG = get_logger(__name__)
@@ -17,12 +16,13 @@ class TestOTI(unittest.TestCase):
         self.assertTrue(len(x) > 0)
         self.assertTrue('ot:studyId' in x[0])
     def testStudyTerms(self):
-        t_set = self.ot.studies.properties()
+        #t_set = self.ot.studies.properties()
         r = self.ot.studies.find_studies({'ot:studyPublication': '10.1073/pnas.0709121104'})
         self.assertTrue(len(r) > 0)
     def testTaxon(self):
         r = self.ot.taxonomy.taxon(515698, include_lineage=True)
-        for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
+        for k in [u'unique_name', u'taxonomic_lineage', u'rank',
+                  u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
             self.assertTrue(k in r)
     def testSubtree(self):
         r = self.ot.taxonomy.subtree(515698)
@@ -32,7 +32,8 @@ class TestOTI(unittest.TestCase):
         self.assertTrue('lica' in r)
         self.assertTrue('ott_ids_not_found' in r)
         l = r['lica']
-        for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
+        for k in [u'unique_name', u'taxonomic_lineage', u'rank',
+                  u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
             self.assertTrue(k in l)
     def testInfo(self):
         cdict = self.ot.taxonomy.info()
@@ -70,7 +71,7 @@ class TestOTI(unittest.TestCase):
         self.assertTrue(r['newick'].startswith('('))
     def testSynthTree(self):
         cdict = self.ot.tree_of_life.about()
-        for key in [u'date', 
+        for key in [u'date',
                     u'num_source_studies',
                     u'root_taxon_name',
                     u'study_list',
@@ -84,13 +85,17 @@ class TestOTI(unittest.TestCase):
         node_id = str(cdict['root_node_id']) # Odd that this is a string
         self.assertRaises(ValueError, self.ot.tree_of_life.subtree, tree_id, format='newick', node_id=node_id)
     def testPrunedTree(self):
-        ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579, 267484, 128308, 380453, 678579, 883864, 863991, 3898562, 23821, 673540, 122251, 106729, 1084532, 541659]
+        ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579,
+                   267484, 128308, 380453, 678579, 883864, 863991, 3898562,
+                   23821, 673540, 122251, 106729, 1084532, 541659]
         r = self.ot.tree_of_life.induced_subtree(ott_ids=ott_ids)
         for key in ['ott_ids_not_in_tree', u'node_ids_not_in_tree']:
             self.assertEqual(r[key], [])
         self.assertTrue(r['subtree'].startswith('('))
     def testMRCA(self):
-        ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579, 267484, 128308, 380453, 678579, 883864, 863991, 3898562, 23821, 673540, 122251, 106729, 1084532, 541659]
+        ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579,
+                   267484, 128308, 380453, 678579, 883864, 863991,
+                   3898562, 23821, 673540, 122251, 106729, 1084532, 541659]
         r = self.ot.tree_of_life.mrca(ott_ids=ott_ids)
         self.assertTrue('mrca_node_id' in r)
     def testStudy(self):
@@ -102,3 +107,4 @@ class TestOTI(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

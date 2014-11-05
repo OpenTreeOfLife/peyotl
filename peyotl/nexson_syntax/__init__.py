@@ -267,7 +267,9 @@ class PhyloSchema(object):
                 if not _is_supported_nexson_vers(self.version):
                     raise ValueError('The "{}" version of NexSON is not supported'.format(self.version))
             except:
-                raise ValueError('Expecting version of NexSON to be specified using "output_nexml2json" argument (or via some other mechanism)')
+                msg = 'Expecting version of NexSON to be specified using ' \
+                      '"output_nexml2json" argument (or via some other mechanism)'
+                raise ValueError(msg)
         else:
             if self.content in ['meta']:
                 raise ValueError('The "{}" content can only be returned in NexSON'.format(self.content))
@@ -280,7 +282,8 @@ class PhyloSchema(object):
                 if with_ns in PhyloSchema._otu_label_list:
                     self.otu_label = with_ns
                 else:
-                    m = '"otu_label" or "tip_label" must be one of "{}"'.format('", "'.join(PhyloSchema._otu_label_list))
+                    m = '"otu_label" or "tip_label" must be one of "{}"'
+                    m = m.format('", "'.join(PhyloSchema._otu_label_list))
                     raise ValueError(m)
             self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
     def get_description(self):
@@ -293,7 +296,7 @@ class PhyloSchema(object):
         elif self.format_code == PhyloSchema.NEWICK:
             return 'Newick'
     description = property(get_description)
-    def can_convert_from(self, src_schema=None):
+    def can_convert_from(self, src_schema=None): #pylint: disable=W0613
         if self.format_code == PhyloSchema.NEXSON:
             return self.content != 'subtree'
         if self.content == 'study':
@@ -363,7 +366,8 @@ class PhyloSchema(object):
             src_format = src_schema.format_code
             current_format = src_schema.version
         if not self.can_convert_from():
-            raise NotImplementedError('Conversion of {c} to {d} is not supported'.format(c=self.content, d=self.description))
+            m = 'Conversion of {c} to {d} is not supported'.format(c=self.content, d=self.description)
+            raise NotImplementedError(m)
         if src_format != PhyloSchema.NEXSON:
             raise NotImplementedError('Only conversion from NexSON is currently supported')
         if self.format_code == PhyloSchema.NEXSON:
@@ -380,7 +384,8 @@ class PhyloSchema(object):
                                                  self.content_id,
                                                  current_format)
                 d = {}
-                for i, t, o in i_t_o_list:
+                for ito_tup in i_t_o_list:
+                    i, t = ito_tup[0], ito_tup[1]
                     d[i] = t
             elif self.content == 'meta':
                 strip_to_meta_only(d, current_format)
@@ -444,7 +449,7 @@ class PhyloSchema(object):
             # these formats are always serialized...
             if output_dest:
                 output_dest.write(response)
-                output_dest.write('\n');
+                output_dest.write('\n')
             return response
         assert False
 
@@ -576,8 +581,9 @@ def convert_nexson_format(blob,
         if sort_arbitrary:
             sort_arbitrarily_ordered_nexson(blob)
         return blob
-    if (_is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
-        or _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)):
+    bf2hbf = _is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
+    hbf2bf = _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)
+    if bf2hbf or hbf2bf:
         # go from 0.0 -> 1.0 then the 1.0->1.2 should succeed without nexml...
         blob = convert_nexson_format(blob,
                                      DIRECT_HONEY_BADGERFISH,
@@ -706,36 +712,36 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
     assert vers == '1.2.1'
     nexson = {
         'nexml': {
-        '@about': '#study',
-        '@generator': 'Open Tree API',
-        '@id': 'study',
-        '@nexml2json': vers,
-        '@nexmljson': 'http://purl.org/opentree/nexson',
-        '@version': '0.9',
-        '@xmlns': {
-            '$': 'http://www.nexml.org/2009',
-            'nex': 'http://www.nexml.org/2009',
-            'ot': 'http://purl.org/opentree-terms#',
-            'xsd': 'http://www.w3.org/2001/XMLSchema#',
-            'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-            'xhtml': 'http://www.w3.org/1999/xhtml/vocab#'
-        },
-        '^ot:otusElementOrder': [
-            'otus1',
-        ],
-        'otusById': {
-            'otus1': {
-                'otuById':{},
+            '@about': '#study',
+            '@generator': 'Open Tree API',
+            '@id': 'study',
+            '@nexml2json': vers,
+            '@nexmljson': 'http://purl.org/opentree/nexson',
+            '@version': '0.9',
+            '@xmlns': {
+                '$': 'http://www.nexml.org/2009',
+                'nex': 'http://www.nexml.org/2009',
+                'ot': 'http://purl.org/opentree-terms#',
+                'xsd': 'http://www.w3.org/2001/XMLSchema#',
+                'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+                'xhtml': 'http://www.w3.org/1999/xhtml/vocab#'
             },
-        },
-        '^ot:treesElementOrder': [
-            'trees1',
-        ],
-        'treesById': {
-            'trees1': {
-                '@otus': 'otus1',
-                '^ot:treeElementOrder':[],
-                'treeById': {},
+            '^ot:otusElementOrder': [
+                'otus1',
+            ],
+            'otusById': {
+                'otus1': {
+                    'otuById':{},
+                },
+            },
+            '^ot:treesElementOrder': [
+                'trees1',
+            ],
+            'treesById': {
+                'trees1': {
+                    '@otus': 'otus1',
+                    '^ot:treeElementOrder':[],
+                    'treeById': {},
                 },
             },
         }
@@ -758,7 +764,8 @@ def quote_newick_name(s, needs_quotes_pattern=_NEWICK_NEEDING_QUOTING):
     return s
 
 def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
-    '''`leaf_labels` is a (list, dict) pair where the list is the order encountered, and the dict maps name to index in the list
+    '''`leaf_labels` is a (list, dict) pair where the list is the order encountered, and
+    the dict maps name to index in the list
     '''
     otu_id = node['@otu']
     otu = otu_group[otu_id]
@@ -997,7 +1004,9 @@ def extract_tree(nexson, tree_id, schema, subtree_id=None):
     try:
         assert schema.format_str in ['newick', 'nexus']
     except:
-        raise ValueError('Only newick tree export with tip labeling as one of "{}" is currently supported'.format('", "'.join(_NEWICK_PROP_VALS)))
+        m = 'Only newick tree export with tip labeling as one of "{}" is currently supported'
+        m = m.format('", "'.join(PhyloSchema._NEWICK_PROP_VALS))
+        raise ValueError(m)
     i_t_o_list = extract_tree_nexson(nexson, tree_id, None)
     if schema.format_str == 'newick':
         tree_str_list = [convert_tree(i, t, o, schema, subtree_id=subtree_id) for i, t, o in i_t_o_list]
@@ -1029,3 +1038,4 @@ def extract_supporting_file_messages(nexson):
         for tree in tree_group.get('treeById', {}).values():
             m_list.extend(_get_supporting_file_messages_for_this_obj(tree))
     return m_list
+

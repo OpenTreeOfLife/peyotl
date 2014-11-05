@@ -2,7 +2,6 @@
 from peyotl.string import build_taxonomic_regex, \
                           find_intervening_fragments, \
                           create_library_of_intervening_fragments
-from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
 _LOG = get_logger(__name__)
@@ -11,7 +10,7 @@ _LOG = get_logger(__name__)
 class TestString(unittest.TestCase):
     def testBuildTaxReg(self):
         r = build_taxonomic_regex([('blah Homo_sapiens+515', 'Homo sapiens'),
-                                                     ('blahhumbug Homo_sapiens+516', 'Homo sapiens')])
+                                   ('blahhumbug Homo_sapiens+516', 'Homo sapiens')])
         print r[0].pattern
         self.assertEqual(len(r), 1)
     def testSimplestIntervening(self):
@@ -36,6 +35,6 @@ class TestString(unittest.TestCase):
         self.assertEqual(len(r), 3)
         self.assertEqual(len(r[2]), 2)
         self.assertEqual(r[2][0], [['blah ', 'Homo', '_', 'sapiens', '+515']])
-        self.assertEqual(r[2][1], [['blahhumbug ', 'Homo', '_', 'sapiens','+516']])
+        self.assertEqual(r[2][1], [['blahhumbug ', 'Homo', '_', 'sapiens', '+516']])
 if __name__ == "__main__":
     unittest.main(verbosity=5)

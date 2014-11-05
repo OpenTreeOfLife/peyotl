@@ -4,7 +4,6 @@ from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
-import copy
 
 _LOG = get_logger(__name__)
 

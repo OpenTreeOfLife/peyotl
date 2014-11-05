@@ -164,6 +164,37 @@ class GitAction(object):
     def checkout_master(self):
         git(self.gitdir, self.gitwd, "checkout", "master")
 
+    def get_changed_studies(self, ancestral_commit_sha, study_ids_to_check=None):
+        '''Returns the set of studies that have changed on the master since
+        commit `ancestral_commit_sha` or `False` (on an error)
+
+        if `study_ids_to_check` is passed in, it should be an iterable list of 
+            IDs. Only IDs in this list will be returned.
+        '''
+        try:
+            x = git(self.gitdir,
+                    self.gitwd,
+                    "diff-tree",
+                    "--name-only",
+                    "-r",
+                    ancestral_commit_sha,
+                    "master")
+        except:
+            _LOG.exception('diff-tree failed')
+            return False
+        touched = set()
+        for f in x.split('\n'):
+            if f.startswith('study/'):
+                try:
+                    study_id = f.split('/')[-2]
+                    touched.add(study_id)
+                except:
+                    pass
+        if study_ids_to_check:
+            tc = set(study_ids_to_check)
+            return tc.intersection(touched)
+        return touched
+
     def get_branch_list(self):
         x = git(self.gitdir, self.gitwd, "branch", "--no-color")
         b = []

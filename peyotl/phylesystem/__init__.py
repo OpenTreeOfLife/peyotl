@@ -384,6 +384,10 @@ class PhylesystemShard(PhylesystemShardBase):
     def get_branch_list(self):
         ga = self.create_git_action()
         return ga.get_branch_list()
+    def get_changed_studies(self, ancestral_commit_sha, study_ids_to_check=None):
+        ga = self.create_git_action()
+        return ga.get_changed_studies(ancestral_commit_sha, study_ids_to_check=study_ids_to_check)
+
 def _invert_dict_list_val(d):
     o = {}
     for k, v in d.items():
@@ -885,6 +889,16 @@ class _Phylesystem(_PhylesystemBase):
         for i in self._shards:
             a.extend(i.get_branch_list())
         return a
+    def get_changed_studies(self, ancestral_commit_sha, study_ids_to_check=None):
+        ret = None
+        for i in self._shards:
+            x = i.get_changed_studies(ancestral_commit_sha, study_ids_to_check=study_ids_to_check)
+            if x is not False:
+                ret = x
+                break
+        if ret is not None:
+            return ret
+        raise ValueError('No phylesystem shard returned changed studies for the SHA')
 
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,

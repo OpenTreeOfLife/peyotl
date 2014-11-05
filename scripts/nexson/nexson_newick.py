@@ -84,6 +84,8 @@ Environmental variables used:
             if 'nexml' not in blob and 'nex:nexml' not in blob:
                 blob = blob['data']
                 schema.convert(src=blob, serialize=True, output_dest=out, src_schema=src_schema)
+            else:
+                raise
 
 if __name__ == '__main__':
     _main()

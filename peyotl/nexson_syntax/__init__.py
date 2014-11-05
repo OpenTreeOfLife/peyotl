@@ -203,10 +203,10 @@ class PhyloSchema(object):
                        'ot:otttaxonname': '^ot:ottTaxonName', }
     _otu_label_list = _otu_label2prop.keys()
     _NEWICK_PROP_VALS = _otu_label2prop.values()
-    _no_content_id_types = set(['study', 'meta'])
+    _no_content_id_types = set(['study', 'meta', 'treelist'])
     _tup_content_id_types = set(['subtree'])
     _str_content_id_types = set(['tree', 'otus', 'otu', 'otumap', 'file'])
-    _content_types = set(['file', 'study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree'])
+    _content_types = set(['file', 'study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree', 'treelist'])
     def __init__(self, schema=None, **kwargs):
         '''Checks:
             'schema',
@@ -231,22 +231,28 @@ class PhyloSchema(object):
             if (self.content_id is None) or (not is_list) or len(self.content_id) != 2:
                 raise ValueError('Expecting 2 content_ids for the "subtree" content')
         if schema is not None:
+            #_LOG.debug('schema from schema arg')
             self.format_str = schema.lower()
         elif kwargs.get('type_ext') is not None:
+            #_LOG.debug('schema from type_ext arg')
             ext = kwargs['type_ext'].lower()
             try:
                 self.format_str = PhyloSchema._extension2format[ext]
             except:
                 raise ValueError('file extension "{}" not recognized'.format(kwargs['type_ext']))
         elif kwargs.get('output_nexml2json') is not None:
+            #_LOG.debug('schema from output_nexml2json arg')
             self.format_str = 'nexson'
             self.version = kwargs['output_nexml2json']
         else:
+            #_LOG.debug('schema from format_str arg')
             self.format_str = kwargs.get('format_str')
         if self.format_str is None:
             raise ValueError('Expecting "format_str", "schema", or "type_ext" argument')
         try:
+            #_LOG.debug('self.format_str = {}'.format(self.format_str))
             self.format_code = PhyloSchema._format_list.index(self.format_str)
+            #_LOG.debug('self.format_code = {}'.format(str(self.format_code)))
         except:
             raise ValueError('format "{}" not recognized'.format(self.format_str))
         if self.format_code == PhyloSchema.NEXSON:
@@ -396,6 +402,11 @@ class PhyloSchema(object):
                 if not r:
                     return None
                 d = _otu_dict_to_otumap(r)
+            elif self.content == 'treelist':
+                i_t_o_list = extract_tree_nexson(d,
+                                                 self.content_id,
+                                                 current_format)
+                d = [i[0] for i in i_t_o_list]
             if d is None:
                 return None
             if serialize:
@@ -410,12 +421,14 @@ class PhyloSchema(object):
                     return f.getvalue()
             else:
                 return d
+        # Non-NexSON types go here...
         if (serialize is not None) and (not serialize):
             raise ValueError('Conversion without serialization is only supported for the NexSON format')
+        if output_dest:
+            if isinstance(output_dest, str) or isinstance(output_dest, unicode):
+                output_dest = codecs.open(output_dest, 'w', encoding='utf-8')
         if self.format_code == PhyloSchema.NEXML:
             if output_dest:
-                if isinstance(output_dest, str) or isinstance(output_dest, unicode):
-                    output_dest = codecs.open(output_dest, 'w', encoding='utf-8')
                 write_obj_as_nexml(src, output_dest, addindent=' ', newl='\n', otu_label=self.otu_label_prop)
                 return
             return convert_to_nexml(src, addindent=' ', newl='\n', otu_label=self.otu_label_prop)
@@ -427,7 +440,12 @@ class PhyloSchema(object):
                     ci, subtree_id = self.content_id, None
             else:
                 ci, subtree_id = None, None
-            return extract_tree(src, ci, self, subtree_id=subtree_id)
+            response = extract_tree(src, ci, self, subtree_id=subtree_id)
+            # these formats are always serialized...
+            if output_dest:
+                output_dest.write(response)
+                output_dest.write('\n');
+            return response
         assert False
 
 
@@ -916,13 +934,15 @@ def convert_trees(tid_tree_otus_list, schema, subtree_id=None):
         return _write_nexus_format(leaf_labels[0], conv_tree_list)
     else:
         raise NotImplementedError('convert_tree for {}'.format(schema.format_str))
-
-def extract_otus_nexson(nexson, otus_id, curr_version):
+def nexml_el_of_by_id(nexson, curr_version=None):
     if curr_version is None:
         curr_version = detect_nexson_version(nexson)
     if not _is_by_id_hbf(curr_version):
         nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
-    nexml_el = get_nexml_el(nexson)
+    return get_nexml_el(nexson)
+
+def extract_otus_nexson(nexson, otus_id, curr_version):
+    nexml_el = nexml_el_of_by_id(nexson, curr_version)
     o = nexml_el['otusById']
     if otus_id is None:
         return o
@@ -932,11 +952,7 @@ def extract_otus_nexson(nexson, otus_id, curr_version):
     return {otus_id: n}
 
 def extract_otu_nexson(nexson, otu_id, curr_version):
-    if curr_version is None:
-        curr_version = detect_nexson_version(nexson)
-    if not _is_by_id_hbf(curr_version):
-        nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
-    nexml_el = get_nexml_el(nexson)
+    nexml_el = nexml_el_of_by_id(nexson, curr_version)
     o = nexml_el['otusById']
     if otu_id is None:
         r = {}

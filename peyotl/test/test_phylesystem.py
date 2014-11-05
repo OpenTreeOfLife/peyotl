@@ -41,6 +41,7 @@ class TestPhylesystem(unittest.TestCase):
         self.assertEqual(set('9'), changed)
         changed = p.get_changed_studies('aa8964b55bfa930a91af7a436f55f0acdc94b918', ['10'])
         self.assertEqual(set(), changed)
+        self.assertRaises(ValueError, p.get_changed_studies, 'bogus')
 
 
 if __name__ == "__main__":

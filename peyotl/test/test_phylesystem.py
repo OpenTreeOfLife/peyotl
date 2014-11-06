@@ -15,7 +15,6 @@ class TestPhylesystem(unittest.TestCase):
     def setUp(self):
         self.r = dict(_repos)
         print self.r
-        skip = '''
     def testInit(self):
         p = _Phylesystem(repos_dict=self.r)
         self.assertEqual(2, len(p._shards))
@@ -29,7 +28,7 @@ class TestPhylesystem(unittest.TestCase):
         print p.get_public_url('9')
     def testStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
-        print p.get_study_ids()'''
+        print p.get_study_ids()
     def testNextStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
         mf = p._growing_shard._id_minting_file

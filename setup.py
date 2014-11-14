@@ -48,6 +48,7 @@ else:
         include_package_data=True,
         test_suite = "peyotl.test"
     )
+
 EXTRA_KWARGS["zip_safe"] = True
 ENTRY_POINTS = {}
 
@@ -81,9 +82,8 @@ setup(
     author='Mark T. Holder',
     author_email='mtholder',
     py_modules=['peyotl'],
-
+    packages=PACKAGES,
     entry_points=ENTRY_POINTS,
-
     classifiers=[
         'Development Status :: 1 - Planning',
         'Intended Audience :: Science/Research',

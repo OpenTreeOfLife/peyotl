@@ -45,14 +45,14 @@ else:
     PACKAGES = find_packages()
     EXTRA_KWARGS = dict(
         include_package_data=True,
-        test_suite = "peyotl.test"
+        test_suite="peyotl.test"
     )
 
 EXTRA_KWARGS["zip_safe"] = True
 ENTRY_POINTS = {}
 
 ###############################################################################
-# setuptools/distuils command extensions 
+# setuptools/distuils command extensions
 try:
     from setuptools import Command
 except ImportError:
@@ -78,7 +78,7 @@ else:
 
 setup(
     name='peyotl',
-    version='0.1.2',
+    version='0.1.3dev',
     description='Library for interacting with Open Tree of Life resources',
     long_description=(open('README.rst').read()),
     url='https://github.com/OpenTreeOfLife/peyotl',

@@ -73,7 +73,7 @@ else:
 
 setup(
     name='peyotl',
-    version='0.1.0',
+    version='0.1.1',
     description='Library for interacting with Open Tree of Life resources',
     long_description=(open('README.rst').read()),
     url='https://github.com/OpenTreeOfLife/peyotl',

@@ -279,6 +279,8 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         self._detect_multilabelled_tree(otus_group_id=otus_group_id,
                                         tree_id=tree_nex_id,
                                         otuid2leaf=otuid2leaf)
+        og = self._otu_group_by_id[otus_group_id]['otuById']
+        return self._validate_otu_key_if_present(node_by_id.items(), og, vc)
 
     def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
         otus = nex_obj.get('otusById', {})

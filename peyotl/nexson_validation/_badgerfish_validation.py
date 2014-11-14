@@ -313,7 +313,9 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id)
             return errorReturn('no node with "@root"')
-        return True
+        og = set([i['@id'] for i in self._otu_group_by_id[otus_group_id]['otu']])
+        nli = [(i['@id'], i) for i in node_list]
+        return self._validate_otu_key_if_present(nli, og, vc)
 
     def _post_key_check_validate_nexml_obj(self, nex_obj, obj_nex_id, vc):
         otus_group_list = nex_obj.get('otus', [])

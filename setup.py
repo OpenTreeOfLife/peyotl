@@ -44,7 +44,6 @@ else:
     sys.stderr.write("searching for packages\n")
     PACKAGES = find_packages()
     EXTRA_KWARGS = dict(
-        install_requires = ['setuptools'],
         include_package_data=True,
         test_suite = "peyotl.test"
     )
@@ -81,7 +80,8 @@ setup(
     license='BSD',
     author='Emily Jane B. McTavish and Mark T. Holder',
     py_modules=['peyotl'],
-    install_requires=['anyjson',
+    install_requires=['setuptools',
+                      'anyjson',
                       'coverage',
                       'sh>=1.08',
                       'locket>=0.1.1',

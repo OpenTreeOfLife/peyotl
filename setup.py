@@ -64,11 +64,16 @@ else:
 
     ###########################################################################
     # coverage
-    from peyotl.test.support import coverage_analysis
-    if coverage_analysis.PEYOTL_COVERAGE_ANALYSIS_AVAILABLE:
-        sys.stderr.write("coverage analysis available ('python setup.py coverage')\n")
-        ENTRY_POINTS[command_hook].append("coverage = peyotl.test.support.coverage_analysis:CoverageAnalysis")
-    else:
+    ###########################################################################
+    # coverage
+    try:
+        from peyotl.test.support import coverage_analysis
+        if coverage_analysis.PEYOTL_COVERAGE_ANALYSIS_AVAILABLE:
+            sys.stderr.write("coverage analysis available ('python setup.py coverage')\n")
+            ENTRY_POINTS[command_hook].append("coverage = peyotl.test.support.coverage_analysis:CoverageAnalysis")
+        else:
+            assert False
+    except:
         sys.stderr.write("coverage analysis not available\n")
 
 setup(

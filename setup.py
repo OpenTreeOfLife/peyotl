@@ -95,7 +95,7 @@ setup(
     packages=PACKAGES,
     entry_points=ENTRY_POINTS,
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
         'Natural Language :: English',

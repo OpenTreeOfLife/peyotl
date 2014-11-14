@@ -7,6 +7,7 @@ from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
                                                    gen_MultipleTipsToSameOttIdWarning, \
+                                                   gen_ReferencedIDNotFoundWarning, \
                                                    gen_RepeatedIDWarning, \
                                                    gen_UnparseableMetaWarning, \
                                                    gen_UnrecognizedKeyWarning, \
@@ -786,3 +787,19 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
 
     def get_nexson_str(self):
         return json.dumps(self._raw, sort_keys=True, indent=0)
+
+    def _validate_otu_key_if_present(self, nd_id_nd_iter, otu_by_id, vc):
+        erred = False
+        for nd_id, nd in nd_id_nd_iter:
+            o = nd.get('@otu')
+            if o is not None:
+                if o not in otu_by_id:
+                    erred = True
+                    self._error_event(_NEXEL.NODE,
+                                      obj=nd,
+                                      err_type=gen_ReferencedIDNotFoundWarning,
+                                      anc=vc.anc_list,
+                                      obj_nex_id=nd_id,
+                                      key_list=[o])
+        if erred:
+            errorReturn('Unknown "@otu" id')

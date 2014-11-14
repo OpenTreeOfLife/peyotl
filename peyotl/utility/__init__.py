@@ -133,7 +133,10 @@ def get_config(section=None, param=None, default=None):
     '''
     global _CONFIG, _CONFIG_FN
     if _CONFIG is None:
-        from ConfigParser import SafeConfigParser
+        try:
+            from ConfigParser import SafeConfigParser
+        except ImportError:
+            from configparser import SafeConfigParser
         if 'PEYOTL_CONFIG_FILE' in os.environ:
             _CONFIG_FN = os.environ['PEYOTL_CONFIG_FILE']
         else:

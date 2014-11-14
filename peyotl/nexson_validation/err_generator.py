@@ -266,12 +266,39 @@ def _argumentless_warning(wt, addr, pyid, logger, severity):
     t = (wt, pyid, addr, None)
     logger.register_new_messages(t, severity=severity)
 
-# some introspective hacking to create a look up of factory function 2 NexsonWarningCodes type
-factory2code = {}
-for _local_key in locals().keys():
-    if _local_key.startswith('gen_'):
-        _obj_n = _local_key[4:]
-        if _obj_n in locals():
-            _gf = locals()[_local_key]
-            _obj = locals()[_obj_n]
-            factory2code[_gf] = _obj.code
+
+factory2code = {gen_MultipleTipsToSameOttIdWarning: NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID,
+                gen_NoRootWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
+                gen_UnrecognizedKeyWarning: NexsonWarningCodes.UNRECOGNIZED_KEY,
+                gen_MissingOptionalKeyWarning: NexsonWarningCodes.MISSING_OPTIONAL_KEY,
+                gen_MissingExpectedListWarning: NexsonWarningCodes.MISSING_LIST_EXPECTED,
+                gen_UnparseableMetaWarning: NexsonWarningCodes.UNPARSEABLE_META,
+                gen_ReferencedIDNotFoundWarning: NexsonWarningCodes.REFERENCED_ID_NOT_FOUND,
+                gen_TreeCycleWarning: NexsonWarningCodes.CYCLE_DETECTED,
+                gen_RepeatedIDWarning: NexsonWarningCodes.REPEATED_ID,
+                gen_MissingCrucialContentWarning: NexsonWarningCodes.MISSING_CRUCIAL_CONTENT,
+                gen_UnreachableNodeWarning: NexsonWarningCodes.UNREACHABLE_NODE,
+                gen_RepeatedOTUWarning: NexsonWarningCodes.REPEATED_OTU,
+                gen_NodeWithMultipleParents: NexsonWarningCodes.MULTIPLE_EDGES_FOR_NODES,
+                gen_WrongValueTypeWarning: NexsonWarningCodes.INCORRECT_VALUE_TYPE,
+                gen_MissingMandatoryKeyWarning: NexsonWarningCodes.MISSING_MANDATORY_KEY,
+                gen_MultipleRootsWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
+                gen_InvalidKeyWarning: NexsonWarningCodes.INVALID_PROPERTY_VALUE,
+                gen_MultipleTipsToSameOttIdWarning: NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID,
+                gen_NoRootWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
+                gen_UnrecognizedKeyWarning: NexsonWarningCodes.UNRECOGNIZED_KEY,
+                gen_MissingOptionalKeyWarning: NexsonWarningCodes.MISSING_OPTIONAL_KEY,
+                gen_MissingExpectedListWarning: NexsonWarningCodes.MISSING_LIST_EXPECTED,
+                gen_UnparseableMetaWarning: NexsonWarningCodes.UNPARSEABLE_META,
+                gen_ReferencedIDNotFoundWarning: NexsonWarningCodes.REFERENCED_ID_NOT_FOUND,
+                gen_TreeCycleWarning: NexsonWarningCodes.CYCLE_DETECTED,
+                gen_RepeatedIDWarning: NexsonWarningCodes.REPEATED_ID,
+                gen_MissingCrucialContentWarning: NexsonWarningCodes.MISSING_CRUCIAL_CONTENT,
+                gen_UnreachableNodeWarning: NexsonWarningCodes.UNREACHABLE_NODE,
+                gen_RepeatedOTUWarning: NexsonWarningCodes.REPEATED_OTU,
+                gen_NodeWithMultipleParents: NexsonWarningCodes.MULTIPLE_EDGES_FOR_NODES,
+                gen_WrongValueTypeWarning: NexsonWarningCodes.INCORRECT_VALUE_TYPE,
+                gen_MissingMandatoryKeyWarning: NexsonWarningCodes.MISSING_MANDATORY_KEY,
+                gen_MultipleRootsWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
+                gen_InvalidKeyWarning: NexsonWarningCodes.INVALID_PROPERTY_VALUE,
+               }

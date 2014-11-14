@@ -26,13 +26,24 @@ Specifically, to:
 Currently peyotl is used to implement most of the functionality in the 
 `phylesystem api`_ backend of the study curation tool.
 
-# Instructions
-For full(er) documentation, check out the wiki_.
+Instructions
+------------
+
+::
+
+    virtualenv pey
+    . pey/bin/activate
+    pip install -r requirements.txt
+    python setup.py develop
+    python setup.py test
+
+performs the basic installation and test. For full(er) documentation, check out the wiki_.
 
 
-# Thanks
+Thanks
+------
 
-Thanks to NSF for funding.
+Thanks to NSF_ and HITS_ for funding support.
 
 peyotl is primarily written by Mark Holder, Emily Jane McTavish, and Jim Allman, 
 but see the CONTRIBUTORS_ file for a more complete list
@@ -54,12 +65,11 @@ all participated in the discussions that led to the NexSON mapping.
 
 The peyotl/test/data/nexson/phenoscape/nexml test file is from
     https://raw.github.com/phenoscape/phenoscape-data/master/Curation%20Files/completed-phenex-files/Characiformes/Buckup_1998.xml
-    PhenoscapeKB, [U.S. National Evolutionary Synthesis Center], http://kb.phenoscape.org; [Feb 16, 2014]
-    The citation for the data is in the nexml doc itself.
+    Phenoscape file (download), NESCent_ [Feb 16, 2014] The citation for the data is in the nexml doc itself.
 
 ****************
 
-*Etymology*: According to Wikipedia, peyotl is the Nahuatl word for [*Lophophora williamsii*](http://en.wikipedia.org/wiki/Lophophora_williamsii).
+*Etymology*: According to Wikipedia, peyotl is the Nahuatl word for `Lophophora williamsii`_.
 
 .. _Open Tree of Life project: http://blog.opentreeoflife.org/
 .. _phylesystem: https://github.com/OpenTreeOfLife/phylesystem
@@ -70,4 +80,7 @@ The peyotl/test/data/nexson/phenoscape/nexml test file is from
 .. _wiki: https://github.com/OpenTreeOfLife/peyotl/wiki
 .. _Karl Gude: http://karlgude.com/about/
 .. _DendroPy: http://pythonhosted.org/DendroPy/
-
+.. _Lophophora williamsii: http://en.wikipedia.org/wiki/Lophophora_williamsii
+.. _NSF: http://www.nsf.gov
+.. _HITS: http://www.h-its.org/english
+.. _NESCent: http://kb.phenoscape.org

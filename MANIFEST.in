@@ -1,10 +1,10 @@
+include README.rst
 include CONTRIBUTORS.txt
 include clean.sh
 include doc/Makefile
 include ez_setup.py
 include License.txt
 include README.md
-include README.rst
 include requirements.txt
 include setup.cfg
 include setup.py

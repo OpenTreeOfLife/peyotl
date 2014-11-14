@@ -803,3 +803,4 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder):
                                       key_list=[o])
         if erred:
             errorReturn('Unknown "@otu" id')
+        return True

@@ -27,8 +27,17 @@ except ImportError, e:
     from distutils.core import setup
     sys.stderr.write("using canned package list\n")
     PACKAGES = ['peyotl',
+                'peyotl.api',
+                'peyotl.nexson_syntax',
+                'peyotl.nexson_validation',
+                'peyotl.ott',
+                'peyotl.phylesystem',
+                'peyotl.phylografter',
+                'peyotl.string',
+                'peyotl.sugar',
                 'peyotl.test',
                 'peyotl.test.support',
+                'peyotl.utility',
                ]
     EXTRA_KWARGS = {}
 else:
@@ -64,7 +73,7 @@ else:
 
 setup(
     name='peyotl',
-    version='0.0.0a',
+    version='0.1.0a',
     description='Library for interacting with Open Tree of Life resources',
     long_description=(open('README.md').read() + '\n\n' +
                       open('CONTRIBUTORS.txt').read()),

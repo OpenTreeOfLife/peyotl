@@ -27,23 +27,32 @@ except ImportError as e:
     from distutils.core import setup
     sys.stderr.write("using canned package list\n")
     PACKAGES = ['peyotl',
+                'peyotl.api',
+                'peyotl.nexson_syntax',
+                'peyotl.nexson_validation',
+                'peyotl.ott',
+                'peyotl.phylesystem',
+                'peyotl.phylografter',
+                'peyotl.string',
+                'peyotl.sugar',
                 'peyotl.test',
                 'peyotl.test.support',
+                'peyotl.utility',
                ]
     EXTRA_KWARGS = {}
 else:
     sys.stderr.write("searching for packages\n")
     PACKAGES = find_packages()
     EXTRA_KWARGS = dict(
-        install_requires = ['setuptools'],
         include_package_data=True,
-        test_suite = "peyotl.test"
+        test_suite="peyotl.test"
     )
+
 EXTRA_KWARGS["zip_safe"] = True
 ENTRY_POINTS = {}
 
 ###############################################################################
-# setuptools/distuils command extensions 
+# setuptools/distuils command extensions
 try:
     from setuptools import Command
 except ImportError:
@@ -55,29 +64,38 @@ else:
 
     ###########################################################################
     # coverage
-    from peyotl.test.support import coverage_analysis
-    if coverage_analysis.PEYOTL_COVERAGE_ANALYSIS_AVAILABLE:
-        sys.stderr.write("coverage analysis available ('python setup.py coverage')\n")
-        ENTRY_POINTS[command_hook].append("coverage = peyotl.test.support.coverage_analysis:CoverageAnalysis")
-    else:
+    ###########################################################################
+    # coverage
+    try:
+        from peyotl.test.support import coverage_analysis
+        if coverage_analysis.PEYOTL_COVERAGE_ANALYSIS_AVAILABLE:
+            sys.stderr.write("coverage analysis available ('python setup.py coverage')\n")
+            ENTRY_POINTS[command_hook].append("coverage = peyotl.test.support.coverage_analysis:CoverageAnalysis")
+        else:
+            assert False
+    except:
         sys.stderr.write("coverage analysis not available\n")
 
 setup(
     name='peyotl',
-    version='0.0.0a',
+    version='0.1.3dev',
     description='Library for interacting with Open Tree of Life resources',
-    long_description=(open('README.md').read() + '\n\n' +
-                      open('CONTRIBUTORS.txt').read()),
+    long_description=(open('README.rst').read()),
     url='https://github.com/OpenTreeOfLife/peyotl',
     license='BSD',
-    author='Mark T. Holder',
-    author_email='mtholder',
+    author='Emily Jane B. McTavish and Mark T. Holder',
     py_modules=['peyotl'],
-
+    install_requires=['setuptools',
+                      'anyjson',
+                      'coverage',
+                      'sh>=1.08',
+                      'locket>=0.1.1',
+                      'requests>=2.2.1',
+                      'redis'],
+    packages=PACKAGES,
     entry_points=ENTRY_POINTS,
-
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
         'Natural Language :: English',

@@ -1,3 +1,4 @@
+include README.rst
 include CONTRIBUTORS.txt
 include clean.sh
 include doc/Makefile
@@ -15,3 +16,5 @@ recursive-include peyotl/test/data *
 global-exclude .DS_Store
 global-exclude *.pyc
 global-exclude .gitignore
+include test.sh
+include TESTING.md

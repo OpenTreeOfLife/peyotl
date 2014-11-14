@@ -412,7 +412,7 @@ class GitAction(object):
                     "commit",
                     author=author,
                     message="Update Study #%s via OpenTree API" % study_id)
-            except Exception, e:
+            except Exception as e:
                 # We can ignore this if no changes are new,
                 # otherwise raise a 400
                 if "nothing to commit" in e.message:#@EJM is this dangerous?
@@ -422,7 +422,7 @@ class GitAction(object):
                     self.reset_hard()
                     raise
             new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")
-        except Exception, e:
+        except Exception as e:
             _LOG.exception('write_study exception')
             raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
         finally:
@@ -462,7 +462,7 @@ class GitAction(object):
                 "commit",
                 author=author,
                 message=commit_msg)
-        except Exception, e:
+        except Exception as e:
             # We can ignore this if no changes are new,
             # otherwise raise a 400
             if "nothing to commit" in e.message:#@EJM is this dangerous?

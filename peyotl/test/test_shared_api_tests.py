@@ -51,7 +51,6 @@ else:
         keys.sort()
         for k in keys:
             curr_test = tblob[k]
-            #print k, curr_test['tests'].keys()
             def nf(self, n=k, blob=curr_test):
                 global STOP
                 if STOP or n == 'test_subtree_demo':
@@ -69,7 +68,6 @@ else:
                         args = {}
                 except:
                     pass
-                #print '    in', n, ' Calling', bound_m, 'with', args
                 try:
                     if ('parameters_error' in expected) or ('contains_error' in expected):
                         ec = expected.get('parameters_error')
@@ -79,7 +77,6 @@ else:
                         else:
                             exc_class = ec[0]
                             et = _EXC_STR_TO_EXC_CLASS[exc_class]
-                        #print args
                         self.assertRaises(et, bound_m, **args)
                     else:
                         response = bound_m(**args)

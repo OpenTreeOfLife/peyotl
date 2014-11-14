@@ -22,7 +22,7 @@ try:
         setuptools_path = ""
     sys.stderr.write("using setuptools%s\n" % setuptools_path)
     from setuptools import setup, find_packages
-except ImportError, e:
+except ImportError as e:
     sys.stderr.write("using distutils\n")
     from distutils.core import setup
     sys.stderr.write("using canned package list\n")

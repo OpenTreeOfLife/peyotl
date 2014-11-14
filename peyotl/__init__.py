@@ -9,7 +9,7 @@ Typical usage:
 from peyotl import phylesystem_studies
 
 for file_path in phylesystem_studies('parent/of/phylesystem/repo'):
-    print (file_path)
+    print(file_path)
 '''
 
 from peyotl.utility import get_config, \

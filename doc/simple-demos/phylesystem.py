@@ -2,7 +2,7 @@
 from peyotl.api import PhylesystemAPI
 pa = PhylesystemAPI(get_from='api',
                     transform='client')
-print pa.get('pg_10',
+print(pa.get('pg_10',
              tree_id='tree3',
              subtree_id='ingroup',
-             format='newick')
+             format='newick'))

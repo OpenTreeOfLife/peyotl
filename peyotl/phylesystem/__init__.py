@@ -3,7 +3,10 @@
 copies of the phylesystem repositories.
 '''
 from peyotl.utility import get_config, expand_path, get_logger
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 import json
 try:
     import anyjson

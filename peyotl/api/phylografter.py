@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from peyotl.api.wrapper import _WSWrapper, APIWrapper, GZIP_REQUEST_HEADERS
 from peyotl.nexson_syntax import write_as_json
 import datetime

@@ -9,7 +9,10 @@
 '''
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from peyotl.utility import get_logger
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 import codecs
 import json
 # monkey patching of NexsonWarningCodes causes lots of warnings

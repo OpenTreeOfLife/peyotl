@@ -33,7 +33,10 @@ from peyotl.nexson_syntax.direct2badgerfish_nexson import Direct2BadgerfishNexso
 from peyotl.nexson_syntax.nexson2nexml import Nexson2Nexml
 from peyotl.nexson_syntax.nexml2nexson import Nexml2Nexson
 from peyotl.utility import get_logger
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 import xml.dom.minidom
 import codecs
 import json

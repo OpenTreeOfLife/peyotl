@@ -2,7 +2,10 @@
 '''Simple utility functions that do not depend on any other part of
 peyotl.
 '''
-from StringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 import logging
 import json
 import time

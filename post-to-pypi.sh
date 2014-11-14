@@ -5,14 +5,22 @@ then
     exit 1
 fi
 version=$(grep version setup.py | sed -E "s/.*version='(.*)'.*/\\1/")
-echo posting version $version
-set -x
-echo python setup.py register -r pypi || exit
-echo python setup.py sdist upload -r pypi || exit
-echo git commit -m "bump of version to $version" setup.py || exit
-echo git tag $version
-echo git push origin
+if test -z $version
+then
+    echo grepping out the version failed
+    exit 1
+fi
 
+echo posting version $version
+
+set -x
+python setup.py register -r pypi || exit
+python setup.py sdist upload -r pypi || exit
+git commit -m "bump of version to $version" setup.py || exit
+git tag $version
+git push origin
+
+set +x
 echo remember to log in to GitHub and tag this as a release to keep GH and PyPI in sync!
 
 

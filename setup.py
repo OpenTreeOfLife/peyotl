@@ -81,6 +81,12 @@ setup(
     license='BSD',
     author='Emily Jane B. McTavish and Mark T. Holder',
     py_modules=['peyotl'],
+    install_requires=['anyjson',
+                      'coverage',
+                      'sh>=1.08',
+                      'locket>=0.1.1',
+                      'requests>=2.2.1',
+                      'redis']
     packages=PACKAGES,
     entry_points=ENTRY_POINTS,
     classifiers=[

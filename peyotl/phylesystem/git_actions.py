@@ -18,12 +18,12 @@ def get_HEAD_SHA1(git_dir):
     '''Not locked!
     '''
     head_file = os.path.join(git_dir, 'HEAD')
-    with open(head_file, 'rU') as hf:
+    with open(head_file, 'r') as hf:
         head_contents = hf.read().strip()
     assert head_contents.startswith('ref: ')
     ref_filename = head_contents[5:] #strip off "ref: "
     real_ref = os.path.join(git_dir, ref_filename)
-    with open(real_ref, 'rU') as rf:
+    with open(real_ref, 'r') as rf:
         return rf.read().strip()
 
 
@@ -197,7 +197,7 @@ class GitAction(object):
             head_sha = commit_sha
         study_filepath = self.path_for_study(study_id)
         try:
-            f = codecs.open(study_filepath, mode='rU', encoding='utf-8')
+            f = codecs.open(study_filepath, mode='r', encoding='utf-8')
             content = f.read()
         except:
             content = ''

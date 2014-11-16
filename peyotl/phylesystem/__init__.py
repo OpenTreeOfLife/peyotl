@@ -188,7 +188,7 @@ class PhylesystemShard(PhylesystemShardBase):
         if self._new_study_prefix is None:
             prefix_file = os.path.join(path, 'new_study_prefix')
             if os.path.exists(prefix_file):
-                pre_content = open(prefix_file, 'rU').read().strip()
+                pre_content = open(prefix_file, 'r').read().strip()
                 valid_pat = re.compile('^[a-zA-Z0-9]+_$')
                 if len(pre_content) != 3 or not valid_pat.match(pre_content):
                     raise ValueError('Expecting prefix in new_study_prefix file to be two '\
@@ -264,7 +264,7 @@ class PhylesystemShard(PhylesystemShardBase):
         with self._index_lock:
             fp = self.study_index.values()[0][2]
         _LOG.debug('diagnose_repo_nexml2json with fp={}'.format(fp))
-        with codecs.open(fp, mode='rU', encoding='utf-8') as fo:
+        with codecs.open(fp, mode='r', encoding='utf-8') as fo:
             fj = json.load(fo)
             return detect_nexson_version(fj)
 
@@ -338,7 +338,7 @@ class PhylesystemShard(PhylesystemShardBase):
         '''
         for study_id, fp in self.iter_study_filepaths(**kwargs):
             if not self._is_alias(study_id):
-                with codecs.open(fp, 'rU', 'utf-8') as fo:
+                with codecs.open(fp, 'r', 'utf-8') as fo:
                     try:
                         nex_obj = anyjson.loads(fo.read())
                         yield (study_id, nex_obj)

@@ -482,7 +482,7 @@ def get_ot_study_info_from_nexml(src=None,
                 from peyotl.utility import download
                 nexml_content = download(url=src, encoding=encoding)
             else:
-                src = codecs.open(src, 'rU', encoding=encoding)
+                src = codecs.open(src, 'r', encoding=encoding)
                 nexml_content = src.read().encode('utf-8')
         else:
             nexml_content = src.read().encode('utf-8')
@@ -620,7 +620,7 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
             out.close()
 
 def read_as_json(infi, encoding='utf-8'):
-    with codecs.open(infi, 'rU', encoding=encoding) as inpf:
+    with codecs.open(infi, 'r', encoding=encoding) as inpf:
         n = json.load(inpf)
     return n
 

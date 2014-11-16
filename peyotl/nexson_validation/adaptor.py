@@ -24,12 +24,12 @@ def create_validation_adaptor(obj, logger):
     except:
         return BadgerFishValidationAdaptor(obj, logger)
     if _is_by_id_hbf(nexson_version):
-        _LOG.debug('validating as ById...')
+        #_LOG.debug('validating as ById...')
         return ByIdHBFValidationAdaptor(obj, logger)
     elif _is_badgerfish_version(nexson_version):
-        _LOG.debug('validating as BadgerFish...')
+        #_LOG.debug('validating as BadgerFish...')
         return BadgerFishValidationAdaptor(obj, logger)
     elif _is_direct_hbf(nexson_version):
-        _LOG.debug('validating as DirectHBF...')
+        #_LOG.debug('validating as DirectHBF...')
         return DirectHBFValidationAdaptor(obj, logger)
     raise NotImplementedError('nexml2json version {v}'.format(v=nexson_version))

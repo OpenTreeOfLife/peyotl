@@ -13,7 +13,7 @@ _LOG = get_logger(__name__)
 VALID_NEXSON_DIRS = ['9', 'otu', ]
 
 def read_json(fp):
-    return json.load(codecs.open(fp, 'rU', encoding='utf-8'))
+    return json.load(codecs.open(fp, 'r', encoding='utf-8'))
 def write_json(o, fp):
     with codecs.open(fp, 'w', encoding='utf-8') as fo:
         json.dump(o, fo, indent=2, sort_keys=True)

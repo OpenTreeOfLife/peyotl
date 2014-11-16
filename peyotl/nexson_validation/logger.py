@@ -5,6 +5,7 @@ from peyotl.nexson_syntax.helper import _add_value_to_dict_bf
 from peyotl.nexson_validation.helper import SeverityCodes, VERSION
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from peyotl.utility import get_logger
+from functools import cmp_to_key
 _LOG = get_logger(__name__)
 import platform
 import sys
@@ -29,9 +30,13 @@ def _create_message_list(key, w, severity):
     return d
 
 _LIST_0 = [0]
-_LIST_1 = [1]
+_LIST_1 = [0]
 def _msg_data_cmp(x, y):
-    return cmp(x.get('data', _LIST_0), y.get('data', _LIST_1))
+    xl = x.get('data', _LIST_0)
+    yl = y.get('data', _LIST_1)
+    if xl == yl:
+        return 0
+    return -1 if xl < yl else 1
 
 def _msg_cmp(x, y):
     xr = x.get('refersTo')
@@ -52,22 +57,22 @@ def _msg_cmp(x, y):
             xrk.sort()
             yrk = list(yr.keys())
             yrk.sort()
-            r = cmp(xrk, yrk)
-            if r == 0:
+            if xrk == yrk:
                 xrv = [xr[i] for i in xrk]
                 yrv = [yr[i] for i in xrk]
                 c = cmp(xrv, yrv)
                 if c == 0:
                     return _msg_data_cmp(x, y)
                 return c
-            return r
+            return -1 if xrk < yrk else 1
         return 1
     if yri is None:
         return -1
-    r = cmp(xri, yri)
-    if r != 0:
-        return r
-    return _msg_data_cmp(x, y)
+    if xri == yri:
+        return _msg_data_cmp(x, y)
+    return -1 if xri < yri else 1
+
+_msg_key_func = cmp_to_key(_msg_cmp)
 
 class DefaultRichLogger(object):
     def __init__(self, store_messages=False):
@@ -117,10 +122,10 @@ class DefaultRichLogger(object):
         if sort:
             for v in w.values():
                 if isinstance(v, list):
-                    v.sort(cmp=_msg_cmp)
+                    v.sort(key=_msg_key_func)
             for v in e.values():
                 if isinstance(v, list):
-                    v.sort(cmp=_msg_cmp)
+                    v.sort(key=_msg_key_func)
         return {'warnings': w, 'errors': e}
 
     def create_nexson_message_list(self, sort=True):
@@ -129,14 +134,14 @@ class DefaultRichLogger(object):
             d = _create_message_list(key, em, 'ERROR')
             em_list.extend(d)
         if sort:
-            em_list.sort(cmp=_msg_cmp)
+            em_list.sort(key=_msg_key_func)
         wm_list = []
         for key, em in self._warn_by_type.items():
             d = _create_message_list(key, em, 'WARNING')
             wm_list.extend(d)
         if sort:
-            em_list.sort(cmp=_msg_cmp)
-            wm_list.sort(cmp=_msg_cmp)
+            em_list.sort(key=_msg_key_func)
+            wm_list.sort(key=_msg_key_func)
         em_list.extend(wm_list)
         return em_list
 

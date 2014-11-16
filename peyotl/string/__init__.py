@@ -74,6 +74,9 @@ _u = {}
 for _k, _v in RE.__dict__.items():
     if _k.endswith('_STR'):
         _f = _k[:-4]
+        #print '    {} = {}'.format(_k, repr(_v))
+        print '    {} = re.compile({})'.format(_f, repr(_v))
+        print '    {}_FULL = re.compile({})'.format(_f, repr('^' + _v + '$'))
         _u[_f] = re.compile(_v)
         _u[_f + '_FULL'] = re.compile('^' + _v + '$')
 RE.__dict__.update(_u)

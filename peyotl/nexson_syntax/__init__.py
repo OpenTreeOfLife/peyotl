@@ -25,7 +25,10 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         NEXML_NEXSON_VERSION, \
                                         BY_ID_HONEY_BADGERFISH, \
                                         SUPPORTED_NEXSON_VERSIONS
-from peyotl.utility.str_util import is_str_type
+from peyotl.utility.str_util import flush_utf_8_writer, \
+                                    UNICODE, \
+                                    is_str_type, \
+                                    get_utf_8_string_io_writer
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
 from peyotl.nexson_syntax.direct2optimal_nexson import Direct2OptimalNexson
 from peyotl.nexson_syntax.badgerfish2direct_nexson import Badgerfish2DirectNexson
@@ -33,10 +36,6 @@ from peyotl.nexson_syntax.direct2badgerfish_nexson import Direct2BadgerfishNexso
 from peyotl.nexson_syntax.nexson2nexml import Nexson2Nexml
 from peyotl.nexson_syntax.nexml2nexson import Nexml2Nexson
 from peyotl.utility import get_logger
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
 import xml.dom.minidom
 import codecs
 import json
@@ -415,10 +414,9 @@ class PhyloSchema(object):
                     write_as_json(d, output_dest)
                     return None
                 else:
-                    f = StringIO()
-                    wrapper = codecs.getwriter("utf8")(f)
+                    f, wrapper = get_utf_8_string_io_writer()
                     write_as_json(d, wrapper)
-                    wrapper.reset()
+                    flush_utf_8_writer(wrapper)
                     return f.getvalue()
             else:
                 return d
@@ -527,15 +525,14 @@ def write_obj_as_nexml(obj_dict,
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
 
 def convert_to_nexml(obj_dict, addindent='', newl='', use_default_root_atts=True, otu_label='ot:originalLabel'):
-    f = StringIO()
-    wrapper = codecs.getwriter("utf8")(f)
+    f, wrapper = get_utf_8_string_io_writer()
     write_obj_as_nexml(obj_dict,
                        file_obj=wrapper,
                        addindent=addindent,
                        newl=newl,
                        use_default_root_atts=use_default_root_atts,
                        otu_label=otu_label)
-    wrapper.reset()
+    flush_utf_8_writer(wrapper)
     return f.getvalue()
 
 def resolve_nexson_format(v):
@@ -819,7 +816,7 @@ def convert_tree_to_newick(tree,
     curr_edge = None
     curr_sib_list = []
     curr_stack = []
-    out = StringIO()
+    sio, out = get_utf_8_string_io_writer()
     going_tipward = True
     while True:
         if going_tipward:
@@ -872,11 +869,11 @@ def convert_tree_to_newick(tree,
             curr_node_id = curr_edge['@target']
             going_tipward = True
     out.write(';')
-    return out.getvalue()
+    flush_utf_8_writer(out)
+    return sio.getvalue()
 
 def _write_nexus_format(quoted_leaf_labels, tree_name_newick_list):
-    f = StringIO()
-    wrapper = codecs.getwriter("utf8")(f)
+    f, wrapper = get_utf_8_string_io_writer()
     wrapper.write('''#NEXUS
 BEGIN TAXA;
     Dimensions NTax = {s};
@@ -890,7 +887,7 @@ BEGIN TREES;
         wrapper.write(' = ')
         wrapper.write(newick)
     wrapper.write('\nEND;\n')
-    wrapper.reset()
+    flush_utf_8_writer(wrapper)
     return f.getvalue()
 
 def convert_tree(tree_id, tree, otu_group, schema, subtree_id=None):

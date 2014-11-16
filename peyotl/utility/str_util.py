@@ -3,6 +3,7 @@
 import sys
 if sys.version_info.major == 2:
     from cStringIO import StringIO
+    import codecs
     UNICODE = unicode
     def is_str_type(x):
         return isinstance(x, basestring)
@@ -11,7 +12,7 @@ if sys.version_info.major == 2:
     def get_utf_8_string_io_writer():
         string_io = StringIO()
         wrapper = codecs.getwriter("utf8")(string_io)
-        return string_io, writer
+        return string_io, wrapper
     def flush_utf_8_writer(wrapper):
         wrapper.reset()
 else:

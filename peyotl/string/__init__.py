@@ -55,35 +55,51 @@ _CAN_PRECEED = {
 
 class RE:
     _HIGHER_TAXON_CS_STR = r'([-A-Z][a-z]{2,})'
+    _HIGHER_TAXON_CS = re.compile('([-A-Z][a-z]{2,})')
+    _HIGHER_TAXON_CS_FULL = re.compile('^([-A-Z][a-z]{2,})$')
     _TAXON_CI_STR = r'([-A-Za-z]{3,})'
+    _TAXON_CI = re.compile('([-A-Za-z]{3,})')
+    _TAXON_CI_FULL = re.compile('^([-A-Za-z]{3,})$')
     _EPITHET_CS_STR = r'([-a-z]{3,})'
+    _EPITHET_CS = re.compile('([-a-z]{3,})')
+    _EPITHET_CS_FULL = re.compile('^([-a-z]{3,})$')
     _GENBANK_STR = r'([A-Z]{1,2}[0-9]{5,6})'
+    _GENBANK = re.compile('([A-Z]{1,2}[0-9]{5,6})')
+    _GENBANK_FULL = re.compile('^([A-Z]{1,2}[0-9]{5,6})$')
     _VAR_STR = r'([vV][aA][rR]\.?)'
+    _VAR = re.compile('([vV][aA][rR]\\.?)')
+    _VAR_FULL = re.compile('^([vV][aA][rR]\\.?)$')
     _SP_STR = r'([sS][pP]\.?)'
+    _SP = re.compile('([sS][pP]\\.?)')
+    _SP_FULL = re.compile('^([sS][pP]\\.?)$')
     _SSP_STR = r'([sS][sS][pP]\.?)'
+    _SSP = re.compile('([sS][sS][pP]\\.?)')
+    _SSP_FULL = re.compile('^([sS][sS][pP]\\.?)$')
     _CF_STR = r'([cC][fF]\.?)'
+    _CF = re.compile('([cC][fF]\\.?)')
+    _CF_FULL = re.compile('^([cC][fF]\\.?)$')
     _AFF_STR = r'([aA][fF][fF]\.?)'
+    _AFF = re.compile('([aA][fF][fF]\\.?)')
+    _AFF_FULL = re.compile('^([aA][fF][fF]\\.?)$')
     _SPACE_STR = ' '
+    _SPACE = re.compile(' ')
+    _SPACE_FULL = re.compile('^ $')
     _WHITESPACE_STR = r'\s'
+    _WHITESPACE = re.compile('\\s')
+    _WHITESPACE_FULL = re.compile('^\\s$')
     _PUNCTUATION_STR = r'[-~`<>._,;+?!@#$%^&()+={}|\\\[\]]'
+    _PUNCTUATION = re.compile('[-~`<>._,;+?!@#$%^&()+={}|\\\\\\[\\]]')
+    _PUNCTUATION_FULL = re.compile('^[-~`<>._,;+?!@#$%^&()+={}|\\\\\\[\\]]$')
     _NUMBER_STR = r'[0-9]'
+    _NUMBER = re.compile('[0-9]')
+    _NUMBER_FULL = re.compile('^[0-9]$')
     _UC_LETTER_STR = r'[A-Z]'
+    _UC_LETTER = re.compile('[A-Z]')
+    _UC_LETTER_FULL = re.compile('^[A-Z]$')
     _LC_LETTER_STR = r'[a-z]'
+    _LC_LETTER = re.compile('[a-z]')
+    _LC_LETTER_FULL = re.compile('^[a-z]$')
 
-_u = {}
-for _k, _v in RE.__dict__.items():
-    if _k.endswith('_STR'):
-        _f = _k[:-4]
-        #print '    {} = {}'.format(_k, repr(_v))
-        print '    {} = re.compile({})'.format(_f, repr(_v))
-        print '    {}_FULL = re.compile({})'.format(_f, repr('^' + _v + '$'))
-        _u[_f] = re.compile(_v)
-        _u[_f + '_FULL'] = re.compile('^' + _v + '$')
-RE.__dict__.update(_u)
-del _u
-del _k
-del _v
-del _f
 
 class OTULabelStringCruncher(object):
     def __init__(self, pat_list):

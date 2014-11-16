@@ -154,7 +154,7 @@ def _debug_dump_dom(el):
     import xml.dom.minidom
     s = [el.nodeName]
     att_container = el.attributes
-    for i in xrange(att_container.length):
+    for i in range(att_container.length):
         attr = att_container.item(i)
         s.append('  @{a}="{v}"'.format(a=attr.name, v=attr.value))
     for c in el.childNodes:

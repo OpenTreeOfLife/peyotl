@@ -123,7 +123,7 @@ class Nexml2Nexson(NexsonConverter):
         att_container = x.attributes
         ns_obj = {}
         if att_container is not None:
-            for i in xrange(att_container.length):
+            for i in range(att_container.length):
                 attr = att_container.item(i)
                 n = attr.name
                 t = None
@@ -198,7 +198,7 @@ class Nexml2Nexson(NexsonConverter):
             _LOG.debug('"property" missing from literal meta')
             return None, None
         att_container = minidom_meta_element.attributes
-        for i in xrange(att_container.length):
+        for i in range(att_container.length):
             attr = att_container.item(i)
             handling_code, new_name = _literal_meta_att_decision_fn(attr.name)
             if handling_code == ATT_TRANSFORM_CODE.IN_FULL_OBJECT:
@@ -235,7 +235,7 @@ class Nexml2Nexson(NexsonConverter):
             return None, None
         full_obj = {}
         att_container = minidom_meta_element.attributes
-        for i in xrange(att_container.length):
+        for i in range(att_container.length):
             attr = att_container.item(i)
             handling_code, new_name = _resource_meta_att_decision_fn(attr.name)
             if handling_code == ATT_TRANSFORM_CODE.IN_FULL_OBJECT:

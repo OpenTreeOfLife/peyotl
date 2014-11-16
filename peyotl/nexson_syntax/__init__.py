@@ -482,8 +482,8 @@ def get_ot_study_info_from_nexml(src=None,
                 from peyotl.utility import download
                 nexml_content = download(url=src, encoding=encoding)
             else:
-                src = codecs.open(src, 'r', encoding=encoding)
-                nexml_content = src.read().encode('utf-8')
+                with codecs.open(src, 'r', encoding=encoding) as src:
+                    nexml_content = src.read().encode('utf-8')
         else:
             nexml_content = src.read().encode('utf-8')
     doc = xml.dom.minidom.parseString(nexml_content)

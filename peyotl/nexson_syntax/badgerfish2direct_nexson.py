@@ -9,7 +9,7 @@ from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         DIRECT_HONEY_BADGERFISH, \
                                         _LITERAL_META_PAT, \
                                         _RESOURCE_META_PAT
-
+from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
@@ -42,7 +42,7 @@ class Badgerfish2DirectNexson(NexsonConverter):
                 full_obj[k] = lit_bf_meta[k]
         # Coercion should not be needed for json->json
         if dt and self._coercing_literals:
-            if isinstance(content, str) or isinstance(content, unicode):
+            if is_str_type(content):
                 content = _coerce_literal_val_to_primitive(dt, content)
         att_key = '^' + att_key
         if full_obj:

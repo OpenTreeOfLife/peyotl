@@ -10,6 +10,7 @@ from peyotl.nexson_syntax import convert_nexson_format
 from peyotl.phylesystem.git_actions import MergeException, \
                                            get_user_author, \
                                            GitWorkflowError
+from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 from locket import LockError
 from sh import git
@@ -139,7 +140,7 @@ def commit_and_try_merge2master(git_action,
     merge_needed = False
     fc = tempfile.NamedTemporaryFile()
     try:
-        if isinstance(file_content, str) or isinstance(file_content, unicode):
+        if is_str_type(file_content):
             fc.write(file_content)
         else:
             write_as_json(file_content, fc)

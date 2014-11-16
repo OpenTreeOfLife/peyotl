@@ -6,6 +6,7 @@ import locket
 import codecs
 from peyotl import get_logger
 import shutil
+from peyotl.utility.str_util import is_str_type
 from peyotl.nexson_syntax import write_as_json
 import tempfile #@TEMPORARY for deprecated write_study
 _LOG = get_logger(__name__)
@@ -76,7 +77,7 @@ class GitAction(object):
     def clone_repo(par_dir, repo_local_name, remote):
         if not os.path.isdir(par_dir):
             raise ValueError(repr(par_dir) + ' is not a directory')
-        if not (isinstance(remote, str) or isinstance(remote, unicode)):
+        if not is_str_type(remote):
             raise ValueError(repr(remote) + ' is not a remote string')
         dest = os.path.join(par_dir, repo_local_name)
         if os.path.exists(dest):
@@ -389,7 +390,7 @@ class GitAction(object):
         #   only doing this function is going away very soon. @KILL with merge of local-dep
         gh_user = branch.split('_study_')[0]
         fc = tempfile.NamedTemporaryFile()
-        if isinstance(file_content, str) or isinstance(file_content, unicode):
+        if is_str_type(file_content):
             fc.write(file_content)
         else:
             write_as_json(file_content, fc)

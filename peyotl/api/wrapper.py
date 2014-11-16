@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from peyotl.utility.str_util import UNICODE, is_str_type
 from peyotl.nexson_syntax import write_as_json
 from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config
@@ -22,7 +23,7 @@ _JSON_HEADERS = {'Content-Type': 'application/json',
 CURL_LOGGER = os.environ.get('PEYOTL_CURL_LOG_FILE')
 
 def escape_dq(s):
-    if not (isinstance(s, str) or isinstance(s, unicode)):
+    if not is_str_type(s):
         if isinstance(s, bool):
             if s:
                 return 'true'
@@ -47,7 +48,7 @@ def log_request_as_curl(curl_log, url, verb, headers, params, data):
             url = url + '?' + urllib.urlencode(params)
             dargs = ''
         if data:
-            if isinstance(data, str) or isinstance(data, unicode):
+            if is_str_type(data):
                 data = anyjson.loads(data)
             dargs = "'" + anyjson.dumps(data) + "'"
         else:
@@ -281,7 +282,7 @@ _CUTOFF_LEN_DETAILED_VIEW = 500
 def _dict_summary(d, name):
     dk = d.keys()
     dk.sort()
-    sd = unicode(d)
+    sd = UNICODE(d)
     if len(sd) < _CUTOFF_LEN_DETAILED_VIEW:
         a = []
         for k in dk:
@@ -297,7 +298,7 @@ def _http_method_summary_str(url, verb, headers, params, data=None):
     hs = _dict_summary(headers, 'headers')
     if data is None:
         ds = 'None'
-    elif isinstance(data, str) or isinstance(data, unicode):
+    elif is_str_type(data):
         ds = _dict_summary(anyjson.loads(data), 'data')
     else:
         ds = _dict_summary(data, 'data')

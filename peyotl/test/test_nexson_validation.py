@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 from peyotl.nexson_syntax import detect_nexson_version, get_empty_nexson
+from peyotl.utility.str_util import UNICODE
 from peyotl.nexson_validation import validate_nexson
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
@@ -53,7 +54,7 @@ class TestConvert(unittest.TestCase):
                 aa = validate_nexson(nexson)
                 annot = aa[0]
                 for e in annot.errors:
-                    _LOG.debug('unexpected error from {f}: {m}'.format(f=frag, m=unicode(e)))
+                    _LOG.debug('unexpected error from {f}: {m}'.format(f=frag, m=UNICODE(e)))
                 if len(annot.errors) > 0:
                     ofn = pathmap.nexson_source_path(frag + '.output')
                     ew_dict = annot.get_err_warn_summary_dict()

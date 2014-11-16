@@ -5,6 +5,7 @@ from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _convert_hbf_meta_val_for_xml, \
                                         _index_list_of_values, \
                                         _is_badgerfish_version
+from peyotl.utility.str_util import UNICODE
 from peyotl.utility import get_logger
 import xml.dom.minidom
 _LOG = get_logger(__name__)
@@ -41,7 +42,7 @@ def _create_sub_el(doc, parent, tag, attrib, data=None):
         elif data is False:
             el.appendChild(doc.createTextNode('false'))
         else:
-            u = unicode(data).strip()
+            u = UNICODE(data).strip()
             if u:
                 el.appendChild(doc.createTextNode(u))
     return el
@@ -119,7 +120,7 @@ class Nexson2Nexml(NexsonConverter):
                             v = u'true'
                         else:
                             v = u'false'
-                    ak[s] = unicode(v)
+                    ak[s] = UNICODE(v)
             elif k == '$':
                 tk = v
             elif k.startswith('^') and (not self._migrating_from_bf):

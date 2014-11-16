@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from peyotl.utility.str_util import UNICODE, is_str_type
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.nexson_syntax import create_content_spec
 from peyotl.utility import doi2url
@@ -279,8 +280,8 @@ class _OTIWrapper(_WSWrapper):
         if k not in valid_keys:
             raise ValueError('"{k}" is not a valid search term. Expecting it to be one of the following: {kl}'.format(k=k, kl=repr(valid_keys)))
         v = query_dict[k]
-        if not (isinstance(v, str) or isinstance(v, unicode)):
-            v = unicode(v)
+        if not is_str_type(v):
+            v = UNICODE(v)
         if k == 'ot:studyPublication':
             v = doi2url(v)
         return (k, v)
@@ -291,7 +292,7 @@ class _OTIWrapper(_WSWrapper):
         return self.json_http_post(url, data=anyjson.dumps(data))
     def trigger_unindex(self, study_id):
         url = '{p}/unindexNexsons'.format(p=self.indexing_prefix)
-        if isinstance(study_id, str) or isinstance(study_id, unicode):
+        if is_str_type(study_id):
             study_id = [study_id]
         data = {'ids': study_id}
         return self.json_http_post(url, data=anyjson.dumps(data))

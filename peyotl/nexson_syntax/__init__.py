@@ -25,7 +25,7 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         NEXML_NEXSON_VERSION, \
                                         BY_ID_HONEY_BADGERFISH, \
                                         SUPPORTED_NEXSON_VERSIONS
-
+from peyotl.utility.str_util import is_str_type
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
 from peyotl.nexson_syntax.direct2optimal_nexson import Direct2OptimalNexson
 from peyotl.nexson_syntax.badgerfish2direct_nexson import Badgerfish2DirectNexson
@@ -225,9 +225,7 @@ class PhyloSchema(object):
             if self.content_id is not None:
                 raise ValueError('No content_id expected for "{}" content'.format(self.content))
         elif self.content in PhyloSchema._str_content_id_types:
-            if not (self.content_id is None
-                    or isinstance(self.content_id, str)
-                    or isinstance(self.content_id, unicode)):
+            if not (self.content_id is None or is_str_type(self.content_id)):
                 raise ValueError('content_id for "{}" content must be a string (if provided)'.format(self.content))
         else:
             is_list = isinstance(self.content_id, list) or isinstance(self.content_id, tuple)
@@ -428,7 +426,7 @@ class PhyloSchema(object):
         if (serialize is not None) and (not serialize):
             raise ValueError('Conversion without serialization is only supported for the NexSON format')
         if output_dest:
-            if isinstance(output_dest, str) or isinstance(output_dest, unicode):
+            if is_str_type(output_dest):
                 output_dest = codecs.open(output_dest, 'w', encoding='utf-8')
         if self.format_code == PhyloSchema.NEXML:
             if output_dest:
@@ -481,7 +479,7 @@ def get_ot_study_info_from_nexml(src=None,
     else:
         nsv = nexson_syntax_version
     if nexml_content is None:
-        if isinstance(src, str) or isinstance(src, unicode):
+        if is_str_type(src):
             if src.startswith('http://') or src.startswith('https://'):
                 from peyotl.utility import download
                 nexml_content = download(url=src, encoding=encoding)
@@ -611,7 +609,7 @@ def convert_nexson_format(blob,
 
 def write_as_json(blob, dest, indent=0, sort_keys=True):
     opened_out = False
-    if isinstance(dest, str) or isinstance(dest, unicode):
+    if is_str_type(dest):
         out = codecs.open(dest, mode='w', encoding='utf-8')
         opened_out = True
     else:

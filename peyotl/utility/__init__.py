@@ -2,6 +2,7 @@
 '''Simple utility functions that do not depend on any other part of
 peyotl.
 '''
+__all__ = ['io', 'simple_file_lock', 'str_util']
 try:
     from cStringIO import StringIO
 except ImportError:

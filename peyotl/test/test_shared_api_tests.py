@@ -47,7 +47,7 @@ else:
     for fn in test_files:
         local_fp = os.path.join(shared_tests_par, fn)
         tblob = read_as_json(local_fp)
-        keys = tblob.keys()
+        keys = list(tblob.keys())
         keys.sort()
         for k in keys:
             curr_test = tblob[k]

@@ -6,6 +6,8 @@ if sys.version_info.major == 2:
     UNICODE = unicode
     def is_str_type(x):
         return isinstance(x, basestring)
+    def is_int_type(x):
+        return isinstance(x, int) or isinstance(x, long)
     def get_utf_8_string_io_writer():
         string_io = StringIO()
         wrapper = codecs.getwriter("utf8")(string_io)
@@ -17,6 +19,8 @@ else:
     UNICODE = str
     def is_str_type(x):
         return isinstance(x, str)
+    def is_int_type(x):
+        return isinstance(x, int)
     def get_utf_8_string_io_writer():
         string_io = StringIO()
         return string_io, string_io

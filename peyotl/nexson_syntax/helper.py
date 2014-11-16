@@ -4,6 +4,7 @@ but do not depend on other parts of peyotl.nexson_syntax
 '''
 import re
 from peyotl.utility import get_logger
+from peyotl.utility.str_util import is_int_type
 _LOG = get_logger(__name__)
 # DIRECT_HONEY_BADGERFISH is the closest to BadgerFish
 DIRECT_HONEY_BADGERFISH = '1.0.0'
@@ -209,7 +210,7 @@ def _python_instance_to_nexml_meta_datatype(v):
     '''
     if isinstance(v, bool):
         return 'xsd:boolean'
-    if isinstance(v, int) or isinstance(v, long):
+    if is_int_type(v):
         return 'xsd:int'
     if isinstance(v, float):
         return 'xsd:float'

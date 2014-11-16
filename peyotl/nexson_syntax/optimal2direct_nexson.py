@@ -22,7 +22,7 @@ class Optimal2DirectNexson(NexsonConverter):
             otu_group['@id'] = oid
             otu_list = []
             otu_by_id = otu_group['otuById']
-            otu_id_list = otu_by_id.keys()
+            otu_id_list = list(otu_by_id.keys())
             otu_id_list.sort() # not necessary, but will give us a consistent order...
             for otu_id in otu_id_list:
                 otu = otu_by_id[otu_id]
@@ -54,7 +54,7 @@ class Optimal2DirectNexson(NexsonConverter):
             node_list.append(curr_node)
             sub_edge_dict = edgeBySourceId.get(curr_node_id)
             if sub_edge_dict:
-                ks = sub_edge_dict.keys()
+                ks = list(sub_edge_dict.keys())
                 ks.sort()
                 sub_edge_list = [(ski, sub_edge_dict[ski]) for ski in ks]
                 eid, edge = sub_edge_list[0]

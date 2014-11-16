@@ -280,7 +280,7 @@ class _TreeOfLifeServicesWrapper(object):
 
 _CUTOFF_LEN_DETAILED_VIEW = 500
 def _dict_summary(d, name):
-    dk = d.keys()
+    dk = list(d.keys())
     dk.sort()
     sd = UNICODE(d)
     if len(sd) < _CUTOFF_LEN_DETAILED_VIEW:

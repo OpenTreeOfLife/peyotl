@@ -276,7 +276,7 @@ class _OTIWrapper(_WSWrapper):
             return None
         if nq > 1:
             raise NotImplementedError('Currently only searches for one property/value pair are supported')
-        k = query_dict.keys()[0]
+        k = list(query_dict.keys())[0]
         if k not in valid_keys:
             raise ValueError('"{k}" is not a valid search term. Expecting it to be one of the following: {kl}'.format(k=k, kl=repr(valid_keys)))
         v = query_dict[k]

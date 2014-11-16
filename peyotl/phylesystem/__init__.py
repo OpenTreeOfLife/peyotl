@@ -156,7 +156,7 @@ class PhylesystemShardBase(object):
                 else:
                     x.append(i)
             return x
-        return k
+        return list(k)
 
 class PhylesystemShard(PhylesystemShardBase):
     '''Wrapper around a git repos holding nexson studies'''
@@ -372,7 +372,7 @@ class PhylesystemShard(PhylesystemShardBase):
         with self._index_lock:
             si = self._study_index
         r = _invert_dict_list_val(si)
-        key_list = r.keys()
+        key_list = list(r.keys())
         rd['number of studies'] = len(key_list)
         key_list.sort()
         m = []
@@ -581,7 +581,7 @@ class _Phylesystem(_PhylesystemBase):
         if repos_dict is None:
             repos_dict = get_repos(repos_par)
         shards = []
-        repo_name_list = repos_dict.keys()
+        repo_name_list = list(repos_dict.keys())
         repo_name_list.sort()
         for repo_name in repo_name_list:
             repo_filepath = repos_dict[repo_name]

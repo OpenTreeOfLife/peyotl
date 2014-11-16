@@ -48,9 +48,9 @@ def _msg_cmp(x, y):
     #_LOG.debug('xri = "{x}" yri = "{y}"'.format(x=xri, y=yri))
     if xri is None:
         if yri is None:
-            xrk = xr.keys()
+            xrk = list(xr.keys())
             xrk.sort()
-            yrk = yr.keys()
+            yrk = list(yr.keys())
             yrk.sort()
             r = cmp(xrk, yrk)
             if r == 0:

@@ -154,7 +154,7 @@ class Nexson2Nexml(NexsonConverter):
         #     "xmlns:skos": "http://www.w3.org/2004/02/skos/core#",
         #     "xmlns:tb": "http://purl.org/phylo/treebase/2.0/terms#",
         # }
-        base_keys = obj_dict.keys()
+        base_keys = list(obj_dict.keys())
         assert len(base_keys) == 1
         root_name = base_keys[0]
         root_obj = obj_dict[root_name]
@@ -244,7 +244,7 @@ class Nexson2Nexml(NexsonConverter):
                     chl = _index_list_of_values(children_dict, k)
                     written.add(k)
                     self._add_subtree_list_to_xml_doc(doc, parent, chl, k, nko)
-        ksl = children_dict.keys()
+        ksl = list(children_dict.keys())
         ksl.sort()
         for k in ksl:
             chl = _index_list_of_values(children_dict, k)
@@ -292,7 +292,7 @@ class Nexson2Nexml(NexsonConverter):
         '''
         if not meta_dict:
             return
-        key_list = meta_dict.keys()
+        key_list = list(meta_dict.keys())
         key_list.sort()
         for key in key_list:
             el_list = _index_list_of_values(meta_dict, key)

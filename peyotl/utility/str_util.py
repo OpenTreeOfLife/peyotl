@@ -5,7 +5,7 @@ if sys.version_info.major == 2:
     from cStringIO import StringIO
     UNICODE = unicode
     def is_str_type(x):
-        return isinstance(x, str) or isinstance(x, unicode)
+        return isinstance(x, basestring)
     def get_utf_8_string_io_writer():
         string_io = StringIO()
         wrapper = codecs.getwriter("utf8")(string_io)

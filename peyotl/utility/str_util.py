@@ -4,7 +4,7 @@ import sys
 if sys.version_info.major == 2:
     UNICODE = unicode
     def is_str_type(x):
-        return isinstance(x, str) or isinstance(x, unicode)
+        return isinstance(x, basestring)
 else:
     UNICODE = str
     def is_str_type(x):

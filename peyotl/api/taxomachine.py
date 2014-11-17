@@ -98,8 +98,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 data['contextName'] = context_name
             else:
                 data['context_name'] = context_name
-                if fuzzy_matching:
-                    data['do_approximate_matching'] = True
+                data['do_approximate_matching'] = bool(fuzzy_matching)
                 if id_list:
                     data['ids'] = list(id_list)
                 if include_deprecated:

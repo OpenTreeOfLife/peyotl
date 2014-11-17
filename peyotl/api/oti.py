@@ -182,7 +182,10 @@ class _OTIWrapper(_WSWrapper):
         self._study_search_prop = None
         self.indexing_prefix = None
         self.query_prefix = None
-        self._raw_urls = False #TODO should be configurable
+        r = self._config.get_from_config_setting_cascade([('apis', 'oti_raw_urls'),
+                                                          ('apis', '_raw_urls')],
+                                                         "FALSE")
+        self._raw_urls = (r.lower() == 'true')
         _WSWrapper.__init__(self, domain, **kwargs)
         self.set_domain(domain)
     def set_domain(self, d):

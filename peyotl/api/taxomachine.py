@@ -145,6 +145,10 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                                                                        ('apis', 'api_version')],
                                                                       "2")
         self.use_v1 = (self._api_vers == "1")
+        r = self._config.get_from_config_setting_cascade([('apis', 'taxomachine_raw_urls'),
+                                                          ('apis', '_raw_urls')],
+                                                         "FALSE")
+        self._raw_urls = (r.lower() == 'true')
         self._contexts = None
         self._valid_contexts = None
         self.prefix = None
@@ -154,8 +158,10 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         self._contexts = None
         self._valid_contexts = None
         self._domain = d
-        if self.use_v1:
+        if self._raw_urls:
             self.prefix = '{d}/taxomachine/ext/TNRS/graphdb'.format(d=d)
+        elif self.use_v1:
+            self.prefix = '{d}/taxomachine/v1'.format(d=d)
         else:
             self.prefix = '{d}/v2/tnrs'.format(d=d)
             self.taxonomy_prefix = '{d}/v2/taxonomy'.format(d=d)

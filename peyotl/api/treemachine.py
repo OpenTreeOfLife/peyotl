@@ -11,7 +11,10 @@ class _TreemachineAPIWrapper(_WSWrapper):
         self._current_synth_info = None
         self._current_synth_id = None
         self.prefix = None
-        self._raw_urls = False #TODO: should be config-dependent...
+        r = self._config.get_from_config_setting_cascade([('apis', 'treemachine_raw_urls'),
+                                                          ('apis', '_raw_urls')],
+                                                         "FALSE")
+        self._raw_urls = (r.lower() == 'true')
         self._api_vers = self._config.get_from_config_setting_cascade([('apis', 'treemachine_api_version'),
                                                                        ('apis', 'api_version')],
                                                                       "2")

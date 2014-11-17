@@ -15,3 +15,4 @@ for sid, fp in p.iter_study_filepaths():
         nex['^ot:studyId'] = sid
         write_as_json(blob, fp)
         print(x, sid)
+

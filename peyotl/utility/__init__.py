@@ -293,3 +293,21 @@ def write_pretty_dict_str(out, obj, indent=2):
               ensure_ascii=False,
               encoding="utf-8")
 
+
+
+def get_test_config(overrides=None):
+    '''Returns a config object with the settings in current working directory file "test.conf" overriding
+    the peyotl configuration, and the settings in the `overrides` dict
+    having the highest priority.
+    '''
+    try:
+        from ConfigParser import SafeConfigParser
+    except ImportError:
+        from configparser import ConfigParser as SafeConfigParser
+    _CONFIG_FN = os.path.abspath('test.conf')
+    _CONFIG = SafeConfigParser()
+    _CONFIG.read(_CONFIG_FN)
+    d = create_overrides_from_config(_CONFIG, _CONFIG_FN)
+    if overrides is not None:
+        d.update(overrides)
+    return ConfigWrapper(None, overrides=d)

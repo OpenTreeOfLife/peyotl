@@ -184,6 +184,13 @@ class ConfigWrapper(object):
                  overrides=None,
                  dominant_defaults=None,
                  fallback_defaults=None):
+        '''If `raw_config_obj` is None, the default peyotl cascade for finding a configuration
+        file will be used. overrides is a 2-level dictionary of section/param entries that will
+        be used instead of the setting.
+        The two default dicts will be used if the setting is not in overrides or the config object.
+        "dominant" and "fallback" refer to whether the rank higher or lower than the default 
+        value in a get.*setting.*() call
+        '''
         self._config_filename = config_filename
         self._raw = raw_config_obj
         if overrides is None:
@@ -233,6 +240,19 @@ class ConfigWrapper(object):
                                   default=default,
                                   config_filename=self._config_filename)
 
+def create_overrides_from_config(config, config_filename):
+    '''Returns a dictionary of all of the settings in a config file. the
+    returned dict is appropriate for use as the overrides arg for a ConfigWrapper.__init__() call.
+    '''
+    if _READING_LOGGING_CONF:
+        read_logging_config()
+    _get_util_logger().debug('creating override dict from ' + config_filename)
+    d = {}
+    for s in config.sections():
+        d[s] = {}
+        for opt in config.options(s):
+            d[s][opt] = config.get(s, opt)
+    return d
 
 def get_config_setting_kwargs(config_obj, section, param, default=None, **kwargs):
     '''Used to provide a consistent kwargs behavior for classes/methods that need to be config-dependent.

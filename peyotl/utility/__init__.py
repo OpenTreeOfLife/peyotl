@@ -68,11 +68,12 @@ def _get_logging_formatter(s=None):
     return logging_formatter
 
 
-def read_logging_config():
+def read_logging_config(**kwargs):
     global _READING_LOGGING_CONF
-    level = get_config('logging', 'level', 'WARNING')
-    logging_format_name = get_config('logging', 'formatter', 'NONE')
-    logging_filepath = get_config('logging', 'filepath', '')
+    cfg = get_config_object(None, **kwargs)
+    level = cfg.get_config_setting('logging', 'level', 'WARNING')
+    logging_format_name = cfg.get_config_setting('logging', 'formatter', 'NONE')
+    logging_filepath = cfg.get_config_setting('logging', 'filepath', '')
     if logging_filepath == '':
         logging_filepath = None
     _LOGGING_CONF['level_name'] = level
@@ -154,9 +155,11 @@ def get_config(section=None, param=None, default=None):
         _CONFIG.read(_CONFIG_FN)
     if section is None and param is None:
         return _CONFIG
+    return get_config_setting(_CONFIG_FN, section, param, default, config_filename=_CONFIG_FN)
+
+def get_config_setting(config_obj, section, param, default=None, config_filename=''):
     try:
-        v = _CONFIG.get(section, param)
-        return v
+        return _CONFIG.get(section, param)
     except:
         if default is None:
             mf = 'Config file "{f}" does not contain option "{o}"" in section "{s}"\n'
@@ -165,6 +168,76 @@ def get_config(section=None, param=None, default=None):
             if _ulog is not None:
                 _ulog.error(msg)
         return default
+
+class ConfigWrapper(object):
+    '''Wrapper to provide a richer get_config_setting(section, param, d) behavior. That function will
+    return a value from the following cascade:
+        1. override[section][param] if section and param are in the resp. dicts
+        2. the value in the config obj for section/param it that setting is in the config
+        3. dominant_defaults[section][param] if section and param are in the resp. dicts
+        4. the `default` arg of the get_config_setting call
+        5. fallback_defaults[section][param] if section and param are in the resp. dicts
+    '''
+    def __init__(self,
+                 raw_config_obj=None,
+                 config_filename='<programmitcally configured>',
+                 overrides=None,
+                 dominant_defaults=None,
+                 fallback_defaults=None):
+        self._config_filename = config_filename
+        self._raw = raw_config_obj
+        if overrides is None:
+            overrides = {}
+        if dominant_defaults is None:
+            dominant_defaults = {}
+        if fallback_defaults is None:
+            fallback_defaults = {}
+        self._override = overrides
+        self._dominant_defaults = dominant_defaults
+        self._fallback_defaults = fallback_defaults
+    def get_config_setting(self, section, param, default=None):
+        if section in self._override:
+            so = self._override[section]
+            if param in so:
+                return so[param]
+        if self._raw is None:
+            self._raw = get_config(None, None)
+            self._config_filename = _CONFIG_FN
+        if section in self._dominant_defaults:
+            so = self._dominant_defaults[section]
+            if param in so:
+                return get_config_setting(self._raw,
+                                          section,
+                                          param,
+                                          default=so[param],
+                                          config_filename=self._config_filename)
+        if default is None:
+            if section in self._fallback_defaults:
+                default = self._dominant_defaults[section].get(param)
+        return get_config_setting(self._raw,
+                                  section,
+                                  param,
+                                  default=default,
+                                  config_filename=self._config_filename)
+
+
+def get_config_setting_kwargs(config_obj, section, param, default=None, **kwargs):
+    '''Used to provide a consistent kwargs behavior for classes/methods that need to be config-dependent.
+
+    Currently: if config_obj is None, then kwargs['config'] is checked. If it is also None
+        then a default ConfigWrapper object is created.
+    '''
+    cfg = get_config_object(config_obj, **kwargs)
+    return cfg.get_config_setting(section, param, default)
+
+def get_config_object(config_obj, **kwargs):
+    if config_obj is not None:
+        return config_obj
+    c = kwargs.get('config')
+    if c is None:
+        return ConfigWrapper()
+    return c
+
 def doi2url(v):
     if v.startswith('http'):
         return v

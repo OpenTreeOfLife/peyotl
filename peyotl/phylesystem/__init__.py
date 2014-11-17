@@ -2,7 +2,7 @@
 '''Utilities for dealing with local filesystem
 copies of the phylesystem repositories.
 '''
-from peyotl.utility import get_config, expand_path, get_logger
+from peyotl.utility import get_config_object, expand_path, get_logger, get_config_setting_kwargs
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -38,24 +38,24 @@ _study_index_lock = Lock()
 _study_index = None
 
 STUDY_ID_PATTERN = re.compile(r'^[a-zA-Z]+_+[0-9]+$')
-def _get_phylesystem_parent_with_source():
+def _get_phylesystem_parent_with_source(**kwargs):
     src = 'environment'
     if 'PHYLESYSTEM_PARENT' in os.environ:
         phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
     else:
         try:
-            phylesystem_parent = expand_path(get_config('phylesystem', 'parent'))
+            phylesystem_parent = expand_path(get_config_setting_kwargs(None, 'phylesystem', 'parent', **kwargs))
             src = 'configfile'
         except:
             raise ValueError('No [phylesystem] "parent" specified in config or environmental variables')
     x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
     return x, src
 
-def _get_phylesystem_parent():
-    return _get_phylesystem_parent_with_source()[0]
+def _get_phylesystem_parent(**kwargs):
+    return _get_phylesystem_parent_with_source(**kwargs)[0]
 
 
-def get_repos(par_list=None):
+def get_repos(par_list=None, **kwargs):
     '''Returns a dictionary of name -> filepath
     `name` is the repo name based on the dir name (not the get repo). It is not
         terribly useful, but it is nice to have so that any mirrored repo directory can
@@ -64,7 +64,7 @@ def get_repos(par_list=None):
     '''
     _repos = {} # key is repo name, value repo location
     if par_list is None:
-        par_list = _get_phylesystem_parent()
+        par_list = _get_phylesystem_parent(**kwargs)
     elif not isinstance(par_list, list):
         par_list = [par_list]
     for p in par_list:
@@ -93,9 +93,9 @@ def create_id2study_info(path, tag):
                 d[study_id] = (tag, root, os.path.join(root, filename))
     return d
 
-def _initialize_study_index(repos_par=None):
+def _initialize_study_index(repos_par=None, **kwargs):
     d = {} # Key is study id, value is repo,dir tuple
-    repos = get_repos(repos_par)
+    repos = get_repos(repos_par, **kwargs)
     for repo in repos:
         p = os.path.join(repos[repo], 'study')
         dr = create_id2study_info(p, repo)
@@ -168,7 +168,8 @@ class PhylesystemShard(PhylesystemShardBase):
                  pkey=None,
                  git_action_class=GitAction,
                  push_mirror_repo_path=None,
-                 new_study_prefix=None):
+                 new_study_prefix=None,
+                 **kwargs):
         self._index_lock = Lock()
         self._new_study_prefix = new_study_prefix
         self._ga_class = git_action_class
@@ -218,7 +219,7 @@ class PhylesystemShard(PhylesystemShardBase):
         self.study_dir = study_dir
         if repo_nexml2json is None:
             try:
-                repo_nexml2json = get_config('phylesystem', 'repo_nexml2json')
+                repo_nexml2json = get_config_setting_kwargs(None, 'phylesystem', 'repo_nexml2json', **kwargs)
             except:
                 pass
             if repo_nexml2json == None:
@@ -396,7 +397,7 @@ def _invert_dict_list_val(d):
     return o
 _CACHE_REGION_CONFIGURED = False
 _REGION = None
-def _make_phylesystem_cache_region():
+def _make_phylesystem_cache_region(**kwargs):
     '''Only intended to be called by the Phylesystem singleton.
     '''
     global _CACHE_REGION_CONFIGURED, _REGION
@@ -436,7 +437,7 @@ def _make_phylesystem_cache_region():
     trying_file_dbm = False
     if trying_file_dbm:
         _LOG.debug('Going to try dogpile.cache.dbm ...')
-        first_par = _get_phylesystem_parent()[0]
+        first_par = _get_phylesystem_parent(**kwargs)[0]
         cache_db_dir = os.path.split(first_par)[0]
         cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
         _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
@@ -539,7 +540,8 @@ class _Phylesystem(_PhylesystemBase):
                  pkey=None,
                  git_action_class=GitAction,
                  mirror_info=None,
-                 new_study_prefix=None):
+                 new_study_prefix=None,
+                 **kwargs):
         '''
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
@@ -562,7 +564,7 @@ class _Phylesystem(_PhylesystemBase):
             self._filepath_args = 'repos_par = {}'.format(repr(repos_par))
         else:
             fmt = '<No arg> default phylesystem_parent from {}'
-            a = _get_phylesystem_parent_with_source()[1]
+            a = _get_phylesystem_parent_with_source(**kwargs)[1]
             self._filepath_args = fmt.format(a)
         push_mirror_repos_par = None
         push_mirror_remote_map = {}
@@ -579,7 +581,7 @@ class _Phylesystem(_PhylesystemBase):
                         e = e_fmt.format(push_mirror_repos_par)
                         raise ValueError(e)
         if repos_dict is None:
-            repos_dict = get_repos(repos_par)
+            repos_dict = get_repos(repos_par, **kwargs)
         shards = []
         repo_name_list = list(repos_dict.keys())
         repo_name_list.sort()

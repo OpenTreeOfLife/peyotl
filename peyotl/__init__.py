@@ -12,7 +12,8 @@ for file_path in phylesystem_studies('parent/of/phylesystem/repo'):
     print(file_path)
 '''
 
-from peyotl.utility import get_config, \
+from peyotl.utility import get_config_setting_kwargs, \
+                           get_config_object, \
                            expand_path, \
                            get_logger, \
                            pretty_dict_str

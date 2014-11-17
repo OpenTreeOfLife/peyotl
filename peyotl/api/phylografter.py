@@ -15,8 +15,8 @@ _LOG = get_logger(__name__)
 
 
 class _PhylografterWrapper(_WSWrapper):
-    def __init__(self, domain):
-        _WSWrapper.__init__(self, domain)
+    def __init__(self, domain, **kwargs):
+        _WSWrapper.__init__(self, domain, **kwargs)
     def get_modified_list(self, since_date="2010-01-01T00:00:00", list_only=True):
         '''Calls phylografter's modified_list.json to fetch
         a list of all studies that have changed since `since_date`

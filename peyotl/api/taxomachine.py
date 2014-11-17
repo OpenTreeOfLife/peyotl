@@ -138,12 +138,12 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         uri = '{p}/infer_context'.format(p=self.prefix)
         data = {'names': names}
         return self.json_http_post(uri, data=anyjson.dumps(data))
-    def __init__(self, domain):
+    def __init__(self, domain, **kwargs):
         self.use_v1 = False
         self._contexts = None
         self._valid_contexts = None
         self.prefix = None
-        _WSWrapper.__init__(self, domain)
+        _WSWrapper.__init__(self, domain, **kwargs)
         self.set_domain(domain)
     def set_domain(self, d):
         self._contexts = None

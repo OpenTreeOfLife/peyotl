@@ -5,13 +5,13 @@ from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 class _TreemachineAPIWrapper(_WSWrapper):
-    def __init__(self, domain):
+    def __init__(self, domain, **kwargs):
         self._current_synth_info = None
         self._current_synth_id = None
         self.prefix = None
         self._raw_urls = False #TODO: should be config-dependent...
         self.use_v1 = False
-        _WSWrapper.__init__(self, domain)
+        _WSWrapper.__init__(self, domain, **kwargs)
         self.set_domain(domain)
     def set_domain(self, d):
         self._current_synth_info = None

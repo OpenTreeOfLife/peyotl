@@ -25,7 +25,7 @@ _REFRESH_VALUES = ('never',    # *DEFAULT* never call "git pull"
 class _PhylesystemAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
         self._prefix = None
-        _WSWrapper.__init__(self, domain)
+        _WSWrapper.__init__(self, domain, **kwargs)
         self.set_domain(domain)
         self._github_oauth_token = None
         self._get_from = kwargs.setdefault('get_from', 'external').lower()

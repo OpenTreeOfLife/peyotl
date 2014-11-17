@@ -170,7 +170,7 @@ class _OTIWrapper(_WSWrapper):
                 'verbose': verbose,}
         response = self.json_http_post(url, data=anyjson.dumps(data))
         return response
-    def __init__(self, domain):
+    def __init__(self, domain, **kwargs):
         self.use_v1 = False
         self._node_search_prop = None
         self._search_terms = None
@@ -179,7 +179,7 @@ class _OTIWrapper(_WSWrapper):
         self.indexing_prefix = None
         self.query_prefix = None
         self._raw_urls = False #TODO should be configurable
-        _WSWrapper.__init__(self, domain)
+        _WSWrapper.__init__(self, domain, **kwargs)
         self.set_domain(domain)
     def set_domain(self, d):
         self._node_search_prop = None

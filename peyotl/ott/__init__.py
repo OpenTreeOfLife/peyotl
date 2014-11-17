@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility import get_config, get_logger
+from peyotl.utility import get_config_object, get_logger
 import pickle
 import codecs
 import os
@@ -45,9 +45,10 @@ class _TransitionalNode(object):
         preorder2tuples[pn] = t
 
 class OTT(object):
-    def __init__(self, ott_dir=None):
+    def __init__(self, ott_dir=None, **kwargs):
+        self._config = get_config_object(None, **kwargs)
         if ott_dir is None:
-            ott_dir = get_config('ott', 'parent')
+            ott_dir = self._config.get_config_setting('ott', 'parent')
         if ott_dir is None:
             raise ValueError('Either the ott_dir arg must be used or "parent" must exist in the "[ott]" section of your config (~/.peyotl/config by default)')
         self.ott_dir = ott_dir

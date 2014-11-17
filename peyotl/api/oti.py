@@ -2,7 +2,7 @@
 from peyotl.utility.str_util import UNICODE, is_str_type
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.nexson_syntax import create_content_spec
-from peyotl.utility import doi2url
+from peyotl.utility import doi2url, get_config_object
 import anyjson
 from peyotl import get_logger
 _LOG = get_logger(__name__)
@@ -171,6 +171,7 @@ class _OTIWrapper(_WSWrapper):
         response = self.json_http_post(url, data=anyjson.dumps(data))
         return response
     def __init__(self, domain, **kwargs):
+        self._config = get_config_object(None, **kwargs)
         self.use_v1 = False
         self._node_search_prop = None
         self._search_terms = None

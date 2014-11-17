@@ -195,6 +195,19 @@ class ConfigWrapper(object):
         self._override = overrides
         self._dominant_defaults = dominant_defaults
         self._fallback_defaults = fallback_defaults
+    def get_from_config_setting_cascade(self, sec_param_list, default=None):
+        '''return the first non-None setting from a series where each
+        element in `sec_param_list` is a section, param pair suitable for 
+        a get_config_setting call.
+
+        Note that non-None values for overrides or dominant_defaults will cause
+            this call to only evaluate the first element in the cascade.
+        '''
+        for section, param in sec_param_list:
+            r = self.get_config_setting(section, param, default=None)
+            if r is not None:
+                return r
+        return default
     def get_config_setting(self, section, param, default=None):
         if section in self._override:
             so = self._override[section]

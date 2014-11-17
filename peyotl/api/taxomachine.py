@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from peyotl.utility import get_config_object
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import anyjson
 from peyotl import get_logger
@@ -139,7 +140,11 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         data = {'names': names}
         return self.json_http_post(uri, data=anyjson.dumps(data))
     def __init__(self, domain, **kwargs):
-        self.use_v1 = False
+        self._config = get_config_object(None, **kwargs)
+        self._api_vers = self._config.get_from_config_setting_cascade([('apis', 'taxomachine_api_version'),
+                                                                       ('apis', 'api_version')],
+                                                                      "2")
+        self.use_v1 = (self._api_vers == "1")
         self._contexts = None
         self._valid_contexts = None
         self.prefix = None

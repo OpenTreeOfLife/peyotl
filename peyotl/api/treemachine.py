@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-from peyotl.utility import get_config_object
+from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import anyjson
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 class _TreemachineAPIWrapper(_WSWrapper):
@@ -12,7 +11,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
         self._current_synth_id = None
         self.prefix = None
         r = self._config.get_from_config_setting_cascade([('apis', 'treemachine_raw_urls'),
-                                                          ('apis', '_raw_urls')],
+                                                          ('apis', 'raw_urls')],
                                                          "FALSE")
         self._raw_urls = (r.lower() == 'true')
         self._api_vers = self._config.get_from_config_setting_cascade([('apis', 'treemachine_api_version'),

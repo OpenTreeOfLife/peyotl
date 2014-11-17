@@ -2,9 +2,8 @@
 from peyotl.utility.str_util import UNICODE, is_str_type
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.nexson_syntax import create_content_spec
-from peyotl.utility import doi2url, get_config_object
+from peyotl.utility import doi2url, get_config_object, get_logger
 import anyjson
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 _OTI_NEXSON_SCHEMA = create_content_spec(format='nexson', nexson_version='0.0.0')
 
@@ -183,7 +182,7 @@ class _OTIWrapper(_WSWrapper):
         self.indexing_prefix = None
         self.query_prefix = None
         r = self._config.get_from_config_setting_cascade([('apis', 'oti_raw_urls'),
-                                                          ('apis', '_raw_urls')],
+                                                          ('apis', 'raw_urls')],
                                                          "FALSE")
         self._raw_urls = (r.lower() == 'true')
         _WSWrapper.__init__(self, domain, **kwargs)

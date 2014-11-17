@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-from peyotl.utility import get_config_object
+from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import anyjson
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 class _TaxomachineAPIWrapper(_WSWrapper):
@@ -146,7 +145,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                                                                       "2")
         self.use_v1 = (self._api_vers == "1")
         r = self._config.get_from_config_setting_cascade([('apis', 'taxomachine_raw_urls'),
-                                                          ('apis', '_raw_urls')],
+                                                          ('apis', 'raw_urls')],
                                                          "FALSE")
         self._raw_urls = (r.lower() == 'true')
         self._contexts = None

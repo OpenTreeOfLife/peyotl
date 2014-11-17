@@ -2,10 +2,10 @@
 from peyotl.phylesystem import Phylesystem, PhylesystemProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.nexson_syntax import create_content_spec
+from peyotl.utility import get_logger
 import anyjson
 import urllib
 import os
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 _GET_LOCAL, _GET_EXTERNAL, _GET_API = range(3)

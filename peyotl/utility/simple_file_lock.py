@@ -2,7 +2,7 @@
 from peyotl.utility.io import open_for_group_write
 import time
 import os
-from peyotl import get_logger
+from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 class LockPolicy(object):

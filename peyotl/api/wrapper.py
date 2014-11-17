@@ -2,13 +2,12 @@
 from peyotl.utility.str_util import UNICODE, is_str_type
 from peyotl.nexson_syntax import write_as_json
 from peyotl.utility.io import write_to_filepath
-from peyotl.utility import get_config_object
+from peyotl.utility import get_config_object, get_logger
 import requests
 import codecs
 import anyjson
 import json
 import os
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 GZIP_REQUEST_HEADERS = {

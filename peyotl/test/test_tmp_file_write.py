@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 from peyotl.phylesystem.git_actions import GitAction
-from peyotl import phylesystem
 import unittest
 from peyotl.nexson_syntax import read_as_json
 from peyotl.test.support import pathmap
@@ -16,8 +15,8 @@ n = read_as_json(pathmap.json_source_path('1003.json'))
 class TestCreate(unittest.TestCase):
     @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS, 'only available if you are have a [phylesystem] section with "parent" variable in your peyotl config')
     def testWriteStudy(self):
-        self.reponame = list(phylesystem.get_repos().keys())[0]
-        self.repodir = phylesystem.get_repos()[self.reponame]
+        self.reponame = list(get_repos().keys())[0]
+        self.repodir = get_repos()[self.reponame]
         GitAction(self.repodir)
 
 if __name__ == "__main__":

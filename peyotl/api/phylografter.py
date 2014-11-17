@@ -10,7 +10,7 @@ import datetime
 import anyjson
 import requests
 import gzip
-from peyotl import get_logger
+from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 

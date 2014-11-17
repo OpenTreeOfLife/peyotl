@@ -1,14 +1,15 @@
+#!/usr/bin/env python
+from peyotl.utility.str_util import is_str_type
+from peyotl.nexson_syntax import write_as_json
+from peyotl.utility import get_logger
+import tempfile #@TEMPORARY for deprecated write_study
+import locket
+import codecs
+import shutil
 from sh import git
 import sh
 import re
 import os
-import locket
-import codecs
-from peyotl import get_logger
-import shutil
-from peyotl.utility.str_util import is_str_type
-from peyotl.nexson_syntax import write_as_json
-import tempfile #@TEMPORARY for deprecated write_study
 _LOG = get_logger(__name__)
 class MergeException(Exception):
     pass

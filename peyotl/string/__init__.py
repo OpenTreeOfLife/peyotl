@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+from peyotl.utility import get_logger
 import re
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 class FragType:

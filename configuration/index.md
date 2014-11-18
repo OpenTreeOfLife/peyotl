@@ -91,6 +91,7 @@ However, the parent of the current version of OTT can be specified using:
     parent = /home/username/ott2.6
 
 # Summary of config settings
+
 | Section | param | default | usage |
 |---------|-------|---------|-------|
 | logging | level | WARNING | filter for what level of messages are displayed |

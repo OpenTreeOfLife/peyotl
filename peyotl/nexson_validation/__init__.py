@@ -39,7 +39,7 @@ def ot_validate(nexson):
             alias parts of the nexson dict that is passed in as an argument.
     '''
     # stub function for hooking into NexSON validation
-    codes_to_skip = [NexsonWarningCodes.UNVALIDATED_ANNOTATION]
+    codes_to_skip = [NexsonWarningCodes.UNVALIDATED_ANNOTATION] #pylint: disable=E1101
     v_log, adaptor = validate_nexson(nexson, codes_to_skip)
     annotation = v_log.prepare_annotation(author_name='api.opentreeoflife.org/validate',
                                           description='Open Tree NexSON validation')

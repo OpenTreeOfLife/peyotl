@@ -19,8 +19,12 @@ class _TreemachineAPIWrapper(_WSWrapper):
                                                                       "2")
         self.use_v1 = (self._api_vers == "1")
         _WSWrapper.__init__(self, domain, **kwargs)
-        self.set_domain(domain)
-    def set_domain(self, d):
+        self.domain = domain
+    @property
+    def domain(self):
+        return self._domain
+    @domain.setter
+    def domain(self, d): #pylint: disable=W0221
         self._current_synth_info = None
         self._current_synth_id = None
         self._domain = d
@@ -31,33 +35,36 @@ class _TreemachineAPIWrapper(_WSWrapper):
         else:
             self.prefix = '{d}/v2/tree_of_life'.format(d=d)
             self.graph_prefix = '{d}/v2/graph'.format(d=d)
-    domain = property(_WSWrapper.get_domain, set_domain)
-    def get_current_synth_tree_id(self):
+    @property
+    def current_synth_tree_id(self):
         if self._current_synth_info is None:
-            self._current_synth_info = self.get_synthetic_tree_info()
+            self._current_synth_info = self.synthetic_tree_info
             if self.use_v1:
                 self._current_synth_id = self._current_synth_info['draftTreeName']
             else:
                 self._current_synth_id = self._current_synth_info['tree_id']
         return self._current_synth_id
-    current_synth_tree_id = property(get_current_synth_tree_id)
-    def get_synthetic_tree_info(self):
+    @property
+    def synthetic_tree_info(self):
         if self.use_v1:
             uri = '{p}/getDraftTreeID'.format(p=self.prefix)
         else:
             uri = '{p}/about'.format(p=self.prefix)
         return self.json_http_post_raise(uri)
-    def get_synthetic_tree_id_list(self):
+    @property
+    def synthetic_tree_id_list(self):
         if self.use_v1:
             uri = '{p}/getSourceTreeIDs'.format(p=self.prefix)
             return self.json_http_post_raise(uri)
-        r = self.get_synthetic_tree_info()
+        r = self.synthetic_tree_info
         raw_study_list = r['study_list']
         return raw_study_list
-
-    def get_synthetic_source_list(self):
+    @property
+    def synthetic_source_list(self):
         uri = '{p}/getSynthesisSourceList'.format(p=self.prefix)
         return self.json_http_post_raise(uri)
+    # format is redefined to match API
+    #pylint: disable=W0622
     def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, **kwargs):
         if self.use_v1:
             uri = '{p}/getSourceTree'.format(p=self.prefix)
@@ -84,7 +91,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
                               ott_id=ott_id)
     def node_info(self, node_id=None, ott_id=None, include_lineage=False):
         if self.use_v1:
-            raise NotImplemented('node_info was added in v2 of the API')
+            raise NotImplementedError('node_info was added in v2 of the API')
         uri = '{p}/node_info'.format(p=self.graph_prefix)
         data = {'include_lineage': bool(include_lineage)}
         if node_id and ott_id:

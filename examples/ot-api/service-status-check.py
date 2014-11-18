@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     summary = _ot_call('treemachine/getSyntheticTree',
                        'curl-versions/getSyntheticTree.json',
-                       otwrap.treemachine.get_synthetic_tree,
+                       lambda:otwrap.treemachine.synthetic_tree,
                        'otol.draft.22',
                        format='arguson',
                        node_id=3534540,
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     
     summary = _ot_call('treemachine/getSynthesisSourceList',
                        'curl-versions/getSynthesisSourceList.json',
-                       otwrap.treemachine.get_synthetic_source_list,
+                       lambda: otwrap.treemachine.synthetic_source_list,
                        )
     summary_list.append(summary)
     
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     
     summary = _ot_call('phylesystem/study_list',
                        'curl-versions/study_list.json',
-                       otwrap.phylesystem_api.get_study_list,
+                       lambda: otwrap.phylesystem_api.study_list,
                        )
     summary_list.append(summary)
     

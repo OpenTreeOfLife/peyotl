@@ -13,7 +13,7 @@ class _OTIWrapper(_WSWrapper):
     stored in the phylesystem. You can search for studies, trees, or nodes.
 
     The primary attributes of interest are:
-        node_search_term_set, 
+        node_search_term_set,
         study_search_term_set, and
         tree_search_term_set
     The primary methods of interest are:
@@ -34,7 +34,7 @@ class _OTIWrapper(_WSWrapper):
          "ot:studyId" -> string for the matching study
          "matched_trees" -> list (if trees or nodes are the targets of the search).
     matched_trees is a list of dictionaries with:
-        "nexson_id" -> string ID of the tree in the NexSON 
+        "nexson_id" -> string ID of the tree in the NexSON
         "oti_tree_id" -> oti's internal ID for the tree (concatenation of study ID and tree ID)
         "matched_nodes" -> list
     matched_nodes is a list of dictionaries with:
@@ -55,7 +55,6 @@ class _OTIWrapper(_WSWrapper):
         ot:parent
         ot:tag
         ot:treebaseOTUId
-    
     Trees can be searched for using:
         is_deprecated
         ot:branchLengthDescription
@@ -75,7 +74,6 @@ class _OTIWrapper(_WSWrapper):
         ot:treebaseOTUId
         ot:treebaseTreeId
         oti_tree_id
-    
     Studies can be searched for using:
         is_deprecated
         ot:authorContributed
@@ -135,7 +133,7 @@ class _OTIWrapper(_WSWrapper):
                               verbose=verbose,
                               valid_keys=self.tree_search_term_set,
                               kwargs=kwargs)
-    def find_studies(self, query_dict=None, exact=False, verbose=False,**kwargs):
+    def find_studies(self, query_dict=None, exact=False, verbose=False, **kwargs):
         '''Query on study properties. See documentation for _OTIWrapper class.'''
         if self.use_v1:
             uri = '{p}/singlePropertySearchForStudies'.format(p=self.query_prefix)
@@ -187,7 +185,11 @@ class _OTIWrapper(_WSWrapper):
         self._raw_urls = (r.lower() == 'true')
         _WSWrapper.__init__(self, domain, **kwargs)
         self.set_domain(domain)
-    def set_domain(self, d):
+    @property
+    def domain(self):
+        return self._domain
+    @domain.setter
+    def domain(self, d): #pylint: disable=W0221
         self._node_search_prop = None
         self._search_terms = None
         self._tree_search_prop = None
@@ -203,45 +205,44 @@ class _OTIWrapper(_WSWrapper):
             else:
                 self.indexing_prefix = '{d}/oti/IndexServices/graphdb'.format(d=d)
                 self.query_prefix = '{d}/v2/studies'.format(d=d)
-    domain = property(_WSWrapper.get_domain, set_domain)
-    def get_node_search_term_set(self):
+    @property
+    def node_search_term_set(self):
         if self._node_search_prop is None:
             self._node_search_prop = set(self._do_node_searchable_properties_call())
         return self._node_search_prop
-    node_search_term_set = property(get_node_search_term_set)
     def _do_searchable_properties_call(self):
         if self.use_v1:
             raise NotImplementedError('properties call added in v2')
         uri = '{p}/properties'.format(p=self.query_prefix)
         return self.json_http_post(uri)
-    def get_search_terms(self):
+    @property
+    def search_terms(self):
         if self._search_terms is None:
             self._search_terms = {}
             d = self._do_searchable_properties_call()
             for k, v in d.items():
                 self._search_terms[k] = frozenset(v)
         return dict(self._search_terms)
-    search_terms = property(get_search_terms)
     def _do_tree_searchable_properties_call(self):
         if not self.use_v1:
             return self.search_terms['tree_properties']
         uri = '{p}/getSearchablePropertiesForTrees'.format(p=self.query_prefix)
         return self.json_http_post(uri)
-    def get_tree_search_term_set(self):
+    @property
+    def tree_search_term_set(self):
         if self._tree_search_prop is None:
             self._tree_search_prop = set(self._do_tree_searchable_properties_call())
         return self._tree_search_prop
-    tree_search_term_set = property(get_tree_search_term_set)
     def _do_study_searchable_properties_call(self):
         if not self.use_v1:
             return self.search_terms['study_properties']
         uri = '{p}/getSearchablePropertiesForStudies'.format(p=self.query_prefix)
         return self.json_http_post(uri)
-    def get_study_search_term_set(self):
+    @property
+    def study_search_term_set(self):
         if self._study_search_prop is None:
             self._study_search_prop = set(self._do_study_searchable_properties_call())
         return self._study_search_prop
-    study_search_term_set = property(get_study_search_term_set)
     def _do_node_searchable_properties_call(self):
         if not self.use_v1:
             return self._do_searchable_properties_call().get('tree_properties', [])
@@ -256,7 +257,7 @@ class _OTIWrapper(_WSWrapper):
         response = self.json_http_post(url, data=anyjson.dumps(data))
         if 'error' in response:
             raise RuntimeError('Error reported by oti "{}"'.format(response['error']))
-        assert(len(response) == 1)
+        assert len(response) == 1
         return response['matched_studies']
 
     def _prepare_query_data(self, query_dict, exact, verbose, valid_keys, kwargs):
@@ -284,7 +285,9 @@ class _OTIWrapper(_WSWrapper):
             raise NotImplementedError('Currently only searches for one property/value pair are supported')
         k = list(query_dict.keys())[0]
         if k not in valid_keys:
-            raise ValueError('"{k}" is not a valid search term. Expecting it to be one of the following: {kl}'.format(k=k, kl=repr(valid_keys)))
+            f = '"{k}" is not a valid search term. Expecting it to be one of the following: {kl}'
+            m = f.format(k=k, kl=repr(valid_keys))
+            raise ValueError(m)
         v = query_dict[k]
         if not is_str_type(v):
             v = UNICODE(v)

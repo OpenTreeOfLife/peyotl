@@ -8,14 +8,13 @@ class _TaxomachineAPIWrapper(_WSWrapper):
     '''Wrapper around interactions with the taxomachine TNRS.
     The primary service is TNRS (for taxonomic name resolution service)
         which takes a name matches it to OTT
-    
     In this wrapper implementation, he naming contexts are cached in:
         _contexts as the raw return (dictionary of large group name
-            to context name within that group), and 
+            to context name within that group), and
         _valid_contexts a set of all context names.
     For example in May of 2014, the contexts are:
         {
-        'PLANTS': ['Land plants', 
+        'PLANTS': ['Land plants',
                    'Hornworts',
                    'Mosses',
                    'Liverworts',
@@ -46,7 +45,6 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         'FUNGI': ['Fungi']
         }
 
-    
     https://github.com/OpenTreeOfLife/opentree/blob/master/neo4j_services_docs.md
 
     NOTES:
@@ -151,8 +149,12 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         self._valid_contexts = None
         self.prefix = None
         _WSWrapper.__init__(self, domain, **kwargs)
-        self.set_domain(domain)
-    def set_domain(self, d):
+        self.domain = domain
+    @property
+    def domain(self):
+        return self._domain
+    @domain.setter
+    def domain(self, d):#pylint: disable=W0221
         self._contexts = None
         self._valid_contexts = None
         self._domain = d
@@ -163,7 +165,6 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         else:
             self.prefix = '{d}/v2/tnrs'.format(d=d)
             self.taxonomy_prefix = '{d}/v2/taxonomy'.format(d=d)
-    domain = property(_WSWrapper.get_domain, set_domain)
     def info(self):
         if self.use_v1:
             raise NotImplementedError('"about" method not implemented')
@@ -173,7 +174,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
     def taxon(self, ott_id, include_lineage=False):
         if self.use_v1:
             raise NotImplementedError('"taxon" method not implemented')
-        data = {'ott_id': int(ott_id), 
+        data = {'ott_id': int(ott_id),
                 'include_lineage': bool(include_lineage)}
         uri = '{p}/taxon'.format(p=self.taxonomy_prefix)
         return self.json_http_post(uri, data=anyjson.dumps(data))
@@ -201,7 +202,8 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         else:
             uri = '{p}/contexts'.format(p=self.prefix)
         return self.json_http_post(uri)
-    def _get_valid_contexts(self):
+    @property
+    def valid_contexts(self):
         if self._valid_contexts is None:
             c = self.contexts()
             v = set()
@@ -209,7 +211,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 v.update(cn)
             self._valid_contexts = v
         return self._valid_contexts
-    valid_contexts = property(_get_valid_contexts)
+
     def names_to_ott_ids_perfect(self, names, **kwargs):
         '''delegates a call to TNRS (same arguments as that function).
 

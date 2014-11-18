@@ -18,6 +18,11 @@
     and the tests as a part of his work on the Open Tree of Life
     api.opentreeoflife.org repository.
 
+    The gcmdr functionality in peyotl is a direct port of the gcmdr
+    from https://github.com/OpenTreeOfLife/gcmdr with lots of code
+    copyied over. That code was written by Stephen A. Smith 
+    and Joseph W. Brown
+
 ----------
 
 N: Emily Jane McTavish
@@ -36,3 +41,10 @@ N: Mark T. Holder
 E: mtholder@gmail.com
 S: Lawrence, KS
 U: mtholder
+
+N: Joseph W. Brown
+S: Ann Arbor, MI
+
+N: Stephen A. Smith
+S: Ann Arbor, MI
+

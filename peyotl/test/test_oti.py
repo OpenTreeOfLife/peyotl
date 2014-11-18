@@ -2,7 +2,6 @@
 from peyotl.api import OTI
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
-import sys
 import unittest
 
 _LOG = get_logger(__name__)
@@ -18,6 +17,7 @@ class TestOTI(unittest.TestCase):
         self.assertTrue('ot:studyId' in x[0])
     def testStudyTerms(self):
         t_set = self.oti.study_search_term_set
+        self.assertTrue(bool(t_set))
         r = self.oti.find_studies({'ot:studyPublication': '10.1073/pnas.0709121104'})
         self.assertTrue(len(r) > 0)
     def testNodeTerms(self):
@@ -40,6 +40,7 @@ class TestOTI(unittest.TestCase):
             self.assertRaises(ValueError, self.oti.find_nodes, qd)
     def testTreeTerms(self):
         t_set = self.oti.tree_search_term_set
+        self.assertTrue(bool(t_set))
         qd = {'ot:ottTaxonName': 'Aponogeton ulvaceus'}
         if self.oti.use_v1:
             nl = self.oti.find_trees(qd)

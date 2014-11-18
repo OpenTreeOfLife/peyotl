@@ -120,7 +120,7 @@ def _move_ott_taxon_name_to_otu(obj):
 def _move_otu_at_label_properties(obj):
     nex = obj['nexml']
     if 'otus' in nex:
-        syntax=SYNTAX_VERSION
+        syntax = SYNTAX_VERSION
 
         ogl = nex['otus']
         if not isinstance(ogl, list):
@@ -164,8 +164,7 @@ def _add_defaults(obj):
                        "^ot:branchLengthMode",
                        "^ot:branchLengthTimeUnit",
                        "^ot:outGroupEdge",
-                       "^ot:specifiedRoot",
-                       ]
+                       "^ot:specifiedRoot", ]
     #_LOG.debug('nex ' + str(nex.keys()) + '\n')
     for tree_group in nex.get('treesById', {}).values():
         #_LOG.debug('tg ' + str(tree_group.keys()) + '\n')
@@ -201,7 +200,7 @@ def workaround_phylografter_nexson(obj):
     _add_defaults(obj)
 
 def add_default_prop(obj, out):
-    # see Jim's comment on 
+    # see Jim's comment on
     # https://groups.google.com/forum/?fromgroups&hl=en#!searchin/opentreeoflife-software/tried$20a$20commit/opentreeoflife-software/c8b_rQvUYvA/g1p-yIfmCEcJ
     _add_defaults(obj)
     write_as_json(obj, out)

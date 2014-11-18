@@ -5,7 +5,7 @@ the ot:ottTaxonName'''
 tax_prop_name = '^ot:ottTaxonName'
 orig_prop_name = '^ot:originalLabel'
 label_prop_name = '@label'
-from peyotl import gen_otu_dict, iter_tree, iter_node
+from peyotl import gen_otu_dict, iter_trees, iter_node
 from peyotl.phylesystem import Phylesystem
 import codecs
 import sys
@@ -23,7 +23,7 @@ for study_id, n in phy.iter_study_objs():
         except:
             pass
     del otu_dict
-    for tree in iter_tree(n):
+    for tree in iter_trees(n):
         for node in iter_node(tree):
             oid = node.get('@otu')
             if oid is not None:

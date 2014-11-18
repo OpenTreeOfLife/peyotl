@@ -346,8 +346,8 @@ def add_literal_meta(obj, prop_name, value, version):
             m = [m]
             obj['meta'] = m
         d = {'$': value,
-                  '@property': prop_name,
-                  '@xsi:type': 'nex:LiteralMeta'}
+             '@property': prop_name,
+             '@xsi:type': 'nex:LiteralMeta'}
         m.append(d)
         return d
     else:

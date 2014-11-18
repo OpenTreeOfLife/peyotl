@@ -39,7 +39,7 @@ else:
     if update_shared_tests:
         _LOG.debug('updating shared-api-tests dir "{}"'.format(shared_tests_par))
         git_pull = subprocess.Popen(['git', 'pull', 'origin', 'master'],
-                                      cwd=shared_tests_par)
+                                    cwd=shared_tests_par)
         try:
             git_pull.wait()
         except:

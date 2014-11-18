@@ -180,8 +180,7 @@ class Nexson2Nexml(NexsonConverter):
                            ('characters', (('meta', None),
                                            ('format', (('meta', None),
                                                        ('states', (('state', None),
-                                                                  ('uncertain_state_set', None),
-                                                                 )
+                                                                   ('uncertain_state_set', None),)
                                                        ),
                                                        ('char', None)
                                                       ),
@@ -211,9 +210,9 @@ class Nexson2Nexml(NexsonConverter):
                 ca = {}
                 cc = {}
                 mc = {}
-                    
                 if isinstance(child, list) or isinstance(child, tuple) or isinstance(child, set):
-                    #open('/tmp/pey-log', 'a').write('unexpeceted list/tuple child for key {k} = {v}'.format(k=key, v=str(child)))
+                    #open('/tmp/pey-log', 'a').write('unexpeceted list/tuple child for key {\
+                    #   k} = {v}'.format(k=key, v=str(child)))
                     #assert(False)
                     for sc in child:
                         if isinstance(sc, dict):
@@ -228,7 +227,6 @@ class Nexson2Nexml(NexsonConverter):
                     cel = _create_sub_el(doc, par, key, ca, cd)
                     self._add_meta_dict_to_xml(doc, cel, mc)
                     self._add_dict_of_subtree_to_xml_doc(doc, cel, cc, key_order=None)
-        
 
     def _add_dict_of_subtree_to_xml_doc(self,
                                         doc,
@@ -309,4 +307,5 @@ class Nexson2Nexml(NexsonConverter):
                                             subtree=obj,
                                             key='meta',
                                             key_order=None)
+
 

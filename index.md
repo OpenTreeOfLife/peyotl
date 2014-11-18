@@ -1,7 +1,7 @@
 ---
 layout: page
-title: About
-permalink: /about/
+title: peyotl
+permalink: /
 ---
 
 <code>peyotl</code> is a python package written to make it easier to

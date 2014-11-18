@@ -28,12 +28,12 @@ Currently peyotl is used to implement most of the functionality in the
 
 ## Documentation Table of Contents
 
-  1. [Installation](./installation)
-  2. [Configuration](./Configuration)
-  3. [Testing](./testing)
-  4. [Format conversion](./format-conversion)
-  5. [API wrappers](./api-wrappers)
-  6. [Roadmap](./roadmap)
+  1. [Installation](../installation)
+  2. [Configuration](../configuration)
+  3. [Testing](../testing)
+  4. [Format conversion](../format-conversion)
+  5. [API wrappers](../api-wrappers)
+  6. [Roadmap](../roadmap)
 
 # Thanks
 

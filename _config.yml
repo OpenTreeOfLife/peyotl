@@ -71,3 +71,7 @@ exclude:
     - Gemfile.lock
     - LICENSE
     - README.md
+
+kramdown:
+  input: GFM
+

@@ -108,4 +108,3 @@ However, the parent of the current version of OTT can be specified using:
 | apis | raw_urls | "false" | "true" to use the default localhost URLs without and proxy-pass magic in the api wrappers |
 | apis | X_raw_urls | "false" | where X = oti, treemachine or taxomachine. Acts like the raw_urls setting, but overrides it and only affects the wrappers for the indicated service  |
 | phylesystem | parent | None | top-level (usually the shards directory) directory that holds each of the phylesystem-# repos (if you have a local version of these repos) | 
-

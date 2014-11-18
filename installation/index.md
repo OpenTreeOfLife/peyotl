@@ -10,6 +10,7 @@ permalink: /installation/
     $ pip install -r requirements.txt
     $ python setup.py develop
 
+and then look at the [configuration page](../configuration)
 
 # Download
 

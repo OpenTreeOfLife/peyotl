@@ -5,8 +5,8 @@ permalink: /format-conversion/
 ---
 ## NexSON/NeXML
 
-See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/HoneyBadgerFish for full documentation
-of the NeXML <-> NexSON conversion convention.
+See [the HoneyBadgerFish](https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/HoneyBadgerFish) for full documentation
+of the NeXML to NexSON conversion convention.
 
 ### Usage
 
@@ -20,3 +20,11 @@ honeybadgerfish NexSON and
 to write NeXML.
 
 The <code>-h</code> command line flag reports more details about the arguments.
+
+## NexSON/Newick
+
+    $ python scripts/nexson/nexson_newick.py -h
+
+Explains the options for running a NexSON to newick converter. A tree's ID
+can be specified, and the field used to label the tips can be chosen from the
+command-line options.

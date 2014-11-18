@@ -215,14 +215,16 @@ class ConfigWrapper(object):
             if r is not None:
                 return r
         return default
+    def _assure_raw(self):
+        if self._raw is None:
+            self._raw = get_config(None, None)
+            self._config_filename = _CONFIG_FN
     def get_config_setting(self, section, param, default=None):
         if section in self._override:
             so = self._override[section]
             if param in so:
                 return so[param]
-        if self._raw is None:
-            self._raw = get_config(None, None)
-            self._config_filename = _CONFIG_FN
+        self._assure_raw()
         if section in self._dominant_defaults:
             so = self._dominant_defaults[section]
             if param in so:
@@ -239,6 +241,28 @@ class ConfigWrapper(object):
                                   param,
                                   default=default,
                                   config_filename=self._config_filename)
+    def report(self, out):
+        self._assure_raw()
+        out.write('Config read from "{f}"\n'.format(f=self._config_filename))
+        from_raw = _do_create_overrides_from_config(self._raw)
+        k = set(self._override.keys())
+        k.update(from_raw.keys())
+        k = list(k)
+        k.sort()
+        setting_set = {}
+        for key in k:
+            ov_set = self._override.get(key, {})
+            fr_set = from_raw.get(key, {})
+            v = set(ov_set.keys())
+            v.update(fr_set.keys())
+            v = list(v)
+            v.sort()
+            out.write('[{s}]\n'.format(s=key))
+            for param in v:
+                if param in ov_set:
+                    out.write('#{p} from override\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
+                else:
+                    out.write('#{p} from {f}\n{p} = {s}\n' .format(p=param, s=str(fr_set[param]), f=self._config_filename))
 
 def create_overrides_from_config(config, config_filename):
     '''Returns a dictionary of all of the settings in a config file. the
@@ -247,6 +271,9 @@ def create_overrides_from_config(config, config_filename):
     if _READING_LOGGING_CONF:
         read_logging_config()
     _get_util_logger().debug('creating override dict from ' + config_filename)
+    return _do_create_overrides_from_config(config)
+
+def _do_create_overrides_from_config(config):
     d = {}
     for s in config.sections():
         d[s] = {}

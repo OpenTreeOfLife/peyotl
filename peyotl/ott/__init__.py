@@ -201,7 +201,7 @@ class OTT(object):
         synonyms_file = os.path.join(self.ott_dir, 'synonyms.tsv')
         _LOG.debug('Reading "{f}"...'.format(f=synonyms_file))
         if not os.path.isfile(synonyms_file):
-            raise ValueError('Expecting to find "{}" based on ott_dir of "{}"'.format(synonyms_file, ott_dir))
+            raise ValueError('Expecting to find "{}" based on ott_dir of "{}"'.format(synonyms_file, self.ott_dir))
         num_lines = 0
         with codecs.open(synonyms_file, 'r', encoding='utf-8') as syn_fo:
             it = iter(syn_fo)
@@ -218,7 +218,8 @@ class OTT(object):
                     else:
                         id2name[ott_id] = [n, name]
                 else:
-                    _LOG.debug(u'synonym "{n}" maps to an ott_id ({u}) that was not in the taxonomy!'.format(n=name, u=ott_id))
+                    _m = u'synonym "{n}" maps to an ott_id ({u}) that was not in the taxonomy!'.format(n=name, u=ott_id)
+                    _LOG.debug(_m)
                 num_lines += 1
                 if num_lines % 100000 == 0:
                     _LOG.debug('read {n:d} lines...'.format(n=num_lines))
@@ -252,11 +253,9 @@ class OTT(object):
         name2id = _swap
         _LOG.debug('Making heavy tree')
         tt = make_tree_from_taxonomy(id2par)
-        
         _LOG.debug('preorder numbering nodes')
         root = tt[root_ott_id]
         root.number_tree(0)
-        
         _LOG.debug('creating ott_id <--> preorder maps')
         ott_id2preorder = {}
         preorder2ott_id = {}

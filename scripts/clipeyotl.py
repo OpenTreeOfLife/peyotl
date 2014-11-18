@@ -25,7 +25,6 @@ def config_command(args):
         else:
             cw = ConfigWrapper()
         cw.report(out)
-            
 
 if __name__ == '__main__':
     import argparse

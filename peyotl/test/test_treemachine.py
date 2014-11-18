@@ -68,7 +68,6 @@ class TestTreemachine(unittest.TestCase):
             print('node_info is', self.treemachine.node_info(r['mrca_node_id']))
 _LOG.debug('test to be moved to integration skipped')
 '''class Skip:
->>>>>>> gcmdr
     def testSearchForTaxon(self):
         taxomachine = Taxomachine(self.domains)
         anolis_taxon = taxomachine.autocomplete('Anolis')

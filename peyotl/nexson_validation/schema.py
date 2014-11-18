@@ -577,7 +577,7 @@ _All_IntNEl_ByI = {'@root': _VT.BOOL,
                   '@otu': _VT.STR
                   }
 _All_IntNEl_Dir = {'@about': _VT.STR,
-                   '@root': _VT.BOOL,
+                   '@root': _VT.BOOL,
                    '@otu': _VT.STR
                   }
 

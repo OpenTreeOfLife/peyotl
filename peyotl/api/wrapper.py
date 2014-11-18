@@ -144,7 +144,7 @@ class APIWrapper(object):
         crefresh = self._config.get_config_setting('apis',
                                                    'phylesystem_refresh',
                                                     self._phylesystem_api_kwargs.get('refresh'))
-parser = argparse.ArgumentParser(prog='PROG')        if cfrom:
+        if cfrom:
             kwargs.setdefault('get_from', cfrom)
         if ctrans:
             kwargs.setdefault('transform', ctrans)

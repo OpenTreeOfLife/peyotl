@@ -58,7 +58,7 @@ Otherwise, these logger settings are now controlled by a
 You probably want to replace the default behavior by specifying
 `PEYOTL_LOGGING_LEVEL` or having a `~/.peyotl/config` file.
 
-### [API wrappers](../API-wrappers)
+### [API wrappers](../api-wrappers/)
 Peyotl has wrappers to make it easier to communicate with Open Tree 
 of Life web services. Because we use peyotl in testing the services
 as we deploy, the domains where the APIs are configurable:

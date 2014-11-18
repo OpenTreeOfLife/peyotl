@@ -3,6 +3,8 @@ layout: page
 title: OTI wrappers
 permalink: /oti-wrappers/
 ---
+*NOTE* see the comments about the two styles of wrappers on [the API wrappers page](../api-wrappers). This page only describes the "thick" wrapper.
+
 ## OTI
 oti indexes the values in the study nexson files managed by the [phylesystem-api](https://github.com/OpenTreeOfLife/phylesystem-api/blob/master/docs/README.md). This enables fast searching for text in different fields of the file. In [v2 of the Open Tree API](https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs), it provides the `[domains]/studies/*` methods.
 

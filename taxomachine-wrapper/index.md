@@ -3,6 +3,8 @@ layout: page
 title: taxomachine wrapper
 permalink: /taxomachine-wrapper/
 ---
+*NOTE* see the comments about the two styles of wrappers on [the API wrappers page](../api-wrappers). This page only describes the "thick" wrapper.
+
 ## Taxomachine
 Taxomachine is a neo4j application that provides the web-services (TNRS and data access) around working the open tree taxonomy. In [v2 of the Open Tree API](https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs), taxomachine provides provides the `[domains]/tnrs/*` and the the `[domains]/taxonomy/*` methods.
 

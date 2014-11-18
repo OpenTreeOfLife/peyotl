@@ -3,6 +3,8 @@ layout: page
 title: Phylesystem API wrappers
 permalink: /phyelesystem-api-wrappers/
 ---
+*NOTE* see the comments about the two styles of wrappers on [the API wrappers page](../api-wrappers). This page only describes the "thick" wrapper.
+
 ## The phylesystem-api
 The [phylesystem-api](https://github.com/OpenTreeOfLife/phylesystem-api/blob/master/docs/README.md) 
 provides web services for obtaining the corpus of phylogenetic studies that are inputs into the

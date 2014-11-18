@@ -32,6 +32,6 @@ nav li:nth-child(3n+2) {
 
 nav a {
     display: block;
-    width: 7em;
+    width: 9em;
     text-align: center;
 }

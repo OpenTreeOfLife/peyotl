@@ -39,7 +39,7 @@ To support both web-service and local operations, the wrapper around the [phyles
 
 There are 4 sets of initialization variables supported:
 
-1. `PhylesystemAPI(get_from='local')` uses a copy of the [phylesystem](./Phylesystem) repository present on your local machine;
+1. `PhylesystemAPI(get_from='local')` uses a copy of the [phylesystem](../phylesystem/) repository present on your local machine;
 2. `PhylesystemAPI(get_from='external')` accesses study data via URLs on GitHub;
 3. `PhylesystemAPI(get_from='api', transform='client')` fetches data from a remote instance of the phylesystem-api, but does any translation of the data into another form on the client machine; and
 4. `PhylesystemAPI(get_from='api', transform='server')` fetches data from a remote instance of the phylesystem-api and requests that the server do any translation of the data.

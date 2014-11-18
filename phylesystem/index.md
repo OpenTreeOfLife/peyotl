@@ -5,9 +5,9 @@ permalink: /phylesystem/
 ---
 Phylesystem is a series of git repository used to store phylogenetic statements (typically published trees).
 You can download the full set of phylesystem shards (there is only one, at this point) by following the instructions on https://github.com/OpenTreeOfLife/phylesystem
-and then pointing peyotl to your local copy of phylesystem as described on the [Configuration](./Configuration) page.
+and then pointing peyotl to your local copy of phylesystem as described on the [Configuration](../Configuration) page.
 
-If you have a local copy of the phylesystem, then you can peyotl's [phylesystem-api wrapper](./PhylesystemAPIWrapper) to use your local copy by using `get_from='local'` when creating an instance of the wrapper:
+If you have a local copy of the phylesystem, then you can peyotl's [phylesystem-api wrapper](../PhylesystemAPIWrapper) to use your local copy by using `get_from='local'` when creating an instance of the wrapper:
 
     from peyotl.api.phylesystem_api import PhylesystemAPI
     phylesystem_api_wrapper = PhylesystemAPI(get_from='local')

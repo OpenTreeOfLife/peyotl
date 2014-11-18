@@ -210,6 +210,36 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             self._valid_contexts = v
         return self._valid_contexts
     valid_contexts = property(_get_valid_contexts)
+    def names_to_ott_ids_perfect(self, names, **kwargs):
+        '''delegates a call to TNRS (same arguments as that function).
+
+        Returns a list of (non-dubious) OTT IDs in the same order as the original names.
+        
+        Raises a ValueError if each name does not have exactly one perfect, non-dubious
+        (score = 1.0) match in the TNRS results.
+        '''
+        results = self.TNRS(names, **kwargs)['results']
+        d = {}
+        for blob in results:
+            query_name = blob["id"]
+            m = blob["matches"]
+            perf_ind = None
+            for i, poss_m in enumerate(m):
+                if (not poss_m['is_approximate_match']) and (not poss_m['is_dubious']):
+                    if perf_ind is None:
+                        perf_ind = i
+                    else:
+                        raise ValueError('Multiple matches for "{q}"'.format(q=query_name))
+            if perf_ind is None:
+                raise ValueError('No matches for "{q}"'.format(q=query_name))
+            d[query_name] = m[perf_ind]['ot:ottId']
+        ret = []
+        for query_name in names:
+            ni = d.get(query_name)
+            if ni is None:
+                raise ValueError('No matches for "{q}"'.format(q=query_name))
+            ret.append(ni)
+        return ret
 
 def Taxomachine(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).taxomachine

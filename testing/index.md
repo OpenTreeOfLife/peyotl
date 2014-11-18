@@ -1,6 +1,6 @@
 ---
 layout: page
-title: testing
+title: Testing
 permalink: /testing/
 ---
 

@@ -9,3 +9,20 @@ table td {
 table th {
     border: 2px solid black;
 }
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+nav li {
+    float: left;
+}
+
+nav a {
+    display: block;
+    width: 10em;
+    background-color: #eeeeee;
+}

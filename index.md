@@ -1,6 +1,6 @@
 ---
 layout: page
-title: peyotl
+title: Overview
 permalink: /
 ---
 
@@ -8,20 +8,15 @@ permalink: /
 interact with the software produced by the [Open Tree of Life project] [1].
 Specifically, to:
 
-1. interact with a local version of the [phylesystem] [2] repository of 
-    curated phylogenetic studies ;
+1. interact with a local version of the [phylesystem] [2] repository of curated phylogenetic studies ;
 
-2. call web services associated with the studies (served by web app 
-    running the [phylesystem-api code] [3]);
+2. call web services associated with the studies (served by web app running the [phylesystem-api code] [3]);
 
-3. call web services associated with taxonomic resolution services
-    (running [taxomachine] [4] );
+3. call web services associated with taxonomic resolution services (running [taxomachine] [4] );
 
-4. call web services associated with Open Tree of Life's "synthetic" estimate
-    of the tree of life (running [treemachine] [5]);
+4. call web services associated with Open Tree of Life's "synthetic" estimate of the tree of life (running [treemachine] [5]);
 
-5. call web services associated with an annotation database (that
-     we have not built yet)
+5. call web services associated with an annotation database (that we have not built yet)
 
 Currently peyotl is used to implement most of the functionality in the 
 [phylesystem-api] [3] backend of the study curation tool.

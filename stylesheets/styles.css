@@ -17,12 +17,21 @@ nav ul {
     overflow: hidden;
 }
 
-nav li {
+nav li:nth-child(3n) {
     float: left;
+    background-color: #ddddff;
+}
+nav li:nth-child(3n+1) {
+    float: left;
+    background-color: #d0ffd0;
+}
+nav li:nth-child(3n+2) {
+    float: left;
+    background-color: #eeeebb;
 }
 
 nav a {
     display: block;
-    width: 10em;
-    background-color: #eeeeee;
+    width: 7em;
+    text-align: center;
 }

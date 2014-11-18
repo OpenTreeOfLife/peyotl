@@ -3,7 +3,6 @@ layout: page
 title: Configuration
 permalink: /configuration/
 ---
-
 There are some environmental variables that peyotl is sensitive to.
 But, for the most part, configuration is done using config files.
 The default location for the config file is `~/.peyotl/config`, however
@@ -23,7 +22,6 @@ Config-file-dependent behavior can be a bit cryptic, but setting the logging
 level to a low setting (trace or debug) will result in messages indicating which 
 config files have been used.
 
-
 ### Syntax
 The syntax for the config file is the standard [INI file](http://en.wikipedia.org/wiki/INI_file) format.
 
@@ -38,7 +36,6 @@ the parent directory of the phylesystem, then the peyotl library can find
 your local copy of phylesystem repos.
 
 ## Logging configuration
-
 If `PEYOTL_LOGGING_LEVEL` is in the environment, then the behavior of 
 the log is determined by environmental variables:
 
@@ -83,7 +80,6 @@ then the config file will be used:
     [phylesystem]
     parent = /home/username/phylesystem/shards
 
-
 Peyotl will treat any git directory in this parent that has a `study` subdirectory as if it was
 a shard of phyleystem.
 
@@ -95,7 +91,6 @@ However, the parent of the current version of OTT can be specified using:
     parent = /home/username/ott2.6
 
 # Summary of config settings
-
 | Section | param | default | usage |
 |---------|-------|---------|-------|
 | logging | level | WARNING | filter for what level of messages are displayed |

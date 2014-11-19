@@ -5,7 +5,8 @@ import sys
 try:
     phylsys = Phylesystem()
 except:
-    sys.exit('There was a problem creating a wrapper around your phylesystem ' \
+    sys.stderr.write('count_trees.py: Exception: {}\n'.format(e.message))
+    sys.exit('count_trees.py: There was a problem creating a wrapper around your phylesystem ' \
              'instance. Double check your configuration (see ' \
              'http://opentreeoflife.github.io/peyotl/configuration/ for info).')
 try:

@@ -5,7 +5,7 @@ from peyotl.test.support import pathmap
 import os
 _repos = pathmap.get_test_repos()
 ms, mp = _repos['mini_system'], _repos['mini_phyl']
-print ms, mp
+
 #pylint: disable=W0212
 @unittest.skipIf((not os.path.isdir(ms)) or (not os.path.isdir(mp)),
                  'Peyotl not configured for maintainer test of mini_phyl/system.' \

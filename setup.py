@@ -101,7 +101,8 @@ setup(
                       'locket>=0.1.1',
                       'requests>=2.2.1',
                       'redis',
-                      'enum34'],
+                      'enum34',
+                      'argcomplete', ],
     packages=PACKAGES,
     entry_points=ENTRY_POINTS,
     classifiers=[

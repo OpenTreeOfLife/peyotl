@@ -178,7 +178,7 @@ class OTT(object):
         'uniq2ottID'
         'name2ottID'
         'ottID2names'
-        'ottId2parentOttId'
+        'ottID2parentOttId'
         'preorder2tuple'
         '''
         if out_dir is None:
@@ -302,7 +302,7 @@ class OTT(object):
                 if num_lines % 100000 == 0:
                     _LOG.debug('read {n:d} lines...'.format(n=num_lines))
         _LOG.debug('read taxonomy file. total of {n:d} lines.'.format(n=num_lines))
-        _write_pickle(out_dir, 'ottId2parentOttId', id2par)
+        _write_pickle(out_dir, 'ottID2parentOttId', id2par)
         synonyms_file = self.synonyms_filepath
         _LOG.debug('Reading "{f}"...'.format(f=synonyms_file))
         if not os.path.isfile(synonyms_file):

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 from peyotl.utility import get_logger, ConfigWrapper
+from peyotl.ott import OTT
+import subprocess
 import sys
 import os
 _LOG = get_logger('clipeyotl')
@@ -27,11 +29,18 @@ def config_command(args):
             cw = ConfigWrapper()
         cw.report(out)
 def ott_clear_command(args):
-    from peyotl.ott import OTT
     ott = OTT()
     ott.remove_caches()
 
+def ott_shell_command(args):
+    ott = OTT()
+    _LOG.info('launching bash in your OTT dir...')
+    if subprocess.Popen('bash', cwd=ott.ott_dir).wait() != 0:
+        raise RuntimeError('bash in ott dir failed.')
+
+
 def main():
+    import argcomplete
     import argparse
     parser = argparse.ArgumentParser(prog='cli-peyotl.py')
     subparsers = parser.add_subparsers(help='available commands')
@@ -47,7 +56,11 @@ def main():
     ott_clear_parser = ott_subparsers.add_parser('clear-cache',
                                                  help='remove the caches used to speed up actions on OTT')
     ott_clear_parser.set_defaults(func=ott_clear_command)
+    ott_shell_parser = ott_subparsers.add_parser('bash',
+                                                 help='execute bash command in the top dir of your copy of OTT')
+    ott_shell_parser.set_defaults(func=ott_shell_command)
 
+    argcomplete.autocomplete(parser)
     args = parser.parse_args(sys.argv[1:])
     try:
         args.func(args)

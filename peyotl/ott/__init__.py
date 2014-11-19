@@ -75,7 +75,8 @@ class OTT(object):
         self.ott_dir = ott_dir
         if not os.path.isdir(self.ott_dir):
             raise ValueError('"{}" is not a directory'.format(self.ott_dir))
-        self.skip_prefixes = ('environmental samples (', 'uncultured (', 'Incertae Sedis (')
+        #self.skip_prefixes = ('environmental samples (', 'uncultured (', 'Incertae Sedis (')
+        self.skip_prefixes = ('environmental samples (',)
         self._ott_id_to_names = None
         self._ott_id2par_ott_id = None
         self._version = None

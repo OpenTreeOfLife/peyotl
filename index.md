@@ -3,6 +3,8 @@ layout: page
 title: Overview
 permalink: /
 ---
+If you are looking for the git repo URL, it is: [https://github.com/OpenTreeOfLife/peyotl](https://github.com/OpenTreeOfLife/peyotl)
+
 
 <code>peyotl</code> is a python package written to make it easier to
 interact with the software produced by the [Open Tree of Life project] [1].

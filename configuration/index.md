@@ -83,6 +83,17 @@ then the config file will be used:
 Peyotl will treat any git directory in this parent that has a `study` subdirectory as if it was
 a shard of phyleystem.
 
+#### example of bootstrapping the phylesystem configuration on a new machine
+
+    cd ~/somedir
+    git clone https://github.com/OpenTreeOfLife/phylesystem.git
+    cd phylesystem
+    bash pull-studies.bash
+    cd shards
+    echo "Now set your 'parent' variable in the '[phylesystem]' section of ~/.peyotl/config to"
+    echo "have the value   $PWD"
+
+
 ### OTT
 Currently, peyotl has very little functionality related to dealing with OTT.
 However, the parent of the current version of OTT can be specified using:
@@ -109,3 +120,4 @@ However, the parent of the current version of OTT can be specified using:
 | apis | raw_urls | "false" | "true" to use the default localhost URLs without and proxy-pass magic in the api wrappers |
 | apis | X_raw_urls | "false" | where X = oti, treemachine or taxomachine. Acts like the raw_urls setting, but overrides it and only affects the wrappers for the indicated service  |
 | phylesystem | parent | None | top-level (usually the shards directory) directory that holds each of the phylesystem-# repos (if you have a local version of these repos) | 
+

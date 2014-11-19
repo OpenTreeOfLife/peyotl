@@ -76,9 +76,9 @@ def _get_logging_formatter(s=None):
 def read_logging_config(**kwargs):
     global _READING_LOGGING_CONF
     cfg = get_config_object(None, **kwargs)
-    level = cfg.get_config_setting('logging', 'level', 'WARNING')
-    logging_format_name = cfg.get_config_setting('logging', 'formatter', 'NONE')
-    logging_filepath = cfg.get_config_setting('logging', 'filepath', '')
+    level = cfg.get_config_setting('logging', 'level', 'WARNING', warn_on_none_level=None)
+    logging_format_name = cfg.get_config_setting('logging', 'formatter', 'NONE', warn_on_none_level=None)
+    logging_filepath = cfg.get_config_setting('logging', 'filepath', '', warn_on_none_level=None)
     if logging_filepath == '':
         logging_filepath = None
     _LOGGING_CONF['level_name'] = level
@@ -165,7 +165,7 @@ def read_config(filepaths=None):
         read_files = cfg.read(filepaths)
     return cfg, read_files
 
-def get_config(section=None, param=None, default=None, cfg=None):
+def get_config(section=None, param=None, default=None, cfg=None, warn_on_none_level=logging.WARN):
     '''
     Returns the config object if `section` and `param` are None, or the
         value for the requested parameter.
@@ -181,31 +181,39 @@ def get_config(section=None, param=None, default=None, cfg=None):
             return default
     if section is None and param is None:
         return _CONFIG
-    return get_config_setting(_CONFIG, section, param, default, config_filename=_CONFIG_FN)
+    return get_config_setting(_CONFIG, section, param, default, config_filename=_CONFIG_FN, warn_on_none_level=warn_on_none_level)
 
-def get_config_setting(config_obj, section, param, default=None, config_filename=''):
+def get_config_setting(config_obj, section, param, default=None, config_filename='', warn_on_none_level=logging.WARN):
     '''Read (section, param) from `config_obj`. If not found, return `default`
 
-    If the setting is not found and `default` is None, then an error-level message is logged.
+    If the setting is not found and `default` is None, then an warn-level message is logged.
     `config_filename` can be None, filepath or list of filepaths - it is only used for logging.
+
+    If warn_on_none_level is None (or lower than the logging level) message for falling through to 
+        a `None` default will be suppressed.
     '''
     try:
         return config_obj.get(section, param)
     except:
-        if default is None:
-            if config_filename:
-                if not is_str_type(config_filename):
-                    f = '"{}" '.format('", "'.join(config_filename))
-                else:
-                    f = '"{}"'.format(config_filename)
-            else:
-                f = ''
-            mf = 'Config file {f}does not contain option "{o}"" in section "{s}"\n'
-            msg = mf.format(f=config_filename, o=param, s=section)
-            _ulog = _get_util_logger()
-            if _ulog is not None:
-                _ulog.error(msg)
+        if (default is None) and warn_on_none_level is not None:
+            _warn_missing_setting(section, param, config_filename, warn_on_none_level)
         return default
+
+def _warn_missing_setting(section, param, config_filename, warn_on_none_level=logging.WARN):
+    if warn_on_none_level is None:
+        return
+    _ulog = _get_util_logger()
+    if (_ulog is not None) and _ulog.isEnabledFor(warn_on_none_level):
+        if config_filename:
+            if not is_str_type(config_filename):
+                f = ' "{}" '.format('", "'.join(config_filename))
+            else:
+                f = ' "{}" '.format(config_filename)
+        else:
+            f = ' '
+        mf = 'Config file{f}does not contain option "{o}"" in section "{s}"'
+        msg = mf.format(f=f, o=param, s=section)
+        _ulog.warn(msg)
 
 class ConfigWrapper(object):
     '''Wrapper to provide a richer get_config_setting(section, param, d) behavior. That function will
@@ -240,7 +248,7 @@ class ConfigWrapper(object):
         self._override = overrides
         self._dominant_defaults = dominant_defaults
         self._fallback_defaults = fallback_defaults
-    def get_from_config_setting_cascade(self, sec_param_list, default=None):
+    def get_from_config_setting_cascade(self, sec_param_list, default=None, warn_on_none_level=logging.WARN):
         '''return the first non-None setting from a series where each
         element in `sec_param_list` is a section, param pair suitable for 
         a get_config_setting call.
@@ -249,15 +257,18 @@ class ConfigWrapper(object):
             this call to only evaluate the first element in the cascade.
         '''
         for section, param in sec_param_list:
-            r = self.get_config_setting(section, param, default=None)
+            r = self.get_config_setting(section, param, default=None, warn_on_none_level=None)
             if r is not None:
                 return r
+        section, param = sec_param_list[-1]
+        if default is None:
+            _warn_missing_setting(section, param, self._config_filename, warn_on_none_level)
         return default
     def _assure_raw(self):
         if self._raw is None:
             self._raw = get_config(None, None)
             self._config_filename = _CONFIG_FN
-    def get_config_setting(self, section, param, default=None):
+    def get_config_setting(self, section, param, default=None, warn_on_none_level=logging.WARN):
         if section in self._override:
             so = self._override[section]
             if param in so:
@@ -270,7 +281,8 @@ class ConfigWrapper(object):
                                           section,
                                           param,
                                           default=so[param],
-                                          config_filename=self._config_filename)
+                                          config_filename=self._config_filename,
+                                          warn_on_none_level=warn_on_none_level)
         if default is None:
             if section in self._fallback_defaults:
                 default = self._dominant_defaults[section].get(param)
@@ -278,7 +290,8 @@ class ConfigWrapper(object):
                                   section,
                                   param,
                                   default=default,
-                                  config_filename=self._config_filename)
+                                  config_filename=self._config_filename,
+                                  warn_on_none_level=warn_on_none_level)
     def report(self, out):
         self._assure_raw()
         out.write('Config read from "{f}"\n'.format(f=self._config_filename))

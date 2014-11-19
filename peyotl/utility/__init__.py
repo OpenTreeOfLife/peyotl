@@ -129,20 +129,9 @@ def _get_util_logger():
 
 _CONFIG = None
 _CONFIG_FN = None
-def get_config(section=None, param=None, default=None):
-    '''
-    Returns the config object if `section` and `param` are None, or the
-        value for the requested parameter.
-
-    If the parameter (or the section) is missing, the exception is logged and
-        None is returned.
-    '''
-    global _CONFIG, _CONFIG_FN
-    if _CONFIG is None:
-        try:
-            from ConfigParser import SafeConfigParser
-        except ImportError:
-            from configparser import ConfigParser as SafeConfigParser
+def get_default_config_filename():
+    global _CONFIG_FN
+    if _CONFIG_FN is None:
         if 'PEYOTL_CONFIG_FILE' in os.environ:
             _CONFIG_FN = os.environ['PEYOTL_CONFIG_FILE']
         else:
@@ -153,6 +142,7 @@ def get_config(section=None, param=None, default=None):
             _CONFIG_FN = resource_filename(pr, 'peyotl/default.conf')
         assert os.path.exists(_CONFIG_FN)
     return _CONFIG_FN
+
 def read_config(filepaths=None):
     global _CONFIG
     from ConfigParser import SafeConfigParser
@@ -190,11 +180,11 @@ def get_config(section=None, param=None, default=None, cfg=None):
             return default
     if section is None and param is None:
         return _CONFIG
-    return get_config_setting(_CONFIG_FN, section, param, default, config_filename=_CONFIG_FN)
+    return get_config_setting(_CONFIG, section, param, default, config_filename=_CONFIG_FN)
 
 def get_config_setting(config_obj, section, param, default=None, config_filename=''):
     try:
-        return _CONFIG.get(section, param)
+        return config_obj.get(section, param)
     except:
         if default is None:
             if read_filenames:
@@ -202,7 +192,7 @@ def get_config_setting(config_obj, section, param, default=None, config_filename
             else:
                 f = ''
             mf = 'Config file {f}does not contain option "{o}"" in section "{s}"\n'
-            msg = mf.format(f=f, o=param, s=section)
+            msg = mf.format(f=config_filename, o=param, s=section)
             _ulog = _get_util_logger()
             if _ulog is not None:
                 _ulog.error(msg)

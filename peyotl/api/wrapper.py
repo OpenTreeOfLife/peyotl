@@ -4,6 +4,7 @@ from peyotl.nexson_syntax import write_as_json
 from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config_object, get_logger
 import requests
+import warnings
 import codecs
 import anyjson
 import os
@@ -70,18 +71,16 @@ class APIDomains(object):
     @property
     def oti(self):
         if self._oti is None:
-            self._oti = self._config.get_config_setting('apis', 'oti')
-            if self._oti is None:
-                self._oti = 'http://api.opentreeoflife.org'
-            #_LOG.debug('using  "{u}" for {s}'.format(u=self._oti, s='oti'))
+            self._oti = self._config.get_config_setting('apis',
+                                                        'oti',
+                                                        'http://api.opentreeoflife.org')
         return self._oti
     @property
     def phylesystem_api(self):
         if self._phylesystem_api is None:
-            self._phylesystem_api = self._config.get_config_setting('apis', 'phylesystem_api')
-            if self._phylesystem_api is None:
-                self._phylesystem_api = 'http://api.opentreeoflife.org'
-            #_LOG.debug('using "{u}" for {s}'.format(u=self._phylesystem_api, s='phylesystem'))
+            self._phylesystem_api = self._config.get_config_setting('apis',
+                                                                    'phylesystem_api',
+                                                                    'http://api.opentreeoflife.org')
         return self._phylesystem_api
     @property
     def phylografter(self):
@@ -89,16 +88,16 @@ class APIDomains(object):
     @property
     def taxomachine(self):
         if self._taxomachine is None:
-            self._taxomachine = self._config.get_config_setting('apis', 'taxomachine')
-            if self._taxomachine is None:
-                self._taxomachine = 'http://api.opentreeoflife.org'
+            self._taxomachine = self._config.get_config_setting('apis',
+                                                                'taxomachine',
+                                                                'http://api.opentreeoflife.org')
         return self._taxomachine
     @property
     def treemachine(self):
         if self._treemachine is None:
-            self._treemachine = self._config.get_config_setting('apis', 'treemachine')
-            if self._treemachine is None:
-                self._treemachine = 'http://api.opentreeoflife.org'
+            self._treemachine = self._config.get_config_setting('apis',
+                                                                'treemachine',
+                                                                'http://api.opentreeoflife.org')
         return self._treemachine
 
 def get_domains_obj(**kwargs):
@@ -137,13 +136,13 @@ class APIWrapper(object):
         from peyotl.api.phylesystem_api import _PhylesystemAPIWrapper
         cfrom = self._config.get_config_setting('apis', 
                                                 'phylesystem_get_from',
-                                                self._phylesystem_api_kwargs.get('get_from'))
+                                                self._phylesystem_api_kwargs.get('get_from', 'external'))
         ctrans = self._config.get_config_setting('apis',
                                                  'phylesystem_transform',
-                                                 self._phylesystem_api_kwargs.get('transform'))
+                                                 self._phylesystem_api_kwargs.get('transform', 'client'))
         crefresh = self._config.get_config_setting('apis',
                                                    'phylesystem_refresh',
-                                                    self._phylesystem_api_kwargs.get('refresh'))
+                                                    self._phylesystem_api_kwargs.get('refresh', 'never'))
         if cfrom:
             kwargs.setdefault('get_from', cfrom)
         if ctrans:
@@ -309,11 +308,29 @@ class _WSWrapper(object):
     def __init__(self, domain, **kwargs):
         self._domain = domain
     def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False): #pylint: disable=W0102
-        return self._do_http(url, 'GET', headers=headers, params=params, data=None, text=text)
+        # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
+        with warnings.catch_warnings():
+            try:
+                warnings.simplefilter("ignore", ResourceWarning)
+            except NameError:
+                pass # on py2.7 we don't have ResourceWarning, but we don't need to filter...
+            return self._do_http(url, 'GET', headers=headers, params=params, data=None, text=text)
     def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False): #pylint: disable=W0102
-        return self._do_http(url, 'PUT', headers=headers, params=params, data=data, text=text)
+        # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
+        with warnings.catch_warnings():
+            try:
+                warnings.simplefilter("ignore", ResourceWarning)
+            except NameError:
+                pass # on py2.7 we don't have ResourceWarning, but we don't need to filter...
+            return self._do_http(url, 'PUT', headers=headers, params=params, data=data, text=text)
     def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False): #pylint: disable=W0102
-        return self._do_http(url, 'POST', headers=headers, params=params, data=data, text=text)
+        # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
+        with warnings.catch_warnings():
+            try:
+                warnings.simplefilter("ignore", ResourceWarning)
+            except NameError:
+                pass # on py2.7 we don't have ResourceWarning, but we don't need to filter...
+            return self._do_http(url, 'POST', headers=headers, params=params, data=data, text=text)
     def json_http_post_raise(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False): #pylint: disable=W0102
         r = self.json_http_post(url, headers=headers, params=params, data=data, text=text)
         if 'error' in r:

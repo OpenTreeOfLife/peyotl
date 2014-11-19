@@ -90,8 +90,7 @@ a shard of phyleystem.
     cd phylesystem
     bash pull-studies.bash
     cd shards
-    echo "Now set your 'parent' variable in the '[phylesystem]' section of ~/.peyotl/config to"
-    echo "have the value   $PWD"
+    echo "Now set your 'parent' variable in the '[phylesystem]' section of ~/.peyotl/config to have the value   $PWD"
 
 
 ### OTT

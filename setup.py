@@ -100,7 +100,8 @@ setup(
                       'sh>=1.08',
                       'locket>=0.1.1',
                       'requests>=2.2.1',
-                      'redis'],
+                      'redis',
+                      'enum34'],
     packages=PACKAGES,
     entry_points=ENTRY_POINTS,
     classifiers=[

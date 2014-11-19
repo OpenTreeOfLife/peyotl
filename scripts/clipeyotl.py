@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 from peyotl.utility import get_logger, ConfigWrapper
+import sys
 import os
-_LOG = get_logger('peyotl')
+_LOG = get_logger('clipeyotl')
+out = sys.stdout
 
 def parse_config_file(fp):
     try:
@@ -15,7 +17,6 @@ def parse_config_file(fp):
     return config_obj
 
 def config_command(args):
-    out = sys.stdout
     if args.action.lower() == 'list':
         fp = args.filepath
         if fp:
@@ -25,16 +26,28 @@ def config_command(args):
         else:
             cw = ConfigWrapper()
         cw.report(out)
+def ott_clear_command(args):
+    from peyotl.ott import OTT
+    ott = OTT()
+    ott.remove_caches()
 
-if __name__ == '__main__':
+def main():
     import argparse
-    import sys
-    parser = argparse.ArgumentParser(prog='peyotl')
+    parser = argparse.ArgumentParser(prog='cli-peyotl.py')
     subparsers = parser.add_subparsers(help='available commands')
-    parser_config = subparsers.add_parser('config', help='reports information about your peyotl configuration')
-    parser_config.add_argument('-a', '--action', choices=['list'], default='list', required=False)
-    parser_config.add_argument('-f', '--filepath', type=str, default=None, required=False)
-    parser_config.set_defaults(func=config_command)
+    # config commands
+    config_parser = subparsers.add_parser('config', help='reports information about your peyotl configuration')
+    config_parser.add_argument('-a', '--action', choices=['list'], default='list', required=False)
+    config_parser.add_argument('-f', '--filepath', type=str, default=None, required=False)
+    config_parser.set_defaults(func=config_command)
+    # ott commands
+    ott_parser = subparsers.add_parser('ott', help='commands that require a local version of ott')
+    #ott_parser.add_argument('--action', choices=['clear-cache'], default='', required=False)
+    ott_subparsers = ott_parser.add_subparsers(help='ott actions')
+    ott_clear_parser = ott_subparsers.add_parser('clear-cache',
+                                                 help='remove the caches used to speed up actions on OTT')
+    ott_clear_parser.set_defaults(func=ott_clear_command)
+
     args = parser.parse_args(sys.argv[1:])
     try:
         args.func(args)
@@ -43,3 +56,5 @@ if __name__ == '__main__':
         sys.exit(1)
 
 
+if __name__ == '__main__':
+    main()

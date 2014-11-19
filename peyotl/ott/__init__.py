@@ -1,10 +1,15 @@
 #!/usr/bin/env python
+from peyotl.phylo.entities import OTULabelStyleEnum
 from peyotl.utility import get_config_object, get_logger
 import pickle
 import codecs
 import os
 _LOG = get_logger(__name__)
 NONE_PAR = -1
+
+_PICKLE_AS_JSON = False
+if _PICKLE_AS_JSON:
+    from peyotl.nexson_syntax import write_as_json, read_as_json
 
 class _TransitionalNode(object):
     def __init__(self, par=None):
@@ -44,13 +49,14 @@ class _TransitionalNode(object):
         assert pn not in preorder2tuples
         preorder2tuples[pn] = t
 
-_CACHES = {'ottid2parentottid': ('ottId2parentOttId', 'ott ID-> parent\'s ott ID. root maps to -1', ),
+_CACHES = {'ottid2parentottid': ('ottID2parentOttId', 'ott ID-> parent\'s ott ID. root maps to -1', ),
            'ottid2preorder': ('ottID2preorder', 'ott ID -> preorder #', ),
            'preorder2ottid': ('preorder2ottID', 'preorder # -> ott ID', ),
            'ottid2uniq': ('ottID2uniq', 'ott ID -> uniqname for those IDs that have a uniqname field', ),
            'uniq2ottid': ('uniq2ottID', 'uniqname -> ott ID for those IDs that have a uniqname', ),
            'name2ottid': ('name2ottID', 'maps a taxon name -> ott ID ', ),
            'ottid2names': ('ottID2names', 'ottID to a name or list/tuple of names', ),
+           'root': ('root', 'name and ott_id of the root of the taxonomy', ),
            'preorder2tuple': ('preorder2tuple', '''preorder # to a node definition
 Each node definition is a tuple of preorder numbers:
     leaves will be: (parent, next_sib)
@@ -73,6 +79,8 @@ class OTT(object):
         self._ott_id_to_names = None
         self._ott_id2par_ott_id = None
         self._version = None
+        self._root_name = None
+        self._root_ott_id = None
     @property
     def version(self):
         if self._version is None:
@@ -94,8 +102,8 @@ class OTT(object):
     def make(self, target):
         tl = target.lower()
         if tl not in _CACHES:
-            raise ValueError('target "{t}" not understood. Must be one of: {a}', format(t=target,
-                                                                                        a='\n  '.join(_CACHES.keys())))
+            c = '\n  '.join(_CACHES.keys())
+            raise ValueError('target "{t}" not understood. Must be one of: {a}'.format(t=target, a=c))
         info = _CACHES[tl]
         fn = info[0] + '.pickle'
         fp = os.path.join(self.ott_dir, fn)
@@ -113,26 +121,53 @@ class OTT(object):
                     need_build = True
         if need_build:
             _LOG.debug('building "{}"'.format(fp))
-            self.create_caches(out_dir=self.ott_dir)
+            self._create_caches(out_dir=self.ott_dir)
         else:
             _LOG.debug('"{}" up to date.'.format(fp))
         return fp
     def _load_pickled(self, fn):
+        if not fn.endswith('.pickle'):
+            fn = fn + '.pickle'
         fp = os.path.join(self.ott_dir, fn)
         return self._load_cache_filepath(fp)
     def _load_cache_filepath(self, fp):
-        return pickle.load(open(fp, 'rb'))
+        if not os.path.exists(fp):
+            fn = os.path.split(fp)[-1]
+            if fn.endswith('.pickle'):
+                fn = fn[:-len('.pickle')]
+            self.make(fn.lower())
+        return _load_pickle_fp_raw(fp)
     @property
     def ott_id_to_names(self):
         if self._ott_id_to_names is None:
             self._ott_id_to_names = self._load_pickled('ottID2names')
         return self._ott_id_to_names
-    def create_caches(self, out_dir=None):
+    @property
+    def root_name(self):
+        if self._root_name is None:
+            self._load_root_properties()
+        return self._root_name
+    @property
+    def root_ott_id(self):
+        if self._root_ott_id is None:
+            self._load_root_properties()
+        return self._root_ott_id
+    def remove_caches(self, out_dir=None):
+        if out_dir is None:
+            out_dir = self.ott_dir
+        for tup in _CACHES.values():
+            fp = os.path.join(out_dir, tup[0] + '.pickle')
+            if os.path.exists(fp):
+                _LOG.info('Removing cache "{f}"'.format(f=fp))
+                os.remove(fp)
+            else:
+                _LOG.debug('Cache "{f}" was absent (no deletion needed).'.format(f=fp))
+    def _create_caches(self, out_dir=None):
         try:
-            self.create_pickle_files(out_dir=out_dir)
+            self._create_pickle_files(out_dir=out_dir)
         except:
             raise # TODO, clean up
-    def create_pickle_files(self, out_dir=None): #pylint: disable=R0914,R0915
+    def _create_pickle_files(self, out_dir=None): #pylint: disable=R0914,R0915
         '''
            preorder2tuple maps a preorder number to a node definition. 
            ottID2preorder maps every OTT ID in taxonomy.tsv to a preorder #
@@ -176,7 +211,8 @@ class OTT(object):
             root_ott_id = uid
             assert root_split[1] == ''
             name, rank, sourceinfo, uniqname, flags = root_split[2:7] #pylint: disable=W0612
-            assert name == 'life'
+            self._root_name = name
+
             assert root_split[7] == '\n'
             assert uid not in id2par
             id2par[uid] = NONE_PAR
@@ -336,7 +372,8 @@ class OTT(object):
         ott_id2preorder['root'] = root.preorder_number
         preorder2ott_id['root'] = root_ott_id
         preorder2ott_id['root_preorder'] = root.preorder_number
-
+        self._root_ott_id =root_ott_id
+        self._write_root_properties(out_dir, self._root_name, self._root_ott_id)
         _write_pickle(out_dir, 'ottID2preorder', ott_id2preorder)
         _write_pickle(out_dir, 'preorder2ottID', preorder2ott_id)
         _write_pickle(out_dir, 'ottID2uniq', id2uniq)
@@ -351,24 +388,52 @@ class OTT(object):
         root.fill_preorder2tuples(None, preorder2tuples)
         preorder2tuples['root'] = root.preorder_number
         _write_pickle(out_dir, 'preorder2tuple', preorder2tuples)
+    def _write_root_properties(self, out_dir, name, ott_id):
+        root_info = {'name': name,
+                     'ott_id': ott_id, }
+        _write_pickle(out_dir, 'root', root_info)
+    def _load_root_properties(self):
+        r = self._load_pickled('root')
+        self._root_name = r['name']
+        self._root_ott_id = r['ott_id']
 
-    def write_newick(self, out, taxon):
-        pass
-    def get_lineage(self, ott_id):
+    def write_newick(self, out, root_ott_id=None, tip_label=OTULabelStyleEnum.OTT_ID):
+        if isinstance(tip_label, int):
+            tip_label = OTULabelStyleEnum(tip_label)
+        if root_ott_id is None:
+            root_ott_id = self.root_ott_id
+        o2p = self.ott_id2par_ott_id
+        out.write(str(o2p))
+    def get_anc_lineage(self, ott_id):
         curr = ott_id
-        lineage = [curr]
         i2pi = self.ott_id2par_ott_id
         n = i2pi.get(curr)
+        if n is None:
+            print 'i2pi = ', i2pi
+            raise KeyError('The OTT ID {} was not found'.format(ott_id))
+        lineage = [curr]
         while n is not None and n != NONE_PAR:
             lineage.append(n)
             n = i2pi.get(n)
-        return lineage
+        return TaxonomyDes2AncLineage(lineage)
+if _PICKLE_AS_JSON:
+    def _write_pickle(directory, fn, obj):
+        fp = os.path.join(directory, fn + '.pickle')
+        _LOG.debug('Creating "{p}"'.format(p=fp))
+        with open(fp, 'wb') as fo:
+            write_as_json(obj, fo)
 
-def _write_pickle(directory, fn, obj):
-    fp = os.path.join(directory, fn + '.pickle')
-    _LOG.debug('Creating "{p}"'.format(p=fp))
-    with open(fp, 'wb') as fo:
-        pickle.dump(obj, fo)
+    def _load_pickle_fp_raw(fp):
+        return read_as_json(fp)
+else:
+    def _write_pickle(directory, fn, obj):
+        fp = os.path.join(directory, fn + '.pickle')
+        _LOG.debug('Creating "{p}"'.format(p=fp))
+        with open(fp, 'wb') as fo:
+            pickle.dump(obj, fo)
+
+    def _load_pickle_fp_raw(fp):
+        return pickle.load(open(fp, 'rb'))
 
 def _generate_parent(id2par, par_ott_id, ott2transitional):
     par = ott2transitional.get(par_ott_id)
@@ -395,9 +460,19 @@ def make_tree_from_taxonomy(id2par):
         nd = _TransitionalNode(par=par)
         ott2transitional[ott_id] = nd
     return ott2transitional
+
+class TaxonomyDes2AncLineage(object):
+    def __init__(self, des_to_anc_list):
+        self._des_to_anc_list = des_to_anc_list
+        assert bool(des_to_anc_list)
+    def __str__(self):
+        return '{r} at {i}'.format(r=self.__repr__(), i=hex(id(self)))
+    def __repr__(self):
+        return 'TaxonomyDes2AncLineage({l})'.format(l=repr(self._des_to_anc_list))
 if __name__ == '__main__':
     o = OTT()
     print(len(o.ott_id2par_ott_id), 'ott IDs')
     print('call')
-    print(o.get_lineage(5341349))
-
+    print(o.get_anc_lineage(593937)) # This is the OTT id of a species in the Asterales system
+    print(o.root_name)
+    #o.write_newick

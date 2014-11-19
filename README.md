@@ -24,12 +24,16 @@ Currently peyotl is used to implement most of the functionality in the
 [phylesystem-api] [3] backend of the study curation tool.
 
 # Instructions
+<<<<<<< HEAD
 You probably want to be using a virtualenv. Then you can:
 
     $ pip install -r requirements.txt
     $ python setup.py develop
 
 For full(er) documentation, check out [the wiki](https://github.com/OpenTreeOfLife/peyotl/wiki).
+=======
+For full(er) documentation, check out our [http://opentreeoflife.github.io/peyotl/](http://opentreeoflife.github.io/peyotl/) documentation site.
+>>>>>>> origin/master
 
 # Testing
 

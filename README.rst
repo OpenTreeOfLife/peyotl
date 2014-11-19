@@ -37,7 +37,7 @@ Instructions
     python setup.py develop
     python setup.py test
 
-performs the basic installation and test. For full(er) documentation, check out the wiki_.
+performs the basic installation and test. For full(er) documentation, check out the documentation_.
 
 
 Thanks
@@ -77,7 +77,7 @@ The peyotl/test/data/nexson/phenoscape/nexml test file is from
 .. _taxomachine: https://github.com/OpenTreeOfLife/taxomachine
 .. _treemachine:  https://github.com/OpenTreeOfLife/treemachine
 .. _CONTRIBUTORS: https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/CONTRIBUTORS.txt
-.. _wiki: https://github.com/OpenTreeOfLife/peyotl/wiki
+.. _documentation: http://opentreeoflife.github.io/peyotl/
 .. _Karl Gude: http://karlgude.com/about/
 .. _DendroPy: http://pythonhosted.org/DendroPy/
 .. _Lophophora williamsii: http://en.wikipedia.org/wiki/Lophophora_williamsii

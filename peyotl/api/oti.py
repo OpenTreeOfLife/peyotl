@@ -184,7 +184,7 @@ class _OTIWrapper(_WSWrapper):
                                                          "FALSE")
         self._raw_urls = (r.lower() == 'true')
         _WSWrapper.__init__(self, domain, **kwargs)
-        self.set_domain(domain)
+        self.domain = domain
     @property
     def domain(self):
         return self._domain

@@ -17,6 +17,7 @@ from peyotl.utility.io import download, \
                               open_for_group_write, \
                               parse_study_tree_list, \
                               write_to_filepath
+from peyotl.utility.str_util import is_str_type
 
 def pretty_timestamp(t=None, style=0):
     if t is None:
@@ -183,12 +184,20 @@ def get_config(section=None, param=None, default=None, cfg=None):
     return get_config_setting(_CONFIG, section, param, default, config_filename=_CONFIG_FN)
 
 def get_config_setting(config_obj, section, param, default=None, config_filename=''):
+    '''Read (section, param) from `config_obj`. If not found, return `default`
+
+    If the setting is not found and `default` is None, then an error-level message is logged.
+    `config_filename` can be None, filepath or list of filepaths - it is only used for logging.
+    '''
     try:
         return config_obj.get(section, param)
     except:
         if default is None:
-            if read_filenames:
-                f = '"{}" '.format('", "'.join(read_filenames))
+            if config_filename:
+                if not is_str_type(config_filename):
+                    f = '"{}" '.format('", "'.join(config_filename))
+                else:
+                    f = '"{}"'.format(config_filename)
             else:
                 f = ''
             mf = 'Config file {f}does not contain option "{o}"" in section "{s}"\n'

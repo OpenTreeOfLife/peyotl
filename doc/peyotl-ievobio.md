@@ -48,7 +48,7 @@ by Open Tree of Life developers (primarily Mark T. Holder, Emily Jane McTavish, 
 
 <pre  class="snippet">
 from peyotl.sugar import taxomachine
-print taxomachine.TNRS('Anolis sagrei')
+print(taxomachine.TNRS('Anolis sagrei'))
 </pre>
 returns a object summarizing the possible matches.
 
@@ -69,7 +69,7 @@ returns the tree (currently only in an odd, in-house format called "Arguson")
 <pre class="snippet">
 from peyotl.sugar import oti
 n = 'Aponogeoton ulvaceus'
-print oti.find_trees(ottTaxonName=n)
+print(oti.find_trees(ottTaxonName=n))
 </pre>
 
 returns a list of objects listing studyID and treeID
@@ -79,10 +79,10 @@ returns a list of objects listing studyID and treeID
 <pre class="snippet">
 from peyotl.api import PhylesystemAPI
 pa = PhylesystemAPI(get_from='api')
-print pa.get('pg_10',
+print(pa.get('pg_10',
              tree_id='tree3',
              subtree_id='ingroup',
-             format='newick')
+             format='newick'))
 </pre>
 returns the ingroup of "tree3¨ from study "pg_10" in newick.
 

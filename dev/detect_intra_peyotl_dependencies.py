@@ -89,4 +89,4 @@ else:
         dep_set = d[mod]
         x = [i for i in dep_set if i != mod]
         x.sort()
-        print '{m} depends on: "{d}"'.format(m=mod, d='", "'.join(x))
+        print('{m} depends on: "{d}"'.format(m=mod, d='", "'.join(x)))

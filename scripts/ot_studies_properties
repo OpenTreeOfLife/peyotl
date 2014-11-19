@@ -7,4 +7,4 @@ for k, v in e.items():
     l = list(v)
     l.sort()
     d[k] = l
-print pretty_dict_str(d)
+print(pretty_dict_str(d))

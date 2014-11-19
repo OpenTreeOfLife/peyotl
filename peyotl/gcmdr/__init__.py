@@ -267,7 +267,7 @@ class GraphCommander(PropertiesFromConfig):
         with codecs.open(tree_log, 'a', encoding='utf-8') as tree_fo:
             tree_fo.write(tree_str)
             tree_fo.write('\n')
-        print tree_str
+        print(tree_str)
 
     def load_graph(self,
                    tree_list,
@@ -321,7 +321,7 @@ class GraphCommander(PropertiesFromConfig):
                 with codecs.open(tree_log, 'a', encoding='utf-8') as tree_fo:
                     tree_fo.write(tree_str)
                     tree_fo.write('\n')
-                print tree_str
+                print(tree_str)
             if map_compat:
                 map_content = treemachine_map_compat_one_tree(self.java_invoc,
                                                               self.treemachine_jar,
@@ -331,7 +331,7 @@ class GraphCommander(PropertiesFromConfig):
                                                               sha)
                 with codecs.open(log_filepath, 'a', encoding='utf-8') as log_fo:
                     log_fo.write(map_content)
-                print map_content
+                print(map_content)
 
     def _report_source_tree(self, db, study_id, tree_id, sha):
         return treemachine_source_explorer(self.java_invoc,

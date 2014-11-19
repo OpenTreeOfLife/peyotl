@@ -76,7 +76,7 @@ if __name__ == '__main__':
     elif cmd == 'synthesize':
         gcmdr.synthesize()
     elif cmd == 'extractsynthesis':
-        print gcmdr.extract_synthesis()
+        print(gcmdr.extract_synthesis())
     elif cmd == 'cleanrebuild':
         gcmdr.load_taxonomy()
         gcmdr.fetch_nexsons(tree_list, download=args.download)

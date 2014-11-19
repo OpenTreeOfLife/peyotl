@@ -397,7 +397,7 @@ def make_tree_from_taxonomy(id2par):
     return ott2transitional
 if __name__ == '__main__':
     o = OTT()
-    print len(o.ott_id2par_ott_id), 'ott IDs'
-    print 'call'
-    print o.get_lineage(5341349)
+    print(len(o.ott_id2par_ott_id), 'ott IDs')
+    print('call')
+    print(o.get_lineage(5341349))
 

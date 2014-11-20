@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from peyotl.nexson_syntax import read_as_json
 from peyotl.phylesystem import _Phylesystem
 import unittest
 from peyotl.test.support import pathmap
@@ -29,12 +30,20 @@ class TestPhylesystem(unittest.TestCase):
         print p.get_study_ids()
     def testNextStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
+        mf = p._growing_shard._id_minting_file
         nsi = p._mint_new_study_id()
+        print nsi
+        self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
+        print p._study2shard_map.keys()
         self.assertTrue(nsi.startswith('ot_'))
         r = _Phylesystem(repos_dict=self.r, new_study_prefix='ab_')
+        mf = r._growing_shard._id_minting_file
         nsi = r._mint_new_study_id()
         print nsi
         self.assertTrue(nsi.startswith('ab_'))
+        print r._study2shard_map.keys()
+        self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
+
     def testChangedStudies(self):
         p = _Phylesystem(repos_dict=self.r)
         changed = p.get_changed_studies('aa8964b55bfa930a91af7a436f55f0acdc94b918')

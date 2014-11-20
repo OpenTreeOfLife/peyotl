@@ -24,7 +24,7 @@ Currently peyotl is used to implement most of the functionality in the
 [phylesystem-api] [3] backend of the study curation tool.
 
 # Instructions
-For full(er) documentation, check out [the wiki](https://github.com/OpenTreeOfLife/peyotl/wiki).
+For full(er) documentation, check out our [http://opentreeoflife.github.io/peyotl/](http://opentreeoflife.github.io/peyotl/) documentation site.
 
 
 # Thanks
@@ -58,7 +58,7 @@ The peyotl/test/data/nexson/phenoscape/nexml test file is from
 
 [1]: http://blog.opentreeoflife.org/
 [2]: https://github.com/OpenTreeOfLife/phylesystem
-[3]: https://github.com/OpenTreeOfLife/api.opentreeoflife.org/
+[3]: https://github.com/OpenTreeOfLife/phylesystem-api
 [4]: https://github.com/OpenTreeOfLife/taxomachine
 [5]: https://github.com/OpenTreeOfLife/treemachine
 [6]: https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/CONTRIBUTORS.txt

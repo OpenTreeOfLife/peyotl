@@ -23,24 +23,18 @@ class TestPhylesystem(unittest.TestCase):
         self.assertEqual(k, ['10', '11', '12', '9'])
     def testURL(self):
         p = _Phylesystem(repos_dict=self.r)
-        print(p.get_public_url('9'))
     def testStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
-        print(p.get_study_ids())
     def testNextStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
         mf = p._growing_shard._id_minting_file
         nsi = p._mint_new_study_id()
-        print nsi
         self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
-        print p._study2shard_map.keys()
         self.assertTrue(nsi.startswith('ot_'))
         r = _Phylesystem(repos_dict=self.r, new_study_prefix='ab_')
         mf = r._growing_shard._id_minting_file
         nsi = r._mint_new_study_id()
-        print(nsi)
         self.assertTrue(nsi.startswith('ab_'))
-        print r._study2shard_map.keys()
         self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
 
     def testChangedStudies(self):

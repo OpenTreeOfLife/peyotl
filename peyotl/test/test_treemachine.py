@@ -59,7 +59,7 @@ class TestTreemachine(unittest.TestCase):
         if not self.treemachine.use_v1:
             r = self.treemachine.mrca(ott_ids=ott_ids)
             self.assertTrue('mrca_node_id' in r)
-            print 'node_info is', self.treemachine.node_info(r['mrca_node_id'])
+            print('node_info is', self.treemachine.node_info(r['mrca_node_id']))
 class Skip:
     def testSearchForTaxon(self):
         taxomachine = Taxomachine(self.domains)
@@ -67,7 +67,6 @@ class Skip:
         ottId = anolis_taxon[0]['ottId']
         node_id = self.treemachine.get_node_id_for_ott_id(ottId)
         x = self.treemachine.get_synthetic_tree(format='newick', node_id=node_id, max_depth=12)
-        #print '{};'.format(x['newick'])
 
 if __name__ == "__main__":
     unittest.main()

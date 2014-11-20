@@ -163,6 +163,7 @@ def merge_otus_and_trees(nexson_blob):
         #       case of the latter, we add to the
         #       replaced_otu dict (old oid as key, new otu as value)
         for ogi in otus_group_order[1:]:
+            #_LOG.debug('retained_mapped2otu = {r}'.format(r=retained_mapped2otu))
             og = otus_group_by_id[ogi]
             del otus_group_by_id[ogi]
             otu_by_id = og.get('otuById', {})
@@ -181,9 +182,13 @@ def merge_otus_and_trees(nexson_blob):
                     if mlist is not None:
                         for m in mlist:
                             if m[0] not in used_matches:
+                                # _LOG.debug('Matching {k} to {m}'.format(k=repr(key), m=repr(m)))
                                 match_otu = m
                                 break
+                            #else:
+                            #    _LOG.debug('{k} already in {m}'.format(k=repr(m[0]), m=repr(used_matches)))
                     if match_otu is None:
+                        #_LOG.debug('New el: {k} mlist = {m}'.format(k=repr(key), m=repr(mlist)))
                         mlist = retained_orig2otu.get(orig, [])
                         for m in mlist:
                             if m[0] not in used_matches:

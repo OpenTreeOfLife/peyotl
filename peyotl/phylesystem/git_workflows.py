@@ -10,6 +10,7 @@ from peyotl.nexson_syntax import convert_nexson_format
 from peyotl.phylesystem.git_actions import MergeException, \
                                            get_user_author, \
                                            GitWorkflowError
+from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 from locket import LockError
 from sh import git
@@ -36,7 +37,7 @@ def acquire_lock_raise(git_action, fail_msg=''):
     '''
     try:
         git_action.acquire_lock()
-    except LockError, e:
+    except LockError as e:
         msg = '{o} Details: {d}'.format(o=fail_msg, d=e.message)
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
@@ -76,7 +77,7 @@ def _pull_gh(git_action, branch_name):#
         git(git_action.gitdir, "fetch", git_action.repo_remote, _env=git_env)
         git(git_action.gitdir, git_action.gitwd, "merge", git_action.repo_remote + '/' + branch_name, _env=git_env)
         # TIMING = api_utils.log_time_diff(_LOG, 'git pull', TIMING)
-    except Exception, e:
+    except Exception as e:
         # We can ignore this if the branch doesn't exist yet on the remote,
         # otherwise raise a 400
 #            raise #@EJM what was this doing?
@@ -139,7 +140,7 @@ def commit_and_try_merge2master(git_action,
     merge_needed = False
     fc = tempfile.NamedTemporaryFile()
     try:
-        if isinstance(file_content, str) or isinstance(file_content, unicode):
+        if is_str_type(file_content):
             fc.write(file_content)
         else:
             write_as_json(file_content, fc)
@@ -149,7 +150,7 @@ def commit_and_try_merge2master(git_action,
         try:
             try:
                 commit_resp = git_action.write_study_from_tmpfile(study_id, fc, parent_sha, auth_info, commit_msg)
-            except Exception, e:
+            except Exception as e:
                 _LOG.exception('write_study_from_tmpfile exception')
                 raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
             written_fp = git_action.path_for_study(study_id)
@@ -197,7 +198,7 @@ def delete_study(git_action, study_id, auth_info, parent_sha, commit_msg='', mer
                                          merged_sha=merged_sha,
                                          prev_file_sha=rs_resp.get('prev_file_sha'))
         new_sha, branch_name, merge_needed = m_resp
-    except Exception, e:
+    except Exception as e:
         raise GitWorkflowError("Could not remove study #%s! Details: %s" % (study_id, e.message))
     finally:
         git_action.release_lock()

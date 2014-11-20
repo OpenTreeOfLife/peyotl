@@ -10,6 +10,7 @@ from peyotl.nexson_validation.err_generator import gen_MissingCrucialContentWarn
                                                    gen_RepeatedOTUWarning, \
                                                    gen_UnreachableNodeWarning, \
                                                    gen_WrongValueTypeWarning
+from peyotl.utility.str_util import is_str_type
 from peyotl.nexson_validation._validation_base import NexsonValidationAdaptor
 from peyotl.nexson_syntax.helper import BY_ID_HONEY_BADGERFISH
 from peyotl.utility import get_logger
@@ -122,7 +123,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              obj_nex_id=tree_nex_id,
                              key_list=['edgeBySourceId',])
             return errorReturn('no "edgeBySourceId" in tree')
-        if (not isinstance(root_node_id, str)) and (not isinstance(root_node_id, unicode)):
+        if not is_str_type(root_node_id):
             self._error_event(_NEXEL.TREE,
                              obj=tree_obj,
                              err_type=gen_MissingCrucialContentWarning,
@@ -238,7 +239,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              err_type=gen_MultipleRootsWarning,
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
-                             node_id_list=with_at_root_prop.keys())
+                             node_id_list=list(with_at_root_prop.keys()))
             return errorReturn('multiple "@root" nodes')
         if len(with_at_root_prop) == 0:
             self._error_event(_NEXEL.TREE,
@@ -253,7 +254,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                              err_type=gen_MultipleRootsWarning,
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
-                             node_id_list=with_at_root_prop.keys() + [root_node_id])
+                             node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
             return errorReturn('root node not labelled as root')
         if not self._validate_internal_node_list(internal_nodes, vc):
             return False

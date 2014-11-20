@@ -1,6 +1,10 @@
 #!/usr/bin/env python
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from peyotl.api.wrapper import _WSWrapper, APIWrapper, GZIP_REQUEST_HEADERS
+from peyotl.utility.str_util import is_str_type
 from peyotl.nexson_syntax import write_as_json
 import datetime
 import anyjson
@@ -57,7 +61,7 @@ class _PhylografterWrapper(_WSWrapper):
             results = uncompressed
         except:
             raise
-        if isinstance(results, unicode) or isinstance(results, str):
+        if is_str_type(results):
             if output_filepath is None:
                 return anyjson.loads(results)
             else:

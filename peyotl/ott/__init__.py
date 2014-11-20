@@ -95,7 +95,7 @@ class OTT(object):
         f_set_id = 0
         info = {}
         root_ott_id = None
-        with codecs.open(taxonomy_file, 'rU', encoding='utf-8') as tax_fo:
+        with codecs.open(taxonomy_file, 'r', encoding='utf-8') as tax_fo:
             it = iter(tax_fo)
             first_line = it.next()
             assert first_line == 'uid\t|\tparent_uid\t|\tname\t|\trank\t|\tsourceinfo\t|\tuniqname\t|\tflags\t|\t\n'
@@ -202,7 +202,7 @@ class OTT(object):
         if not os.path.isfile(synonyms_file):
             raise ValueError('Expecting to find "{}" based on ott_dir of "{}"'.format(synonyms_file, ott_dir))
         num_lines = 0
-        with codecs.open(synonyms_file, 'rU', encoding='utf-8') as syn_fo:
+        with codecs.open(synonyms_file, 'r', encoding='utf-8') as syn_fo:
             it = iter(syn_fo)
             first_line = it.next()
             assert first_line == 'name\t|\tuid\t|\ttype\t|\tuniqname\t|\t\n'

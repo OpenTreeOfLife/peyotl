@@ -3,6 +3,7 @@ from peyotl.nexson_syntax.helper import extract_meta, \
                                         _is_badgerfish_version, \
                                         _is_by_id_hbf, \
                                         _is_direct_hbf
+from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 #pylint: disable=W0613,W0212
@@ -148,7 +149,7 @@ def check_href(x, obj, k, vc):
     try:
         _check_id(x, obj, k, vc)
         h = x.get('@href')
-        if isinstance(h, str) or isinstance(h, unicode):
+        if is_str_type(h):
             return __TRUE_VAL
     except:
         pass
@@ -186,7 +187,7 @@ def check_hbf_meta_list(x, obj, k, vc):
 def check_list_or_dict(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, list) or isinstance(x, dict)) else __FALSE_DICT_LIST
 def check_raw_str(x, obj, k, vc):
-    return __TRUE_VAL if (isinstance(x, str) or isinstance(x, unicode)) else __FALSE_STR
+    return __TRUE_VAL if is_str_type(x) else __FALSE_STR
 def check_obj_meta_str(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
@@ -199,7 +200,7 @@ def check_raw_str_list(x, obj, k, vc):
     if not isinstance(x, list):
         return __FALSE_STR_LIST
     for i in x:
-        if not (isinstance(i, str) or isinstance(i, unicode)):
+        if not is_str_type(i):
             return __FALSE_STR_LIST
     return __TRUE_VAL
 def check_obj_meta_str_list(x, obj, k, vc):
@@ -211,12 +212,12 @@ def check_hbf_meta_str_list(x, obj, k, vc):
         return check_obj_meta_str_list(x, obj, k, vc)
     return check_raw_str_list(x, obj, k, vc)
 def check_raw_str_repeatable(x, obj, k, vc):
-    if isinstance(x, str) or isinstance(x, unicode):
+    if is_str_type(x):
         return __TRUE_VAL
     if not isinstance(x, list):
         return __FALSE_STR_REPEATABLE_EL
     for i in x:
-        if not (isinstance(i, str) or isinstance(i, unicode)):
+        if not is_str_type(i):
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
 def check_obj_meta_str_repeatable(x, obj, k, vc):

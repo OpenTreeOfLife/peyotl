@@ -13,7 +13,7 @@ _LOG = get_logger(__name__)
 VALID_NEXSON_DIRS = ['9', 'otu', ]
 
 def read_json(fp):
-    return json.load(codecs.open(fp, 'rU', encoding='utf-8'))
+    return json.load(codecs.open(fp, 'r', encoding='utf-8'))
 def write_json(o, fp):
     with codecs.open(fp, 'w', encoding='utf-8') as fo:
         json.dump(o, fo, indent=2, sort_keys=True)
@@ -25,17 +25,6 @@ def dict_eq(a, b):
     if a == b:
         return True
     return False
-    # ka, kb = a.keys(), b.keys()
-    # ka.sort()
-    # kb.sort()
-    # if ka != kb:
-    #     _LOG.debug('keys "{a}" != "{b}"'.format(a=ka, b=kb))
-    # for k in ka:
-    #     va = a[k]
-    #     vb = b[k]
-    #     if va != vb:
-    #         _LOG.debug('value for {k}: "{a}" != "{b}"'.format(k=k, a=va, b=vb))
-    # return False
 
 class TestConvert(unittest.TestCase):
     def testInvalidFilesFail(self):

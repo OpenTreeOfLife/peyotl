@@ -296,7 +296,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                              err_type=gen_MultipleRootsWarning,
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
-                             node_id_list=with_at_root_prop.keys() + [root_node_id])
+                             node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
             return errorReturn('root without "@root"')
         elif len(with_at_root_prop) > 1:
             self._error_event(_NEXEL.TREE,
@@ -304,7 +304,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                              err_type=gen_MultipleRootsWarning,
                              anc=vc.anc_list,
                              obj_nex_id=tree_nex_id,
-                             node_id_list=with_at_root_prop.keys())
+                             node_id_list=list(with_at_root_prop.keys()))
             return errorReturn('Multiple nodes with "@root"')
         elif len(with_at_root_prop) == 0:
             self._error_event(_NEXEL.TREE,

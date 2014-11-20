@@ -6,5 +6,5 @@ env
 dist
 *~
 peyotl/test/data/shared-api-tests
+setuptools-*
 requests-*egg
-

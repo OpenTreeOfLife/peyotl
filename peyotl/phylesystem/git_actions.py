@@ -6,6 +6,7 @@ import locket
 import codecs
 from peyotl import get_logger
 import shutil
+from peyotl.utility.str_util import is_str_type
 from peyotl.nexson_syntax import write_as_json
 import tempfile #@TEMPORARY for deprecated write_study
 _LOG = get_logger(__name__)
@@ -17,12 +18,12 @@ def get_HEAD_SHA1(git_dir):
     '''Not locked!
     '''
     head_file = os.path.join(git_dir, 'HEAD')
-    with open(head_file, 'rU') as hf:
+    with open(head_file, 'r') as hf:
         head_contents = hf.read().strip()
     assert head_contents.startswith('ref: ')
     ref_filename = head_contents[5:] #strip off "ref: "
     real_ref = os.path.join(git_dir, ref_filename)
-    with open(real_ref, 'rU') as rf:
+    with open(real_ref, 'r') as rf:
         return rf.read().strip()
 
 
@@ -76,7 +77,7 @@ class GitAction(object):
     def clone_repo(par_dir, repo_local_name, remote):
         if not os.path.isdir(par_dir):
             raise ValueError(repr(par_dir) + ' is not a directory')
-        if not (isinstance(remote, str) or isinstance(remote, unicode)):
+        if not is_str_type(remote):
             raise ValueError(repr(remote) + ' is not a remote string')
         dest = os.path.join(par_dir, repo_local_name)
         if os.path.exists(dest):
@@ -227,7 +228,7 @@ class GitAction(object):
             head_sha = commit_sha
         study_filepath = self.path_for_study(study_id)
         try:
-            f = codecs.open(study_filepath, mode='rU', encoding='utf-8')
+            f = codecs.open(study_filepath, mode='r', encoding='utf-8')
             content = f.read()
         except:
             content = ''
@@ -420,7 +421,7 @@ class GitAction(object):
         #   only doing this function is going away very soon. @KILL with merge of local-dep
         gh_user = branch.split('_study_')[0]
         fc = tempfile.NamedTemporaryFile()
-        if isinstance(file_content, str) or isinstance(file_content, unicode):
+        if is_str_type(file_content):
             fc.write(file_content)
         else:
             write_as_json(file_content, fc)
@@ -443,7 +444,7 @@ class GitAction(object):
                     "commit",
                     author=author,
                     message="Update Study #%s via OpenTree API" % study_id)
-            except Exception, e:
+            except Exception as e:
                 # We can ignore this if no changes are new,
                 # otherwise raise a 400
                 if "nothing to commit" in e.message:#@EJM is this dangerous?
@@ -453,7 +454,7 @@ class GitAction(object):
                     self.reset_hard()
                     raise
             new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")
-        except Exception, e:
+        except Exception as e:
             _LOG.exception('write_study exception')
             raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
         finally:
@@ -500,7 +501,7 @@ class GitAction(object):
         try:
             git(self.gitdir, self.gitwd, "add", study_filepath)
             git(self.gitdir, self.gitwd, "commit", author=author, message=commit_msg)
-        except Exception, e:
+        except Exception as e:
             # We can ignore this if no changes are new,
             # otherwise raise a 400
             if "nothing to commit" in e.message:#@EJM is this dangerous?

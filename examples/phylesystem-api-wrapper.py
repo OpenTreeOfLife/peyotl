@@ -2,8 +2,8 @@
 from peyotl.api import APIWrapper
 ps = APIWrapper().phylesystem_api
 studies = ps.get_study_list()
-print studies[0]
+print(studies[0])
 blob = ps.get(studies[0])
 nexson = blob['data']['nexml']
-print nexson['^ot:studyId'], ':', nexson['^ot:studyPublicationReference']
+print(nexson['^ot:studyId'], ':', nexson['^ot:studyPublicationReference'])
 

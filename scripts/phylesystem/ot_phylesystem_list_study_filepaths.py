@@ -5,4 +5,4 @@ find (see README for discussion of configuration).
 '''
 from peyotl import phylesystem_study_paths
 for study_id, filepath in phylesystem_study_paths():
-    print filepath
+    print(filepath)

@@ -3,8 +3,11 @@
 copies of the phylesystem repositories.
 '''
 from peyotl.utility import get_config, expand_path, get_logger, write_to_filepath
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from peyotl.nexson_syntax import read_as_json, write_as_json
-from cStringIO import StringIO
 import json
 try:
     import anyjson
@@ -154,7 +157,7 @@ class PhylesystemShardBase(object):
                 else:
                     x.append(i)
             return x
-        return k
+        return list(k)
 
 class PhylesystemShard(PhylesystemShardBase):
     '''Wrapper around a git repos holding nexson studies'''
@@ -188,10 +191,10 @@ class PhylesystemShard(PhylesystemShardBase):
         if not os.path.isdir(study_dir):
             raise ValueError('"{p}" is not a directory'.format(p=study_dir))
         self._id_minting_file = os.path.join(path, 'next_study_id.json')
-        self._prefix_file = os.path.join(path, 'new_study_prefix')
         if self._new_study_prefix is None:
-            if os.path.exists(self._prefix_file):
-                pre_content = open(self._prefix_file, 'rU').read().strip()
+            prefix_file = os.path.join(path, 'new_study_prefix')
+            if os.path.exists(prefix_file):
+                pre_content = open(prefix_file, 'r').read().strip()
                 valid_pat = re.compile('^[a-zA-Z0-9]+_$')
                 if len(pre_content) != 3 or not valid_pat.match(pre_content):
                     raise ValueError('Expecting prefix in new_study_prefix file to be two '\
@@ -306,7 +309,7 @@ class PhylesystemShard(PhylesystemShardBase):
         with self._index_lock:
             fp = self.study_index.values()[0][2]
         _LOG.debug('diagnose_repo_nexml2json with fp={}'.format(fp))
-        with codecs.open(fp, mode='rU', encoding='utf-8') as fo:
+        with codecs.open(fp, mode='r', encoding='utf-8') as fo:
             fj = json.load(fo)
             return detect_nexson_version(fj)
 
@@ -402,7 +405,7 @@ class PhylesystemShard(PhylesystemShardBase):
         '''
         for study_id, fp in self.iter_study_filepaths(**kwargs):
             if not self._is_alias(study_id):
-                with codecs.open(fp, 'rU', 'utf-8') as fo:
+                with codecs.open(fp, 'r', 'utf-8') as fo:
                     try:
                         nex_obj = anyjson.loads(fo.read())
                         yield (study_id, nex_obj)
@@ -436,7 +439,7 @@ class PhylesystemShard(PhylesystemShardBase):
         with self._index_lock:
             si = self._study_index
         r = _invert_dict_list_val(si)
-        key_list = r.keys()
+        key_list = list(r.keys())
         rd['number of studies'] = len(key_list)
         key_list.sort()
         m = []
@@ -650,7 +653,7 @@ class _Phylesystem(_PhylesystemBase):
         if repos_dict is None:
             repos_dict = get_repos(repos_par)
         shards = []
-        repo_name_list = repos_dict.keys()
+        repo_name_list = list(repos_dict.keys())
         repo_name_list.sort()
         for repo_name in repo_name_list:
             repo_filepath = repos_dict[repo_name]

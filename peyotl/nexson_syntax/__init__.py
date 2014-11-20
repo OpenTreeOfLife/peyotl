@@ -25,7 +25,10 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         NEXML_NEXSON_VERSION, \
                                         BY_ID_HONEY_BADGERFISH, \
                                         SUPPORTED_NEXSON_VERSIONS
-
+from peyotl.utility.str_util import flush_utf_8_writer, \
+                                    UNICODE, \
+                                    is_str_type, \
+                                    get_utf_8_string_io_writer
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
 from peyotl.nexson_syntax.direct2optimal_nexson import Direct2OptimalNexson
 from peyotl.nexson_syntax.badgerfish2direct_nexson import Badgerfish2DirectNexson
@@ -33,7 +36,6 @@ from peyotl.nexson_syntax.direct2badgerfish_nexson import Direct2BadgerfishNexso
 from peyotl.nexson_syntax.nexson2nexml import Nexson2Nexml
 from peyotl.nexson_syntax.nexml2nexson import Nexml2Nexson
 from peyotl.utility import get_logger
-from cStringIO import StringIO
 import xml.dom.minidom
 import codecs
 import json
@@ -222,9 +224,7 @@ class PhyloSchema(object):
             if self.content_id is not None:
                 raise ValueError('No content_id expected for "{}" content'.format(self.content))
         elif self.content in PhyloSchema._str_content_id_types:
-            if not (self.content_id is None
-                    or isinstance(self.content_id, str)
-                    or isinstance(self.content_id, unicode)):
+            if not (self.content_id is None or is_str_type(self.content_id)):
                 raise ValueError('content_id for "{}" content must be a string (if provided)'.format(self.content))
         else:
             is_list = isinstance(self.content_id, list) or isinstance(self.content_id, tuple)
@@ -414,10 +414,9 @@ class PhyloSchema(object):
                     write_as_json(d, output_dest)
                     return None
                 else:
-                    f = StringIO()
-                    wrapper = codecs.getwriter("utf8")(f)
+                    f, wrapper = get_utf_8_string_io_writer()
                     write_as_json(d, wrapper)
-                    wrapper.reset()
+                    flush_utf_8_writer(wrapper)
                     return f.getvalue()
             else:
                 return d
@@ -425,7 +424,7 @@ class PhyloSchema(object):
         if (serialize is not None) and (not serialize):
             raise ValueError('Conversion without serialization is only supported for the NexSON format')
         if output_dest:
-            if isinstance(output_dest, str) or isinstance(output_dest, unicode):
+            if is_str_type(output_dest):
                 output_dest = codecs.open(output_dest, 'w', encoding='utf-8')
         if self.format_code == PhyloSchema.NEXML:
             if output_dest:
@@ -478,13 +477,13 @@ def get_ot_study_info_from_nexml(src=None,
     else:
         nsv = nexson_syntax_version
     if nexml_content is None:
-        if isinstance(src, str) or isinstance(src, unicode):
+        if is_str_type(src):
             if src.startswith('http://') or src.startswith('https://'):
                 from peyotl.utility import download
                 nexml_content = download(url=src, encoding=encoding)
             else:
-                src = codecs.open(src, 'rU', encoding=encoding)
-                nexml_content = src.read().encode('utf-8')
+                with codecs.open(src, 'r', encoding=encoding) as src:
+                    nexml_content = src.read().encode('utf-8')
         else:
             nexml_content = src.read().encode('utf-8')
     doc = xml.dom.minidom.parseString(nexml_content)
@@ -526,15 +525,14 @@ def write_obj_as_nexml(obj_dict,
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
 
 def convert_to_nexml(obj_dict, addindent='', newl='', use_default_root_atts=True, otu_label='ot:originalLabel'):
-    f = StringIO()
-    wrapper = codecs.getwriter("utf8")(f)
+    f, wrapper = get_utf_8_string_io_writer()
     write_obj_as_nexml(obj_dict,
                        file_obj=wrapper,
                        addindent=addindent,
                        newl=newl,
                        use_default_root_atts=use_default_root_atts,
                        otu_label=otu_label)
-    wrapper.reset()
+    flush_utf_8_writer(wrapper)
     return f.getvalue()
 
 def resolve_nexson_format(v):
@@ -608,7 +606,7 @@ def convert_nexson_format(blob,
 
 def write_as_json(blob, dest, indent=0, sort_keys=True):
     opened_out = False
-    if isinstance(dest, str) or isinstance(dest, unicode):
+    if is_str_type(dest):
         out = codecs.open(dest, mode='w', encoding='utf-8')
         opened_out = True
     else:
@@ -622,7 +620,7 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
             out.close()
 
 def read_as_json(infi, encoding='utf-8'):
-    with codecs.open(infi, 'rU', encoding=encoding) as inpf:
+    with codecs.open(infi, 'r', encoding=encoding) as inpf:
         n = json.load(inpf)
     return n
 
@@ -818,7 +816,7 @@ def convert_tree_to_newick(tree,
     curr_edge = None
     curr_sib_list = []
     curr_stack = []
-    out = StringIO()
+    sio, out = get_utf_8_string_io_writer()
     going_tipward = True
     while True:
         if going_tipward:
@@ -871,11 +869,11 @@ def convert_tree_to_newick(tree,
             curr_node_id = curr_edge['@target']
             going_tipward = True
     out.write(';')
-    return out.getvalue()
+    flush_utf_8_writer(out)
+    return sio.getvalue()
 
 def _write_nexus_format(quoted_leaf_labels, tree_name_newick_list):
-    f = StringIO()
-    wrapper = codecs.getwriter("utf8")(f)
+    f, wrapper = get_utf_8_string_io_writer()
     wrapper.write('''#NEXUS
 BEGIN TAXA;
     Dimensions NTax = {s};
@@ -889,7 +887,7 @@ BEGIN TREES;
         wrapper.write(' = ')
         wrapper.write(newick)
     wrapper.write('\nEND;\n')
-    wrapper.reset()
+    flush_utf_8_writer(wrapper)
     return f.getvalue()
 
 def convert_tree(tree_id, tree, otu_group, schema, subtree_id=None):

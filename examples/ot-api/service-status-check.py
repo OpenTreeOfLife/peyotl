@@ -38,7 +38,7 @@ def _ot_call(tag, expected_fn, func, *valist, **kwargs):
         result = func(*valist, **kwargs)
         end_t = time.time()
         return report_results(tag, end_t - start_t, expected_fn, result)
-    except HTTPError, x:
+    except HTTPError as x:
         end_t = time.time()
         return report_error(tag, end_t - start_t, x)
 

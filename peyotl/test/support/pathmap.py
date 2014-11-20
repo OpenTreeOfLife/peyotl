@@ -102,7 +102,7 @@ def nexson_file_obj(filename):
     the nexson test dir.
     '''
     fp = nexson_source_path(filename=filename)
-    return codecs.open(fp, mode='rU', encoding='utf-8')
+    return codecs.open(fp, mode='r', encoding='utf-8')
 
 def shared_test_dir():
     return os.path.join(TESTS_DATA_DIR, "shared-api-tests")

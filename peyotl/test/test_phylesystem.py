@@ -6,7 +6,6 @@ from peyotl.test.support import pathmap
 import os
 _repos = pathmap.get_test_repos()
 ms, mp = _repos['mini_system'], _repos['mini_phyl']
-print ms, mp
 
 @unittest.skipIf((not os.path.isdir(ms)) or (not os.path.isdir(ms)) , 
                 'Peyotl not configured for maintainer test of mini_phyl/system. \
@@ -14,7 +13,7 @@ Skipping this test is normal (for everyone other than MTH and EJBM).')
 class TestPhylesystem(unittest.TestCase):
     def setUp(self):
         self.r = dict(_repos)
-        print self.r
+        #print self.r
     def testInit(self):
         p = _Phylesystem(repos_dict=self.r)
         self.assertEqual(2, len(p._shards))
@@ -45,6 +44,13 @@ class TestPhylesystem(unittest.TestCase):
         print r._study2shard_map.keys()
         self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
 
+    def testChangedStudies(self):
+        p = _Phylesystem(repos_dict=self.r)
+        changed = p.get_changed_studies('aa8964b55bfa930a91af7a436f55f0acdc94b918')
+        self.assertEqual(set('9'), changed)
+        changed = p.get_changed_studies('aa8964b55bfa930a91af7a436f55f0acdc94b918', ['10'])
+        self.assertEqual(set(), changed)
+        self.assertRaises(ValueError, p.get_changed_studies, 'bogus')
 
 
 if __name__ == "__main__":

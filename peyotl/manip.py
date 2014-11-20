@@ -191,7 +191,7 @@ def merge_otus_and_trees(nexson_blob):
                                 break
                     if match_otu is not None:
                         id_to_replace_id[oid] = match_otu[0]
-                        used_matches = match_otu[0]
+                        used_matches.add(match_otu[0])
                         _merge_otu_do_not_fix_references(otu, match_otu[1])
                     else:
                         assert oid not in retained_og_otu

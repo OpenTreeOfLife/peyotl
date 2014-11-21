@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.phylesystem import Phylesystem
+from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.nexson_syntax import extract_tree_nexson
 import sys
 try:

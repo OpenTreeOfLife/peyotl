@@ -4,7 +4,7 @@ from peyotl.phylesystem.git_workflows import acquire_lock_raise, \
                                              delete_study, \
                                              GitWorkflowError, \
                                              merge_from_master
-from peyotl.phylesystem import Phylesystem
+from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 import unittest
 import codecs
 import json

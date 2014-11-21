@@ -24,11 +24,11 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         otu_obj = otus_group.get('otuById', {})
         if not isinstance(otu_obj, dict):
             self._error_event(_NEXEL.OTUS,
-                             obj=otus_group,
-                             err_type=gen_WrongValueTypeWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=og_nex_id,
-                             key_list=['otuById'])
+                              obj=otus_group,
+                              err_type=gen_WrongValueTypeWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=og_nex_id,
+                              key_list=['otuById'])
             return errorReturn('no "otuById" in otus group')
         self._otu_group_by_id[og_nex_id] = otus_group
         vc.push_context(_NEXEL.OTU, (otus_group, og_nex_id))
@@ -47,11 +47,11 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                     otu_id_obj_list.append(id_obj_pair)
             if not_dict_otu:
                 self._error_event(_NEXEL.OTU,
-                                 obj=otu_obj,
-                                 err_type=gen_WrongValueTypeWarning,
-                                 anc=vc.anc_list,
-                                 obj_nex_id=ndo_id_list,
-                                 key_val_type_list=[not_dict_otu])
+                                  obj=otu_obj,
+                                  err_type=gen_WrongValueTypeWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=ndo_id_list,
+                                  key_val_type_list=[not_dict_otu])
                 return errorReturn('otu is wrong type')
             r = self._validate_otu_list(otu_id_obj_list, vc)
             if r:
@@ -66,28 +66,28 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         if (not isinstance(tree_by_id, dict)) \
             or (not isinstance(tree_id_order, list)):
             self._error_event(_NEXEL.TREES,
-                             obj=tree_group_obj,
-                             err_type=gen_WrongValueTypeWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tg_nex_id,
-                             key_list=['treeById', '^ot:treeElementOrder'])
+                              obj=tree_group_obj,
+                              err_type=gen_WrongValueTypeWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tg_nex_id,
+                              key_list=['treeById', '^ot:treeElementOrder'])
             return errorReturn('no "treeById" in trees group')
         if ((not tree_by_id) and tree_id_order) or ((not tree_id_order) and tree_by_id):
             self._error_event(_NEXEL.TREES,
-                             obj=tree_group_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tg_nex_id,
-                             key_list=['treeById', '^ot:treeElementOrder'])
+                              obj=tree_group_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tg_nex_id,
+                              key_list=['treeById', '^ot:treeElementOrder'])
             return errorReturn('no "treeById" in trees group')
         otus_el = tree_group_obj.get('@otus')
         if otus_el not in self._otu_group_by_id:
             self._error_event(_NEXEL.TREES,
-                               obj=tree_group_obj,
-                               err_type=gen_ReferencedIDNotFoundWarning,
-                               anc=vc.anc_list,
-                               obj_nex_id=tg_nex_id,
-                               key_list=[otus_el])
+                              obj=tree_group_obj,
+                              err_type=gen_ReferencedIDNotFoundWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tg_nex_id,
+                              key_list=[otus_el])
             return errorReturn('no "@otus" in trees group')
         for t_nex_id, tree_obj in tree_by_id.items():
             vc.push_context(_NEXEL.TREE, (tree_obj, t_nex_id))
@@ -109,27 +109,27 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         root_node_id = tree_obj.get('^ot:rootNodeId')
         if (not node_by_id) or (not isinstance(node_by_id, dict)):
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             key_list=['nodeById',])
+                              obj=tree_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=['nodeById',])
             return errorReturn('no "nodeById" in tree')
         if (not edge_by_source) or (not isinstance(edge_by_source, dict)):
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             key_list=['edgeBySourceId',])
+                              obj=tree_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=['edgeBySourceId',])
             return errorReturn('no "edgeBySourceId" in tree')
         if not is_str_type(root_node_id):
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             key_list=['^ot:rootNodeId',])
+                              obj=tree_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=['^ot:rootNodeId',])
             return errorReturn('no "^ot:rootNodeId" in tree')
         edge_dict = {}
         edge_by_target = {}
@@ -172,55 +172,55 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             not_in_node_by_id.sort()
             if unreachable:
                 self._error_event(_NEXEL.TREE,
-                                 obj=tree_obj,
-                                 err_type=gen_UnreachableNodeWarning,
-                                 anc=vc.anc_list,
-                                 obj_nex_id=tree_nex_id,
-                                 key_list=unreachable)
+                                  obj=tree_obj,
+                                  err_type=gen_UnreachableNodeWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=tree_nex_id,
+                                  key_list=unreachable)
                 return errorReturn('unreachable node in tree tree')
             if not_in_node_by_id:
                 self._error_event(_NEXEL.TREE,
-                                 obj=tree_obj,
-                                 err_type=gen_ReferencedIDNotFoundWarning,
-                                 anc=vc.anc_list,
-                                 obj_nex_id=tree_nex_id,
-                                 key_list=not_in_node_by_id)
+                                  obj=tree_obj,
+                                  err_type=gen_ReferencedIDNotFoundWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=tree_nex_id,
+                                  key_list=not_in_node_by_id)
                 return errorReturn('referenced node id not in "nodeById" in tree')
         if bad_node_ref:
             bad_node_ref.sort()
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_ReferencedIDNotFoundWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             key_list=bad_node_ref)
+                              obj=tree_obj,
+                              err_type=gen_ReferencedIDNotFoundWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=bad_node_ref)
             return errorReturn('referenced parent node not in "nodeById" in tree')
         if missing_target:
             missing_target.sort()
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_ReferencedIDNotFoundWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             key_list=missing_target)
+                              obj=tree_obj,
+                              err_type=gen_ReferencedIDNotFoundWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=missing_target)
             return errorReturn('no "@target" in edge')
         if repeated_target:
             repeated_target.sort()
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_NodeWithMultipleParents,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             node_id_list=repeated_target)
+                              obj=tree_obj,
+                              err_type=gen_NodeWithMultipleParents,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              node_id_list=repeated_target)
             return errorReturn('same node used as "@target" for different edges')
         if repeated_edge_id:
             repeated_edge_id.sort()
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_RepeatedIDWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             key_list=repeated_edge_id)
+                              obj=tree_obj,
+                              err_type=gen_RepeatedIDWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=repeated_edge_id)
             return errorReturn('edge "@id" repeated')
         node_set = set(edge_by_target.keys())
         internal_node_set = set(edge_by_source.keys())
@@ -235,26 +235,26 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 with_at_root_prop[nid] = n_obj
         if len(with_at_root_prop) > 1:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MultipleRootsWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             node_id_list=list(with_at_root_prop.keys()))
+                              obj=tree_obj,
+                              err_type=gen_MultipleRootsWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              node_id_list=list(with_at_root_prop.keys()))
             return errorReturn('multiple "@root" nodes')
         if len(with_at_root_prop) == 0:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_NoRootWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id)
+                              obj=tree_obj,
+                              err_type=gen_NoRootWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id)
             return errorReturn('No node labelled as "@root"')
         if root_node_id not in with_at_root_prop:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MultipleRootsWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
+                              obj=tree_obj,
+                              err_type=gen_MultipleRootsWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
             return errorReturn('root node not labelled as root')
         if not self._validate_internal_node_list(internal_nodes, vc):
             return False
@@ -268,11 +268,11 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 vc.push_context(_NEXEL.LEAF_NODE, (tree_obj, tree_nex_id))
                 try:
                     self._error_event(_NEXEL.LEAF_NODE,
-                                     obj=nd,
-                                     err_type=gen_RepeatedOTUWarning,
-                                     anc=vc.anc_list,
-                                     obj_nex_id=nd_id,
-                                     key_list=[otuid])
+                                      obj=nd,
+                                      err_type=gen_RepeatedOTUWarning,
+                                      anc=vc.anc_list,
+                                      obj_nex_id=nd_id,
+                                      key_list=[otuid])
                     return errorReturn('Repeated "@otu" id')
                 finally:
                     vc.pop_context()
@@ -288,19 +288,19 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         otus_order_list = nex_obj.get('^ot:otusElementOrder', [])
         if not isinstance(otus, dict) or (otus_order_list and (not otus)):
             self._error_event(_NEXEL.NEXML,
-                             obj=nex_obj,
-                             err_type=gen_WrongValueTypeWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=obj_nex_id,
-                             key_list=['otusById'])
+                              obj=nex_obj,
+                              err_type=gen_WrongValueTypeWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=obj_nex_id,
+                              key_list=['otusById'])
             return errorReturn('Missing "otusById"')
         if (not isinstance(otus_order_list, list)) or ((not otus_order_list) and otus):
             self._error_event(_NEXEL.NEXML,
-                             obj=nex_obj,
-                             err_type=gen_WrongValueTypeWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=obj_nex_id,
-                             key_list=['^ot:otusElementOrder'])
+                              obj=nex_obj,
+                              err_type=gen_WrongValueTypeWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=obj_nex_id,
+                              key_list=['^ot:otusElementOrder'])
             return errorReturn('Missing "^ot:otusElementOrder"')
         otus_group_list = []
         missing_ogid = []
@@ -318,21 +318,21 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 otus_group_list.append((ogid, og))
         if missing_ogid:
             self._error_event(_NEXEL.NEXML,
-                             obj=nex_obj,
-                             err_type=gen_ReferencedIDNotFoundWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=obj_nex_id,
-                             key_list=missing_ogid)
+                              obj=nex_obj,
+                              err_type=gen_ReferencedIDNotFoundWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=obj_nex_id,
+                              key_list=missing_ogid)
             return errorReturn('Missing "@id" for otus group')
         vc.push_context(_NEXEL.OTUS, (nex_obj, obj_nex_id))
         try:
             if not_dict_og:
                 self._error_event(_NEXEL.OTUS,
-                                 obj=otus,
-                                 err_type=gen_WrongValueTypeWarning,
-                                 anc=vc.anc_list,
-                                 obj_nex_id=None,
-                                 key_val_type_list=[not_dict_og])
+                                  obj=otus,
+                                  err_type=gen_WrongValueTypeWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=None,
+                                  key_val_type_list=[not_dict_og])
                 return errorReturn('Otus objects of the wrong type of object')
             if not self._validate_otus_group_list(otus_group_list, vc):
                 return False
@@ -343,19 +343,19 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         trees_order_list = nex_obj.get('^ot:treesElementOrder')
         if (not isinstance(trees, dict)) or ((not trees) and trees_order_list):
             self._error_event(_NEXEL.NEXML,
-                             obj=nex_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=obj_nex_id,
-                             key_list=['treesById'])
+                              obj=nex_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=obj_nex_id,
+                              key_list=['treesById'])
             return errorReturn('Missing "treesById"')
         if (not isinstance(trees_order_list, list)) or ((not trees_order_list) and trees):
             self._error_event(_NEXEL.NEXML,
-                             obj=nex_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=obj_nex_id,
-                             key_list=['^ot:treesElementOrder'])
+                              obj=nex_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=obj_nex_id,
+                              key_list=['^ot:treesElementOrder'])
             return errorReturn('Missing "^ot:treesElementOrder"')
         trees_group_list = []
         missing_tgid = []
@@ -373,21 +373,21 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                 trees_group_list.append((tgid, tg))
         if missing_tgid:
             self._error_event(_NEXEL.NEXML,
-                             obj=nex_obj,
-                             err_type=gen_ReferencedIDNotFoundWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=obj_nex_id,
-                             key_list=missing_tgid)
+                              obj=nex_obj,
+                              err_type=gen_ReferencedIDNotFoundWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=obj_nex_id,
+                              key_list=missing_tgid)
             return errorReturn('Missing trees group id')
         vc.push_context(_NEXEL.TREES, (nex_obj, obj_nex_id))
         try:
             if not_dict_tg:
                 self._error_event(_NEXEL.TREES,
-                                 obj=trees,
-                                 err_type=gen_WrongValueTypeWarning,
-                                 anc=vc.anc_list,
-                                 obj_nex_id=None,
-                                 key_val_type_list=[not_dict_tg])
+                                  obj=trees,
+                                  err_type=gen_WrongValueTypeWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=None,
+                                  key_val_type_list=[not_dict_tg])
                 return errorReturn('Trees element of the wrong type')
             if not self._validate_trees_group_list(trees_group_list, vc):
                 return False
@@ -407,3 +407,4 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                     tree_list.extend(tbi.keys())
             self._generate_ott_warnings(otus, tree_list, (nex_obj, obj_nex_id), vc)
         return True
+

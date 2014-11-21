@@ -30,7 +30,7 @@ load-plugins=
 
 
 [MESSAGES CONTROL]
-disable=C0111,C0103,W0232,W0702,W0231,R0904,W0201,W0703,R0912,W0603,I0011
+disable=C0111,C0103,W0232,W0702,W0231,R0904,W0201,W0703,R0912,W0603,I0011,W0142,W0212,R0921,R0401
 
 
 [REPORTS]
@@ -171,10 +171,10 @@ bad-functions=apply,input
 max-args=12
 
 # Maximum number of locals for function / method body
-max-locals=30
+max-locals=50
 
 # Maximum number of return / yield for function / method body
-max-returns=12
+max-returns=50
 
 # Maximum number of branch for function / method body
 max-branchs=50

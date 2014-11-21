@@ -37,7 +37,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         self._repo_nexml2json = None
         self._phylesystem_config = None
         self._phylesystem_obj = None
-        self._use_raw = False #TODO should be config dependent...
+        self._use_raw = False
     def get_domain(self):
         return self._domain
     def set_domain(self, d):

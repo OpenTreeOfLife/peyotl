@@ -41,7 +41,7 @@ class NexsonWarningCodes(object):
               'UNREACHABLE_NODE',
               'INCORRECT_VALUE_TYPE',
               'MISSING_CRUCIAL_CONTENT',
-              )
+             )
     numeric_codes_registered = []
 # monkey-patching NexsonWarningCodes...
 for _n, _f in enumerate(NexsonWarningCodes.facets):

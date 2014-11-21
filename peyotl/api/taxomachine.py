@@ -8,14 +8,13 @@ class _TaxomachineAPIWrapper(_WSWrapper):
     '''Wrapper around interactions with the taxomachine TNRS.
     The primary service is TNRS (for taxonomic name resolution service)
         which takes a name matches it to OTT
-    
     In this wrapper implementation, he naming contexts are cached in:
         _contexts as the raw return (dictionary of large group name
-            to context name within that group), and 
+            to context name within that group), and
         _valid_contexts a set of all context names.
     For example in May of 2014, the contexts are:
         {
-        'PLANTS': ['Land plants', 
+        'PLANTS': ['Land plants',
                    'Hornworts',
                    'Mosses',
                    'Liverworts',
@@ -46,7 +45,6 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         'FUNGI': ['Fungi']
         }
 
-    
     https://github.com/OpenTreeOfLife/opentree/blob/master/neo4j_services_docs.md
 
     NOTES:
@@ -164,7 +162,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
     def taxon(self, ott_id, include_lineage=False):
         if self.use_v1:
             raise NotImplementedError('"taxon" method not implemented')
-        data = {'ott_id': int(ott_id), 
+        data = {'ott_id': int(ott_id),
                 'include_lineage': bool(include_lineage)}
         uri = '{p}/taxon'.format(p=self.taxonomy_prefix)
         return self.json_http_post(uri, data=anyjson.dumps(data))

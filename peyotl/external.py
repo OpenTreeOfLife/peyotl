@@ -46,10 +46,11 @@ def get_ot_study_info_from_treebase_nexml(src=None,
         5. remove "@xml:base"
         6. coerce edge lengths to native types
     '''
+    #pylint: disable=R0915
     raw = get_ot_study_info_from_nexml(src=src,
-                                     nexml_content=nexml_content,
-                                     encoding=encoding,
-                                     nexson_syntax_version=BY_ID_HONEY_BADGERFISH)
+                                       nexml_content=nexml_content,
+                                       encoding=encoding,
+                                       nexson_syntax_version=BY_ID_HONEY_BADGERFISH)
     nexml = raw['nexml']
     SKOS_ALT_LABEL = '^skos:altLabel'
     SKOS_CLOSE_MATCH = '^skos:closeMatch'
@@ -58,8 +59,7 @@ def get_ot_study_info_from_treebase_nexml(src=None,
         'http://purl.uniprot.org/taxonomy/': '@uniprot',
     }
     moveable2taxon_link = {"^tb:identifier.taxon": '@tb:identifier.taxon',
-                           "^tb:identifier.taxonVariant": '@tb:identifier.taxonVariant',
-                           }
+                           "^tb:identifier.taxonVariant": '@tb:identifier.taxonVariant', }
     to_del = ['^rdfs:isDefinedBy', '@xml:base']
     for tag in to_del:
         if tag in nexml:

@@ -14,7 +14,7 @@ class _OTIWrapper(_WSWrapper):
     stored in the phylesystem. You can search for studies, trees, or nodes.
 
     The primary attributes of interest are:
-        node_search_term_set, 
+        node_search_term_set,
         study_search_term_set, and
         tree_search_term_set
     The primary methods of interest are:
@@ -35,7 +35,7 @@ class _OTIWrapper(_WSWrapper):
          "ot:studyId" -> string for the matching study
          "matched_trees" -> list (if trees or nodes are the targets of the search).
     matched_trees is a list of dictionaries with:
-        "nexson_id" -> string ID of the tree in the NexSON 
+        "nexson_id" -> string ID of the tree in the NexSON
         "oti_tree_id" -> oti's internal ID for the tree (concatenation of study ID and tree ID)
         "matched_nodes" -> list
     matched_nodes is a list of dictionaries with:
@@ -56,7 +56,7 @@ class _OTIWrapper(_WSWrapper):
         ot:parent
         ot:tag
         ot:treebaseOTUId
-    
+
     Trees can be searched for using:
         is_deprecated
         ot:branchLengthDescription
@@ -76,7 +76,7 @@ class _OTIWrapper(_WSWrapper):
         ot:treebaseOTUId
         ot:treebaseTreeId
         oti_tree_id
-    
+
     Studies can be searched for using:
         is_deprecated
         ot:authorContributed
@@ -136,7 +136,7 @@ class _OTIWrapper(_WSWrapper):
                               verbose=verbose,
                               valid_keys=self.tree_search_term_set,
                               kwargs=kwargs)
-    def find_studies(self, query_dict=None, exact=False, verbose=False,**kwargs):
+    def find_studies(self, query_dict=None, exact=False, verbose=False, **kwargs):
         '''Query on study properties. See documentation for _OTIWrapper class.'''
         if self.use_v1:
             uri = '{p}/singlePropertySearchForStudies'.format(p=self.query_prefix)
@@ -178,7 +178,7 @@ class _OTIWrapper(_WSWrapper):
         self._study_search_prop = None
         self.indexing_prefix = None
         self.query_prefix = None
-        self._raw_urls = False #TODO should be configurable
+        self._raw_urls = False
         _WSWrapper.__init__(self, domain)
         self.set_domain(domain)
     def set_domain(self, d):
@@ -250,7 +250,7 @@ class _OTIWrapper(_WSWrapper):
         response = self.json_http_post(url, data=anyjson.dumps(data))
         if 'error' in response:
             raise RuntimeError('Error reported by oti "{}"'.format(response['error']))
-        assert(len(response) == 1)
+        assert len(response) == 1
         return response['matched_studies']
 
     def _prepare_query_data(self, query_dict, exact, verbose, valid_keys, kwargs):
@@ -278,7 +278,9 @@ class _OTIWrapper(_WSWrapper):
             raise NotImplementedError('Currently only searches for one property/value pair are supported')
         k = list(query_dict.keys())[0]
         if k not in valid_keys:
-            raise ValueError('"{k}" is not a valid search term. Expecting it to be one of the following: {kl}'.format(k=k, kl=repr(valid_keys)))
+            m = '"{k}" is not a valid search term. Expecting it to be one of the following: {kl}'
+            m = m.format(k=k, kl=repr(valid_keys))
+            raise ValueError(m)
         v = query_dict[k]
         if not is_str_type(v):
             v = UNICODE(v)

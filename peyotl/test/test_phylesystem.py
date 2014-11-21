@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from peyotl.nexson_syntax import read_as_json
 from peyotl.phylesystem import _Phylesystem
 import unittest
 from peyotl.test.support import pathmap
@@ -13,7 +14,6 @@ ms, mp = _repos['mini_system'], _repos['mini_phyl']
 class TestPhylesystem(unittest.TestCase):
     def setUp(self):
         self.r = dict(_repos)
-        #print(self.r)
     def testInit(self):
         p = _Phylesystem(repos_dict=self.r)
         self.assertEqual(2, len(p._shards))
@@ -32,11 +32,23 @@ class TestPhylesystem(unittest.TestCase):
         self.assertEqual(k, ['10', '11', '12', '9'])
     def testNextStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
+        mf = p._growing_shard._id_minting_file
         nsi = p._mint_new_study_id()
+        self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
         self.assertTrue(nsi.startswith('ot_'))
         r = _Phylesystem(repos_dict=self.r, new_study_prefix='ab_')
+        mf = r._growing_shard._id_minting_file
         nsi = r._mint_new_study_id()
         self.assertTrue(nsi.startswith('ab_'))
+        self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
+
+    def testChangedStudies(self):
+        p = _Phylesystem(repos_dict=self.r)
+        changed = p.get_changed_studies('aa8964b55bfa930a91af7a436f55f0acdc94b918')
+        self.assertEqual(set('9'), changed)
+        changed = p.get_changed_studies('aa8964b55bfa930a91af7a436f55f0acdc94b918', ['10'])
+        self.assertEqual(set(), changed)
+        self.assertRaises(ValueError, p.get_changed_studies, 'bogus')
 
 
 if __name__ == "__main__":

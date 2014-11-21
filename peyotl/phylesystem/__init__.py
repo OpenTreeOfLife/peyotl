@@ -2,11 +2,12 @@
 '''Utilities for dealing with local filesystem
 copies of the phylesystem repositories.
 '''
-from peyotl.utility import get_config_object, expand_path, get_logger, get_config_setting_kwargs
+from peyotl.utility import get_config_object, expand_path, get_logger, get_config_setting_kwargs, write_to_filepath
 try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
+from peyotl.nexson_syntax import read_as_json, write_as_json
 import json
 try:
     import anyjson
@@ -173,9 +174,14 @@ class PhylesystemShard(PhylesystemShardBase):
                  git_action_class=GitAction,
                  push_mirror_repo_path=None,
                  new_study_prefix=None,
+                 infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
         self._index_lock = Lock()
         PhylesystemShardBase.__init__(self, name)
+        self._infrastructure_commit_author = infrastructure_commit_author
+        self._index_lock = Lock()
+        self._study_counter_lock = Lock()
+        self._master_branch_repo_lock = Lock()
         self._new_study_prefix = new_study_prefix
         self._ga_class = git_action_class
         self.git_ssh = git_ssh
@@ -190,6 +196,7 @@ class PhylesystemShard(PhylesystemShardBase):
         if not os.path.isdir(study_dir):
             raise ValueError('"{p}" is not a directory'.format(p=study_dir))
         self.path = path
+        self._id_minting_file = os.path.join(path, 'next_study_id.json')
         if self._new_study_prefix is None:
             prefix_file = os.path.join(path, 'new_study_prefix')
             if os.path.exists(prefix_file):
@@ -204,6 +211,7 @@ class PhylesystemShard(PhylesystemShardBase):
         d = create_id2study_info(study_dir, name)
         rc_dict = diagnose_repo_study_id_convention(path)
         self.filepath_for_study_id_fn = rc_dict['fp_fn']
+        self.filepath_for_global_resource_fn = lambda frag: os.path.join(self.repo_dir, frag)
         self.id_alias_list_fn = rc_dict['id2alias_list']
         if rc_dict['convention'] != 'simple':
             a = {}
@@ -274,24 +282,62 @@ class PhylesystemShard(PhylesystemShardBase):
                     pass
 
     def _determine_next_study_id(self):
-        "Return the numeric part of the newest study_id"
-        prefix = self._new_study_prefix
+        """Return the numeric part of the newest study_id
+
+        Checks out master branch as a side effect!"""
         if self._study_counter_lock is None:
             self._study_counter_lock = Lock()
-        n = 0
+        prefix = self._new_study_prefix
         lp = len(prefix)
-        with self._index_lock:
-            for k in self._study_index.keys():
-                if k.startswith(prefix):
-                    try:
-                        pn = int(k[lp:])
-                        if pn > n:
-                            n = pn
-                    except:
-                        pass
+        n = 0
+        # this function holds the lock for quite awhile,
+        #   but it only called on the first instance of
+        #   of creating a new study
         with self._study_counter_lock:
-            if self._next_study_id is None or (1 + n) > self._next_study_id:
-                self._next_study_id = 1 + n
+            with self._index_lock:
+                for k in self._study_index.keys():
+                    if k.startswith(prefix):
+                        try:
+                            pn = int(k[lp:])
+                            if pn > n:
+                                n = pn
+                        except:
+                            pass
+            nsi_contents = self._read_master_branch_resource(self._id_minting_file, is_json=True)
+            if nsi_contents:
+                self._next_study_id = nsi_contents['next_study_id']
+                if self._next_study_id <= n:
+                    m = 'next_study_id in {} is set lower than the ID of an existing study!'
+                    m = m.format(self._id_minting_file)
+                    raise RuntimeError(m)
+            else:
+                # legacy support for repo with no next_study_id.json file
+                self._next_study_id = n
+                self._advance_new_study_id() # this will trigger the creation of the file
+    def _read_master_branch_resource(self, fn, is_json=False):
+        '''This will force the current branch to master! '''
+        with self._master_branch_repo_lock:
+            ga = self._create_git_action_for_global_resource()
+            with ga.lock():
+                ga.checkout_master()
+                if os.path.exists(fn):
+                    if is_json:
+                        return read_as_json(fn)
+                    return codecs.open(fn, 'rU', encoding='utf-8').read()
+                return None
+    def _write_master_branch_resource(self, content, fn, commit_msg, is_json=False):
+        '''This will force the current branch to master! '''
+        #TODO: we might want this to push, but currently it is only called in contexts in which
+        # we are about to push any way (study creation)
+        with self._master_branch_repo_lock:
+            ga = self._create_git_action_for_global_resource()
+            with ga.lock():
+                ga.checkout_master()
+                if is_json:
+                    write_as_json(content, fn)
+                else:
+                    write_to_filepath(content, fn)
+                ga._add_and_commit(fn, self._infrastructure_commit_author, commit_msg)
     @property
     def next_study_id(self):
         return self._next_study_id
@@ -303,6 +349,11 @@ class PhylesystemShard(PhylesystemShardBase):
             fj = json.load(fo)
             return detect_nexson_version(fj)
 
+    def _create_git_action_for_global_resource(self):
+        return self._ga_class(repo=self.path,
+                              git_ssh=self.git_ssh,
+                              pkey=self.pkey,
+                              path_for_study_fn=self.filepath_for_global_resource_fn)
     def create_git_action(self):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,
@@ -314,20 +365,35 @@ class PhylesystemShard(PhylesystemShardBase):
             from peyotl.phylesystem.git_workflows import _pull_gh
             _pull_gh(ga, remote, branch_name)
             self._locked_refresh_study_ids()
-
-
+    def _advance_new_study_id(self):
+        ''' ASSUMES the caller holds the _study_counter_lock !
+        Returns the current numeric part of the next study ID, advances
+        the counter to the next value, and stores that value in the
+        file in case the server is restarted.
+        '''
+        c = self._next_study_id
+        self._next_study_id = 1 + c
+        content = u'{"next_study_id": %d}\n' % self._next_study_id
+        # The content is JSON, but we hand-rolled the string above
+        #       so that we can use it as a commit_msg
+        self._write_master_branch_resource(content,
+                                           self._id_minting_file,
+                                           commit_msg=content,
+                                           is_json=False)
+        return c
     def _mint_new_study_id(self):
+        '''Checks out master branch as a side effect'''
         # studies created by the OpenTree API start with ot_,
         # so they don't conflict with new study id's from other sources
         with self._study_counter_lock:
-            c = self._next_study_id
-            self._next_study_id = 1 + c
+            c = self._advance_new_study_id()
         #@TODO. This form of incrementing assumes that
         #   this codebase is the only service minting
         #   new study IDs!
         return "{p}{c:d}".format(p=self._new_study_prefix, c=c)
 
     def create_git_action_for_new_study(self, new_study_id=None):
+        '''Checks out master branch as a side effect'''
         ga = self.create_git_action()
         if new_study_id is None:
             new_study_id = self._mint_new_study_id()
@@ -429,6 +495,10 @@ class PhylesystemShard(PhylesystemShardBase):
     def get_branch_list(self):
         ga = self.create_git_action()
         return ga.get_branch_list()
+    def get_changed_studies(self, ancestral_commit_sha, study_ids_to_check=None):
+        ga = self.create_git_action()
+        return ga.get_changed_studies(ancestral_commit_sha, study_ids_to_check=study_ids_to_check)
+
 def _invert_dict_list_val(d):
     o = {}
     for k, v in d.items():
@@ -588,6 +658,7 @@ class _Phylesystem(_PhylesystemBase):
                  git_action_class=GitAction,
                  mirror_info=None,
                  new_study_prefix=None,
+                 infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
         '''
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
@@ -647,7 +718,8 @@ class _Phylesystem(_PhylesystemBase):
                                      repo_nexml2json=repo_nexml2json,
                                      git_action_class=git_action_class,
                                      push_mirror_repo_path=push_mirror_repo_path,
-                                     new_study_prefix=new_study_prefix)
+                                     new_study_prefix=new_study_prefix,
+                                     infrastructure_commit_author=infrastructure_commit_author)
             # if the mirror does not exist, clone it...
             if push_mirror_repos_par and (push_mirror_repo_path is None):
                 GitAction.clone_repo(push_mirror_repos_par,
@@ -695,10 +767,15 @@ class _Phylesystem(_PhylesystemBase):
         self._growing_shard._determine_next_study_id()
 
     def _mint_new_study_id(self):
+        '''Checks out master branch of the shard as a side effect'''
         return self._growing_shard._mint_new_study_id()
     @property
     def next_study_id(self):
         return self._growing_shard.next_study_id
+    def has_study(self, study_id):
+        with self._index_lock:
+            return study_id in self._study2shard_map
+
     def get_shard(self, study_id):
         with self._index_lock:
             return self._study2shard_map[study_id]
@@ -708,6 +785,7 @@ class _Phylesystem(_PhylesystemBase):
         return shard.create_git_action()
 
     def create_git_action_for_new_study(self, new_study_id=None):
+        '''Checks out master branch of the shard as a side effect'''
         return self._growing_shard.create_git_action_for_new_study(new_study_id=new_study_id)
 
     def add_validation_annotation(self, study_obj, sha):
@@ -948,6 +1026,16 @@ class _Phylesystem(_PhylesystemBase):
         for i in self._shards:
             a.extend(i.get_branch_list())
         return a
+    def get_changed_studies(self, ancestral_commit_sha, study_ids_to_check=None):
+        ret = None
+        for i in self._shards:
+            x = i.get_changed_studies(ancestral_commit_sha, study_ids_to_check=study_ids_to_check)
+            if x is not False:
+                ret = x
+                break
+        if ret is not None:
+            return ret
+        raise ValueError('No phylesystem shard returned changed studies for the SHA')
 
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,
@@ -958,7 +1046,8 @@ def Phylesystem(repos_dict=None,
                 pkey=None,
                 git_action_class=GitAction,
                 mirror_info=None,
-                new_study_prefix=None):
+                new_study_prefix=None,
+                infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>'):
     '''Factory function for a _Phylesystem object.
 
     A wrapper around the _Phylesystem class instantiation for
@@ -976,7 +1065,8 @@ def Phylesystem(repos_dict=None,
                                         pkey=pkey,
                                         git_action_class=git_action_class,
                                         mirror_info=mirror_info,
-                                        new_study_prefix=new_study_prefix)
+                                        new_study_prefix=new_study_prefix,
+                                        infrastructure_commit_author=infrastructure_commit_author)
     return _THE_PHYLESYSTEM
 
 # Cache keys:

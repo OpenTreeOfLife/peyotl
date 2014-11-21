@@ -71,7 +71,7 @@ The peyotl/test/data/nexson/phenoscape/nexml test file is from
 
 [1]: http://blog.opentreeoflife.org/
 [2]: https://github.com/OpenTreeOfLife/phylesystem
-[3]: https://github.com/OpenTreeOfLife/api.opentreeoflife.org/
+[3]: https://github.com/OpenTreeOfLife/phylesystem-api
 [4]: https://github.com/OpenTreeOfLife/taxomachine
 [5]: https://github.com/OpenTreeOfLife/treemachine
 [6]: https://raw.githubusercontent.com/OpenTreeOfLife/peyotl/master/CONTRIBUTORS.txt

@@ -2,7 +2,7 @@
 from peyotl.utility import read_config, get_config_var, get_unique_filepath
 from peyotl.nexson_syntax import create_content_spec, get_git_sha, read_as_json, write_as_json
 from peyotl.api import PhylesystemAPI
-from peyotl import get_logger
+from peyotl.utility import get_logger
 from peyotl.ott import OTT
 import subprocess
 import tempfile

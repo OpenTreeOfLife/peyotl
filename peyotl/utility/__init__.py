@@ -2,7 +2,7 @@
 '''Simple utility functions that do not depend on any other part of
 peyotl.
 '''
-__all__ = ['io', 'simple_file_lock', 'str_util']
+__all__ = ['input_output', 'simple_file_lock', 'str_util']
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -12,11 +12,11 @@ import json
 import time
 import os
 
-from peyotl.utility.io import download, \
-                              expand_path, \
-                              open_for_group_write, \
-                              parse_study_tree_list, \
-                              write_to_filepath
+from peyotl.utility.input_output import download, \
+                                        expand_path, \
+                                        open_for_group_write, \
+                                        parse_study_tree_list, \
+                                        write_to_filepath
 from peyotl.utility.str_util import is_str_type
 
 def pretty_timestamp(t=None, style=0):

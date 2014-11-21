@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility.io import open_for_group_write
+from peyotl.utility.input_output import open_for_group_write
 import time
 import os
 from peyotl.utility import get_logger

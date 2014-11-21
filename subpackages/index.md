@@ -61,6 +61,10 @@ The complete graph of dependencies:
 
 ![dependency graph of subpackages](../images/full-dependencies.svg)
 
+The simplified dependency graph with other open tree tools shown in blue is:
+
+![dependency graph of subpackages](../images/ext-dependencies.svg)
+
 ### building the graphs
 The simplified graph can be produced by running:
 
@@ -68,3 +72,13 @@ The simplified graph can be produced by running:
     dot -Tsvg -osimple.svg simple.dot
 
 The full graph is produced by omitting the `-s` flag from the first command above.
+
+The graph with the external tools uses some hacks that rely on you having all
+of the open tree repos "sister" to each other on the filesystem. If that is the case
+then (from the peyotl directory) you can run:
+
+    bash dev/find_external_peyotl_imports.sh > dev/external_deps.txt
+
+and then using `-edev/external_deps.txt` in the detect_intra_peyotl_dependencies.py script
+
+

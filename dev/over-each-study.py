@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 from peyotl.api import APIWrapper
-from peyotl.nexson_syntax import get_nexml_el, \
-                                 read_as_json, \
-                                 write_as_json
+from peyotl.utility.input_output import read_as_json, write_as_json
+from peyotl.nexson_syntax import get_nexml_el
 
 a = APIWrapper(phylesystem_api_kwargs={'get_from':'local'})
 pa = a.phylesystem_api

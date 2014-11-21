@@ -5,11 +5,11 @@ from peyotl.phylesystem.git_workflows import acquire_lock_raise, \
                                              GitWorkflowError, \
                                              merge_from_master
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
+from peyotl.utility.input_output import read_as_json
 import unittest
 import codecs
 import json
 import copy
-from peyotl.nexson_syntax import read_as_json
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)

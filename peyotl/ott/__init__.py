@@ -9,7 +9,7 @@ NONE_PAR = -1
 
 _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:
-    from peyotl.nexson_syntax import write_as_json, read_as_json
+    from peyotl.utility.input_output import read_as_json, write_as_json
 
 class _TransitionalNode(object):
     def __init__(self, par=None):

@@ -12,7 +12,7 @@ import json
 import time
 import os
 
-from peyotl.utility.io import *
+from peyotl.utility.io import * #pylint: disable=W0401
 
 def pretty_timestamp(t=None, style=0):
     if t is None:
@@ -91,7 +91,6 @@ def get_logger(name="peyotl"):
     if len(logger.handlers) == 0:
         lc = _LOGGING_CONF
         if 'level' not in lc:
-            # TODO need some easy way to figure out whether we should use env vars or config
             if _LOGGING_LEVEL_ENVAR in os.environ:
                 lc['level_name'] = os.environ.get(_LOGGING_LEVEL_ENVAR)
                 lc['formatter_name'] = os.environ.get(_LOGGING_FORMAT_ENVAR)

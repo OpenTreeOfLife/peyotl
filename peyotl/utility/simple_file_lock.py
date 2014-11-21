@@ -50,9 +50,9 @@ class LockPolicy(object):
         self.curr_lockfile = lockfile
         self.curr_was_locked, self.curr_owns_lock = t
         _LOG.debug('Lockfile = "%s" was_locked=%s owns_lock=%s\n',
-                    lockfile,
-                    "TRUE" if self.curr_was_locked else "FALSE",
-                    "TRUE" if self.curr_owns_lock else "FALSE")
+                   lockfile,
+                   "TRUE" if self.curr_was_locked else "FALSE",
+                   "TRUE" if self.curr_owns_lock else "FALSE")
         return t
     def remove_lock(self):
         try:
@@ -60,7 +60,7 @@ class LockPolicy(object):
                 self._remove_lock(self.curr_lockfile)
         finally:
             self._reset_current()
-    def _remove_lock(self, lockfile):
+    def _remove_lock(self, lockfile): #pylint: disable=R0201
         if os.path.exists(lockfile):
             os.remove(lockfile)
 

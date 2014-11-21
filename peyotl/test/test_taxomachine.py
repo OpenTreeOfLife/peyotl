@@ -13,7 +13,8 @@ class TestTaxomachine(unittest.TestCase):
     def testTaxon(self):
         if not self.taxomachine.use_v1:
             r = self.taxomachine.taxon(515698, include_lineage=True)
-            for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
+            for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms',
+                      u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
                 self.assertTrue(k in r)
     def testSubtree(self):
         if not self.taxomachine.use_v1:
@@ -25,7 +26,8 @@ class TestTaxomachine(unittest.TestCase):
             self.assertTrue('lica' in r)
             self.assertTrue('ott_ids_not_found' in r)
             l = r['lica']
-            for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms', u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
+            for k in [u'unique_name', u'taxonomic_lineage', u'rank', u'synonyms',
+                      u'ot:ottId', u'flags', u'ot:ottTaxonName', u'node_id']:
                 self.assertTrue(k in l)
     def testInfo(self):
         if not self.taxomachine.use_v1:

@@ -24,7 +24,6 @@ SUPPORTED_NEXSON_VERSIONS_AND_ALIASES = frozenset([BADGER_FISH_NEXSON_VERSION,
                                                    '0.0',
                                                    '1.0',
                                                    '1.2'])
-# TODO: in lieu of real namespace support...
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 
@@ -340,8 +339,8 @@ def add_literal_meta(obj, prop_name, value, version):
             m = [m]
             obj['meta'] = m
         d = {'$': value,
-                  '@property': prop_name,
-                  '@xsi:type': 'nex:LiteralMeta'}
+             '@property': prop_name,
+             '@xsi:type': 'nex:LiteralMeta'}
         m.append(d)
         return d
     else:

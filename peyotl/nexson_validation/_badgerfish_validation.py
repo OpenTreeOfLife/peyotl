@@ -17,7 +17,6 @@ from peyotl.nexson_syntax.helper import add_literal_meta, \
 from peyotl.nexson_validation._validation_base import NexsonValidationAdaptor
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
-
 class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         if not hasattr(self, '_syntax_version'):
@@ -63,22 +62,22 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         if otus_el not in self._otu_group_by_id:
             kl = ['@otus="{oe}"'.format(oe=otus_el)]
             self._error_event(_NEXEL.TREES,
-                               obj=trees_group,
-                               err_type=gen_ReferencedIDNotFoundWarning,
-                               anc=vc.anc_list,
-                               obj_nex_id=tg_nex_id,
-                               key_list=kl)
+                              obj=trees_group,
+                              err_type=gen_ReferencedIDNotFoundWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tg_nex_id,
+                              key_list=kl)
             return errorReturn('bad "@otus" in trees group')
         tree_list = trees_group.get('tree', [])
         if isinstance(tree_list, dict):
             tree_list = [tree_list]
         elif not isinstance(tree_list, list):
             self._error_event(_NEXEL.TREES,
-                             obj=trees_group,
-                             err_type=gen_WrongValueTypeWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tg_nex_id,
-                             key_list=['tree'])
+                              obj=trees_group,
+                              err_type=gen_WrongValueTypeWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tg_nex_id,
+                              key_list=['tree'])
             return errorReturn('lack of "tree" in trees group')
         for tree_obj in tree_list:
             t_nex_id = tree_obj.get('@id')
@@ -86,11 +85,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             try:
                 if t_nex_id is None:
                     self._error_event(_NEXEL.TREE,
-                                  obj=tree_obj,
-                                  err_type=gen_MissingCrucialContentWarning,
-                                  anc=vc.anc_list,
-                                  obj_nex_id=tg_nex_id,
-                                  key_list=['@id'])
+                                      obj=tree_obj,
+                                      err_type=gen_MissingCrucialContentWarning,
+                                      anc=vc.anc_list,
+                                      obj_nex_id=tg_nex_id,
+                                      key_list=['@id'])
                     return errorReturn('no "@id" in tree')
                 if not self._validate_tree(t_nex_id,
                                            tree_obj,
@@ -102,6 +101,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         return True
 
 
+    #pylint: disable=R0915
     def _post_key_check_validate_tree(self,
                                       tree_nex_id,
                                       tree_obj,
@@ -112,22 +112,22 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             node_list = [node_list]
         elif (not node_list) or (not isinstance(node_list, list)):
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             key_list=['node',])
+                              obj=tree_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=['node',])
             return errorReturn('no "node" in "trees"')
         edge_list = tree_obj.get('edge')
         if isinstance(edge_list, dict):
             edge_list = [edge_list]
         elif (not edge_list) or (not isinstance(edge_list, list)):
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             key_list=['edge',])
+                              obj=tree_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=['edge',])
             return errorReturn('no "edge" in tree')
         edge_id_list = [(i.get('@id'), i) for i in edge_list]
         valid = self._validate_edge_list(edge_id_list, vc)
@@ -153,19 +153,19 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 missing_target.append(tid)
         if missing_src:
             self._error_event(_NEXEL.TREE,
-                               obj=tree_obj,
-                               err_type=gen_ReferencedIDNotFoundWarning,
-                               anc=vc.anc_list,
-                               obj_nex_id=tree_nex_id,
-                               key_list=missing_src)
+                              obj=tree_obj,
+                              err_type=gen_ReferencedIDNotFoundWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=missing_src)
             return errorReturn('no "@source" in edge')
         if missing_target:
             self._error_event(_NEXEL.TREE,
-                               obj=tree_obj,
-                               err_type=gen_ReferencedIDNotFoundWarning,
-                               anc=vc.anc_list,
-                               obj_nex_id=tree_nex_id,
-                               key_list=missing_target)
+                              obj=tree_obj,
+                              err_type=gen_ReferencedIDNotFoundWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              key_list=missing_target)
             return errorReturn('no "@target" in edge')
         if otus_group_id is None:
             tree_group = vc.anc_list[-1][1]
@@ -220,11 +220,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                     vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
                     try:
                         self._error_event(_NEXEL.NODE,
-                                         obj=nd,
-                                         err_type=gen_MissingCrucialContentWarning,
-                                         anc=vc.anc_list,
-                                         obj_nex_id=nid,
-                                         key_list=['@otu',])
+                                          obj=nd,
+                                          err_type=gen_MissingCrucialContentWarning,
+                                          anc=vc.anc_list,
+                                          obj_nex_id=nid,
+                                          key_list=['@otu',])
                         return errorReturn('"@otu" in leaf')
                     finally:
                         vc.pop_context()
@@ -233,11 +233,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                         vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
                         try:
                             self._error_event(_NEXEL.NODE,
-                                             obj=nd,
-                                             err_type=gen_RepeatedOTUWarning,
-                                             anc=vc.anc_list,
-                                             obj_nex_id=nid,
-                                             key_list=[otu_id])
+                                              obj=nd,
+                                              err_type=gen_RepeatedOTUWarning,
+                                              anc=vc.anc_list,
+                                              obj_nex_id=nid,
+                                              key_list=[otu_id])
                             return errorReturn('repeated "@otu" in leaves')
                         finally:
                             vc.pop_context()
@@ -259,20 +259,20 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             try:
                 #_LOG.debug('unflagged_leaves="{f}"'.format(f=unflagged_leaves))
                 self._error_event(_NEXEL.NODE,
-                                 obj=tree_obj,
-                                 err_type=gen_MissingMandatoryKeyWarning,
-                                 anc=vc.anc_list,
-                                 obj_nex_id=unflagged_leaves,
-                                 key_list=['ot:isLeaf'])
+                                  obj=tree_obj,
+                                  err_type=gen_MissingMandatoryKeyWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=unflagged_leaves,
+                                  key_list=['ot:isLeaf'])
             finally:
                 vc.pop_context()
         if nonleaves_with_leaf_flags:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_InvalidKeyWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=nonleaves_with_leaf_flags,
-                             key_list=['ot:isLeaf'])
+                              obj=tree_obj,
+                              err_type=gen_InvalidKeyWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=nonleaves_with_leaf_flags,
+                              key_list=['ot:isLeaf'])
             return errorReturn('"ot:isLeaf" for internal')
         self._detect_multilabelled_tree(otus_group_id,
                                         tree_nex_id,
@@ -281,37 +281,37 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             lowest_nodeid_set = list(lowest_nodeid_set)
             lowest_nodeid_set.sort()
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MultipleRootsWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             node_id_list=lowest_nodeid_set)
+                              obj=tree_obj,
+                              err_type=gen_MultipleRootsWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              node_id_list=lowest_nodeid_set)
             return errorReturn('multiple roots in a tree')
 
         root_node_id = first_lowest_node
 
         if root_node_id not in with_at_root_prop:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MultipleRootsWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
+                              obj=tree_obj,
+                              err_type=gen_MultipleRootsWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              node_id_list=with_at_root_prop.keys() + [root_node_id])
             return errorReturn('root without "@root"')
         elif len(with_at_root_prop) > 1:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MultipleRootsWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             node_id_list=list(with_at_root_prop.keys()))
+                              obj=tree_obj,
+                              err_type=gen_MultipleRootsWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              node_id_list=with_at_root_prop.keys())
             return errorReturn('Multiple nodes with "@root"')
         elif len(with_at_root_prop) == 0:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_NoRootWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id)
+                              obj=tree_obj,
+                              err_type=gen_NoRootWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id)
             return errorReturn('no node with "@root"')
         og = set([i['@id'] for i in self._otu_group_by_id[otus_group_id]['otu']])
         nli = [(i['@id'], i) for i in node_list]
@@ -323,11 +323,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             otus_group_list = [otus_group_list]
         if not isinstance(otus_group_list, list):
             self._error_event(_NEXEL.NEXML,
-                             obj=nex_obj,
-                             err_type=gen_MissingCrucialContentWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=obj_nex_id,
-                             key_list=['otus'])
+                              obj=nex_obj,
+                              err_type=gen_MissingCrucialContentWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=obj_nex_id,
+                              key_list=['otus'])
             return errorReturn('no "otus" in nexml')
         vc.push_context(_NEXEL.OTUS, (nex_obj, obj_nex_id))
         try:
@@ -341,11 +341,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                     og_tuple_list.append((ogid, og))
             if without_id:
                 self._error_event(_NEXEL.OTUS,
-                                 obj=nex_obj,
-                                 err_type=gen_MissingCrucialContentWarning,
-                                 anc=vc.anc_list,
-                                 obj_nex_id=None,
-                                 key_list=['otus[*]/@id'])
+                                  obj=nex_obj,
+                                  err_type=gen_MissingCrucialContentWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=None,
+                                  key_list=['otus[*]/@id'])
                 return errorReturn('otu without "@id"')
             if not self._validate_otus_group_list(og_tuple_list, vc):
                 return False
@@ -357,11 +357,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             trees_group_list = [trees_group_list]
         if not isinstance(trees_group_list, list):
             self._error_event(_NEXEL.NEXML,
-                             obj=nex_obj,
-                             err_type=gen_WrongValueTypeWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=obj_nex_id,
-                             key_list=['trees'])
+                              obj=nex_obj,
+                              err_type=gen_WrongValueTypeWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=obj_nex_id,
+                              key_list=['trees'])
             return errorReturn('No "trees" in nexml')
         vc.push_context(_NEXEL.TREES, (nex_obj, obj_nex_id))
         try:
@@ -375,11 +375,11 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                     tg_tuple_list.append((tgid, tg))
             if without_id:
                 self._error_event(_NEXEL.TREES,
-                                 obj=without_id,
-                                 err_type=gen_MissingCrucialContentWarning,
-                                 anc=vc.anc_list,
-                                 obj_nex_id=None,
-                                 key_list=['@id'])
+                                  obj=without_id,
+                                  err_type=gen_MissingCrucialContentWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=None,
+                                  key_list=['@id'])
                 return errorReturn('No "@id" in trees group"')
             if not self._validate_trees_group_list(tg_tuple_list, vc):
                 return False
@@ -428,3 +428,4 @@ def construct_path_to_root(node, encountered_nodes, edge_by_target):
         else:
             break
     return None, p
+

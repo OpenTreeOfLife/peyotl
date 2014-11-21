@@ -88,8 +88,6 @@ def create_id2study_info(path, tag):
         root, files = triple[0], triple[2]
         for filename in files:
             if filename.endswith('.json'):
-                # if file is in more than one place it gets over written.
-                #TODO EJM Needs work
                 study_id = filename[:-5]
                 d[study_id] = (tag, root, os.path.join(root, filename))
     return d
@@ -126,14 +124,13 @@ def diagnose_repo_study_id_convention(repo_dir):
         if DIGIT_PATTERN.match(f):
             return {'convention': 'simple',
                     'fp_fn': get_filepath_for_simple_id,
-                    'id2alias_list': lambda x: [x]
-            }
+                    'id2alias_list': lambda x: [x], }
     return {'convention': 'namespaced',
             'fp_fn': get_filepath_for_namespaced_id,
-            'id2alias_list': namespaced_get_alias,
-    }
+            'id2alias_list': namespaced_get_alias, }
 
 class PhylesystemShardBase(object):
+    #pylint: disable=E1101
     def get_rel_path_fragment(self, study_id):
         '''For `study_id` returns the path from the
         repo to the study file. This is useful because
@@ -388,7 +385,7 @@ class PhylesystemShard(PhylesystemShardBase):
                 return True
         return False
 
-    def iter_study_filepaths(self, **kwargs):
+    def iter_study_filepaths(self, **kwargs): #pylint: disable=W0613
         '''Returns a pair: (study_id, absolute filepath of study file)
         for each study in this repository.
         Order is arbitrary.
@@ -414,8 +411,8 @@ class PhylesystemShard(PhylesystemShardBase):
 
     def write_configuration(self, out, secret_attrs=False):
         key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json',
-                    'git_ssh', 'pkey', 'has_aliases', '_next_study_id',
-                    'number of studies']
+                     'git_ssh', 'pkey', 'has_aliases', '_next_study_id',
+                     'number of studies']
         cd = self.get_configuration_dict(secret_attrs=secret_attrs)
         for k in key_order:
             if k in cd:
@@ -430,8 +427,7 @@ class PhylesystemShard(PhylesystemShardBase):
               'git_dir': self.git_dir,
               'repo_nexml2json': self.repo_nexml2json,
               'study_dir': self.study_dir,
-              'git_ssh': self.git_ssh,
-              }
+              'git_ssh': self.git_ssh, }
         if self._next_study_id is not None:
             rd['_next_study_id'] = self._next_study_id,
         if secret_attrs:
@@ -535,6 +531,7 @@ class _PhylesystemBase(object):
     '''Impl. of some basic functionality that a _Phylesystem or _PhylesystemProxy
     can provide.
     '''
+    #pylint: disable=E1101
     def get_repo_and_path_fragment(self, study_id):
         '''For `study_id` returns a list of:
             [0] the repo name and,
@@ -549,8 +546,6 @@ class _PhylesystemBase(object):
     def get_public_url(self, study_id, branch='master'):
         '''Returns a GitHub URL for the
         '''
-        #@TEMP, TODO. should look in the remote to find this. But then it can be tough to determine
-        #       which (if any) remotes are publicly visible... hmmmm
         name, path_frag = self.get_repo_and_path_fragment(study_id)
         return 'https://raw.githubusercontent.com/OpenTreeOfLife/' + name + '/' + branch + '/' + path_frag
     get_external_url = get_public_url
@@ -566,7 +561,7 @@ class PhylesystemShardProxy(PhylesystemShardBase):
     configuration of a remote Phylesystem
     '''
     def __init__(self, config):
-        self._index_lock = Lock() #TODO should invent a fake lock for the proxies
+        self._index_lock = Lock()
         self.name = config['name']
         self.repo_nexml2json = config['repo_nexml2json']
         self.path = ' ' # mimics place of the abspath of repo in path -> relpath mapping
@@ -585,7 +580,7 @@ class PhylesystemProxy(_PhylesystemBase):
     configuration of a remote Phylesystem
     '''
     def __init__(self, config):
-        self._index_lock = Lock() #TODO should invent a fake lock for the proxies
+        self._index_lock = Lock()
         self.repo_nexml2json = config['repo_nexml2json']
         self._shards = []
         for s in config.get('shards', []):
@@ -682,7 +677,8 @@ class _Phylesystem(_PhylesystemBase):
                     raise ValueError(e)
                 for remote_name, remote_url_prefix in push_mirror_remote_map.items():
                     if remote_name in ['origin', 'originssh']:
-                        raise ValueError('"{}" is a protected remote name in the mirrored repo setup'.format(remote_name))
+                        m = '"{}" is a protected remote name in the mirrored repo setup'.format(remote_name)
+                        raise ValueError(m)
                     remote_url = remote_url_prefix + '/' + repo_name + '.git'
                     GitAction.add_remote(expected_push_mirror_repo_path, remote_name, remote_url)
                 shard.push_mirror_repo_path = expected_push_mirror_repo_path
@@ -830,7 +826,7 @@ class _Phylesystem(_PhylesystemBase):
                                            parent_sha,
                                            commit_msg,
                                            merged_sha=merged_sha)
-    def annotate_and_write(self,
+    def annotate_and_write(self, #pylint: disable=R0201
                            git_data,
                            nexson,
                            study_id,
@@ -880,7 +876,8 @@ class _Phylesystem(_PhylesystemBase):
         placeholder_added = False
         if new_study_id is not None:
             if new_study_id.startswith(self._new_study_prefix):
-                raise ValueError('Study IDs with the "{}" prefix can only be automatically generated.'.format(self._new_study_prefix))
+                m = 'Study IDs with the "{}" prefix can only be automatically generated.'.format(self._new_study_prefix)
+                raise ValueError(m)
             if not STUDY_ID_PATTERN.match(new_study_id):
                 raise ValueError('Study ID does not match the expected pattern of alphabeticprefix_numericsuffix')
             with self._index_lock:
@@ -896,7 +893,8 @@ class _Phylesystem(_PhylesystemBase):
                 bundle = validate_and_convert_nexson(new_study_nexson,
                                                      repo_nexml2json,
                                                      allow_invalid=True)
-                nexson, annotation, validation_log, nexson_adaptor = bundle
+                #nexson, annotation, validation_log, nexson_adaptor = bundle
+                nexson, annotation, nexson_adaptor = bundle[0], bundle[1], bundle[3]
                 r = self.annotate_and_write(git_data=gd,
                                             nexson=nexson,
                                             study_id=new_study_id,

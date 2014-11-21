@@ -12,8 +12,6 @@ from peyotl.phylesystem.git_actions import MergeException, \
                                            GitWorkflowError
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
-from locket import LockError
-from sh import git
 import traceback
 import json
 import os
@@ -41,8 +39,6 @@ def acquire_lock_raise(git_action, fail_msg=''):
         msg = '{o} Details: {d}'.format(o=fail_msg, d=e.message)
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
-
-#TODO:validate_and_convert_nexson belong in a different part of peyotl
 
 def validate_and_convert_nexson(nexson, output_version, allow_invalid):
     '''Runs the nexson validator and returns a converted 4 object:
@@ -94,11 +90,11 @@ def _pull_gh(git_action, branch_name):#
 
 
 def _do_merge2master_commit(git_action,
-                     new_sha,
-                     branch_name,
-                     study_filepath,
-                     merged_sha,
-                     prev_file_sha):
+                            new_sha,
+                            branch_name,
+                            study_filepath,
+                            merged_sha,
+                            prev_file_sha):
     merge_needed = False
     git_action.checkout_master()
     if os.path.exists(study_filepath):
@@ -161,10 +157,10 @@ def commit_and_try_merge2master(git_action,
                                                                                 c=str(commit_resp)))
             m_resp = _do_merge2master_commit(git_action,
                                              new_sha,
-                                              branch_name,
-                                              written_fp,
-                                              merged_sha=merged_sha,
-                                              prev_file_sha=commit_resp.get('prev_file_sha'))
+                                             branch_name,
+                                             written_fp,
+                                             merged_sha=merged_sha,
+                                             prev_file_sha=commit_resp.get('prev_file_sha'))
             new_sha, branch_name, merge_needed = m_resp
         finally:
             git_action.release_lock()

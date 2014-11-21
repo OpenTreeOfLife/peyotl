@@ -3,7 +3,7 @@ import re
 from peyotl import get_logger
 _LOG = get_logger(__name__)
 
-class FragType:
+class FragType(object):
     _EMPTY = 0
     _HIGHER_TAXON_CS = 1
     _TAXON_CI = 2
@@ -23,11 +23,46 @@ class FragType:
     START = 15
     END = 16
 
-_ANY_FRAG = frozenset([FragType._EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.NUMBER, FragType.UC_LETTER, FragType.LC_LETTER, FragType.START, FragType.END])
-_NONLETTERS = frozenset([FragType._EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.NUMBER, FragType.START, FragType.END])
-_NON_UC_LETTERS = frozenset([FragType._EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.NUMBER,  FragType.LC_LETTER, FragType.START, FragType.END])
-_NON_LC_LETTERS = frozenset([FragType._EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.NUMBER,  FragType.UC_LETTER, FragType.START, FragType.END])
-_NON_NUMBERS = frozenset([FragType._EMPTY, FragType.SPACE, FragType.WHITESPACE, FragType.PUNCTUATION, FragType.UC_LETTER, FragType.LC_LETTER, FragType.START, FragType.END])
+_ANY_FRAG = frozenset([FragType._EMPTY,
+                       FragType.SPACE,
+                       FragType.WHITESPACE,
+                       FragType.PUNCTUATION,
+                       FragType.NUMBER,
+                       FragType.UC_LETTER,
+                       FragType.LC_LETTER,
+                       FragType.START,
+                       FragType.END])
+_NONLETTERS = frozenset([FragType._EMPTY,
+                         FragType.SPACE,
+                         FragType.WHITESPACE,
+                         FragType.PUNCTUATION,
+                         FragType.NUMBER,
+                         FragType.START,
+                         FragType.END])
+_NON_UC_LETTERS = frozenset([FragType._EMPTY,
+                             FragType.SPACE,
+                             FragType.WHITESPACE,
+                             FragType.PUNCTUATION,
+                             FragType.NUMBER,
+                             FragType.LC_LETTER,
+                             FragType.START,
+                             FragType.END])
+_NON_LC_LETTERS = frozenset([FragType._EMPTY,
+                             FragType.SPACE,
+                             FragType.WHITESPACE,
+                             FragType.PUNCTUATION,
+                             FragType.NUMBER,
+                             FragType.UC_LETTER,
+                             FragType.START,
+                             FragType.END])
+_NON_NUMBERS = frozenset([FragType._EMPTY,
+                          FragType.SPACE,
+                          FragType.WHITESPACE,
+                          FragType.PUNCTUATION,
+                          FragType.UC_LETTER,
+                          FragType.LC_LETTER,
+                          FragType.START,
+                          FragType.END])
 _CAN_FOLLOW = {
     FragType._HIGHER_TAXON_CS: _NON_LC_LETTERS,
     FragType._TAXON_CI: _NONLETTERS,
@@ -40,12 +75,16 @@ _CAN_FOLLOW = {
     FragType.AFF: _NONLETTERS,
 }
 _CAN_PRECEED = {
-    FragType._HIGHER_TAXON_CS: frozenset(list(_NON_UC_LETTERS)+ [FragType._HIGHER_TAXON_CS, FragType.EPITHET_CASE_S, FragType.GENBANK_ACCESSION ,
-]),
+    FragType._HIGHER_TAXON_CS: frozenset(list(_NON_UC_LETTERS)
+                                         + [FragType._HIGHER_TAXON_CS,
+                                            FragType.EPITHET_CASE_S,
+                                            FragType.GENBANK_ACCESSION]),
     FragType._TAXON_CI: _NONLETTERS,
     FragType.EPITHET_CASE_S: _NON_LC_LETTERS,
-    FragType.GENBANK_ACCESSION: frozenset(list(_NON_UC_LETTERS) + [FragType._HIGHER_TAXON_CS, FragType.EPITHET_CASE_S, FragType.GENBANK_ACCESSION ,
-]),
+    FragType.GENBANK_ACCESSION: frozenset(list(_NON_UC_LETTERS)
+                                          + [FragType._HIGHER_TAXON_CS,
+                                             FragType.EPITHET_CASE_S,
+                                             FragType.GENBANK_ACCESSION]),
     FragType.VAR: _NONLETTERS,
     FragType.SP: _NONLETTERS,
     FragType.SSP: _NONLETTERS,
@@ -100,7 +139,6 @@ class RE:
     _LC_LETTER = re.compile('[a-z]')
     _LC_LETTER_FULL = re.compile('^[a-z]$')
 
-
 class OTULabelStringCruncher(object):
     def __init__(self, pat_list):
         self.pat_list = pat_list
@@ -122,15 +160,16 @@ def attempt_to_create_taxonomic_regex_from_words(word_list, is_first):
         `regex` : pattern with a group to capture the name
         code: a facet of the FragType enum
         '''
+    #pylint: disable=E1101
     if not isinstance(word_list, set):
         word_list = set(word_list)
     if is_first:
         if _matches_all(word_list, RE._HIGHER_TAXON_CS_FULL):
             return {'regex': RE._HIGHER_TAXON_CS_STR, 'code': FragType._HIGHER_TAXON_CS, 'num_groups':1}
     else:
-        if _matches_all(word_list,  RE._VAR_FULL):
+        if _matches_all(word_list, RE._VAR_FULL):
             return {'regex': RE._VAR_STR, 'code': FragType.VAR, 'num_groups':1}
-        if _matches_all(word_list, RE._SP_FULL)    :
+        if _matches_all(word_list, RE._SP_FULL):
             return {'regex': RE._SP_STR, 'code': FragType.SP, 'num_groups':1}
         if _matches_all(word_list, RE._SSP_FULL):
             return {'regex': RE._SSP_STR, 'code': FragType.SSP, 'num_groups':1}
@@ -148,6 +187,7 @@ def attempt_to_create_taxonomic_regex_from_words(word_list, is_first):
 
 
 def _char_set2char_class(cs):
+    #pylint: disable=E1101
     if not isinstance(cs, set):
         cs = set(cs)
     if len(cs) == 1:
@@ -157,7 +197,7 @@ def _char_set2char_class(cs):
         if RE._WHITESPACE.match(c):
             return dict(regex=r'\s', code=FragType.WHITESPACE, num_groups=0)
         if RE._PUNCTUATION.match(c):
-            return dict(regex=_PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
+            return dict(regex=RE._PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
         if RE._NUMBER.match(c):
             return dict(regex=r'[0-9]', code=FragType.NUMBER, num_groups=0)
         if RE._UC_LETTER.match(c):
@@ -171,7 +211,7 @@ def _char_set2char_class(cs):
     if _matches_all(cs, RE._WHITESPACE_FULL):
         return dict(regex=r'\s', code=FragType.WHITESPACE, num_groups=0)
     if _matches_all(cs, RE._PUNCTUATION_FULL):
-        return dict(regex=_PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
+        return dict(regex=RE._PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
     if _matches_all(cs, RE._NUMBER_FULL):
         return dict(regex=r'[0-9]', code=FragType.NUMBER, num_groups=0)
     if _matches_all(cs, RE._UC_LETTER_FULL):
@@ -192,8 +232,8 @@ def _can_transition_following(full_pat, following):
 
 def _can_transition(preceding, full_pat, following, has_empty):
     if isinstance(full_pat, tuple) or isinstance(full_pat, list):
-        pa =  full_pat[0]
-        fa =  full_pat[-1]
+        pa = full_pat[0]
+        fa = full_pat[-1]
     else:
         pa, fa, = full_pat, full_pat
     if preceding is not None:
@@ -208,6 +248,7 @@ def _can_transition(preceding, full_pat, following, has_empty):
 
     return True
 def _midwords2char_class(word_list, start_ind, end_ind):
+    #pylint: disable=E1101
     if start_ind > 0 or (end_ind is not None):
         if end_ind is not None:
             word_list = [i[start_ind:end_ind] for i in word_list]
@@ -224,20 +265,21 @@ def _midwords2char_class(word_list, start_ind, end_ind):
         minl = min(minl, len(word))
         maxl = max(maxl, len(word))
     if _matches_all(word_list, RE._SPACE):
-        return dict(regex=_UC_LETTER_FULL, code=FragType.SPACE, minl=minl, maxl=maxl, num_groups=0)
+        return dict(regex=RE._UC_LETTER_FULL, code=FragType.SPACE, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, RE._WHITESPACE_FULL):
         return dict(regex=RE._WHITESPACE_STR, code=FragType.WHITESPACE, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, RE._PUNCTUATION_FULL):
         return dict(regex=RE._PUNCTUATION_STR, code=FragType.PUNCTUATION, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, RE._NUMBER_FULL):
         return dict(regex=RE._NUMBER_STR, code=FragType.NUMBER, minl=minl, maxl=maxl, num_groups=0)
-    if _matches_all(word_list, _UC_LETTER_FULL):
+    if _matches_all(word_list, RE._UC_LETTER_FULL):
         return dict(regex=RE._UC_LETTER, code=FragType.UC_LETTER, minl=minl, maxl=maxl, num_groups=0)
-    if _matches_all(word_list, _LC_LETTER_FULL):
-        return dict(regex=_LC_LETTER_STR, code=FragType.LC_LETTER, minl=minl, maxl=maxl, num_groups=0)
+    if _matches_all(word_list, RE._LC_LETTER_FULL):
+        return dict(regex=RE._LC_LETTER_STR, code=FragType.LC_LETTER, minl=minl, maxl=maxl, num_groups=0)
     return None
 
 def attempt_to_create_intervening_regex_from_words(preceding, word_list, following):
+    #pylint: disable=E1101
     if not isinstance(word_list, set):
         word_list = set(word_list)
     non_empty = []
@@ -262,8 +304,8 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
             leading.add(word[0])
             trailing.add(word[-1])
     _LOG.debug('non_empty = ' + str(non_empty))
-    if not has_empty and _matches_all(non_empty, _GENBANK_FULL):
-        full_pat =  {'regex': _GENBANK, 'code': FragType.CF, 'num_groups':1}
+    if not has_empty and _matches_all(non_empty, RE._GENBANK_FULL):
+        full_pat = {'regex': RE._GENBANK, 'code': FragType.CF, 'num_groups':1}
         _LOG.debug('full_pat is  ' + str(full_pat))
     else:
         if (minl == maxl) and (minl == 1):
@@ -326,8 +368,8 @@ def attempt_to_create_intervening_regex_from_words(preceding, word_list, followi
 
 def _join_patterns(pt):
     assert len(pt) == 3
-    p = '{f}{s}{t}'.format(f=pt[0]['regex'],s=pt[1]['regex'],t=pt[2]['regex'])
-    ng = pt[0]['num_groups'] + pt[1]['num_groups'] + pt[2]['num_groups'] 
+    p = '{f}{s}{t}'.format(f=pt[0]['regex'], s=pt[1]['regex'], t=pt[2]['regex'])
+    ng = pt[0]['num_groups'] + pt[1]['num_groups'] + pt[2]['num_groups']
     d = dict(regex=p, num_groups=ng, minl=pt[1]['minl'], maxl=pt[1]['maxl'])
     _LOG.debug('_join_patterns returning ' + str(d))
     return d
@@ -336,8 +378,7 @@ def attempt_to_create_taxonomic_regex_from_lib(save_odd_el_list):
     '''Takes a list of lists of strings. The goal is to return a set of regex patterns
     that will match all elements (where the element is the ''.joined string)
     and have a group that will return the words in the odd numbered indices.
-    
-    assumes that all lists in save_odd_el_list are the same length
+    Assumes that all lists in save_odd_el_list are the same length
     returns None or a list of OTULabelStringCruncher objects.
     '''
     if not save_odd_el_list:
@@ -347,9 +388,9 @@ def attempt_to_create_taxonomic_regex_from_lib(save_odd_el_list):
     str_collections = [list() for i in range(nw)]
     _LOG.debug('save_odd_el_list = {}'.format(str(save_odd_el_list)))
     for el in save_odd_el_list:
-        for i in range(1): #TODO should look at more than the first...
+        for i in range(1):
             assert len(el[i]) == nw
-            for i, word in enumerate(el[i]): 
+            for i, word in enumerate(el[i]):
                 str_collections[i].append(word)
     _LOG.debug('str_collections = {}'.format(str(str_collections)))
     pat_list = [None for i in range(nw)]
@@ -451,7 +492,7 @@ def find_intervening_fragments(input_str,
     if last_ind < 0:
         return None
     if case_sensitive:
-        istr, elist = input_str, expected_str_list
+        istr = input_str
         if template_i is None:
             template_i = istr
     else:
@@ -472,7 +513,7 @@ def find_intervening_fragments(input_str,
         tail_results = find_intervening_fragments(istr,
                                                   expected_str_list,
                                                   start_pos=1+noff,
-                                                  case_sensitive=True, 
+                                                  case_sensitive=True,
                                                   template_i=template_i,
                                                   curr_word_ind=curr_word_ind)
     else:
@@ -495,7 +536,7 @@ def find_intervening_fragments(input_str,
     continued_results = find_intervening_fragments(istr,
                                                    expected_str_list,
                                                    start_pos=offset,
-                                                   case_sensitive=True, 
+                                                   case_sensitive=True,
                                                    template_i=template_i,
                                                    curr_word_ind=curr_word_ind,
                                                    curr_result=curr_result)

@@ -403,6 +403,8 @@ class OTT(object):
             tip_label = OTULabelStyleEnum(tip_label)
         if root_ott_id is None:
             root_ott_id = self.root_ott_id
+        if tip_label != OTULabelStyleEnum.OTT_ID:
+            raise NotImplementedError('newick from ott with labels other than ott id')
         o2p = self.ott_id2par_ott_id
         out.write(str(o2p))
     def get_anc_lineage(self, ott_id):
@@ -416,7 +418,19 @@ class OTT(object):
         while n is not None and n != NONE_PAR:
             lineage.append(n)
             n = i2pi.get(n)
-        return TaxonomyDes2AncLineage(lineage)
+        return lineage
+    def induced_tree(self, ott_id_list):
+        if not ott_id_list:
+            return None
+        '''nn = len(ott_id_list)
+        if nn == 1:
+            if ott_id_list[0] not in self.ott_id2par_ott_id:
+                raise KeyError('The OTT ID {} was not found'.format(ott_id))
+
+
+        line = TaxonomyDes2AncLineage(self.get_anc_lineage(ott_id_list[0]))
+        curr_ind = 1
+        '''
 if _PICKLE_AS_JSON:
     def _write_pickle(directory, fn, obj):
         fp = os.path.join(directory, fn + '.pickle')
@@ -471,9 +485,11 @@ class TaxonomyDes2AncLineage(object):
     def __repr__(self):
         return 'TaxonomyDes2AncLineage({l})'.format(l=repr(self._des_to_anc_list))
 if __name__ == '__main__':
+    import sys
     o = OTT()
     print(len(o.ott_id2par_ott_id), 'ott IDs')
     print('call')
     print(o.get_anc_lineage(593937)) # This is the OTT id of a species in the Asterales system
     print(o.root_name)
-    #o.write_newick
+    o.induced_tree([458721, 883864, 128315])
+

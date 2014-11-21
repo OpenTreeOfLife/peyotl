@@ -31,6 +31,7 @@ def count_num_trees(nexson, nexson_version=None):
                 nt = 1
             num_trees_by_group.append(nt)
     return sum(num_trees_by_group)
+
 def iter_trees(nexson, nexson_version=None):
     '''generator over all trees in all trees elements.
     yields a tuple of 3 items:
@@ -242,3 +243,5 @@ def merge_otus_and_trees(nexson_blob):
     replace_entity_references_in_meta_and_annotations(nexson, id_to_replace_id)
     convert_nexson_format(nexson_blob, orig_version)
     return nexson_blob
+
+

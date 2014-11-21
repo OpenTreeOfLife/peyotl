@@ -61,7 +61,11 @@ The complete graph of dependencies:
 
 ![dependency graph of subpackages](../images/full-dependencies.svg)
 
-The simplified dependency graph with other open tree tools shown in blue is:
+The simplified dependency graph the python portion of other
+open tree tools shown in blue is below. Note that, for a tool like the curator, the 
+user interacts with a javascript app that talks to both the `phylesystem-api` and the python
+`curator` backend. So the curator user app has the union of the dependencies of those
+two python code-bases:
 
 ![dependency graph of subpackages](../images/ext-dependencies.svg)
 

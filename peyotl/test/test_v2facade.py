@@ -16,7 +16,8 @@ class TestOTI(unittest.TestCase):
         self.assertTrue(len(x) > 0)
         self.assertTrue('ot:studyId' in x[0])
     def testStudyTerms(self):
-        #t_set = self.ot.studies.properties()
+        t_set = self.ot.studies.properties()
+        self.assertTrue(bool(t_set))
         r = self.ot.studies.find_studies({'ot:studyPublication': '10.1073/pnas.0709121104'})
         self.assertTrue(len(r) > 0)
     def testTaxon(self):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.api.wrapper import * #pylint: disable=W0401
+from peyotl.api.wrapper import APIDomains, APIWrapper
 from peyotl.api.taxomachine import Taxomachine
 from peyotl.api.treemachine import Treemachine
 from peyotl.api.phylografter import Phylografter

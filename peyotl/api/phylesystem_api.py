@@ -2,10 +2,10 @@
 from peyotl.phylesystem import Phylesystem, PhylesystemProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.nexson_syntax import create_content_spec
+from peyotl.utility import get_logger
 import anyjson
 import urllib
 import os
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 _GET_LOCAL, _GET_EXTERNAL, _GET_API = range(3)
@@ -25,8 +25,8 @@ _REFRESH_VALUES = ('never',    # *DEFAULT* never call "git pull"
 class _PhylesystemAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
         self._prefix = None
-        _WSWrapper.__init__(self, domain)
-        self.set_domain(domain)
+        _WSWrapper.__init__(self, domain, **kwargs)
+        self.domain = domain
         self._github_oauth_token = None
         self._get_from = kwargs.setdefault('get_from', 'external').lower()
         self._transform = kwargs.setdefault('transform', 'client').lower()
@@ -38,47 +38,49 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         self._phylesystem_config = None
         self._phylesystem_obj = None
         self._use_raw = False
-    def get_domain(self):
+    @property
+    def domain(self):
         return self._domain
-    def set_domain(self, d):
+    @domain.setter
+    def domain(self, d):#pylint: disable=W0221
         self._domain = d
         self._prefix = '{d}/phylesystem/v1'.format(d=d)
-    domain = property(get_domain, set_domain)
-    def get_phylesystem_obj(self):
+    @property
+    def phylesystem_obj(self):
         if self._phylesystem_obj is None:
             if self._src_code == _GET_LOCAL:
                 self._phylesystem_obj = Phylesystem()
             else:
                 self._phylesystem_obj = PhylesystemProxy(self.phylesystem_config)
         return self._phylesystem_obj
-    phylesystem_obj = property(get_phylesystem_obj)
 
     def _fetch_phylesystem_config(self):
         if self._src_code == _GET_LOCAL:
             return self.phylesystem_obj.get_configuration_dict()
         else:
             return self._remote_phylesystem_config()
-    def get_phylesystem_config(self):
+    @property
+    def phylesystem_config(self):
         if self._phylesystem_config is None:
             self._phylesystem_config = self._fetch_phylesystem_config()
         return self._phylesystem_config
-    phylesystem_config = property(get_phylesystem_config)
 
-    def get_repo_nexml2json(self):
+    @property
+    def repo_nexml2json(self):
         if self._repo_nexml2json is None:
             self._repo_nexml2json = self.phylesystem_config['repo_nexml2json']
         return self._repo_nexml2json
-    repo_nexml2json = property(get_repo_nexml2json)
     def get_external_url(self, study_id):
         if self._src_code == _GET_API:
             return self._remote_external_url(study_id)['url']
         return self.phylesystem_obj.get_external_url(study_id)
-    def get_study_list(self):
+    @property
+    def study_list(self):
         if self._src_code == _GET_API:
             return self._remote_study_list()
         return self.phylesystem_obj.get_study_ids()
-    study_list = property(get_study_list)
-    def get_push_failure_state(self):
+    @property
+    def push_failure_state(self):
         '''Returns a tuple: the boolean for whether or not pushes succeed, and the
         entire object returned by a call to push_failure on the phylesystem-api.
         This should only be called with wrappers around remote services (RuntimeError
@@ -88,7 +90,6 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             raise RuntimeError('push_failure_state only pertains to work with remote phyleysystem instances')
         r = self._remote_push_failure()
         return r['pushes_succeeding'], r
-    push_failure_state = property(get_push_failure_state)
     def get(self, study_id, content=None, schema=None, **kwargs):
         '''Syntactic sugar around to make it easier to get fine-grained access
         to the parts of a file without composing a PhyloSchema object.
@@ -128,7 +129,8 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         if (isinstance(r, dict) and 'data' in r) and (self._trans_code == _TRANS_CLIENT) and (schema is not None):
             r['data'] = schema.convert(r['data'])
         return r
-    def _get_auth_token(self):
+    @property
+    def auth_token(self):
         if self._github_oauth_token is None:
             auth_token = os.environ.get('GITHUB_OAUTH_TOKEN')
             if auth_token is None:
@@ -139,7 +141,6 @@ variable to obtain this token. If you need to obtain your key, see the instructi
 ''')
             self._github_oauth_token = auth_token
         return self._github_oauth_token
-    auth_token = property(_get_auth_token)
     def _remote_study_list(self):
         '''Returns a list of strings which are the study IDs'''
         uri = '{}/study_list'.format(self._prefix)

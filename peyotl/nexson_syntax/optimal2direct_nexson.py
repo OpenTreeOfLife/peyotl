@@ -2,7 +2,8 @@
 'Optimal2DirectNexson class'
 from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         get_nexml_el, \
-                                        DIRECT_HONEY_BADGERFISH
+                                        DIRECT_HONEY_BADGERFISH, \
+                                        NexsonError
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 class Optimal2DirectNexson(NexsonConverter):
@@ -81,7 +82,6 @@ class Optimal2DirectNexson(NexsonConverter):
         return tree
 
     def convert_trees(self, treesById, treesElementOrder):
-        from peyotl.nexson_validation.helper import NexsonError
 
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')

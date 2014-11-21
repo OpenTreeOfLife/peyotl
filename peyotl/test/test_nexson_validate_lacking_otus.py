@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-from peyotl.nexson_syntax import detect_nexson_version, get_empty_nexson
 from peyotl.nexson_validation import validate_nexson
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger

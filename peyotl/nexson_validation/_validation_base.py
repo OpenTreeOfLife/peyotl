@@ -144,7 +144,8 @@ class LazyAddress(object):
             elif '@idref' in self._full_path:
                 del self._full_path['@idref']
         return self._full_path
-    def get_path(self):
+    @property
+    def path(self):
         if self._path is None:
             if _USING_IDREF_ONLY_PATHS:
                 if self.obj_nex_id is not None:
@@ -179,7 +180,6 @@ class LazyAddress(object):
                 elif '@idref' in self._path:
                     del self._path['@idref']
         return self._path
-    path = property(get_path)
 
 class _ValidationContext(object):
     '''Holds references to the adaptor and logger
@@ -282,7 +282,6 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
         to efficiently add back to the orignal NexSON object.
     '''
     def __init__(self, obj, logger):
-
         self._raw = obj
         self._nexml = None
         self._pyid_to_nexson_add = {}
@@ -540,7 +539,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
         schema = vc.schema
         anc_list = vc.anc_list
         #_LOG.debug('using schema type = ' + vc.schema_name())
-        using_hbf_meta = vc._using_hbf_meta
+        using_hbf_meta = vc._using_hbf_meta #pylint: disable=W0212
         _by_warn_type = {}
         for obj_nex_id, obj in id_obj_list:
             wrong_type = []

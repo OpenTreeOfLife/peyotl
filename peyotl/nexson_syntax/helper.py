@@ -27,6 +27,12 @@ SUPPORTED_NEXSON_VERSIONS_AND_ALIASES = frozenset([BADGER_FISH_NEXSON_VERSION,
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 
+class NexsonError(Exception):
+    def __init__(self, v):
+        self.value = v
+    def __str__(self):
+        return repr(self.value)
+
 def detect_nexson_version(blob):
     '''Returns the nexml2json attribute or the default code for badgerfish'''
     n = get_nexml_el(blob)

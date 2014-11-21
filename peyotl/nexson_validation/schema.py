@@ -583,7 +583,7 @@ _Req_IntNEl_ByI = _EMPTY_DICT
 _Req_IntNEl_Dir = {'@id': _VT.STR,
                   }
 _All_IntNEl_ByI = {'@root': _VT.BOOL,
-                  '@otu': _VT.STR
+                   '@otu': _VT.STR
                   }
 _All_IntNEl_Dir = {'@about': _VT.STR,
                    '@root': _VT.BOOL,

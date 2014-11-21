@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-from peyotl.utility.io import open_for_group_write
 from peyotl.phylografter.nexson_workaround import workaround_phylografter_nexson
+from peyotl.utility.io import open_for_group_write
 from peyotl.nexson_syntax import read_as_json
+from peyotl.utility import get_logger
 import datetime
 import codecs
 import copy
 import json
 import time
 import os
-from peyotl import get_logger
 
 _LOG = get_logger(__name__)
 

@@ -66,12 +66,15 @@ def validate_and_convert_nexson(nexson, output_version, allow_invalid):
     return nexson, annotation, validation_log, nexson_adaptor
 
 
-def _pull_gh(git_action, branch_name):#
+def _pull_gh(git_action, remote, branch_name):#
     try:
         git_env = git_action.env()
         # TIMING = api_utils.log_time_diff(_LOG, 'lock acquisition', TIMING)
-        git(git_action.gitdir, "fetch", git_action.repo_remote, _env=git_env)
-        git(git_action.gitdir, git_action.gitwd, "merge", git_action.repo_remote + '/' + branch_name, _env=git_env)
+        git(git_action.gitdir, "fetch", remote, _env=git_env)
+        git(git_action.gitdir, git_action.gitwd, "merge", remote + '/' + branch_name, _env=git_env)
+        _LOG.debug('performed a git pull from branch "{b}" of "{r}" in "{d}"'.format(r=remote,
+                                                                                     b=branch_name,
+                                                                                     d=git_action.gitwd))
         # TIMING = api_utils.log_time_diff(_LOG, 'git pull', TIMING)
     except Exception as e:
         # We can ignore this if the branch doesn't exist yet on the remote,
@@ -178,7 +181,7 @@ def commit_and_try_merge2master(git_action,
     _LOG.debug('returning {r}'.format(r=str(r)))
     return r
 
-def delete_study(git_action, study_id, auth_info, parent_sha, commit_msg='', merged_sha=None):
+def delete_study(git_action, study_id, auth_info, parent_sha, commit_msg='', merged_sha=None): #pylint: disable=W0613
     author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % study_id)
@@ -211,7 +214,7 @@ def merge_from_master(git_action, study_id, auth_info, parent_sha):
     this is needed to allow a worker's future saves to
     be merged seamlessly into master
     """
-    gh_user, author = get_user_author(auth_info)
+    gh_user = get_user_author(auth_info)[0]
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to merge study #{s}".format(s=study_id))
     try:
         git_action.checkout_master()

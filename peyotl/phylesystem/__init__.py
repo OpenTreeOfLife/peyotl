@@ -2,7 +2,7 @@
 '''Utilities for dealing with local filesystem
 copies of the phylesystem repositories.
 '''
-from peyotl.utility import get_config, expand_path, get_logger, write_to_filepath
+from peyotl.utility import get_config_object, expand_path, get_logger, get_config_setting_kwargs, write_to_filepath
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -39,24 +39,24 @@ _study_index_lock = Lock()
 _study_index = None
 
 STUDY_ID_PATTERN = re.compile(r'^[a-zA-Z]+_+[0-9]+$')
-def _get_phylesystem_parent_with_source():
+def _get_phylesystem_parent_with_source(**kwargs):
     src = 'environment'
     if 'PHYLESYSTEM_PARENT' in os.environ:
         phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
     else:
         try:
-            phylesystem_parent = expand_path(get_config('phylesystem', 'parent'))
+            phylesystem_parent = expand_path(get_config_setting_kwargs(None, 'phylesystem', 'parent', **kwargs))
             src = 'configfile'
         except:
             raise ValueError('No [phylesystem] "parent" specified in config or environmental variables')
     x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
     return x, src
 
-def _get_phylesystem_parent():
-    return _get_phylesystem_parent_with_source()[0]
+def _get_phylesystem_parent(**kwargs):
+    return _get_phylesystem_parent_with_source(**kwargs)[0]
 
 
-def get_repos(par_list=None):
+def get_repos(par_list=None, **kwargs):
     '''Returns a dictionary of name -> filepath
     `name` is the repo name based on the dir name (not the get repo). It is not
         terribly useful, but it is nice to have so that any mirrored repo directory can
@@ -65,7 +65,7 @@ def get_repos(par_list=None):
     '''
     _repos = {} # key is repo name, value repo location
     if par_list is None:
-        par_list = _get_phylesystem_parent()
+        par_list = _get_phylesystem_parent(**kwargs)
     elif not isinstance(par_list, list):
         par_list = [par_list]
     for p in par_list:
@@ -92,9 +92,9 @@ def create_id2study_info(path, tag):
                 d[study_id] = (tag, root, os.path.join(root, filename))
     return d
 
-def _initialize_study_index(repos_par=None):
+def _initialize_study_index(repos_par=None, **kwargs):
     d = {} # Key is study id, value is repo,dir tuple
-    repos = get_repos(repos_par)
+    repos = get_repos(repos_par, **kwargs)
     for repo in repos:
         p = os.path.join(repos[repo], 'study')
         dr = create_id2study_info(p, repo)
@@ -130,6 +130,12 @@ def diagnose_repo_study_id_convention(repo_dir):
             'id2alias_list': namespaced_get_alias, }
 
 class PhylesystemShardBase(object):
+    def __init__(self, name):
+        self._index_lock = Lock()
+        self._study_index = {}
+        self.name = name
+        self.path = ''
+        self.has_aliases = False
     #pylint: disable=E1101
     def get_rel_path_fragment(self, study_id):
         '''For `study_id` returns the path from the
@@ -140,9 +146,9 @@ class PhylesystemShardBase(object):
             r = self._study_index[study_id]
         fp = r[-1]
         return fp[(len(self.path) + 1):] # "+ 1" to remove the /
-    def get_study_index(self):
+    @property
+    def study_index(self):
         return self._study_index
-    study_index = property(get_study_index)
     def get_study_ids(self, include_aliases=False):
         with self._index_lock:
             k = self._study_index.keys()
@@ -167,26 +173,27 @@ class PhylesystemShard(PhylesystemShardBase):
                  git_action_class=GitAction,
                  push_mirror_repo_path=None,
                  new_study_prefix=None,
-                 infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>'):
-        self._infrastructure_commit_author = infrastructure_commit_author
+                 infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
+                 **kwargs):
         self._index_lock = Lock()
+        PhylesystemShardBase.__init__(self, name)
+        self._infrastructure_commit_author = infrastructure_commit_author
         self._study_counter_lock = Lock()
         self._master_branch_repo_lock = Lock()
         self._new_study_prefix = new_study_prefix
         self._ga_class = git_action_class
         self.git_ssh = git_ssh
         self.pkey = pkey
-        self.name = name
         path = os.path.abspath(path)
         dot_git = os.path.join(path, '.git')
         study_dir = os.path.join(path, 'study')
-        self.push_mirror_repo_path = push_mirror_repo_path
         if not os.path.isdir(path):
             raise ValueError('"{p}" is not a directory'.format(p=path))
         if not os.path.isdir(dot_git):
             raise ValueError('"{p}" is not a directory'.format(p=dot_git))
         if not os.path.isdir(study_dir):
             raise ValueError('"{p}" is not a directory'.format(p=study_dir))
+        self.path = path
         self._id_minting_file = os.path.join(path, 'next_study_id.json')
         if self._new_study_prefix is None:
             prefix_file = os.path.join(path, 'new_study_prefix')
@@ -202,7 +209,40 @@ class PhylesystemShard(PhylesystemShardBase):
         d = create_id2study_info(study_dir, name)
         rc_dict = diagnose_repo_study_id_convention(path)
         self.filepath_for_study_id_fn = rc_dict['fp_fn']
-        self.filepath_for_global_resource_fn = lambda frag: os.path.join(self.repo_dir, frag)
+        self.filepath_for_global_resource_fn = lambda frag: os.path.join(path, frag)
+        self.id_alias_list_fn = rc_dict['id2alias_list']
+        if rc_dict['convention'] != 'simple':
+            a = {}
+            for k, v in d.items():
+                alias_list = self.id_alias_list_fn(k)
+                for alias in alias_list:
+                    a[alias] = v
+            d = a
+            self.has_aliases = True
+            self.inferred_study_prefix = True
+            self.infer_study_prefix()
+        else:
+            self.inferred_study_prefix = False
+        self.study_dir = study_dir
+        with self._index_lock:
+            self._locked_refresh_study_ids()
+        self.parent_path = os.path.split(path)[0] + '/'
+        self.git_dir = dot_git
+        self.push_mirror_repo_path = push_mirror_repo_path
+        if repo_nexml2json is None:
+            try:
+                repo_nexml2json = get_config_setting_kwargs(None, 'phylesystem', 'repo_nexml2json', **kwargs)
+            except:
+                pass
+            if repo_nexml2json == None:
+                repo_nexml2json = self.diagnose_repo_nexml2json()
+        self.repo_nexml2json = repo_nexml2json
+        self._next_study_id = None
+        self._study_counter_lock = None
+    def _locked_refresh_study_ids(self):
+        d = create_id2study_info(self.study_dir, self.name)
+        rc_dict = diagnose_repo_study_id_convention(self.path)
+        self.filepath_for_study_id_fn = rc_dict['fp_fn']
         self.id_alias_list_fn = rc_dict['id2alias_list']
         if rc_dict['convention'] != 'simple':
             a = {}
@@ -214,21 +254,18 @@ class PhylesystemShard(PhylesystemShardBase):
             self.has_aliases = True
         else:
             self.has_aliases = False
-
         self._study_index = d
-        self.path = path
-        self.parent_path = os.path.split(path)[0] + '/'
-        self.git_dir = dot_git
-        self.study_dir = study_dir
-        if repo_nexml2json is None:
-            try:
-                repo_nexml2json = get_config('phylesystem', 'repo_nexml2json')
-            except:
-                pass
-            if repo_nexml2json == None:
-                repo_nexml2json = self.diagnose_repo_nexml2json()
-        self.repo_nexml2json = repo_nexml2json
-        self._next_study_id = None
+    def infer_study_prefix(self):
+        prefix_file = os.path.join(self.path, 'new_study_prefix')
+        if os.path.exists(prefix_file):
+            pre_content = open(prefix_file, 'rU').read().strip()
+            valid_pat = re.compile('^[a-zA-Z0-9]+_$')
+            if len(pre_content) != 3 or not valid_pat.match(pre_content):
+                raise ValueError('Expecting prefix in new_study_prefix file to be two '\
+                                 'letters followed by an underscore')
+            self._new_study_prefix = pre_content
+        else:
+            self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
 
     def register_new_study(self, study_id):
         pass
@@ -320,6 +357,12 @@ class PhylesystemShard(PhylesystemShardBase):
                               git_ssh=self.git_ssh,
                               pkey=self.pkey,
                               path_for_study_fn=self.filepath_for_study_id_fn)
+    def pull(self, remote='origin', branch_name='master'):
+        with self._index_lock:
+            ga = self.create_git_action()
+            from peyotl.phylesystem.git_workflows import _pull_gh
+            _pull_gh(ga, remote, branch_name)
+            self._locked_refresh_study_ids()
     def _advance_new_study_id(self):
         ''' ASSUMES the caller holds the _study_counter_lock !
         Returns the current numeric part of the next study ID, advances
@@ -463,7 +506,7 @@ def _invert_dict_list_val(d):
     return o
 _CACHE_REGION_CONFIGURED = False
 _REGION = None
-def _make_phylesystem_cache_region():
+def _make_phylesystem_cache_region(**kwargs):
     '''Only intended to be called by the Phylesystem singleton.
     '''
     global _CACHE_REGION_CONFIGURED, _REGION
@@ -503,7 +546,7 @@ def _make_phylesystem_cache_region():
     trying_file_dbm = False
     if trying_file_dbm:
         _LOG.debug('Going to try dogpile.cache.dbm ...')
-        first_par = _get_phylesystem_parent()[0]
+        first_par = _get_phylesystem_parent(**kwargs)[0]
         cache_db_dir = os.path.split(first_par)[0]
         cache_db = os.path.join(cache_db_dir, 'phylesystem-cachefile.dbm')
         _LOG.debug('dogpile.cache region using "{}"'.format(cache_db))
@@ -531,6 +574,10 @@ class _PhylesystemBase(object):
     '''Impl. of some basic functionality that a _Phylesystem or _PhylesystemProxy
     can provide.
     '''
+    def __init__(self):
+        self._index_lock = Lock() #TODO should invent a fake lock for the proxies
+        self._study2shard_map = {}
+        self._shards = []
     #pylint: disable=E1101
     def get_repo_and_path_fragment(self, study_id):
         '''For `study_id` returns a list of:
@@ -557,14 +604,15 @@ class _PhylesystemBase(object):
         return k
 
 class PhylesystemShardProxy(PhylesystemShardBase):
-    '''Proxy for interacting with external resources if given the
-    configuration of a remote Phylesystem
+    '''Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
     '''
     def __init__(self, config):
+        PhylesystemShardBase.__init__(self, config['name'])
+        # ' ' mimics place of the abspath of repo in path -> relpath mapping
+        self.path = ' '
         self._index_lock = Lock()
         self.name = config['name']
         self.repo_nexml2json = config['repo_nexml2json']
-        self.path = ' ' # mimics place of the abspath of repo in path -> relpath mapping
         self.has_aliases = False
         d = {}
         for study in config['studies']:
@@ -576,11 +624,10 @@ class PhylesystemShardProxy(PhylesystemShardBase):
         self._study_index = d
 
 class PhylesystemProxy(_PhylesystemBase):
-    '''Proxy for interacting with external resources if given the
-    configuration of a remote Phylesystem
+    '''Proxy for interacting with external resources if given the configuration of a remote Phylesystem
     '''
     def __init__(self, config):
-        self._index_lock = Lock()
+        _PhylesystemBase.__init__(self)
         self.repo_nexml2json = config['repo_nexml2json']
         self._shards = []
         for s in config.get('shards', []):
@@ -606,7 +653,8 @@ class _Phylesystem(_PhylesystemBase):
                  git_action_class=GitAction,
                  mirror_info=None,
                  new_study_prefix=None,
-                 infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>'):
+                 infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
+                 **kwargs):
         '''
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
@@ -623,13 +671,14 @@ class _Phylesystem(_PhylesystemBase):
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
         '''
+        _PhylesystemBase.__init__(self)
         if repos_dict is not None:
             self._filepath_args = 'repos_dict = {}'.format(repr(repos_dict))
         elif repos_par is not None:
             self._filepath_args = 'repos_par = {}'.format(repr(repos_par))
         else:
             fmt = '<No arg> default phylesystem_parent from {}'
-            a = _get_phylesystem_parent_with_source()[1]
+            a = _get_phylesystem_parent_with_source(**kwargs)[1]
             self._filepath_args = fmt.format(a)
         push_mirror_repos_par = None
         push_mirror_remote_map = {}
@@ -646,7 +695,7 @@ class _Phylesystem(_PhylesystemBase):
                         e = e_fmt.format(push_mirror_repos_par)
                         raise ValueError(e)
         if repos_dict is None:
-            repos_dict = get_repos(repos_par)
+            repos_dict = get_repos(repos_par, **kwargs)
         shards = []
         repo_name_list = list(repos_dict.keys())
         repo_name_list.sort()
@@ -677,29 +726,21 @@ class _Phylesystem(_PhylesystemBase):
                     raise ValueError(e)
                 for remote_name, remote_url_prefix in push_mirror_remote_map.items():
                     if remote_name in ['origin', 'originssh']:
-                        m = '"{}" is a protected remote name in the mirrored repo setup'.format(remote_name)
+                        f = '"{}" is a protected remote name in the mirrored repo setup'
+                        m = f.format(remote_name)
                         raise ValueError(m)
                     remote_url = remote_url_prefix + '/' + repo_name + '.git'
                     GitAction.add_remote(expected_push_mirror_repo_path, remote_name, remote_url)
                 shard.push_mirror_repo_path = expected_push_mirror_repo_path
                 for remote_name in push_mirror_remote_map.keys():
-                    mga = shard._create_git_action_for_mirror()
+                    mga = shard._create_git_action_for_mirror() #pylint: disable=W0212
                     mga.fetch(remote_name)
             shards.append(shard)
 
-
-        d = {}
-        for s in shards:
-            for k in s.study_index.keys():
-                if k in d:
-                    raise KeyError('study "{i}" found in multiple repos'.format(i=k))
-                d[k] = s
-        self._study2shard_map = d
-        self._index_lock = Lock()
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
-        self._new_study_prefix = self._growing_shard._new_study_prefix
-        self._growing_shard._determine_next_study_id()
+        with self._index_lock:
+            self._locked_refresh_study_ids()
         self.repo_nexml2json = shards[-1].repo_nexml2json
         if with_caching:
             self._cache_region = _make_phylesystem_cache_region()
@@ -707,6 +748,18 @@ class _Phylesystem(_PhylesystemBase):
             self._cache_region = None
         self.git_action_class = git_action_class
         self._cache_hits = 0
+    def _locked_refresh_study_ids(self):
+        '''Assumes that the caller has the _index_lock !
+        '''
+        d = {}
+        for s in self._shards:
+            for k in s.study_index.keys():
+                if k in d:
+                    raise KeyError('study "{i}" found in multiple repos'.format(i=k))
+                d[k] = s
+        self._study2shard_map = d
+        self._new_study_prefix = self._growing_shard._new_study_prefix
+        self._growing_shard._determine_next_study_id()
 
     def _mint_new_study_id(self):
         '''Checks out master branch of the shard as a side effect'''
@@ -893,7 +946,6 @@ class _Phylesystem(_PhylesystemBase):
                 bundle = validate_and_convert_nexson(new_study_nexson,
                                                      repo_nexml2json,
                                                      allow_invalid=True)
-                #nexson, annotation, validation_log, nexson_adaptor = bundle
                 nexson, annotation, nexson_adaptor = bundle[0], bundle[1], bundle[3]
                 r = self.annotate_and_write(git_data=gd,
                                             nexson=nexson,
@@ -935,6 +987,11 @@ class _Phylesystem(_PhylesystemBase):
         for shard in self._shards:
             for study_id, blob in shard.iter_study_filepaths(**kwargs):
                 yield study_id, blob
+    def pull(self, remote='origin', branch_name='master'):
+        with self._index_lock:
+            for shard in self._shards:
+                studies = shard.pull(remote=remote, branch_name=branch_name)
+            self._locked_refresh_study_ids()
 
     def report_configuration(self):
         out = StringIO()

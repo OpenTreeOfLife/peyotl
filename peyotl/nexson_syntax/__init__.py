@@ -112,7 +112,7 @@ def _otu_dict_to_otumap(otu_dict):
     return d
 
 def _get_content_id_from(content, **kwargs):
-    if content in PhyloSchema._no_content_id_types:
+    if content in PhyloSchema._no_content_id_types:  #pylint: disable=W0212
         return None
     elif content == 'tree':
         return kwargs.get('tree_id')
@@ -144,6 +144,9 @@ def _sniff_content_from_kwargs(**kwargs):
     if c_id is not None:
         return 'otu', c_id
     return 'study', None
+
+def get_git_sha(blob):
+    return blob['sha']
 
 def create_content_spec(**kwargs):
     '''Sugar. factory for a PhyloSchema object.
@@ -286,7 +289,8 @@ class PhyloSchema(object):
                     m = m.format('", "'.join(PhyloSchema._otu_label_list))
                     raise ValueError(m)
             self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
-    def get_description(self):
+    @property
+    def description(self):
         if self.format_code == PhyloSchema.NEXSON:
             return 'NexSON v{v}'.format(v=self.version)
         elif self.format_code == PhyloSchema.NEXML:
@@ -295,7 +299,6 @@ class PhyloSchema(object):
             return 'NEXUS'
         elif self.format_code == PhyloSchema.NEWICK:
             return 'Newick'
-    description = property(get_description)
     def can_convert_from(self, src_schema=None): #pylint: disable=W0613
         if self.format_code == PhyloSchema.NEXSON:
             return self.content != 'subtree'
@@ -579,9 +582,9 @@ def convert_nexson_format(blob,
         if sort_arbitrary:
             sort_arbitrarily_ordered_nexson(blob)
         return blob
-    bf2hbf = _is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
-    hbf2bf = _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)
-    if bf2hbf or hbf2bf:
+    two2zero = _is_by_id_hbf(out_nexson_format) and _is_badgerfish_version(current_format)
+    zero2two = _is_by_id_hbf(current_format) and _is_badgerfish_version(out_nexson_format)
+    if two2zero or zero2two:
         # go from 0.0 -> 1.0 then the 1.0->1.2 should succeed without nexml...
         blob = convert_nexson_format(blob,
                                      DIRECT_HONEY_BADGERFISH,
@@ -762,8 +765,8 @@ def quote_newick_name(s, needs_quotes_pattern=_NEWICK_NEEDING_QUOTING):
     return s
 
 def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
-    '''`leaf_labels` is a (list, dict) pair where the list is the order encountered, and
-    the dict maps name to index in the list
+    '''`leaf_labels` is a (list, dict) pair where the list is the order encountered,
+    and the dict maps name to index in the list
     '''
     otu_id = node['@otu']
     otu = otu_group[otu_id]
@@ -804,7 +807,7 @@ def convert_tree_to_newick(tree,
                            needs_quotes_pattern,
                            subtree_id=None,
                            bracket_ingroup=False):
-    assert label_key in PhyloSchema._NEWICK_PROP_VALS
+    assert label_key in PhyloSchema._NEWICK_PROP_VALS #pylint: disable=W0212
     unlabeled_counter = 0
     ingroup_node_id = tree.get('^ot:inGroupClade')
     if subtree_id:

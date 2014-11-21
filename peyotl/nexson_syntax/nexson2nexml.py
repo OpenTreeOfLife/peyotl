@@ -306,3 +306,4 @@ class Nexson2Nexml(NexsonConverter):
                                             key='meta',
                                             key_order=None)
 
+

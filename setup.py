@@ -50,6 +50,15 @@ else:
 
 EXTRA_KWARGS["zip_safe"] = True
 ENTRY_POINTS = {}
+EXTRA_KWARGS['scripts'] = ['scripts/nexson/validate_ot_nexson.py',
+                           'scripts/nexson/nexson_newick.py',
+                           'scripts/nexson/nexson_nexml.py',
+                           'scripts/phylesystem/ot_phylesystem_list_study_property.py',
+                           'scripts/phylesystem/ot_phylesystem_list_study_filepaths.py',
+                           'scripts/phylesystem/ot_phylesystem_list_otu_edited_labels.py',
+                           'scripts/ot_taxon_report',
+                           'scripts/clipeyotl.py',
+                          ]
 
 ###############################################################################
 # setuptools/distuils command extensions
@@ -91,7 +100,9 @@ setup(
                       'sh>=1.08',
                       'locket>=0.1.1',
                       'requests>=2.2.1',
-                      'redis'],
+                      'redis',
+                      'enum34',
+                      'argcomplete', ],
     packages=PACKAGES,
     entry_points=ENTRY_POINTS,
     classifiers=[

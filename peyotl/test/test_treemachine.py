@@ -3,21 +3,20 @@ from peyotl.api import Treemachine, Taxomachine
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
-
 _LOG = get_logger(__name__)
-
+ #pylint: disable=W0713
 class TestTreemachine(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()
         self.treemachine = Treemachine(self.domains)
     def testSourceTree(self):
-        source_id_list = self.treemachine.get_synthetic_tree_id_list()
+        source_id_list = self.treemachine.synthetic_tree_id_list
         self.assertTrue(isinstance(source_id_list, list))
         f = source_id_list[0]
         r = self.treemachine.get_source_tree(**f)
         self.assertTrue(r['newick'].startswith('('))
     def testSynthTree(self):
-        cdict = self.treemachine.get_synthetic_tree_info()
+        cdict = self.treemachine.synthetic_tree_info
         if self.treemachine.use_v1:
             for key in ['draftTreeName', 'startNodeTaxName', 'startNodeID', 'startNodeOTTId']:
                 self.assertTrue(key in cdict)

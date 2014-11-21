@@ -5,19 +5,19 @@ except ImportError:
     from io import StringIO
 from peyotl.api.wrapper import _WSWrapper, APIWrapper, GZIP_REQUEST_HEADERS
 from peyotl.utility.str_util import is_str_type
-from peyotl.nexson_syntax import write_as_json
 from peyotl.utility import write_to_filepath
+from peyotl.nexson_syntax import write_as_json
 import datetime
 import anyjson
 import requests
 import gzip
-from peyotl import get_logger
+from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 
 class _PhylografterWrapper(_WSWrapper):
-    def __init__(self, domain):
-        _WSWrapper.__init__(self, domain)
+    def __init__(self, domain, **kwargs):
+        _WSWrapper.__init__(self, domain, **kwargs)
     def get_modified_list(self, since_date="2010-01-01T00:00:00", list_only=True):
         '''Calls phylografter's modified_list.json to fetch
         a list of all studies that have changed since `since_date`

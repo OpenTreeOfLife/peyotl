@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # python 2 to 3 dealing with unicode....
 import sys
 if sys.version_info.major == 2:
@@ -16,7 +16,7 @@ if sys.version_info.major == 2:
     def flush_utf_8_writer(wrapper):
         wrapper.reset()
 else:
-    from io import StringIO
+    from io import StringIO #pylint: disable=E0611
     UNICODE = str
     def is_str_type(x):
         return isinstance(x, str)

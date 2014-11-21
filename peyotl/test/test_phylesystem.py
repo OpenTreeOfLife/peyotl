@@ -7,6 +7,7 @@ import os
 _repos = pathmap.get_test_repos()
 ms, mp = _repos['mini_system'], _repos['mini_phyl']
 
+#pylint: disable=W0212
 @unittest.skipIf((not os.path.isdir(ms)) or (not os.path.isdir(mp)),
                  'Peyotl not configured for maintainer test of mini_phyl/system.' \
                  'Skipping this test is normal (for everyone other than MTH and EJBM).')
@@ -23,8 +24,12 @@ class TestPhylesystem(unittest.TestCase):
         self.assertEqual(k, ['10', '11', '12', '9'])
     def testURL(self):
         p = _Phylesystem(repos_dict=self.r)
+        self.assertTrue(p.get_public_url('9').endswith('9.json'))
     def testStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
+        k = list(p.get_study_ids())
+        k.sort()
+        self.assertEqual(k, ['10', '11', '12', '9'])
     def testNextStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
         mf = p._growing_shard._id_minting_file

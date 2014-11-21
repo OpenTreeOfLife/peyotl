@@ -13,7 +13,9 @@ from peyotl.utility import get_logger
 import unittest
 import os
 _LOG = get_logger(__name__)
-
+#pylint does not realize that serialize returns a string, so generates lots of
+#   spurious errors
+#pylint: disable=E1103
 # round trip filename tuples
 RT_DIRS = ['otu', '9', ]
 

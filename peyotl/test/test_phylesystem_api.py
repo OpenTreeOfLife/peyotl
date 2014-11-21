@@ -63,8 +63,8 @@ class TestPhylesystemAPI(unittest.TestCase):
     def testExternalURL(self):
         pa = PhylesystemAPI(self.domains, get_from='api')
         u = pa.get_external_url('pg_10')
-        r = requests.get(u).json()
-        sid = find_val_literal_meta_first(r['nexml'], 'ot:studyId', detect_nexson_version(r))
+        re = requests.get(u).json()
+        sid = find_val_literal_meta_first(re['nexml'], 'ot:studyId', detect_nexson_version(re))
         self.assertTrue(sid in ['10', 'pg_10'])
 
 if __name__ == "__main__":

@@ -4,7 +4,8 @@ from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         get_nexml_el, \
                                         _get_index_list_of_values, \
                                         _index_list_of_values, \
-                                        BY_ID_HONEY_BADGERFISH
+                                        BY_ID_HONEY_BADGERFISH, \
+                                        NexsonError
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
@@ -93,8 +94,6 @@ class Direct2OptimalNexson(NexsonConverter):
         converts it to BY_ID_HONEY_BADGERFISH version. The object is modified in place
         and returned.
         '''
-        from peyotl.nexson_validation.helper import NexsonError
-
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 

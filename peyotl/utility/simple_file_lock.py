@@ -2,7 +2,7 @@
 from peyotl.utility.io import open_for_group_write
 import time
 import os
-from peyotl import get_logger
+from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 class LockPolicy(object):
@@ -39,7 +39,7 @@ class LockPolicy(object):
         except:
             _LOG.exception('Could not create lockfile.')
             try:
-                self._remove_lock(lockfile)
+                LockPolicy._remove_lock(lockfile)
             except:
                 _LOG.exception('Could not remove lockfile.')
             return previously_existed, False
@@ -57,10 +57,11 @@ class LockPolicy(object):
     def remove_lock(self):
         try:
             if self.curr_lockfile and self.curr_owns_lock:
-                self._remove_lock(self.curr_lockfile)
+                LockPolicy._remove_lock(self.curr_lockfile)
         finally:
             self._reset_current()
-    def _remove_lock(self, lockfile): #pylint: disable=R0201
+    @staticmethod
+    def _remove_lock(lockfile):
         if os.path.exists(lockfile):
             os.remove(lockfile)
 

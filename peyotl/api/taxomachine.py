@@ -1,7 +1,7 @@
 #!/usr/bin/env python
+from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import anyjson
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 class _TaxomachineAPIWrapper(_WSWrapper):
@@ -96,8 +96,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 data['contextName'] = context_name
             else:
                 data['context_name'] = context_name
-                if fuzzy_matching:
-                    data['do_approximate_matching'] = True
+                data['do_approximate_matching'] = bool(fuzzy_matching)
                 if id_list:
                     data['ids'] = list(id_list)
                 if include_deprecated:
@@ -136,23 +135,36 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         uri = '{p}/infer_context'.format(p=self.prefix)
         data = {'names': names}
         return self.json_http_post(uri, data=anyjson.dumps(data))
-    def __init__(self, domain):
-        self.use_v1 = False
+    def __init__(self, domain, **kwargs):
+        self._config = get_config_object(None, **kwargs)
+        self._api_vers = self._config.get_from_config_setting_cascade([('apis', 'taxomachine_api_version'),
+                                                                       ('apis', 'api_version')],
+                                                                      "2")
+        self.use_v1 = (self._api_vers == "1")
+        r = self._config.get_from_config_setting_cascade([('apis', 'taxomachine_raw_urls'),
+                                                          ('apis', 'raw_urls')],
+                                                         "FALSE")
+        self._raw_urls = (r.lower() == 'true')
         self._contexts = None
         self._valid_contexts = None
         self.prefix = None
-        _WSWrapper.__init__(self, domain)
-        self.set_domain(domain)
-    def set_domain(self, d):
+        _WSWrapper.__init__(self, domain, **kwargs)
+        self.domain = domain
+    @property
+    def domain(self):
+        return self._domain
+    @domain.setter
+    def domain(self, d):#pylint: disable=W0221
         self._contexts = None
         self._valid_contexts = None
         self._domain = d
-        if self.use_v1:
+        if self._raw_urls:
             self.prefix = '{d}/taxomachine/ext/TNRS/graphdb'.format(d=d)
+        elif self.use_v1:
+            self.prefix = '{d}/taxomachine/v1'.format(d=d)
         else:
             self.prefix = '{d}/v2/tnrs'.format(d=d)
             self.taxonomy_prefix = '{d}/v2/taxonomy'.format(d=d)
-    domain = property(_WSWrapper.get_domain, set_domain)
     def info(self):
         if self.use_v1:
             raise NotImplementedError('"about" method not implemented')
@@ -190,7 +202,8 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         else:
             uri = '{p}/contexts'.format(p=self.prefix)
         return self.json_http_post(uri)
-    def _get_valid_contexts(self):
+    @property
+    def valid_contexts(self):
         if self._valid_contexts is None:
             c = self.contexts()
             v = set()
@@ -198,7 +211,36 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 v.update(cn)
             self._valid_contexts = v
         return self._valid_contexts
-    valid_contexts = property(_get_valid_contexts)
+
+    def names_to_ott_ids_perfect(self, names, **kwargs):
+        '''delegates a call to TNRS (same arguments as that function).
+
+        Returns a list of (non-dubious) OTT IDs in the same order as the original names.
+        Raises a ValueError if each name does not have exactly one perfect, non-dubious
+        (score = 1.0) match in the TNRS results.
+        '''
+        results = self.TNRS(names, **kwargs)['results']
+        d = {}
+        for blob in results:
+            query_name = blob["id"]
+            m = blob["matches"]
+            perf_ind = None
+            for i, poss_m in enumerate(m):
+                if (not poss_m['is_approximate_match']) and (not poss_m['is_dubious']):
+                    if perf_ind is None:
+                        perf_ind = i
+                    else:
+                        raise ValueError('Multiple matches for "{q}"'.format(q=query_name))
+            if perf_ind is None:
+                raise ValueError('No matches for "{q}"'.format(q=query_name))
+            d[query_name] = m[perf_ind]['ot:ottId']
+        ret = []
+        for query_name in names:
+            ni = d.get(query_name)
+            if ni is None:
+                raise ValueError('No matches for "{q}"'.format(q=query_name))
+            ret.append(ni)
+        return ret
 
 def Taxomachine(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).taxomachine

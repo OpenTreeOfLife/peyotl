@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+from peyotl.utility import get_logger
 import re
-from peyotl import get_logger
 _LOG = get_logger(__name__)
 
 class FragType(object):
@@ -92,7 +92,7 @@ _CAN_PRECEED = {
     FragType.AFF: _NONLETTERS,
 }
 
-class RE:
+class RE:#pylint: disable=C1001
     _HIGHER_TAXON_CS_STR = r'([-A-Z][a-z]{2,})'
     _HIGHER_TAXON_CS = re.compile('([-A-Z][a-z]{2,})')
     _HIGHER_TAXON_CS_FULL = re.compile('^([-A-Z][a-z]{2,})$')
@@ -164,24 +164,24 @@ def attempt_to_create_taxonomic_regex_from_words(word_list, is_first):
     if not isinstance(word_list, set):
         word_list = set(word_list)
     if is_first:
-        if _matches_all(word_list, RE._HIGHER_TAXON_CS_FULL):
+        if _matches_all(word_list, RE._HIGHER_TAXON_CS_FULL): #pylint: disable=E1101
             return {'regex': RE._HIGHER_TAXON_CS_STR, 'code': FragType._HIGHER_TAXON_CS, 'num_groups':1}
     else:
         if _matches_all(word_list, RE._VAR_FULL):
             return {'regex': RE._VAR_STR, 'code': FragType.VAR, 'num_groups':1}
         if _matches_all(word_list, RE._SP_FULL):
             return {'regex': RE._SP_STR, 'code': FragType.SP, 'num_groups':1}
-        if _matches_all(word_list, RE._SSP_FULL):
+        if _matches_all(word_list, RE._SSP_FULL): #pylint: disable=E1101
             return {'regex': RE._SSP_STR, 'code': FragType.SSP, 'num_groups':1}
-        if _matches_all(word_list, RE._CF_FULL):
+        if _matches_all(word_list, RE._CF_FULL): #pylint: disable=E1101
             return {'regex': RE._CF_STR, 'code': FragType.CF, 'num_groups':1}
-        if _matches_all(word_list, RE._AFF_FULL):
+        if _matches_all(word_list, RE._AFF_FULL): #pylint: disable=E1101
             return {'regex': RE._AFF_STR, 'code': FragType.AFF, 'num_groups':1}
-        if _matches_all(word_list, RE._EPITHET_CS_FULL):
+        if _matches_all(word_list, RE._EPITHET_CS_FULL): #pylint: disable=E1101
             return {'regex': RE._EPITHET_CS_STR, 'code': FragType.EPITHET_CASE_S, 'num_groups':1}
-    if _matches_all(word_list, RE._GENBANK_FULL):
+    if _matches_all(word_list, RE._GENBANK_FULL): #pylint: disable=E1101
         return {'regex': RE._GENBANK_STR, 'code': FragType.CF, 'num_groups':1}
-    if _matches_all(word_list, RE._TAXON_CI_FULL):
+    if _matches_all(word_list, RE._TAXON_CI_FULL): #pylint: disable=E1101
         return {'regex': RE._TAXON_CI_STR, 'code': FragType._TAXON_CI, 'num_groups':1}
     return None
 
@@ -194,29 +194,29 @@ def _char_set2char_class(cs):
         c = list(cs)[0]
         if c == ' ':
             return dict(regex=' ', code=FragType.SPACE, num_groups=0)
-        if RE._WHITESPACE.match(c):
+        if RE._WHITESPACE.match(c): #pylint: disable=E1101
             return dict(regex=r'\s', code=FragType.WHITESPACE, num_groups=0)
         if RE._PUNCTUATION.match(c):
             return dict(regex=RE._PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
         if RE._NUMBER.match(c):
             return dict(regex=r'[0-9]', code=FragType.NUMBER, num_groups=0)
-        if RE._UC_LETTER.match(c):
+        if RE._UC_LETTER.match(c): #pylint: disable=E1101
             return dict(regex=r'[A-Z]', code=FragType.UC_LETTER, num_groups=0)
-        if RE._LC_LETTER.match(c):
+        if RE._LC_LETTER.match(c): #pylint: disable=E1101
             return dict(regex=r'[A-Z]', code=FragType.LC_LETTER, num_groups=0)
         raise NotImplementedError('regex for "{}"'.format(c))
 
-    if _matches_all(cs, RE._SPACE_FULL):
+    if _matches_all(cs, RE._SPACE_FULL): #pylint: disable=E1101
         return dict(regex=' ', code=FragType.SPACE, num_groups=0)
-    if _matches_all(cs, RE._WHITESPACE_FULL):
+    if _matches_all(cs, RE._WHITESPACE_FULL): #pylint: disable=E1101
         return dict(regex=r'\s', code=FragType.WHITESPACE, num_groups=0)
     if _matches_all(cs, RE._PUNCTUATION_FULL):
         return dict(regex=RE._PUNCTUATION_STR, code=FragType.PUNCTUATION, num_groups=0)
     if _matches_all(cs, RE._NUMBER_FULL):
         return dict(regex=r'[0-9]', code=FragType.NUMBER, num_groups=0)
-    if _matches_all(cs, RE._UC_LETTER_FULL):
+    if _matches_all(cs, RE._UC_LETTER_FULL): #pylint: disable=E1101
         return dict(regex=r'[A-Z]', code=FragType.UC_LETTER, num_groups=0)
-    if _matches_all(cs, RE._LC_LETTER_FULL):
+    if _matches_all(cs, RE._LC_LETTER_FULL): #pylint: disable=E1101
         return dict(regex=r'[A-Z]', code=FragType.LC_LETTER, num_groups=0)
     return None
 
@@ -268,9 +268,9 @@ def _midwords2char_class(word_list, start_ind, end_ind):
         return dict(regex=RE._UC_LETTER_FULL, code=FragType.SPACE, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, RE._WHITESPACE_FULL):
         return dict(regex=RE._WHITESPACE_STR, code=FragType.WHITESPACE, minl=minl, maxl=maxl, num_groups=0)
-    if _matches_all(word_list, RE._PUNCTUATION_FULL):
+    if _matches_all(word_list, RE._PUNCTUATION_FULL): #pylint: disable=E1101
         return dict(regex=RE._PUNCTUATION_STR, code=FragType.PUNCTUATION, minl=minl, maxl=maxl, num_groups=0)
-    if _matches_all(word_list, RE._NUMBER_FULL):
+    if _matches_all(word_list, RE._NUMBER_FULL): #pylint: disable=E1101
         return dict(regex=RE._NUMBER_STR, code=FragType.NUMBER, minl=minl, maxl=maxl, num_groups=0)
     if _matches_all(word_list, RE._UC_LETTER_FULL):
         return dict(regex=RE._UC_LETTER, code=FragType.UC_LETTER, minl=minl, maxl=maxl, num_groups=0)

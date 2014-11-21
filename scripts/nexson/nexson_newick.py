@@ -78,7 +78,14 @@ Environmental variables used:
         out.write('{t}\n'.format(t='\n'.join(tl)))
     else:
         schema = create_content_spec(content='tree', content_id=args.id, format='newick', otu_label=otu_label)
-        schema.convert(src=blob, serialize=True, output_dest=out, src_schema=src_schema)
+        try:
+            schema.convert(src=blob, serialize=True, output_dest=out, src_schema=src_schema)
+        except KeyError:
+            if 'nexml' not in blob and 'nex:nexml' not in blob:
+                blob = blob['data']
+                schema.convert(src=blob, serialize=True, output_dest=out, src_schema=src_schema)
+            else:
+                raise
 
 if __name__ == '__main__':
     _main()

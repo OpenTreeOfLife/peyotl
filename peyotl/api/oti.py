@@ -55,6 +55,7 @@ class _OTIWrapper(_WSWrapper):
         ot:parent
         ot:tag
         ot:treebaseOTUId
+
     Trees can be searched for using:
         is_deprecated
         ot:branchLengthDescription
@@ -74,6 +75,7 @@ class _OTIWrapper(_WSWrapper):
         ot:treebaseOTUId
         ot:treebaseTreeId
         oti_tree_id
+
     Studies can be searched for using:
         is_deprecated
         ot:authorContributed
@@ -285,8 +287,8 @@ class _OTIWrapper(_WSWrapper):
             raise NotImplementedError('Currently only searches for one property/value pair are supported')
         k = list(query_dict.keys())[0]
         if k not in valid_keys:
-            f = '"{k}" is not a valid search term. Expecting it to be one of the following: {kl}'
-            m = f.format(k=k, kl=repr(valid_keys))
+            m = '"{k}" is not a valid search term. Expecting it to be one of the following: {kl}'
+            m = m.format(k=k, kl=repr(valid_keys))
             raise ValueError(m)
         v = query_dict[k]
         if not is_str_type(v):

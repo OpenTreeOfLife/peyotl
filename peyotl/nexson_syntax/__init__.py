@@ -270,8 +270,9 @@ class PhyloSchema(object):
                 if not _is_supported_nexson_vers(self.version):
                     raise ValueError('The "{}" version of NexSON is not supported'.format(self.version))
             except:
-                raise ValueError('Expecting version of NexSON to be specified using "output_nexml2json"' \
-                                 'argument (or via some other mechanism)')
+                msg = 'Expecting version of NexSON to be specified using ' \
+                      '"output_nexml2json" argument (or via some other mechanism)'
+                raise ValueError(msg)
         else:
             if self.content in ['meta']:
                 raise ValueError('The "{}" content can only be returned in NexSON'.format(self.content))
@@ -284,8 +285,8 @@ class PhyloSchema(object):
                 if with_ns in PhyloSchema._otu_label_list:
                     self.otu_label = with_ns
                 else:
-                    f = '"otu_label" or "tip_label" must be one of "{}"'
-                    m = f.format('", "'.join(PhyloSchema._otu_label_list))
+                    m = '"otu_label" or "tip_label" must be one of "{}"'
+                    m = m.format('", "'.join(PhyloSchema._otu_label_list))
                     raise ValueError(m)
             self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
     @property
@@ -368,8 +369,8 @@ class PhyloSchema(object):
             src_format = src_schema.format_code
             current_format = src_schema.version
         if not self.can_convert_from():
-            raise NotImplementedError('Conversion of {c} to {d} is not supported'.format(c=self.content,
-                                                                                         d=self.description))
+            m = 'Conversion of {c} to {d} is not supported'.format(c=self.content, d=self.description)
+            raise NotImplementedError(m)
         if src_format != PhyloSchema.NEXSON:
             raise NotImplementedError('Only conversion from NexSON is currently supported')
         if self.format_code == PhyloSchema.NEXSON:
@@ -386,7 +387,8 @@ class PhyloSchema(object):
                                                  self.content_id,
                                                  current_format)
                 d = {}
-                for i, t, o in i_t_o_list: #pylint: disable=W0612
+                for ito_tup in i_t_o_list:
+                    i, t = ito_tup[0], ito_tup[1]
                     d[i] = t
             elif self.content == 'meta':
                 strip_to_meta_only(d, current_format)
@@ -449,7 +451,7 @@ class PhyloSchema(object):
             # these formats are always serialized...
             if output_dest:
                 output_dest.write(response)
-                output_dest.write('\n');
+                output_dest.write('\n')
             return response
         assert False
 
@@ -1003,8 +1005,8 @@ def extract_tree(nexson, tree_id, schema, subtree_id=None):
     try:
         assert schema.format_str in ['newick', 'nexus']
     except:
-        f = 'Only newick tree export with tip labeling as one of "{}" is currently supported'
-        m = f.format('", "'.join(PhyloSchema._NEWICK_PROP_VALS)) #pylint: disable=W0212
+        m = 'Only newick tree export with tip labeling as one of "{}" is currently supported'
+        m = m.format('", "'.join(PhyloSchema._NEWICK_PROP_VALS))
         raise ValueError(m)
     i_t_o_list = extract_tree_nexson(nexson, tree_id, None)
     if schema.format_str == 'newick':

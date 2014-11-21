@@ -40,8 +40,6 @@ def acquire_lock_raise(git_action, fail_msg=''):
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
 
-#TODO:validate_and_convert_nexson belong in a different part of peyotl
-
 def validate_and_convert_nexson(nexson, output_version, allow_invalid):
     '''Runs the nexson validator and returns a converted 4 object:
         nexson, annotation, validation_log, nexson_adaptor

@@ -71,14 +71,14 @@ class _TreemachineAPIWrapper(_WSWrapper):
             return self._get_tree(uri, tree_id, format=format, node_id=node_id, max_depth=max_depth)
         else:
             uri = '{p}/source_tree'.format(p=self.graph_prefix)
-            study_id = kwargs.get('study_id', '') # should not be kwarg #TODO
+            study_id = kwargs.get('study_id', '')
             if len(study_id) < 3 or study_id[2] != '_':
                 study_id = 'pg_' + study_id
             data = {'git_sha': kwargs.get('git_sha', ''),
                     'study_id': study_id,
                     'tree_id': tree_id}
             return self.json_http_post_raise(uri, data=anyjson.dumps(data))
-    def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, ott_id=None):
+    def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, ott_id=None): #pylint: disable=W0622
         if self.use_v1:
             uri = '{p}/getSyntheticTree'.format(p=self.prefix)
         else:
@@ -113,7 +113,6 @@ class _TreemachineAPIWrapper(_WSWrapper):
         return self.json_http_post_raise(uri, data=anyjson.dumps(data))
     def get_synth_tree_pruned(self, tree_id=None, node_ids=None, ott_ids=None):
         if (tree_id is not None) and (tree_id != self.current_synth_tree_id):
-            #TODO getDraftTreeSubtreeForNodes should take a treeID arg
             raise NotImplementedError("Treemachine's getDraftTreeSubtreeForNodes does not take a tree ID yet")
         data = {}
         if self.use_v1:
@@ -135,7 +134,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
             uri = '{p}/induced_subtree'.format(p=self.prefix)
         return self.json_http_post_raise(uri, data=anyjson.dumps(data))
     induced_subtree = get_synth_tree_pruned
-    def _get_tree(self, uri, tree_id, format='newick', node_id=None, max_depth=None, ott_id=None):
+    def _get_tree(self, uri, tree_id, format='newick', node_id=None, max_depth=None, ott_id=None): #pylint: disable=W0622
         if tree_id is None:
             tree_id = self.current_synth_tree_id
         if node_id is None and ott_id is None:

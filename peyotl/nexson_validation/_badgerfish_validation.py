@@ -17,7 +17,6 @@ from peyotl.nexson_syntax.helper import add_literal_meta, \
 from peyotl.nexson_validation._validation_base import NexsonValidationAdaptor
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
-
 class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger):
         if not hasattr(self, '_syntax_version'):
@@ -102,6 +101,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         return True
 
 
+    #pylint: disable=R0915
     def _post_key_check_validate_tree(self,
                                       tree_nex_id,
                                       tree_obj,
@@ -292,19 +292,19 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
 
         if root_node_id not in with_at_root_prop:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MultipleRootsWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
+                              obj=tree_obj,
+                              err_type=gen_MultipleRootsWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
             return errorReturn('root without "@root"')
         elif len(with_at_root_prop) > 1:
             self._error_event(_NEXEL.TREE,
-                             obj=tree_obj,
-                             err_type=gen_MultipleRootsWarning,
-                             anc=vc.anc_list,
-                             obj_nex_id=tree_nex_id,
-                             node_id_list=list(with_at_root_prop.keys()))
+                              obj=tree_obj,
+                              err_type=gen_MultipleRootsWarning,
+                              anc=vc.anc_list,
+                              obj_nex_id=tree_nex_id,
+                              node_id_list=list(with_at_root_prop.keys()))
             return errorReturn('Multiple nodes with "@root"')
         elif len(with_at_root_prop) == 0:
             self._error_event(_NEXEL.TREE,

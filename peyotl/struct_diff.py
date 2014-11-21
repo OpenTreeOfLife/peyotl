@@ -123,7 +123,6 @@ class ListDiff(object):
         '''
         if src == dest:
             return None
-        #TODO: find best match in list
         trivial_order = [(i, i) for i in range(min(len(src), len(dest)))]
         optimal_order = trivial_order
         src_ind = 0
@@ -259,3 +258,4 @@ class ListElModification(ListEdit):
                                                      o=repr(self.obj))
     def __str__(self):
         return repr(self)
+

@@ -88,8 +88,6 @@ def create_id2study_info(path, tag):
         root, files = triple[0], triple[2]
         for filename in files:
             if filename.endswith('.json'):
-                # if file is in more than one place it gets over written.
-                #TODO EJM Needs work
                 study_id = filename[:-5]
                 d[study_id] = (tag, root, os.path.join(root, filename))
     return d
@@ -138,6 +136,7 @@ class PhylesystemShardBase(object):
         self.name = name
         self.path = ''
         self.has_aliases = False
+    #pylint: disable=E1101
     def get_rel_path_fragment(self, study_id):
         '''For `study_id` returns the path from the
         repo to the study file. This is useful because
@@ -179,7 +178,6 @@ class PhylesystemShard(PhylesystemShardBase):
         self._index_lock = Lock()
         PhylesystemShardBase.__init__(self, name)
         self._infrastructure_commit_author = infrastructure_commit_author
-        self._index_lock = Lock()
         self._study_counter_lock = Lock()
         self._master_branch_repo_lock = Lock()
         self._new_study_prefix = new_study_prefix
@@ -580,6 +578,7 @@ class _PhylesystemBase(object):
         self._index_lock = Lock() #TODO should invent a fake lock for the proxies
         self._study2shard_map = {}
         self._shards = []
+    #pylint: disable=E1101
     def get_repo_and_path_fragment(self, study_id):
         '''For `study_id` returns a list of:
             [0] the repo name and,
@@ -594,8 +593,6 @@ class _PhylesystemBase(object):
     def get_public_url(self, study_id, branch='master'):
         '''Returns a GitHub URL for the
         '''
-        #@TEMP, TODO. should look in the remote to find this. But then it can be tough to determine
-        #       which (if any) remotes are publicly visible... hmmmm
         name, path_frag = self.get_repo_and_path_fragment(study_id)
         return 'https://raw.githubusercontent.com/OpenTreeOfLife/' + name + '/' + branch + '/' + path_frag
     get_external_url = get_public_url
@@ -614,7 +611,7 @@ class PhylesystemShardProxy(PhylesystemShardBase):
         PhylesystemShardBase.__init__(self, config['name'])
         # ' ' mimics place of the abspath of repo in path -> relpath mapping
         self.path = ' '
-
+        self._index_lock = Lock()
         self.name = config['name']
         self.repo_nexml2json = config['repo_nexml2json']
         self.has_aliases = False
@@ -934,7 +931,8 @@ class _Phylesystem(_PhylesystemBase):
         placeholder_added = False
         if new_study_id is not None:
             if new_study_id.startswith(self._new_study_prefix):
-                raise ValueError('Study IDs with the "{}" prefix can only be automatically generated.'.format(self._new_study_prefix))
+                m = 'Study IDs with the "{}" prefix can only be automatically generated.'.format(self._new_study_prefix)
+                raise ValueError(m)
             if not STUDY_ID_PATTERN.match(new_study_id):
                 raise ValueError('Study ID does not match the expected pattern of alphabeticprefix_numericsuffix')
             with self._index_lock:
@@ -950,7 +948,7 @@ class _Phylesystem(_PhylesystemBase):
                 bundle = validate_and_convert_nexson(new_study_nexson,
                                                      repo_nexml2json,
                                                      allow_invalid=True)
-                nexson, annotation, validation_log, nexson_adaptor = bundle #pylint: disable=W0612
+                nexson, annotation, nexson_adaptor = bundle[0], bundle[1], bundle[3]
                 r = self.annotate_and_write(git_data=gd,
                                             nexson=nexson,
                                             study_id=new_study_id,

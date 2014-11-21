@@ -39,7 +39,7 @@ class LockPolicy(object):
         except:
             _LOG.exception('Could not create lockfile.')
             try:
-                self._remove_lock(lockfile)
+                LockPolicy._remove_lock(lockfile)
             except:
                 _LOG.exception('Could not remove lockfile.')
             return previously_existed, False

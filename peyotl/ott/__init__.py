@@ -70,8 +70,8 @@ class OTT(object):
         if ott_dir is None:
             ott_dir = self._config.get_config_setting('ott', 'parent')
         if ott_dir is None:
-            raise ValueError('Either the ott_dir arg must be used or "parent" must exist in '\
-                             'the "[ott]" section of your config (~/.peyotl/config by default)')
+            raise ValueError('Either the ott_dir arg must be used or "parent" must '\
+                             'exist in the "[ott]" section of your config (~/.peyotl/config by default)')
         self.ott_dir = ott_dir
         if not os.path.isdir(self.ott_dir):
             raise ValueError('"{}" is not a directory'.format(self.ott_dir))
@@ -85,7 +85,8 @@ class OTT(object):
     @property
     def version(self):
         if self._version is None:
-            self._version = codecs.open(os.path.join(self.ott_dir, 'version.txt'), 'rU', encoding='utf-8').read().strip()
+            with codecs.open(os.path.join(self.ott_dir, 'version.txt'), 'r', encoding='utf-8') as fo:
+                self._version = fo.read().strip()
         return self._version
     @property
     def taxonomy_filepath(self):
@@ -170,8 +171,8 @@ class OTT(object):
             raise # TODO, clean up
     def _create_pickle_files(self, out_dir=None): #pylint: disable=R0914,R0915
         '''
-           preorder2tuple maps a preorder number to a node definition. 
-           ottID2preorder maps every OTT ID in taxonomy.tsv to a preorder #
+       preorder2tuple maps a preorder number to a node definition.
+       ottID2preorder maps every OTT ID in taxonomy.tsv to a preorder #
         'ottID2preorder'
         'ottID2preorder'
         'preorder2ottID'
@@ -211,9 +212,9 @@ class OTT(object):
             uid = int(root_split[0])
             root_ott_id = uid
             assert root_split[1] == ''
-            name, rank, sourceinfo, uniqname, flags = root_split[2:7] #pylint: disable=W0612
+            name = root_split[2]
+            sourceinfo, uniqname, flags = root_split[4:7]
             self._root_name = name
-
             assert root_split[7] == '\n'
             assert uid not in id2par
             id2par[uid] = NONE_PAR
@@ -250,7 +251,8 @@ class OTT(object):
                 info = {}
             for rown in it:
                 ls = rown.split('\t|\t')
-                uid, par, name, rank, sourceinfo, uniqname, flags = ls[:7]
+                uid, par, name = ls[:3]
+                sourceinfo, uniqname, flags = ls[4:7]
                 skip = False
                 for p in self.skip_prefixes:
                     if uniqname.startswith(p):
@@ -262,6 +264,8 @@ class OTT(object):
                 par = int(par)
                 assert ls[7] == '\n'
                 assert uid not in id2par
+                if par not in id2par:
+                    raise ValueError('parent {} not found in OTT parsing'.format(par))
                 id2par[uid] = par
                 id2name[uid] = name
                 if uniqname:
@@ -373,7 +377,7 @@ class OTT(object):
         ott_id2preorder['root'] = root.preorder_number
         preorder2ott_id['root'] = root_ott_id
         preorder2ott_id['root_preorder'] = root.preorder_number
-        self._root_ott_id =root_ott_id
+        self._root_ott_id = root_ott_id
         self._write_root_properties(out_dir, self._root_name, self._root_ott_id)
         _write_pickle(out_dir, 'ottID2preorder', ott_id2preorder)
         _write_pickle(out_dir, 'preorder2ottID', preorder2ott_id)

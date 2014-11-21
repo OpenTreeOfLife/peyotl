@@ -254,7 +254,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                               err_type=gen_MultipleRootsWarning,
                               anc=vc.anc_list,
                               obj_nex_id=tree_nex_id,
-                              node_id_list=with_at_root_prop.keys() + [root_node_id])
+                              node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
             return errorReturn('root node not labelled as root')
         if not self._validate_internal_node_list(internal_nodes, vc):
             return False

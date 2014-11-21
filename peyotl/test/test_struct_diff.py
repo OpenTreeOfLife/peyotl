@@ -83,15 +83,15 @@ class TestDictDiff(unittest.TestCase):
         self.assertEqual([], ddo_a.deletions_expr(par='obj'))
         self.assertEqual(["obj['key']['a'] = 'cool stuff'",
                           "del obj['key']['are']",
-                          "obj['key']['s'] = 'this'", ],
-                         ddo_a.modification_expr(par='obj'))
+                          "obj['key']['s'] = 'this'",
+                         ], ddo_a.modification_expr(par='obj'))
         ddo_d = DictDiff.create(b, a)
         self.assertEqual(ddo_d.deletions_expr(par='obj'), [])
         self.assertEqual([], ddo_d.additions_expr(par='obj'))
         self.assertEqual(["obj['key']['are'] = ['nes', 'ted']",
                           "del obj['key']['a']",
-                          "obj['key']['s'] = 'that'", ],
-                         ddo_d.modification_expr(par='obj'))
+                          "obj['key']['s'] = 'that'",
+                         ], ddo_d.modification_expr(par='obj'))
         c_a = copy.deepcopy(a)
         self.assertEqual(a, c_a)
         c_b = copy.deepcopy(b)
@@ -132,3 +132,4 @@ class TestDictDiff(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

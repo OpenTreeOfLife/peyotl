@@ -36,7 +36,7 @@ class TestPhyloSchema(unittest.TestCase):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema(type_ext='.nexml', otu_label='otttaxonname')
         nex = ps.serialize(o, src_schema=PhyloSchema('nexson', version='1.2.1'))
-        self.assertTrue(nex.startswith('<'))
+        self.assertTrue(nex.startswith('<')) #pylint: disable=E1103
     def testPS(self):
         self.assertRaises(ValueError, PhyloSchema, schema='bogus')
         self.assertRaises(ValueError, PhyloSchema, content='bogus')
@@ -55,74 +55,74 @@ class TestPhyloSchema(unittest.TestCase):
                          content_id=('tree3', 'node508'),
                          version='1.2.1')
         x = ps.serialize(o)
-        self.assertTrue(x.startswith('('))
+        self.assertTrue(x.startswith('(')) #pylint: disable=E1103
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('newick',
                          content='subtree',
                          content_id=('tree3', 'ingroup'),
                          version='1.2.1')
         x = ps.serialize(o)
-        self.assertTrue(x.startswith('('))
+        self.assertTrue(x.startswith('(')) #pylint: disable=E1103
     def testTreesConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexson', content='tree', content_id='tree3', version='1.2.1')
         x = ps.serialize(o)
-        self.assertTrue(x.startswith('{'))
+        self.assertTrue(x.startswith('{')) #pylint: disable=E1103
     def testMetaConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexson', content='meta', version='1.2.1')
         x = ps.serialize(o)
-        self.assertTrue(x.startswith('{'))
+        self.assertTrue(x.startswith('{')) #pylint: disable=E1103
     def testOtusConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexson', content='otus', version='1.2.1')
         x = ps.serialize(o)
-        self.assertTrue(x.startswith('{'))
+        self.assertTrue(x.startswith('{')) #pylint: disable=E1103
     def testOtuConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexson', content='otu', content_id='otu190', version='1.2.1')
         x = ps.serialize(o)
-        self.assertTrue(x.startswith('{'))
+        self.assertTrue(x.startswith('{')) #pylint: disable=E1103
     def testOtuMapConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexson', content='otumap', version='1.2.1')
         x = ps.serialize(o)
-        self.assertTrue(x.startswith('{'))
+        self.assertTrue(x.startswith('{')) #pylint: disable=E1103
     def testNexmlConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexml')
         nex = ps.serialize(o)
-        self.assertTrue(nex.startswith('<'))
+        self.assertTrue(nex.startswith('<')) #pylint: disable=E1103
 
     def testNexusConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexus', content='tree', content_id='tree3')
         nex = ps.convert(o, serialize=True)
-        self.assertTrue(nex.startswith('#'))
+        self.assertTrue(nex.startswith('#')) #pylint: disable=E1103
 
     def testNexusConvStudyViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema(type_ext='.nex')
         nex = ps.convert(o, serialize=True)
-        self.assertTrue(nex.startswith('#'))
+        self.assertTrue(nex.startswith('#')) #pylint: disable=E1103
 
     def testNewickConvStudyViaPS(self):
         o = pathmap.nexson_obj('9/v1.2.json')
         ps = PhyloSchema(type_ext='.tre')
         nex = ps.convert(o, serialize=True)
-        self.assertTrue(nex.startswith('('))
+        self.assertTrue(nex.startswith('(')) #pylint: disable=E1103
 
     def testNexusConvByExtViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema(None, type_ext='.nex', content='tree', content_id='tree3')
         nex = ps.serialize(o)
-        self.assertTrue(nex.startswith('#'))
+        self.assertTrue(nex.startswith('#')) #pylint: disable=E1103
 
     def testNewickConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('newick', content='tree', content_id='tree3')
         nex = ps.serialize(o)
-        self.assertTrue(nex.startswith('('))
+        self.assertTrue(nex.startswith('(')) #pylint: disable=E1103
 
 
 class TestConvert(unittest.TestCase):
@@ -196,3 +196,4 @@ class TestConvert(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

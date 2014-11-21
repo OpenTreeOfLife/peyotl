@@ -36,16 +36,16 @@ def _run(cmd, stdout=None, stderr=subprocess.STDOUT):
         pr = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
         rc = pr.wait()
     except:
-       rc = -1
+        rc = -1
     if rc != 0:
         f = "The external program invocation:\n  '{i}'\nfrom '{d}' failed."
         m = f.format(i="' '".join(cmd), d=os.path.abspath(os.curdir))
         raise RuntimeError(m)
 
 def treemachine_load_taxonomy(java_invoc,
-                           treemachine_jar_path,
-                           ott,
-                           taxonomy_db):
+                              treemachine_jar_path,
+                              ott,
+                              taxonomy_db):
     _bail_if_file_not_found('taxonomy', ott.taxonomy_filepath)
     _bail_if_file_not_found('synonym', ott.synonyms_filepath)
     java_invoc = _treemachine_start(java_invoc, treemachine_jar_path)
@@ -254,7 +254,12 @@ class GraphCommander(PropertiesFromConfig):
             f = '"{}" does not exist, so I can not tell what studies have been loaded'
             raise RuntimeError(f.format(loaded_trees_json))
         loaded = read_as_json(loaded_trees_json)
-        return treemachine_synthesize(self.java_invoc, self.treemachine_jar, synth_db, synth_ott_id, loaded, log_filepath)
+        return treemachine_synthesize(self.java_invoc,
+                                      self.treemachine_jar,
+                                      synth_db,
+                                      synth_ott_id,
+                                      loaded,
+                                      log_filepath)
 
     def extract_synthesis(self):
         synth_db = self.synthesis_db

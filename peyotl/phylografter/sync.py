@@ -17,7 +17,8 @@ def get_processing_paths_from_prefix(pref,
                                      nexson_state_db=None):
     d = {'nexson': os.path.abspath(os.path.join(nexson_dir, 'study', pref + '.json')),
          'nexson_state_db': nexson_state_db,
-         'study': pref, }
+         'study': pref,
+        }
     assert nexson_state_db is not None
     return d
 
@@ -40,7 +41,8 @@ def get_previous_set_of_dirty_nexsons(dir_dict):
         old = {'from': '2010-01-01T00:00:00',
                'to': datetime.datetime.now(),
                'to_download_from_pg': [],
-               'to_upload_to_phylesystem': [], }
+               'to_upload_to_phylesystem': [],
+              }
     return set(old['to_download_from_pg']), old
 
 def store_state_JSON(s, fp):

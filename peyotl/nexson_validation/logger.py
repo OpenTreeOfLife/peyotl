@@ -152,7 +152,8 @@ class DefaultRichLogger(object):
                            author_version=VERSION,
                            url='https://github.com/OpenTreeOfLife/peyotl',
                            description=None,
-                           annotation_label=None): #@TEMP arg for backward compat.
+                           annotation_label=None #@TEMP arg for backward compat.
+                          ):
         if description is None:
             description = "validator of NexSON constraints as well as constraints "\
                           "that would allow a study to be imported into the Open Tree "\
@@ -188,7 +189,8 @@ class DefaultRichLogger(object):
                 {'name': 'pythonVersion',
                  'value': platform.python_version()},
                 {'name': 'pythonImplementation',
-                 'value': platform.python_implementation(), },
+                 'value': platform.python_implementation(),
+                },
             ]
         }
         agent = {

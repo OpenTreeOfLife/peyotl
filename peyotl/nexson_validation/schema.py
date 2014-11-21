@@ -323,10 +323,11 @@ _Exp_NexmlEl_ByI = {'otusById': _VT.DICT,
                    }
 _All_NexmlEl_All = {'@about': _VT.STR,
                     '@generator': _VT.STR,
-                    '@nexmljson': _VT.STR, # TODO: should be the purl. Move to xmlns?
+                    '@nexmljson': _VT.STR,
                     '@version': _VT.STR,
                     '@xmlns': _VT.DICT,
-                    '@nexml2json': _VT.STR, }
+                    '@nexml2json': _VT.STR,
+                   }
 _ExpMNexmlEl_All = {'ot:dataDeposit': _VT.HREF,
                     'ot:studyPublication': _VT.HREF,
                     'ot:studyPublicationReference': _VT.STR,
@@ -454,11 +455,14 @@ _v0_0_Otu = _SchemaFragment(required=_Req_OtuEl_Dir,
 # trees element schema
 _Req_TreesEl_ByI = {'@otus': _VT.STR,
                     'treeById': _VT.DICT,
-                    '^ot:treeElementOrder': _VT.STR_LIST, }
+                    '^ot:treeElementOrder': _VT.STR_LIST,
+                   }
 _Req_TreesEl_Dir = {'@id': _VT.STR,
                     '@otus': _VT.STR,
-                    'tree': _VT.LIST_OR_DICT, }
-_All_TreesEl_Dir = {'@about': _VT.STR, }
+                    'tree': _VT.LIST_OR_DICT,
+                   }
+_All_TreesEl_Dir = {'@about': _VT.STR,
+                   }
 
 _v1_2_Trees = _SchemaFragment(required=_Req_TreesEl_ByI,
                               expected=_EMPTY_DICT,
@@ -496,20 +500,25 @@ _Req_TreeEl_Dir = {'edge': _VT.LIST,
                   }
 _Exp_TreeEl_All = {'@xsi:type': _VT.STR, # could be a choice...
                   }
-_All_TreeEl_ByI = {'@label': _VT.STR, }
+_All_TreeEl_ByI = {'@label': _VT.STR,
+                  }
 _All_TreeEl_Dir = {'@about': _VT.STR,
-                   '@label': _VT.STR, }
-_ReqMTreeEl_ByI = {'ot:rootNodeId': _VT.STR, }
+                   '@label': _VT.STR,
+                  }
+_ReqMTreeEl_ByI = {'ot:rootNodeId': _VT.STR,
+                  }
 _ReqMTreeEl_Dir = _EMPTY_DICT
 _ExpMTreeEl_All = {'ot:branchLengthDescription': _VT.STR,
                    'ot:branchLengthTimeUnit': _VT.STR,
                    'ot:branchLengthMode': _VT.STR,
                    'ot:curatedType': _VT.STR,
                    'ot:inGroupClade': _VT.STR,
-                   'ot:outGroupEdge': _VT.STR, }
+                   'ot:outGroupEdge': _VT.STR,
+                  }
 _TypMTreeEl_All = {'ot:specifiedRoot': _VT.STR,
                    'ot:tag': _VT.STR_REPEATABLE_EL,
-                   'ot:unrootedTree': _VT.BOOL, }
+                   'ot:unrootedTree': _VT.BOOL,
+                  }
 _v1_2_Tree = _SchemaFragment(required=_Req_TreeEl_ByI,
                              expected=_Exp_TreeEl_All,
                              allowed=_All_TreeEl_ByI,
@@ -574,7 +583,7 @@ _Req_IntNEl_ByI = _EMPTY_DICT
 _Req_IntNEl_Dir = {'@id': _VT.STR,
                   }
 _All_IntNEl_ByI = {'@root': _VT.BOOL,
-                  '@otu': _VT.STR
+                   '@otu': _VT.STR
                   }
 _All_IntNEl_Dir = {'@about': _VT.STR,
                    '@root': _VT.BOOL,

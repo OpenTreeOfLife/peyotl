@@ -216,7 +216,6 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         '''delegates a call to TNRS (same arguments as that function).
 
         Returns a list of (non-dubious) OTT IDs in the same order as the original names.
-        
         Raises a ValueError if each name does not have exactly one perfect, non-dubious
         (score = 1.0) match in the TNRS results.
         '''

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 from peyotl.utility.str_util import UNICODE, is_str_type
-from peyotl.nexson_syntax import write_as_json
-from peyotl.utility.io import write_to_filepath
 from peyotl.utility import get_config_object, get_logger
 import requests
 import warnings
@@ -134,7 +132,7 @@ class APIWrapper(object):
         return self._oti
     def wrap_phylesystem_api(self, **kwargs):
         from peyotl.api.phylesystem_api import _PhylesystemAPIWrapper
-        cfrom = self._config.get_config_setting('apis', 
+        cfrom = self._config.get_config_setting('apis',
                                                 'phylesystem_get_from',
                                                 self._phylesystem_api_kwargs.get('get_from', 'external'))
         ctrans = self._config.get_config_setting('apis',
@@ -142,7 +140,7 @@ class APIWrapper(object):
                                                  self._phylesystem_api_kwargs.get('transform', 'client'))
         crefresh = self._config.get_config_setting('apis',
                                                    'phylesystem_refresh',
-                                                    self._phylesystem_api_kwargs.get('refresh', 'never'))
+                                                   self._phylesystem_api_kwargs.get('refresh', 'never'))
         if cfrom:
             kwargs.setdefault('get_from', cfrom)
         if ctrans:
@@ -241,7 +239,7 @@ class _TNRSServicesWrapper(object):
     def infer_context(self, *valist, **kwargs):
         return self.taxomachine.infer_context(*valist, **kwargs)
 
-class _StudyServicesWrapper (object):
+class _StudyServicesWrapper(object):
     def __init__(self, phylesystem_api, **kwargs):
         self.phylesytem_wrapper = phylesystem_api
     def get(self, *valist, **kwargs):
@@ -307,11 +305,12 @@ _VERB_TO_METHOD_DICT = {
 class _WSWrapper(object):
     def __init__(self, domain, **kwargs):
         self._domain = domain
+    #pylint: disable=W0102
     def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False): #pylint: disable=W0102
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
         with warnings.catch_warnings():
             try:
-                warnings.simplefilter("ignore", ResourceWarning)
+                warnings.simplefilter("ignore", ResourceWarning) #pylint: disable=E0602
             except NameError:
                 pass # on py2.7 we don't have ResourceWarning, but we don't need to filter...
             return self._do_http(url, 'GET', headers=headers, params=params, data=None, text=text)
@@ -319,7 +318,7 @@ class _WSWrapper(object):
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
         with warnings.catch_warnings():
             try:
-                warnings.simplefilter("ignore", ResourceWarning)
+                warnings.simplefilter("ignore", ResourceWarning) #pylint: disable=E0602
             except NameError:
                 pass # on py2.7 we don't have ResourceWarning, but we don't need to filter...
             return self._do_http(url, 'PUT', headers=headers, params=params, data=data, text=text)
@@ -327,7 +326,7 @@ class _WSWrapper(object):
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
         with warnings.catch_warnings():
             try:
-                warnings.simplefilter("ignore", ResourceWarning)
+                warnings.simplefilter("ignore", ResourceWarning) #pylint: disable=E0602
             except NameError:
                 pass # on py2.7 we don't have ResourceWarning, but we don't need to filter...
             return self._do_http(url, 'POST', headers=headers, params=params, data=data, text=text)
@@ -361,3 +360,4 @@ class _WSWrapper(object):
     @domain.setter
     def domain(self, d):
         self._domain = d
+

@@ -2,8 +2,8 @@
 from peyotl.utility import get_logger
 from peyotl.nexson_syntax.helper import add_literal_meta, \
                                         detect_nexson_version, \
-                                        find_val_literal_meta_first, \
-                                        write_as_json
+                                        find_val_literal_meta_first
+from peyotl.nexson_syntax import write_as_json
 from peyotl.nexson_syntax import convert_nexson_format, BY_ID_HONEY_BADGERFISH
 
 _LOG = get_logger(__name__)
@@ -164,7 +164,8 @@ def _add_defaults(obj):
                        "^ot:branchLengthMode",
                        "^ot:branchLengthTimeUnit",
                        "^ot:outGroupEdge",
-                       "^ot:specifiedRoot", ]
+                       "^ot:specifiedRoot",
+                      ]
     #_LOG.debug('nex ' + str(nex.keys()) + '\n')
     for tree_group in nex.get('treesById', {}).values():
         #_LOG.debug('tg ' + str(tree_group.keys()) + '\n')

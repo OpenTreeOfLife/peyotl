@@ -6,7 +6,7 @@ __all__ = ['io', 'simple_file_lock', 'str_util']
 try:
     from cStringIO import StringIO
 except ImportError:
-    from io import StringIO
+    from io import StringIO #pylint: disable=E0611
 import logging
 import json
 import time
@@ -97,7 +97,6 @@ def get_logger(name="peyotl"):
     if len(logger.handlers) == 0:
         lc = _LOGGING_CONF
         if 'level' not in lc:
-            # TODO need some easy way to figure out whether we should use env vars or config
             if _LOGGING_LEVEL_ENVAR in os.environ:
                 lc['level_name'] = os.environ.get(_LOGGING_LEVEL_ENVAR)
                 lc['formatter_name'] = os.environ.get(_LOGGING_FORMAT_ENVAR)
@@ -173,15 +172,21 @@ def get_config(section=None, param=None, default=None, cfg=None, warn_on_none_le
     If the parameter (or the section) is missing, the exception is logged and
         None is returned.
     '''
-    read_filenames = None
     if cfg is None:
         try:
             cfg, read_filenames = read_config()
         except:
             return default
+    else:
+        read_filenames = None
     if section is None and param is None:
         return _CONFIG
-    return get_config_setting(_CONFIG, section, param, default, config_filename=_CONFIG_FN, warn_on_none_level=warn_on_none_level)
+    return get_config_setting(_CONFIG,
+                              section,
+                              param,
+                              default,
+                              config_filename=read_filenames,
+                              warn_on_none_level=warn_on_none_level)
 
 def get_config_setting(config_obj, section, param, default=None, config_filename='', warn_on_none_level=logging.WARN):
     '''Read (section, param) from `config_obj`. If not found, return `default`
@@ -189,7 +194,7 @@ def get_config_setting(config_obj, section, param, default=None, config_filename
     If the setting is not found and `default` is None, then an warn-level message is logged.
     `config_filename` can be None, filepath or list of filepaths - it is only used for logging.
 
-    If warn_on_none_level is None (or lower than the logging level) message for falling through to 
+    If warn_on_none_level is None (or lower than the logging level) message for falling through to
         a `None` default will be suppressed.
     '''
     try:
@@ -234,7 +239,7 @@ class ConfigWrapper(object):
         file will be used. overrides is a 2-level dictionary of section/param entries that will
         be used instead of the setting.
         The two default dicts will be used if the setting is not in overrides or the config object.
-        "dominant" and "fallback" refer to whether the rank higher or lower than the default 
+        "dominant" and "fallback" refer to whether the rank higher or lower than the default
         value in a get.*setting.*() call
         '''
         self._config_filename = config_filename
@@ -250,7 +255,7 @@ class ConfigWrapper(object):
         self._fallback_defaults = fallback_defaults
     def get_from_config_setting_cascade(self, sec_param_list, default=None, warn_on_none_level=logging.WARN):
         '''return the first non-None setting from a series where each
-        element in `sec_param_list` is a section, param pair suitable for 
+        element in `sec_param_list` is a section, param pair suitable for
         a get_config_setting call.
 
         Note that non-None values for overrides or dominant_defaults will cause
@@ -300,7 +305,6 @@ class ConfigWrapper(object):
         k.update(from_raw.keys())
         k = list(k)
         k.sort()
-        setting_set = {}
         for key in k:
             ov_set = self._override.get(key, {})
             fr_set = from_raw.get(key, {})
@@ -313,7 +317,9 @@ class ConfigWrapper(object):
                 if param in ov_set:
                     out.write('#{p} from override\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
                 else:
-                    out.write('#{p} from {f}\n{p} = {s}\n' .format(p=param, s=str(fr_set[param]), f=self._config_filename))
+                    out.write('#{p} from {f}\n{p} = {s}\n' .format(p=param,
+                                                                   s=str(fr_set[param]),
+                                                                   f=self._config_filename))
 
 def create_overrides_from_config(config, config_filename):
     '''Returns a dictionary of all of the settings in a config file. the
@@ -398,7 +404,7 @@ def get_test_config(overrides=None):
     try:
         from ConfigParser import SafeConfigParser
     except ImportError:
-        from configparser import ConfigParser as SafeConfigParser
+        from configparser import ConfigParser as SafeConfigParser #pylint: disable=F0401
     _CONFIG_FN = os.path.abspath('test.conf')
     _CONFIG = SafeConfigParser()
     _CONFIG.read(_CONFIG_FN)

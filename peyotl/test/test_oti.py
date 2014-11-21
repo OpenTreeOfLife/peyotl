@@ -39,8 +39,6 @@ class TestOTI(unittest.TestCase):
             qd = {'bogus key': 'Aponogeoton ulvaceus 1 2'}
             self.assertRaises(ValueError, self.oti.find_nodes, qd)
     def testTreeTerms(self):
-        t_set = self.oti.tree_search_term_set
-        self.assertTrue(bool(t_set))
         qd = {'ot:ottTaxonName': 'Aponogeton ulvaceus'}
         if self.oti.use_v1:
             nl = self.oti.find_trees(qd)
@@ -54,3 +52,4 @@ class TestOTI(unittest.TestCase):
         self.assertRaises(ValueError, self.oti.find_trees, qd)
 if __name__ == "__main__":
     unittest.main(verbosity=5)
+

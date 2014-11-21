@@ -10,12 +10,6 @@ from sh import git
 import sh
 import re
 import os
-import locket
-import codecs
-from peyotl.utility import get_logger
-import shutil
-from peyotl.nexson_syntax import write_as_json
-import tempfile #@TEMPORARY for deprecated write_study
 _LOG = get_logger(__name__)
 class MergeException(Exception):
     pass
@@ -176,7 +170,7 @@ class GitAction(object):
         '''Returns the set of studies that have changed on the master since
         commit `ancestral_commit_sha` or `False` (on an error)
 
-        if `study_ids_to_check` is passed in, it should be an iterable list of 
+        if `study_ids_to_check` is passed in, it should be an iterable list of
             IDs. Only IDs in this list will be returned.
         '''
         try:
@@ -322,9 +316,6 @@ class GitAction(object):
     def push(self, branch, remote):
         git(self.gitdir, 'push', remote, branch, _env=self.env())
 
-    #@TEMP TODO. Args should be gh_user, study_id, parent_sha, author but
-    #   currently using the # of args as a hack to detect whether the
-    #   old or newer version of the function is required. #backward-compat. @KILL with merge of local-dep
     def remove_study(self, first_arg, sec_arg, third_arg, fourth_arg=None):
         """Remove a study
         Given a study_id, branch and optionally an
@@ -334,8 +325,6 @@ class GitAction(object):
         """
         if fourth_arg is None:
             study_id, branch_name, author = first_arg, sec_arg, third_arg
-            #@TODO. DANGER super-ugly hack to get gh_user
-            #   only doing this function is going away very soon. @KILL with merge of local-dep
             gh_user = branch_name.split('_study_')[0]
             parent_sha = self.get_master_sha()
         else:
@@ -420,7 +409,6 @@ class GitAction(object):
             raise
         return log
 
-    #@TEMP TODO: remove this form...
     def write_study(self, study_id, file_content, branch, author):
         """Given a study_id, temporary filename of content, branch and auth_info
 
@@ -428,8 +416,6 @@ class GitAction(object):
 
         """
         parent_sha = None
-        #@TODO. DANGER super-ugly hack to get gh_user
-        #   only doing this function is going away very soon. @KILL with merge of local-dep
         gh_user = branch.split('_study_')[0]
         fc = tempfile.NamedTemporaryFile()
         if is_str_type(file_content):
@@ -550,3 +536,4 @@ class GitAction(object):
 
     def delete_branch(self, branch):
         git(self.gitdir, self.gitwd, 'branch', '-d', branch)
+

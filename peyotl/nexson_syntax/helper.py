@@ -24,7 +24,6 @@ SUPPORTED_NEXSON_VERSIONS_AND_ALIASES = frozenset([BADGER_FISH_NEXSON_VERSION,
                                                    '0.0',
                                                    '1.0',
                                                    '1.2'])
-# TODO: in lieu of real namespace support...
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 

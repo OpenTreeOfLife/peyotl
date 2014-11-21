@@ -46,6 +46,7 @@ def get_ot_study_info_from_treebase_nexml(src=None,
         5. remove "@xml:base"
         6. coerce edge lengths to native types
     '''
+    #pylint: disable=R0915
     raw = get_ot_study_info_from_nexml(src=src,
                                        nexml_content=nexml_content,
                                        encoding=encoding,

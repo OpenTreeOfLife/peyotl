@@ -209,7 +209,7 @@ class PhylesystemShard(PhylesystemShardBase):
         d = create_id2study_info(study_dir, name)
         rc_dict = diagnose_repo_study_id_convention(path)
         self.filepath_for_study_id_fn = rc_dict['fp_fn']
-        self.filepath_for_global_resource_fn = lambda frag: os.path.join(self.repo_dir, frag)
+        self.filepath_for_global_resource_fn = lambda frag: os.path.join(path, frag)
         self.id_alias_list_fn = rc_dict['id2alias_list']
         if rc_dict['convention'] != 'simple':
             a = {}
@@ -604,8 +604,7 @@ class _PhylesystemBase(object):
         return k
 
 class PhylesystemShardProxy(PhylesystemShardBase):
-    '''Proxy for interacting with external resources if given the
-    configuration of a remote Phylesystem
+    '''Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
     '''
     def __init__(self, config):
         PhylesystemShardBase.__init__(self, config['name'])
@@ -625,8 +624,7 @@ class PhylesystemShardProxy(PhylesystemShardBase):
         self._study_index = d
 
 class PhylesystemProxy(_PhylesystemBase):
-    '''Proxy for interacting with external resources if given the
-    configuration of a remote Phylesystem
+    '''Proxy for interacting with external resources if given the configuration of a remote Phylesystem
     '''
     def __init__(self, config):
         _PhylesystemBase.__init__(self)

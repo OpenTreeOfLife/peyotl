@@ -7,7 +7,7 @@ import unittest
 import requests
 
 _LOG = get_logger(__name__)
-from peyotl.phylesystem import get_repos
+from peyotl.phylesystem.helper import get_repos
 try:
     get_repos()
     HAS_LOCAL_PHYLESYSTEM_REPOS = True

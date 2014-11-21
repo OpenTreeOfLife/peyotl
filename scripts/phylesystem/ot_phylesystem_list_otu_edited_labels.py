@@ -6,7 +6,7 @@ tax_prop_name = '^ot:ottTaxonName'
 orig_prop_name = '^ot:originalLabel'
 label_prop_name = '@label'
 from peyotl import gen_otu_dict, iter_trees, iter_node
-from peyotl.phylesystem import Phylesystem
+from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 import codecs
 import sys
 phy = Phylesystem()

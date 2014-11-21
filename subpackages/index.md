@@ -79,6 +79,6 @@ then (from the peyotl directory) you can run:
 
     bash dev/find_external_peyotl_imports.sh > dev/external_deps.txt
 
-and then using `-edev/external_deps.txt` in the detect_intra_peyotl_dependencies.py script
+and then using `-edev/external_deps.txt` in the `detect_intra_peyotl_dependencies.py` script
 
 

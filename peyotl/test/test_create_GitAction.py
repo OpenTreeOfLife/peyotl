@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 from peyotl.phylesystem.git_actions import GitAction
 import unittest
-from peyotl.phylesystem import get_repos
+from peyotl.phylesystem.helper import get_repos
 try:
     r = get_repos()
     HAS_LOCAL_PHYLESYSTEM_REPOS = True

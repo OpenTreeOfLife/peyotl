@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 from peyotl.nexson_syntax import read_as_json
-from peyotl.phylesystem import _Phylesystem
+from peyotl.phylesystem.phylesystem_umbrella import _Phylesystem
 import unittest
 from peyotl.test.support import pathmap
 import os

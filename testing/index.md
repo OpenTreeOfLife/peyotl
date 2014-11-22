@@ -55,3 +55,8 @@ You can tweak this by deciding on your NEXML_PARENT dir and running:
     $ git clone https://github.com/nexml/nexml.git
     $ cd xml-validator-read-only
     $ mvn package
+
+## Maintainer tests
+
+There are notes for more extensive tests at the [maintainer](../maintainer) page.
+

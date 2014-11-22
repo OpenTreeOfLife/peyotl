@@ -9,3 +9,5 @@ some of the design decisions.
   1. [Subpackages](../subpackages/)
   2. [Pylint config](../pylint)
   3. [Testing](../testing)
+  4. [Maintainer notes](../maintainer)
+

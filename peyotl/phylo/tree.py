@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 class NodeWithPathInEdges(object):
     def __init__(self, _id=None):
         self._id = _id
@@ -21,6 +22,7 @@ class TreeWithPathsInEdges(object):
     def create_leaf(self, node_id):
         n = NodeWithPathInEdges(_id=node_id)
         self._add_node(n)
+        return n
     def _add_node(self, n):
         node_id = n._id
         if node_id is None:
@@ -99,5 +101,23 @@ class TreeWithPathsInEdges(object):
 
     def _add_leaf_for_id(self, ott_id):
         return NotImplementedError('this is where you were coding, MTH')
+
+def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
+    if not id_list:
+        return None
+    nn = len(id_list)
+    tree = _class(id_to_par_id=id2par)
+    if nn == 1:
+        if id_list[0] not in id2par:
+            raise KeyError('The ID {} was not found'.format(id_list[0]))
+        n = tree._add_leaf_for_id(id_list[0])
+        tree._root = n
+        return tree
+    tree._init_with_cherry(id_list[0], id_list[1])
+    curr_ind = 2
+    while curr_ind < nn:
+        tree._add_leaf_for_id(id_list[curr_ind])
+        curr_ind += 1
+    return tree
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from peyotl.phylo.entities import OTULabelStyleEnum
-from peyotl.phylo.tree import TreeWithPathsInEdges
+from peyotl.phylo.tree import create_tree_from_id2par
 from peyotl.utility import get_config_object, get_logger
 import pickle
 import codecs
@@ -425,22 +425,7 @@ class OTT(object):
             n = i2pi.get(n)
         return lineage
     def induced_tree(self, ott_id_list):
-        if not ott_id_list:
-            return None
-        nn = len(ott_id_list)
-        if nn == 1:
-            if ott_id_list[0] not in self.ott_id2par_ott_id:
-                raise KeyError('The OTT ID {} was not found'.format(ott_id_list[0]))
-        tree = self._make_cherry_tree(ott_id_list[0], ott_id_list[1])
-        curr_ind = 2
-        while curr_ind < nn:
-            tree._add_leaf_for_id(ott_id_list[curr_ind])
-            curr_ind += 1
-        return tree
-    def _make_cherry_tree(self, o1, o2):
-        t = TreeWithPathsInEdges(id_to_par_id=self.ott_id2par_ott_id)
-        t._init_with_cherry(o1, o2)
-        return t
+        return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list)
 if _PICKLE_AS_JSON:
     def _write_pickle(directory, fn, obj):
         fp = os.path.join(directory, fn + '.pickle')

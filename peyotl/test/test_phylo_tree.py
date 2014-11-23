@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.phylo.tree import TreeWithPathsInEdges, create_tree_from_id2par
+from peyotl.phylo.tree import create_tree_from_id2par
 from peyotl.utility import get_logger
 import unittest
 _bogus_id2par = {'h': 'hp',
@@ -29,8 +29,11 @@ class TestPhyloTree(unittest.TestCase):
         self.assertTrue(i.next()._id in ['h', 'p'])
         self.assertEqual(i.next()._id, 'hp')
         self.assertRaises(StopIteration, i.next)
-        tree = create_tree_from_id2par(_bogus_id2par, ['h', 'bogus_tip'])
-
+        self.assertRaises(ValueError, create_tree_from_id2par, _bogus_id2par, ['h', 'bogus_tip'])
+    def testFullExample(self):
+        tree = create_tree_from_id2par(_bogus_id2par, ['h', 'p', 'g', 'Po', 'Hy', 'Si'])
+        for nd in tree.postorder_node_iter():
+            print nd._id
 
 
 if __name__ == "__main__":

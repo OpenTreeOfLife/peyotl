@@ -29,6 +29,8 @@ class TestPhyloTree(unittest.TestCase):
         self.assertTrue(i.next()._id in ['h', 'p'])
         self.assertEqual(i.next()._id, 'hp')
         self.assertRaises(StopIteration, i.next)
+        tree = create_tree_from_id2par(_bogus_id2par, ['h', 'bogus_tip'])
+
 
 
 if __name__ == "__main__":

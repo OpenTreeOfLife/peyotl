@@ -51,6 +51,8 @@ The fabulous <a href="http://karlgude.com/about/">Karl Gude</a> created the logo
 Several parts of the setup.py, logging, documentation, and test suite were 
 based on Jeet Sukumraran's work in the [DendroPy](http://pythonhosted.org/DendroPy/) package.
 
+The tree/node iteration functions in peyotl.phylo.tree are also adapted from DendroPy.
+
 The sortattr.xslt stylesheet (which is only used in round-trip testing) is from 
    http://stackoverflow.com/questions/1429991/using-xsl-to-sort-attributes
 

@@ -1,15 +1,34 @@
 #!/usr/bin/env python
-
-class NodeWithPathInEdges(object):
+class Node(object):
     def __init__(self, _id=None):
         self._id = _id
+        self._children = []
+        self._parent = None
+    def postorder_iter(self, filter_fn=None):
+        stack = [(self, False)]
+        while stack:
+            node, state = stack.pop(0)
+            if state:
+                if filter_fn is None or filter_fn(node):
+                    yield node
+            else:
+                stack.insert(0, (node, True))
+                if node._children:
+                    stack = [(n, False) for n in node.children_iter()] + stack
+    def children_iter(self, filter_fn=None):
+        if self._children:
+            for i in self._children:
+                if filter_fn is None or filter_fn(i):
+                    yield i
+class NodeWithPathInEdges(Node):
+    def __init__(self, _id=None):
+        Node.__init__(self, _id)
         if _id is not None:
             self._path_ids = [_id]
             self._path_set = set([_id])
         else:
             self._path_ids = []
             self._path_set = set()
-        self._children = []
     def add_child(self, child):
         self._children.append(child)
         child._parent = self
@@ -101,7 +120,13 @@ class TreeWithPathsInEdges(object):
 
     def _add_leaf_for_id(self, ott_id):
         return NotImplementedError('this is where you were coding, MTH')
-
+    @property
+    def leaves(self):
+        return list(self._leaves)
+    def postorder_node_iter(self, nd=None, filter_fn=None):
+        if nd is None:
+            nd = self._root
+        return nd.postorder_iter(filter_fn=filter_fn)
 def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
     if not id_list:
         return None
@@ -112,12 +137,14 @@ def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
             raise KeyError('The ID {} was not found'.format(id_list[0]))
         n = tree._add_leaf_for_id(id_list[0])
         tree._root = n
+        del tree._id2par
         return tree
     tree._init_with_cherry(id_list[0], id_list[1])
     curr_ind = 2
     while curr_ind < nn:
         tree._add_leaf_for_id(id_list[curr_ind])
         curr_ind += 1
+    del tree._id2par
     return tree
 
 

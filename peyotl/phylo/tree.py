@@ -17,10 +17,15 @@ class Node(object):
             else:
                 stack.append((node, True))
                 if node._children:
-                    stack.extend([(n, False) for n in node.children_iter()])
+                    stack.extend([(n, False) for n in node.children_reversed_iter()])
     def children_iter(self, filter_fn=None):
         if self._children:
             for i in self._children:
+                if filter_fn is None or filter_fn(i):
+                    yield i
+    def children_reversed_iter(self, filter_fn=None):
+        if self._children:
+            for i in reversed(self._children):
                 if filter_fn is None or filter_fn(i):
                     yield i
     def add_child(self, child):

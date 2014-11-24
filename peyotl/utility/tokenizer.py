@@ -201,6 +201,17 @@ class NewickEvents(Enum):
     TIP = 1
     CLOSE_SUBTREE = 2
 class NewickEventFactory(object):
+    '''Higher level interface for reading newick strings.
+    Provides either an iterator over OPEN_SUBTREE, TIP, and CLOSE_SUBTREE
+    events in teh NewickEvents Enum, or calls a supplied event_handler for each event in the parsing.
+
+    Each event will be a dict with the keys:
+        'type': facet of the NewickEvents Enum, and
+        'comments' a list of all comments contained
+    TIP and CLOSE_SUBTREE events can also have a label or edge_info strings.
+    *NOTE* for the sake of performance, the value of the comments field may be the same list!
+    You must make a copy of it if you want to process comments later.
+    '''
     def __init__(self, tokenizer=None, newick=None, event_handler=None):
         if tokenizer is None:
             if newick is None:

@@ -10,7 +10,28 @@ class Node(object):
     @property
     def is_leaf(self):
         return not bool(self._children)
+    def preorder_iter(self, filter_fn=None):
+        """ From DendroPy
+        Preorder traversal of self and its child_nodes.  Returns self
+        and all descendants such that a node is returned before its
+        child_nodes (and their child_nodes). Filtered by filter_fn: node is
+        only returned if no filter_fn is given or if filter_fn returns
+        True.
+        """
+        stack = [self]
+        while stack:
+            node = stack.pop()
+            if filter_fn is None or filter_fn(node):
+                yield node
+            stack.extend([i for i in reversed(node._children)])
     def postorder_iter(self, filter_fn=None):
+        """From DendroPy
+        Postorder traversal of the self and its child_nodes.  Returns self
+        and all descendants such that a node's child_nodes (and their
+        child_nodes) are visited before node.  Filtered by filter_fn:
+        node is only returned if no filter_fn is given or if filter_fn
+        returns True.
+        """
         stack = [(self, False)]
         while stack:
             node, state = stack.pop()
@@ -262,6 +283,10 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
         if nd is None:
             nd = self._root
         return nd.postorder_iter(filter_fn=filter_fn)
+    def preorder_node_iter(self, nd=None, filter_fn=None):
+        if nd is None:
+            nd = self._root
+        return nd.preorder_iter(filter_fn=filter_fn)
 def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
     if not id_list:
         return None
@@ -293,6 +318,14 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
         testCase.assertIn(i, tree._id2node)
         psio.add(i)
         post_order_ids.append(i)
+    pre_order = [nd for nd in tree.preorder_node_iter()]
+    pre_order_ids = []
+    prsio = set()
+    for node in pre_order:
+        i = node._id
+        prsio.add(i)
+        pre_order_ids.append(i)
+    testCase.assertEqual(psio, prsio)
     for i in tree._id2node.keys():
         testCase.assertIn(i, psio)
 
@@ -327,6 +360,7 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
             if (anc_id in tree._id2node) and (anc_id == tree.find_node(anc_id)._id):
                 testCase.assertIn(anc_id, post_order_ids)
                 testCase.assertLess(post_order_ids.index(t), post_order_ids.index(anc_id))
+                testCase.assertGreater(pre_order_ids.index(t), pre_order_ids.index(anc_id))
             else:
                 testCase.assertNotIn(anc_id, psio)
             checked_node.add(t)
@@ -348,6 +382,7 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
                     if (anc_id in tree._id2node) and (anc_id == tree.find_node(anc_id)._id):
                         testCase.assertIn(anc_id, psio)
                         testCase.assertLess(post_order_ids.index(t), post_order_ids.index(anc_id))
+                        testCase.assertGreater(pre_order_ids.index(t), pre_order_ids.index(anc_id))
                     else:
                         testCase.assertNotIn(anc_id, psio)
             anc_set.update(ns)

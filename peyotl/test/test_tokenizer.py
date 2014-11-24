@@ -16,6 +16,12 @@ class TestNewickTokenizer(unittest.TestCase):
         self._do_test("(('h ',p)h p,'g()[],'':_')hpg;", exp)
     def _do_test(self, content, expected):
         self.assertEqual([i for i in NewickTokenizer(StringIO(content))], expected)
+    def testOddQuotes(self):
+        content = "((h_ ,'p)h p,g()[],:_)hpg;"
+        tok = NewickTokenizer(StringIO(content))
+        content = "((h_ ,'p')h p,'g()[]',:_')hpg;"
+        tok = NewickTokenizer(StringIO(content))
+        self.assertRaises(Exception, tok.tokens)
 
 if __name__ == "__main__":
     unittest.main()

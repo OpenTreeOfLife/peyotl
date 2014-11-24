@@ -45,6 +45,8 @@ class NewickTokenizer(object):
         if c != '(':
             self._raise_unexpected('Expected the first character to be a "(", but found "{}"'.format(c))
         self.prev_token = NewickTokenType.OPEN # just so we don't have to check for NONE on every ( we fake a legal preceding token
+    def tokens(self):
+        return [i for i in iter(self)]
     def _raise_unexpected(self, m):
         if self.prev_token != NewickTokenType.NONE:
             raise ValueError('Error: {m} at {f} after a/an {p} token'.format(m=m, f=self.file_pos(), p=self.prev_token.name))

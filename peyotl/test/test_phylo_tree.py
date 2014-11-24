@@ -26,7 +26,6 @@ _bogus_id2par = {'h': 'hp',
                 }
 _LOG = get_logger(__name__)
 class TestPhyloTree(unittest.TestCase):
-    @unittest.skipIf(True, 'TODO temp skip') #TODO
     def testCherry(self):
         tree = create_tree_from_id2par(_bogus_id2par, ['h', 'p'])
         self.assertTrue(tree._root._id == 'hp')

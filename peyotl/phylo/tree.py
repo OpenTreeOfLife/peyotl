@@ -23,6 +23,13 @@ class Node(object):
             for i in self._children:
                 if filter_fn is None or filter_fn(i):
                     yield i
+    def add_child(self, child):
+        self._children.append(child)
+        child._parent = self
+    def replace_child(self, old_child, new_c):
+        i = self._children.index(old_child)
+        self._children[i] = new_c
+        new_c._parent = self
 class NodeWithPathInEdges(Node):
     def __init__(self, _id=None):
         Node.__init__(self, _id)
@@ -32,9 +39,6 @@ class NodeWithPathInEdges(Node):
         else:
             self._path_ids = []
             self._path_set = set()
-    def add_child(self, child):
-        self._children.append(child)
-        child._parent = self
 class TreeWithPathsInEdges(object):
     def __init__(self, id_to_par_id=None):
         self._id2par = id_to_par_id
@@ -72,7 +76,7 @@ class TreeWithPathsInEdges(object):
             if not (extending1 or extending2):
                 raise ValueError('Disconnected tips cannot be used to build a tree')
             if extending1:
-                p1 = self._id2par.get(curr_id1)
+                p1 = self._id2par[curr_id1]
                 assert p1 not in anc1d
                 if p1 is None:
                     extending1 = False
@@ -85,7 +89,7 @@ class TreeWithPathsInEdges(object):
                         anc1.append(p1)
                         anc1d.add(p1)
             if extending2:
-                p2 = self._id2par.get(curr_id2)
+                p2 = self._id2par[curr_id2]
                 assert p2 not in anc2d
                 if p2 is None:
                     extending2 = False
@@ -98,7 +102,7 @@ class TreeWithPathsInEdges(object):
                         anc2.append(p2)
                         anc2d.add(p2)
     def _add_node_for_id(self, ott_id):
-        _LOG.debug('adding {o}'.format(o=ott_id))
+        _LOG.debug('_add_node_for_id({o})'.format(o=ott_id))
         if ott_id in self._id2node:
             return
         n1 = self.create_leaf(node_id=ott_id, register_node=False)
@@ -115,19 +119,19 @@ class TreeWithPathsInEdges(object):
             anc2 = n2._path_ids
             curr_id2 = anc2[-1]
         anc2d = self._id2node
-        _LOG.debug('curr_id2 at start = {}'.format(curr_id2))
-        _LOG.debug('anc2d at start = {}'.format(anc2d.keys()))
+        _LOG.debug('curr_id2 = {}  anc2d at start = {}'.format(curr_id2, anc2d.keys()))
         while True:
             if not (extending1 or extending2):
                 raise ValueError('Disconnected tips cannot be used to build a tree')
             if extending1:
-                p1 = self._id2par.get(curr_id1)
+                p1 = self._id2par[curr_id1]
                 assert p1 not in anc1d
                 if p1 is None:
                     extending1 = False
                     self._root_tail_hits_real_root = True
                 else:
                     if p1 in anc2d:
+                        _LOG.debug(' lineage 1 hit the tree at {}'.format(p1))
                         return self._new_tip_hit_existing_tree(n1, p1)
                     else:
                         curr_id1 = p1
@@ -135,14 +139,15 @@ class TreeWithPathsInEdges(object):
                         anc1d.add(p1)
                         _LOG.debug('anc1d is now = {} after the addition of {}'.format(anc1d, p1))
             if extending2:
-                p2 = self._id2par.get(curr_id2)
-                _LOG.debug('p2 = {p} anc2d={a}'.format(p=p2, a=anc2d.keys()))
+                p2 = self._id2par[curr_id2]
+                #_LOG.debug('p2 = {p} anc2d={a}'.format(p=p2, a=anc2d.keys()))
                 assert p2 not in anc2d
                 if p2 is None:
                     extending2 = False
                     self._root_tail_hits_real_root = True
                 else:
                     if p2 in anc1d:
+                        _LOG.debug(' the "root tail" of the tree hit the new lineage at {}'.format(p2))
                         return self._existing_tree_hit_new_tip(n2, n1, p2)
                     else:
                         curr_id2 = p2
@@ -167,17 +172,21 @@ class TreeWithPathsInEdges(object):
     def _init_create_mrca(self, growing, hit, mrca_id, register_hit_ids=True):
         assert mrca_id not in growing._path_set
         assert mrca_id in hit._path_set
+        _LOG.debug('_init_create_mrca growing._path_ids = {}'.format(growing._path_ids))
         if mrca_id == hit._id:
             if hit._children:
+                _LOG.debug('_init_create_mrca the mrca ID ({}) is the end of an internal node path'.format(mrca_id))
                 hit.add_child(growing)
                 self._register_node_ids(growing)
             else:
+                _LOG.debug('_init_create_mrca the mrca ID ({}) is the tip of a path'.format(mrca_id))
                 hit._path_ids = growing._path_ids + hit._path_ids
                 hit._path_set.update(growing._path_set)
                 hit._id = growing._id
                 self._register_node_ids(hit)
             return hit
 
+        _LOG.debug('_init_create_mrca the mrca ID ({}) is inside a path that ends with {}'.format(mrca_id, hit._id))
         m = NodeWithPathInEdges(mrca_id) # TODO need to deal with hit being the _id in hit
         rs = m._path_set
         rl = m._path_ids
@@ -193,9 +202,13 @@ class TreeWithPathsInEdges(object):
         m._mrca_node_for = set([mrca_id])
         m._mrca_node_for.update(growing._path_set)
         m._mrca_node_for.update(h_s)
+        if hit._parent:
+            hit._parent.replace_child(hit, m)
         m.add_child(hit)
         m.add_child(growing)
+        _LOG.debug('new mrca node {} created with children {}'.format(m._id, [i._id for i in m._children]))
         if (self._root is None) or (self._root is hit) or (self._root is growing):
+            _LOG.debug('_root reset to {}'.format(m._id))
             self._root = m
         self._register_node_ids(growing)
         if register_hit_ids:
@@ -233,7 +246,6 @@ def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
     curr_ind = 2
     while curr_ind < nn:
         next_id = id_list[curr_ind]
-        _LOG.debug('calling _add_node_for_id {}'.format(next_id))
         tree._add_node_for_id(next_id)
         curr_ind += 1
     del tree._id2par

@@ -31,10 +31,10 @@ class TestPhyloTree(unittest.TestCase):
         self.assertTrue(tree._root._id == 'hp')
         self.assertEqual(len(tree.leaves), 2)
         i = tree.postorder_node_iter()
-        self.assertTrue(i.next()._id in ['h', 'p'])
-        self.assertTrue(i.next()._id in ['h', 'p'])
-        self.assertEqual(i.next()._id, 'hp')
-        self.assertRaises(StopIteration, i.next)
+        self.assertTrue(next(i)._id in ['h', 'p'])
+        self.assertTrue(next(i)._id in ['h', 'p'])
+        self.assertEqual(next(i)._id, 'hp')
+        self.assertRaises(StopIteration, next, i)
         self.assertRaises(ValueError, create_tree_from_id2par, _bogus_id2par, ['h', 'bogus_tip'])
     def testFullExample(self):
         tips = ['h', 'p', 'g', 'Po', 'Hy', 'Sy', 'Ho', 'No']

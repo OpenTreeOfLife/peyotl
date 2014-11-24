@@ -16,6 +16,7 @@ class NewickTokenType(Enum):
     COLON = 4
     LABEL = 5
     EDGE_INFO = 6
+    SEMICOLON = 7
 
 class NewickTokenizer(object):
     '''given a file-like object, this becomes an iterator
@@ -55,13 +56,13 @@ class NewickTokenizer(object):
     def __iter__(self):
         return self
     def _eat_whitespace(self):
-        if (1 + self._index) <= self._last_ind:
-            _LOG.debug('_eat_whitespace ind= {} str="{}"'.format(self._index, self._src[1+self._index]))
+        #if (1 + self._index) <= self._last_ind:
+            #_LOG.debug('_eat_whitespace ind= {} str="{}"'.format(self._index, self._src[1+self._index]))
         w = _WS.match(self._src, 1 + self._index)
         if w:
-            _LOG.debug('found ws ending at {}'.format(w.end()))
+            #_LOG.debug('found ws ending at {}'.format(w.end()))
             self._index = w.end() - 1
-            _LOG.debug('exiting _eat_whitespace ind= {} str="{}"'.format(self._index, self._src[1+self._index]))
+            #_LOG.debug('exiting _eat_whitespace ind= {} str="{}"'.format(self._index, self._src[1+self._index]))
     def _eat_whitespace_get_next_char(self):
         self._eat_whitespace()
         return self._get_next_char()
@@ -87,13 +88,13 @@ class NewickTokenizer(object):
     def _grab_one_single_quoted_word(self):
         b = self._index + 1
         m = _SINGLE_QUOTED_STR.match(self._src, b)
-        _LOG.debug('_grab_one_single_quoted_word b = {} str="{}"'.format(b, self._src[b:]))
+        #_LOG.debug('_grab_one_single_quoted_word b = {} str="{}"'.format(b, self._src[b:]))
         if not m:
             self._index = b - 1
             self._raise_unexpected("Found an opening single-quote, but not closing quote")
         self._index = m.end() - 1
         word = m.group(1)
-        _LOG.debug('  _grab_one_single_quoted_word word = {} index="{}"'.format(word, self._index))
+        #_LOG.debug('  _grab_one_single_quoted_word word = {} index="{}"'.format(word, self._index))
         return word
     def _read_quoted_label(self):
         label = self._grab_one_single_quoted_word()
@@ -107,13 +108,13 @@ class NewickTokenizer(object):
         return label
     def _read_unquoted_label(self):
         b = self._index
-        _LOG.debug('_read_unquoted_label b = {} str="{}"'.format(b, self._src[b:]))
+        #_LOG.debug('_read_unquoted_label b = {} str="{}"'.format(b, self._src[b:]))
         m = _UNQUOTED_STR.match(self._src, b) # called after we grabbed the first letter, so we look one back
         if not m:
             self._raise_unexpected('Expecting a label but found "{}"'.format(self._src[b]))
         label = m.group(1)
         self._index = m.end() - 1
-        _LOG.debug('_read_unquoted_label label = "{}" ind = {}'.format(label, self._index))
+        #_LOG.debug('_read_unquoted_label label = "{}" ind = {}'.format(label, self._index))
         label = label.strip() # don't preserve whitespace
         return label.replace('_', ' ')
 
@@ -131,20 +132,21 @@ class NewickTokenizer(object):
         return ':'
     def _handle_comment(self):
         b = self._index + 1
-        _LOG.debug('_handle_comment b = {} str="{}"'.format(b, self._src[b:]))
+        #_LOG.debug('_handle_comment b = {} str="{}"'.format(b, self._src[b:]))
         m = _COMMENT_STR.match(self._src, b)
         if not m:
             self._index = b
             self._raise_unexpected("Found an opening [ of a comment, but not closing ]")
         self._index = m.end() - 1
         comment = m.group(1)
-        _LOG.debug('_handle_comment = "{}" ind = {}'.format(comment, self._index))
+        #_LOG.debug('_handle_comment = "{}" ind = {}'.format(comment, self._index))
         self.comments.append(comment)
         return self._read_next()
     def _handle_semicolon(self):
         if self.prev_token not in [NewickTokenType.LABEL, NewickTokenType.CLOSE, NewickTokenType.EDGE_INFO]:
             self._raise_unexpected('Expecting ";" to be preceded by ")", a taxon label, or branch information')
         self.finished = True
+        self.prev_token = NewickTokenType.SEMICOLON
         return ';'
     def _handle_comma(self):
         if self.prev_token not in [NewickTokenType.LABEL, NewickTokenType.CLOSE, NewickTokenType.EDGE_INFO]:
@@ -185,12 +187,86 @@ class NewickTokenizer(object):
     def __next__(self):
         del self.comments[:]
         c = self._read_next()
-        _LOG.debug('TOKEN = "{}" type={} ind={} comments="{}"'.format(c, self.prev_token, self._index, '", "'.join(self.comments)))
+        #_LOG.debug('TOKEN = "{}" type={} ind={} comments="{}"'.format(c, self.prev_token, self._index, '", "'.join(self.comments)))
         return c
     def _read_next(self):
         c = self._eat_whitespace_get_next_char()
-        _LOG.debug('__next__ c = "{c}" prev_token={p} self._index={i}'.format(c=c, p=self.prev_token.name, i=self._index))
+        #_LOG.debug('__next__ c = "{c}" prev_token={p} self._index={i}'.format(c=c, p=self.prev_token.name, i=self._index))
         cb = self._cb.get(c, self._default_cb)
         return cb()
+    next = __next__
 
+class NewickEvents(Enum):
+    OPEN_SUBTREE = 0
+    TIP = 1
+    CLOSE_SUBTREE = 2
+class NewickEventFactory(object):
+    def __init__(self, tokenizer=None, newick=None, event_handler=None):
+        if tokenizer is None:
+            if newick is None:
+                raise ValueError('tokenizer or newick argument must be supplied')
+            self._tokenizer = NewickTokenizer(newick)
+        else:
+            self._tokenizer = tokenizer
+        self._base_it = iter(tokenizer)
+        self._tok_stack = []
+        self._start_pos = 0
+        self._comments = []
+        self._comments_stack = []
+        self._prev_type = NewickEvents.OPEN_SUBTREE
+        if event_handler is not None:
+            for event in iter(self):
+                event_handler(event)
+
+    def __iter__(self):
+        return self
+    def __next__(self):
+        del self._comments[:]
+        if self._tok_stack:
+            tok = self._tok_stack.pop()
+            self._comments.extend(self._comments_stack)
+            del self._comments_stack[:]
+            assert not self._tok_stack
+        else:
+            tok = next(self._base_it)
+            self._comments.extend(self._tokenizer.comments)
+        if self._tokenizer.prev_token == NewickTokenType.OPEN:
+            self._prev_type = NewickEvents.OPEN_SUBTREE
+            return {'type': NewickEvents.OPEN_SUBTREE,
+                    'comments': self._comments}
+        elif self._tokenizer.prev_token == NewickTokenType.LABEL:
+            # when reading a tip, be greedy about grabbing surrounding comments
+            return self._greedy_token_seq(tok, NewickEvents.TIP)
+        elif self._tokenizer.prev_token == NewickTokenType.CLOSE:
+            # when reading a tip, be greedy about grabbing trailing comments
+            return self._greedy_token_seq(tok, NewickEvents.CLOSE_SUBTREE)
+        elif self._tokenizer.prev_token == NewickTokenType.COMMA:
+            self._comments.extend(self._tokenizer.comments)
+            return next(self)
+        elif self._tokenizer.prev_token == NewickTokenType.SEMICOLON:
+            raise StopIteration
+        assert False
+    def _greedy_token_seq(self, label, t):
+        tok = next(self._base_it)
+        self._comments.extend(self._tokenizer.comments)
+        if t == NewickEvents.CLOSE_SUBTREE and self._tokenizer.prev_token == NewickTokenType.LABEL:
+            label = tok
+            tok = next(self._base_it)
+            self._comments.extend(self._tokenizer.comments)
+
+        if tok == ':':
+            tok = next(self._base_it)
+            self._comments.extend(self._tokenizer.comments)
+            assert self._prev_type == NewickTokenType.EDGE_INFO
+            edge_info = tok
+            tok = next(self._base_it)
+            self._comments.extend(self._tokenizer.comments)
+        else:
+            edge_info = None
+        self._tok_stack.append(tok)
+        self._prev_type = t
+        return {'type': t,
+                'label': label,
+                'edge_info': edge_info,
+                'comments': self._comments}
     next = __next__

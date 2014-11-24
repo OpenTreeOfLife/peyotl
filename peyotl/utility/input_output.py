@@ -19,6 +19,10 @@ def open_for_group_write(fp, mode, encoding='utf-8'):
     o.flush()
     os.chmod(fp, stat.S_IRGRP | stat.S_IROTH | stat.S_IRUSR | stat.S_IWGRP | stat.S_IWUSR)
     return o
+def read_filepath(filepath, encoding='utf-8'):
+    with codecs.open(filepath, 'r', encoding=encoding) as fo:
+        return fo.read()
+
 
 def write_to_filepath(content, filepath, encoding='utf-8', mode='w', group_writeable=False):
     '''Writes `content` to the `filepath` Creates parent directory

@@ -57,7 +57,7 @@ class TestNewickEvents(unittest.TestCase):
               ]
         self._do_test(content, exp)
     def _do_test(self, content, expected):
-        e = [deepcopy(i) for i in NewickEventFactory(tokenizer=NewickTokenizer(StringIO(content)))]
+        e = [deepcopy(i) for i in NewickEventFactory(tokenizer=NewickTokenizer(stream=StringIO(content)))]
         #print(e)
         self.assertEqual(e, expected)
 

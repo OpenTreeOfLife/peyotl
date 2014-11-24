@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from peyotl.utility.tokenizer import NewickEvents
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
@@ -139,11 +140,43 @@ class _TreeWithNodeIDs(object):
             out.write(')')
             _write_node_info_newick(out, node, **kwargs)
         self._root.before_after_apply(before_fn=_open_newick, after_fn=_a, leaf_fn=_t)
+        out.write(';\n')
 class TreeWithPathsInEdges(_TreeWithNodeIDs):
-    def __init__(self, id_to_par_id=None):
+    def __init__(self, id_to_par_id=None, newick_events=None):
         _TreeWithNodeIDs.__init__(self)
-        self._id2par = id_to_par_id
-        self._root_tail_hits_real_root = False
+        if id_to_par_id:
+            self._id2par = id_to_par_id
+            self._root_tail_hits_real_root = False
+        else:
+            self._id2par = None
+            self._root_tail_hits_real_root = False
+            if newick_events is None:
+                self._build_from_newick_events(newick_events)
+    def _build_from_newick_events(self, ev):
+        iev = iter(ev)
+        assert next(iev)['type'] == NewickEvents.OPEN_SUBTREE
+        self._root = NodeWithPathInEdges(_id=None)
+        curr = self._root
+        for event in iev:
+            t = event['type']
+            if t == NewickEvents.OPEN_SUBTREE:
+                n = NodeWithPathInEdges(_id=None)
+                curr.add_child(n)
+                curr = n
+            elif t == NewickEvents.TIP:
+                n = NodeWithPathInEdges(_id=event['label'])
+                curr.add_child(n)
+                curr = n
+                self._id2node[n._id] = n
+            else:
+                assert t == NewickEvents.CLOSE_SUBTREE
+                curr = curr._parent
+                x = event.get('label')
+                if x is not None:
+                    curr._id = x
+                    self._id2node[x] = curr
+        assert curr is self._root
+
     @property
     def leaf_ids(self):
         return [i for i in self.leaf_id_iter()]
@@ -204,7 +237,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                         anc2.append(p2)
                         anc2d.add(p2)
     def _add_node_for_id(self, ott_id):
-        _LOG.debug('_add_node_for_id({o})'.format(o=ott_id))
+        #_LOG.debug('_add_node_for_id({o})'.format(o=ott_id))
         if ott_id in self._id2node:
             return
         n1 = self.create_leaf(node_id=ott_id, register_node=False)
@@ -212,7 +245,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
         curr_id1 = ott_id
         anc1d = n1._path_set
         extending1 = True
-        _LOG.debug('anc1d at start = {}'.format(anc1d))
+        #_LOG.debug('anc1d at start = {}'.format(anc1d))
         n2 = self._root
         if self._root_tail_hits_real_root:
             extending2 = False
@@ -221,7 +254,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
             anc2 = n2._path_ids
             curr_id2 = anc2[-1]
         anc2d = self._id2node
-        _LOG.debug('curr_id2 = {}  anc2d at start = {}'.format(curr_id2, anc2d.keys()))
+        #_LOG.debug('curr_id2 = {}  anc2d at start = {}'.format(curr_id2, anc2d.keys()))
         while True:
             if not (extending1 or extending2):
                 raise ValueError('Disconnected tips cannot be used to build a tree')
@@ -233,13 +266,13 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                     self._root_tail_hits_real_root = True
                 else:
                     if p1 in anc2d:
-                        _LOG.debug(' lineage 1 hit the tree at {}'.format(p1))
+                        #_LOG.debug(' lineage 1 hit the tree at {}'.format(p1))
                         return self._new_tip_hit_existing_tree(n1, p1)
                     else:
                         curr_id1 = p1
                         anc1.append(p1)
                         anc1d.add(p1)
-                        _LOG.debug('anc1d is now = {} after the addition of {}'.format(anc1d, p1))
+                        #_LOG.debug('anc1d is now = {} after the addition of {}'.format(anc1d, p1))
             if extending2:
                 p2 = self._id2par[curr_id2]
                 #_LOG.debug('p2 = {p} anc2d={a}'.format(p=p2, a=anc2d.keys()))
@@ -249,14 +282,14 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                     self._root_tail_hits_real_root = True
                 else:
                     if p2 in anc1d:
-                        _LOG.debug(' the "root tail" of the tree hit the new lineage at {}'.format(p2))
+                        #_LOG.debug(' the "root tail" of the tree hit the new lineage at {}'.format(p2))
                         return self._existing_tree_hit_new_tip(n2, n1, p2)
                     else:
                         curr_id2 = p2
                         anc2d[p2] = n2
                         anc2.append(p2)
                         n2._path_set.add(p2)
-                        _LOG.debug('anc2d is now = {} after the addition of {}'.format(anc2d.keys(), p2))
+                        #_LOG.debug('anc2d is now = {} after the addition of {}'.format(anc2d.keys(), p2))
     def _new_tip_hit_existing_tree(self, growing, mrca_id):
         assert mrca_id not in growing._path_set
         node_for_mrca = self._id2node[mrca_id]
@@ -276,14 +309,14 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
     def _init_create_mrca(self, growing, hit, mrca_id, register_hit_ids=True):
         assert mrca_id not in growing._path_set
         assert mrca_id in hit._path_set
-        _LOG.debug('_init_create_mrca growing._path_ids = {}'.format(growing._path_ids))
+        #_LOG.debug('_init_create_mrca growing._path_ids = {}'.format(growing._path_ids))
         if mrca_id == hit._id:
             if hit._children:
-                _LOG.debug('_init_create_mrca the mrca ID ({}) is the end of an internal node path'.format(mrca_id))
+                #_LOG.debug('_init_create_mrca the mrca ID ({}) is the end of an internal node path'.format(mrca_id))
                 hit.add_child(growing)
                 self._register_node(growing)
             else:
-                _LOG.debug('_init_create_mrca the mrca ID ({}) is the tip of a path'.format(mrca_id))
+                #_LOG.debug('_init_create_mrca the mrca ID ({}) is the tip of a path'.format(mrca_id))
                 hit._path_ids = growing._path_ids + hit._path_ids
                 hit._path_set.update(growing._path_set)
                 self._leaves.remove(hit._id)
@@ -291,7 +324,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                 self._register_node(hit)
             return hit
 
-        _LOG.debug('_init_create_mrca the mrca ID ({}) is inside a path that ends with {}'.format(mrca_id, hit._id))
+        #_LOG.debug('_init_create_mrca the mrca ID ({}) is inside a path that ends with {}'.format(mrca_id, hit._id))
         m = NodeWithPathInEdges(mrca_id) # TODO need to deal with hit being the _id in hit
         rs = m._path_set
         rl = m._path_ids
@@ -311,9 +344,9 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
             hit._parent.replace_child(hit, m)
         m.add_child(hit)
         m.add_child(growing)
-        _LOG.debug('new mrca node {} created with children {}'.format(m._id, [i._id for i in m._children]))
+        #_LOG.debug('new mrca node {} created with children {}'.format(m._id, [i._id for i in m._children]))
         if (self._root is None) or (self._root is hit) or (self._root is growing):
-            _LOG.debug('_root reset to {}'.format(m._id))
+            #_LOG.debug('_root reset to {}'.format(m._id))
             self._root = m
         self._register_node(growing)
         if register_hit_ids:
@@ -390,7 +423,7 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
             if node.is_leaf:
                 testCase.assertIn(node._id, leaf_ids)
             else:
-                _LOG.debug(node._children)
+                #_LOG.debug(node._children)
                 testCase.assertNotIn(node._id, leaf_ids)
 
     else:
@@ -437,7 +470,12 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
             anc_set.update(ns)
             #_LOG.debug('anc_set = {}'.format(anc_set))
             #_LOG.debug('checked_node = {}'.format(checked_node))
-    import sys
-    tree.write_newick(sys.stdout)
-    sys.stdout.write(';\n')
+    if len(tree._id2node) > 1:
+        from peyotl.utility.str_util import StringIO
+        o = StringIO()
+        tree.write_newick(o)
+        from peyotl.utility.tokenizer import NewickEventFactory
+        nef = NewickEventFactory(newick=o.getvalue())
+        ptree = TreeWithPathsInEdges(newick_events=nef)
+
 

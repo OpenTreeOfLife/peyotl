@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from peyotl.utility import get_logger
+from peyotl.utility.input_output import read_filepath
 from enum import Enum
 import re
 _LOG = get_logger(__name__)
@@ -23,8 +24,18 @@ class NewickTokenizer(object):
     over the newick tokens in the file-object.
     Name tokens are stripped of whitespace and comments.
     '''
-    def __init__(self, stream):
-        self._src = stream.read()
+    def __init__(self, stream=None, newick=None, filepath=None):
+        #_LOG.debug('INIT: newick = {} filepath = {}'.format(newick, filepath))
+        if stream is None:
+            if newick is not None:
+                self._src = newick
+            else:
+                if filepath is None:
+                    #_LOG.debug('VE: newick = {} filepath = {}'.format(newick, filepath))
+                    raise ValueError('"stream", "newick", or "filepath" must be provided')
+                self._src = read_filepath(filepath)
+        else:
+            self._src = stream.read()
         self._last_ind = len(self._src) - 1
         self._index = -1
         self.num_open_parens = 0
@@ -212,14 +223,15 @@ class NewickEventFactory(object):
     *NOTE* for the sake of performance, the value of the comments field may be the same list!
     You must make a copy of it if you want to process comments later.
     '''
-    def __init__(self, tokenizer=None, newick=None, event_handler=None):
+    def __init__(self, tokenizer=None, newick=None, filepath=None, event_handler=None):
         if tokenizer is None:
             if newick is None:
                 raise ValueError('tokenizer or newick argument must be supplied')
-            self._tokenizer = NewickTokenizer(newick)
+            #_LOG.debug('newick = {} filepath = {}'.format(newick, filepath))
+            self._tokenizer = NewickTokenizer(newick=newick, filepath=filepath)
         else:
             self._tokenizer = tokenizer
-        self._base_it = iter(tokenizer)
+        self._base_it = iter(self._tokenizer)
         self._tok_stack = []
         self._start_pos = 0
         self._comments = []

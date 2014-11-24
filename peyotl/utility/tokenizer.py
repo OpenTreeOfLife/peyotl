@@ -128,7 +128,7 @@ class NewickTokenizer(object):
             self._raise_unexpected('Expecting ":" to be preceded by ")" or a taxon label')
         self.prev_token = NewickTokenType.COLON
         self._default_cb = self._handle_edge_info
-        return '('
+        return ':'
     def _handle_comment(self):
         b = self._index + 1
         _LOG.debug('_handle_comment b = {} str="{}"'.format(b, self._src[b:]))

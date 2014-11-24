@@ -22,6 +22,9 @@ class TestNewickTokenizer(unittest.TestCase):
         content = "((h_ ,'p')h p,'g()[]',:_')hpg;"
         tok = NewickTokenizer(StringIO(content))
         self.assertRaises(Exception, tok.tokens)
+    def testBranchLen(self):
+        exp = ['(', '(', 'h', ':', '4.0', ',', 'p', ':', '1.1461E-5', ')', 'hp', ':', '1351.146436', ',', 'g', ')', 'hpg', ';']
+        self._do_test('((h:4.0,p:1.1461E-5)hp:1351.146436,g)hpg;', exp)
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,6 +2,12 @@
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
+def _write_node_info_newick(out, node, **kwargs): #TODO
+    '''writes a label other info (e.g. branch lengths) based on
+    kwargs:
+        #TODO
+    '''
+    out.write(node._id)
 class Node(object):
     def __init__(self, _id=None):
         self._id = _id
@@ -10,6 +16,35 @@ class Node(object):
     @property
     def is_leaf(self):
         return not bool(self._children)
+    @property
+    def is_first_child_of_parent(self):
+        '''Returns True for *ROOT* and any node that is the first child of its parent'''
+        return (self._parent is None) or (self._parent._children[0] is self)
+    @property
+    def is_last_child_of_parent(self):
+        '''Returns True for *ROOT* and any node that is the last child of its parent'''
+        return (self._parent is None) or (self._parent._children[-1] is self)
+    def before_after_apply(self, before_fn, after_fn, leaf_fn=None):
+        '''Applies the functions to each node in a subtree using an traversal in which
+        encountered twice: once right before its descendants, and once right
+        after its last descendant
+        '''
+        stack = [self]
+        while stack:
+            node = stack.pop()
+            if node.is_leaf:
+                if leaf_fn:
+                    leaf_fn(node)
+                while node.is_last_child_of_parent:
+                    node = node._parent
+                    if node:
+                        after_fn(node)
+                    else:
+                        break
+            else:
+                before_fn(node)
+                stack.extend([i for i in reversed(node._children)])
+
     def preorder_iter(self, filter_fn=None):
         """ From DendroPy
         Preorder traversal of self and its child_nodes.  Returns self
@@ -89,6 +124,19 @@ class _TreeWithNodeIDs(object):
             self._id2node[i] = node
     def do_full_check_of_invariants(self, testCase, **kwargs):
         _do_full_check_of_tree_invariants(self, testCase, **kwargs)
+    def write_newick(self, out, **kwargs):
+        def _open_newick(node):
+            if node.is_first_child_of_parent:
+                out.write('(')
+            else:
+                out.write(',(')
+        def _t(node):
+            _write_node_info_newick(out, node, **kwargs)
+        def _a(node):
+            out.write(')')
+            _t(node)
+
+        self._root.before_after_apply(before_fn=_open_newick, after_fn=_a, leaf_fn=_t)
 class TreeWithPathsInEdges(_TreeWithNodeIDs):
     def __init__(self, id_to_par_id=None):
         _TreeWithNodeIDs.__init__(self)
@@ -388,5 +436,7 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
             anc_set.update(ns)
             #_LOG.debug('anc_set = {}'.format(anc_set))
             #_LOG.debug('checked_node = {}'.format(checked_node))
-
+    import sys
+    tree.write_newick(sys.stdout)
+    sys.stdout.write(';\n')
 

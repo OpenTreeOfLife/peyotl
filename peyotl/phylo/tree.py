@@ -7,6 +7,9 @@ class Node(object):
         self._id = _id
         self._children = []
         self._parent = None
+    @property
+    def is_leaf(self):
+        return not bool(self._children)
     def postorder_iter(self, filter_fn=None):
         stack = [(self, False)]
         while stack:
@@ -48,13 +51,34 @@ class NodeWithPathInEdges(Node):
         else:
             self._path_ids = []
             self._path_set = set()
-class TreeWithPathsInEdges(object):
-    def __init__(self, id_to_par_id=None):
-        self._id2par = id_to_par_id
-        self._leaves = set()
+class _TreeWithNodeIDs(object):
+    def __init__(self):
         self._id2node = {}
+        self._leaves = set()
+    def find_node(self, _id):
+        return self._id2node[_id]
+    def _register_node(self, node):
+        i = node._id
+        self._id2node[i] = node
+        if node.is_leaf:
+            self._leaves.add(i)
+        elif i in self._leaves:
+            self._leaves.remove(i)
+        for i in node._path_ids:
+            self._id2node[i] = node
+    def do_full_check_of_invariants(self, testCase, **kwargs):
+        _do_full_check_of_tree_invariants(self, testCase, **kwargs)
+class TreeWithPathsInEdges(_TreeWithNodeIDs):
+    def __init__(self, id_to_par_id=None):
+        _TreeWithNodeIDs.__init__(self)
+        self._id2par = id_to_par_id
         self._root = None
         self._root_tail_hits_real_root = False
+    @property
+    def leaf_ids(self):
+        return [i for i in self.leaf_id_iter()]
+    def leaf_id_iter(self):
+        return iter(self._leaves)
     def create_leaf(self, node_id, register_node=True):
         n = NodeWithPathInEdges(_id=node_id)
         self._add_node(n, register_node=register_node)
@@ -65,8 +89,7 @@ class TreeWithPathsInEdges(object):
             return
         assert node_id not in self._id2node
         if register_node:
-            self._id2node[node_id] = node_id
-        self._leaves.add(n._id)
+            self._register_node(n)
     def _init_with_cherry(self, i1, i2):
         n1 = self.create_leaf(node_id=i1, register_node=False)
         if i1 == i2:
@@ -169,7 +192,9 @@ class TreeWithPathsInEdges(object):
         node_for_mrca = self._id2node[mrca_id]
         if mrca_id == node_for_mrca._id:
             node_for_mrca.add_child(growing)
-            self._register_node_ids(growing)
+            self._register_node(growing)
+            if mrca_id in self._leaves:
+                self._leaves.remove(mrca_id)
             return node_for_mrca
         return self._init_create_mrca(growing, node_for_mrca, mrca_id, register_hit_ids=False)
 
@@ -186,13 +211,14 @@ class TreeWithPathsInEdges(object):
             if hit._children:
                 _LOG.debug('_init_create_mrca the mrca ID ({}) is the end of an internal node path'.format(mrca_id))
                 hit.add_child(growing)
-                self._register_node_ids(growing)
+                self._register_node(growing)
             else:
                 _LOG.debug('_init_create_mrca the mrca ID ({}) is the tip of a path'.format(mrca_id))
                 hit._path_ids = growing._path_ids + hit._path_ids
                 hit._path_set.update(growing._path_set)
+                self._leaves.remove(hit._id)
                 hit._id = growing._id
-                self._register_node_ids(hit)
+                self._register_node(hit)
             return hit
 
         _LOG.debug('_init_create_mrca the mrca ID ({}) is inside a path that ends with {}'.format(mrca_id, hit._id))
@@ -219,14 +245,11 @@ class TreeWithPathsInEdges(object):
         if (self._root is None) or (self._root is hit) or (self._root is growing):
             _LOG.debug('_root reset to {}'.format(m._id))
             self._root = m
-        self._register_node_ids(growing)
+        self._register_node(growing)
         if register_hit_ids:
-            self._register_node_ids(hit)
-        self._register_node_ids(m)
+            self._register_node(hit)
+        self._register_node(m)
         return m
-    def _register_node_ids(self, n):
-        for i in n._path_ids:
-            self._id2node[i] = n
     def set_root(self, n):
         assert self._root is None
         self._root = n
@@ -247,7 +270,7 @@ def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
     if nn == 1:
         if id_list[0] not in id2par:
             raise KeyError('The ID {} was not found'.format(id_list[0]))
-        n = tree.create_leaf(id_list[0], register_node=False)
+        n = tree.create_leaf(id_list[0])
         tree._root = n
         del tree._id2par
         return tree
@@ -259,5 +282,76 @@ def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
         curr_ind += 1
     del tree._id2par
     return tree
+
+def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None):
+    post_order = [nd for nd in tree.postorder_node_iter()]
+    post_order_ids = []
+    psio = set()
+    for node in post_order:
+        i = node._id
+        testCase.assertNotIn(i, psio)
+        testCase.assertIn(i, tree._id2node)
+        psio.add(i)
+        post_order_ids.append(i)
+    for i in tree._id2node.keys():
+        testCase.assertIn(i, psio)
+
+    if leaf_ids is None:
+        leaf_ids = [i for i in tree.leaf_id_iter()]
+    for i in leaf_ids:
+        testCase.assertIn(i, tree._leaves)
+
+    if not id2par:
+        for l in leaf_ids:
+            testCase.assertTrue(l in psio)
+        for node in post_order:
+            if node.is_leaf:
+                testCase.assertIn(node._id, leaf_ids)
+            else:
+                _LOG.debug(node._children)
+                testCase.assertNotIn(node._id, leaf_ids)
+
+    else:
+        anc_ref_count = {}
+        anc_set = set()
+        checked_node = set()
+        #_LOG.debug('post_order_ids = {}'.format(post_order_ids))
+        for t in leaf_ids:
+            anc_id = id2par[t]
+            #_LOG.debug('anc_id = {}'.format(anc_id))
+            anc_ref_count[anc_id] = 1 + anc_ref_count.get(anc_id, 0)
+            if anc_ref_count[anc_id] > 1:
+                anc_set.add(anc_id)
+            testCase.assertTrue(tree.find_node(t).is_leaf)
+            testCase.assertIn(t, post_order_ids)
+            if (anc_id in tree._id2node) and (anc_id == tree.find_node(anc_id)._id):
+                testCase.assertIn(anc_id, post_order_ids)
+                testCase.assertLess(post_order_ids.index(t), post_order_ids.index(anc_id))
+            else:
+                testCase.assertNotIn(anc_id, psio)
+            checked_node.add(t)
+        while len(anc_set - checked_node) > 0:
+            ns = set()
+            for t in anc_set:
+                if t in checked_node:
+                    continue
+                testCase.assertNotIn(t, leaf_ids)
+                testCase.assertFalse(tree.find_node(t).is_leaf)
+                anc_id = id2par[t]
+                #_LOG.debug('anc_id = {}'.format(anc_id))
+                anc_ref_count[anc_id] = 1 + anc_ref_count.get(anc_id, 0)
+                if anc_ref_count[anc_id] > 1:
+                    ns.add(anc_id)
+                testCase.assertIn(t, psio)
+                checked_node.add(t)
+                if anc_id is not None:
+                    if (anc_id in tree._id2node) and (anc_id == tree.find_node(anc_id)._id):
+                        testCase.assertIn(anc_id, psio)
+                        testCase.assertLess(post_order_ids.index(t), post_order_ids.index(anc_id))
+                    else:
+                        testCase.assertNotIn(anc_id, psio)
+            anc_set.update(ns)
+            #_LOG.debug('anc_set = {}'.format(anc_set))
+            #_LOG.debug('checked_node = {}'.format(checked_node))
 
 

@@ -26,6 +26,22 @@ _bogus_id2par = {'h': 'hp',
                 }
 _LOG = get_logger(__name__)
 class TestPhyloTree(unittest.TestCase):
+    def testLengthenEdge(self):
+        tree = create_tree_from_id2par(_bogus_id2par, ['hp', 'g', 'h'])
+        self.assertEqual(tree.find_node('hp')._id, 'hp')
+        li = tree.leaf_ids
+        li.sort()
+        self.assertEqual(li, ['g', 'h'])
+        tree.do_full_check_of_invariants(self, id2par=_bogus_id2par)
+    def testSingleton(self):
+        tree = create_tree_from_id2par(_bogus_id2par, ['h'])
+        self.assertEqual(tree.find_node('h')._id, 'h')
+        tree.do_full_check_of_invariants(self, id2par=_bogus_id2par)
+    def testEmpty(self):
+        # not sure whether we should return an empty tree, None, or raise an exception...
+        self.assertEqual(None, create_tree_from_id2par(_bogus_id2par, []))
+    def testInsertAnc(self):
+        pass
     def testCherry(self):
         tree = create_tree_from_id2par(_bogus_id2par, ['h', 'p'])
         self.assertTrue(tree._root._id == 'hp')
@@ -36,42 +52,10 @@ class TestPhyloTree(unittest.TestCase):
         self.assertEqual(next(i)._id, 'hp')
         self.assertRaises(StopIteration, next, i)
         self.assertRaises(ValueError, create_tree_from_id2par, _bogus_id2par, ['h', 'bogus_tip'])
+        tree.do_full_check_of_invariants(self, id2par=_bogus_id2par)
     def testFullExample(self):
         tips = ['h', 'p', 'g', 'Po', 'Hy', 'Sy', 'Ho', 'No']
         tree = create_tree_from_id2par(_bogus_id2par, tips)
-        post_order = [nd._id for nd in tree.postorder_node_iter()]
-        anc_ref_count = {}
-        anc_set = set()
-        checked_node = set()
-        _LOG.debug('post_order = {}'.format(post_order))
-        for t in tips:
-            anc_id = _bogus_id2par[t]
-            _LOG.debug('anc_id = {}'.format(anc_id))
-            anc_ref_count[anc_id] = 1 + anc_ref_count.get(anc_id, 0)
-            if anc_ref_count[anc_id] > 1:
-                anc_set.add(anc_id)
-            self.assertTrue(t in post_order)
-            self.assertTrue(anc_id in post_order)
-            self.assertTrue(post_order.index(t) < post_order.index(anc_id))
-            checked_node.add(t)
-        while len(anc_set - checked_node) > 0:
-            ns = set()
-            for t in anc_set:
-                if t in checked_node:
-                    continue
-                anc_id = _bogus_id2par[t]
-                _LOG.debug('anc_id = {}'.format(anc_id))
-                anc_ref_count[anc_id] = 1 + anc_ref_count.get(anc_id, 0)
-                if anc_ref_count[anc_id] > 1:
-                    ns.add(anc_id)
-                self.assertTrue(t in post_order)
-                checked_node.add(t)
-                if anc_id is not None:
-                    self.assertTrue(anc_id in post_order)
-                    self.assertTrue(post_order.index(t) < post_order.index(anc_id))
-            anc_set.update(ns)
-            _LOG.debug('anc_set = {}'.format(anc_set))
-            _LOG.debug('checked_node = {}'.format(checked_node))
-
+        tree.do_full_check_of_invariants(self, id2par=_bogus_id2par)
 if __name__ == "__main__":
     unittest.main()

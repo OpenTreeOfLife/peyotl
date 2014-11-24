@@ -10,25 +10,29 @@ class Node(object):
     def postorder_iter(self, filter_fn=None):
         stack = [(self, False)]
         while stack:
-            node, state = stack.pop(0)
+            node, state = stack.pop()
             if state:
                 if filter_fn is None or filter_fn(node):
                     yield node
             else:
-                stack.insert(0, (node, True))
+                stack.append((node, True))
                 if node._children:
-                    stack = [(n, False) for n in node.children_iter()] + stack
+                    stack.extend([(n, False) for n in node.children_iter()])
     def children_iter(self, filter_fn=None):
         if self._children:
             for i in self._children:
                 if filter_fn is None or filter_fn(i):
                     yield i
     def add_child(self, child):
+        child._child_index_in_parent = len(self._children)
         self._children.append(child)
         child._parent = self
     def replace_child(self, old_child, new_c):
-        i = self._children.index(old_child)
+        i = old_child._child_index_in_parent
+        assert self._children[i] is old_child
+        del old_child._child_index_in_parent
         self._children[i] = new_c
+        new_c._child_index_in_parent = i
         new_c._parent = self
 class NodeWithPathInEdges(Node):
     def __init__(self, _id=None):

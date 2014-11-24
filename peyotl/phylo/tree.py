@@ -111,6 +111,7 @@ class _TreeWithNodeIDs(object):
     def __init__(self):
         self._id2node = {}
         self._leaves = set()
+        self._root = None
     def find_node(self, _id):
         return self._id2node[_id]
     def _register_node(self, node):
@@ -131,17 +132,17 @@ class _TreeWithNodeIDs(object):
             else:
                 out.write(',(')
         def _t(node):
+            if not node.is_first_child_of_parent:
+                out.write(',')
             _write_node_info_newick(out, node, **kwargs)
         def _a(node):
             out.write(')')
-            _t(node)
-
+            _write_node_info_newick(out, node, **kwargs)
         self._root.before_after_apply(before_fn=_open_newick, after_fn=_a, leaf_fn=_t)
 class TreeWithPathsInEdges(_TreeWithNodeIDs):
     def __init__(self, id_to_par_id=None):
         _TreeWithNodeIDs.__init__(self)
         self._id2par = id_to_par_id
-        self._root = None
         self._root_tail_hits_real_root = False
     @property
     def leaf_ids(self):

@@ -6,6 +6,7 @@ _LOG = get_logger(__name__)
 _WS = re.compile(r'\s+')
 _PUNC = re.compile(r'[(),:;\[\]]')
 _SINGLE_QUOTED_STR = re.compile(r"([^'])'")
+_COMMENT_STR = re.compile(r"([^\]]*)\]")
 _UNQUOTED_STR = re.compile(r"([^'():,;\\[]+)(?=$|['():,;\\[])")
 class NewickTokenType(Enum):
     NONE = 0
@@ -28,18 +29,19 @@ class NewickTokenizer(object):
         self.num_open_parens = 0
         self.num_close_parens = 0
         self._token = None
-        self.comment = None
+        self.comments = []
         self.prev_token = NewickTokenType.NONE
         self._cb = {'(': self._handle_open_parens,
                     ')': self._handle_close_parens,
                     ',': self._handle_comma,
                     ':': self._handle_colon,
                     ';': self._handle_semicolon,
+                    '[': self._handle_comment,
                    }
         self._default_cb = self._handle_label
         self.finished = False
         c = self._eat_whitespace_get_next_char()
-        self._index = -1
+        self._index -= 2
         if c != '(':
             self._raise_unexpected('Expected the first character to be a "(", but found "{}"'.format(c))
         self.prev_token = NewickTokenType.OPEN # just so we don't have to check for NONE on every ( we fake a legal preceding token
@@ -51,10 +53,13 @@ class NewickTokenizer(object):
     def __iter__(self):
         return self
     def _eat_whitespace(self):
-        if self._index >= 0:
-            w = _WS.search(self._src, self._index)
-            if w:
-                self._index = w.end() - 1
+        if (1 + self._index) <= self._last_ind:
+            _LOG.debug('_eat_whitespace ind= {} str="{}"'.format(self._index, self._src[1+self._index]))
+        w = _WS.match(self._src, 1 + self._index)
+        if w:
+            _LOG.debug('found ws ending at {}'.format(w.end()))
+            self._index = w.end() - 1
+            _LOG.debug('exiting _eat_whitespace ind= {} str="{}"'.format(self._index, self._src[1+self._index]))
     def _eat_whitespace_get_next_char(self):
         self._eat_whitespace()
         return self._get_next_char()
@@ -78,10 +83,10 @@ class NewickTokenizer(object):
             return None
         return self._src[1 + self._index]
     def _grab_one_single_quoted_word(self):
-        b = self._index - 1
+        b = self._index
         m = _SINGLE_QUOTED_STR.match(self._src, self._index)
         if not m:
-            self._index = b
+            self._index = b - 1
             self._raise_unexpected("Found an opening single-quote, but not closing quote")
         self._index = m.end()
         return m.group(1)
@@ -102,8 +107,8 @@ class NewickTokenizer(object):
         if not m:
             self._raise_unexpected('Expecting a label but found "{}"'.format(self._src[b]))
         label = m.group(1)
-        _LOG.debug('_read_unquoted_label label = "{}"'.format(label))
         self._index = m.end() - 1
+        _LOG.debug('_read_unquoted_label label = "{}" ind = {}'.format(label, self._index))
         label = label.strip() # don't preserve whitespace
         return label.replace('_', ' ')
 
@@ -119,6 +124,18 @@ class NewickTokenizer(object):
         self.prev_token = NewickTokenType.COLON
         self._default_cb = self._handle_edge_info
         return '('
+    def _handle_comment(self):
+        b = self._index + 1
+        _LOG.debug('_handle_comment b = {} str="{}"'.format(b, self._src[b:]))
+        m = _COMMENT_STR.match(self._src, b)
+        if not m:
+            self._index = b
+            self._raise_unexpected("Found an opening [ of a comment, but not closing ]")
+        self._index = m.end() - 1
+        comment = m.group(1)
+        _LOG.debug('_handle_comment = "{}" ind = {}'.format(comment, self._index))
+        self.comments.append(comment)
+        return self._read_next()
     def _handle_semicolon(self):
         if self.prev_token not in [NewickTokenType.LABEL, NewickTokenType.CLOSE, NewickTokenType.EDGE_INFO]:
             self._raise_unexpected('Expecting ";" to be preceded by ")", a taxon label, or branch information')
@@ -161,6 +178,11 @@ class NewickTokenizer(object):
         self.prev_token = NewickTokenType.CLOSE
         return ')'
     def __next__(self):
+        del self.comments[:]
+        c = self._read_next()
+        _LOG.debug('TOKEN = "{}" type={} ind={} comments="{}"'.format(c, self.prev_token, self._index, '", "'.join(self.comments)))
+        return c
+    def _read_next(self):
         c = self._eat_whitespace_get_next_char()
         _LOG.debug('__next__ c = "{c}" prev_token={p} self._index={i}'.format(c=c, p=self.prev_token.name, i=self._index))
         cb = self._cb.get(c, self._default_cb)

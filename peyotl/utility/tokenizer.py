@@ -5,7 +5,7 @@ import re
 _LOG = get_logger(__name__)
 _WS = re.compile(r'\s+')
 _PUNC = re.compile(r'[(),:;\[\]]')
-_SINGLE_QUOTED_STR = re.compile(r"([^'])'")
+_SINGLE_QUOTED_STR = re.compile(r"([^']*)'")
 _COMMENT_STR = re.compile(r"([^\]]*)\]")
 _UNQUOTED_STR = re.compile(r"([^'():,;\\[]+)(?=$|['():,;\\[])")
 class NewickTokenType(Enum):
@@ -25,7 +25,7 @@ class NewickTokenizer(object):
     def __init__(self, stream):
         self._src = stream.read()
         self._last_ind = len(self._src) - 1
-        self._index = 0
+        self._index = -1
         self.num_open_parens = 0
         self.num_close_parens = 0
         self._token = None
@@ -41,7 +41,7 @@ class NewickTokenizer(object):
         self._default_cb = self._handle_label
         self.finished = False
         c = self._eat_whitespace_get_next_char()
-        self._index -= 2
+        self._index -= 1
         if c != '(':
             self._raise_unexpected('Expected the first character to be a "(", but found "{}"'.format(c))
         self.prev_token = NewickTokenType.OPEN # just so we don't have to check for NONE on every ( we fake a legal preceding token
@@ -83,13 +83,16 @@ class NewickTokenizer(object):
             return None
         return self._src[1 + self._index]
     def _grab_one_single_quoted_word(self):
-        b = self._index
-        m = _SINGLE_QUOTED_STR.match(self._src, self._index)
+        b = self._index + 1
+        m = _SINGLE_QUOTED_STR.match(self._src, b)
+        _LOG.debug('_grab_one_single_quoted_word b = {} str="{}"'.format(b, self._src[b:]))
         if not m:
             self._index = b - 1
             self._raise_unexpected("Found an opening single-quote, but not closing quote")
-        self._index = m.end()
-        return m.group(1)
+        self._index = m.end() - 1
+        word = m.group(1)
+        _LOG.debug('  _grab_one_single_quoted_word word = {} index="{}"'.format(word, self._index))
+        return word
     def _read_quoted_label(self):
         label = self._grab_one_single_quoted_word()
         if self._peek() == "'":

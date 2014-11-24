@@ -10,6 +10,10 @@ class TestNewickTokenizer(unittest.TestCase):
         self._do_test('((h,p)hp,g)hpg;', exp)
         self._do_test('((h,p[test])hp,g)hpg;', exp)
         self._do_test('  ( (  h , p[test] [test2])  hp,  g) hpg ;', exp)
+    def testQuoted(self):
+        exp = ['(', '(', 'h ', ',', 'p', ')', 'h p', ',', "g()[],':_", ')', 'hpg', ';']
+        self._do_test("((h_ ,'p')h p,'g()[],'':_')hpg;", exp)
+        self._do_test("(('h ',p)h p,'g()[],'':_')hpg;", exp)
     def _do_test(self, content, expected):
         self.assertEqual([i for i in NewickTokenizer(StringIO(content))], expected)
 

@@ -104,6 +104,36 @@ def _merge_otu_do_not_fix_references(src, dest):
     for k, v in src.items():
         if k not in _special_otu_keys:
             _add_uniq_value_to_dict_bf(dest, k, v)
+def nexson_tree_preorder_iter(tree):
+    '''Takes a tree in "By ID" NexSON (v1.2).
+    provides and iterator over:
+        (node_id, node, edge_id, edge)
+    objects where the edge is the edge connectin the node to the parent.
+    The first node will be the root and will have None as it's edge
+    '''
+    ebsid = tree['edgeBySourceId']
+    nbid = tree['nodeById']
+    root_id = tree['^ot:rootNodeId']
+    root = nbid[root_id]
+    yield root_id, root, '', None
+    ebtid = {}
+    stack = []
+    new_stack = [(i['@target'], edge_id, i) for edge_id, i in ebsid[root_id].items()]
+    for target, eid, edge in new_stack:
+        assert target not in ebtid
+        ebtid[target] = edge
+    stack.extend(new_stack)
+    while stack:
+        target_node_id, edge_id, edge = stack.pop()
+        node = nbid[target_node_id]
+        yield target_node_id, node, edge_id, edge
+        daughter_edges = ebsid.get(target_node_id)
+        if daughter_edges is not None:
+            new_stack = [(i['@target'], edge_id, i) for edge_id, i in daughter_edges.items()]
+            for target, eid, edge in new_stack:
+                assert target not in ebtid
+                ebtid[target] = i
+            stack.extend(new_stack)
 
 def merge_otus_and_trees(nexson_blob):
     '''Takes a nexson object:

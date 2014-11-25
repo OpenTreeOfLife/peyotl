@@ -6,7 +6,7 @@ import pickle
 import codecs
 import os
 _LOG = get_logger(__name__)
-NONE_PAR = -1
+NONE_PAR = None
 
 _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:

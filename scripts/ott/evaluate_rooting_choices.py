@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from peyotl.manip import nexson_tree_preorder_iter
+from peyotl.manip import NexsonTreeProxy
+from peyotl.ott import OTT
 if __name__ == '__main__':
     from peyotl.utility.input_output import read_as_json
     from peyotl.nexson_syntax import convert_nexson_format, BY_ID_HONEY_BADGERFISH, extract_tree_nexson
@@ -68,10 +69,20 @@ if __name__ == '__main__':
             sys.exit('Tree ID {i} not found. Valid IDs for this file are "{l}"\n'.format(i=args.tree_id, l=v))
         else:
             sys.exit('This NexSON has not trees.\n')
+    ott = OTT()
     for tree_id, tree, otus in trees:
-        for node_id, node, edgeid, edge in nexson_tree_preorder_iter(tree):
-            print(node_id)
+        tree_proxy = NexsonTreeProxy(tree=tree, tree_id=tree_id, otus=otus)
+        preorder_list = []
+        ott_ids = []
+        for el in tree_proxy:
+            preorder_list.append(el)
+            node_id, node, edgeid, edge = el
             if edge is not None:
                 assert node_id == edge['@target']
-            
+            if tree_proxy.is_leaf(node_id):
+                ott_id = tree_proxy.get_ott_id(node)
+                if ott_id is not None:
+                    ott_ids.append(ott_id)
+        taxo_tree = ott.induced_tree(ott_ids)
+        taxo_tree.write_newick(sys.stdout)
 

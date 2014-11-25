@@ -104,6 +104,20 @@ def _merge_otu_do_not_fix_references(src, dest):
     for k, v in src.items():
         if k not in _special_otu_keys:
             _add_uniq_value_to_dict_bf(dest, k, v)
+class NexsonTreeProxy(object):
+    '''Provide more natural operations by wrapping a NexSON 1.2 tree blob and its otus'''
+    def __init__(self, tree, tree_id=None, otus=None):
+        self._nexson_tree = tree
+        self._edge_by_source_id = tree['edgeBySourceId']
+        self._node_by_source_id = tree['nodeById']
+        self._otus = otus
+        self._tree_id = tree_id
+    def is_leaf(self, node_id):
+        return node_id not in self._edge_by_source_id
+    def get_ott_id(self, node):
+        return self._otus[node['@otu']].get('^ot:ottId')
+    def __iter__(self):
+        return iter(nexson_tree_preorder_iter(self._nexson_tree))
 def nexson_tree_preorder_iter(tree):
     '''Takes a tree in "By ID" NexSON (v1.2).
     provides and iterator over:

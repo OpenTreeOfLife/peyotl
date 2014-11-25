@@ -8,7 +8,7 @@ def _write_node_info_newick(out, node, **kwargs): #TODO
     kwargs:
         #TODO
     '''
-    out.write(node._id)
+    out.write(str(node._id))
 class Node(object):
     def __init__(self, _id=None):
         self._id = _id

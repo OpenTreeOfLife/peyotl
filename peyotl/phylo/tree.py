@@ -369,6 +369,25 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
         if nd is None:
             nd = self._root
         return nd.preorder_iter(filter_fn=filter_fn)
+    def add_mrca_id_sets(self, relevant_ids):
+        for node in self.postorder_node_iter():
+            p = node._parent
+            if p is None:
+                continue
+            if not hasattr(p, 'mrca_of_leaf_ids'):
+                p.mrca_of_leaf_ids = set()
+            i = node._id
+            #_LOG.debug('node._id ={}'.format(i))
+            #_LOG.debug('Before par mrca... = {}'.format(p.mrca_of_leaf_ids))
+            if i in relevant_ids:
+                if node.is_leaf:
+                    p.mrca_of_leaf_ids.add(i)
+                else:
+                    node.mrca_of_leaf_ids.add(i)
+                    p.mrca_of_leaf_ids.update(node.mrca_of_leaf_ids)
+            elif not node.is_leaf:
+                p.mrca_of_leaf_ids.update(node.mrca_of_leaf_ids)
+            #_LOG.debug('After par mrca... = {}'.format(p.mrca_of_leaf_ids))
 def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
     if not id_list:
         return None

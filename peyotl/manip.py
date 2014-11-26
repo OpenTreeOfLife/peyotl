@@ -112,12 +112,22 @@ class NexsonTreeProxy(object):
         self._node_by_source_id = tree['nodeById']
         self._otus = otus
         self._tree_id = tree_id
+    def child_iter(self, node_id):
+        return nexson_child_iter(self._edge_by_source_id.get(node_id, {}), self._node_by_source_id)
     def is_leaf(self, node_id):
         return node_id not in self._edge_by_source_id
     def get_ott_id(self, node):
         return self._otus[node['@otu']].get('^ot:ottId')
+    def annotate(self, obj, key, value):
+        obj[key] = value
     def __iter__(self):
         return iter(nexson_tree_preorder_iter(self._nexson_tree))
+def nexson_child_iter(edict, node_dict):
+    for edge_id, edge in edict.items():
+        node_id = edge['@target']
+        node = node_dict[node_id]
+        yield node_id, node, edge_id, edge
+
 def nexson_tree_preorder_iter(tree):
     '''Takes a tree in "By ID" NexSON (v1.2).
     provides and iterator over:

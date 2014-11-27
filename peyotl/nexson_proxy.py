@@ -15,6 +15,7 @@ from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
                                  detect_nexson_version, \
                                  get_nexml_el, \
                                  read_as_json
+from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 import weakref
 _LOG = get_logger(__name__)
@@ -75,6 +76,10 @@ class NexsonProxy(object):
             self._nexson_proxy = nexson_proxy
             self._otu_id = otu_id
             self._otu = otu
+        def __getitem__(self, key):
+            return self.otu[key]
+        def __setitem__(self, key, value):
+            self.otu[key] = value
         @property
         def ott_id(self):
             return self._otu.get('^ot:ottId')
@@ -142,7 +147,7 @@ class NexsonProxy(object):
             return np
         ogd = self._nexml_el['otusById']
         for og in ogd.values():
-            o = og.get(otu_id)
+            o = og['otuById'].get(otu_id)
             if o is not None:
                 return self._create_otu_proxy(otu_id=otu_id, otu=o)
         return None
@@ -157,6 +162,14 @@ class NexsonTreeProxy(object):
             self._edge_id = edge_id
             self._edge = edge
             self._otu = None
+        def get(self, key, default=None):
+            return self.node.get(key, default)
+        def __getitem__(self, key):
+            return self.node[key]
+        def __setitem__(self, key, value):
+            self.node[key] = value
+        def keys(self):
+            return self.node.keys()
         @property
         def is_leaf(self):
             return self._tree.is_leaf(self.node_id)
@@ -179,7 +192,7 @@ class NexsonTreeProxy(object):
             if self._edge_id is None:
                 return None
             par_node_id = self.edge['@source']
-            par_edge_id, par_edge = self._tree.find_edge_from_par(par_node_id)
+            par_edge_id, par_edge = self._tree._find_edge_from_child(par_node_id)
             return self._tree._create_node_proxy_from_edge(edge_id=par_edge_id, edge=par_edge, node_id=par_node_id)
         @property
         def node_id(self):
@@ -210,7 +223,11 @@ class NexsonTreeProxy(object):
         self._nexson_tree = tree
         self._edge_by_source_id = tree['edgeBySourceId']
         self._node_by_source_id = tree['nodeById']
-        self._otus = otus
+        if is_str_type(otus):
+            self._otus_group_id = otus
+            self._otus = nexson_proxy._nexml_el['otusById'][otus]['otuById']
+        else:
+            self._otus = otus
         self._tree_id = tree_id
         # not part of nexson, filled on demand. will be dict of node_id -> (edge_id, edge) pair
         self._edge_by_target = None
@@ -218,6 +235,15 @@ class NexsonTreeProxy(object):
         self._node_cache = {}
     def get_nexson_node(self, node_id):
         return self._node_by_source_id[node_id]
+    def get_node(self, node_id):
+        np = self._node_cache.get(node_id)
+        if np is not None:
+            return np
+        edge_id, edge = self._find_edge_from_child(node_id)
+        node = self._node_by_source_id[node_id]
+        return self._create_node_proxy_from_edge(edge_id, edge, node_id, node)
+    def get(self, key, default=None):
+        return self._nexson_tree.get(key, default)
     def __getitem__(self, key):
         return self._nexson_tree[key]
     def __setitem__(self, key, value):
@@ -225,11 +251,13 @@ class NexsonTreeProxy(object):
 
     @property
     def edge_by_target(self):
+        '''Returns a reference to the dict of target node id to (edge_id, edge)'''
         if self._edge_by_target is None:
             self._edge_by_target = reverse_edge_by_source_dict(self._edge_by_source_id, self._nexson_tree['^ot:rootNodeId'])
         return self._edge_by_target
 
-    def find_edge_from_par(self, node_id):
+    def _find_edge_from_child(self, node_id):
+        '''Returns (edge_id, edge)'''
         return self.edge_by_target[node_id]
     def _create_node_proxy_from_edge(self, edge_id, edge, node_id=None, node=None):
         np = self._node_cache.get(edge_id)
@@ -238,6 +266,8 @@ class NexsonTreeProxy(object):
                 self._wr = weakref.proxy(self)
             np = NexsonTreeProxy.NexsonNodeProxy(self._wr, edge_id=edge_id, edge=edge, node_id=node_id, node=node)
             self._node_cache[edge_id] = np
+            if node_id is not None:
+                self._node_cache[node_id] = np
         return np
     def child_iter(self, node_id):
         return nexson_child_iter(self._edge_by_source_id.get(node_id, {}), self)
@@ -247,6 +277,7 @@ class NexsonTreeProxy(object):
         return self._raw_otu_for_node(node)[0].get('^ot:ottId')
     def _raw_otu_for_node(self, node):
         otu_id = node['@otu']
+        _LOG.debug('otu_id = {}'.format(otu_id))
         return otu_id, self._otus[otu_id]
     def annotate(self, obj, key, value):
         obj[key] = value
@@ -254,6 +285,8 @@ class NexsonTreeProxy(object):
         return iter(nexson_tree_preorder_iter(self))
     def preorder_iter(self):
         return iter(nexson_tree_preorder_iter(self))
+    def nodes(self):
+        return [i for i in iter(self)]
 def nexson_child_iter(edict, nexson_tree_proxy):
     for edge_id, edge in edict.items():
         yield nexson_tree_proxy._create_node_proxy_from_edge(edge_id, edge)
@@ -290,12 +323,8 @@ def nexson_tree_preorder_iter(tree_proxy, node_id=None, node=None, edge_id=None,
         root_id = tree['^ot:rootNodeId']
         root = nbid[root_id]
         yield tree_proxy._create_node_proxy_from_edge(None, None, node_id=root_id, node=root)
-    ebtid = {}
     stack = []
     new_stack = [(i['@target'], edge_id, i) for edge_id, i in ebsid[root_id].items()]
-    for target, eid, edge in new_stack:
-        assert target not in ebtid
-        ebtid[target] = edge
     stack.extend(new_stack)
     while stack:
         target_node_id, edge_id, edge = stack.pop()
@@ -304,8 +333,5 @@ def nexson_tree_preorder_iter(tree_proxy, node_id=None, node=None, edge_id=None,
         daughter_edges = ebsid.get(target_node_id)
         if daughter_edges is not None:
             new_stack = [(i['@target'], edge_id, i) for edge_id, i in daughter_edges.items()]
-            for target, eid, edge in new_stack:
-                assert target not in ebtid
-                ebtid[target] = i
             stack.extend(new_stack)
 

@@ -9,6 +9,23 @@ class TestProxy(unittest.TestCase):
     def setUp(self):
         blob = pathmap.nexson_obj('9/v1.2.json')
         self.np = NexsonProxy(nexson=blob)
+    def testGetters(self):
+        self.assertIs(self.np.get_tree('bogus'), None)
+        self.assertIsNot(self.np.get_tree('tree1'), None)
+        self.assertIs(self.np.get_tree('otu123'), None)
+        self.assertIs(self.np.get_otu('bogus'), None)
+        self.assertIs(self.np.get_otu('tree1'), None)
+        self.assertIsNot(self.np.get_otu('otu123'), None)
+    def testCaching(self):
+        f = self.np.get_tree('tree1')
+        s = self.np.get_tree('tree1')
+        self.assertIs(f, s)
+        fn = f.get_node('node247')
+        sn = s.get_node('node247')
+        self.assertIs(fn, sn)
+        fo = self.np.get_otu('otu123')
+        so = sn.otu
+        self.assertIs(fo, so)
     def testTreeIter(self):
         ntp = self.np.get_tree('tree1')
         nbi = ntp['nodeById']

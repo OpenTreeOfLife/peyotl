@@ -94,3 +94,6 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
                     edge._equiv.add(tid)
                 elif sp_result == SplitComparison.ROOTED_EQUIVALENT:
                     edge._equiv.add(tid)
+# NEXT:
+#   sweep twice over tree accumulating incompat_if_root_below and incompat_if_root_above sets
+#   annotate the tree with the count of incompat for every rooting position

@@ -395,6 +395,8 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
         for node in self.postorder_node_iter():
             p = node._parent
             if p is None:
+                if not node.is_leaf:
+                    self.bits2internal_node[node.bits4subtree_ids] = node
                 continue
             if not hasattr(p, 'bits4subtree_ids'):
                 p.bits4subtree_ids = 0
@@ -408,14 +410,14 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                         node.bits4subtree_ids = b
                     else:
                         node.bits4subtree_ids |= b
-                        self.bits2internal_node[node.bits4subtree_ids] = node
             else:
                 if node.is_leaf:
                     relevant_ids[i] = bit
                     node.bits4subtree_ids = bit
                     bit <<= 1
-                else:
-                    self.bits2internal_node[node.bits4subtree_ids] = node
+            if not node.is_leaf:
+                self.bits2internal_node[node.bits4subtree_ids] = node
+            #_LOG.debug('while add bitrep... self.bits2internal_node = {}'.format(self.bits2internal_node))
             p.bits4subtree_ids |= node.bits4subtree_ids
         return relevant_ids
 def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):

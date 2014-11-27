@@ -512,9 +512,7 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
             else:
                 ottId2OtuPar[node._id] = None
     pruned_phylo = create_tree_from_id2par(ottId2OtuPar, ott_ids)
-    _LOG.debug('ott_ids = {}'.format(ott_ids))
     taxo_tree = ott.induced_tree(ott_ids)
-    _LOG.debug('taxo_tree = {}'.format(taxo_tree))
     return pruned_phylo, taxo_tree
 
 

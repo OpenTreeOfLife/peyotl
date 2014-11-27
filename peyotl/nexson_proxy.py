@@ -278,7 +278,7 @@ class NexsonTreeProxy(object):
         return self._raw_otu_for_node(node)[1].get('^ot:ottId')
     def _raw_otu_for_node(self, node):
         otu_id = node['@otu']
-        _LOG.debug('otu_id = {}'.format(otu_id))
+        #_LOG.debug('otu_id = {}'.format(otu_id))
         return otu_id, self._otus[otu_id]
     def annotate(self, obj, key, value):
         obj[key] = value

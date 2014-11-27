@@ -7,7 +7,11 @@ import logging
 import json
 import time
 import os
-
+def any_early_exit(iterable, predicate):
+    for i in iterable:
+        if predicate(i):
+            return True
+    return False
 from peyotl.utility.input_output import download, \
                                         expand_path, \
                                         open_for_group_write, \

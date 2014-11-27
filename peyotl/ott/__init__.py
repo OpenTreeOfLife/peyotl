@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.phylo.entities import OTULabelStyleEnum
 from peyotl.phylo.tree import create_tree_from_id2par
+from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_config_object, get_logger
 import pickle
 import codecs
@@ -479,6 +480,43 @@ class TaxonomyDes2AncLineage(object):
         return '{r} at {i}'.format(r=self.__repr__(), i=hex(id(self)))
     def __repr__(self):
         return 'TaxonomyDes2AncLineage({l})'.format(l=repr(self._des_to_anc_list))
+
+def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
+    '''returns a pair of trees:
+        the first is that is a pruned version of tree_proxy created by pruning
+            any leaf that has not ott_id and every internal that does not have
+            any descendant with an ott_id. Nodes of out-degree 1 are suppressed
+            as part of the TreeWithPathsInEdges-style.
+        the second is the OTT induced tree for these ott_ids
+    '''
+    # create and id2par that has ott IDs only at the tips (we are
+    #   ignoring mappings at internal nodes.
+    # OTT IDs are integers, and the nodeIDs are strings - so we should not get clashes.
+    #TODO consider prefix scheme
+    ott_ids = []
+    ottId2OtuPar = {}
+    for node in tree_proxy:
+        if node.is_leaf:
+            ott_id = node.ott_id
+            if ott_id is None:
+                ott_ids.append(ott_id)
+                assert isinstance(ott_id, int)
+                parent_id = node.parent._id
+                ottId2OtuPar[ott_id] = parent_id
+        else:
+            assert is_str_type(node._id)
+            edge = node.edge
+            if edge is not None:
+                parent_id = node.parent._id
+                ottId2OtuPar[node._id] = parent_id
+            else:
+                ottId2OtuPar[node._id] = None
+    pruned_phylo = create_tree_from_id2par(ottId2OtuPar, ott_ids)
+    taxo_tree = ott.induced_tree(ott_ids)
+    return pruned_phylo, taxo_tree
+
+
+
 if __name__ == '__main__':
     import sys
     o = OTT()

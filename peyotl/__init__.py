@@ -54,8 +54,9 @@ def iter_node(tree):
         yield nd
 
 __all__ = ['utility',
-           'nexson_syntax',
            'api',
+           'nexson_proxy',
+           'nexson_syntax',
            'nexson_validation',
            'ott',
            'phylesystem',
@@ -67,4 +68,5 @@ __all__ = ['utility',
            'external',
            'manip',
            'struct_diff',
+           'evaluate_tree',
           ]

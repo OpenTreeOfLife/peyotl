@@ -14,6 +14,8 @@ class Node(object):
         self._id = _id
         self._children = []
         self._parent = None
+    def child_iter(self):
+        return iter(self._children)
     @property
     def is_leaf(self):
         return not bool(self._children)
@@ -113,6 +115,9 @@ class _TreeWithNodeIDs(object):
         self._id2node = {}
         self._leaves = set()
         self._root = None
+    @property
+    def root(self):
+        return self._root
     def find_node(self, _id):
         return self._id2node[_id]
     def _register_node(self, node):
@@ -369,25 +374,50 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
         if nd is None:
             nd = self._root
         return nd.preorder_iter(filter_fn=filter_fn)
+    def __iter__(self):
+        return self._root.preorder_iter()
     def add_mrca_id_sets(self, relevant_ids):
+        '''Adds a long integer bits4subtree_ids to each node (Fails cryptically if that field is already present!)
+        relevant_ids can be a dict of _id to bit representation.
+        If it is not supplied, a dict will be created by registering the leaf._id into a dict (and returning the dict)
+        the bits4subtree_ids will have a 1 bit if the _id is at or descended from this node and 0 if it is not
+            in this subtree.
+        Returns the dict of ids -> longs
+        Also creates a dict of long -> node mappings for all internal nodes. Stores this in self as bits2internal_node
+        '''
+        if relevant_ids:
+            checking = True
+        else:
+            checking = False
+            relevant_ids = {}
+            bit = 1
+        self.bits2internal_node = {}
         for node in self.postorder_node_iter():
             p = node._parent
             if p is None:
                 continue
-            if not hasattr(p, 'mrca_of_leaf_ids'):
-                p.mrca_of_leaf_ids = set()
+            if not hasattr(p, 'bits4subtree_ids'):
+                p.bits4subtree_ids = 0
             i = node._id
             #_LOG.debug('node._id ={}'.format(i))
-            #_LOG.debug('Before par mrca... = {}'.format(p.mrca_of_leaf_ids))
-            if i in relevant_ids:
+            #_LOG.debug('Before par mrca... = {}'.format(p.bits4subtree_ids))
+            if checking:
+                b = relevant_ids.get(i)
+                if b:
+                    if node.is_leaf:
+                        node.bits4subtree_ids = b
+                    else:
+                        node.bits4subtree_ids |= b
+                        self.bits2internal_node[node.bits4subtree_ids] = node
+            else:
                 if node.is_leaf:
-                    p.mrca_of_leaf_ids.add(i)
+                    relevant_ids[i] = bit
+                    node.bits4subtree_ids = bit
+                    bit <<= 1
                 else:
-                    node.mrca_of_leaf_ids.add(i)
-                    p.mrca_of_leaf_ids.update(node.mrca_of_leaf_ids)
-            elif not node.is_leaf:
-                p.mrca_of_leaf_ids.update(node.mrca_of_leaf_ids)
-            #_LOG.debug('After par mrca... = {}'.format(p.mrca_of_leaf_ids))
+                    self.bits2internal_node[node.bits4subtree_ids] = node
+            p.bits4subtree_ids |= node.bits4subtree_ids
+        return relevant_ids
 def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
     if not id_list:
         return None

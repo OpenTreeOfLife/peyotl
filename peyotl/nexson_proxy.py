@@ -101,8 +101,8 @@ class NexsonProxy(object):
             _LOG.debug('NexsonProxy converting to hbf1.2')
             convert_nexson_format(self._nexson, BY_ID_HONEY_BADGERFISH)
         self._nexml_el = get_nexml_el(self._nexson)
-        self._otu_cache = None
-        self._tree_cache = None
+        self._otu_cache = {}
+        self._tree_cache = {}
         self._wr = None
     def otu_iter(self):
         return iter(otu_iter_nexson_proxy(self))
@@ -207,6 +207,11 @@ class NexsonTreeProxy(object):
         self._node_cache = {}
     def get_nexson_node(self, node_id):
         return self._node_by_source_id[node_id]
+    def __getitem__(self, key):
+        return self._nexson_tree[key]
+    def __setitem__(self, key, value):
+        self._nexson_tree[key] = value
+
     @property
     def edge_by_target(self):
         if self._edge_by_target is None:

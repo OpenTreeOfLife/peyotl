@@ -16,7 +16,7 @@ class TestProxy(unittest.TestCase):
         ks = set(nbi.keys())
         its = set()
         edge_less = None
-        for node in self.ntp:
+        for node in ntp:
             its.add(node.node_id)
             self.assertIs(node.node, nbi[node.node_id])
             if node.edge is None:

@@ -56,8 +56,21 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
             basal_bits |= id2bit[c._id]
     _LOG.debug('basal_bits = {}'.format(bin(basal_bits)[2:].zfill(num_ids)))
     _LOG.debug('# nontrivial taxo splits = {}'.format(len(taxo_nontriv_splits)))
+    _EMPTY_SET = frozenset([])
     for node in pruned_phylo:
+        edge = node.edge
+        if edge is None:
+            continue
         if node.is_leaf:
-            pass # print node._id
-
+            if node._id in basal_taxo:
+                edge._not_inverted_incompat = _EMPTY_SET
+                edge._inverted_incompat = _EMPTY_SET
+            else:
+                edge._not_inverted_incompat = _EMPTY_SET
+                #TODO would be more efficient to jump to tip and walk back...
+                b = id2bit[node._id]
+                edge._inverted_incompat = {}
+                for tb, tid in taxo_nontriv_splits.items():
+                    if tb & b: 
+                        edge._inverted_incompat.add(tid)
 

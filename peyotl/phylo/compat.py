@@ -17,6 +17,10 @@ class SplitComparison(Enum):
     ROOTED_COMPAT = 0x03 # both could fit on the same rooted tree (without altering)
     UNROOTED_EQUIVALENT = 0x07 # rooted differently, but compatible in an unrooted sense
     ROOTED_EQUIVALENT = 0x0F # represent the same partitioning of leaves
+def intersection_not_empty(one_set, other):
+    if len(one_set) < len(other):
+        return any(x in other for x in one_set)
+    return any(x in one_set for x in other)
 
 def sets_are_rooted_compat(one_set, other):
     '''treats the 2 sets are sets of taxon IDs on the same (unstated)
@@ -25,8 +29,7 @@ def sets_are_rooted_compat(one_set, other):
     '''
     if one_set.issubset(other) or other.issubset(one_set):
         return True
-    inter = one_set.intersection(other)
-    return not bool(inter)
+    return not intersection_not_empty(one_set, other)
 
 def compare_sets_as_splits(one_set, other, el_universe):
     if one_set.issubset(other) or other.issubset(one_set):

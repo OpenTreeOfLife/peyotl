@@ -44,4 +44,19 @@ def compare_sets_as_splits(one_set, other, el_universe):
     if len(one_set) + len(other) - len(inter) == len(el_universe):
         return SplitComparison.UNROOTED_COMPAT
     return SplitComparison.UNROOTED_INCOMPATIBLE
+def compare_bits_as_splits(one_set, other, el_universe):
+    intersection_b = one_set & other
+    if intersection_b == 0:
+        union_b = one_set | other
+        if el_universe == union_b:
+            return SplitComparison.UNROOTED_EQUIVALENT
+        return SplitComparison.UNROOTED_COMPAT
+    if intersection_b == one_set or intersection_b == other:
+        if one_set == other:
+            return SplitComparison.ROOTED_EQUIVALENT
+        return SplitComparison.ROOTED_COMPAT
+    union_b = one_set | other
+    if el_universe == union_b:
+        return SplitComparison.UNROOTED_COMPAT
+    return SplitComparison.UNROOTED_INCOMPATIBLE
 

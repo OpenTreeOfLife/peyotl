@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from peyotl.ott import create_pruned_and_taxonomy_for_tip_ott_ids
+from peyotl.phylo.compat import compare_bits_as_splits, SplitComparison
 from peyotl.utility import any_early_exit, get_logger
 from peyotl.utility.str_util import reverse_dict
 _LOG = get_logger(__name__)
@@ -58,9 +59,9 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     _LOG.debug('# nontrivial taxo splits = {}'.format(len(taxo_nontriv_splits)))
     _EMPTY_SET = frozenset([])
     for node in pruned_phylo:
-        edge = node.edge
-        if edge is None:
+        if node is pruned_phylo.root:
             continue
+        edge = node.edge
         if node.is_leaf:
             if node._id in basal_taxo:
                 edge._not_inverted_incompat = _EMPTY_SET
@@ -69,8 +70,27 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
                 edge._not_inverted_incompat = _EMPTY_SET
                 #TODO would be more efficient to jump to tip and walk back...
                 b = id2bit[node._id]
-                edge._inverted_incompat = {}
+                edge._inverted_incompat = set()
                 for tb, tid in taxo_nontriv_splits.items():
-                    if tb & b: 
+                    if tb & b:
                         edge._inverted_incompat.add(tid)
-
+        else:
+            #TODO this could be more efficient...
+            b = node.bits4subtree_ids
+            edge._not_inverted_incompat = set()
+            edge._inverted_incompat = set()
+            edge._equiv = set()
+            for tb, tid in taxo_nontriv_splits.items():
+                sp_result = compare_bits_as_splits(b, tb, taxon_mask)
+                if sp_result == SplitComparison.UNROOTED_INCOMPATIBLE:
+                    edge._not_inverted_incompat.add(tid)
+                    edge._inverted_incompat.add(tid)
+                elif sp_result == SplitComparison.UNROOTED_COMPAT:
+                    edge._not_inverted_incompat.add(tid)
+                elif sp_result == SplitComparison.ROOTED_COMPAT:
+                    edge._inverted_incompat.add(tid)
+                elif sp_result == SplitComparison.UNROOTED_EQUIVALENT:
+                    edge._not_inverted_incompat.add(tid)
+                    edge._equiv.add(tid)
+                elif sp_result == SplitComparison.ROOTED_EQUIVALENT:
+                    edge._equiv.add(tid)

@@ -9,11 +9,19 @@ def _write_node_info_newick(out, node, **kwargs): #TODO
         #TODO
     '''
     out.write(str(node._id))
+class ExtensibleObject(object):
+    pass
 class Node(object):
     def __init__(self, _id=None):
         self._id = _id
         self._children = []
         self._parent = None
+        self._edge = None
+    @property
+    def edge(self):
+        if self._edge is None:
+            self._edge = ExtensibleObject()
+        return self._edge
     def child_iter(self):
         return iter(self._children)
     @property

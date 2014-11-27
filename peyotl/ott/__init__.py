@@ -418,7 +418,6 @@ class OTT(object):
         i2pi = self.ott_id2par_ott_id
         n = i2pi.get(curr)
         if n is None:
-            print 'i2pi = ', i2pi
             raise KeyError('The OTT ID {} was not found'.format(ott_id))
         lineage = [curr]
         while n is not None and n != NONE_PAR:

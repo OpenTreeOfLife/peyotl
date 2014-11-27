@@ -56,12 +56,15 @@ class NewickTokenizer(object):
         self._index -= 1
         if c != '(':
             self._raise_unexpected('Expected the first character to be a "(", but found "{}"'.format(c))
-        self.prev_token = NewickTokenType.OPEN # just so we don't have to check for NONE on every ( we fake a legal preceding token
+        # just so we don't have to check for NONE on every ( we fake a legal preceding token
+        self.prev_token = NewickTokenType.OPEN
     def tokens(self):
         return [i for i in iter(self)]
     def _raise_unexpected(self, m):
         if self.prev_token != NewickTokenType.NONE:
-            raise ValueError('Error: {m} at {f} after a/an {p} token'.format(m=m, f=self.file_pos(), p=self.prev_token.name))
+            raise ValueError('Error: {m} at {f} after a/an {p} token'.format(m=m,
+                                                                             f=self.file_pos(),
+                                                                             p=self.prev_token.name))
         raise ValueError('Error: {m} at {f}'.format(m=m, f=self.file_pos()))
 
     def __iter__(self):
@@ -82,7 +85,9 @@ class NewickTokenizer(object):
         try:
             x = self._src[self._index]
             if self.finished:
-                raise ValueError('Unexpected newick content after the semicolon. Found "{c}" and {f}'.format(c=x, f=self.file_pos()))
+                m = 'Unexpected newick content after the semicolon. Found "{c}" and {f}'
+                m = m.format(c=x, f=self.file_pos())
+                raise ValueError(m)
             return x
         except IndexError:
             if self.num_close_parens != self.num_open_parens:
@@ -198,11 +203,9 @@ class NewickTokenizer(object):
     def __next__(self):
         del self.comments[:]
         c = self._read_next()
-        #_LOG.debug('TOKEN = "{}" type={} ind={} comments="{}"'.format(c, self.prev_token, self._index, '", "'.join(self.comments)))
         return c
     def _read_next(self):
         c = self._eat_whitespace_get_next_char()
-        #_LOG.debug('__next__ c = "{c}" prev_token={p} self._index={i}'.format(c=c, p=self.prev_token.name, i=self._index))
         cb = self._cb.get(c, self._default_cb)
         return cb()
     next = __next__

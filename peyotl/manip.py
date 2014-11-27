@@ -8,7 +8,6 @@ from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
                                  get_nexml_el, \
                                  _is_by_id_hbf
 from peyotl.utility import get_logger
-import weakref
 _LOG = get_logger(__name__)
 
 def count_num_trees(nexson, nexson_version=None):

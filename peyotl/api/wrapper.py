@@ -205,7 +205,7 @@ class APIWrapper(object):
         return self._studies_wrapper
 
 class _StudiesServicesWrapper(object):
-    def __init__(self, oti_wrapper, **kwargs):
+    def __init__(self, oti_wrapper, **kwargs): #pylint: disable=W0613
         self.oti = oti_wrapper
     def find_studies(self, *valist, **kwargs):
         return self.oti.find_studies(*valist, **kwargs)
@@ -215,7 +215,7 @@ class _StudiesServicesWrapper(object):
         return self.oti.search_terms
 
 class _TaxonomyServicesWrapper(object):
-    def __init__(self, taxomachine_wrapper, **kwargs):
+    def __init__(self, taxomachine_wrapper, **kwargs): #pylint: disable=W0613
         self.taxomachine = taxomachine_wrapper
     def about(self, *valist, **kwargs):
         return self.taxomachine.about(*valist, **kwargs)
@@ -228,7 +228,7 @@ class _TaxonomyServicesWrapper(object):
         return self.taxomachine.taxon(*valist, **kwargs)
 
 class _TNRSServicesWrapper(object):
-    def __init__(self, taxomachine_wrapper, **kwargs):
+    def __init__(self, taxomachine_wrapper, **kwargs): #pylint: disable=W0613
         self.taxomachine = taxomachine_wrapper
     def match_names(self, *valist, **kwargs):
         return self.taxomachine.TNRS(*valist, **kwargs)
@@ -240,13 +240,13 @@ class _TNRSServicesWrapper(object):
         return self.taxomachine.infer_context(*valist, **kwargs)
 
 class _StudyServicesWrapper(object):
-    def __init__(self, phylesystem_api, **kwargs):
+    def __init__(self, phylesystem_api, **kwargs): #pylint: disable=W0613
         self.phylesytem_wrapper = phylesystem_api
     def get(self, *valist, **kwargs):
         return self.phylesytem_wrapper.get(*valist, **kwargs)
 
 class _GraphOfLifeServicesWrapper(object):
-    def __init__(self, treemachine_wrapper, **kwargs):
+    def __init__(self, treemachine_wrapper, **kwargs): #pylint: disable=W0613
         self.treemachine = treemachine_wrapper
     def info(self):
         return self.treemachine.graph_info
@@ -257,7 +257,7 @@ class _GraphOfLifeServicesWrapper(object):
         return self.treemachine.node_info(*valist, **kwargs)
 
 class _TreeOfLifeServicesWrapper(object):
-    def __init__(self, treemachine_wrapper, **kwargs):
+    def __init__(self, treemachine_wrapper, **kwargs): #pylint: disable=W0613
         self.treemachine = treemachine_wrapper
     def info(self):
         return self.treemachine.synthetic_tree_info
@@ -303,7 +303,7 @@ _VERB_TO_METHOD_DICT = {
     'PUT': requests.put
 }
 class _WSWrapper(object):
-    def __init__(self, domain, **kwargs):
+    def __init__(self, domain, **kwargs): #pylint: disable=W0613
         self._domain = domain
     #pylint: disable=W0102
     def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False): #pylint: disable=W0102

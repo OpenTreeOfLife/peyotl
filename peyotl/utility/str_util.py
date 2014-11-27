@@ -16,7 +16,7 @@ if sys.version_info.major == 2:
     def flush_utf_8_writer(wrapper):
         wrapper.reset()
 else:
-    from io import StringIO #pylint: disable=E0611
+    from io import StringIO #pylint: disable=E0611,W0403
     UNICODE = str
     def is_str_type(x):
         return isinstance(x, str)

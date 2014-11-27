@@ -325,7 +325,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
             return hit
 
         #_LOG.debug('_init_create_mrca the mrca ID ({}) is inside a path that ends with {}'.format(mrca_id, hit._id))
-        m = NodeWithPathInEdges(mrca_id) # TODO need to deal with hit being the _id in hit
+        m = NodeWithPathInEdges(mrca_id)
         rs = m._path_set
         rl = m._path_ids
         h_anc = hit._path_ids

@@ -253,7 +253,8 @@ class NexsonTreeProxy(object):
     def edge_by_target(self):
         '''Returns a reference to the dict of target node id to (edge_id, edge)'''
         if self._edge_by_target is None:
-            self._edge_by_target = reverse_edge_by_source_dict(self._edge_by_source_id, self._nexson_tree['^ot:rootNodeId'])
+            self._edge_by_target = reverse_edge_by_source_dict(self._edge_by_source_id,
+                                                               self._nexson_tree['^ot:rootNodeId'])
         return self._edge_by_target
 
     def _find_edge_from_child(self, node_id):

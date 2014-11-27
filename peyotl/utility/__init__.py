@@ -3,10 +3,6 @@
 peyotl.
 '''
 __all__ = ['input_output', 'simple_file_lock', 'str_util']
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO #pylint: disable=E0611
 import logging
 import json
 import time
@@ -362,21 +358,6 @@ def doi2url(v):
     if v.startswith('doi:'):
         v = v[4:] # trim doi:
     return 'http://dx.doi.org/' + v
-
-def pretty_dict_str(d, indent=2):
-    '''shows JSON indented representation of d'''
-    b = StringIO()
-    write_pretty_dict_str(b, d, indent=indent)
-    return b.getvalue()
-def write_pretty_dict_str(out, obj, indent=2):
-    '''writes JSON indented representation of obj to out'''
-    json.dump(obj,
-              out,
-              indent=indent,
-              sort_keys=True,
-              separators=(',', ': '),
-              ensure_ascii=False,
-              encoding="utf-8")
 def get_unique_filepath(stem):
     '''NOT thread-safe!
     return stems or stem# where # is the smallest

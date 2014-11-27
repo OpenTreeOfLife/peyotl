@@ -432,7 +432,7 @@ class _Phylesystem(_PhylesystemBase):
     def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:
             for shard in self._shards:
-                studies = shard.pull(remote=remote, branch_name=branch_name)
+                shard.pull(remote=remote, branch_name=branch_name)
             self._locked_refresh_study_ids()
 
     def report_configuration(self):

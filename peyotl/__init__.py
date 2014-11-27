@@ -8,8 +8,8 @@ repositories.
 from peyotl.utility import get_config_setting_kwargs, \
                            get_config_object, \
                            expand_path, \
-                           get_logger, \
-                           pretty_dict_str
+                           get_logger
+from peyotl.utility.input_output import pretty_dict_str
 from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \

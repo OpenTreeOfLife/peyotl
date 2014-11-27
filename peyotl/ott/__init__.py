@@ -498,7 +498,7 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
     for node in tree_proxy:
         if node.is_leaf:
             ott_id = node.ott_id
-            if ott_id is None:
+            if ott_id is not None:
                 ott_ids.append(ott_id)
                 assert isinstance(ott_id, int)
                 parent_id = node.parent._id
@@ -512,7 +512,9 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
             else:
                 ottId2OtuPar[node._id] = None
     pruned_phylo = create_tree_from_id2par(ottId2OtuPar, ott_ids)
+    _LOG.debug('ott_ids = {}'.format(ott_ids))
     taxo_tree = ott.induced_tree(ott_ids)
+    _LOG.debug('taxo_tree = {}'.format(taxo_tree))
     return pruned_phylo, taxo_tree
 
 

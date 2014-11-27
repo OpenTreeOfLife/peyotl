@@ -376,7 +376,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
         return nd.preorder_iter(filter_fn=filter_fn)
     def __iter__(self):
         return self._root.preorder_iter()
-    def add_mrca_id_sets(self, relevant_ids):
+    def add_bits4subtree_ids(self, relevant_ids):
         '''Adds a long integer bits4subtree_ids to each node (Fails cryptically if that field is already present!)
         relevant_ids can be a dict of _id to bit representation.
         If it is not supplied, a dict will be created by registering the leaf._id into a dict (and returning the dict)

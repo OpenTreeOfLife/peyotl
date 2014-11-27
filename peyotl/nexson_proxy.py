@@ -275,7 +275,7 @@ class NexsonTreeProxy(object):
     def is_leaf(self, node_id):
         return node_id not in self._edge_by_source_id
     def get_ott_id(self, node):
-        return self._raw_otu_for_node(node)[0].get('^ot:ottId')
+        return self._raw_otu_for_node(node)[1].get('^ot:ottId')
     def _raw_otu_for_node(self, node):
         otu_id = node['@otu']
         _LOG.debug('otu_id = {}'.format(otu_id))

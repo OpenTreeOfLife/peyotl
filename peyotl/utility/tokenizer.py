@@ -193,7 +193,9 @@ class NewickTokenizer(object):
         self.prev_token = NewickTokenType.LABEL
         return label
     def _handle_close_parens(self):
-        if self.prev_token != NewickTokenType.LABEL and self.prev_token != NewickTokenType.EDGE_INFO:
+        if self.prev_token != NewickTokenType.LABEL \
+           and self.prev_token != NewickTokenType.EDGE_INFO \
+           and self.prev_token != NewickTokenType.CLOSE:
             self._raise_unexpected('Expecting ")" to be preceded by a label or branch information')
         self.num_close_parens += 1
         if self.num_close_parens > self.num_open_parens:
@@ -228,7 +230,7 @@ class NewickEventFactory(object):
     '''
     def __init__(self, tokenizer=None, newick=None, filepath=None, event_handler=None):
         if tokenizer is None:
-            if newick is None:
+            if newick is None and filepath is None:
                 raise ValueError('tokenizer or newick argument must be supplied')
             #_LOG.debug('newick = {} filepath = {}'.format(newick, filepath))
             self._tokenizer = NewickTokenizer(newick=newick, filepath=filepath)

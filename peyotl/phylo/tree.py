@@ -111,6 +111,8 @@ class Node(object):
         child._child_index_in_parent = len(self._children)
         self._children.append(child)
         child._parent = self
+    def add_sib(self, sib):
+        self._parent.add_child(sib)
     def replace_child(self, old_child, new_c):
         i = old_child._child_index_in_parent
         assert self._children[i] is old_child
@@ -172,22 +174,30 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
         else:
             self._id2par = None
             self._root_tail_hits_real_root = False
-            if newick_events is None:
+            if newick_events is not None:
                 self._build_from_newick_events(newick_events)
     def _build_from_newick_events(self, ev):
         iev = iter(ev)
         assert next(iev)['type'] == NewickEvents.OPEN_SUBTREE
         self._root = NodeWithPathInEdges(_id=None)
         curr = self._root
+        prev = NewickEvents.OPEN_SUBTREE
         for event in iev:
             t = event['type']
             if t == NewickEvents.OPEN_SUBTREE:
                 n = NodeWithPathInEdges(_id=None)
-                curr.add_child(n)
+                if prev == NewickEvents.OPEN_SUBTREE:
+                    curr.add_child(n)
+                else:
+                    curr.add_sib(n)
+
                 curr = n
             elif t == NewickEvents.TIP:
                 n = NodeWithPathInEdges(_id=event['label'])
-                curr.add_child(n)
+                if prev == NewickEvents.OPEN_SUBTREE:
+                    curr.add_child(n)
+                else:
+                    curr.add_sib(n)
                 curr = n
                 self._id2node[n._id] = n
             else:
@@ -197,7 +207,12 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                 if x is not None:
                     curr._id = x
                     self._id2node[x] = curr
-        assert curr is self._root
+            prev = t
+        if curr is not self._root:
+            print self._root._id
+            print curr._id
+            print curr.parent._id
+            assert False
 
     @property
     def leaf_ids(self):
@@ -546,4 +561,9 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
         nef = NewickEventFactory(newick=o.getvalue())
         ptree = TreeWithPathsInEdges(newick_events=nef)
 
+def parse_newick(newick=None, stream=None, filepath=None, _class=TreeWithPathsInEdges):
+    from peyotl.utility.tokenizer import NewickEventFactory, NewickTokenizer
+    nt = NewickTokenizer(stream=stream, newick=newick, filepath=filepath)
+    nef = NewickEventFactory(tokenizer=nt)
+    return _class(newick_events=nef)
 

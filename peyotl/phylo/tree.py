@@ -562,4 +562,34 @@ def parse_newick(newick=None, stream=None, filepath=None, _class=TreeWithPathsIn
     nt = NewickTokenizer(stream=stream, newick=newick, filepath=filepath)
     nef = NewickEventFactory(tokenizer=nt)
     return _class(newick_events=nef)
+def parse_id2par_dict(id2par=None,
+                      id_list=None,
+                      id2par_stream=None,
+                      id2par_filepath=None,
+                      id_list_stream=None,
+                      id_list_filepath=None,
+                      _class=TreeWithPathsInEdges):
+    '''Expecting a dict of id2parent ID or a pickled object (passed in as file object `stream` or `filepath`)
+    '''
+    import pickle
+    if id2par is None:
+        if id2par_stream is None:
+            with open(id2par_filepath, 'rb') as fo:
+                id2par = pickle.load(fo)
+        else:
+            id2par = pickle.load(id2par_stream)
+    if id_list is None:
+        if id_list_stream is None:
+            if id_list_filepath is None:
+                ancs = set(id2par.itervalues())
+                all_keys = set(id2par.iterkeys())
+                id_list = list(all_keys - ancs)
+            else:
+                with open(id_list_filepath, 'rb') as fo:
+                    id_list = pickle.load(fo)
+        else:
+            id_list = pickle.load(id_list_stream)
+
+    _LOG.debug("num els {}".format(len(id2par)))
+    return create_tree_from_id2par(id2par=id2par, id_list=id_list, _class=_class)
 

@@ -18,10 +18,19 @@ class Node(object):
         self._parent = None
         self._edge = None
     @property
+    def parent(self):
+        return self._parent
+    @property
     def edge(self):
         if self._edge is None:
             self._edge = ExtensibleObject()
         return self._edge
+    def sib_iter(self):
+        if self._parent is None:
+            raise StopIteration
+        for c in self._parent.child_iter():
+            if c is not self:
+                yield c
     def child_iter(self):
         return iter(self._children)
     @property

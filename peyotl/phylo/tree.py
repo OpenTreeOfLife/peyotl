@@ -208,11 +208,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                     curr._id = x
                     self._id2node[x] = curr
             prev = t
-        if curr is not self._root:
-            print self._root._id
-            print curr._id
-            print curr.parent._id
-            assert False
+        assert curr is self._root
 
     @property
     def leaf_ids(self):

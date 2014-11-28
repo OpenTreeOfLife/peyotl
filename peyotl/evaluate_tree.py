@@ -147,10 +147,10 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     _LOG.debug('# root _inc_contrib_rootward = {}'.format(pruned_phylo.root._inc_contrib_rootward))
     _LOG.debug('# curr_root_incompat_set = {}'.format(curr_root_incompat_set))
     pproot.rooting_here_incompat = _get_cached_set(pproot._inc_contrib_rootward, _taxo_node_id_set_cache)
-    pproot.rooting_here_conf_score = len(pproot.rooting_here_incompat)
+    pproot.rooting_here_incompat_score = len(pproot.rooting_here_incompat)
     pproot.rooting_here_displays = _get_cached_set(pproot._displays_contrib_rootward, _taxo_node_id_set_cache)
     pproot.rooting_here_disp_score = len(pproot.rooting_here_displays)
-    pproot.rooting_here_score = (pproot.rooting_here_disp_score, pproot.rooting_here_conf_score)
+    pproot.rooting_here_score = (pproot.rooting_here_disp_score, pproot.rooting_here_incompat_score)
     pproot._inc_contrib_tipward = _EMPTY_SET
     pproot._disp_contrib_tipward = _EMPTY_SET
     best_score = pproot.rooting_here_score
@@ -202,22 +202,24 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
 
     _LOG.debug('best_score = {}'.format(best_score))
     _LOG.debug('best_rootings = {}'.format(best_rootings))
+    _LOG.debug('current score = {}'.format(pproot.rooting_here_score))
+    _LOG.debug('any_root_incompat_set (size={}) = {}'.format(len(any_root_incompat_set), any_root_incompat_set))
 
 def _check_for_opt_score(entity, best, best_list):
-    conf = len(entity.rooting_here_incompat)
+    incompat = len(entity.rooting_here_incompat)
     ds = len(entity.rooting_here_displays)
-    entity.rooting_here_conf_score = conf
+    entity.rooting_here_incompat_score = incompat
     entity.rooting_here_disp_score = ds
-    entity.rooting_here_score = (entity.rooting_here_disp_score, entity.rooting_here_conf_score)
-    high_disp, low_conf = best
+    entity.rooting_here_score = (entity.rooting_here_disp_score, entity.rooting_here_incompat_score)
+    high_disp, low_incompat = best
     if ds > high_disp:
         best = entity.rooting_here_score
         best_list = [entity]
     elif ds == high_disp:
-        if conf < low_conf:
+        if incompat < low_incompat:
             best = entity.rooting_here_score
             best_list = [entity]
-        elif conf == low_conf:
+        elif incompat == low_incompat:
             best_list.append(entity)
     return best, best_list
 def _get_cached_set(s, dict_frozensets):

@@ -57,6 +57,8 @@ _CACHES = {'ottid2parentottid': ('ottID2parentOttId', 'ott ID-> parent\'s ott ID
            'ottid2uniq': ('ottID2uniq', 'ott ID -> uniqname for those IDs that have a uniqname field', ),
            'uniq2ottid': ('uniq2ottID', 'uniqname -> ott ID for those IDs that have a uniqname', ),
            'name2ottid': ('name2ottID', 'maps a taxon name -> ott ID ', ),
+           'homonym2ottid': ('homonym2ottID', 'maps a taxon name -> tuple of OTT IDs ', ),
+           'nonhomonym2ottid': ('nonhomonym2ottID', 'maps a taxon name -> single OTT ID ', ),
            'ottid2names': ('ottID2names', 'ottID to a name or list/tuple of names', ),
            'root': ('root', 'name and ott_id of the root of the taxonomy', ),
            'preorder2tuple': ('preorder2tuple', '''preorder # to a node definition
@@ -84,6 +86,7 @@ class OTT(object):
         self._version = None
         self._root_name = None
         self._root_ott_id = None
+        self._name2ott_ids = None
     @property
     def version(self):
         if self._version is None:
@@ -146,6 +149,10 @@ class OTT(object):
         if self._ott_id_to_names is None:
             self._ott_id_to_names = self._load_pickled('ottID2names')
         return self._ott_id_to_names
+    def get_ott_ids(self, name):
+        if self._name2ott_ids is None:
+            self._name2ott_ids = self._load_pickled('name2ottID')
+        return self._name2ott_ids.get(name)
     @property
     def root_name(self):
         if self._root_name is None:
@@ -364,6 +371,13 @@ class OTT(object):
                 v = tuple(v)
             _swap[k] = v
         name2id = _swap
+        homonym2id = {}
+        nonhomonym2id = {}
+        for name, ott_ids in name2id.iteritems():
+            if isinstance(ott_ids, tuple) and len(ott_ids) > 1:
+                homonym2id[name] = ott_ids
+            else:
+                nonhomonym2id[name] = ott_ids
         _LOG.debug('Making heavy tree')
         tt = make_tree_from_taxonomy(id2par)
         _LOG.debug('preorder numbering nodes')
@@ -386,6 +400,8 @@ class OTT(object):
         _write_pickle(out_dir, 'ottID2uniq', id2uniq)
         _write_pickle(out_dir, 'uniq2ottID', uniq2id)
         _write_pickle(out_dir, 'name2ottID', name2id)
+        _write_pickle(out_dir, 'homonym2ottID', homonym2id)
+        _write_pickle(out_dir, 'nonhomonym2ottID', nonhomonym2id)
         _write_pickle(out_dir, 'ottID2names', id2name)
 
         _LOG.debug('creating tree representation with preorder # to tuples')

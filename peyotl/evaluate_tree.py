@@ -13,17 +13,6 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     do this in a non- O(nm) manner (where n and m are the # of non-trivial edges in the phylo and taxo tree)
     putting barrier notes on the phylo tree would work...
 
-    Adds the following properties to each edge in a the tree:
-        UNROOTED_TAXO_STATUS_PROP -> facet of UnrootedConflictStatus
-        CURRENT_ROOTING_COMPAT -> boolean relevant to EQUIVALENT and RESOLVES settings
-        UNROOTED_CONFLICTS = list of IDs in the taxonomy tree that this edge will
-            conflict with regardless of rooting.
-        CURRENT_ROOTING_CONFLICTS = list of IDs in the taxonomy tree that this edge will
-            conflicts in the current rooting.
-   Adds the following properties to each non-tip-node and edge:
-        ROOT_HERE_CONFLICTS = list of IDs in the taxonomy tree will be in conflict if we root the tree here.
-        ROOT_HERE_AGREES = references to clades in the taxonomy tree that will be satisfied if we root the
-            tree here.
     '''
     pruned_phylo, taxo_tree = create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott)
     if taxo_tree is None: # this can happen if no otus are mapped

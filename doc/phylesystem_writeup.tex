@@ -9,6 +9,7 @@
 \usepackage{xspace}
 \newcommand{\ps}{phylesystem\xspace}
 \newcommand{\otol}{Open Tree of Life\xspace}
+\newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
 
 %opening
 \title{Phylesystem: a git-based data store for community curated phylogenetic estimates}
@@ -25,7 +26,6 @@ Type: Original Papers (up to 7 pages; this is approx. 5000 words).
 Original papers that describe new research developments in computational molecular biology, for example: 
 models, algorithms, software involving new methods, biological databases and network information services, and their impact on molecular biology or computer science. 
 Actual biological data, as opposed to purely simulated data, must be used.
-
 
 \begin{abstract}
     {\em Motivation}:
@@ -105,7 +105,7 @@ The goal of \ps is not to replace systems like Dryad or TreeBase, but to complem
 We anticipate that most of the trees stored in \ps will be associated with permanent, static archives
     elsewhere (usually either TreeBase or Dryad).
 
-\subsection{Goals}
+\subsection{System and Methods}
 One of the motivations of the design of \ps was to support the \otol's need for a curated set
     of rooted trees that have been aligned to a common taxonomy.
 However, one of the goals of the \otol project was to support infrastructure for phylogenetic
@@ -118,43 +118,112 @@ Thus, our goals when designing \ps were to build:
     \item a data store expected to store a few exemplar trees from each study; we do not anticipate that the system will be used to store thousands of trees from a bootstrapping or MCMC analysis, for example.
     \item a system capable of storing the full history of changes made to a study and its trees, including an identifier to indicate who made the changes.
     \item a data store rich enough to handle extensive annotation of the trees, the taxa to which they refer to, or metadata describing the analysis that produced the trees.
+    \item backend infrastructure to support a browser-run web application to provide a user-friendly curation application.
     \item build a loosely coupled system that would allow the community of biologists in interact with the data in a wide variety of ways.
 \end{compactenum}
+From these requirements, we chose to implement \ps a set of software wrappers around a data store 
+consisting of a git \citep{git} repository of phylogenetic statements which are serialized as a JavaScript Object Notation (JSON) translation
+of the NeXML standard for data interoperability\citep{NeXML}.
 
-The relatively small amount of data that we expected to store and the relaitvely small
-    number of edits anticipated for each study included in the corpus implied that 
+The combination of a relatively small amount of data that we expected to store (points 1 \& 2 above)
+    and the small number of edits anticipated for each study imply that
     raw performance of the basic CRUD operations was unlikely to be a bottleneck for most
     uses of the \ps.
+This made it feasible to use text files as form of data store.
 Indeed the total size of the stored data (in JSON format with a line ending after 
     every field) is only around 150MB.
+    Thus far, in the six months since deployment of the study curation interface, the mean number of edits 
+    per study is only \mthcomment{Need to calculate this from git history - it is a small, number though}.
 
-There are several requirements for phylogenetic data store.
-      - Accessible data store
-Accessibility is extremely important.
-OpenTree supports open science, and data availability.
-For a phylogenetic database to gain adoption it must be readily usable by end users.
-Licenses? UGH.
-          - Version control
-          - OTU mapping
+The requirement \# 3 of maintaining a history of changes (including an identifier for the editor) fits
+naturally with software version control systems.
+We note that wiki engines such as Gollum use git version control as a backend database.
+See also \url{https://speakerdeck.com/bkeepers/git-the-nosql-database}
+
+The requirement (\#4 above) to support rich annotations, suggested the NeXML data standard which was designed
+    to allow arbitrarily complex annotations of the entities that are crucial to phylogenetic statements.
+Because \ps does not store character data, these entities are the operational taxonomic units (OTUs), trees, nodes, and edges.
+
+We opted to version JSON files to make it more efficient for the server to provide data for a client-side
+curation application that is written in JavaScript.
+We developed some syntactic conventions for converting XML to JSON tersely (described below as NexSON v1.2 and v1.0).
+The adoption of these conventions reduced the web-service data payload size by appoximately 50\%, and made it more
+    feasible to load each study into the memory of the client's browser.
+Despite the departure from the NeXML syntax, the \ps maintains the ability to export and ingest NeXML files.
+Fundamentally the data model of the system is essentially that of NeXML.
+
+The final requirement of producing a maximally open, loosely coupled system suggested the use of git
+    as the version control system of choice.
+git is the most popular distributed version control system.
+Distributed version control systems do not require a single, ``primary'' repository; each 
+    copy of the repository maintains a copy of the entire history, and sharing documents between
+    repositories is a peer-to-peer interaction.
+Most users will probably think of the copy of the \ps repositories on the servers as GitHub 
+    as the canonical version of the data store because that clone of the repository is the most
+    easily visible and browsable copy.
+However other users of git are free to fork the repository and maintain variants of the data store, while
+    still maintaining the ability to pull in changes from biologists who contribute edits to the 
+    version of the repository on GitHub.
+The \otol project placed all of the code for the \ps under permissive, BSD-style licenses and the
+    project makes no claim of ownership to any of the data in the repository.
+In most database-driven web services, the group of core maintainers who have shell access and 
+    database passwords are the only people who have full access to the data in a data store.
+Posting frequent dumps of a database can allow other users to obtain local copies of the data 
+    for expensive, {\em ad hoc} calculations.
+However, a local version of the data is clearly a secondary instance and the maintainers of the 
+    canonical version of the database have {\em de facto} ownership of the project.
+We hope that adopting a truly distributed backend for the datastore will reinforce the goals
+    of the \otol project to build tools that the community of biologists can use and control
+    (rather than claiming ownership on the data store in perpetuity).
+
+Currently the \ps web services use GitHub authentication for ``curators'' who edit studies.
+The requirement that editors authenticate allows the provenance of each edit to include 
+    a user name for the curator.
+However, the \otol project does not need to maintain a database of users and passwords (or hashes).
+Thus, their is no private data base that would be required for someone to fork and maintain their
+    own version of the corpus (on GitHub or elsewhere).
+
+\section{Algorithm}
+The basic workflow of a curation session is:
+\begin{compactenum}
+    \item the curator loads the page in his/her browser, which fetches the javascript application into the web browser.
+    \item a list of studies in the system is loaded from information in a study indexing service (called ``oti'', see below).
+    \item the user selects the study they would like to view.
+    \item the javascript app requests the study in NexSON form from the \ps server. The javascript app also receives the git commit SHA of the 
+        repository at this point.
+    \item the user may browse the studies and download representations of the data in NeXML, NexSON, NEXUS, or newick formats without logging in.
+    \item if the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
+    \item the curator may correct tip taxon assignments using taxonomic name resolution services (the ``taxomachine'' web services, which are described
+        elsewhere) or fix the rooting information about the tree. The data model of the study is modified in the memory space of the 
+        browser and maintained there until the curator chooses to save the study.
+    \item to save, the javascript app uses and http PUT verb and includes the data (in NexSON) and the SHA.
+    \item the \ps-api code validates the NexSON (rejecting the request if the data is not a legal NexSON document).
+    \item if the data is legal, then a new git commit is created with the SHA provided in the PUT request as the parent commit. The commit is place on a ``work-in-progress'' branch in the git history to assure that the data is stored with no chance of conflict.
+    \item if the study in question has not changed in the master branch since the parent SHA, then the edit can safely be merged to the master branch.
+        If this is the case, the merge is done and the work-in-progress branch is deleted.
+        If the version of the study on the master has changed (e.g. if 2 users are simultaneously editing the same study),
+        then the merge is not done. The data will be saved on the server, but not merged into the master branch.
+    \item If the new edit was successfully merged, then an event is triggered to tell the server to push the new master branch changes to the GitHub version
+        of the repository.
+    \item A response is returned to the javascript code indicating whether or not the data was 
+        merged to the master branch and including the new SHA that will serve as the parent for future commits.
+    \end{compactenum}
+\section{Implementation}
+Currently the \ps is implemented in a python application using web2py for as the web framework.
+Most of the functionality for validating the data and creating the git commits is accomplished using
+    parts of the peyotl library (manuscript in preparation).
+
+In the current implementation, the creation of a new commit and merge are done with git checkout, git add, and git commit commands.
+This means that the repository must be locked for the duration of these events to ensure that a single thread completes this set of operations.
+If the system encounters heavier use, then lower level git commands are available that allow one to construct a commit without checking out
+the parent commit's version of all files.
+
 However, making phylogenies re-usable by researchers not involved in the original analyses often requires fairly extensive curation.
 The tip labels on trees often have meaning in the context of that analysis that are not easily translated across studies. 
 For example, the tip labels may contain abbreviations, or lab sample codes.
 Data reuse requires standardizing labels so that they are meaningful across studies.
 Taxonomic name recognition services, such as ?? Plant something, or ?? taxomachine, can attempt to automatically map names to
 operational taxonomic units, but this process also requires come subjective human intervention. 
-
-          - rerooting
-Additionally, many phylogenetic inference programs (e.g. ????) return unrooted phylogenies, 
-which researchers then manually root for inclusion in figures or inference. 
-If these rootings are not included in the shared tree file, 
-these phylogenies need to be manually rooted for inclusion in a synthetic tree or downstream analyses
-
-These curation steps require human input and are therefore somewhat subjective.
-A sustainable database requires a mechanism for correcting and updating these trees,
-while retaining provenance for individual changes.
-
-Ideally, a widely adopted database could support multiple editors curating contributed phylogenies simultaneously.
-Thus a system for merging and combining inputs in necessary.
 
 By supporting contribution and curation in an open and accessible manner, we hope to provide a database with longterm utility and widespread adoption.
 
@@ -202,7 +271,7 @@ diffing doesn't always behave well.
 simple data structures behave oddly...
 
 Meaningful merges
- -- immutable
+ -- immutable 
  -- can't
 
 Is this model applicable for database store
@@ -236,14 +305,6 @@ Curation
  - SQL database
  - Mongo, couchDB
  - git/github
-
-
- We chose git!
-
- - Trees and annotations by study in Nexson format  
-(JSON serialization of NeXML)
- - Whole datastore is a git repo!  
- 
 
  Curation
 - Work in progress branch is created upon curation  

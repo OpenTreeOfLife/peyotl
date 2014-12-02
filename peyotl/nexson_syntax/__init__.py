@@ -325,7 +325,7 @@ class PhyloSchema(object):
         return d
     def _phylesystem_api_ext(self):
         if self.format_code == PhyloSchema.NEXSON:
-            return '.nexson'
+            return ''
         elif self.format_code == PhyloSchema.NEWICK:
             return '.tre'
         elif self.format_code == PhyloSchema.NEXUS:

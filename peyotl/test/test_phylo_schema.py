@@ -14,14 +14,55 @@ RT_DIRS = ['otu', '9', ]
 class TestPhyloSchema(unittest.TestCase):
     def testUrlGen(self):
         _prefix = 'http://devapi.opentreeoflife.org/v2'
+        url, params = PhyloSchema('nexson', version='1.0.0').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719'.format(_prefix), url)
+        self.assertEqual({'output_nexml2json': '1.0.0'}, params)
+        url, params = PhyloSchema('nexson', version='1.2.1').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719'.format(_prefix), url)
+        self.assertEqual({'output_nexml2json': '1.2.1'}, params)
+        url, params = PhyloSchema('nexson', version='0.0.0').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719'.format(_prefix), url)
+        self.assertEqual({'output_nexml2json': '0.0.0'}, params)
         url, params = PhyloSchema(type_ext='.nexml', otu_label='otttaxonname').phylesystem_api_url(_prefix, 'pg_719')
         self.assertEqual('{}/study/pg_719.nexml'.format(_prefix), url)
         self.assertEqual({'otu_label': 'ot:otttaxonname'}, params)
         url, params = PhyloSchema(type_ext='.nexml').phylesystem_api_url(_prefix, 'pg_719')
         self.assertEqual('{}/study/pg_719.nexml'.format(_prefix), url)
         self.assertEqual({}, params)
+        url, params = PhyloSchema(type_ext='.nexml', otu_label='ottid').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719.nexml'.format(_prefix), url)
+        self.assertEqual({'otu_label': 'ot:ottid'}, params)
+        url, params = PhyloSchema(type_ext='.nex', otu_label='otttaxonname').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719.nex'.format(_prefix), url)
+        self.assertEqual({'otu_label': 'ot:otttaxonname'}, params)
+        url, params = PhyloSchema(type_ext='.nex').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719.nex'.format(_prefix), url)
+        self.assertEqual({}, params)
+        url, params = PhyloSchema(type_ext='.nex', otu_label='ottid').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual({'otu_label': 'ot:ottid'}, params)
+        url, params = PhyloSchema(type_ext='.tre', otu_label='otttaxonname').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719.tre'.format(_prefix), url)
+        self.assertEqual({'otu_label': 'ot:otttaxonname'}, params)
+        url, params = PhyloSchema(type_ext='.tre').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719.tre'.format(_prefix), url)
+        self.assertEqual({}, params)
+        url, params = PhyloSchema(type_ext='.tre', otu_label='ottid').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719.tre'.format(_prefix), url)
+        self.assertEqual({'otu_label': 'ot:ottid'}, params)
+        url, params = PhyloSchema('newick',
+                                  content='tree',
+                                  content_id='tree1294',
+                                  otu_label='ottid').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719/tree/tree1294.tre'.format(_prefix), url)
+        self.assertEqual({'otu_label': 'ot:ottid'}, params)
+        url, params = PhyloSchema('newick',
+                                  content='subtree',
+                                  content_id=('tree1294', 'node436709'),
+                                  otu_label='ottid').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719/subtree/tree1294.tre'.format(_prefix), url)
+        self.assertEqual({'otu_label': 'ot:ottid', 'subtree_id': 'node436709'}, params)
 
-class Skip(object):
+
     def testNexmlConvByExtViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema(type_ext='.nexml', otu_label='otttaxonname')

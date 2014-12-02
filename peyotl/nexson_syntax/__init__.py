@@ -396,6 +396,13 @@ class PhyloSchema(object):
             elif self.content in ('tree', 'subtree'):
                 if self.content == 'tree' and self.cull_nonmatching:
                     d = cull_nonmatching_trees(d, self.content_id, current_format)
+                    d = convert_nexson_format(d,
+                                              out_nexson_format=self.version,
+                                              current_format=current_format,
+                                              remove_old_structs=True,
+                                              pristine_if_invalid=False,
+                                              sort_arbitrary=False)
+
                 else:
                     i_t_o_list = extract_tree_nexson(d, self.content_id, current_format)
                     d = {}

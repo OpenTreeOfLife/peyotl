@@ -2,26 +2,19 @@
 \usepackage[utf8]{inputenc}
 \usepackage{setspace}
 \doublespacing
-% cite package, to clean up citations in the main text. Do not remove.
-\usepackage{cite}
 \usepackage{color} 
-\usepackage{hyperref}
-\bibliographystyle{plain}
-
-% Remove brackets from numbering in List of References
-\makeatletter
-\renewcommand{\@biblabel}[1]{\quad#1.}
-\makeatother
-
+\usepackage[round]{natbib}
+\bibliographystyle{apalike}
 
 %opening
-\title{Using a git-based datastore for community curated phylogenies}
+\title{Phylesystem: a git-based data store for community curated phylogenetic estimates}
 \author{Emily Jane McTavish, Mark T. Holder ... ??}
 
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=red, citecolor=red, hyperindex=true, backref}
 \begin{document}
 
 \maketitle
-
 Target: Bioinformatics\\
 Scope: Databases and ontologies\\
 Type: Original Papers (up to 7 pages; this is approx. 5000 words).
@@ -31,34 +24,40 @@ Actual biological data, as opposed to purely simulated data, must be used.
 
 
 \begin{abstract}
-Motivation:
-The lack of an accessible, reusable, and well curated database has hindered biological research into evolutionary questions.
-The Open Tree of Life project is curationg phylogenetic estimates and attempting to produce into a unified estimate of the tree of life. 
-Curation primarily entails mapping the tips of published trees to a common taxonomy and determining the correct rooting of the estimates.
-Here we describe the datastore that underlies the collection of input trees.
-Results:
-A record of the history of edits to a published estimate can be preserved by using a datastore base on the git version control system.
-Hosting this datastore on GitHub provides a straightforward and familiar method for researchers to access these data. 
-We have developed a ``phylesystem-api'' to implement wrappers around git, interaction with GitHub, and to return readable diffs for complex data structures.
-Availability:
-Source code for the API is available ...
-The git database is available ...
+    {\em Motivation}:
+Phylogenetic relationships must be taken into account when conducting any analysis that compares more than two species.
+TreeBase provides archival storage of the data that were used to infer many phylogenies and the phylogenetic statements.
+However, available trees (both those in TreeBase many which have not been submitted to TreeBase) frequently benefit from some editing
+ to improve the accuracy and reusability of the phylogenetic statements.
+For example, many trees available in supplemental data files are incorrectly rooted.
+Establishing the linkage between tip labels used in a study and taxa in a unified taxonomy dramatically improves the
+    ability of other researchers to reuse phylogenetic estimates.
+The Open Tree of Life project has begun curating phylogenetic estimates in an attempt to produce into a unified estimate of the tree of life.
+That project also aims to provide infrastructure to support the open curation of phylogenetic data by the community of biologists.
+Because process of curating a published phylogenetic estimate is not error-free, storing a full record of the provenance of the information
+associated with at tree is crucial for openness and quality assurance.\\
+{\em Results}:
+Here we describe a software system for providing an interface for the standard database operations of creating, reading, updating, and deleting
+phylogenetic statements around a git repository.
+The record of the history of edits to a tree is preserved by git's version control features.
+Hosting this datastore on GitHub provides a open access to the data store using tools familiar to many developers.
+We have developed a ``phylesystem-api'' to implement wrappers around git, interaction with GitHub, and to return readable diffs for complex data structures. \\
+{\em Availability}:
+Source code for the web-service layer is available at \url{https://github.com/OpenTreeOfLife/phylesystem-api}
+and \url{https://github.com/OpenTreeOfLife/peyotl}.
+The git data store is available from \url{https://github.com/OpenTreeOfLife/phylesystem}
 \end{abstract}
 
 \section{DRAFT}
-The Open Tree of Life project is creating a synthetic phylogeny, incorporating published phylogenies from across the tree of life.
-We are using a git based datastore, mirror to GitHub, to simultaneously track study curation and disseminate the phylogenies.
-
-
 \subsection{Introduction}
- While characterizing and systematizing relationships among species has been a goal of biologists since Linnaeus \cite{Linneaus}, 
- the recent revolution in availability of molecular data has greatly increased the rate at which phylogenetic analyses are bring performed.
- The National Science foundation has funded many 'tree of life' efforts to resolve phylogenetic relationships among taxa within specific groups.
- The Open tree of life project is a collaboration working to combine data from across these domain specific phylogenies into one inclusive synthetic tree of life.
- 
- 
-\subsection{Background}
+Characterizing and systematizing relationships among species has been a goal of biologists since Linnaeus \cite{Linne1758}.
+The phylogenetic systematics ``revolution'' of the 1960's focused most of the effort toward this goal around the 
+    task of estimating phylogenetic relationships as the most important tool for classifying life on Earth.
+The appreciation of the importance of phylogenetically-aware comparative methods \citep[e.g.][]{Felsenstein1985Comp} and 
+the rapid growth in availability of molecular data have led to dramatic increases in the number phylogenetic estimates.
+
 Recent pushes to understand the evolutionary relationships among species have resulted in a wealth of phylogenetic information. 
+
 In the past 5 years there have been major publications on XXXX angiosperms, ??? bird tree of life, ?? other major trees.
 Additionally, much finer resolution studies capturing relationships at a lower phylogenetic level are being published daily.
 The information contained in these phylogenies is essential not only for understanding the evolutionary history and systematics of these groups,
@@ -135,7 +134,7 @@ By supporting contribution and curation in an open and accessible manner, we hop
   Future directions
 
   
-\bibliography{Phylesystem.bib}  
+\bibliography{phylesystem}  
 
 
 
@@ -213,7 +212,7 @@ Curation
  - Anyone can easily download all the data!
  
  Features
-- Hosting on Github  
+- Hosting on Github
 - Free  
 - Familar to  many in the field
 
@@ -236,7 +235,6 @@ Is a git-based datastore right for your project?
  - Maybe! Any of the OpenTree software team are happy to chat about pros and cons.
 
 NSF AVATOL \#1208809  
-
 
 
 \end{document}

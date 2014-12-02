@@ -10,3 +10,6 @@ phylesystem_writeup.fls
 phylesystem_writeup.log
 phylesystem_writeup.out
 phylesystem_writeup.pdf
+*.bak
+*.bbl
+*.blg

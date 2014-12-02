@@ -16,7 +16,7 @@ class TestPhyloSchema(unittest.TestCase):
         _prefix = 'http://devapi.opentreeoflife.org/v2'
         url, params = PhyloSchema(type_ext='.nexml', otu_label='otttaxonname').phylesystem_api_url(_prefix, 'pg_719')
         self.assertEqual('{}/study/pg_719.nexml'.format(_prefix), url)
-        self.assertEqual({'otu_label': 'otttaxonname'}, params)
+        self.assertEqual({'otu_label': 'ot:otttaxonname'}, params)
         url, params = PhyloSchema(type_ext='.nexml').phylesystem_api_url(_prefix, 'pg_719')
         self.assertEqual('{}/study/pg_719.nexml'.format(_prefix), url)
         self.assertEqual({}, params)

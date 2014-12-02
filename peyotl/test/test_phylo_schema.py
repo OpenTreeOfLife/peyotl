@@ -12,6 +12,16 @@ RT_DIRS = ['otu', '9', ]
 
 
 class TestPhyloSchema(unittest.TestCase):
+    def testUrlGen(self):
+        _prefix = 'http://devapi.opentreeoflife.org/v2'
+        url, params = PhyloSchema(type_ext='.nexml', otu_label='otttaxonname').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719.nexml'.format(_prefix), url)
+        self.assertEqual({'otu_label': 'otttaxonname'}, params)
+        url, params = PhyloSchema(type_ext='.nexml').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719.nexml'.format(_prefix), url)
+        self.assertEqual({}, params)
+
+class Skip(object):
     def testNexmlConvByExtViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema(type_ext='.nexml', otu_label='otttaxonname')

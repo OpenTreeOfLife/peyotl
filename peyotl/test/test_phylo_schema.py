@@ -1,8 +1,9 @@
 #! /usr/bin/env python
-from peyotl.nexson_syntax import PhyloSchema
+from peyotl.nexson_syntax import PhyloSchema, extract_tree_nexson
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
+import json
 _LOG = get_logger(__name__)
 #pylint does not realize that serialize returns a string, so generates lots of
 #   spurious errors
@@ -61,6 +62,13 @@ class TestPhyloSchema(unittest.TestCase):
                                   otu_label='ottid').phylesystem_api_url(_prefix, 'pg_719')
         self.assertEqual('{}/study/pg_719/subtree/tree1294.tre'.format(_prefix), url)
         self.assertEqual({'otu_label': 'ot:ottid', 'subtree_id': 'node436709'}, params)
+        url, params = PhyloSchema('newick',
+                                  content='tree',
+                                  content_id='tree1294',
+                                  otu_label='ottid',
+                                  cull_nonmatching='true').phylesystem_api_url(_prefix, 'pg_719')
+        self.assertEqual('{}/study/pg_719/tree/tree1294.tre'.format(_prefix), url)
+        self.assertEqual({'otu_label': 'ot:ottid', 'cull_nonmatching': 'true'}, params)
 
 
     def testNexmlConvByExtViaPS(self):
@@ -94,6 +102,20 @@ class TestPhyloSchema(unittest.TestCase):
                          version='1.2.1')
         x = ps.serialize(o)
         self.assertTrue(x.startswith('(')) #pylint: disable=E1103
+    def testTreesCulledNonmatcingConvViaPS(self):
+        o = pathmap.nexson_obj('9/v1.2.json')
+        self.assertEqual(len(extract_tree_nexson(o, tree_id=None)), 2)
+        ps = PhyloSchema('nexson', content='tree', content_id='tree2', version='1.2.1', cull_nonmatching='true')
+        x = ps.serialize(o)
+        etn = extract_tree_nexson(o, tree_id=None)
+        self.assertEqual(len(etn), 1)
+        self.assertEqual(etn[0][0], 'tree2')
+        self.assertTrue(x.startswith('{')) #pylint: disable=E1103
+        rx = json.loads(x)
+        etn = extract_tree_nexson(rx, tree_id=None)
+        self.assertEqual(len(etn), 1)
+        self.assertEqual(etn[0][0], 'tree2')
+
     def testTreesConvViaPS(self):
         o = pathmap.nexson_obj('10/pg_10.json')
         ps = PhyloSchema('nexson', content='tree', content_id='tree3', version='1.2.1')

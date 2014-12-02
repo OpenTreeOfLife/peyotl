@@ -223,6 +223,8 @@ class PhyloSchema(object):
         self.bracket_ingroup = bool(kwargs.get('bracket_ingroup', False))
         self.content_id = kwargs.get('content_id')
         self.cull_nonmatching = kwargs.get('cull_nonmatching')
+        if is_str_type(self.cull_nonmatching):
+            self.cull_nonmatching = self.cull_nonmatching.lower() in ['true', '1']
         if self.content not in PhyloSchema._content_types:
             raise ValueError('"content" must be one of: "{}"'.format('", "'.join(PhyloSchema._content_types)))
         if self.content in PhyloSchema._no_content_id_types:
@@ -322,6 +324,9 @@ class PhyloSchema(object):
         else:
             if self.otu_label != 'ot:originallabel':
                 d['otu_label'] = self.otu_label
+        if self.content == 'tree':
+            if self.cull_nonmatching:
+                d['cull_nonmatching'] = 'true'
         return d
     def _phylesystem_api_ext(self):
         if self.format_code == PhyloSchema.NEXSON:
@@ -389,13 +394,14 @@ class PhyloSchema(object):
                                           pristine_if_invalid=False,
                                           sort_arbitrary=False)
             elif self.content in ('tree', 'subtree'):
-                i_t_o_list = extract_tree_nexson(d,
-                                                 self.content_id,
-                                                 current_format)
-                d = {}
-                for ito_tup in i_t_o_list:
-                    i, t = ito_tup[0], ito_tup[1]
-                    d[i] = t
+                if self.content == 'tree' and self.cull_nonmatching:
+                    d = cull_nonmatching_trees(d, self.content_id, current_format)
+                else:
+                    i_t_o_list = extract_tree_nexson(d, self.content_id, current_format)
+                    d = {}
+                    for ito_tup in i_t_o_list:
+                        i, t = ito_tup[0], ito_tup[1]
+                        d[i] = t
             elif self.content == 'meta':
                 strip_to_meta_only(d, current_format)
             elif self.content == 'otus':
@@ -979,6 +985,37 @@ def extract_otu_nexson(nexson, otu_id, curr_version):
             if otu_id in go:
                 return {otu_id: go[otu_id]}
     return None
+
+def cull_nonmatching_trees(nexson, tree_id, curr_version=None):
+    '''Modifies `nexson` and returns it in version 1.2.1 
+    with any tree that does not match the ID removed.
+
+    Note that this does not search through the NexSON for
+    every node, edge, tree that was deleted. So the resulting
+    NexSON may have broken references !
+    '''
+    if curr_version is None:
+        curr_version = detect_nexson_version(nexson)
+    if not _is_by_id_hbf(curr_version):
+        nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
+
+    nexml_el = get_nexml_el(nexson)
+    tree_groups = nexml_el['treesById']
+    tree_groups_to_del = []
+    for tgi, tree_group in tree_groups.items():
+        tbi = tree_group['treeById']
+        if tree_id in tbi:
+            trees_to_del = [i for i in tbi.keys() if i != tree_id]
+            for tid in trees_to_del:
+                tree_group['^ot:treeElementOrder'].remove(tid)
+                del tbi[tid]
+        else:
+            tree_groups_to_del.append(tgi)
+    for tgid in tree_groups_to_del:
+        nexml_el['^ot:treesElementOrder'].remove(tgid)
+        del tree_groups[tgid]
+    return nexson
+
 
 def extract_tree_nexson(nexson, tree_id, curr_version=None):
     '''Returns a list of (id, tree, otus_group) tuples for the

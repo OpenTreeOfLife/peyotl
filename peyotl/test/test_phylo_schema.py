@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.nexson_syntax import PhyloSchema, extract_tree_nexson
+from peyotl.nexson_syntax import PhyloSchema, extract_tree_nexson, detect_nexson_version
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
@@ -112,6 +112,21 @@ class TestPhyloSchema(unittest.TestCase):
         self.assertEqual(etn[0][0], 'tree2')
         self.assertTrue(x.startswith('{')) #pylint: disable=E1103
         rx = json.loads(x)
+        etn = extract_tree_nexson(rx, tree_id=None)
+        self.assertEqual(len(etn), 1)
+        self.assertEqual(etn[0][0], 'tree2')
+    def testTreesCulledNonmatcingConvViaPSV0(self):
+        '''Verify that the culling does not break the conversion to other forms of NexSON'''
+        o = pathmap.nexson_obj('9/v1.2.json')
+        self.assertEqual(len(extract_tree_nexson(o, tree_id=None)), 2)
+        ps = PhyloSchema('nexson', content='tree', content_id='tree2', version='0.0.0', cull_nonmatching='true')
+        x = ps.serialize(o)
+        etn = extract_tree_nexson(o, tree_id=None)
+        self.assertEqual(len(etn), 1)
+        self.assertEqual(etn[0][0], 'tree2')
+        self.assertTrue(x.startswith('{')) #pylint: disable=E1103
+        rx = json.loads(x)
+        self.assertEqual(detect_nexson_version(rx), '0.0.0')
         etn = extract_tree_nexson(rx, tree_id=None)
         self.assertEqual(len(etn), 1)
         self.assertEqual(etn[0][0], 'tree2')

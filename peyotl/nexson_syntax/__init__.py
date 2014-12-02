@@ -223,8 +223,18 @@ class PhyloSchema(object):
         self.bracket_ingroup = bool(kwargs.get('bracket_ingroup', False))
         self.content_id = kwargs.get('content_id')
         self.cull_nonmatching = kwargs.get('cull_nonmatching')
+        err_msg = 'expected cull_nonmatching to be "true" or "false" or the boolean versions of those values. found {}'
+        #pylint: disable=E1103
         if is_str_type(self.cull_nonmatching):
-            self.cull_nonmatching = self.cull_nonmatching.lower() in ['true', '1']
+            if self.cull_nonmatching.lower() in ['true', '1']:
+                self.cull_nonmatching = True
+            else:
+                if self.cull_nonmatching.lower() not in ['false', '0']:
+                    raise ValueError(err_msg.format(kwargs.get('cull_nonmatching')))
+                self.cull_nonmatching = False
+        elif self.cull_nonmatching is not None and not isinstance(self.cull_nonmatching, bool):
+            raise ValueError(err_msg.format('a non-boolean and non-string value'))
+
         if self.content not in PhyloSchema._content_types:
             raise ValueError('"content" must be one of: "{}"'.format('", "'.join(PhyloSchema._content_types)))
         if self.content in PhyloSchema._no_content_id_types:

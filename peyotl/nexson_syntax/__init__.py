@@ -174,7 +174,8 @@ def create_content_spec(**kwargs):
                        version=nexson_version,
                        otu_label=otu_label,
                        repo_nexml2json=kwargs.get('repo_nexml2json'),
-                       bracket_ingroup=bool(kwargs.get('bracket_ingroup', False)))
+                       bracket_ingroup=bool(kwargs.get('bracket_ingroup', False)),
+                       cull_nonmatching=kwargs.get('cull_nonmatching'))
 
 class PhyloSchema(object):
     '''Simple container for holding the set of variables needed to
@@ -221,6 +222,7 @@ class PhyloSchema(object):
         self.content = kwargs.get('content', 'study')
         self.bracket_ingroup = bool(kwargs.get('bracket_ingroup', False))
         self.content_id = kwargs.get('content_id')
+        self.cull_nonmatching = kwargs.get('cull_nonmatching')
         if self.content not in PhyloSchema._content_types:
             raise ValueError('"content" must be one of: "{}"'.format('", "'.join(PhyloSchema._content_types)))
         if self.content in PhyloSchema._no_content_id_types:
@@ -314,12 +316,16 @@ class PhyloSchema(object):
     def is_text(self):
         return self.format_code in (PhyloSchema.NEXUS, PhyloSchema.NEWICK)
     def _phylesystem_api_params(self):
+        d = {}
         if self.format_code == PhyloSchema.NEXSON:
-            return {'output_nexml2json': self.version}
-        return {}
+            d['output_nexml2json'] = self.version
+        else:
+            if self.otu_label != 'ot:originallabel':
+                d['otu_label'] = self.otu_label
+        return d
     def _phylesystem_api_ext(self):
         if self.format_code == PhyloSchema.NEXSON:
-            return '.nexson'
+            return ''
         elif self.format_code == PhyloSchema.NEWICK:
             return '.tre'
         elif self.format_code == PhyloSchema.NEXUS:

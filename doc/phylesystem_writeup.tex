@@ -1,99 +1,113 @@
-\documentclass[a4paper,10pt]{article}
-\usepackage[utf8]{inputenc}
-\usepackage{setspace}
-\doublespacing
-\usepackage{color}
-\usepackage{paralist}
-\usepackage[round]{natbib}
-\bibliographystyle{apalike}
+\documentclass{bioinfo}
+\copyrightyear{2014}
+\pubyear{2014}
 \usepackage{xspace}
 \newcommand{\ps}{phylesystem\xspace}
 \newcommand{\otol}{Open Tree of Life\xspace}
 \newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
 
-%opening
-\title{Phylesystem: a git-based data store for community curated phylogenetic estimates}
-\author{Emily Jane McTavish, Mark T. Holder ... ??}
+\usepackage{natbib}
+\bibliographystyle{apalike}
 
 \usepackage{hyperref}
-\hypersetup{colorlinks=true, linkcolor=red, citecolor=red, hyperindex=true, backref}
+\hypersetup{colorlinks=true, linkcolor=red, citecolor=black, hyperindex=true, backref}
 \begin{document}
+\firstpage{1}
+\title[phylesystem git phylostore]{Phylesystem: a git-based data store for community curated phylogenetic estimates}
+
+\author[McTavish\textit{et~al}]{
+    Emily Jane McTavish,$^{1,2}$
+    Mark T.~Holder,$^{1,2}$\footnote{to whom correspondence should be addressed}~
+    Ann Other Author,$^{3}$
+    Ann Other Author,$^{4}$
+    Ann Other Author,$^{5}$ $\ldots$
+}
+\address{$^{1}$Department of Ecology and Evolutionary Biology, University of Kansas, Lawrence KS, USA\\
+$^{2}$Heidelberg Institute of Theoretical Studies, Heidelberg, Germany}
+
+\history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
+
+\editor{Associate Editor: XXXXXXX}
 
 \maketitle
-Target: Bioinformatics\\
-Scope: Databases and ontologies\\
-Type: Original Papers (up to 7 pages; this is approx. 5000 words).
-Original papers that describe new research developments in computational molecular biology, for example: 
-models, algorithms, software involving new methods, biological databases and network information services, and their impact on molecular biology or computer science. 
-Actual biological data, as opposed to purely simulated data, must be used.
 
 \begin{abstract}
-    {\em Motivation}:
-Phylogenetic relationships must be taken into account when conducting any analysis that compares more than two species.
-TreeBase provides archival storage of the data that were used to infer many phylogenies and the phylogenetic statements.
-However, available trees (both those in TreeBase many which have not been submitted to TreeBase) frequently benefit from some editing
- to improve the accuracy and reusability of the phylogenetic statements.
-For example, many trees available in supplemental data files are incorrectly rooted.
-Establishing the linkage between tip labels used in a study and taxa in a unified taxonomy dramatically improves the
-    ability of other researchers to reuse phylogenetic estimates.
-The Open Tree of Life project has begun curating phylogenetic estimates in an attempt to produce into a unified estimate of the tree of life.
-That project also aims to provide infrastructure to support the open curation of phylogenetic data by the community of biologists.
-Because process of curating a published phylogenetic estimate is not error-free, storing a full record of the provenance of the information
-associated with at tree is crucial for openness and quality assurance.\\
-{\em Results}:
-Here we describe a software system for providing an interface for the standard database operations of creating, reading, updating, and deleting
-phylogenetic statements around a git repository.
+\section{Motivation:}
+Archival storage of phylogenetic estimates from published studies can be accomplished
+    using general platforms, like Dryad, or TreeBase.
+Those services fulfill a crucial role in helping phylogenetic studies be more transparent
+    and reproducible.
+However, available trees require some editing to improve the accuracy and reusability of the phylogenetic statements.
+Many trees in data archives or supplemental files from publications are incorrectly rooted.
+Establishing the linkage between tip labels used in a tree and taxa in a single taxonomy 
+    dramatically improves the ability of other researchers to reuse phylogenetic estimates.
+Because process of curating a published phylogenetic estimate is not error-free,
+    retaining a full record of the provenance edits to a tree is crucial for
+    openness, allowing editors to receive credit for their work, and
+    making errors introduced during curation easier to correct.
+
+\section{Results:}
+Here we report the development of software infrastructure to support the open curation of 
+    phylogenetic data by the community of biologists.
+The backend of the system for provides an interfaces for the standard database operations of
+    creating, reading, updating, and deleting records by creating commits in a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
-Hosting this datastore on GitHub provides a open access to the data store using tools familiar to many developers.
-We have developed a ``phylesystem-api'' to implement wrappers around git, interaction with GitHub, and to return readable diffs for complex data structures. \\
-{\em Availability}:
-Source code for the web-service layer is available at \url{https://github.com/OpenTreeOfLife/phylesystem-api}
-and \url{https://github.com/OpenTreeOfLife/peyotl}.
-The git data store is available from \url{https://github.com/OpenTreeOfLife/phylesystem}
+Hosting this datastore on GitHub provides a open access to the data store using tools 
+    familiar to many developers.
+The server running the ``phylesystem-api'' to wrap the interactions with git, and GitHub has been 
+    deployed. 
+The \otol project has also developed and deployed a JavaScript application that uses the \ps-api and
+    other web services to enable curation of published phylogenetic statements
+\section{Availability:}
+Source code for the web-service layer is available at \url{https://github.com/OpenTreeOfLife/phylesystem-api}.\\
+The library \url{https://github.com/OpenTreeOfLife/peyotl} is a prerequisite.
+The data store can be cloned from \\
+\url{https://github.com/OpenTreeOfLife/phylesystem}
+\section{Contact:} \href{mailto:mtholder@gmail.com}{mtholder@gmail.com}
+
 \end{abstract}
 
-\section{DRAFT}
-\subsection{Introduction}
+\section{Introduction}
+
 Characterizing and systematizing relationships among species has been a goal of biologists since Linnaeus \cite{Linne1758}.
 The phylogenetic systematics ``revolution'' of the 1960's focused most of the effort toward this goal around the 
     task of estimating phylogenetic relationships as the most important tool for classifying life on Earth.
 The appreciation of the importance of phylogenetically-aware comparative methods \citep[e.g.][]{Felsenstein1985Comp} and 
 the rapid growth in availability of molecular data have led to dramatic increases in the number phylogenetic estimates.
 
-Since 1994, TreeBase \citep{SandersonDPE1994} and its successor TreeBase v.~2 have served
+
+Unfortunately, capturing the inputs and outputs of a phylogenetic analysis in a rich, uniform manner is
+    difficult and error prone.
+Some archiving servies, such as Dryad \citep{Dryad}, have reacted to this challenge by accepting a 
+    wide range of inputs and making few or no
+    guarantees to users of the database that the records will be in any particular form.
+This encourages sharing of data by making the submission process fast and easy.
+However, if the authors submitting the data are not conscientious in their explanations of the data, it can be difficult
+    for users of the data to reliably extract all of the information in the archive.
+
+On the opposite end of the spectrum, some databases require data providers to conform to more rigorous
+    standards with respect to input format and content.
+Since 1994, TreeBase \citep{SandersonDPE1994} and its successor TreeBase version 2 have served
     as the primary archival data stores for phylogenetic estimates and the data that these trees are based on.
 As of 2014, TreeBase contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
 Many journals encourage or require that each publications that estimate phylogenetic trees create a TreeBase
     deposition for the publication.
-
-Unfortunately, the current state of interoperabilty in ``phyloinformatics'' makes it difficult and error prone
-to capture the inputs and outputs of a phylogenetic analysis in a rich, uniform manner.
-Some data stores have reacted to this challenge by accepting a wide range of inputs and making few or no
-    guarantees to users of the database that the records will be in any particular form.
-On the opposite end of the spectrum, some databases require data providers to conform to more rigorous
-    standards with respect to input format and content.
-
-Generic archiving services, such as datadryad\citep{Dryad}, emphasize open access to data and easy of submission by
-    accepting almost any format of data deposit.
-If the author's submitting the data are not conscientious in their explanations of the data, it can be difficult
-    for users of the data to extract all of the structure.
-
-TreeBase produces a much more feature-rich interface because each submission is parsed thoroughly and converted 
-    to a set of records in a relational database.
+TreeBase produces a much more feature-rich interface for phylogenetic queries than DataDryad, because each 
+    TreeBase submission is parsed thoroughly and converted to a set of records in a relational database.
 The downside of this approach is that it requires that submissions correspond to a more uniform format.
+
 If there were a universally used, rich file format for phylogenetics analyses, then the restriction would not be a
     serious hurdle.
 Unfortunately, file formats read and written by tree estimation tools are idiosyncratic and often so 
     terse that they omit useful information about the analysis.
+See \citet{StoltzfusEtAl2012} for a discussion of this topic and others challenges relating to the archiving of phylogenetic estimates.
 Thus the TreeBase submission process usually requires the authors of a data package to reformat their data, correct
     the rooting of the tree, alter the labels of the tips of the tree, {\em etc}.
-The TreeBase project currently provides an approximately 12-minute video explaing the procedure at 
-    \url{http://treebase.org/treebase-web/submitTutorial.html}.
+    The TreeBase project provides a 12-minute video explaining
+    \footnote{\url{http://treebase.org/treebase-web/submitTutorial.html}} 
+    the non-trivial procedure of preparing a submission.
 Because these steps are often taken after the analyses for a publication are complete, it is more likely 
     errors introduced in the submission process will not be corrected until an observant user tries to reuse the data.
-
-Unfortunately, despite recent developments in data sharing and digital repositories,
-    the vast majorities of phylogenies are not digitally available \cite{Drew}.
 
 The state of phyloinformatic archiving described above suggests the need for a datastore that allows the 
     community of biologists to improve the accuracy and re-usability of published phylogenetic statements.
@@ -105,27 +119,35 @@ The goal of \ps is not to replace systems like Dryad or TreeBase, but to complem
 We anticipate that most of the trees stored in \ps will be associated with permanent, static archives
     elsewhere (usually either TreeBase or Dryad).
 
-\subsection{System and Methods}
+\subsection{Approach}
 One of the motivations of the design of \ps was to support the \otol's need for a curated set
     of rooted trees that have been aligned to a common taxonomy.
 However, one of the goals of the \otol project was to support infrastructure for phylogenetic
     research in an open way that encourages the community of biologists to participate in the 
     collection and curation of our knowledge of the phylogenetic relationships of life on Earth.
 
-Thus, our goals when designing \ps were to build:
-\begin{compactenum}
-    \item a data store capable of storing phylogenetic estimates from thousands of published studies; we do not intend to store the data upon which the phylogenetic estimates are based.
-    \item a data store expected to store a few exemplar trees from each study; we do not anticipate that the system will be used to store thousands of trees from a bootstrapping or MCMC analysis, for example.
-    \item a system capable of storing the full history of changes made to a study and its trees, including an identifier to indicate who made the changes.
-    \item a data store rich enough to handle extensive annotation of the trees, the taxa to which they refer to, or metadata describing the analysis that produced the trees.
-    \item backend infrastructure to support a browser-run web application to provide a user-friendly curation application.
-    \item build a loosely coupled system that would allow the community of biologists in interact with the data in a wide variety of ways.
-\end{compactenum}
-From these requirements, we chose to implement \ps a set of software wrappers around a data store 
-consisting of a git \citep{git} repository of phylogenetic statements which are serialized as a JavaScript Object Notation (JSON) translation
-of the NeXML standard for data interoperability\citep{NeXML}.
+Thus, our goals when designing \ps were to build: 
+\begin{enumerate}
+    \item  a data store capable of:
+        \begin{enumerate}
+            \item \label{fewKStudies} storing capabale of storingfrom thousands of published studies. We do not intend to store the 
+                data upon which the phylogenetic estimates are based.
+            \item \label{fewTreesPerStudy} storing a few exemplar trees from each study. We do not anticipate using the system will be used 
+                to store thousands of trees from 
+                a study (such as each sampled tree from a bootstrapping or MCMC analysis, for example).
+            \item handling rich annotation of the trees, the taxa to which they refer to, and metadata describing 
+                the analysis that produced the trees.
+            \item storing the full history of changes made to a study and its trees, 
+                including an identifier to indicate who made the changes.
+        \end{enumerate}
+    \item web services around the data store to support a user-friendly curation application run in the user's browswer.
+    \item a loosely coupled system that would allow the community of biologists in interact with the data in a wide variety of ways.
+\end{enumerate}
+From these requirements, we chose to implement \ps as a set of software wrappers around a data store
+    which consists of a git \citep{git} repository of phylogenetic statements serialized as a JavaScript Object Notation (JSON).
+The data model used for the JSON is a close derivative of the NeXML standard for data interoperability\citep{NeXML}.
 
-The combination of a relatively small amount of data that we expected to store (points 1 \& 2 above)
+The combination of a relatively small amount of data that we expected to store (points \ref{fewKStudies} and \ref{fewTreesPerStudy} above)
     and the small number of edits anticipated for each study imply that
     raw performance of the basic CRUD operations was unlikely to be a bottleneck for most
     uses of the \ps.
@@ -183,9 +205,10 @@ However, the \otol project does not need to maintain a database of users and pas
 Thus, their is no private data base that would be required for someone to fork and maintain their
     own version of the corpus (on GitHub or elsewhere).
 
-\section{Algorithm}
+\begin{methods}
+\section{Methods}
 The basic workflow of a curation session is:
-\begin{compactenum}
+\begin{enumerate}
     \item the curator loads the page in his/her browser, which fetches the javascript application into the web browser.
     \item a list of studies in the system is loaded from information in a study indexing service (called ``oti'', see below).
     \item the user selects the study they would like to view.
@@ -207,17 +230,35 @@ The basic workflow of a curation session is:
         of the repository.
     \item A response is returned to the javascript code indicating whether or not the data was 
         merged to the master branch and including the new SHA that will serve as the parent for future commits.
-    \end{compactenum}
+    \item If a merge to the master branch, the updated master branch will be pushed to GitHub.
+    \item Using GitHub webhooks as a callback mechanism, the push to generates a POST http communication to trigger reindexing
+        of the affected study by the oti tool.
+\end{enumerate}
+
 \section{Implementation}
 Currently the \ps is implemented in a python application using web2py for as the web framework.
 Most of the functionality for validating the data and creating the git commits is accomplished using
     parts of the peyotl library (manuscript in preparation).
 
-In the current implementation, the creation of a new commit and merge are done with git checkout, git add, and git commit commands.
-This means that the repository must be locked for the duration of these events to ensure that a single thread completes this set of operations.
-If the system encounters heavier use, then lower level git commands are available that allow one to construct a commit without checking out
-the parent commit's version of all files.
+In the current implementation, the creation of a new commit and merge are done with git's ``checkout'', ``add'', and ``commit'' commands.
+This means that the repository must be locked for the duration of these events 
+    to ensure that a single thread completes this set of operations.
+If the system encounters heavier use, then lower level git commands 
+    are available that allow one to construct a commit without checking out
+    the parent commit's version of all files.
+\end{methods}
 
+\section{Discussion}
+
+\section{Conclusion}
+
+\section*{Acknowledgement}
+
+\paragraph{Funding\textcolon}
+
+\bibliography{phylesystem}
+
+\section{Useful text that we might want to reinstate}
 However, making phylogenies re-usable by researchers not involved in the original analyses often requires fairly extensive curation.
 The tip labels on trees often have meaning in the context of that analysis that are not easily translated across studies. 
 For example, the tip labels may contain abbreviations, or lab sample codes.

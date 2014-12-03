@@ -269,9 +269,24 @@ The shard repositories contain the \nexson files, but also a few files that are 
     create a unique study ID for any new study.
 Thus, inspection of the shards by the server's code allows unique IDs to be generated as long as 
     only each ID-minting web service is using a distinct prefix for its IDs.
-The \otol project is minting ID's using the ``ot'' prefix;
+The \otol project is minting ID's using the ``ot\_'' prefix;
     files that entered the system from a different curation tool, phylografter \citep{Phylografter},
-    have IDs that start with ``pg''
+    have IDs that start with ``pg\_''
+Note that most of the studies in the \ps data store were imported from phylografter.
+Phylografter maintains a list of curators for each study, but the \ps data store does not
+    have a detailed record of each edit that was made to each study as a part of 
+    curation (because phylografter did not collect this information).
+
+The directory structure of each shard is quite simple: a ``study'' subdirectory holds 
+a series of subdirectories.
+Each ID has a numeric suffix.
+The ID prefix and the last two digits of this numeric suffix are used to create the 
+    subdirectory of the study directory.
+Inside this directory, each study is in subdirectory with a name that corresponds to the study ID
+    in a file name that corresponds to the ID.
+So, for example, the \ps-api code knows to look for study ot\_211 at the path
+    study/ot\_11/ot\_211/ot\_211.json inside the git working directory.
+
 \subsection{Mirroring on the server}
 The server running the \ps-api actually maintains two clones of data repositories.
 The working clone is use to save the updated data (steps \#\ref{gitSaveStep} and \ref{gitMergeStep}  in the workflow).
@@ -284,17 +299,156 @@ This architecture keeps the working clone free for other commits while the high-
     network are occurrring.
 The update of the mirror from the working clone is very fast because the clones are on the same filesystem, and 
     links to git objects in the git database can be used instead of copy operations.
+
+\subsection{\nexson}
+The \otol project uses 3 different version of the \nexson syntax, but these
+    can be easily interconverted using the peyotl library.
+The \ps and curator \js applicaion use version 1.2 and 1.0 of \nexson. 
+These formats are slight tweaks to the badgerfish convention \citep{badgerfish} for mapping an XML document to JSON.
+As with badgerfish, key-value pairs that are attributes in XML are recognized by adding an @ symbol before the key name.
+NeXML allows for unlimited addition of ``meta'' elements inside entities to associate annotations with that entity.
+The \otol project uses set of these meta annotations to intoduce information from curators into the study records.
+The tags used are described at \url{https://github.com/OpenTreeOfLife/phylesystem-api/wiki/NexSON}
+In the badgerfish convention, these meta elements would be placed as \js objects inside an array associated with the ``meta'' property name.
+Adhering to this convention, would require any code operating on a JSON version of NeXML to search through (potentially
+    long) lists of meta objects for each piece of annotation.
+The \nexson 1.0 syntax simply augments the badgerfish convention by using the \^{} character at the front of a
+    property name to indicate that the key-value property that corresponds to a ``meta'' element on NeXML.
+The \nexson 1.2 syntax move some of the elements of a NeXML data object around so that OTUs, trees, nodes, and edges 
+are contained in objects with the IDs of the entities as keys.
+In a direct badgerfish version of NeXML these entities would be objects in an array, but the order of the objects
+    in these arrays is not useful. In fact, reordering the node or edge list has no effect on the tree.
+Use of object IDs as keys make object look up faster, and allows the JSON to be sorted quickly when being stored in 
+    the git repository so that trivial changes (such as changing the order of nodes in a node list) will not result in 
+    a difference in the stored version of the study.
+These formats are documented more fully on the \ps-api wiki mentioned above.
+
+The nexson\_validation subpackage of the peyotl library is used to assure that a \nexson file sent to the \ps
+    server is valid.
+The peyotl library (manuscript in press, but see \url{http://opentreeoflife.github.io/peyotl/}) also 
+    provides a variety of convenience functions for operating on \nexson files (including support
+    for exporting the phylogenetic data to widely used formats such as NeXML, NEXUS, and Newick).
+
+\subsection{indexing}
+A significant downside of using git as database is the fact that \ps does not natively support a query language
+    to extract records that match common queries.
+To support searching for studies that contain certain OTUs or fulfill other criteria (e.g. searching by citation data), 
+    the \otol project uses an independent indexing tool.
+Specifically, the curator application searches the corpus of studies by making queries to a tool called oti (for 
+    open tree indexer) which is written by Cody Hinchliff.
+The indexer parses a \nexson, and stores an index of the information in a neo4j database for fast retrieval.
+
+\subsection{web hooks}
+If a study has been added, deleted or edited by a user and the update could be merged to the master branch of the data store,
+    then an event is triggered (step \ref{gitTriggerPushStep} above) to push the updated data to the GitHub clone
+    of the repository.
+This assures that the publicly visible version of the data is updated very quickly, and it also allow us to use
+    GitHub web hooks to trigger other operations.
+In particular, once the push has succeeded, a web hook from GitHub posts data about what studies have changed
+    on the GitHub clone to a \ps service.
+This hook triggers the re-indexing of the studies that have changed by the oti tool so that the searchable cache is
+    kept up to date.
+
+More web services can easily be added to the list web hooks on GitHub.
+Thus if someone were to write a service to calulate a statistic on each study in the \ps corpus, that
+    programmer could keep the statistics installing a web hook.
+The payload of the web hook identifies the files that were changed in a git event.
+Because the file name portion of each file path correspond to the study ID, it is trivial for a service
+    receiving the web hook to determine the IDs of the studies that require recalculation.
+
+For services that can tolerate high latency, it is easy to use a scheduled job (e.g. a cron job) to 
+    frequently pull the data from the GitHub clone of the repository.
+Because only the altered studies will have their files touched in the git pull operation, tools such
+    as ``make'' can be used to update cached calculations for only the studies have changed.
 \end{methods}
 
 \section{Discussion}
+The \ps component of the \otol web infrastructure was built to fulfill a critical need for that
+    project: in the process of producing a synthetic estimate of what we know about the phylogeny
+    of life on Earth, information from published studies had to be curated.
+This curation is primarily correction of the rooting of the tree, adding metadata about the data
+    or analyses that produced the tree, and mapping the OTU labels to taxa in a taxonomy.
 
+The \ps tool was designed to fill this role in way that would make the curated data as widely accessible
+    as possible.
+By using git as a primary data store, the system allows other interested parties to easily maintain
+    local clones of all the data.
+
+Data archives in bioinformatics have a wide range of goals and requirements.
+Using git in place of typical database is feasible for only a small set of uses which do not require
+    fast processing of a large number of requests.
+When it is feasible to use distributed version control as a data store, there are several benefits
+    that make this approach appealing.
+Provenance information in the form of a commit message associated with an identification of the 
+    user creating the edit is stored ``for free'' in such an architecture.
+Each modification to the data store is backed up efficiently using the version control system's ``push'' functionality.
+The corpus of the data store can be made openly available in a form that is very convenient to
+    other bioinformaticians.
+Rather than having to unpack a new snapshot and write script to identify
+    what information has changed since the last snapshot was retrieved, an user can pull down
+    the latest changes (with a ``git pull origin master'' command in the case of a git-based store).
+Not only will this update be fast, the user knows that he/she can back up to a previous version of the 
+    data store if needed using the standard version control features.
+
+The file format of the data to be versioned also has an impact on whether or not it is feasible
+    to use a version control system as a datastore.
+The native tools for comparing versions of a file are file-based.
+Ideally, such a system would version a file formats in which:
+    each datum in a collection is described on a different line, 
+    each line is relatively independent, and 
+    the order of elements in the serialize file can be made consisitent.
+The \nexson format that we are currently using is not ideal as some operations, such as rerooting a tree,
+    affect many lines in a file (many branches change source to target orientation).
+Thus far, the rate of curation has been low enough, that most merges have been unambiguous because
+    only one branch of the git history has changed a particular study.
+The \ps currently avoids potentially incompatible merges, and warn the user who committed later that his/her
+    changes have been saved but not merged onto the primary branch.
+A diff and merge tool that operates on the object model has been written, but is currently under testing.
+
+As discussed by others \citep{DrewEtAl2013,MageeMM2014}, the rate of deposition of phylogenetic
+    estimates into public archives is not high.
+It is also clear, that the trees available in digital archives often need some curation.
+This is a large task because the number of phylogenies published each year is large.
+Furthermore, some aspects of the curation (most notably verifying that the tip labels are correctly
+    aligned to a taxonomy) require a significant amount of expertise and time investment.
+It is unclear whether there is a way to motivate the broader community of systematic biologists to
+    invest their time in helping curate a collection of phylogenetic knowledge like \ps.
+Many of the design decisions behind \ps reflect a desire to alleviate some potential concerns
+    of potential data curators.
+By making the data store publicly accessible as flat files which can be synchornized using robust
+    version control operations, we have attempted lessen
+    concerns that the curation effort is being donated to a resource which might disappear
+    after the end of the \otol project.
+By preserving the history of each commit, we hope to make the data transformation process more 
+    transparent, but also make it easier for curators to obtain proper credit for their work.
+
+The design of the data store was also intended to motivated other bioinformaticians to
+    build tools to work with these data.
+In a traditional database-driven resource the code used to pull information from the private
+    database is quite distinct from the code written by users of the data.
+However, in \ps the server code and client code are both dealing with the same JSON file format.
+Thus, developers can easily reuse the code-base of the \ps-api as they write new functionalities
+    that use data from \ps or even host their own web-services using the data.
+Almost all of the git operations and \nexson handling operations are implemented in standalone
+    library, peyotl.
+This is intended to make it easier for other programmers to clone
+    the data store and work with it locally.
+
+
+We really are trying hard to be open here, folks$\ldots$
 \section{Conclusion}
+git is awesome.
+We can use it for any task.
+git is my text editor, my email client, my web browser,
+my coffee maker, my life.
 
-\section*{Acknowledgement}
+\section*{Acknowledgement} Thanks, Obama.
 
-\paragraph{Funding\textcolon}
+\paragraph{Funding\textcolon} We thank NSF AVATOL \#1208809, HITS, and an Alexander von Humboldt award to EJM for funding.
 
 \bibliography{phylesystem}
+
+\end{document}
 
 \section{Useful text that we might want to reinstate}
 However, making phylogenies re-usable by researchers not involved in the original analyses often requires fairly extensive curation.
@@ -306,66 +460,9 @@ operational taxonomic units, but this process also requires come subjective huma
 
 By supporting contribution and curation in an open and accessible manner, we hope to provide a database with longterm utility and widespread adoption.
 
-          - many curators!, possibly editing studies at the same time!
-          - long term used, ideally.
-
-           Implementation of database (structure):
-      - FIGURE TO REPRESENT!
-      - File Formats
-         - Explain Nexson... UGH
-         
-      - Sharded git repository
-          Describe full structure 
-          
-      - External library to index studies (is OTI described somewhere?)
-      - peyotl...
-      
-      Curation via app:
-        - main repo on server -> mirror -> github
-            ??? do pulls from github happen? wholes cycle *can* be reversed.
-        - dealing with WIP branches.
-        *Even conflicts that Git may find mergable"*
-        return merge conflicts to user
-
- Discussion:
-   Generalizability:
-      Git may be a good option for any non-static data store.
-      
-  Future directions
-
-  
-\bibliography{phylesystem}  
-
 
 
 \section{notes}
-  --------------------------------------------------------------------
-Key Points:
-Pros
- - Versioned
- - Familiar to users
- - Comes with a lot of great machinery already enabled
-
-diffing doesn't always behave well.
-simple data structures behave oddly...
-
-Meaningful merges
- -- immutable 
- -- can't
-
-Is this model applicable for database store
-
-General model based decisions:
-- Decisions that studies won't move.
-
-- given the study ID what shard will it be in.
-
-- scales better in general.
-
-- Data is so open.
-
-
-
  The current (as of May) data set
  Community contributed phylogenies
 
@@ -377,56 +474,3 @@ General model based decisions:
  - Large data set: Thousands of phylogenies, and always growing (hopefully!)
  - Each phylogeny requires some hand curation, often by multiple people
  - Need to be readily accessible, and editable by interested researchers
-
-Curation
-
- Potential data store options:
- - SQL database
- - Mongo, couchDB
- - git/github
-
- Curation
-- Work in progress branch is created upon curation  
-- If study hasn't been edited by someone else, changes are automatically merged.  
-- Otherwise, merged changes are returned to curator to accept or reject
-- Updates pushed to GitHub after each commit
- Features
- - Tracking curation attribution  
-- Some subjective choices, edits made by many in the community over time
-
- Curation
-
- Features
- These trees are the backend for OpenTree showpiece  
- the synthetic tree!
- - but also a useful datastore for other researchers
- - Repo is hosted on GitHub, entire data store can be easily cloned and updated
- - Anyone can easily download all the data!
- 
- Features
-- Hosting on Github
-- Free  
-- Familar to  many in the field
-
-
- Potential issues:
- - Phylogenies are hard to diff - e.g. rerooting changes everything!
- - Nexson are not a line based format
- - Repo size limits on github
-
-
- In the future:
-
- - Semantic diffs  
- - Pull requests
- 
-  
-Generality:
-Is a git-based datastore right for your project?
-
- - Maybe! Any of the OpenTree software team are happy to chat about pros and cons.
-
-NSF AVATOL \#1208809  
-
-
-\end{document}

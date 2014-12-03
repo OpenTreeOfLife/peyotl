@@ -51,15 +51,14 @@ Because the process of curating a published phylogenetic estimate is not error-f
 \section{Results:}
 Here we report the development of software infrastructure to support the open curation of
     phylogenetic data by the community of biologists.
-The backend of the system for provides an interfaces for the standard database operations of
+The backend of the system provides an interface for the standard database operations of
     creating, reading, updating, and deleting records by creating commits in a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
 Hosting this datastore on GitHub provides a open access to the data store using tools
     familiar to many developers.
-The server running the ``phylesystem-api'' to wrap the interactions with git, and GitHub has been 
-    deployed.
+We have deployed a server running the ``phylesystem-api'' wraps the interactions with git and GitHub.
 The \otol project has also developed and deployed a \js application that uses the \ps-api and
-    other web services to enable curation of published phylogenetic statements
+    other web services to enable input and curation of published phylogenetic statements
 \section{Availability:}
 Source code for the web-service layer is available at \url{https://github.com/OpenTreeOfLife/phylesystem-api}.\\
 %The library \url{https://github.com/OpenTreeOfLife/peyotl} is a prerequisite.
@@ -79,18 +78,17 @@ Code for that tool is available from
 Characterizing and systematizing relationships among species has been a goal of biologists since Linnaeus \cite{Linne1758}.
 The phylogenetic systematics ``revolution'' of the 1960's focused most of the effort toward this goal around the 
     task of estimating phylogenetic relationships.
-The appreciation of the importance of phylogenetically-aware comparative methods \citep[e.g.][]{Felsenstein1985Comp} and 
-the rapid growth in availability of molecular data have led to dramatic increases in the number phylogenetic estimates.
+The rapid growth in availability of molecular data, the development of models and software implementations for inferring phylogenies and the appreciation of the importance of phylogenetically-aware comparative methods \citep[e.g.][]{Felsenstein1985Comp} have led to dramatic increases in the number phylogenetic estimates.
 
 
 Unfortunately, capturing the inputs and outputs of a phylogenetic analysis in a rich, standardized form is
-    difficult and error prone.
-Some archiving services, such as Dryad \citep{Dryad}, have reacted to this challenge by accepting a 
+    difficult and error prone. There is no single standard for phylogenetic data, and developers of phylogenetic software often create new formats or extend existing formats in ways that make them incompatible with other programs. 
+Some archiving servies, such as Dryad \citep{Dryad}, have reacted to this challenge by accepting a 
     wide range of inputs and making few or no
     guarantees to users of the database that the records will be in any particular form.
 This encourages sharing of data by making the submission process fast and easy.
 However, if the authors submitting the data are not conscientious in their explanations of the data, it can be difficult
-    for users of the data to reliably extract all of the information in the archive.
+    for users of the data to reliably extract all of the information in the archive, or the data may not contain sufficient metadata for reuse.
 
 On the opposite end of the spectrum, some databases require data providers to conform to more rigorous
     standards with respect to input format and content.
@@ -101,7 +99,7 @@ Many journals encourage or require that publications that estimate phylogenetic 
     deposition for the publication.
 TreeBase produces a much more feature-rich interface for phylogenetic queries than Dryad, because each 
     TreeBase submission is parsed thoroughly and converted to a set of records in a relational database.
-The downside of this approach is that it requires that submissions correspond to a more uniform format.
+The downside of this approach is that it requires that submissions correspond to a more uniform format and without constant updating, that format may not reflect new types phylogenetic data being generated.
 
 If there were a universally used, rich file format for phylogenetics analyses, then 
     TreeBase's restrictive import constraints would not be a serious hurdle.
@@ -147,7 +145,7 @@ Thus, our goals when designing \ps were to build:
             \item \label{history} storing the full history of changes made to a study and its trees,
                 including an identifier to indicate who made the changes.
         \end{enumerate}
-    \item \label{ws} web services around the data store to support a user-friendly curation application run in the user's browswer.
+    \item \label{ws} web services around the data store to support a user-friendly curation application run in the user's browser. These include services for validation of the files against a published schema.
     \item \label{looseOpen} a loosely coupled system that would allow the community of biologists to interact with the data in a wide variety of ways.
 \end{enumerate}
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
@@ -197,7 +195,10 @@ While that clone of the repository is the most easily visible and browsable copy
 Such a clone would still maintain the ability to pull in changes from biologists who 
     contribute edits to the version of the repository on hosted  in the \otol organization pages of GitHub.
 The \otol project placed all of the code for the \ps under permissive, BSD-style licenses and the
-    project makes no claim of ownership to any of the data in the repository.
+    project makes no claim of ownership to any of the data in the repository. 
+For new files deposited through the web application, the interface strongly encourages application of a CC0 copyright waiver, 
+    allowing for later deposition in Dryad. Other data, including those files that originate from TreeBASE,
+    do not have an explicit data license (although we believe that copyright does not apply to any of the data).
 
 In most database-driven web services, the group of core maintainers who have shell access and 
     database passwords are the only people who have full access to the data in a data store.
@@ -213,7 +214,7 @@ Currently the \ps web services use GitHub authentication for ``curators'' who ed
 The requirement that editors authenticate allows the provenance of each edit to include 
     a user name for the curator.
 However, the \otol project does not need to maintain a database of users and passwords (or hashes).
-Thus, their is no private data base that would be required for someone to fork and maintain their
+Thus, there is no private data base that would be required for someone to fork and maintain their
     own version of the corpus (on GitHub or elsewhere).
 The only private information relevant to \ps that is kept by the \otol project are the ssh-private
     keys that allow the project's web servers to push updated to the GitHub-hosted clone of the 
@@ -318,7 +319,7 @@ The \ps and curator \js application use version 1.2 and 1.0 of \nexson.
 These formats are slight tweaks to the badgerfish convention \citep{badgerfish} for mapping an XML document to JSON.
 As with badgerfish, key-value pairs that are attributes in XML are recognized by adding an @ symbol before the key name.
 NeXML allows for unlimited addition of ``meta'' elements inside a first-class entity to associate annotations with that entity.
-The \otol project uses a set of these meta annotations to intoduce information from curators into the study records.
+The \otol project uses a set of these meta annotations to introduce information from curators into the study records.
 The tags used are described at \url{https://github.com/OpenTreeOfLife/phylesystem-api/wiki/NexSON}.
 In the badgerfish convention, these meta elements would be placed as \js objects inside an array associated with the ``meta'' property name.
 Adhering to this convention, would require any code operating on a JSON version of NeXML to search through (potentially
@@ -339,7 +340,7 @@ Use of object IDs as keys make object lookup faster, and allows the JSON to be s
 These formats are documented more fully on the \ps-api wiki mentioned above.
 
 The nexson\_validation subpackage of the peyotl library is used to assure that a \nexson file sent to the \ps
-    server is valid.
+    server is valid. The validation routines also preform re-ordering of the \nexson files to prevent large commits that would results from, for example, re-ordering the list of OTUs in a file or rotating left / right children of internal nodes. 
 The peyotl library (manuscript in press; see \url{http://opentreeoflife.github.io/peyotl/}) also 
     provides a variety of convenience functions for operating on \nexson files (including support
     for exporting the phylogenetic data to widely used formats such as NeXML, NEXUS, and Newick).
@@ -365,8 +366,8 @@ This hook triggers the re-indexing of the studies that have changed by the oti t
     kept up to date.
 
 More web services can easily be added to the list web hooks on GitHub.
-Thus if someone were to write a service to calulate a statistic on each study in the \ps corpus, that
-    programmer could keep the statistics up to date by  registering another web hook.
+Thus if someone were to write a service to calculate a statistic on each study in the \ps corpus, that
+    programmer could keep the statistics up to date by registering another web hook.
 The payload of the web hook identifies the files that were changed in a git event.
 Because the file name portion of each file path correspond to the study ID, it is trivial for a service
     receiving the web hook to determine the IDs of the studies that require recalculation.
@@ -432,7 +433,7 @@ It is unclear whether there is a way to motivate the broader community of system
 Many of the design decisions behind \ps reflect a desire to alleviate some potential concerns
     of data curators.
 By making the data store publicly accessible as flat files which can be synchronized using robust
-    version control operations, we have attempted to lessen
+    version control operations, we have tried to lessen
     concerns that the curation effort is being donated to a resource which might disappear
     after the end of the \otol project.
 By preserving the history of each commit, we hope to make the data transformation process more 

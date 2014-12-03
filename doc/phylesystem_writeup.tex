@@ -4,13 +4,15 @@
 \usepackage{xspace}
 \newcommand{\ps}{phylesystem\xspace}
 \newcommand{\otol}{Open Tree of Life\xspace}
+\newcommand{\nexson}{otNexSON\xspace}
+\newcommand{\js}{JavaScript\xspace}
 \newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
 
 \usepackage{natbib}
 \bibliographystyle{apalike}
 
 \usepackage{hyperref}
-\hypersetup{colorlinks=true, linkcolor=red, citecolor=black, hyperindex=true, backref}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, hyperindex=true, backref}
 \begin{document}
 \firstpage{1}
 \title[phylesystem git phylostore]{Phylesystem: a git-based data store for community curated phylogenetic estimates}
@@ -56,7 +58,7 @@ Hosting this datastore on GitHub provides a open access to the data store using 
     familiar to many developers.
 The server running the ``phylesystem-api'' to wrap the interactions with git, and GitHub has been 
     deployed. 
-The \otol project has also developed and deployed a JavaScript application that uses the \ps-api and
+The \otol project has also developed and deployed a \js application that uses the \ps-api and
     other web services to enable curation of published phylogenetic statements
 \section{Availability:}
 Source code for the web-service layer is available at \url{https://github.com/OpenTreeOfLife/phylesystem-api}.\\
@@ -87,7 +89,7 @@ However, if the authors submitting the data are not conscientious in their expla
 
 On the opposite end of the spectrum, some databases require data providers to conform to more rigorous
     standards with respect to input format and content.
-Since 1994, TreeBase \citep{SandersonDPE1994} and its successor TreeBase version 2 have served
+    Since 1994, TreeBase \citep{SandersonDPE1994} and its successor TreeBase version 2 \citep{TreeBase2} have served
     as the primary archival data stores for phylogenetic estimates and the data that these trees are based on.
 As of 2014, TreeBase contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
 Many journals encourage or require that each publications that estimate phylogenetic trees create a TreeBase
@@ -135,59 +137,62 @@ Thus, our goals when designing \ps were to build:
             \item \label{fewTreesPerStudy} storing a few exemplar trees from each study. We do not anticipate using the system will be used 
                 to store thousands of trees from 
                 a study (such as each sampled tree from a bootstrapping or MCMC analysis, for example).
-            \item handling rich annotation of the trees, the taxa to which they refer to, and metadata describing 
+            \item \label{richAnnot} handling rich annotation of the trees, the taxa to which they refer to, and metadata describing 
                 the analysis that produced the trees.
-            \item storing the full history of changes made to a study and its trees, 
+            \item \label{history} storing the full history of changes made to a study and its trees,
                 including an identifier to indicate who made the changes.
         \end{enumerate}
-    \item web services around the data store to support a user-friendly curation application run in the user's browswer.
-    \item a loosely coupled system that would allow the community of biologists in interact with the data in a wide variety of ways.
+    \item \label{ws} web services around the data store to support a user-friendly curation application run in the user's browswer.
+    \item \label{looseOpen} a loosely coupled system that would allow the community of biologists in interact with the data in a wide variety of ways.
 \end{enumerate}
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
-    which consists of a git \citep{git} repository of phylogenetic statements serialized as a JavaScript Object Notation (JSON).
+    which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON).
 The data model used for the JSON is a close derivative of the NeXML standard for data interoperability\citep{NeXML}.
 
-The combination of a relatively small amount of data that we expected to store (points \ref{fewKStudies} and \ref{fewTreesPerStudy} above)
-    and the small number of edits anticipated for each study imply that
-    raw performance of the basic CRUD operations was unlikely to be a bottleneck for most
+Our expectations that the system would have to store relatively small amount of data 
+    (points \#\ref{fewKStudies} and \ref{fewTreesPerStudy} above) and that most
+    studies would require relatively few edits imply that
+    raw performance of the basic database operations was unlikely to be a bottleneck for most
     uses of the \ps.
 This made it feasible to use text files as form of data store.
-Indeed the total size of the stored data (in JSON format with a line ending after 
-    every field) is only around 150MB.
-    Thus far, in the six months since deployment of the study curation interface, the mean number of edits 
+Thus far, in the six months since deployment of the study curation interface, the mean number of edits 
     per study is only \mthcomment{Need to calculate this from git history - it is a small, number though}.
+The total size of the stored data (in JSON format with a line ending after 
+    every field) is only around 150MB.
 
-The requirement \# 3 of maintaining a history of changes (including an identifier for the editor) fits
-naturally with software version control systems.
+The requirement (\#\ref{history}, above) of maintaining a history of changes 
+    (including an identifier for the editor) fits naturally with software version control systems.
 We note that wiki engines such as Gollum use git version control as a backend database.
-See also \url{https://speakerdeck.com/bkeepers/git-the-nosql-database}
+The idea of using git as general database has been discussed by others \citep{git-nosql-db}.
 
-The requirement (\#4 above) to support rich annotations, suggested the NeXML data standard which was designed
+The requirement (\#\ref{richAnnot} above) to support rich annotations,
+    suggested the NeXML data standard which was designed
     to allow arbitrarily complex annotations of the entities that are crucial to phylogenetic statements.
 Because \ps does not store character data, these entities are the operational taxonomic units (OTUs), trees, nodes, and edges.
 
 We opted to version JSON files to make it more efficient for the server to provide data for a client-side
-curation application that is written in JavaScript.
-We developed some syntactic conventions for converting XML to JSON tersely (described below as NexSON v1.2 and v1.0).
+curation application that is written in \js (requirement \#\ref{ws} above).
+We developed some syntactic conventions for converting XML to JSON tersely (described below as ot\nexson v1.2 and v1.0).
 The adoption of these conventions reduced the web-service data payload size by appoximately 50\%, and made it more
     feasible to load each study into the memory of the client's browser.
 Despite the departure from the NeXML syntax, the \ps maintains the ability to export and ingest NeXML files.
-Fundamentally the data model of the system is essentially that of NeXML.
+Fundamentally the data model of the system is the data model of NeXML.
 
-The final requirement of producing a maximally open, loosely coupled system suggested the use of git
-    as the version control system of choice.
-git is the most popular distributed version control system.
-Distributed version control systems do not require a single, ``primary'' repository; each 
-    copy of the repository maintains a copy of the entire history, and sharing documents between
+The final requirement (\#\ref{looseOpen}) of producing a maximally open,
+    loosely coupled system suggested the use of a distributed
+    version control system; git is the most popular distributed version control system.
+Distributed version control systems do not require a single, ``primary'' repository.
+Each copy of the repository maintains a copy of the entire history, and sharing documents between
     repositories is a peer-to-peer interaction.
-Most users will probably think of the copy of the \ps repositories on the servers as GitHub 
-    as the canonical version of the data store because that clone of the repository is the most
-    easily visible and browsable copy.
-However other users of git are free to fork the repository and maintain variants of the data store, while
-    still maintaining the ability to pull in changes from biologists who contribute edits to the 
-    version of the repository on GitHub.
+Most people will probably think of the copy of the \ps repositories on the servers as GitHub 
+    as the canonical version of the data store.
+While that clone of the repository is the most easily visible and browsable copy,
+    other users of git are free to fork the repository and maintain variants of the data store.
+Such a clone would still maintain the ability to pull in changes from biologists who 
+    contribute edits to the version of the repository on GitHub in the Open Tree organization.
 The \otol project placed all of the code for the \ps under permissive, BSD-style licenses and the
     project makes no claim of ownership to any of the data in the repository.
+
 In most database-driven web services, the group of core maintainers who have shell access and 
     database passwords are the only people who have full access to the data in a data store.
 Posting frequent dumps of a database can allow other users to obtain local copies of the data 
@@ -204,34 +209,42 @@ The requirement that editors authenticate allows the provenance of each edit to 
 However, the \otol project does not need to maintain a database of users and passwords (or hashes).
 Thus, their is no private data base that would be required for someone to fork and maintain their
     own version of the corpus (on GitHub or elsewhere).
+The only private information relevant to \ps that is kept by the \otol project are the ssh-private
+    keys that allow the project's web servers to push updated to the GitHub-hosted clone of the 
+    repository.
 
 \begin{methods}
 \section{Methods}
 The basic workflow of a curation session is:
 \begin{enumerate}
-    \item the curator loads the page in his/her browser, which fetches the javascript application into the web browser.
-    \item a list of studies in the system is loaded from information in a study indexing service (called ``oti'', see below).
-    \item the user selects the study they would like to view.
-    \item the javascript app requests the study in NexSON form from the \ps server. The javascript app also receives the git commit SHA of the 
+    \item \label{loadAppStep} The curator loads the page in his/her browser, which fetches the \js application into the web browser.
+    \item \label{otiListStep} a list of studies in the system is loaded from information in a study indexing service (called ``oti'', see below).
+    \item The user selects the study he/she would like to view.
+    \item \label{getStudyStep} The \js app requests the study in \nexson form from the \ps server.
+        The \js app also receives the git commit SHA of the 
         repository at this point.
-    \item the user may browse the studies and download representations of the data in NeXML, NexSON, NEXUS, or newick formats without logging in.
-    \item if the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
-    \item the curator may correct tip taxon assignments using taxonomic name resolution services (the ``taxomachine'' web services, which are described
+    \item \label{browseStep} The user may browse the studies and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
+    \item \label{authStep} if the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
+    \item \label{userEditStep} The curator may correct tip taxon assignments using taxonomic name resolution services (the ``taxomachine'' web services, which are described
         elsewhere) or fix the rooting information about the tree. The data model of the study is modified in the memory space of the 
         browser and maintained there until the curator chooses to save the study.
-    \item to save, the javascript app uses and http PUT verb and includes the data (in NexSON) and the SHA.
-    \item the \ps-api code validates the NexSON (rejecting the request if the data is not a legal NexSON document).
-    \item if the data is legal, then a new git commit is created with the SHA provided in the PUT request as the parent commit. The commit is place on a ``work-in-progress'' branch in the git history to assure that the data is stored with no chance of conflict.
-    \item if the study in question has not changed in the master branch since the parent SHA, then the edit can safely be merged to the master branch.
+    \item \label{putStep} To save, the \js app uses and http PUT verb and includes the data (in \nexson) and the SHA.
+    \item \label{validateStep} The \ps-api code validates the \nexson (rejecting the request if the data is not a legal \nexson document).
+    \item \label{gitSaveStep} If the data is legal, then a new git commit is created with the SHA
+        provided in the PUT request as the parent commit. The commit is place on a 
+        ``work-in-progress'' branch in the git history to assure that the data is stored with 
+        no chance of conflict.
+    \item \label{gitMergeStep} If the study in question has not changed in the master branch 
+        since the parent SHA, then the edit can safely be merged to the master branch.
         If this is the case, the merge is done and the work-in-progress branch is deleted.
-        If the version of the study on the master has changed (e.g. if 2 users are simultaneously editing the same study),
+        If the version of the study on the master has changed (e.g. if two users are simultaneously editing the same study),
         then the merge is not done. The data will be saved on the server, but not merged into the master branch.
-    \item If the new edit was successfully merged, then an event is triggered to tell the server to push the new master branch changes to the GitHub version
+    \item\label{gitTriggerPushStep}  If the new edit was successfully merged, then an event is triggered to tell the server to push the new master branch changes to the GitHub version
         of the repository.
-    \item A response is returned to the javascript code indicating whether or not the data was 
+    \item\label{respondStep} A response is returned to the \js code indicating whether or not the data was 
         merged to the master branch and including the new SHA that will serve as the parent for future commits.
-    \item If a merge to the master branch, the updated master branch will be pushed to GitHub.
-    \item Using GitHub webhooks as a callback mechanism, the push to generates a POST http communication to trigger reindexing
+    \item\label{pushStep}  If a merge to the master branch, the updated master branch will be pushed to GitHub.
+    \item\label{webHookStep} Using GitHub webhooks as a callback mechanism, the push to generates a POST http communication to trigger reindexing
         of the affected study by the oti tool.
 \end{enumerate}
 
@@ -246,6 +259,31 @@ This means that the repository must be locked for the duration of these events
 If the system encounters heavier use, then lower level git commands 
     are available that allow one to construct a commit without checking out
     the parent commit's version of all files.
+These enhancements would limit or eliminate the need to lock the repository.
+\subsection{Sharding}
+The \ps software supports having the data spread across multiple git respositories, which
+    we refer to as ``shards''; however, the web services do not currently make use of this feature.
+Sharding can help avoid hitting limits on git repository size (for GitHub hosting) and can 
+    reduce contention for the mutex lock mentioned above.
+The shard repositories contain the \nexson files, but also a few files that are used to 
+    create a unique study ID for any new study.
+Thus, inspection of the shards by the server's code allows unique IDs to be generated as long as 
+    only each ID-minting web service is using a distinct prefix for its IDs.
+The \otol project is minting ID's using the ``ot'' prefix;
+    files that entered the system from a different curation tool, phylografter \citep{Phylografter},
+    have IDs that start with ``pg''
+\subsection{Mirroring on the server}
+The server running the \ps-api actually maintains two clones of data repositories.
+The working clone is use to save the updated data (steps \#\ref{gitSaveStep} and \ref{gitMergeStep}  in the workflow).
+To provide a response user-interface these operations respond to the \js client (in step \ref{respondStep}) immediately
+    after these operations complete.
+To push the data to the GitHub clone of the repository, the server first pulls the master branch onto a separate
+    clone of the repository.
+This mirror of the repository is then locked during the push operation (step \ref{pushStep}).
+This architecture keeps the working clone free for other commits while the high-latency push operations across the
+    network are occurrring.
+The update of the mirror from the working clone is very fast because the clones are on the same filesystem, and 
+    links to git objects in the git database can be used instead of copy operations.
 \end{methods}
 
 \section{Discussion}

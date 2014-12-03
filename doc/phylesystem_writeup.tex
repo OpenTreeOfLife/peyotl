@@ -96,8 +96,8 @@ On the opposite end of the spectrum, some databases require data providers to co
     standards with respect to input format and content.
     Since 1994, TreeBase \citep{SandersonDPE1994} and its successor TreeBase version 2 \citep{TreeBase2} have served
     as the primary archival data stores for phylogenetic estimates and the data that these trees are based on.
-As of 2014, TreeBase contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
-Many journals encourage or require that each publications that estimate phylogenetic trees create a TreeBase
+As of 2014, TreeBase contains 4076 studies and over 12,800 trees \citep{TreeBaseWebCite}.
+Many journals encourage or require that publications that estimate phylogenetic trees create a TreeBase
     deposition for the publication.
 TreeBase produces a much more feature-rich interface for phylogenetic queries than DataDryad, because each 
     TreeBase submission is parsed thoroughly and converted to a set of records in a relational database.
@@ -152,7 +152,7 @@ Thus, our goals when designing \ps were to build:
 \end{enumerate}
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
     which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON).
-The data model used for the JSON is a close derivative of the NeXML standard for data interoperability\citep{NeXML}.
+The data model used for the JSON is a close derivative of the NeXML standard for data interoperabilityhttp\citep{NeXML}.
 
 Our expectations that the system would have to store relatively small amount of data 
     (points \#\ref{fewKStudies} and \ref{fewTreesPerStudy} above) and that most
@@ -234,10 +234,10 @@ The basic workflow of a curation session is:
     \item \label{userEditStep} The curator may correct tip taxon assignments using taxonomic name resolution services (the ``taxomachine'' web services, which are described
         elsewhere) or fix the rooting information about the tree. The data model of the study is modified in the memory space of the 
         browser and maintained there until the curator chooses to save the study.
-    \item \label{putStep} To save, the curator application uses and http PUT verb and includes the data (in \nexson) and the SHA.
+    \item \label{putStep} To save, the curator application uses an http PUT verb and includes the data (in \nexson) and the SHA.
     \item \label{validateStep} The \ps-api code validates the \nexson (rejecting the request if the data is not a legal \nexson document).
     \item \label{gitSaveStep} If the data is legal, then a new git commit is created with the SHA
-        provided in the PUT request as the parent commit. The commit is place on a 
+        provided in the PUT request as the parent commit. The commit is placed on a 
         ``work-in-progress'' branch in the git history to assure that the data is stored with 
         no chance of conflict.
     \item \label{gitMergeStep} If the study in question has not changed in the master branch 
@@ -258,12 +258,12 @@ The basic workflow of a curation session is:
 Currently the \ps is implemented in a python application using web2py for as the web framework.
 Most of the functionality for validating the data and creating the git commits is accomplished using
     parts of the peyotl library (manuscript in preparation).
-An alternative implementation of the web services has also written in the Pyramid
+An alternative implementation of the web services has also been written in the Pyramid
     web framework.
 
 \subsection{thread-safety}
 In the current implementation, the creation of a new commit and merge are done with git's ``checkout'', ``add'', and ``commit'' commands.
-This means that the repository must use a mutual exclusion lock for the duration of these events
+This means that the repository must use a mutual exclusion (mutex) lock for the duration of these events
     to ensure that a single thread completes this series of operations.
 If the system encounters heavier use, then the wrappers around git may have to 
     be modified to use lower level git commands.
@@ -312,9 +312,9 @@ The update of the mirror from the working clone is very fast because the clones 
 Therefore, links to the objects in the git database can be used instead of copy operations.
 
 \subsection{\nexson}
-The \otol project uses 3 different version of the \nexson syntax, but these
+The \otol project uses 3 different versions of the \nexson syntax, but these
     can be easily interconverted using the peyotl library.
-The \ps and curator \js applicaion use version 1.2 and 1.0 of \nexson. 
+The \ps and curator \js application use version 1.2 and 1.0 of \nexson. 
 These formats are slight tweaks to the badgerfish convention \citep{badgerfish} for mapping an XML document to JSON.
 As with badgerfish, key-value pairs that are attributes in XML are recognized by adding an @ symbol before the key name.
 NeXML allows for unlimited addition of ``meta'' elements inside a first-class entity to associate annotations with that entity.
@@ -333,7 +333,7 @@ In this version of the syntax, the OTUs, trees, nodes, and edges are contained i
 In a direct badgerfish version of NeXML these entities would be objects in an array, but the order of the objects
     in these arrays is not useful.
 In fact, reordering the node or edge list has no effect on the tree.
-Use of object IDs as keys make object look up faster, and allows the JSON to be sorted quickly when being stored in 
+Use of object IDs as keys make object lookup faster, and allows the JSON to be sorted quickly when being stored in 
     the git repository so that trivial changes (such as changing the order of nodes in a node list) will not result in 
     a difference in the stored version of the study.
 These formats are documented more fully on the \ps-api wiki mentioned above.
@@ -431,8 +431,8 @@ It is unclear whether there is a way to motivate the broader community of system
     invest their time in helping curate a collection of phylogenetic knowledge like \ps.
 Many of the design decisions behind \ps reflect a desire to alleviate some potential concerns
     of data curators.
-By making the data store publicly accessible as flat files which can be synchornized using robust
-    version control operations, we have attempted lessen
+By making the data store publicly accessible as flat files which can be synchronized using robust
+    version control operations, we have attempted to lessen
     concerns that the curation effort is being donated to a resource which might disappear
     after the end of the \otol project.
 By preserving the history of each commit, we hope to make the data transformation process more 

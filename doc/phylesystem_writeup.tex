@@ -56,7 +56,7 @@ The backend of the system provides an interface for the standard database operat
 The record of the history of edits to a tree is preserved by git's version control features.
 Hosting this datastore on GitHub provides a open access to the data store using tools
     familiar to many developers.
-We have deployed a server running the ``phylesystem-api'' wraps the interactions with git and GitHub.
+We have deployed a server running the ``phylesystem-api'', which wraps the interactions with git and GitHub.
 The \otol project has also developed and deployed a \js application that uses the \ps-api and
     other web services to enable input and curation of published phylogenetic statements
 \section{Availability:}
@@ -78,15 +78,19 @@ Code for that tool is available from
 Characterizing and systematizing relationships among species has been a goal of biologists since Linnaeus \cite{Linne1758}.
 The phylogenetic systematics ``revolution'' of the 1960's focused most of the effort toward this goal around the 
     task of estimating phylogenetic relationships.
-The rapid growth in availability of molecular data, the development of models and software implementations for inferring phylogenies and the appreciation of the importance of phylogenetically-aware comparative methods \citep[e.g.][]{Felsenstein1985Comp} have led to dramatic increases in the number phylogenetic estimates.
+The rapid growth in availability of molecular data, the development of models and software implementations for
+    inferring phylogenies and the appreciation of the importance of phylogenetically-aware comparative methods
+    \citep[e.g.][]{Felsenstein1985Comp} have led to dramatic increases in the number phylogenetic estimates.
 
 
 Unfortunately, capturing the inputs and outputs of a phylogenetic analysis in a rich, standardized form is
-    difficult and error prone. There is no single standard for phylogenetic data, and developers of phylogenetic software often create new formats or extend existing formats in ways that make them incompatible with other programs. 
+    difficult and error prone. There is no single standard for phylogenetic data, and developers of phylogenetic
+    software often create new formats or extend existing formats in ways that make them incompatible with other programs. 
 Some archiving servies, such as Dryad \citep{Dryad}, have reacted to this challenge by accepting a 
     wide range of inputs and making few or no
     guarantees to users of the database that the records will be in any particular form.
-This encourages sharing of data by making the submission process fast and easy.
+This encourages sharing of data by making the submission process fast and easy, and is advantageous under Dryad's
+    general purpose archival model--Dryad's scope is not limited to phylogenetic information.
 However, if the authors submitting the data are not conscientious in their explanations of the data, it can be difficult
     for users of the data to reliably extract all of the information in the archive, or the data may not contain sufficient metadata for reuse.
 
@@ -95,39 +99,42 @@ On the opposite end of the spectrum, some databases require data providers to co
     Since 1994, TreeBase \citep{SandersonDPE1994} and its successor TreeBase version 2 \citep{TreeBase2} have served
     as the primary archival data stores for phylogenetic estimates and the data that these trees are based on.
 As of 2014, TreeBase contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
-Many journals encourage or require that each publications that estimate phylogenetic trees create a TreeBase
-    deposition for the publication.
-TreeBase produces a much more feature-rich interface for phylogenetic queries than DataDryad, because each 
+Many journals encourage or require that each publication that estimates phylogenetic trees cite a TreeBase
+    deposition containing the associated trees.
+TreeBase produces a much more feature-rich interface for phylogenetic queries than Dryad, because each 
     TreeBase submission is parsed thoroughly and converted to a set of records in a relational database.
 The downside of this approach is that it requires that submissions correspond to a more uniform format and without constant updating, that format may not reflect new types phylogenetic data being generated.
 
-If there were a universally used, rich file format for phylogenetics analyses, then 
-    TreeBase's restrictive import constraints would not be a serious hurdle.
 Unfortunately, file formats read and written by tree estimation tools are idiosyncratic and often so 
-    terse that they omit useful information about the analysis.
-See \citet{StoltzfusEtAl2012} for a discussion of this topic and others challenges relating to the archiving of phylogenetic estimates.
-Thus the TreeBase submission process usually requires the authors of a data package to reformat their data, correct
+    terse that they omit useful information about the analysis (see \citet{StoltzfusEtAl2012} for a discussion
+    of this topic and other challenges relating to the archiving of phylogenetic estimates).
+As a result, the TreeBase submission process usually requires the authors of a data package to reformat their data, correct
     the rooting of the tree, alter the labels of the tips of the tree, {\em etc}.
     The TreeBase project provides a 12-minute video explaining
     \footnote{\url{http://treebase.org/treebase-web/submitTutorial.html}} 
     the non-trivial procedure of preparing a submission.
 Because these steps are often taken after the analyses for a publication are complete, it is more likely 
     errors introduced in the submission process will not be corrected until an observant user tries to reuse the data.
+If there were a universally used, rich file format for phylogenetics analyses, then import constraints such as those
+    used by TreeBase would be less of a hurdle, since the critical metadata regarding rooting, labels, etc. could be
+    stored alongside the tree itself.
+The xml-based NexML specification \citep{NeXML} used internally by TreeBase defines such a format, but it is not widely used.
 
-The state of phyloinformatic archiving described above suggests the need for a datastore that allows the 
-    community of biologists to improve the accuracy and re-usability of published phylogenetic statements.
+Thus, the current state of phyloinformatic archival infrastructure is ripe for improvement in numerous ways.
+One such opportunity is the development of a datastore that allows the community of biologists to improve the
+    accuracy and re-usability of published phylogenetic statements.
 We describe here an implementation of one such system, which we call ``phylesystem'' because it uses a set of
     versioned text files on the filesystem (and the fact that we {\em love} bad puns).
 The goal of \ps is not to replace systems like Dryad or TreeBase, but to complement them by 
-    providing phylogenetic statements in consistent format while retaining the history of
-    edits that were made to the raw data.
+    storing phylogenetic statements and associated metadata in a consistent format while retaining the history of
+    edits that were made to the data themselves.
 We anticipate that most of the trees stored in \ps will be associated with permanent, static archives
     elsewhere (usually either TreeBase or Dryad).
 
 \subsection{Approach}
 One of the motivations of the design of \ps was to support the \otol's need for a curated set
     of rooted trees that have been aligned to a common taxonomy.
-However, one of the goals of the \otol project was to support infrastructure for phylogenetic
+Additionally, one of the goals of the \otol project was to support infrastructure for phylogenetic
     research in an open way that encourages the community of biologists to participate in the 
     collection and curation of our knowledge of the phylogenetic relationships of life on Earth.
 
@@ -137,7 +144,7 @@ Thus, our goals when designing \ps were to build:
         \begin{enumerate}
             \item \label{fewKStudies} storing trees from thousands of published studies. We do not intend to store the 
                 data upon which the phylogenetic estimates were based.
-            \item \label{fewTreesPerStudy} storing a few exemplar trees from each study. We do not anticipate using the system will be used 
+            \item \label{fewTreesPerStudy} storing a few exemplar trees from each study. We do not anticipate that the system will be used 
                 to store thousands of trees from 
                 a study (such as each sampled tree from a bootstrap or MCMC analysis, for example).
             \item \label{richAnnot} handling rich annotation of the trees, the taxa to which they refer to, and metadata describing 
@@ -174,7 +181,7 @@ The requirement (\#\ref{richAnnot} above) to support rich annotations,
 Because \ps does not store character data, these entities are the operational taxonomic units (OTUs), trees, nodes, and edges.
 
 We opted to version JSON files to make it more efficient for the server to provide data for a client-side
-curation application that is written in \js (requirement \#\ref{ws} above).
+    curation application that is written in \js (requirement \#\ref{ws} above).
 We developed some syntactic conventions for converting XML to JSON tersely (described below as \nexson v1.0 and v1.2).
 The adoption of these conventions reduced the web-service data payload size by appoximately 50\% relative to 
     naive representation of NeXML in JSON.
@@ -188,12 +195,14 @@ The final requirement (\#\ref{looseOpen}) of producing a maximally open,
 Distributed version control systems do not require a single, ``primary'' repository.
 Each copy of the repository maintains a copy of the entire history, and sharing documents between
     repositories is a peer-to-peer interaction.
-Most people will probably think of the copy of the \ps repositories on the servers as GitHub 
-    as the canonical version of the data store.
-While that clone of the repository is the most easily visible and browsable copy,
-    other users of git are free to fork the repository and maintain variants of the data store.
-Such a clone would still maintain the ability to pull in changes from biologists who 
-    contribute edits to the version of the repository on hosted  in the \otol organization pages of GitHub.
+
+Most people will probably think of the copy of the \ps repository that is listed under the \otol organization on
+    the GitHub website (and stored on the GitHub servers) as the canonical version of the data store.
+Indeed, this is likely to be the most easily accessible and highest profile clone of the \ps repo.
+Nevertheless, other users of git are free to fork that repo and maintain their own variants of the data store.
+Any such clone of the \ps repository maintains the ability to pull in changes from biologists who contribute
+    edits to the \otol organization clone (for example, via \otol web applications).
+    
 The \otol project placed all of the code for the \ps under permissive, BSD-style licenses and the
     project makes no claim of ownership to any of the data in the repository. 
 For new files deposited through the web application, the interface strongly encourages application of a CC0 copyright waiver, 
@@ -204,20 +213,20 @@ In most database-driven web services, the group of core maintainers who have she
     database passwords are the only people who have full access to the data in a data store.
 Posting frequent dumps of a database can allow other users to obtain local copies of the data 
     for expensive, {\em ad hoc} calculations.
-However, a local version of the data is clearly a secondary instance and the maintainers of the 
+However, a local version of the data is clearly a second-class instance and the maintainers of the 
     canonical version of the database have {\em de facto} ownership of the project.
 We hope that adopting a truly distributed backend for the datastore will reinforce the goals
-    of the \otol project to build tools that the community of biologists can use and control
-    (rather than claiming ownership on the data store in perpetuity).
+    of the \otol project to build tools that can be used and controlled by the entire community of biologists 
+    (rather than a few claiming ownership on the data store in perpetuity).
 
 Currently the \ps web services use GitHub authentication for ``curators'' who edit studies.
 The requirement that editors authenticate allows the provenance of each edit to include 
-    a user name for the curator.
-However, the \otol project does not need to maintain a database of users and passwords (or hashes).
-Thus, there is no private data base that would be required for someone to fork and maintain their
+    a user name for the curator, while the use of GitHub credentials allows the \otol project
+    to circumvent the need to maintain a database of users and passwords (or hashes).
+Thus, there is no private database that would be required for someone to fork and maintain their
     own version of the corpus (on GitHub or elsewhere).
 The only private information relevant to \ps that is kept by the \otol project are the ssh-private
-    keys that allow the project's web servers to push updated to the GitHub-hosted clone of the 
+    keys that allow the project's web servers to push updated data to the GitHub-hosted clone of the 
     repository.
 
 \begin{methods}
@@ -251,7 +260,7 @@ The basic workflow of a curation session is:
     \item\label{respondStep} A response is returned to the curator code indicating whether or not the data was 
         merged to the master branch and including the new SHA that will serve as the parent for a future commit.
     \item\label{pushStep}  If the push event was triggered in step \#\ref{gitTriggerPushStep}, the updated master branch will be pushed to GitHub.
-    \item\label{webHookStep} Using GitHub webhooks as a callback mechanism, the push to generates an POST that triggers reindexing
+    \item\label{webHookStep} Using GitHub webhooks as a callback mechanism, the push to generates a POST that triggers reindexing
         of the affected study by the oti tool.
 \end{enumerate}
 
@@ -313,9 +322,9 @@ The update of the mirror from the working clone is very fast because the clones 
 Therefore, links to the objects in the git database can be used instead of copy operations.
 
 \subsection{\nexson}
-The \otol project uses 3 different version of the \nexson syntax ([KAC] and we should explain why, so as to not seem completely insane), but these
+The \otol project uses 3 different version of the \nexson syntax ([KAC] and we should explain why, so as to not seem completely insane -- [CEH] this says 3 different versions but only two are described, and I dont know what the third one is...), but these
     can be easily interconverted using the peyotl library.
-The \ps and curator \js applicaion use version 1.2 and 1.0 of \nexson. 
+The \ps and curator \js application use version 1.2 and 1.0 of \nexson. 
 These formats are slight tweaks to the badgerfish convention \citep{badgerfish} for mapping an XML document to JSON.
 As with badgerfish, key-value pairs that are attributes in XML are recognized by adding an @ symbol before the key name.
 NeXML allows for unlimited addition of ``meta'' elements inside a first-class entity to associate annotations with that entity.
@@ -326,8 +335,7 @@ Adhering to this convention, would require any code operating on a JSON version 
     long) lists of meta objects for each piece of annotation.
 The \nexson 1.0 syntax simply augments the badgerfish convention by using the \^{} character at the front of a
     property name to indicate that the key-value property that corresponds to a ``meta'' element on NeXML.
-This makes the files smaller and makes access of a property a faster property lookup (rather than a search
-    through a meta list).
+This makes the files smaller and makes property lookup faster.
 
 The \nexson 1.2 syntax reorganizes some of the elements of a NeXML.
 In this version of the syntax, the OTUs, trees, nodes, and edges are contained in objects with the IDs of the entities as keys.
@@ -339,20 +347,27 @@ Use of object IDs as keys make object look up faster, and allows the JSON to be 
     a difference in the stored version of the study.
 These formats are documented more fully on the \ps-api wiki mentioned above.
 
-The nexson\_validation subpackage of the peyotl library is used to assure that a \nexson file sent to the \ps
-    server is valid. The validation routines also preform re-ordering of the \nexson files to prevent large commits that would results from, for example, re-ordering the list of OTUs in a file or rotating left / right children of internal nodes. 
+The nexson\_validation subpackage of the peyotl library is used to ensure that a \nexson file sent to the \ps
+    server is valid. The validation routines also perform re-ordering of the elements within \nexson files to
+    prevent large commits that would result from, for example, re-ordering the list of OTUs in a file or
+    rotating left / right children of internal nodes. 
 The peyotl library (manuscript in press; see \url{http://opentreeoflife.github.io/peyotl/}) also 
     provides a variety of convenience functions for operating on \nexson files (including support
     for exporting the phylogenetic data to widely used formats such as NeXML, NEXUS, and Newick).
 
 \subsection{indexing}
-A significant downside of using git as database is the fact that \ps does not natively support a query language
-    to extract records that match common queries.
-To support searching for studies that contain certain OTUs or fulfill other criteria (e.g. searching by citation data), 
-    the \otol project uses an independent indexing tool.
-Specifically, the curator application searches the corpus of studies by making queries to a tool called oti (for 
-    open tree indexer) which was written by Cody Hinchliff.
-The indexer parses a \nexson, and stores an index of the information in a neo4j database for fast retrieval.
+A significant downside of using git as database is the fact that the use of text files to store data does not inherently
+    provide a way to perform fast lookups of arbitrary objects.
+Performing text-based search across all studies (i.e. reading through all \nexson text files) in the \ps to find all nodes
+    in trees that match a specific set of criteria, for instance, is a prohibitively costly operation to perform on demand.
+Because the capability to search the \ps repository is required for various use-cases (e.g. various aspects of
+    study curation), we implemented an additional tool called oti (which stands for open tree indexer) which parses \nexson
+    documents and indexes their contents to enable fast searches across studies and their included elements (e.g. trees).
+OTI is implemented in a Neo4j graph database, and its search features are exposed via publicly available web services; other
+    \otol tools such as \ps and the curator application interact with oti through these web services.
+Currently available search methods are simplistic, allowing queries based on single properties (e.g. searching for studies
+    by a particular author, or from a particular year), or taxonomic scope (e.g. searching for all trees mapped to
+    any taxon included in some specified higher taxon), but more complex queries may be added in the future.
 
 \subsection{web hooks}
 If a study has been added, deleted or edited by a user and the update could be merged to the master branch of the data store,
@@ -396,12 +411,12 @@ Using git in place of typical database is feasible for only a small set of uses 
 When it is feasible to use distributed version control as a data store, there are several benefits
     that make this approach appealing.
 Provenance information in the form of a commit message associated with an identification of the 
-    user creating the edit is stored ``for free'' in such an architecture.
-Each modification to the data store is backed up efficiently using the version control system's ``push'' functionality.
-The corpus of the data store can be made openly available in a form that is very convenient to
+    user creating the edit is stored ``for free'' in such an architecture:
+(1) Each modification to the data store is backed up efficiently using the version control system's ``push'' functionality.
+(2) The corpus of the data store can be made openly available in a form that is very convenient to
     other bioinformaticians.
-Rather than having to unpack a new snapshot and write script to identify
-    what information has changed since the last snapshot was retrieved, an user can pull down
+(3) Rather than having to unpack a new snapshot and write script to identify
+    what information has changed since the last snapshot was retrieved, a user can pull down
     the latest changes (with a ``git pull origin master'' command in the case of a git-based store).
 Not only will this update be fast, the user knows that he/she can back up to a previous version of the 
     data store if needed using the standard version control features.
@@ -409,10 +424,10 @@ Not only will this update be fast, the user knows that he/she can back up to a p
 The file format of the data to be versioned also has an impact on whether or not it is feasible
     to use a version control system as a datastore.
 The native tools for comparing versions of a file are file-based.
-Ideally, such a system would version a file formats in which:
-    each datum in a collection is described on a different line, 
-    each line is relatively independent, and 
-    the order of elements in the serialize file can be made consisitent.
+Ideally, such a system would version file formats in which:
+    (a) each datum in a collection is described on a different line, 
+    (b) each line is relatively independent, and 
+    (c) the order of elements in the serialize file can be made consisitent.
 The \nexson format that we are currently using is not ideal in these respects.
 Some operations, such as rerooting a tree,
     affect many lines in a file (many branches change source to target orientation).
@@ -443,11 +458,11 @@ The design of the data store was also intended to motivate other bioinformaticia
     build tools to work with these data.
 In a traditional database-driven resource the code used to pull information from the private
     database is quite distinct from the code written by users of the data.
-However, in \ps the server code and client code are both dealing with the same JSON file format.
+However, in \ps the server code and client code both deal with the same JSON file format.
 Thus, developers can easily reuse the code-base of the \ps-api as they write new functionalities
     that use data from \ps or even host their own web-services using the data.
-Almost all of the git operations and \nexson handling operations are implemented in standalone
-    library, peyotl.
+Almost all of the git operations and \nexson handling operations are implemented in the standalone
+    library peyotl.
 This is intended to make it easier for other programmers to clone
     the data store and work with it locally.
 
@@ -457,7 +472,10 @@ We really are trying hard to be open here, folks$\ldots$
 git is awesome.
 We can use it for any task.
 git is my text editor, my email client, my web browser,
-my coffee maker, my life.
+my coffee maker,
+my pet,
+my partner,
+my life.
 
 \section*{Acknowledgement} Thanks, Obama.\\
 Jonathan ``Duke'' Leto wrote some of the code for the \ps-api tool.

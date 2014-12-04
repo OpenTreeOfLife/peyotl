@@ -2,6 +2,7 @@
 \copyrightyear{2014}
 \pubyear{2014}
 \usepackage{xspace}
+\newcommand{\pey}{peyotl\xspace}
 \newcommand{\ps}{phylesystem\xspace}
 \newcommand{\otol}{Open Tree of Life\xspace}
 \newcommand{\nexson}{otNexSON\xspace}
@@ -35,11 +36,66 @@ $^{2}$Heidelberg Institute of Theoretical Studies, Heidelberg, Germany}
 
 \begin{abstract}
 \section{Summary:}
-\url{https://github.com/OpenTreeOfLife/peyotl}.
+The Open Tree of Life project has written software infrastructure
+to build and update a taxonomy and phylogenetic estimate that 
+are intended to encompass all known species.
+The project also has built infrastructure for curating and correcting
+    archived versions of phylogenetic estimates.
+That project has a service oriented architecture: the infrastructure consists of
+    a large set of software tools that interact with each through web services.
+Many of the data models used as arguments and responses for these services were designed
+    by the project.
+Here we describe \pey, a Python package that implements some parts of
+    the \otol architecture and also provides simple routines for 
+    using the web services and data types of the project.
+
+The goals of \pey are to provide well-tested library that is used
+    both on the server-side by components of \otol, but also
+    available for client side use.
+The library is intended to serve as an adaptor layer between \otol
+    and other phylogenetic libraries written in Python (rather 
+    than providing a full-feature phylogenetic library).
+
+Source code available at \url{https://github.com/OpenTreeOfLife/peyotl}.
+Documentation is available at \url{http://opentreeoflife.github.io/peyotl/}.
 \section{Contact:} \href{mailto:mtholder@gmail.com}{mtholder@gmail.com}
 \end{abstract}
 
 \section{Introduction}
+The \otol project can be a daunting resource for programmers to interact with.
+Currently, the architecture provides separate tools for several task.
+These include analytical software tools for:
+\begin{enumerate}
+    \item merging many taxonomies into a comprehensive taxonomy of life, and
+    \item constructing a supertree for the millions of species on Earth from this 
+            taxonomy and published phylogenetic estimates;
+\end{enumerate}
+data stores of:
+\begin{enumerate}
+   \setcounter{enumi}{2}
+    \item the taxonomic names and synonymy information for the reference taxonomy,
+    \item a collection of curated phylogenetic statements, and
+    \item a graph database aligning the phylogenetic statements to each other and the taxonomy;
+\end{enumerate}
+web services for querying each of these data stores; and web applications to provide
+user interfaces for
+\begin{enumerate}
+   \setcounter{enumi}{5}
+    \item browsing and annotating the supertree estimate of the tree of life, and
+    \item helping systematists ``curate'' published phylogenetic statements by providing
+        metadata about studies, correcting the rooting of trees, and mapping the tips
+        of the tree to a reference taxonomy.
+\end{enumerate}
+For the sake of efficiency, much of the communication between components of this architecture
+use new data models for phylogenetics.
+
+Here we describe a python library intended to make it easy for programmers outside
+    of the \otol project to use the web services and data produced by the project without
+    learning the details of all the data models and web-service API.
+\pey is also used within the project, which should make it easier to keep the client library
+     in sync with the services as new versions of the \otol APIs are created.
+
+
 \begin{methods}
 \section{Methods}
 \end{methods}

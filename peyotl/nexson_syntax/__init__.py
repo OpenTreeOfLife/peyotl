@@ -25,6 +25,7 @@ from peyotl.nexson_syntax.helper import ConversionConfig, \
                                         NEXML_NEXSON_VERSION, \
                                         BY_ID_HONEY_BADGERFISH, \
                                         SUPPORTED_NEXSON_VERSIONS
+from peyotl.utility.input_output import read_as_json, write_as_json
 from peyotl.utility.str_util import flush_utf_8_writer, \
                                     UNICODE, \
                                     is_str_type, \
@@ -38,7 +39,6 @@ from peyotl.nexson_syntax.nexml2nexson import Nexml2Nexson
 from peyotl.utility import get_logger
 import xml.dom.minidom
 import codecs
-import json
 import re
 
 _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
@@ -618,26 +618,6 @@ def convert_nexson_format(blob,
     if sort_arbitrary:
         sort_arbitrarily_ordered_nexson(blob)
     return blob
-
-def write_as_json(blob, dest, indent=0, sort_keys=True):
-    opened_out = False
-    if is_str_type(dest):
-        out = codecs.open(dest, mode='w', encoding='utf-8')
-        opened_out = True
-    else:
-        out = dest
-    try:
-        json.dump(blob, out, indent=indent, sort_keys=sort_keys)
-        out.write('\n')
-    finally:
-        out.flush()
-        if opened_out:
-            out.close()
-
-def read_as_json(infi, encoding='utf-8'):
-    with codecs.open(infi, 'r', encoding=encoding) as inpf:
-        n = json.load(inpf)
-    return n
 
 def _recursive_sort_meta(blob, k):
     #_LOG.debug('k=' + k)

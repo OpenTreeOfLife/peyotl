@@ -24,11 +24,9 @@ In the tree:
 '''
 
 
+from peyotl.utility.input_output import read_as_json, write_as_json
 from peyotl.api.phylesystem_api import PhylesystemAPI
-from peyotl.nexson_syntax import extract_tree_nexson, \
-                                 get_nexml_el, \
-                                 read_as_json, \
-                                 write_as_json
+from peyotl.nexson_syntax import extract_tree_nexson, get_nexml_el
 import sys
 import os
 

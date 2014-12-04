@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax import read_as_json, write_as_json
+from peyotl.utility.input_output import read_as_json, write_as_json
 from peyotl import get_logger
 
 import sys

@@ -335,8 +335,11 @@ The update of the mirror from the working clone is very fast because the clones 
 Therefore, links to the objects in the git database can be used instead of copy operations.
 
 \subsection*{\nexson}
-The \otol project uses three different version of the \nexson syntax, but these
-    can be easily interconverted using the peyotl library.
+The \otol project uses three different version of the \nexson syntax.
+Determining which version of \nexson a particular document is using
+    can be accomplished quickly and reliably by checking a  ``nexml2json'' property in the document.
+All three versions can be easily interconverted using the peyotl library.
+
 The \ps and curator \js application use version 1.2 and 1.0 of \nexson, repectively.
 Tools that do not require low latency transmission and parsing of the data (the OTI indexing tool
     and tools that use the trees in \ps for supertree operations)
@@ -349,7 +352,7 @@ The tags used are described at \url{https://github.com/OpenTreeOfLife/phylesyste
 In the badgerfish convention these meta elements would be placed as \js objects inside an array associated with the ``meta'' property name.
 Adhering to this convention, would require any code operating on a JSON version of NeXML to search through (potentially
     long) lists of meta objects for each piece of annotation.
-The \nexson 1.0 syntax simply augments the badgerfish convention by using the \^{} character at the front of a
+The \nexson 1.0 and 1.2 syntax simply augments the badgerfish convention by using the \^{} character at the front of a
     property name to indicate that the key-value property that corresponds to a ``meta'' element on NeXML.
 This makes the files smaller and makes property lookup faster.
 
@@ -364,10 +367,11 @@ Use of object IDs as keys make object lookup faster, and allows the JSON to be s
 These formats are documented more fully on the \ps-api wiki mentioned above.
 
 The nexson\_validation subpackage of the peyotl library is used to ensure that a \nexson file sent to the \ps
-    server is valid. The validation routines also perform re-ordering of the elements within \nexson files to
+    server is valid.
+The serialization routines in peyotl also perform re-ordering of the elements within \nexson files to
     prevent large commits that would result from, for example, re-ordering the list of OTUs in a file or
-    rotating left / right children of internal nodes. 
-The peyotl library (manuscript in press; see \url{http://opentreeoflife.github.io/peyotl/}) also 
+    rotating left / right children of internal nodes.
+The peyotl library (manuscript in prep; see \url{http://opentreeoflife.github.io/peyotl/}) also 
     provides a variety of convenience functions for operating on \nexson files (including support
     for exporting the phylogenetic data to widely used formats such as NeXML, NEXUS, and Newick).
 

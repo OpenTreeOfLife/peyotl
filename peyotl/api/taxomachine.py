@@ -84,6 +84,9 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             raise ValueError('"{}" is not a valid context name'.format(context_name))
         if not (isinstance(names, list) or isinstance(names, tuple)):
             names = [names]
+        for name in names:
+            if len(name) < 2:
+                raise ValueError('Name "{}" found. Names must have at least 2 characters!'.format(name))
         if id_list and len(id_list) != len(names):
             raise ValueError('"id_list must be the same size as "names"')
         data = {'names': names}
@@ -96,13 +99,13 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 data['contextName'] = context_name
             else:
                 data['context_name'] = context_name
-                data['do_approximate_matching'] = bool(fuzzy_matching)
-                if id_list:
-                    data['ids'] = list(id_list)
-                if include_deprecated:
-                    data['include_deprecated'] = True
-                if include_dubious:
-                    data['include_dubious'] = True
+        data['do_approximate_matching'] = bool(fuzzy_matching)
+        if id_list:
+            data['ids'] = list(id_list)
+        if include_deprecated:
+            data['include_deprecated'] = True
+        if include_dubious:
+            data['include_dubious'] = True
         return self.json_http_post(uri, data=anyjson.dumps(data))
 
     def autocomplete(self, name, context_name=None, include_dubious=False):

@@ -385,12 +385,14 @@ Currently available search methods are simplistic, allowing queries based on sin
     by a particular author, or from a particular year), or taxonomic scope (e.g. searching for all trees mapped to
     any taxon included in some specified higher taxon), but more complex queries may be added in the future.
 
+
 \subsection*{webhooks}
+To create an initial index, OTI reads the entire corpus of studies in the \ps data store, but this expensive operation
+    is only required once per deployment of the server.
 If a study has been added, deleted or edited by a user and the update was merged to the master branch of the server data store,
     then an event is triggered (step \ref{gitTriggerPushStep} above) to push the updated data to the GitHub clone
     of the repository.
-This assures that the publicly visible version of the data is updated very quickly, and it also allows us to use
-    GitHub webhooks to trigger other operations.
+This assures that the publicly visible version of the data is updated very quickly.
 In particular, once the push to GitHub has succeeded, a webhook from GitHub posts data about what studies have changed
     on the GitHub clone to a \ps service.
 This hook triggers the re-indexing of the studies that have changed by the OTI tool so that the searchable cache is

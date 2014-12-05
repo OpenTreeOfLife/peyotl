@@ -1,8 +1,38 @@
 #!/usr/bin/env python
+from peyotl.utility.dict_wrapper import FrozenDictAttrWrapper, FrozenDictWrapper
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import anyjson
 _LOG = get_logger(__name__)
+_EMPTY_TUPLE = tuple()
+class TNRSMatch(FrozenDictAttrWrapper):
+    def __init__(self, m_dict):
+        FrozenDictAttrWrapper.__init__(self, m_dict)
+    @property
+    def ott_id(self):
+        return self._raw_dict['ot:ottId']
+    @property
+    def ott_taxon_name(self):
+        return self._raw_dict['ot:ottTaxonName']
+class TNRSResponse(FrozenDictWrapper):
+    def __init__(self, response, query_data):
+        m = {}
+        for o in response['results']:
+            m[o['id']] = tuple([TNRSMatch(i) for i in o['matches']])
+        for name in response['unmatched_name_ids']:
+            m[name] = _EMPTY_TUPLE
+        FrozenDictWrapper.__init__(self, m)
+        object.__setattr__(self, '_query_data', query_data)
+        object.__setattr__(self, '_raw_response', response)
+    @property
+    def raw_response(self):
+        return self._raw_response 
+    @property
+    def context_inferred(self):
+        return self._query_data.get('context_name') is None
+    @property
+    def matched_names(self):
+        return [k for k, v in self._raw_dict.items() if v is not _EMPTY_TUPLE]
 
 class _TaxomachineAPIWrapper(_WSWrapper):
     '''Wrapper around interactions with the taxomachine TNRS.
@@ -67,8 +97,13 @@ class _TaxomachineAPIWrapper(_WSWrapper):
              fuzzy_matching=False,
              include_deprecated=False,
              include_dubious=False,
-             do_approximate_matching=None):
+             do_approximate_matching=None,
+             wrap_response=None):
         '''Takes a name and optional contextName returns a list of matches.
+        `wrap_response` can be True to return a TNRSResponse object, None to return
+            the "raw" response dict, or a function/class that takes (response, query_data=dict)
+            as its arguments.
+
         Each match is a dict with:
            'higher' boolean DEF???
            'exact' boolean for exact match
@@ -106,7 +141,12 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             data['include_deprecated'] = True
         if include_dubious:
             data['include_dubious'] = True
-        return self.json_http_post(uri, data=anyjson.dumps(data))
+        resp = self.json_http_post(uri, data=anyjson.dumps(data))
+        if wrap_response is None or wrap_response is False:
+            return resp
+        if wrap_response is True:
+            return TNRSResponse(resp, query_data=data)
+        return wrap_response(resp, query_data=data)
 
     def autocomplete(self, name, context_name=None, include_dubious=False):
         '''Takes a name and optional context_name returns a list of matches.

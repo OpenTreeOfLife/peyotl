@@ -1,10 +1,107 @@
 #! /usr/bin/env python
-from peyotl.api import Taxomachine
+from peyotl.api.taxomachine import Taxomachine, TNRSResponse
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
 
 _LOG = get_logger(__name__)
+example_response = {   u'context': u'All life',
+    u'governing_code': u'undefined',
+    u'includes_approximate_matches': False,
+    u'includes_deprecated_taxa': False,
+    u'includes_dubious_names': False,
+    u'matched_name_ids': [u'Veronica', u'Homo sapiens'],
+    u'results': [   {   u'id': u'Veronica',
+                        u'matches': [   {   u'flags': [u'EDITED'],
+                                            u'is_approximate_match': False,
+                                            u'is_deprecated': False,
+                                            u'is_dubious': False,
+                                            u'is_synonym': False,
+                                            u'matched_name': u'Veronica',
+                                            u'matched_node_id': 3887636,
+                                            u'nomenclature_code': u'ICN',
+                                            u'ot:ottId': 648853,
+                                            u'ot:ottTaxonName': u'Veronica',
+                                            u'rank': u'',
+                                            u'score': 1.0,
+                                            u'search_string': u'veronica',
+                                            u'synonyms': [   u'brooklimes',
+                                                             u'speedwells',
+                                                             u'Diplophyllum',
+                                                             u'Beccabunga',
+                                                             u'Odicardis',
+                                                             u'Macrostemon',
+                                                             u'Oligospermum',
+                                                             u'Veroncia',
+                                                             u'Cochlidiosperma',
+                                                             u'Pseudolysimachion',
+                                                             u'Veronica'],
+                                            u'unique_name': u'Veronica'}]},
+                    {   u'id': u'Homo sapiens',
+                        u'matches': [   {   u'flags': [],
+                                            u'is_approximate_match': False,
+                                            u'is_deprecated': False,
+                                            u'is_dubious': False,
+                                            u'is_synonym': False,
+                                            u'matched_name': u'Homo sapiens',
+                                            u'matched_node_id': 3553897,
+                                            u'nomenclature_code': u'ICZN',
+                                            u'ot:ottId': 770315,
+                                            u'ot:ottTaxonName': u'Homo sapiens',
+                                            u'rank': u'',
+                                            u'score': 1.0,
+                                            u'search_string': u'homo sapiens',
+                                            u'synonyms': [   u'Homo palestinus',
+                                                             u'Homo melaninus',
+                                                             u'Homo spelaeus',
+                                                             u'Homo scythicus',
+                                                             u'Homo proto-aethiopicus',
+                                                             u'Homo monstrosus',
+                                                             u'Homo dawsoni',
+                                                             u'Homo cafer',
+                                                             u'Homo eurafricanus',
+                                                             u'Homo helmei',
+                                                             u'man',
+                                                             u'Homo sinicus',
+                                                             u'Homo sapiens',
+                                                             u'Homo cro-magnonensis',
+                                                             u'Homo grimaldii',
+                                                             u'Homo indicus',
+                                                             u'Homo arabicus',
+                                                             u'Homo patagonus',
+                                                             u'Homo aurignacensis',
+                                                             u'Homo drennani',
+                                                             u'Homo troglodytes',
+                                                             u'Homo australasicus',
+                                                             u'Homo japeticus',
+                                                             u'Homo grimaldiensis',
+                                                             u'Homo hottentotus',
+                                                             u'Homo neptunianus',
+                                                             u'Homo hyperboreus',
+                                                             u'Homo americanus',
+                                                             u'human',
+                                                             u'Homo capensis',
+                                                             u'Homo kanamensis',
+                                                             u'Homo columbicus',
+                                                             u'Homo aethiopicus'],
+                                            u'unique_name': u'Homo sapiens'}]}],
+    u'taxonomy': {   u'author': u'open tree of life project',
+                     u'source': u'ott2.8',
+                     u'weburl': u'https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-Taxonomy'},
+    u'unambiguous_name_ids': [u'Veronica', u'Homo sapiens'],
+    u'unmatched_name_ids': [u'Homo sapien']}
+
+class TestTNRSResponse(unittest.TestCase):
+    def testWrap(self):
+        tr = TNRSResponse(example_response, {})
+        self.assertTrue(tr.context_inferred)
+        self.assertIn('Homo sapiens', tr)
+        self.assertIn('Homo sapien', tr)
+        self.assertIn('Veronica', tr)
+        self.assertNotIn('Veronic', tr)
+        self.assertEqual(tr['Homo sapiens'][0].ott_id, 770315)
+        self.assertEqual(tr['Homo sapiens'][0].is_approximate_match, False)
+        self.assertFalse(bool(tr['Homo sapien']))
 
 class TestTaxomachine(unittest.TestCase):
     def setUp(self):

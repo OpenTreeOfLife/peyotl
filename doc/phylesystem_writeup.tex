@@ -276,16 +276,24 @@ Most of the functionality for validating the data and creating the git commits i
 An alternative implementation of the web services has also been written in the Pyramid
     web framework.
 
-\subsection{thread-safety}
+\subsection*{thread-safety}
 In the current implementation, the creation of a new commit and merge are done with git's ``checkout'', ``add'', and ``commit'' commands.
 This means that the repository must use a mutual exclusion (mutex) lock for the duration of these events
     to ensure that a single thread completes this series of operations.
+Failing to lock the repository would make it possible for the HEAD reference (which
+    will define the parent of a commit) to be moved as the result of a separate transcation.
+This would result in the git history not correctly reflecting which version of the 
+    study was displayed to user by the curator application.
+Because of the mutex lock, the system can assure that the user's edits appear
+    as direct descendants of the repository version that provided the data to 
+    the curator application when the editing session began (step \ref{getStudyStep} above).
+
 If the system encounters heavier use, then the wrappers around git may need to 
     be modified to use lower level git commands.
 There are available commands that allow one to construct a commit without checking out
     the parent commit's version of all files.
 These enhancements would limit or eliminate the need to lock the repository.
-\subsection{Sharding}
+\subsection*{Sharding}
 The \ps software supports having the data spread across multiple git repositories, which
     we refer to as ``shards.''
 Currently, all of the studies fit within one git repository, so one shard suffices.
@@ -314,7 +322,7 @@ Inside this directory, each study is in subdirectory with a name that correspond
 So, for example, the \ps-api code knows to look for study ot\_211 at the path
     study/ot\_11/ot\_211/ot\_211.json inside the git working directory.
 
-\subsection{Mirroring on the server}
+\subsection*{Mirroring on the server}
 The server running the \ps-api maintains two clones of data repositories.
 The working clone is use to save the updated data (steps \#\ref{gitSaveStep} and \ref{gitMergeStep}  in the workflow).
 These operations respond to the curator client (in step \ref{respondStep}) immediately
@@ -326,9 +334,12 @@ This architecture keeps the working clone free to save other studies while the h
 The update of the mirror from the working clone is very fast because the clones are on the same filesystem.
 Therefore, links to the objects in the git database can be used instead of copy operations.
 
-\subsection{\nexson}
-The \otol project uses three different version of the \nexson syntax, but these
-    can be easily interconverted using the peyotl library.
+\subsection*{\nexson}
+The \otol project uses three different version of the \nexson syntax.
+Determining which version of \nexson a particular document is using
+    can be accomplished quickly and reliably by checking a  ``nexml2json'' property in the document.
+All three versions can be easily interconverted using the peyotl library.
+
 The \ps and curator \js application use version 1.2 and 1.0 of \nexson, repectively.
 Tools that do not require low latency transmission and parsing of the data (the OTI indexing tool
     and tools that use the trees in \ps for supertree operations)
@@ -341,7 +352,7 @@ The tags used are described at \url{https://github.com/OpenTreeOfLife/phylesyste
 In the badgerfish convention these meta elements would be placed as \js objects inside an array associated with the ``meta'' property name.
 Adhering to this convention, would require any code operating on a JSON version of NeXML to search through (potentially
     long) lists of meta objects for each piece of annotation.
-The \nexson 1.0 syntax simply augments the badgerfish convention by using the \^{} character at the front of a
+The \nexson 1.0 and 1.2 syntax simply augments the badgerfish convention by using the \^{} character at the front of a
     property name to indicate that the key-value property that corresponds to a ``meta'' element on NeXML.
 This makes the files smaller and makes property lookup faster.
 
@@ -356,14 +367,15 @@ Use of object IDs as keys make object lookup faster, and allows the JSON to be s
 These formats are documented more fully on the \ps-api wiki mentioned above.
 
 The nexson\_validation subpackage of the peyotl library is used to ensure that a \nexson file sent to the \ps
-    server is valid. The validation routines also perform re-ordering of the elements within \nexson files to
+    server is valid.
+The serialization routines in peyotl also perform re-ordering of the elements within \nexson files to
     prevent large commits that would result from, for example, re-ordering the list of OTUs in a file or
-    rotating left / right children of internal nodes. 
-The peyotl library (manuscript in press; see \url{http://opentreeoflife.github.io/peyotl/}) also 
+    rotating left / right children of internal nodes.
+The peyotl library (manuscript in prep; see \url{http://opentreeoflife.github.io/peyotl/}) also 
     provides a variety of convenience functions for operating on \nexson files (including support
     for exporting the phylogenetic data to widely used formats such as NeXML, NEXUS, and Newick).
 
-\subsection{indexing}
+\subsection*{indexing}
 A significant downside of using git as database is the fact that the use of text files to store data does not inherently
     provide a way to perform fast lookups of arbitrary objects encoded as text within the files.
 Performing text-based search across all studies (i.e. reading through all \nexson text files) in the \ps to find all nodes
@@ -377,12 +389,14 @@ Currently available search methods are simplistic, allowing queries based on sin
     by a particular author, or from a particular year), or taxonomic scope (e.g. searching for all trees mapped to
     any taxon included in some specified higher taxon), but more complex queries may be added in the future.
 
-\subsection{webhooks}
+
+\subsection*{webhooks}
+To create an initial index, OTI reads the entire corpus of studies in the \ps data store, but this expensive operation
+    is only required once per deployment of the server.
 If a study has been added, deleted or edited by a user and the update was merged to the master branch of the server data store,
     then an event is triggered (step \ref{gitTriggerPushStep} above) to push the updated data to the GitHub clone
     of the repository.
-This assures that the publicly visible version of the data is updated very quickly, and it also allows us to use
-    GitHub webhooks to trigger other operations.
+This assures that the publicly visible version of the data is updated very quickly.
 In particular, once the push to GitHub has succeeded, a webhook from GitHub posts data about what studies have changed
     on the GitHub clone to a \ps service.
 This hook triggers the re-indexing of the studies that have changed by the OTI tool so that the searchable cache is
@@ -478,9 +492,6 @@ Almost all of the git operations and \nexson handling operations are implemented
     library peyotl.
 This is intended to make it easier for other programmers to clone
     the data store and work with it locally.
-
-
-We really are trying hard to be open here, folks$\ldots$
 
 \section{Conclusion}
 We have developed a git-based datastore for archiving and curating phylogenetic estimates of species relationships.

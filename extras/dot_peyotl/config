@@ -1,14 +1,14 @@
-[phylesystem]
+#[phylesystem]
 # parent of the phylesystem, or phylesystem-1, phylesystem-2 directories...
 #   if you have multiple phylesystem repositories not contained in the same
 #   directory
-parent = ~/phylesystem
+#parent = ~/phylesystem
 
 # Valid repo_nexml2json values are
 #       0.0.0 (Badgerfish)
 #       1.0.0 ("direct" HoneyBadgerFish)
 #       1.2.1 ("byId" HoneyBadgerFish)
-repo_nexml2json = 1.2.1
+#repo_nexml2json = 1.2.1
 
 
 [ott]
@@ -24,7 +24,11 @@ filepath = /tmp/peyotl-log
 formatter = rich
 
 [apis]
-phylesystem_api = http://ashby.opentreeoflife.org/api
-oti_api = http://ashby.opentreeoflife.org/api
-taxomachine = http://ot9.opentreeoflife.org/
-treemachine = http://ot9.opentreeoflife.org/
+# The "api.opentree..." URLs are the default endpoints for services
+#   (as specified in the peyotl/api/wrapper.py APIDomains class)
+# You can uncomment one of the lines below if you would like to 
+#   run services against on of the dev servers. 
+# phylesystem_api = http://devapi.opentreeoflife.org
+# oti_api = http://devapi.opentreeoflife.org/api
+# taxomachine = http://devapi.opentreeoflife.org/
+# treemachine = http://devapi.opentreeoflife.org/

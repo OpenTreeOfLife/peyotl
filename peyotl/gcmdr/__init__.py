@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, print_function, division
 from peyotl.utility import read_config, get_config_var, get_unique_filepath
 from peyotl.utility.input_output import read_as_json, write_as_json
 from peyotl.nexson_syntax import create_content_spec, get_git_sha

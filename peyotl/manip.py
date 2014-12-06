@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''Simple manipulations of data structure in peyotl
 '''
+from __future__ import absolute_import, print_function, division
 from peyotl.nexson_syntax.helper import _add_uniq_value_to_dict_bf
 from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
                                  convert_nexson_format, \

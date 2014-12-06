@@ -60,10 +60,11 @@ def _msg_cmp(x, y):
             if xrk == yrk:
                 xrv = [xr[i] for i in xrk]
                 yrv = [yr[i] for i in xrk]
-                c = cmp(xrv, yrv)
-                if c == 0:
+                if xrv == yrv:
                     return _msg_data_cmp(x, y)
-                return c
+                if xrv < yrv:
+                    return -1
+                return 1
             return -1 if xrk < yrk else 1
         return 1
     if yri is None:

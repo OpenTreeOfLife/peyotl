@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import absolute_import, print_function, division
 from peyotl.api import Treemachine, Taxomachine
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger

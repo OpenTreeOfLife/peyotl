@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, print_function, division
 from peyotl.phylo.entities import OTULabelStyleEnum
 from peyotl.utility import get_config_object, get_logger
 import pickle
@@ -205,9 +206,9 @@ class OTT(object):
         root_ott_id = None
         with codecs.open(taxonomy_file, 'r', encoding='utf-8') as tax_fo:
             it = iter(tax_fo)
-            first_line = it.next()
+            first_line = next(it)
             assert first_line == 'uid\t|\tparent_uid\t|\tname\t|\trank\t|\tsourceinfo\t|\tuniqname\t|\tflags\t|\t\n'
-            life_line = it.next()
+            life_line = next(it)
             root_split = life_line.split('\t|\t')
             uid = int(root_split[0])
             root_ott_id = uid
@@ -315,7 +316,7 @@ class OTT(object):
         num_lines = 0
         with codecs.open(synonyms_file, 'r', encoding='utf-8') as syn_fo:
             it = iter(syn_fo)
-            first_line = it.next()
+            first_line = next(it)
             assert first_line == 'name\t|\tuid\t|\ttype\t|\tuniqname\t|\t\n'
             for rown in it:
                 ls = rown.split('\t|\t')

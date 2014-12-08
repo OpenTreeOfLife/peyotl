@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''Functions that interact with external tools/services
 '''
+from __future__ import absolute_import, print_function, division
 from peyotl.nexson_syntax import get_ot_study_info_from_nexml, \
                                  DEFAULT_NEXSON_VERSION, \
                                  BY_ID_HONEY_BADGERFISH, \

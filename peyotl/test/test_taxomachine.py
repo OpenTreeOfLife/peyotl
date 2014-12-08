@@ -101,7 +101,7 @@ example_response = {
 class TestTNRSResponse(unittest.TestCase):
     def testWrap(self):
         #pylint: disable=E1101
-        tr = TNRSResponse(example_response, {})
+        tr = TNRSResponse(None, example_response, {})
         self.assertTrue(tr.context_inferred)
         self.assertIn('Homo sapiens', tr)
         self.assertIn('Homo sapien', tr)

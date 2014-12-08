@@ -83,6 +83,7 @@ def match_and_print(name_list, context_name, do_approximate_matching, include_du
             output.write('    OTT ID (ot:ottId) = {}\n'.format(match.ott_id))
             output.write('    name (ot:ottTaxonName) = "{}"\n'.format(match.name))
             output.write('    query was matched using fuzzy/approximate string matching? {}\n'.format(match.is_approximate_match))
+            output.write('    match score = {}\n'.format(match.score))
             output.write('    query name is a junior synonym of this match? {}\n'.format(match.is_synonym))
             output.write('    is deprecated form OTT? {}\n'.format(match.is_deprecated))
             output.write('    is dubious taxon? {}\n'.format(match.is_dubious))
@@ -100,7 +101,7 @@ def main(argv):
     to do all of the real work.
     '''
     import argparse
-    description = 'Uses Open Tree of Life web services to try a taxon ID for each name supplied. ' \
+    description = 'Uses Open Tree of Life web services to try to find a taxon ID for each name supplied. ' \
                   'Using a --context-name=NAME to provide a limited taxonomic context and using the '\
                   ' --prohibit-fuzzy-matching option can make the matching faster.'
     parser = argparse.ArgumentParser(prog='ot-tnrs-match-names', description=description)

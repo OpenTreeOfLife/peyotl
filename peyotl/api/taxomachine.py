@@ -1,38 +1,63 @@
 #!/usr/bin/env python
 from peyotl.utility.dict_wrapper import FrozenDictAttrWrapper, FrozenDictWrapper
+from peyotl.api.otu import OTUWrapper
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import anyjson
 _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
-class TNRSMatch(FrozenDictAttrWrapper):
-    def __init__(self, m_dict):
-        FrozenDictAttrWrapper.__init__(self, m_dict)
+class TaxonomyInfoWrapper(FrozenDictAttrWrapper):
+    pass
+class TNRSMatch(OTUWrapper):
+    '''An OTUWrapper object with score and is_approximate_match properties.
+    part of a "wrapped" TNRS (or match_names) response.
+    '''
+    def __init__(self, m_dict, taxomachine_wrapper=None, taxonomy=None):
+        OTUWrapper.__init__(self, taxomachine_wrapper=taxomachine_wrapper, taxonomy=taxonomy, **m_dict)
+        self._score = m_dict.get('score')
+        self._is_approximate_match = m_dict.get('is_approximate_match')
     @property
-    def ott_id(self):
-        return self._raw_dict['ot:ottId']
+    def score(self):
+        return self._score
     @property
-    def ott_taxon_name(self):
-        return self._raw_dict['ot:ottTaxonName']
+    def is_approximate_match(self):
+        return self._is_approximate_match
 class TNRSResponse(FrozenDictWrapper):
+    '''The class for return value of of TNRS and match_names calls if wrap_response is True
+    This provides . access to the top-level properties returned by the TNRS, but also
+    adds dict-like behavior where the searched names are the keys, to make it easier
+        to access the tuple of matched names for each searched name. The elements in each
+        tuple will be TNRSMatch objects. Unmatched names will map to an empty tuple.
+    the `taxonomy` field will be a TaxonomyInfoWrapper object
+    '''
     def __init__(self, response, query_data):
         m = {}
+        taxonomy = TaxonomyInfoWrapper(response['taxonomy'])
         for o in response['results']:
-            m[o['id']] = tuple([TNRSMatch(i) for i in o['matches']])
+            m[o['id']] = tuple([TNRSMatch(i, taxonomy=taxonomy) for i in o['matches']])
         for name in response['unmatched_name_ids']:
             m[name] = _EMPTY_TUPLE
         FrozenDictWrapper.__init__(self, m)
         object.__setattr__(self, '_query_data', query_data)
         object.__setattr__(self, '_raw_response', response)
+        object.__setattr__(self, 'taxonomy', taxonomy)
+        object.__setattr__(self, 'governing_code', response['governing_code'])
+        object.__setattr__(self, 'unambiguous_name_ids', response['unambiguous_name_ids'])
+        object.__setattr__(self, 'unmatched_name_ids', response['unmatched_name_ids'])
+        object.__setattr__(self, 'matched_name_ids', response['matched_name_ids'])
+        object.__setattr__(self, 'context', response['context'])
+        object.__setattr__(self, 'includes_deprecated_taxa', response['includes_deprecated_taxa'])
+        object.__setattr__(self, 'includes_dubious_names', response['includes_dubious_names'])
+        object.__setattr__(self, 'includes_approximate_matches', response['includes_approximate_matches'])
     @property
     def raw_response(self):
-        return self._raw_response 
+        return self._raw_response #pylint: disable=E1101
     @property
     def context_inferred(self):
-        return self._query_data.get('context_name') is None
+        return self._query_data.get('context_name') is None #pylint: disable=E1101
     @property
     def matched_names(self):
-        return [k for k, v in self._raw_dict.items() if v is not _EMPTY_TUPLE]
+        return [k for k, v in self._raw_dict.items() if v is not _EMPTY_TUPLE] #pylint: disable=E1101
 
 class _TaxomachineAPIWrapper(_WSWrapper):
     '''Wrapper around interactions with the taxomachine TNRS.

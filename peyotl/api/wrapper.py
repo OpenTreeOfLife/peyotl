@@ -230,6 +230,9 @@ class _TaxonomyServicesWrapper(object):
 class _TNRSServicesWrapper(object):
     def __init__(self, taxomachine_wrapper, **kwargs): #pylint: disable=W0613
         self.taxomachine = taxomachine_wrapper
+    @property
+    def endpoint(self):
+        return self.taxomachine.endpoint
     def match_names(self, *valist, **kwargs):
         '''performs taxonomic name resolution. See https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#match_names
         with the exception that "ids" in the API call is referred has the name "id_list" in this function.
@@ -238,6 +241,7 @@ class _TNRSServicesWrapper(object):
             - do_approximate_matching=False (to speed up the search)
             - include_dubious=True see https://github.com/OpenTreeOfLife/reference-taxonomy/wiki/taxon-flags
             - include_deprecated=True to see deprecated taxa (see previous link to documentation about flags)
+            - wrap_response=True to return a TNRSRespose object (rather than the "raw" response of the web-services).
         '''
         if len(valist) == 1:
             if not is_str_type(valist[0]):
@@ -327,6 +331,9 @@ _VERB_TO_METHOD_DICT = {
 class _WSWrapper(object):
     def __init__(self, domain, **kwargs): #pylint: disable=W0613
         self._domain = domain
+    @property
+    def endpoint(self):
+        return self.domain
     #pylint: disable=W0102
     def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False): #pylint: disable=W0102
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression

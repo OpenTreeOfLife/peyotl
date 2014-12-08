@@ -407,8 +407,8 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         otu = self._ott_id2otu.get(ott_id)
         if otu is None:
             tnrsm = TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr)
-            self._ott_id2otu[ott_id] = tnrsm.otu
-        else:
-            return TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr, otu=otu)
+            self._ott_id2otu[ott_id] = tnrsm._otu
+            return tnrsm
+        return TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr, otu=otu)
 def Taxomachine(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).taxomachine

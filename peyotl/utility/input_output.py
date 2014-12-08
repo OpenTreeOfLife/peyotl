@@ -2,7 +2,9 @@
 '''Simple utility functions for Input/Output do not depend on any other part of
 peyotl.
 '''
+from peyotl.utility.str_util import is_str_type
 import codecs
+import json
 import stat
 import os
 
@@ -43,13 +45,32 @@ def download(url, encoding='utf-8'):
     response.encoding = encoding
     return response.text
 
+def write_as_json(blob, dest, indent=0, sort_keys=True):
+    opened_out = False
+    if is_str_type(dest):
+        out = codecs.open(dest, mode='w', encoding='utf-8')
+        opened_out = True
+    else:
+        out = dest
+    try:
+        json.dump(blob, out, indent=indent, sort_keys=sort_keys)
+        out.write('\n')
+    finally:
+        out.flush()
+        if opened_out:
+            out.close()
+
+def read_as_json(infi, encoding='utf-8'):
+    with codecs.open(infi, 'r', encoding=encoding) as inpf:
+        n = json.load(inpf)
+    return n
+
 def parse_study_tree_list(fp):
     '''study trees should be in {'study_id', 'tree_id'} objects, but
     as legacy support we also need to support files that have the format:
     pg_315_4246243 # comment
 
     '''
-    from peyotl.nexson_syntax import read_as_json
     try:
         sl = read_as_json(fp)
     except:

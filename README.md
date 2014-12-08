@@ -65,6 +65,14 @@ The peyotl/test/data/nexson/phenoscape/nexml test file is from
     PhenoscapeKB, [U.S. National Evolutionary Synthesis Center], http://kb.phenoscape.org; [Feb 16, 2014]
     The citation for the data is in the nexml doc itself.
 
+peyotl includes the `ez_setup.py` tool from [setuptools](https://pypi.python.org/pypi/setuptools)
+    To satisfy the Python Software Foundation license we note here that peyotl does not 
+    alter the python sourcee code itself. By installing the package you enable the python
+    interpreter to find the code included in this package for interacting with open tree of life
+    data and web services.
+
+
+
 ****************
 
 *Etymology*: According to Wikipedia, peyotl is the Nahuatl word for [*Lophophora williamsii*](http://en.wikipedia.org/wiki/Lophophora_williamsii).

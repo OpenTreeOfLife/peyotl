@@ -1,6 +1,6 @@
 from peyotl.utility import get_logger, get_config_setting_kwargs, write_to_filepath
 from peyotl.phylesystem.helper import DIGIT_PATTERN, create_id2study_info, diagnose_repo_study_id_convention
-from peyotl.nexson_syntax import read_as_json, write_as_json
+from peyotl.utility.input_output import read_as_json, write_as_json
 import json
 try:
     import anyjson

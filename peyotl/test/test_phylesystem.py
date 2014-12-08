@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.nexson_syntax import read_as_json
+from peyotl.utility.input_output import read_as_json
 from peyotl.phylesystem.phylesystem_umbrella import _Phylesystem
 import unittest
 from peyotl.test.support import pathmap
@@ -10,7 +10,8 @@ ms, mp = _repos['mini_system'], _repos['mini_phyl']
 #pylint: disable=W0212
 @unittest.skipIf((not os.path.isdir(ms)) or (not os.path.isdir(mp)),
                  'Peyotl not configured for maintainer test of mini_phyl/system.' \
-                 'Skipping this test is normal (for everyone other than MTH and EJBM).')
+                 'Skipping this test is normal (for everyone other than MTH and EJBM).\n' \
+                 'See http://opentreeoflife.github.io/peyotl/maintainer/ ')
 class TestPhylesystem(unittest.TestCase):
     def setUp(self):
         self.r = dict(_repos)

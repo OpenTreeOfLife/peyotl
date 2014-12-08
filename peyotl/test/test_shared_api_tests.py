@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from peyotl.test.support.pathmap import get_test_ot_service_domains, \
                                         shared_test_dir
-from peyotl.nexson_syntax import read_as_json
+from peyotl.utility.input_output import read_as_json
 from peyotl.api import APIWrapper
 from peyotl.utility import get_logger
 import subprocess

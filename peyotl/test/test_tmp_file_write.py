@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 from peyotl.phylesystem.git_actions import GitAction
 import unittest
-from peyotl.nexson_syntax import read_as_json
+from peyotl.utility.input_output import read_as_json
 from peyotl.test.support import pathmap
 from peyotl.phylesystem.helper import get_repos
 try:

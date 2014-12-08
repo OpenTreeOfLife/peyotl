@@ -1,0 +1,794 @@
+{
+"nexml": {
+"@generator": "Phylografter nexml-json exporter", 
+"@id": "study", 
+"@nexml2json": "1.2.1", 
+"@nexmljson": "http://purl.org/opentree/nexson", 
+"@version": "0.9", 
+"@xmlns": {
+"$": "http://www.nexml.org/2009", 
+"nex": "http://www.nexml.org/2009", 
+"ot": "http://purl.org/opentree-terms#", 
+"xsd": "http://www.w3.org/2001/XMLSchema#", 
+"xsi": "http://www.w3.org/2001/XMLSchema-instance"
+}, 
+"^ot:agents": {
+"agent": [
+{
+"@description": "validator of NexSON constraints as well as constraints that would allow a study to be imported into the Open Tree of Life's phylogenetic synthesis tools", 
+"@id": "peyotl-validator", 
+"@name": "validate_ot_nexson.py", 
+"@url": "https://github.com/OpenTreeOfLife/peyotl", 
+"@version": "0.0.4a", 
+"invocation": {
+"commandLine": [
+"--embed", 
+"--agent-only"
+], 
+"otherProperty": [
+{
+"name": "pythonVersion", 
+"value": "2.7.5+"
+}, 
+{
+"name": "pythonImplementation", 
+"value": "CPython"
+}
+]
+}
+}
+]
+}, 
+"^ot:annotationEvents": {
+"annotation": []
+}, 
+"^ot:candidateTreeForSynthesis": [], 
+"^ot:curatorName": "bryan drew", 
+"^ot:dataDeposit": {
+"@href": "http://purl.org/phylo/treebase/phylows/study/TB2:S1657"
+}, 
+"^ot:focalClade": 23821, 
+"^ot:focalCladeOTTTaxonName": "Hieracium", 
+"^ot:messages": {
+"message": []
+}, 
+"^ot:otusElementOrder": [
+"otus329"
+], 
+"^ot:studyId": "pg_329", 
+"^ot:studyPublication": {
+"@href": "http://dx.doi.org/10.1600/036364407781179752"
+}, 
+"^ot:studyPublicationReference": "Gaskin, J. F., & Wilson, L. M. (2007). Phylogenetic relationships among native and naturalized Hieracium (Asteraceae) in Canada and the United States based on plastid DNA sequences. Systematic botany, 32(2), 478-485.", 
+"^ot:studyYear": 2007, 
+"^ot:tag": [], 
+"^ot:treesElementOrder": [
+"trees329"
+], 
+"otusById": {
+"otus329": {
+"otuById": {
+"otu74178": {
+"^ot:originalLabel": "Hieracium aurantiacum", 
+"^ot:ottId": 285884, 
+"^ot:ottTaxonName": "Hieracium aurantiacum", 
+"^ot:treebaseOTUId": "Tl180409"
+}, 
+"otu74179": {
+"^ot:originalLabel": "Hieracium canadense", 
+"^ot:ottId": 974012, 
+"^ot:ottTaxonName": "Hieracium canadense", 
+"^ot:treebaseOTUId": "Tl180416"
+}, 
+"otu74180": {
+"^ot:originalLabel": "Hieracium flagellare", 
+"^ot:ottId": 794149, 
+"^ot:ottTaxonName": "Hieracium flagellare", 
+"^ot:treebaseOTUId": "Tl180425"
+}, 
+"otu74181": {
+"^ot:originalLabel": "Hieracium venosum", 
+"^ot:ottId": 1095904, 
+"^ot:ottTaxonName": "Hieracium venosum", 
+"^ot:treebaseOTUId": "Tl180427"
+}, 
+"otu74182": {
+"^ot:originalLabel": "Hieracium lachenalii", 
+"^ot:ottId": 348229, 
+"^ot:ottTaxonName": "Hieracium lachenalii", 
+"^ot:treebaseOTUId": "Tl180428"
+}, 
+"otu74183": {
+"^ot:originalLabel": "Hieracium scabrum", 
+"^ot:ottId": 974019, 
+"^ot:ottTaxonName": "Hieracium scabrum", 
+"^ot:treebaseOTUId": "Tl180435"
+}, 
+"otu74184": {
+"^ot:originalLabel": "Hieracium caespitosum", 
+"^ot:ottId": 809699, 
+"^ot:ottTaxonName": "Hieracium caespitosum", 
+"^ot:treebaseOTUId": "Tl180438"
+}, 
+"otu74185": {
+"^ot:originalLabel": "Hieracium pilosella", 
+"^ot:ottId": 752654, 
+"^ot:ottTaxonName": "Hieracium pilosella", 
+"^ot:treebaseOTUId": "Tl180439"
+}, 
+"otu74186": {
+"^ot:originalLabel": "Hieracium piloselloides", 
+"^ot:ottId": 920718, 
+"^ot:ottTaxonName": "Hieracium piloselloides", 
+"^ot:treebaseOTUId": "Tl180441"
+}, 
+"otu74187": {
+"^ot:originalLabel": "Hieracium saubaudum", 
+"^ot:ottId": 498031, 
+"^ot:ottTaxonName": "Hieracium sabaudum", 
+"^ot:treebaseOTUId": "Tl42303"
+}, 
+"otu74188": {
+"^ot:originalLabel": "Hieracium scouleri var. cynoglossioides", 
+"^ot:ottId": 270585, 
+"^ot:ottTaxonName": "Hieracium cynoglossoides", 
+"^ot:treebaseOTUId": "Tl42304"
+}, 
+"otu74189": {
+"^ot:originalLabel": "Hieracium abcissum", 
+"^ot:ottId": 794157, 
+"^ot:ottTaxonName": "Hieracium abscissum", 
+"^ot:treebaseOTUId": "Tl42305"
+}, 
+"otu74190": {
+"^ot:originalLabel": "Hieracium bolanderi", 
+"^ot:ottId": 794159, 
+"^ot:ottTaxonName": "Hieracium bolanderi", 
+"^ot:treebaseOTUId": "Tl42306"
+}, 
+"otu74191": {
+"^ot:originalLabel": "Hieracium floribundum", 
+"^ot:ottId": 5144270, 
+"^ot:ottTaxonName": "Hieracium floribundum", 
+"^ot:treebaseOTUId": "Tl42307"
+}, 
+"otu74192": {
+"^ot:originalLabel": "Taraxacum sp.", 
+"^ot:ottId": 451182, 
+"^ot:ottTaxonName": "Taraxacum officinale", 
+"^ot:treebaseOTUId": "Tl42308"
+}, 
+"otu74193": {
+"^ot:originalLabel": "Hieracium murorum", 
+"^ot:ottId": 620195, 
+"^ot:ottTaxonName": "Hieracium murorum", 
+"^ot:treebaseOTUId": "Tl42313"
+}, 
+"otu74194": {
+"^ot:originalLabel": "Andryala integrifolia", 
+"^ot:ottId": 3897048, 
+"^ot:ottTaxonName": "Hieracium danicum", 
+"^ot:treebaseOTUId": "Tl42314"
+}, 
+"otu74195": {
+"^ot:originalLabel": "Hieracium horridum", 
+"^ot:ottId": 794140, 
+"^ot:ottTaxonName": "Hieracium horridum", 
+"^ot:treebaseOTUId": "Tl42315"
+}, 
+"otu74196": {
+"^ot:originalLabel": "Hieracium triste", 
+"^ot:ottId": 270580, 
+"^ot:ottTaxonName": "Hieracium triste", 
+"^ot:treebaseOTUId": "Tl42317"
+}, 
+"otu74197": {
+"^ot:originalLabel": "Hieracium greenei", 
+"^ot:ottId": 794153, 
+"^ot:ottTaxonName": "Hieracium greenei", 
+"^ot:treebaseOTUId": "Tl42318"
+}, 
+"otu74198": {
+"^ot:originalLabel": "Hieracium gronovii", 
+"^ot:ottId": 794142, 
+"^ot:ottTaxonName": "Hieracium gronovii", 
+"^ot:treebaseOTUId": "Tl42319"
+}, 
+"otu74199": {
+"^ot:originalLabel": "Hieracium carneum", 
+"^ot:ottId": 48666, 
+"^ot:ottTaxonName": "Hieracium carneum", 
+"^ot:treebaseOTUId": "Tl42320"
+}, 
+"otu74200": {
+"^ot:originalLabel": "Hieracium longipilum", 
+"^ot:ottId": 1016026, 
+"^ot:ottTaxonName": "Hieracium longipilum", 
+"^ot:treebaseOTUId": "Tl42321"
+}, 
+"otu74201": {
+"^ot:originalLabel": "Hieracium scouleri var. albertinum", 
+"^ot:ottId": 510845, 
+"^ot:ottTaxonName": "Hieracium scouleri var. albertinum", 
+"^ot:treebaseOTUId": "Tl42322"
+}, 
+"otu74202": {
+"^ot:originalLabel": "Hieracium mexicanum", 
+"^ot:ottId": 270592, 
+"^ot:ottTaxonName": "Hieracium mexicanum", 
+"^ot:treebaseOTUId": "Tl42323"
+}, 
+"otu74203": {
+"^ot:originalLabel": "Crepis auraea", 
+"^ot:ottId": 47230, 
+"^ot:ottTaxonName": "Crepis aurea", 
+"^ot:treebaseOTUId": "Tl42324"
+}, 
+"otu74204": {
+"^ot:originalLabel": "Hieracium albiflorum", 
+"^ot:ottId": 48656, 
+"^ot:ottTaxonName": "Hieracium albiflorum", 
+"^ot:treebaseOTUId": "Tl42325"
+}, 
+"otu74205": {
+"^ot:originalLabel": "Hieracium fendleri", 
+"^ot:ottId": 794151, 
+"^ot:ottTaxonName": "Hieracium fendleri", 
+"^ot:treebaseOTUId": "Tl42326"
+}, 
+"otu74206": {
+"^ot:originalLabel": "Hieracium irasuense", 
+"^ot:ottId": 510872, 
+"^ot:ottTaxonName": "Hieracium irasuense", 
+"^ot:treebaseOTUId": "Tl42327"
+}, 
+"otu74207": {
+"^ot:originalLabel": "Hypochaeris palustris", 
+"^ot:ottId": 420491, 
+"^ot:ottTaxonName": "Hypochaeris palustris", 
+"^ot:treebaseOTUId": "Tl42328"
+}, 
+"otu74208": {
+"^ot:originalLabel": "Hieracium parryi", 
+"^ot:ottId": 270587, 
+"^ot:ottTaxonName": "Hieracium parryi", 
+"^ot:treebaseOTUId": "Tl42329"
+}, 
+"otu74209": {
+"^ot:originalLabel": "Hieracium gracile", 
+"^ot:ottId": 270580, 
+"^ot:ottTaxonName": "Hieracium triste", 
+"^ot:treebaseOTUId": "Tl42330"
+}, 
+"otu74210": {
+"^ot:originalLabel": "Hieracium scouleri var. scouleri", 
+"^ot:ottId": 270579, 
+"^ot:ottTaxonName": "Hieracium scouleri var. scouleri", 
+"^ot:treebaseOTUId": "Tl42331"
+}, 
+"otu74211": {
+"^ot:originalLabel": "Hieracium umbellatum", 
+"^ot:ottId": 1095913, 
+"^ot:ottTaxonName": "Hieracium umbellatum", 
+"^ot:treebaseOTUId": "Tl42332"
+}, 
+"otu74212": {
+"^ot:originalLabel": "Hieracium laevigatum", 
+"^ot:ottId": 825002, 
+"^ot:ottTaxonName": "Hieracium laevigatum", 
+"^ot:treebaseOTUId": "Tl42333"
+}, 
+"otu74213": {
+"^ot:originalLabel": "Hieracium argutum", 
+"^ot:ottId": 794155, 
+"^ot:ottTaxonName": "Hieracium argutum", 
+"^ot:treebaseOTUId": "Tl42336"
+}, 
+"otu74214": {
+"^ot:originalLabel": "Hieracium longiberbe", 
+"^ot:ottId": 510874, 
+"^ot:ottTaxonName": "Hieracium longiberbe", 
+"^ot:treebaseOTUId": "Tl42338"
+}, 
+"otu74215": {
+"^ot:originalLabel": "Hieracium maculatum", 
+"^ot:ottId": 510862, 
+"^ot:ottTaxonName": "Hieracium maculatum", 
+"^ot:treebaseOTUId": "Tl42340"
+}, 
+"otu74216": {
+"^ot:originalLabel": "Hieracium glomeratum", 
+"^ot:ottId": 809710, 
+"^ot:ottTaxonName": "Hieracium glomeratum", 
+"^ot:treebaseOTUId": "Tl42341"
+}, 
+"otu74217": {
+"^ot:originalLabel": "Hieracium atratum", 
+"^ot:ottId": 360500, 
+"^ot:ottTaxonName": "Hieracium atratum", 
+"^ot:treebaseOTUId": "Tl42342"
+}
+}
+}
+}, 
+"treesById": {
+"trees329": {
+"@otus": "otus329", 
+"^ot:treeElementOrder": [
+"tree324"
+], 
+"treeById": {
+"tree324": {
+"@xsi:type": "nex:FloatTree", 
+"^ot:branchLengthDescription": "", 
+"^ot:branchLengthMode": "", 
+"^ot:branchLengthTimeUnit": "", 
+"^ot:curatedType": "Strict Tree", 
+"^ot:inGroupClade": "node195321", 
+"^ot:outGroupEdge": "", 
+"^ot:rootNodeId": "node195316", 
+"^ot:specifiedRoot": "", 
+"^ot:tag": [], 
+"edgeBySourceId": {
+"node195316": {
+"edge195317": {
+"@source": "node195316", 
+"@target": "node195317"
+}, 
+"edge195318": {
+"@source": "node195316", 
+"@target": "node195318"
+}, 
+"edge195319": {
+"@source": "node195316", 
+"@target": "node195319"
+}
+}, 
+"node195319": {
+"edge195320": {
+"@source": "node195319", 
+"@target": "node195320"
+}, 
+"edge195321": {
+"@source": "node195319", 
+"@target": "node195321"
+}
+}, 
+"node195321": {
+"edge195322": {
+"@source": "node195321", 
+"@target": "node195322"
+}, 
+"edge195340": {
+"@source": "node195321", 
+"@target": "node195340"
+}, 
+"edge195378": {
+"@source": "node195321", 
+"@target": "node195378"
+}
+}, 
+"node195322": {
+"edge195323": {
+"@source": "node195322", 
+"@target": "node195323"
+}, 
+"edge195334": {
+"@source": "node195322", 
+"@target": "node195334"
+}
+}, 
+"node195323": {
+"edge195324": {
+"@source": "node195323", 
+"@target": "node195324"
+}, 
+"edge195325": {
+"@source": "node195323", 
+"@target": "node195325"
+}, 
+"edge195326": {
+"@source": "node195323", 
+"@target": "node195326"
+}, 
+"edge195327": {
+"@source": "node195323", 
+"@target": "node195327"
+}, 
+"edge195328": {
+"@source": "node195323", 
+"@target": "node195328"
+}, 
+"edge195333": {
+"@source": "node195323", 
+"@target": "node195333"
+}
+}, 
+"node195328": {
+"edge195329": {
+"@source": "node195328", 
+"@target": "node195329"
+}, 
+"edge195330": {
+"@source": "node195328", 
+"@target": "node195330"
+}
+}, 
+"node195330": {
+"edge195331": {
+"@source": "node195330", 
+"@target": "node195331"
+}, 
+"edge195332": {
+"@source": "node195330", 
+"@target": "node195332"
+}
+}, 
+"node195334": {
+"edge195335": {
+"@source": "node195334", 
+"@target": "node195335"
+}, 
+"edge195336": {
+"@source": "node195334", 
+"@target": "node195336"
+}, 
+"edge195337": {
+"@source": "node195334", 
+"@target": "node195337"
+}, 
+"edge195338": {
+"@source": "node195334", 
+"@target": "node195338"
+}, 
+"edge195339": {
+"@source": "node195334", 
+"@target": "node195339"
+}
+}, 
+"node195340": {
+"edge195341": {
+"@source": "node195340", 
+"@target": "node195341"
+}, 
+"edge195363": {
+"@source": "node195340", 
+"@target": "node195363"
+}, 
+"edge195371": {
+"@source": "node195340", 
+"@target": "node195371"
+}
+}, 
+"node195341": {
+"edge195342": {
+"@source": "node195341", 
+"@target": "node195342"
+}, 
+"edge195360": {
+"@source": "node195341", 
+"@target": "node195360"
+}
+}, 
+"node195342": {
+"edge195343": {
+"@source": "node195342", 
+"@target": "node195343"
+}, 
+"edge195359": {
+"@source": "node195342", 
+"@target": "node195359"
+}
+}, 
+"node195343": {
+"edge195344": {
+"@source": "node195343", 
+"@target": "node195344"
+}, 
+"edge195355": {
+"@source": "node195343", 
+"@target": "node195355"
+}, 
+"edge195358": {
+"@source": "node195343", 
+"@target": "node195358"
+}
+}, 
+"node195344": {
+"edge195345": {
+"@source": "node195344", 
+"@target": "node195345"
+}, 
+"edge195352": {
+"@source": "node195344", 
+"@target": "node195352"
+}
+}, 
+"node195345": {
+"edge195346": {
+"@source": "node195345", 
+"@target": "node195346"
+}, 
+"edge195349": {
+"@source": "node195345", 
+"@target": "node195349"
+}, 
+"edge195350": {
+"@source": "node195345", 
+"@target": "node195350"
+}, 
+"edge195351": {
+"@source": "node195345", 
+"@target": "node195351"
+}
+}, 
+"node195346": {
+"edge195347": {
+"@source": "node195346", 
+"@target": "node195347"
+}, 
+"edge195348": {
+"@source": "node195346", 
+"@target": "node195348"
+}
+}, 
+"node195352": {
+"edge195353": {
+"@source": "node195352", 
+"@target": "node195353"
+}, 
+"edge195354": {
+"@source": "node195352", 
+"@target": "node195354"
+}
+}, 
+"node195355": {
+"edge195356": {
+"@source": "node195355", 
+"@target": "node195356"
+}, 
+"edge195357": {
+"@source": "node195355", 
+"@target": "node195357"
+}
+}, 
+"node195360": {
+"edge195361": {
+"@source": "node195360", 
+"@target": "node195361"
+}, 
+"edge195362": {
+"@source": "node195360", 
+"@target": "node195362"
+}
+}, 
+"node195363": {
+"edge195364": {
+"@source": "node195363", 
+"@target": "node195364"
+}, 
+"edge195365": {
+"@source": "node195363", 
+"@target": "node195365"
+}, 
+"edge195366": {
+"@source": "node195363", 
+"@target": "node195366"
+}
+}, 
+"node195366": {
+"edge195367": {
+"@source": "node195366", 
+"@target": "node195367"
+}, 
+"edge195368": {
+"@source": "node195366", 
+"@target": "node195368"
+}
+}, 
+"node195368": {
+"edge195369": {
+"@source": "node195368", 
+"@target": "node195369"
+}, 
+"edge195370": {
+"@source": "node195368", 
+"@target": "node195370"
+}
+}, 
+"node195371": {
+"edge195372": {
+"@source": "node195371", 
+"@target": "node195372"
+}, 
+"edge195375": {
+"@source": "node195371", 
+"@target": "node195375"
+}
+}, 
+"node195372": {
+"edge195373": {
+"@source": "node195372", 
+"@target": "node195373"
+}, 
+"edge195374": {
+"@source": "node195372", 
+"@target": "node195374"
+}
+}, 
+"node195375": {
+"edge195376": {
+"@source": "node195375", 
+"@target": "node195376"
+}, 
+"edge195377": {
+"@source": "node195375", 
+"@target": "node195377"
+}
+}, 
+"node195378": {
+"edge195379": {
+"@source": "node195378", 
+"@target": "node195379"
+}, 
+"edge195380": {
+"@source": "node195378", 
+"@target": "node195380"
+}
+}
+}, 
+"nodeById": {
+"node195316": {
+"@root": true
+}, 
+"node195317": {
+"@otu": "otu74192"
+}, 
+"node195318": {
+"@otu": "otu74203"
+}, 
+"node195319": {}, 
+"node195320": {
+"@otu": "otu74207"
+}, 
+"node195321": {}, 
+"node195322": {}, 
+"node195323": {}, 
+"node195324": {
+"@otu": "otu74194"
+}, 
+"node195325": {
+"@otu": "otu74216"
+}, 
+"node195326": {
+"@otu": "otu74191"
+}, 
+"node195327": {
+"@otu": "otu74186"
+}, 
+"node195328": {}, 
+"node195329": {
+"@otu": "otu74185"
+}, 
+"node195330": {}, 
+"node195331": {
+"@otu": "otu74180"
+}, 
+"node195332": {
+"@otu": "otu74178"
+}, 
+"node195333": {
+"@otu": "otu74184"
+}, 
+"node195334": {}, 
+"node195335": {
+"@otu": "otu74187"
+}, 
+"node195336": {
+"@otu": "otu74212"
+}, 
+"node195337": {
+"@otu": "otu74217"
+}, 
+"node195338": {
+"@otu": "otu74215"
+}, 
+"node195339": {
+"@otu": "otu74211"
+}, 
+"node195340": {}, 
+"node195341": {}, 
+"node195342": {}, 
+"node195343": {}, 
+"node195344": {}, 
+"node195345": {}, 
+"node195346": {}, 
+"node195347": {
+"@otu": "otu74213"
+}, 
+"node195348": {
+"@otu": "otu74204"
+}, 
+"node195349": {
+"@otu": "otu74190"
+}, 
+"node195350": {
+"@otu": "otu74179"
+}, 
+"node195351": {
+"@otu": "otu74195"
+}, 
+"node195352": {}, 
+"node195353": {
+"@otu": "otu74208"
+}, 
+"node195354": {
+"@otu": "otu74197"
+}, 
+"node195355": {}, 
+"node195356": {
+"@otu": "otu74198"
+}, 
+"node195357": {
+"@otu": "otu74183"
+}, 
+"node195358": {
+"@otu": "otu74181"
+}, 
+"node195359": {
+"@otu": "otu74200"
+}, 
+"node195360": {}, 
+"node195361": {
+"@otu": "otu74209"
+}, 
+"node195362": {
+"@otu": "otu74196"
+}, 
+"node195363": {}, 
+"node195364": {
+"@otu": "otu74199"
+}, 
+"node195365": {
+"@otu": "otu74205"
+}, 
+"node195366": {}, 
+"node195367": {
+"@otu": "otu74189"
+}, 
+"node195368": {}, 
+"node195369": {
+"@otu": "otu74206"
+}, 
+"node195370": {
+"@otu": "otu74202"
+}, 
+"node195371": {}, 
+"node195372": {}, 
+"node195373": {
+"@otu": "otu74214"
+}, 
+"node195374": {
+"@otu": "otu74201"
+}, 
+"node195375": {}, 
+"node195376": {
+"@otu": "otu74210"
+}, 
+"node195377": {
+"@otu": "otu74188"
+}, 
+"node195378": {}, 
+"node195379": {
+"@otu": "otu74182"
+}, 
+"node195380": {
+"@otu": "otu74193"
+}
+}
+}
+}
+}
+}
+}
+}

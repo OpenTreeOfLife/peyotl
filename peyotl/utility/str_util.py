@@ -15,8 +15,10 @@ if sys.version_info.major == 2:
         return string_io, wrapper
     def flush_utf_8_writer(wrapper):
         wrapper.reset()
+    def reverse_dict(d):
+        return {v: k for k, v in d.iteritems()}
 else:
-    from io import StringIO #pylint: disable=E0611
+    from io import StringIO #pylint: disable=E0611,W0403
     UNICODE = str
     def is_str_type(x):
         return isinstance(x, str)
@@ -26,5 +28,7 @@ else:
         string_io = StringIO()
         return string_io, string_io
     flush_utf_8_writer = lambda x: True
+    def reverse_dict(d):
+        return {v: k for k, v in d.items()}
 
 

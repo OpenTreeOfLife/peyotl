@@ -9,8 +9,8 @@ from __future__ import absolute_import, print_function, division
 from peyotl.utility import get_config_setting_kwargs, \
                            get_config_object, \
                            expand_path, \
-                           get_logger, \
-                           pretty_dict_str
+                           get_logger
+from peyotl.utility.input_output import pretty_dict_str
 from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \
@@ -55,8 +55,9 @@ def iter_node(tree):
         yield nd
 
 __all__ = ['utility',
-           'nexson_syntax',
            'api',
+           'nexson_proxy',
+           'nexson_syntax',
            'nexson_validation',
            'ott',
            'phylesystem',
@@ -68,4 +69,5 @@ __all__ = ['utility',
            'external',
            'manip',
            'struct_diff',
+           'evaluate_tree',
           ]

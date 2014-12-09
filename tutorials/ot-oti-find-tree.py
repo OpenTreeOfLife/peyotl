@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-'''Simple command-line tool that wraps the OTI to get trees for a taxon ID
-    which is described at https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#match_names
+'''Simple command-line tool that wraps OTI to get trees for an argument which is a property value pair
+   e.g. ot-oti-find-tree-py '{"ot:ottTaxonName": "Garcinia"}'
+    which is described at https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#find_trees
 '''
 import pprint
 import sys

@@ -124,6 +124,10 @@ If there were a universally used, rich file format for phylogenetics analyses, t
     stored alongside the tree itself.
 The xml-based NexML specification \citep{NeXML} defines such a format, but it is not widely used by tree estimation tools.
 
+    \jfacomment{This section nicely captures the tension between data quality
+    and ease of submission/curation. I kind of want to say ``We hope to
+    overcome this by providing better tools.''}
+
 Thus, the current state of phyloinformatic archival infrastructure is ripe for improvement in numerous ways.
 One such opportunity is the development of a datastore that allows the community of biologists to improve the
     accuracy and re-usability of published phylogenetic statements.
@@ -134,6 +138,11 @@ The goal of \ps is not to replace systems like Dryad or TreeBASE, but to complem
     edits that were made to the data themselves.
 We anticipate that most of the trees stored in \ps will be associated with permanent, static archives
     elsewhere (usually either TreeBASE or Dryad).
+    \jfacomment{To my eye, this is pretty vague on the ultimate relationship of
+    phylesystem data to Dryad/TreeBASE archives. Are curated changes and
+    refinements shared with them? Or are their data used as inputs to
+    phylesystem, which now has the ``real'' (best, richest) data? In any case,
+    will these repositories link BACK to our phylesystem?}
 
 \subsection{Approach}
 One of the motivations of the design of \ps was to support the \otol's need for a curated set

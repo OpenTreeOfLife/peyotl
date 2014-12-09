@@ -41,7 +41,7 @@ $^{4}$National Evolutionary Synthesis Center, Duke University, Durham, North Car
 \begin{abstract}
 \section{Motivation:}
 Archival storage of phylogenetic estimates from published studies can be accomplished
-    using general platforms, like Dryad, or TreeBase.
+    using general platforms like Dryad or TreeBASE.
 Those services fulfill a crucial role in making phylogenetic studies be more transparent
     and reproducible.
 However, available trees nearly always require some editing to improve the accuracy and reusability of the phylogenetic statements.
@@ -98,28 +98,28 @@ However, if the authors submitting the data are not conscientious in their expla
 
 On the opposite end of the spectrum, some databases require data providers to conform to rigorous
     standards with respect to input format and content.
-Since 1994, TreeBase \citep{SandersonDPE1994} and its successor TreeBase version 2 \citep{TreeBase2} have served
+Since 1994, TreeBASE \citep{SandersonDPE1994} and its successor TreeBASE version 2 \citep{TreeBase2} have served
     as the primary archival data stores for phylogenetic estimates and the data that these trees are based on.
-As of 2014, TreeBase contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
-Many journals encourage or require that each publication that estimates phylogenetic trees cite a TreeBase
+As of 2014, TreeBASE contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
+Many journals encourage or require that each publication that estimates phylogenetic trees cite a TreeBASE
     deposition containing the associated trees.
-TreeBase produces a much more feature-rich interface for phylogenetic queries than Dryad, because each 
-    TreeBase submission is parsed thoroughly and converted to a set of records in a relational database.
+TreeBASE produces a much more feature-rich interface for phylogenetic queries than Dryad, because each 
+    TreeBASE submission is parsed thoroughly and converted to a set of records in a relational database.
 The downside of this approach is that it requires that submissions correspond to a more uniform format and without constant updating,
     that format may not reflect new types phylogenetic data being generated.
 
 Unfortunately, file formats read and written by tree estimation tools are idiosyncratic and often so 
     terse that they omit useful information about the analysis (see \citet{StoltzfusEtAl2012} for a discussion
     of this topic and other challenges relating to the archiving of phylogenetic estimates).
-As a result, the TreeBase submission process usually requires the authors of a data package to reformat their data, correct
+As a result, the TreeBASE submission process usually requires the authors of a data package to reformat their data, correct
     the rooting of the tree, alter the labels of the tips of the tree, {\em etc}.
-The TreeBase project provides a 12-minute video 
+The TreeBASE project provides a 12-minute video 
     \footnote{\url{http://treebase.org/treebase-web/submitTutorial.html}} 
     explaining the non-trivial procedure of preparing a submission.
 Because these steps are often taken after the analyses for a publication are complete, it is more likely 
     errors introduced in the submission process will not be corrected until an observant user tries to reuse the data.
 If there were a universally used, rich file format for phylogenetics analyses, then import constraints such as those
-    used by TreeBase would be less of a hurdle, since the critical metadata regarding rooting, labels, etc. could be
+    used by TreeBASE would be less of a hurdle, since the critical metadata regarding rooting, labels, etc. could be
     stored alongside the tree itself.
 The xml-based NexML specification \citep{NeXML} defines such a format, but it is not widely used by tree estimation tools.
 
@@ -128,11 +128,11 @@ One such opportunity is the development of a datastore that allows the community
     accuracy and re-usability of published phylogenetic statements.
 We describe here an implementation of one such system, which we call ``phylesystem'' because it uses a set of
     versioned text files on the filesystem (and the fact that we {\em love} bad puns).
-The goal of \ps is not to replace systems like Dryad or TreeBase, but to complement them by 
+The goal of \ps is not to replace systems like Dryad or TreeBASE, but to complement them by 
     storing phylogenetic statements and associated metadata in a consistent format while retaining the history of
     edits that were made to the data themselves.
 We anticipate that most of the trees stored in \ps will be associated with permanent, static archives
-    elsewhere (usually either TreeBase or Dryad).
+    elsewhere (usually either TreeBASE or Dryad).
 
 \subsection{Approach}
 One of the motivations of the design of \ps was to support the \otol's need for a curated set

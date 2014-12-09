@@ -251,7 +251,7 @@ The basic workflow of a curation session is:
         browser and maintained there until the curator chooses to save the study.
     \item \label{putStep} To save, the curator application uses an http PUT verb and includes the data (in \nexson), the starting SHA, and a commit message to support sensible history. 
         \ejmcomment{Do http verbs need more explanation somewhere?} 
-        \jfacomment{It does seem to raise the topic of RESTful style. Is this relevant?}
+        \jfacomment{It does seem to raise the topic of RESTful style. Not sure this is this relevant here.}
     \item \label{validateStep} The \ps-api code validates the \nexson (rejecting the request if the data is not a legal \nexson document).
     \item \label{gitSaveStep} If the data is a legal \nexson document, then a new git commit is created with the SHA
         provided in the PUT request as the parent commit. The commit is placed on a 
@@ -263,7 +263,7 @@ The basic workflow of a curation session is:
         If the version of the study on the master branch {\em has} changed (e.g. if two users are simultaneously editing the same study),
         then the merge is not done. The data will be saved on the server, but not merged into the master branch.
         If the commit is not merged, then there merge must be completed by a curator, as there is the potential for conflicts between changes made by different simultaneous edits.
-        \jfacomment{This implies that an unmerged WIP branches will sit on the API server indefinitely. Is this correct? Any risk here?}
+        \jfacomment{This implies that an unmerged WIP branches will sit on the API server indefinitely. Is that correct? Any risk here?}
     \item\label{gitTriggerPushStep}  If the new edit was successfully merged, then an event is triggered to tell the server to push the new master branch changes to the GitHub version
         of the repository.
     \item\label{respondStep} A response is returned to the curation app indicating whether or not the data was 
@@ -325,17 +325,17 @@ Inside this directory, each study is in subdirectory with a name that correspond
     in a file name that corresponds to the ID.
 So, for example, the \ps-api code knows to look for study ot\_211 at the path
     study/ot\_11/ot\_211/ot\_211.json inside the git working directory.
-
+    \jfacomment{Should we explain the rationale (or need) for the prefix-and-two-digit subfolders?}
 \subsection*{Mirroring on the server}
 The server running the \ps-api maintains two clones of data repositories.
-The working clone is use to save the updated data (steps \#\ref{gitSaveStep} and \ref{gitMergeStep}  in the workflow).
+The ``working'' clone is use to save the updated data (steps \#\ref{gitSaveStep} and \ref{gitMergeStep}  in the workflow).
 These operations respond to the curator client (in step \ref{respondStep}) immediately
     after these operations complete.
 To push the data to the GitHub clone of the repository, the server first pulls the master branch from the working repository onto a separate
-    clone of the repository.
-This mirror of the repository is then locked during the push to GitHub operation (step \ref{pushStep}).
+    ``mirror'' clone of the repository.
+This mirror repository is then locked during the push to GitHub operation (step \ref{pushStep}).
 This architecture keeps the working clone free to save other studies while the high-latency push operation completes from the mirror.
-The update of the mirror from the working clone is very fast because the clones are on the same filesystem.
+The update of the mirror from the working repository is very fast because both are on the same filesystem.
 Therefore, links to the objects in the git database can be used instead of copy operations.
 
 \subsection*{\nexson}

@@ -49,7 +49,7 @@ Many trees in data archives or supplemental files from publications are incorrec
 Establishing the linkage between tip labels used in a tree and taxa in a single taxonomy 
     dramatically improves the ability of other researchers to reuse phylogenetic estimates.
 Because the process of curating a published phylogenetic estimate is not error-free,
-    retaining a full record of the provenance edits to a tree is crucial for
+    retaining a full record of the provenance of edits to a tree is crucial for
     openness, allowing editors to receive credit for their work, and
     making errors introduced during curation easier to correct.
 
@@ -57,7 +57,7 @@ Because the process of curating a published phylogenetic estimate is not error-f
 Here we report the development of software infrastructure to support the open curation of
     phylogenetic data by the community of biologists.
 The backend of the system provides an interface for the standard database operations of
-    creating, reading, updating, and deleting records by creating commits in a git repository.
+    creating, reading, updating, and deleting records by making commits to a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
 Hosting this datastore on GitHub provides a open access to the data store using tools
     familiar to many developers.

@@ -28,19 +28,18 @@ def main(argv):
     import argparse
     description = 'Uses Open Tree of Life web services to try to find a tree with the value property pair specified. ' \
                   'setting --exact-match to false will allow fuzzy matching'
-
     parser = argparse.ArgumentParser(prog='ot-get-tree', description=description)
     parser.add_argument('arg_dict', type=json.loads, help='name(s) for which we will try to find OTT IDs')
     parser.add_argument('--property', default=None, type=str, required=False)
-#    parser.add_argument('--fuzzy', action='store_true', default=False, required=False)
+    parser.add_argument('--fuzzy', action='store_true', default=False, required=False) #exact matching and verbose not working atm...
     parser.add_argument('--verbose', action='store_true', default=True, required=False)
-    
-    args = parser.parse_args(argv)
-    arg_dict = args.arg_dict
-    print(arg_dict)
-    if len(arg_dict) == 0:
-        arg_dict = {"ot:ottTaxonName":"Garcinia"}
+    try:
+        args = parser.parse_args(argv)
+        arg_dict = args.arg_dict
+    except: #this is pretty sloppy....
+        arg_dict = {'ot:ottTaxonName':'Garcinia'}
         sys.stderr.write('Running a demonstration query with {}\n'.format(arg_dict))
+    print("arg dict is {}".format(arg_dict))
     print(ot_find_tree(arg_dict))
 if __name__ == '__main__':
     try:

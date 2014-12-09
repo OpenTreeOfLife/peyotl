@@ -8,6 +8,7 @@
 \newcommand{\js}{JavaScript\xspace}
 \newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
 \newcommand{\ejmcomment}[1]{{\color{green} \textsc{#1}}\xspace}
+\newcommand{\jfacomment}[1]{{\color{orange} \textsc{#1}}\xspace}
 
 \usepackage{natbib}
 \bibliographystyle{apalike}
@@ -241,14 +242,16 @@ The basic workflow of a curation session is:
     \item \label{otiListStep} A list of studies in the \ps is loaded from information in a study indexing service (called ``OTI'', see below).
     \item The user selects the study he/she would like to view.
     \item \label{getStudyStep} The curator application requests the study in \nexson form from the \ps server.
-        The curator application also receives the git commit SHA of the 
-        repository at this point.
+        The curator application also receives the git commit SHA of the repository at this point.
+        \jfacomment{Should we parenthetically mention that the SHA is a sort of checksum?}
     \item \label{browseStep} The user may browse the studies and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
     \item \label{authStep} If the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
     \item \label{userEditStep} The curator may correct tip taxon assignments with the help of taxonomic name resolution services (the ``taxomachine'' web services, which are described
         elsewhere) or fix the rooting information about the tree. The data model of the study is modified in the memory space of the 
         browser and maintained there until the curator chooses to save the study.
-    \item \label{putStep} To save, the curator application uses an http PUT verb and includes the data (in \nexson) and the SHA. \ejmcomment{Do http verbs need more explanation somewhere?}
+    \item \label{putStep} To save, the curator application uses an http PUT verb and includes the data (in \nexson), the starting SHA, and a commit message to support sensible history. 
+        \ejmcomment{Do http verbs need more explanation somewhere?} 
+        \jfacomment{It does seem to raise the topic of RESTful style. Is this relevant?}
     \item \label{validateStep} The \ps-api code validates the \nexson (rejecting the request if the data is not a legal \nexson document).
     \item \label{gitSaveStep} If the data is a legal \nexson document, then a new git commit is created with the SHA
         provided in the PUT request as the parent commit. The commit is placed on a 
@@ -260,9 +263,10 @@ The basic workflow of a curation session is:
         If the version of the study on the master branch {\em has} changed (e.g. if two users are simultaneously editing the same study),
         then the merge is not done. The data will be saved on the server, but not merged into the master branch.
         If the commit is not merged, then there merge must be completed by a curator, as there is the potential for conflicts between changes made by different simultaneous edits.
+        \jfacomment{This implies that an unmerged WIP branches will sit on the API server indefinitely. Is this correct? Any risk here?}
     \item\label{gitTriggerPushStep}  If the new edit was successfully merged, then an event is triggered to tell the server to push the new master branch changes to the GitHub version
         of the repository.
-    \item\label{respondStep} A response is returned to the curator code indicating whether or not the data was 
+    \item\label{respondStep} A response is returned to the curation app indicating whether or not the data was 
         merged to the master branch and including the new SHA that will serve as the parent for a future commit.
     \item\label{pushStep}  If the push event was triggered in step \#\ref{gitTriggerPushStep}, the updated master branch will be pushed to GitHub.
     \item\label{webHookStep} Using GitHub webhooks as a callback mechanism, the push to generates a POST that triggers reindexing

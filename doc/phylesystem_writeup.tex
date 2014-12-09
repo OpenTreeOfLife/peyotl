@@ -162,6 +162,7 @@ Thus, our goals when designing \ps were to build:
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
     which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON).
 The data model used for the JSON is a close derivative of the NeXML standard for data interoperability \citep{NeXML}.
+    \jfacomment{We might want to mention up-front that we're providing lossless conversion from more common formats! Otherwise this looks like \url{http://xkcd.com/927/}. }
 
 Our expectations that the system would have to store limited amounts of data for each study 
     (points \#\ref{fewKStudies} and \ref{fewTreesPerStudy} above) and that most
@@ -223,6 +224,7 @@ However, a local version of the data is clearly a second-class instance and the 
 We hope that adopting a truly distributed backend for the datastore will reinforce the goals
     of the \otol project to build tools that can be used and controlled by the entire community of biologists 
     (rather than a few claiming ownership on the data store in perpetuity).
+    \jfacomment{In so doing, we open ourselves to the possibility of the database forking based on some future dispute or other shenanigans, resulting in fragmented efforts. Any point in mentioning this?}
 
 Currently the \ps web services use GitHub authentication for ``curators'' who edit studies.
 The requirement that editors authenticate allows the provenance of each edit to include 
@@ -230,6 +232,7 @@ The requirement that editors authenticate allows the provenance of each edit to 
     to circumvent the need to maintain a database of users and passwords (or hashes).
 Thus, there is no private database that would be required for someone to fork and maintain their
     own version of the corpus (on GitHub or elsewhere).
+    \jfacomment{Are we expecting (or even prepared) for a private fork to push its data back to the main corpus? It's not clear in the paper.}
 The only private information relevant to \ps that is kept by the \otol project are the ssh-private
     keys that allow the project's web servers to push updated data to the GitHub-hosted clone of the 
     repository.

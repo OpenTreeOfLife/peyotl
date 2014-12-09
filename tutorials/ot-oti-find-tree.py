@@ -18,7 +18,7 @@ def ot_find_tree(pair, exact=True,  verbose=True, oti_wrapper=None):
         from peyotl.sugar import oti
         oti_wrapper = oti
 
-    match_obj = oti_wrapper.find_trees(pair)
+    match_obj = oti_wrapper.find_trees(pair, exact=exact, verbose=verbose)
     return match_obj
 
 def main(argv):

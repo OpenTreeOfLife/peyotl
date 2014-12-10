@@ -229,7 +229,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
         data = {'ott_ids':ott_ids, 'node_ids': node_ids}
         resp = self.json_http_post_raise(uri, data=anyjson.dumps(data))
         if wrap_response:
-            return GoLNode(resp, treemachine_wrapper=self)
+            return MRCAGoLNode(resp, treemachine_wrapper=self)
         return resp
     def get_synth_tree_pruned(self, tree_id=None, node_ids=None, ott_ids=None):
         if (tree_id is not None) and (tree_id != self.current_synth_tree_id):

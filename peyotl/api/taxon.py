@@ -126,8 +126,10 @@ class TaxonWrapper(object):
         output.write('OTT ID (ot:ottId) = {}\n'.format(self.ott_id))
         output.write('    name (ot:ottTaxonName) = "{}"\n'.format(self.name))
         output.write('    is a junior synonym ? {}\n'.format(bool(self.is_synonym)))
-        output.write('    is deprecated from OTT? {}\n'.format(self.is_deprecated))
-        output.write('    is dubious taxon? {}\n'.format(self.is_dubious))
+        if self.is_deprecated is not None:
+            output.write('    is deprecated from OTT? {}\n'.format(self.is_deprecated))
+        if self.is_dubious is not None:
+            output.write('    is dubious taxon? {}\n'.format(self.is_dubious))
         if self.synonyms:
             output.write('    known synonyms: "{}"\n'.format('", "'.join(self.synonyms)))
         if self.flags:

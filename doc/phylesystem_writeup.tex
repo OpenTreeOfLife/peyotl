@@ -102,7 +102,7 @@ On the opposite end of the spectrum, some databases require data providers to co
     standards with respect to input format and content.
 Since 1994, TreeBASE \citep{SandersonDPE1994} and its successor TreeBASE version 2 \citep{TreeBase2} have served
     as the primary archival data stores for phylogenetic estimates and the data that these trees are based on.
-As of 2014, TreeBASE contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
+As of 2014, TreeBASE contains 4076 studies and over 12,800 trees \citep{TreeBaseWebCite}.
 Many journals encourage or require that each publication that estimates phylogenetic trees cite a TreeBASE
     deposition containing the associated trees.
 TreeBASE produces a much more feature-rich interface for phylogenetic queries than Dryad, because each 
@@ -298,7 +298,7 @@ In the current implementation, the creation of a new commit and merge are done w
 This means that the repository must use a mutual exclusion (mutex) lock for the duration of these events
     to ensure that a single thread completes this series of operations.
 Failing to lock the repository would make it possible for the HEAD reference (which
-    will define the parent of a commit) to be moved as the result of a separate transcation.
+    will define the parent of a commit) to be moved as the result of a separate transaction.
 This would result in the git history not correctly reflecting which version of the 
     study was displayed to user by the curator application.
 Because of the mutex lock, the system can assure that the user's edits appear
@@ -357,7 +357,7 @@ Determining which version of \nexson a particular document is using
     can be accomplished quickly and reliably by checking a  ``nexml2json'' property in the document.
 All three versions can be easily interconverted using the peyotl library.
 
-The \ps and curator \js application use version 1.2 and 1.0 of \nexson, repectively.
+The \ps and curator \js application use version 1.2 and 1.0 of \nexson, respectively.
 Tools that do not require low latency transmission and parsing of the data (the OTI indexing tool
     and tools that use the trees in \ps for supertree operations)
     read a direct badgerfish \citep{badgerfish} conversion of NeXML which we refer to as \nexson 0.0 in our documentation.
@@ -435,7 +435,7 @@ Because only the altered studies will have their files touched in the git pull o
 \section{Discussion}
 The \ps component of the \otol web infrastructure was built to fulfill a critical need for that
     project: in the process of producing a synthetic estimate of what we know about the phylogeny
-    of life on Earth, information from published studies had to be curated.
+    of life on Earth \citep{}, information from published studies had to be curated.
 Phylogenies are simultaneously the products of analyses and the raw material for future analyses.
 A phylogenetic datastore has the advantage of collapsing potentially enormous raw sequence datasets
   into compact files capturing the inferred evolutionary history of studied species.
@@ -471,7 +471,7 @@ The native tools for comparing versions of a file are file-based.
 Ideally, such a system would version file formats in which:
     (a) each datum in a collection is described on a different line, 
     (b) each line is relatively independent, and 
-    (c) the order of elements in the serialize file can be made consisitent.
+    (c) the order of elements in the serialize file can be made consistent.
 The \nexson format that we are currently using is not ideal in these respects.
 Some operations, such as rerooting a tree,
     affect many lines in a file (many branches change source to target orientation).
@@ -509,6 +509,8 @@ Almost all of the git operations and \nexson handling operations are implemented
     library peyotl.
 This is intended to make it easier for other programmers to clone
     the data store and work with it locally.
+
+\includegraphics[scale=0.4]{workflow.png}
 
 \section{Conclusion}
 We have developed a git-based datastore for archiving and curating phylogenetic estimates of species relationships.

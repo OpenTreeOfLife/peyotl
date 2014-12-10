@@ -5,7 +5,7 @@ a taxon. We use "otu" because that is the term used in NeXML (and otNexSON).
 '''
 _EMPTY_TUPLE = tuple()
 
-class OTUWrapper(object):
+class TaxonWrapper(object):
     def __init__(self, taxomachine_wrapper=None, taxonomy=None, prop_dict=None, ott_id=None):
         '''prop_dict can be the dict for a taxon from a OToL API call
         '''

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from peyotl.utility.dict_wrapper import FrozenDictAttrWrapper, FrozenDictWrapper
-from peyotl.api.otu import OTUWrapper
+from peyotl.api.taxon import TaxonWrapper
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import weakref
@@ -10,14 +10,14 @@ _EMPTY_TUPLE = tuple()
 class TaxonomyInfoWrapper(FrozenDictAttrWrapper):
     pass
 class TNRSMatch(object):
-    '''Delegates to an OTUWrapper object and adds score and is_approximate_match properties.
+    '''Delegates to an TaxonWrapper object and adds score and is_approximate_match properties.
     part of a "wrapped" TNRS (or match_names) response.
     '''
     def __init__(self, m_dict, taxomachine_wrapper=None, taxonomy=None, otu=None):
         if otu is not None:
             self._otu = otu
         else:
-            self._otu = OTUWrapper(taxomachine_wrapper=taxomachine_wrapper, taxonomy=taxonomy, prop_dict=m_dict)
+            self._otu = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper, taxonomy=taxonomy, prop_dict=m_dict)
         self._score = m_dict.get('score')
         self._is_approximate_match = m_dict.get('is_approximate_match')
     @property
@@ -259,9 +259,9 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                                                          "FALSE")
         self._raw_urls = (r.lower() == 'true')
         if 'cache_taxa' in kwargs:
-            cache_taxa = kwargs.get('cache_taxa', True)
+            cache_taxa = kwargs.get('cache_taxa', False)
         else:
-            cache_taxa = self._config.get_config_setting('apis', 'cache_taxa', 'true').lower() in ['true', '1']
+            cache_taxa = self._config.get_config_setting('apis', 'cache_taxa', 'false').lower() in ['true', '1']
         if cache_taxa:
             self._ott_id2otu = {}
         else:
@@ -304,7 +304,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             raise ValueError(r['error'])
         if wrap_response:
             _LOG.debug('raw response = {}'.format(r))
-            return OTUWrapper(taxomachine_wrapper=self._wr, prop_dict=r)
+            return TaxonWrapper(taxomachine_wrapper=self._wr, prop_dict=r)
         return r
     def subtree(self, ott_id):
         if self.use_v1:
@@ -373,14 +373,14 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         '''If the taxa are being cached, this call will create a the lineage "spike" for taxon otu
 
         Expecting otu to have a non-empty _taxonomic_lineage with response dicts that can create
-            an ancestral OTUWrapper.
+            an ancestral TaxonWrapper.
         '''
         if self._ott_id2otu is None:
             resp = otu._taxonomic_lineage[0]
             tl = otu._taxonomic_lineage[1:]
             assert 'taxonomic_lineage' not in resp
             resp['taxonomic_lineage'] = tl
-            return OTUWrapper(taxonomy=taxonomy, taxomachine_wrapper=self._wr, **resp) #TODO recursive (indirectly)
+            return TaxonWrapper(taxonomy=taxonomy, taxomachine_wrapper=self._wr, **resp) #TODO recursive (indirectly)
         else:
             anc = []
             prev = None
@@ -392,7 +392,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                     assert 'parent' not in resp
                     resp['parent'] = prev
                     resp['taxonomic_lineage'] = anc
-                    curr = OTUWrapper(taxonomy=taxonomy, taxomachine_wrapper=self._wr, **resp)
+                    curr = TaxonWrapper(taxonomy=taxonomy, taxomachine_wrapper=self._wr, **resp)
                 elif curr._parent is None and prev is not None:
                     curr._parent = prev
                 prev = curr

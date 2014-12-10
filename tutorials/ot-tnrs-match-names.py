@@ -77,7 +77,7 @@ def match_and_print(name_list, context_name, do_approximate_matching, include_du
     output.write('The name matching results included deprecated taxa? {}\n'.format(result.includes_deprecated_taxa))
     for name in name_list:
         match_tuple = result[name]
-        output.write('The query name "{}" produced {} results:\n'.format(name, len(match_tuple)))
+        output.write('The query name "{}" produced {} result(s):\n'.format(name, len(match_tuple)))
         for match_ind, match in enumerate(match_tuple):
             output.write('  Match #{}\n'.format(match_ind))
             output.write('    OTT ID (ot:ottId) = {}\n'.format(match.ott_id))

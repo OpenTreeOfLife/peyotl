@@ -13,49 +13,51 @@ class TNRSMatch(object):
     '''Delegates to an TaxonWrapper object and adds score and is_approximate_match properties.
     part of a "wrapped" TNRS (or match_names) response.
     '''
-    def __init__(self, m_dict, taxomachine_wrapper=None, taxonomy=None, otu=None):
-        if otu is not None:
-            self._otu = otu
+    def __init__(self, m_dict, taxomachine_wrapper=None, taxonomy=None, taxon=None):
+        if taxon is not None:
+            self._taxon = taxon
         else:
-            self._otu = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper, taxonomy=taxonomy, prop_dict=m_dict)
+            self._taxon = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper,
+                                       taxonomy=taxonomy,
+                                       prop_dict=m_dict)
         self._score = m_dict.get('score')
         self._is_approximate_match = m_dict.get('is_approximate_match')
     @property
     def ott_taxon_name(self):
-        return self._otu.ott_taxon_name
+        return self._taxon.ott_taxon_name
     @property
     def name(self):
-        return self._otu.ott_taxon_name
+        return self._taxon.ott_taxon_name
     @property
     def is_deprecated(self):
-        return self._otu.is_deprecated
+        return self._taxon.is_deprecated
     @property
     def is_dubious(self):
-        return self._otu.is_dubious
+        return self._taxon.is_dubious
     @property
     def is_synonym(self):
-        return self._otu.is_synonym
+        return self._taxon.is_synonym
     @property
     def flags(self):
-        return self._otu.flags
+        return self._taxon.flags
     @property
     def synonyms(self):
-        return self._otu.synonyms
+        return self._taxon.synonyms
     @property
     def ott_id(self):
-        return self._otu.ott_id
+        return self._taxon.ott_id
     @property
     def taxomachine_node_id(self):
-        return self._otu.taxomachine_node_id
+        return self._taxon.taxomachine_node_id
     @property
     def rank(self):
-        return self._otu.rank
+        return self._taxon.rank
     @property
     def unique_name(self):
-        return self._otu.unique_name
+        return self._taxon.unique_name
     @property
     def nomenclature_code(self):
-        return self._otu.nomenclature_code
+        return self._taxon.nomenclature_code
     @property
     def score(self):
         return self._score
@@ -263,9 +265,9 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         else:
             cache_taxa = self._config.get_config_setting('apis', 'cache_taxa', 'false').lower() in ['true', '1']
         if cache_taxa:
-            self._ott_id2otu = {}
+            self._ott_id2taxon = {}
         else:
-            self._ott_id2otu = None
+            self._ott_id2taxon = None
         self._contexts = None
         self._valid_contexts = None
         self.prefix = None
@@ -303,7 +305,8 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         if 'error' in r:
             raise ValueError(r['error'])
         if wrap_response:
-            _LOG.debug('raw response = {}'.format(r))
+            #TODO we should fetch info about the taxanomy, so that we can
+            #   provide a taxonomy kwarg to TaxonWrapper...
             return TaxonWrapper(taxomachine_wrapper=self._wr, prop_dict=r)
         return r
     def subtree(self, ott_id):
@@ -369,30 +372,34 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 raise ValueError('No matches for "{q}"'.format(q=query_name))
             ret.append(ni)
         return ret
-    def get_cached_parent_taxon(self, otu, anc_dict_list):
-        '''If the taxa are being cached, this call will create a the lineage "spike" for taxon otu
+    def get_cached_parent_for_taxon(self, child_taxon):
+        '''If the taxa are being cached, this call will create a the lineage "spike" for taxon child_taxon
 
-        Expecting otu to have a non-empty _taxonomic_lineage with response dicts that can create
+        Expecting child_taxon to have a non-empty _taxonomic_lineage with response dicts that can create
             an ancestral TaxonWrapper.
         '''
-        if self._ott_id2otu is None:
-            resp = otu._taxonomic_lineage[0]
-            tl = otu._taxonomic_lineage[1:]
+        if self._ott_id2taxon is None:
+            resp = child_taxon._taxonomic_lineage[0]
+            tl = child_taxon._taxonomic_lineage[1:]
             assert 'taxonomic_lineage' not in resp
             resp['taxonomic_lineage'] = tl
-            return TaxonWrapper(taxonomy=taxonomy, taxomachine_wrapper=self._wr, **resp) #TODO recursive (indirectly)
+            return TaxonWrapper(taxonomy=child_taxon.taxonomy,
+                                taxomachine_wrapper=self._wr,
+                                prop_dict=resp) #TODO recursive (indirectly)
         else:
             anc = []
             prev = None
-            for a in reversed(otu._taxonomic_lineage):
+            for a in reversed(child_taxon._taxonomic_lineage):
                 ott_id = resp['ot:ottId']
-                curr = self._ott_id2otu.get(ott_id)
+                curr = self._ott_id2taxon.get(ott_id)
                 if curr is None:
                     assert 'taxonomic_lineage' not in resp
                     assert 'parent' not in resp
                     resp['parent'] = prev
                     resp['taxonomic_lineage'] = anc
-                    curr = TaxonWrapper(taxonomy=taxonomy, taxomachine_wrapper=self._wr, **resp)
+                    curr = TaxonWrapper(taxonomy=child_taxon.taxonomy,
+                                        taxomachine_wrapper=self._wr,
+                                        prop_dict=resp)
                 elif curr._parent is None and prev is not None:
                     curr._parent = prev
                 prev = curr
@@ -401,14 +408,14 @@ class _TaxomachineAPIWrapper(_WSWrapper):
 
 
     def get_tnrs_match_from_response(self, resp, taxonomy):
-        if self._ott_id2otu is None:
+        if self._ott_id2taxon is None:
             return TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr)
         ott_id = resp['ot:ottId']
-        otu = self._ott_id2otu.get(ott_id)
-        if otu is None:
+        taxon = self._ott_id2taxon.get(ott_id)
+        if taxon is None:
             tnrsm = TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr)
-            self._ott_id2otu[ott_id] = tnrsm._otu
+            self._ott_id2taxon[ott_id] = tnrsm._taxon
             return tnrsm
-        return TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr, otu=otu)
+        return TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr, taxon=taxon)
 def Taxomachine(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).taxomachine

@@ -66,6 +66,12 @@ class TaxonWrapper(object):
             if self._parent is None and self._taxomachine_wrapper is not None and self._taxonomic_lineage:
                 self._fill_parent_attr()
     @property
+    def parent(self):
+        return self._parent
+    @property
+    def taxonomy(self):
+        return self._taxonomy
+    @property
     def ott_taxon_name(self):
         return self._ott_taxon_name
     @property

@@ -8,6 +8,7 @@
 \newcommand{\js}{JavaScript\xspace}
 \newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
 \newcommand{\ejmcomment}[1]{{\color{green} \textsc{#1}}\xspace}
+\newcommand{\jfacomment}[1]{{\color{orange} \textsc{#1}}\xspace}
 
 \usepackage{natbib}
 \bibliographystyle{apalike}
@@ -23,15 +24,16 @@
     Cody E.~Hinchliff,${^3}$
     James F.~Allman,${^4}$
     Joseph W.~Brown,${^3}$
-    Karen A.~Cranston,${^4}$
+    Karen A.~Cranston,${^5}$
     Mark T.~Holder,$^{1,2}$\footnote{to whom correspondence should be addressed}~
-    Jonathan A.~Rees,${^4}$
+    Jonathan A.~Rees,${^5}$
     Stephen Andrew Smith${^3}$
 }
 \address{$^{1}$Department of Ecology and Evolutionary Biology, University of Kansas, Lawrence KS, USA\\
 $^{2}$Heidelberg Institute of Theoretical Studies, Heidelberg, Germany \\
 $^{3}$Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, Michigan, USA\\
-$^{4}$National Evolutionary Synthesis Center, Duke University, Durham, North Carolina, USA}
+$^{4}$Interrobang Corporation, Wake Forest, North Carolina, USA\\
+$^{5}$National Evolutionary Synthesis Center, Duke University, Durham, North Carolina, USA}
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
 
 \editor{Associate Editor: XXXXXXX}
@@ -41,7 +43,7 @@ $^{4}$National Evolutionary Synthesis Center, Duke University, Durham, North Car
 \begin{abstract}
 \section{Motivation:}
 Archival storage of phylogenetic estimates from published studies can be accomplished
-    using general platforms, like Dryad, or TreeBase.
+    using general platforms like Dryad \citep{Dryad} or TreeBASE \citep{SandersonDPE1994}.
 Those services fulfill a crucial role in making phylogenetic studies be more transparent
     and reproducible.
 However, available trees nearly always require some editing to improve the accuracy and reusability of the phylogenetic statements.
@@ -49,7 +51,7 @@ Many trees in data archives or supplemental files from publications are incorrec
 Establishing the linkage between tip labels used in a tree and taxa in a single taxonomy 
     dramatically improves the ability of other researchers to reuse phylogenetic estimates.
 Because the process of curating a published phylogenetic estimate is not error-free,
-    retaining a full record of the provenance edits to a tree is crucial for
+    retaining a full record of the provenance of edits to a tree is crucial for
     openness, allowing editors to receive credit for their work, and
     making errors introduced during curation easier to correct.
 
@@ -57,7 +59,7 @@ Because the process of curating a published phylogenetic estimate is not error-f
 Here we report the development of software infrastructure to support the open curation of
     phylogenetic data by the community of biologists.
 The backend of the system provides an interface for the standard database operations of
-    creating, reading, updating, and deleting records by creating commits in a git repository.
+    creating, reading, updating, and deleting records by making commits to a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
 Hosting this datastore on GitHub provides a open access to the data store using tools
     familiar to many developers.
@@ -98,41 +100,50 @@ However, if the authors submitting the data are not conscientious in their expla
 
 On the opposite end of the spectrum, some databases require data providers to conform to rigorous
     standards with respect to input format and content.
-Since 1994, TreeBase \citep{SandersonDPE1994} and its successor TreeBase version 2 \citep{TreeBase2} have served
+Since 1994, TreeBASE \citep{SandersonDPE1994} and its successor TreeBASE version 2 \citep{TreeBase2} have served
     as the primary archival data stores for phylogenetic estimates and the data that these trees are based on.
-As of 2014, TreeBase contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
-Many journals encourage or require that each publication that estimates phylogenetic trees cite a TreeBase
+As of 2014, TreeBASE contains 4076 studes and over 12,800 trees \citep{TreeBaseWebCite}.
+Many journals encourage or require that each publication that estimates phylogenetic trees cite a TreeBASE
     deposition containing the associated trees.
-TreeBase produces a much more feature-rich interface for phylogenetic queries than Dryad, because each 
-    TreeBase submission is parsed thoroughly and converted to a set of records in a relational database.
+TreeBASE produces a much more feature-rich interface for phylogenetic queries than Dryad, because each 
+    TreeBASE submission is parsed thoroughly and converted to a set of records in a relational database.
 The downside of this approach is that it requires that submissions correspond to a more uniform format and without constant updating,
     that format may not reflect new types phylogenetic data being generated.
 
 Unfortunately, file formats read and written by tree estimation tools are idiosyncratic and often so 
     terse that they omit useful information about the analysis (see \citet{StoltzfusEtAl2012} for a discussion
     of this topic and other challenges relating to the archiving of phylogenetic estimates).
-As a result, the TreeBase submission process usually requires the authors of a data package to reformat their data, correct
+As a result, the TreeBASE submission process usually requires the authors of a data package to reformat their data, correct
     the rooting of the tree, alter the labels of the tips of the tree, {\em etc}.
-The TreeBase project provides a 12-minute video 
+The TreeBASE project provides a 12-minute video 
     \footnote{\url{http://treebase.org/treebase-web/submitTutorial.html}} 
     explaining the non-trivial procedure of preparing a submission.
 Because these steps are often taken after the analyses for a publication are complete, it is more likely 
     errors introduced in the submission process will not be corrected until an observant user tries to reuse the data.
 If there were a universally used, rich file format for phylogenetics analyses, then import constraints such as those
-    used by TreeBase would be less of a hurdle, since the critical metadata regarding rooting, labels, etc. could be
+    used by TreeBASE would be less of a hurdle, since the critical metadata regarding rooting, labels, etc. could be
     stored alongside the tree itself.
 The xml-based NexML specification \citep{NeXML} defines such a format, but it is not widely used by tree estimation tools.
+
+    \jfacomment{This section nicely captures the tension between data quality
+    and ease of submission/curation. I kind of want to say ``We hope to
+    overcome this by providing better tools.''}
 
 Thus, the current state of phyloinformatic archival infrastructure is ripe for improvement in numerous ways.
 One such opportunity is the development of a datastore that allows the community of biologists to improve the
     accuracy and re-usability of published phylogenetic statements.
 We describe here an implementation of one such system, which we call ``phylesystem'' because it uses a set of
     versioned text files on the filesystem (and the fact that we {\em love} bad puns).
-The goal of \ps is not to replace systems like Dryad or TreeBase, but to complement them by 
+The goal of \ps is not to replace systems like Dryad or TreeBASE, but to complement them by 
     storing phylogenetic statements and associated metadata in a consistent format while retaining the history of
     edits that were made to the data themselves.
 We anticipate that most of the trees stored in \ps will be associated with permanent, static archives
-    elsewhere (usually either TreeBase or Dryad).
+    elsewhere (usually either TreeBASE or Dryad).
+    \jfacomment{To my eye, this is pretty vague on the ultimate relationship of
+    phylesystem data to Dryad/TreeBASE archives. Are curated changes and
+    refinements shared with them? Or are their data used as inputs to
+    phylesystem, which now has the ``real'' (best, richest) data? In any case,
+    will these repositories link BACK to our phylesystem?}
 
 \subsection{Approach}
 One of the motivations of the design of \ps was to support the \otol's need for a curated set
@@ -161,6 +172,7 @@ Thus, our goals when designing \ps were to build:
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
     which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON).
 The data model used for the JSON is a close derivative of the NeXML standard for data interoperability \citep{NeXML}.
+    \jfacomment{We might want to mention up-front that we're providing lossless conversion from more common formats! Otherwise this looks like \url{http://xkcd.com/927/}. }
 
 Our expectations that the system would have to store limited amounts of data for each study 
     (points \#\ref{fewKStudies} and \ref{fewTreesPerStudy} above) and that most
@@ -222,6 +234,7 @@ However, a local version of the data is clearly a second-class instance and the 
 We hope that adopting a truly distributed backend for the datastore will reinforce the goals
     of the \otol project to build tools that can be used and controlled by the entire community of biologists 
     (rather than a few claiming ownership on the data store in perpetuity).
+    \jfacomment{In so doing, we open ourselves to the possibility of the database forking based on some future dispute or other shenanigans, resulting in fragmented efforts. Any point in mentioning this?}
 
 Currently the \ps web services use GitHub authentication for ``curators'' who edit studies.
 The requirement that editors authenticate allows the provenance of each edit to include 
@@ -229,6 +242,7 @@ The requirement that editors authenticate allows the provenance of each edit to 
     to circumvent the need to maintain a database of users and passwords (or hashes).
 Thus, there is no private database that would be required for someone to fork and maintain their
     own version of the corpus (on GitHub or elsewhere).
+    \jfacomment{Are we expecting (or even prepared) for a private fork to push its data back to the main corpus? It's not clear in the paper.}
 The only private information relevant to \ps that is kept by the \otol project are the ssh-private
     keys that allow the project's web servers to push updated data to the GitHub-hosted clone of the 
     repository.
@@ -241,14 +255,16 @@ The basic workflow of a curation session is:
     \item \label{otiListStep} A list of studies in the \ps is loaded from information in a study indexing service (called ``OTI'', see below).
     \item The user selects the study he/she would like to view.
     \item \label{getStudyStep} The curator application requests the study in \nexson form from the \ps server.
-        The curator application also receives the git commit SHA of the 
-        repository at this point.
+        The curator application also receives the git commit SHA of the repository at this point.
+        \jfacomment{Should we parenthetically mention that the SHA is a sort of checksum?}
     \item \label{browseStep} The user may browse the studies and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
     \item \label{authStep} If the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
     \item \label{userEditStep} The curator may correct tip taxon assignments with the help of taxonomic name resolution services (the ``taxomachine'' web services, which are described
         elsewhere) or fix the rooting information about the tree. The data model of the study is modified in the memory space of the 
         browser and maintained there until the curator chooses to save the study.
-    \item \label{putStep} To save, the curator application uses an http PUT verb and includes the data (in \nexson) and the SHA. \ejmcomment{Do http verbs need more explanation somewhere?}
+    \item \label{putStep} To save, the curator application uses an http PUT verb and includes the data (in \nexson), the starting SHA, and a commit message to support sensible history. 
+        \ejmcomment{Do http verbs need more explanation somewhere?} 
+        \jfacomment{It does seem to raise the topic of RESTful style. Not sure this is this relevant here.}
     \item \label{validateStep} The \ps-api code validates the \nexson (rejecting the request if the data is not a legal \nexson document).
     \item \label{gitSaveStep} If the data is a legal \nexson document, then a new git commit is created with the SHA
         provided in the PUT request as the parent commit. The commit is placed on a 
@@ -260,9 +276,10 @@ The basic workflow of a curation session is:
         If the version of the study on the master branch {\em has} changed (e.g. if two users are simultaneously editing the same study),
         then the merge is not done. The data will be saved on the server, but not merged into the master branch.
         If the commit is not merged, then there merge must be completed by a curator, as there is the potential for conflicts between changes made by different simultaneous edits.
+        \jfacomment{This implies that an unmerged WIP branches will sit on the API server indefinitely. Is that correct? Any risk here?}
     \item\label{gitTriggerPushStep}  If the new edit was successfully merged, then an event is triggered to tell the server to push the new master branch changes to the GitHub version
         of the repository.
-    \item\label{respondStep} A response is returned to the curator code indicating whether or not the data was 
+    \item\label{respondStep} A response is returned to the curation app indicating whether or not the data was 
         merged to the master branch and including the new SHA that will serve as the parent for a future commit.
     \item\label{pushStep}  If the push event was triggered in step \#\ref{gitTriggerPushStep}, the updated master branch will be pushed to GitHub.
     \item\label{webHookStep} Using GitHub webhooks as a callback mechanism, the push to generates a POST that triggers reindexing
@@ -321,17 +338,17 @@ Inside this directory, each study is in subdirectory with a name that correspond
     in a file name that corresponds to the ID.
 So, for example, the \ps-api code knows to look for study ot\_211 at the path
     study/ot\_11/ot\_211/ot\_211.json inside the git working directory.
-
+    \jfacomment{Should we explain the rationale (or need) for the prefix-and-two-digit subfolders?}
 \subsection*{Mirroring on the server}
 The server running the \ps-api maintains two clones of data repositories.
-The working clone is use to save the updated data (steps \#\ref{gitSaveStep} and \ref{gitMergeStep}  in the workflow).
+The ``working'' clone is use to save the updated data (steps \#\ref{gitSaveStep} and \ref{gitMergeStep}  in the workflow).
 These operations respond to the curator client (in step \ref{respondStep}) immediately
     after these operations complete.
 To push the data to the GitHub clone of the repository, the server first pulls the master branch from the working repository onto a separate
-    clone of the repository.
-This mirror of the repository is then locked during the push to GitHub operation (step \ref{pushStep}).
+    ``mirror'' clone of the repository.
+This mirror repository is then locked during the push to GitHub operation (step \ref{pushStep}).
 This architecture keeps the working clone free to save other studies while the high-latency push operation completes from the mirror.
-The update of the mirror from the working clone is very fast because the clones are on the same filesystem.
+The update of the mirror from the working repository is very fast because both are on the same filesystem.
 Therefore, links to the objects in the git database can be used instead of copy operations.
 
 \subsection*{\nexson}

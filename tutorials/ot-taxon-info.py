@@ -4,10 +4,13 @@
 '''
 import sys
 
-def fetch_and_write_taxon_info(id_list, include_anc, output):
+def fetch_and_write_taxon_info(id_list, include_anc, list_tips, output):
     from peyotl.sugar import taxonomy
     for ott_id in id_list:
-        info = taxonomy.taxon(ott_id, include_lineage=include_anc, wrap_response=True)
+        info = taxonomy.taxon(ott_id,
+                              include_lineage=include_anc,
+                              list_terminal_descendants=list_tips,
+                              wrap_response=True)
         write_taxon_info(info, include_anc, output)
 
 def write_taxon_info(taxon, include_anc, output):
@@ -50,14 +53,15 @@ def main(argv):
     parser.add_argument('ids', nargs='*', type=int, help='OTT IDs')
     parser.add_argument('--include-lineage', action='store_true', default=False, required=False,
                         help='list the IDs of the ancestors as well.')
+    parser.add_argument('--list-tips', action='store_true', default=False, required=False,
+                        help='list the tips in the subtree rooted by this taxon.')
     args = parser.parse_args(argv)
     id_list = args.ids
-    fetch_and_write_taxon_info(id_list, args.include_lineage, sys.stdout)
+    fetch_and_write_taxon_info(id_list, args.include_lineage, args.list_tips, sys.stdout)
     
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
     except Exception, x:
-        raise
         sys.exit('{}\n'.format(str(x)))
 

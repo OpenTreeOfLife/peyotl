@@ -85,7 +85,7 @@ def match_and_print(name_list, context_name, do_approximate_matching, include_du
             output.write('    query was matched using fuzzy/approximate string matching? {}\n'.format(match.is_approximate_match))
             output.write('    match score = {}\n'.format(match.score))
             output.write('    query name is a junior synonym of this match? {}\n'.format(match.is_synonym))
-            output.write('    is deprecated form OTT? {}\n'.format(match.is_deprecated))
+            output.write('    is deprecated from OTT? {}\n'.format(match.is_deprecated))
             output.write('    is dubious taxon? {}\n'.format(match.is_dubious))
             if match.synonyms:
                 output.write('    known synonyms: "{}"\n'.format('", "'.join(match.synonyms)))
@@ -105,7 +105,7 @@ def main(argv):
                   'Using a --context-name=NAME to provide a limited taxonomic context and using the '\
                   ' --prohibit-fuzzy-matching option can make the matching faster.'
     parser = argparse.ArgumentParser(prog='ot-tnrs-match-names', description=description)
-    parser.add_argument('names', nargs='*', help='name(s) for which we will try to find OTT IDs')
+    parser.add_argument('names', nargs='', help='name(s) for which we will try to find OTT IDs')
     parser.add_argument('--context-name', default=None, type=str, required=False)
     parser.add_argument('--include-dubious',
                         action='store_true',

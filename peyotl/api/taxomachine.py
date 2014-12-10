@@ -13,15 +13,15 @@ class TNRSMatch(object):
     '''Delegates to an TaxonWrapper object and adds score and is_approximate_match properties.
     part of a "wrapped" TNRS (or match_names) response.
     '''
-    def __init__(self, m_dict, taxomachine_wrapper=None, taxonomy=None, taxon=None):
+    def __init__(self, prop_dict, taxomachine_wrapper=None, taxonomy=None, taxon=None):
         if taxon is not None:
             self._taxon = taxon
         else:
             self._taxon = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper,
                                        taxonomy=taxonomy,
-                                       prop_dict=m_dict)
-        self._score = m_dict.get('score')
-        self._is_approximate_match = m_dict.get('is_approximate_match')
+                                       prop_dict=prop_dict)
+        self._score = prop_dict.get('score')
+        self._is_approximate_match = prop_dict.get('is_approximate_match')
     @property
     def ott_taxon_name(self):
         return self._taxon.ott_taxon_name
@@ -295,11 +295,12 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         uri = '{p}/about'.format(p=self.taxonomy_prefix)
         return self.json_http_post(uri)
     about = info
-    def taxon(self, ott_id, include_lineage=False, wrap_response=None):
+    def taxon(self, ott_id, include_lineage=False, list_terminal_descendants=False, wrap_response=None):
         if self.use_v1:
             raise NotImplementedError('"taxon" method not implemented')
         data = {'ott_id': int(ott_id),
-                'include_lineage': bool(include_lineage)}
+                'include_lineage': bool(include_lineage),
+                'list_terminal_descendants': bool(list_terminal_descendants)}
         uri = '{p}/taxon'.format(p=self.taxonomy_prefix)
         r = self.json_http_post(uri, data=anyjson.dumps(data))
         if 'error' in r:

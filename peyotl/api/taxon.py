@@ -28,6 +28,7 @@ class TaxonWrapper(object):
             self._taxomachine_node_id = prop_dict.get('matched_node_id')
             if self._taxomachine_node_id is None:
                 self._taxomachine_node_id = prop_dict.get('node_id')
+            self._treemachine_node_id = prop_dict.get('treemachine_node_id')
             self._rank = prop_dict.get('rank')
             self._unique_name = prop_dict.get('unique_name')
             self._nomenclature_code = prop_dict.get('nomenclature_code')
@@ -72,6 +73,9 @@ class TaxonWrapper(object):
     def taxonomy(self):
         return self._taxonomy
     @property
+    def taxomachine_wrapper(self):
+        return self._taxomachine_wrapper
+    @property
     def ott_taxon_name(self):
         return self._ott_taxon_name
     @property
@@ -99,6 +103,9 @@ class TaxonWrapper(object):
     def taxomachine_node_id(self):
         return self._taxomachine_node_id
     @property
+    def treemachine_node_id(self):
+        return self._treemachine_node_id
+    @property
     def rank(self):
         return self._rank
     @property
@@ -107,3 +114,29 @@ class TaxonWrapper(object):
     @property
     def nomenclature_code(self):
         return self._nomenclature_code
+
+    def write_report(self, output):
+        if self.taxomachine_wrapper:
+            output.write('Taxon info query was obtained from: {} \n'.format(elf.taxomachine_wrapper.endpoint))
+        if self.taxonomy:
+            output.write('The taxonomic source is\n')
+            output.write(' {}'.format(self.taxonomy.source))
+            output.write(' by {}\n'.format(self.taxonomy.author))
+            output.write('Information for the taxonomy can be found at {}\n'.format(result.taxonomy.weburl))
+        output.write('OTT ID (ot:ottId) = {}\n'.format(self.ott_id))
+        output.write('    name (ot:ottTaxonName) = "{}"\n'.format(self.name))
+        output.write('    is a junior synonym ? {}\n'.format(bool(self.is_synonym)))
+        output.write('    is deprecated from OTT? {}\n'.format(self.is_deprecated))
+        output.write('    is dubious taxon? {}\n'.format(self.is_dubious))
+        if self.synonyms:
+            output.write('    known synonyms: "{}"\n'.format('", "'.join(self.synonyms)))
+        if self.flags:
+            output.write('    OTT flags for this taxon: {}\n'.format(self.flags))
+        if self.rank:
+            output.write('    The taxonomic rank associated with this name is: {}\n'.format(self.rank))
+        if self.nomenclature_code:
+            output.write('    The nomenclatural code for this name is: {}\n'.format(self.nomenclature_code))
+        if self.taxomachine_node_id:
+            output.write('    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(self.taxomachine_node_id))
+        if self.treemachine_node_id:
+            output.write('    The (unstable) node ID in the current treemachine instance is: {}\n'.format(self.treemachine_node_id))

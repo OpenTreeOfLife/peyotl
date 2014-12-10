@@ -6,12 +6,12 @@ This uses the API described at https://github.com/OpenTreeOfLife/opentree/wiki/O
 '''
 import sys
 
-def fetch_and_write_mrca(id_list, subtree, induced_subtree, output):
+def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output):
     from peyotl.sugar import tree_of_life
     mrca_node = tree_of_life.mrca(ott_ids=id_list, wrap_response=True)
-
     assert tuple() == mrca_node.invalid_node_ids
     assert tuple() == mrca_node.node_ids_not_in_tree
+
     if mrca_node.invalid_ott_ids:
         output.write('The following OTT IDs were not valid: {}\n'.format(' '.join([str(i) for i in mrca_node.invalid_ott_ids])))
     if mrca_node.ott_ids_not_in_tree:
@@ -24,6 +24,15 @@ def fetch_and_write_mrca(id_list, subtree, induced_subtree, output):
     else:
         output.write('The node in the Graph of Life does not correspond to a taxon.\nThe most recent ancestor which is also a named taxon in OTT is:\n')
         mrca_node.nearest_taxon.write_report(output)
+
+    if details:
+        # could call mrca_node.fetch_node_info()
+        output.write('Source(s) that support this node: {}\n'.format(mrca_node.synth_sources))
+        output.write('Is in the synthetic tree of life? {}\n'.format(mrca_node.in_synth_tree))
+        output.write('Correspondences with other taxonomies: {}\n'.format(mrca_node.tax_source))
+        output.write('Is in the graph of life? {}\n'.format(mrca_node.in_graph))
+        output.write('# tips below this node = {}\n'.format(mrca_node.num_tips))
+        output.write('# children of this node = {}\n'.format(mrca_node.num_synth_children))
 
     if subtree:
         # We could ask for this using: 
@@ -49,14 +58,18 @@ def main(argv):
     description = 'Uses Open Tree of Life web services to the MRCA for a set of OTT IDs.'
     parser = argparse.ArgumentParser(prog='ot-tree-of-life-mrca', description=description)
     parser.add_argument('ottid', nargs='*', type=int, help='OTT IDs')
-    parser.add_argument('--subtree', action='store_true', default=False, required=False)
-    parser.add_argument('--induced-subtree', action='store_true', default=False, required=False)
+    parser.add_argument('--subtree', action='store_true', default=False, required=False,
+                        help='write a newick representation of the subtree rooted at this mrca')
+    parser.add_argument('--induced-subtree', action='store_true', default=False, required=False,
+                        help='write a newick representation of the topology of the requested taxa in the synthetic tree (the subtree pruned to just the queried taxa)')
+    parser.add_argument('--details', action='store_true', default=False, required=False,
+                        help='report more details about the mrca node')
     args = parser.parse_args(argv)
     id_list = args.ottid
     if not id_list:
         sys.stderr.write('No OTT IDs provided. Running a dummy query with 770302 770315\n')
         id_list = [770302, 770315]
-    fetch_and_write_mrca(id_list, args.subtree, args.induced_subtree, sys.stdout)
+    fetch_and_write_mrca(id_list, args.details, args.subtree, args.induced_subtree, sys.stdout)
     
 if __name__ == '__main__':
     try:

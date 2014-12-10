@@ -1,10 +1,22 @@
 #!/usr/bin/env python
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
+from peyotl.api.study_ref import StudyRef
 from peyotl.api.taxon import TaxonWrapper
 import anyjson
 _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
+def _treemachine_tax_source2dict(tax_source):
+    d = {}
+    tax_source = tax_source.strip()
+    if not tax_source:
+        return d
+    r = [i.strip() for i in tax_source.split(',')]
+    for el in r:
+        k,v = el.split(':')
+        d[k] = v
+    return d
+
 class GoLNode(object):
     def __init__(self,
                  prop_dict,
@@ -52,9 +64,60 @@ class GoLNode(object):
             assert (nearest_taxon is None) or (nearest_taxon is self._taxon)
             self._nearest_taxon = self._taxon
 
-        self._score = prop_dict.get('score')
-        self._is_approximate_match = prop_dict.get('is_approximate_match')
         self._subtree_newick = None
+        self._synth_sources = prop_dict.get('synth_sources')
+        self._in_synth_tree = prop_dict.get('in_synth_tree')
+        self._tax_source = prop_dict.get('tax_source')
+        self._in_graph = prop_dict.get('in_graph')
+        self._num_tips = prop_dict.get('num_tips')
+        self._num_synth_children = prop_dict.get('num_synth_children')
+    @property
+    def node_info_fetched(self):
+        return not self._in_graph is None
+    def fetch_node_info(self):
+        prop_dict = self._treemachine_wrapper.node_info(node_id=self.node_id)
+        self._synth_sources = [StudyRef(i) for i in prop_dict.get('synth_sources', [])]
+        self._in_synth_tree = prop_dict.get('in_synth_tree')
+        self._tax_source = _treemachine_tax_source2dict(prop_dict.get('tax_source', ''))
+        self._in_graph = bool(prop_dict.get('in_graph'))
+        self._num_tips = prop_dict.get('num_tips')
+        self._num_synth_children = prop_dict.get('num_synth_children')
+        if prop_dict['ott_id'] not in [None, 'null']:
+            assert prop_dict['ott_id'] == self.ott_id
+            assert prop_dict['ott_id'] == self.ott_id
+            assert prop_dict['rank'] == self.rank
+        assert prop_dict['node_id'] == self.node_id
+    @property
+    def synth_sources(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._synth_sources
+    @property
+    def in_synth_tree(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._in_synth_tree
+    @property
+    def tax_source(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._tax_source
+    @property
+    def in_graph(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._in_graph
+    @property
+    def num_tips(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._num_tips
+    @property
+    def num_synth_children(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._num_synth_children
+
     @property
     def subtree_newick(self):
         if self._subtree_newick is None:

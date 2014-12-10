@@ -105,7 +105,7 @@ def main(argv):
                   'Using a --context-name=NAME to provide a limited taxonomic context and using the '\
                   ' --prohibit-fuzzy-matching option can make the matching faster.'
     parser = argparse.ArgumentParser(prog='ot-tnrs-match-names', description=description)
-    parser.add_argument('names', nargs='', help='name(s) for which we will try to find OTT IDs')
+    parser.add_argument('names', nargs='+', help='name(s) for which we will try to find OTT IDs')
     parser.add_argument('--context-name', default=None, type=str, required=False)
     parser.add_argument('--include-dubious',
                         action='store_true',

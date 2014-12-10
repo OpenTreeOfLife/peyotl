@@ -13,6 +13,8 @@ class GoLNode(object):
                  taxon=None,
                  nearest_taxon=None,
                  node_id=None):
+        self._treemachine_wrapper = treemachine_wrapper
+        self._graph_of_life = graph_of_life
         if node_id is None:
             self._node_id = prop_dict['mrca_node_id']
         else:
@@ -20,8 +22,11 @@ class GoLNode(object):
         if taxon is not None:
             self._taxon = taxon
         else:
-            if 'ott_id' in prop_dict:
-                taxon_dict = {'ot:ottId': prop_dict['ott_id'],
+            oi = prop_dict.get('ott_id')
+            if oi == 'null':
+                oi = None
+            if oi is not None:
+                taxon_dict = {'ot:ottId': oi,
                               'rank': prop_dict.get('mrca_rank'),
                               'ot:ottTaxonName': prop_dict.get('mrca_name'),
                               'unique_name': prop_dict.get('mrca_unique_name'),
@@ -38,6 +43,7 @@ class GoLNode(object):
                               'unique_name': prop_dict.get('nearest_taxon_mrca_unique_name'),
                               'treemachine_node_id': prop_dict.get('nearest_taxon_mrca_node_id')
                              }
+                assert prop_dict['nearest_taxon_mrca_ott_id'] != 'null'
                 #TODO should write wrappers for getting the taxomachine wrapper from treemachine wrapper...
                 self._nearest_taxon = TaxonWrapper(prop_dict=taxon_dict)
             else:
@@ -48,6 +54,15 @@ class GoLNode(object):
 
         self._score = prop_dict.get('score')
         self._is_approximate_match = prop_dict.get('is_approximate_match')
+        self._subtree_newick = None
+    @property
+    def subtree_newick(self):
+        if self._subtree_newick is None:
+            r = self._treemachine_wrapper.get_synthetic_tree(node_id=self.node_id)
+            if self._graph_of_life:
+                assert r['tree_id'] == self._graph_of_life['tree_id']
+            self._subtree_newick = r['newick']
+        return self._subtree_newick
     @property
     def node_id(self):
         return self._node_id

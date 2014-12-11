@@ -51,7 +51,15 @@ class _PhylesystemBase(object):
         '''
         shard = self.get_shard(study_id)
         return shard.name, shard.get_rel_path_fragment(study_id)
-
+    def _study_merged_hook(self, ga, study_id):
+        with self._index_lock:
+            if study_id in self._study2shard_map:
+                return
+        # this lookup has to be outside of the lock-holding part to avoid deadlock
+        shard = self.get_shard(study_id)
+        with self._index_lock:
+            self._study2shard_map[study_id] = shard
+        shard.register_study_id(ga, study_id)
     def get_shard(self, study_id):
         try:
             with self._index_lock:
@@ -328,13 +336,16 @@ class _Phylesystem(_PhylesystemBase):
                                     commit_msg='',
                                     merged_sha=None):
         git_action = self.create_git_action(study_id)
-        return commit_and_try_merge2master(git_action,
+        resp = commit_and_try_merge2master(git_action,
                                            file_content,
                                            study_id,
                                            auth_info,
                                            parent_sha,
                                            commit_msg,
                                            merged_sha=merged_sha)
+        if not resp['merge_needed']:
+            self._study_merged_hook(git_action, study_id)
+        return resp
     def annotate_and_write(self, #pylint: disable=R0201
                            git_data,
                            nexson,

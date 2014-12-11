@@ -322,10 +322,12 @@ class PhylesystemShard(PhylesystemShardBase):
         ga = self.create_git_action()
         if new_study_id is None:
             new_study_id = self._mint_new_study_id()
-        fp = ga.path_for_study(new_study_id)
-        with self._index_lock:
-            self._study_index[new_study_id] = (self.name, self.study_dir, fp)
+        self.register_study_id(ga, new_study_id)
         return ga, new_study_id
+    def register_study_id(self, ga, study_id):
+        fp = ga.path_for_study(study_id)
+        with self._index_lock:
+            self._study_index[study_id] = (self.name, self.study_dir, fp)
 
     def _create_git_action_for_mirror(self):
         mirror_ga = self._ga_class(repo=self.push_mirror_repo_path,

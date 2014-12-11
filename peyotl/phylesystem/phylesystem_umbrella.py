@@ -402,7 +402,8 @@ class _Phylesystem(_PhylesystemBase):
                 raise
         except:
             if placeholder_added:
-                del self._study2shard_map[new_study_id]
+                with self._index_lock:
+                    del self._study2shard_map[new_study_id]
             raise
         with self._index_lock:
             self._study2shard_map[new_study_id] = self._growing_shard

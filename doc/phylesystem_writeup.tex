@@ -193,8 +193,8 @@ The requirement (\#\ref{richAnnot} above) to support rich annotations
     to allow arbitrarily complex annotations of the entities that are crucial to phylogenetic statements.
 Because \ps does not store character data, the entities included are the operational taxonomic units (OTUs), trees, nodes, and edges.
 
-We opted to version JSON files 
-    due to its wide uptake in the software development community, and in particular 
+We opted to represent NeXML as JSON
+    due to the wide uptake of JSON in the software development community, and in particular 
     to make it efficient for the server to provide data for a client-side
     curation application that is written in \js (requirement \#\ref{ws} above).
 We developed some syntactic conventions for converting XML to JSON tersely (described below as \nexson v1.0 and v1.2).
@@ -266,13 +266,13 @@ The basic workflow of a curation session is:
     \item \label{browseStep} The user may browse the studies and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
     \item \label{authStep} If the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
     \item \label{userEditStep} The curator may correct tip taxon assignments with the help of taxonomic name resolution services (the ``taxomachine'' web services, which are described
-        [???? this makes it sound ike there are only two kinds of edit.  in face there are many.]
+        [???? this makes it sound ike there are only two kinds of edit.  in fact there are many.]
         elsewhere) or fix the rooting information about the tree. The study data is modified in the memory space of the 
         browser and maintained there until the curator chooses to save the study.
     \item \label{putStep} To save, the curator application uses an
       HTTP request to the API and includes the data (in \nexson), the starting SHA, and a commit message to support sensible history. 
         \ejmcomment{Do http verbs need more explanation somewhere?} 
-        \jfacomment{It does seem to raise the topic of RESTful style. Not sure this is this relevant here. [??? it isn't]}
+        \jfacomment{It does seem to raise the topic of RESTful style. Not sure this is this relevant here. [???? it isn't]}
     \item \label{validateStep} The \ps-api code validates the \nexson (rejecting the request if the data is not a legal \nexson document).
     \item \label{gitSaveStep} If the data is a legal \nexson document, then a new git commit is created with the SHA
         provided in the API request as the parent commit. The commit is placed on a 

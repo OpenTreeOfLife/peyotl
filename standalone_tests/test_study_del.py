@@ -47,7 +47,7 @@ class TestPhylesystemDel(unittest.TestCase):
         v2b = phylesystem.delete_study(_SID, _AUTH, sha)
         self.assertTrue(v2b['merge_needed'])
         sidl = phylesystem.get_study_ids()
-        self.assertNotIn(_SID, sidl)
+        self.assertIn(_SID, sidl)
         curr, naked_get_sha, wip_map = ga.return_study(_SID, return_WIP_map=True)
         self.assertEquals(naked_get_sha, v1b['sha'])
         v2b = phylesystem.delete_study(_SID, _AUTH, naked_get_sha)

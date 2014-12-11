@@ -355,12 +355,13 @@ class _Phylesystem(_PhylesystemBase):
     def delete_study(self, study_id, auth_info, parent_sha):
         git_action = self.create_git_action(study_id)
         ret = delete_study(git_action, study_id, auth_info, parent_sha)
-        with self._index_lock:
-            _shard = self._study2shard_map[study_id]
-            alias_list = _shard.id_alias_list_fn(study_id)
-            for alias in alias_list:
-                del self._study2shard_map[alias]
-            _shard.delete_study_from_index(study_id)
+        if not ret['merge_needed']:
+            with self._index_lock:
+                _shard = self._study2shard_map[study_id]
+                alias_list = _shard.id_alias_list_fn(study_id)
+                for alias in alias_list:
+                    del self._study2shard_map[alias]
+                _shard.delete_study_from_index(study_id)
         return ret
 
     def ingest_new_study(self,

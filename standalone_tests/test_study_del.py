@@ -38,23 +38,44 @@ class TestPhylesystemDel(unittest.TestCase):
         zcurr_obj = copy.deepcopy(acurr_obj)
         ac = acurr_obj['nexml'].get("^acount", 0)
         # add a commit that should merge to master
+        acount_at_sha = ac
         ac += 1
         acurr_obj['nexml']["^acount"] = ac
         v1b = commit_and_try_merge2master(ga, acurr_obj, _SID, _AUTH, sha)
+        v1bsha = v1b['sha']
+        acount_at_v1bsha = ac
         self.assertFalse(v1b['merge_needed'])
         sidl = phylesystem.get_study_ids()
         self.assertIn(_SID, sidl)
         v2b = phylesystem.delete_study(_SID, _AUTH, sha)
+        v2bsha = v2b['sha']
         self.assertTrue(v2b['merge_needed'])
         sidl = phylesystem.get_study_ids()
         self.assertIn(_SID, sidl)
-        curr, naked_get_sha, wip_map = ga.return_study(_SID, return_WIP_map=True)
-        self.assertEquals(naked_get_sha, v1b['sha'])
-        v2b = phylesystem.delete_study(_SID, _AUTH, naked_get_sha)
+        curr, naked_get_sha, wip_map = phylesystem.return_study(_SID, return_WIP_map=True)
+        self.assertEquals(naked_get_sha, v1bsha)
+        v3b = phylesystem.delete_study(_SID, _AUTH, naked_get_sha)
+        v3bsha = v3b['sha']
+        self.assertFalse(v3b['merge_needed'])
         sidl = phylesystem.get_study_ids()
         self.assertNotIn(_SID, sidl)
+        self.assertRaises(KeyError, phylesystem.return_study, _SID, return_WIP_map=True)
+        self.assertRaises(KeyError, phylesystem.return_study, _SID, commit_sha=v2bsha, return_WIP_map=True)
+        self.assertRaises(KeyError, phylesystem.return_study, _SID, commit_sha=v3bsha, return_WIP_map=True)
+        curr, naked_get_sha, wip_map = phylesystem.return_study(_SID, commit_sha=sha, return_WIP_map=True)
+        self.assertEquals(acount_at_sha, curr['nexml'].get("^acount", 0))
+        curr, naked_get_sha, wip_map = phylesystem.return_study(_SID, commit_sha=v1bsha, return_WIP_map=True)
+        self.assertEquals(acount_at_v1bsha, curr['nexml']["^acount"])
+        sidl = phylesystem.get_study_ids()
+        self.assertNotIn(_SID, sidl)
+        ac += 1
+        curr['nexml']["^acount"] = ac
+        v4b = commit_and_try_merge2master(ga, curr, _SID, _AUTH, v1bsha)
+        v4bsha = v4b['sha']
+        self.assertTrue(v4b['merge_needed'])
+        curr, naked_get_sha, wip_map = phylesystem.return_study(_SID, commit_sha=v4bsha, return_WIP_map=True)
+        self.assertEquals(ac, curr['nexml']["^acount"])
         
-
 if __name__ == "__main__":
     unittest.main()
     

@@ -16,8 +16,8 @@ _LOG = get_logger(__name__)
 
 phylesystem = Phylesystem(pathmap.get_test_repos())
 
-_MINI_PHYL_SHA1 = 'aa8964b55bfa930a91af7a436f55f0acdc94b918'
-_SID = '9'
+_MINI_PHYL_SHA1 = '2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc'
+_SID = 'xy_10'
 _AUTH = {
     'name': 'test_name',
     'email': 'test_email@example.org',
@@ -75,7 +75,7 @@ class TestPhylesystem(unittest.TestCase):
         finally:
             ga.release_lock()
         self.assertEquals(wip_map['master'], v1b['sha'])
-        self.assertEquals(wip_map['test_gh_login_study_9_0'], v2b['sha'])
+        self.assertEquals(wip_map['test_gh_login_study_{}_0'.format(_SID)], v2b['sha'])
         
         # but not for other studies...
         ga.acquire_lock()

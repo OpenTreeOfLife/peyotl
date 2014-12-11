@@ -7,7 +7,7 @@ from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 _MINI_PHYL_SHA1 = 'aa8964b55bfa930a91af7a436f55f0acdc94b918'
-_SID = '9'
+_SID = 'xy_10'
 _AUTH = {
     'name': 'test_name',
     'email': 'test_email@example.org',

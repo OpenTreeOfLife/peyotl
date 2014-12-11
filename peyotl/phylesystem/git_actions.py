@@ -11,6 +11,7 @@ import sh
 import re
 import os
 _LOG = get_logger(__name__)
+ID_PATTERN = re.compile(r'[a-zA-Z][a-zA-Z]_[0-9]+')
 class MergeException(Exception):
     pass
 
@@ -54,6 +55,7 @@ def get_filepath_for_namespaced_id(repo_dir, study_id):
         study_id = 'pg_' + study_id
     elif study_id[2] != '_':
         study_id = 'pg_' + study_id
+    assert bool(ID_PATTERN.match(study_id))
     frag = study_id[-2:]
     while len(frag) < 2:
         frag = '0' + frag
@@ -232,7 +234,7 @@ class GitAction(object):
             f = codecs.open(study_filepath, mode='r', encoding='utf-8')
             content = f.read()
         except:
-            content = ''
+            content = None
         if return_WIP_map:
             d = self.find_WIP_branches(study_id)
             return content, head_sha, d

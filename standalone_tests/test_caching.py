@@ -14,7 +14,7 @@ class TestPhylesystem(unittest.TestCase):
         else:
             r = pathmap.get_test_repos()
             p = Phylesystem(r)
-            nexson, sha = p.return_study('9')
+            nexson, sha = p.return_study('xy_10')
             r = p.add_validation_annotation(nexson, sha)
             cache_hits = p._cache_hits
             r1 = p.add_validation_annotation(nexson, sha)

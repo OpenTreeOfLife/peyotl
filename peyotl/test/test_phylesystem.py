@@ -22,32 +22,29 @@ class TestPhylesystem(unittest.TestCase):
         p = _Phylesystem(repos_dict=self.r)
         k = list(p._study2shard_map.keys())
         k.sort()
-        self.assertEqual(k, ['10', '11', '12', '9'])
+        self.assertEqual(k, ['xy_10', 'xy_13', 'zz_11', 'zz_112'])
     def testURL(self):
         p = _Phylesystem(repos_dict=self.r)
-        self.assertTrue(p.get_public_url('9').endswith('9.json'))
+        self.assertTrue(p.get_public_url('xy_10').endswith('xy_10.json'))
+        self.assertTrue(p.get_public_url('zz_112').endswith('zz_112.json'))
     def testStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
         k = list(p.get_study_ids())
         k.sort()
-        self.assertEqual(k, ['10', '11', '12', '9'])
+        self.assertEqual(k, ['xy_10', 'xy_13', 'zz_11', 'zz_112'])
     def testNextStudyIds(self):
         p = _Phylesystem(repos_dict=self.r)
         mf = p._growing_shard._id_minting_file
         nsi = p._mint_new_study_id()
         self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
-        self.assertTrue(nsi.startswith('ot_'))
-        r = _Phylesystem(repos_dict=self.r, new_study_prefix='ab_')
-        mf = r._growing_shard._id_minting_file
-        nsi = r._mint_new_study_id()
-        self.assertTrue(nsi.startswith('ab_'))
-        self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
-
+        self.assertTrue(nsi.startswith('zz_'))
     def testChangedStudies(self):
         p = _Phylesystem(repos_dict=self.r)
-        changed = p.get_changed_studies('aa8964b55bfa930a91af7a436f55f0acdc94b918')
-        self.assertEqual(set('9'), changed)
-        changed = p.get_changed_studies('aa8964b55bfa930a91af7a436f55f0acdc94b918', ['10'])
+        changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc')
+        self.assertEqual(set(['xy_13', 'xy_10']), changed)
+        changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc', ['zz_11'])
+        self.assertEqual(set(), changed)
+        changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc', ['zz_112'])
         self.assertEqual(set(), changed)
         self.assertRaises(ValueError, p.get_changed_studies, 'bogus')
 

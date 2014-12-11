@@ -40,6 +40,7 @@ class _PhylesystemBase(object):
         self._index_lock = Lock()
         self._study2shard_map = {}
         self._shards = []
+        self._prefix2shard = {}
     #pylint: disable=E1101
     def get_repo_and_path_fragment(self, study_id):
         '''For `study_id` returns a list of:
@@ -48,9 +49,26 @@ class _PhylesystemBase(object):
         This is useful because
         (if you know the remote), it lets you construct the full path.
         '''
-        with self._index_lock:
-            shard = self._study2shard_map[study_id]
+        shard = self.get_shard(study_id)
         return shard.name, shard.get_rel_path_fragment(study_id)
+    def _study_merged_hook(self, ga, study_id):
+        with self._index_lock:
+            if study_id in self._study2shard_map:
+                return
+        # this lookup has to be outside of the lock-holding part to avoid deadlock
+        shard = self.get_shard(study_id)
+        with self._index_lock:
+            self._study2shard_map[study_id] = shard
+        shard.register_study_id(ga, study_id)
+    def get_shard(self, study_id):
+        try:
+            with self._index_lock:
+                return self._study2shard_map[study_id]
+        except KeyError:
+            # Look up the shard where the study should be (in case it was
+            #   deleted. This fall back relies on a unique prefix for each shard)
+            pref = study_id[:3]
+            return self._prefix2shard[pref]
 
     def get_public_url(self, study_id, branch='master'):
         '''Returns a GitHub URL for the
@@ -181,6 +199,11 @@ class _Phylesystem(_PhylesystemBase):
 
         self._shards = shards
         self._growing_shard = shards[-1] # generalize with config...
+        self._prefix2shard = {}
+        for shard in shards:
+            for prefix in shard.known_prefixes:
+                assert prefix not in self._prefix2shard # we don't currently support multiple shards with the same ID prefix scheme
+                self._prefix2shard[prefix] = shard
         with self._index_lock:
             self._locked_refresh_study_ids()
         self.repo_nexml2json = shards[-1].repo_nexml2json
@@ -212,10 +235,6 @@ class _Phylesystem(_PhylesystemBase):
     def has_study(self, study_id):
         with self._index_lock:
             return study_id in self._study2shard_map
-
-    def get_shard(self, study_id):
-        with self._index_lock:
-            return self._study2shard_map[study_id]
 
     def create_git_action(self, study_id):
         shard = self.get_shard(study_id)
@@ -270,6 +289,9 @@ class _Phylesystem(_PhylesystemBase):
                                    branch=branch,
                                    commit_sha=commit_sha,
                                    return_WIP_map=return_WIP_map)
+            content = blob[0]
+            if content is None:
+                raise KeyError('Study {} not found'.format(study_id))
             nexson = anyjson.loads(blob[0])
             if return_WIP_map:
                 return nexson, blob[1], blob[2]
@@ -314,13 +336,16 @@ class _Phylesystem(_PhylesystemBase):
                                     commit_msg='',
                                     merged_sha=None):
         git_action = self.create_git_action(study_id)
-        return commit_and_try_merge2master(git_action,
+        resp = commit_and_try_merge2master(git_action,
                                            file_content,
                                            study_id,
                                            auth_info,
                                            parent_sha,
                                            commit_msg,
                                            merged_sha=merged_sha)
+        if not resp['merge_needed']:
+            self._study_merged_hook(git_action, study_id)
+        return resp
     def annotate_and_write(self, #pylint: disable=R0201
                            git_data,
                            nexson,
@@ -355,12 +380,20 @@ class _Phylesystem(_PhylesystemBase):
     def delete_study(self, study_id, auth_info, parent_sha):
         git_action = self.create_git_action(study_id)
         ret = delete_study(git_action, study_id, auth_info, parent_sha)
-        with self._index_lock:
-            _shard = self._study2shard_map[study_id]
-            alias_list = _shard.id_alias_list_fn(study_id)
-            for alias in alias_list:
-                del self._study2shard_map[alias]
-            _shard.delete_study_from_index(study_id)
+        if not ret['merge_needed']:
+            with self._index_lock:
+                try:
+                    _shard = self._study2shard_map[study_id]
+                except KeyError:
+                    pass
+                else:
+                    alias_list = _shard.id_alias_list_fn(study_id)
+                    for alias in alias_list:
+                        try:
+                            del self._study2shard_map[alias]
+                        except KeyError:
+                            pass
+                    _shard.delete_study_from_index(study_id)
         return ret
 
     def ingest_new_study(self,
@@ -403,7 +436,8 @@ class _Phylesystem(_PhylesystemBase):
         except:
             if placeholder_added:
                 with self._index_lock:
-                    del self._study2shard_map[new_study_id]
+                    if new_study_id in self._study2shard_map:
+                        del self._study2shard_map[new_study_id]
             raise
         with self._index_lock:
             self._study2shard_map[new_study_id] = self._growing_shard

@@ -15,11 +15,11 @@ if test -d mini_phyl
 then
     echo "mini_phyl exists"
 else
-    git clone https://github.com/snacktavish/mini_phyl.git || exit
+    git clone https://github.com/mtholder/mini_phyl.git || exit
 fi
 if test -d mini_system
 then
     echo "mini_system exists"
 else
-    git clone https://github.com/snacktavish/mini_system.git || exit
+    git clone https://github.com/mtholder/mini_system.git || exit
 fi

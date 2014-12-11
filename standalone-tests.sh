@@ -27,7 +27,7 @@ then
     stf=$(expr $stf + 1)
 fi
 cd peyotl/test/data/mini_par/mirror/mini_phyl
-git push -f GitHubRemote aa8964b55bfa930a91af7a436f55f0acdc94b918:master
+git push -f GitHubRemote 2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc:master
 cd -
 
 if test $stf -gt 0

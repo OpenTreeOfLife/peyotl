@@ -9,12 +9,13 @@ except:
         pass
     anyjson = Wrapper()
     anyjson.loads = json.loads
-from peyotl.phylesystem.git_actions import GitAction
+from peyotl.phylesystem.git_actions import GitAction, ID_PATTERN
 from peyotl.nexson_syntax import detect_nexson_version
 import codecs
 import os
 import re
 from threading import Lock
+
 
 _LOG = get_logger(__name__)
 class PhylesystemShardBase(object):
@@ -147,6 +148,24 @@ class PhylesystemShard(PhylesystemShardBase):
         self.repo_nexml2json = repo_nexml2json
         self._next_study_id = None
         self._study_counter_lock = None
+        self._known_prefixes = None
+    @property
+    def known_prefixes(self):
+        if self._known_prefixes is None:
+            self._known_prefixes = self._diagnose_prefixes()
+        return self._known_prefixes
+    @property
+    def new_study_prefix(self):
+        return self._new_study_prefix
+    def _diagnose_prefixes(self):
+        '''Returns a set of all of the prefixes seen in the study dir
+        '''
+        p = set()
+        for name in os.listdir(self.study_dir):
+            if ID_PATTERN.match(name):
+                p.add(name[:3])
+        return p
+
     def _locked_refresh_study_ids(self):
         d = create_id2study_info(self.study_dir, self.name)
         rc_dict = diagnose_repo_study_id_convention(self.path)

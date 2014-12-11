@@ -14,6 +14,11 @@ stf=0
 #then
 #    stf=$(expr $stf + 1)
 #fi
+sh dev/refresh_for_git_tests.sh
+if ! python standalone_tests/test_study_del.py
+then
+    stf=$(expr $stf + 1)
+fi
 
 sh dev/refresh_for_git_tests.sh
 if ! python standalone_tests/test_git_workflows.py

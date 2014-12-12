@@ -10,10 +10,11 @@ require more setup than we expect a typical user to want to do.
 In particular, you need some phylesystem-style repos on which you can
 perform git actions - including pushes to remotes.
 
-If you are interested in running these "maintainer" tests:
+If you are interested in running these "maintainer" tests you can run 'bootstrap.sh'
+file at the top of the peyotl repo. Or you can do the setup manually by:
 
-    1. fork https://github.com/snacktavish/mini_phyl and
-       https://github.com/snacktavish/mini_system on github (or some other
+    1. fork https://github.com/mtholder/mini_phyl and
+       https://github.com/mtholder/mini_system on github (or some other
        server on which you have write permissions).
 
     2. From the top of the phylesystem repo directory:
@@ -26,6 +27,10 @@ If you are interested in running these "maintainer" tests:
 
 At that point you should not see tests in the peyotl being skipped
 with messages that refer to Peyotl not being configured for maintainer tests.
+
+If you have not checked out these testing repos with the git protocol
+then the push-to-mirror operations will not be tested.
+
 
 ## Some tricks 
 These are probably mainly of interest to people who develop `peyotl`

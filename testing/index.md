@@ -12,12 +12,14 @@ will invoke python unittest, and running:
 
     $ sh maintainer-test.sh
 
-will run these test and some shell-based tests of interest to some developers.
+will run these test and some shell-based tests of interest to some developers. 
 
 You will seem some tests skipped because of lack of mini_system or mini_phyl. This
 is normal. Mark and Emily Jane have some unittests of git interactions that require
 privileged access to a particular testing repository. Tests involving this repo
-should be skipped.
+will be skipped. You don't need to be a maintainer of peyotl to run these, of course. You just have to 
+run some bootstrapping code to be able to run these tests.
+The preparations for these tests are described on [this page](../maintainer).
 
 Running
 

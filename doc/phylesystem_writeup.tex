@@ -9,6 +9,7 @@
 \newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
 \newcommand{\ejmcomment}[1]{{\color{green} \textsc{#1}}\xspace}
 \newcommand{\jfacomment}[1]{{\color{blue} \textsc{#1}}\xspace}
+\newcommand{\jarcomment}[1]{{\color{yellow} \textsc{#1}}\xspace}
 
 \usepackage{natbib}
 \bibliographystyle{apalike}
@@ -61,9 +62,8 @@ Here we report the development of software infrastructure to support the open cu
 The backend of the system provides an interface for the standard database operations of
     creating, reading, updating, and deleting records by making commits to a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
-Hosting this datastore on GitHub provides a open access to the data store using tools
+Hosting this datastore on GitHub \cite{github} provides a open access to the data store using tools
     familiar to many developers.
-    [???? need reference for GitHub]
 We have deployed a server running the ``phylesystem-api'', which wraps the interactions with git and GitHub.
 The \otol project has also developed and deployed a \js application that uses the \ps-api and
     other web services to enable input and curation of published phylogenetic statements
@@ -93,7 +93,9 @@ The rapid growth in availability of molecular data, the development of models an
 
 
 Unfortunately, capturing the inputs and outputs of a phylogenetic analysis in a rich, standardized form is
-    wide range of inputs [????] and making few or no
+ difficult and error prone. There is no single standard for phylogenetic data, and developers of phylogenetic software often create new formats or extend existing formats in ways that make them incompatible with other programs.
+Some archiving services, such as Dryad \citep{Dryad}, have reacted to this challenge by accepting a 
+    wide range of inputs and making few or no
     guarantees to users of the database that the records will be in any particular form.
 This encourages sharing of data by making the submission process fast and easy, and is advantageous under Dryad's
     general purpose archival model--Dryad's scope is not limited to phylogenetic information.
@@ -166,8 +168,7 @@ Thus, our goals when designing \ps were to build:
     \item \label{looseOpen} a loosely coupled system that would allow the community of biologists to interact with the data in a wide variety of ways.
 \end{enumerate}
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
-    which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON).
-    [???? need reference for JSON]
+    which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON) \citep{Crockford2006}.
 The data model used for the JSON is a close derivative of the NeXML standard for data interoperability \citep{NeXML},
   and can be converted back and forth using the peyotl library.
 
@@ -180,7 +181,8 @@ This made it feasible to use text files as the format of the data store.
 Thus far, in the six months since deployment of the study curation interface, the mean number of edits 
     per study is only 2.7. \ejmcomment{I'm checking I calculated this right. - this includes commits on studies that are no longer in the repo. Seems fine tho.}
 The total size of the stored data (in JSON format with a line ending after 
-    every field) is only around 150MB.  [does this include version history????]
+    every field) is only around 150MB.  \jarcomment{ this include version history?}
+    \ejmcomment{I'm getting 216MB including version history for the whole phylesystem}
 
 The requirement (\#\ref{history}, above) of maintaining a history of changes 
     (including an identifier for the editor) fits naturally with software version control systems.
@@ -222,9 +224,7 @@ The \otol project placed all of the code for the \ps under permissive, BSD-style
     project makes no claim of ownership to any of the data in the repository. 
 For new files deposited through the web application, the interface strongly encourages application of a CC0 copyright waiver, 
     allowing for later deposit in Dryad. Other data, including those files that originate from TreeBASE,
-    do not have an explicit data license (although we believe that copyright does not apply to any of the data).
-    [???? consider citing http://dx.doi.org/10.1186/1756-0500-7-79 -
-      shameless JAR self-promotion]
+    do not have an explicit data license (although we believe that copyright does not apply to any of the data, \citet{Patterson2014}).
 
 In most database-driven web services, the group of core maintainers who have shell access and 
     database passwords are the only people who have full access to the data in a data store.
@@ -248,11 +248,7 @@ The only private information relevant to \ps that is kept by the \otol project a
     keys that allow the project's web servers to push updated data to the GitHub-hosted clone of the 
     repository.
 
-\begin{figure}
-\caption{Workflow diagram} 
-\includegraphics[scale=0.4]{workflow.png}
-\label{workflow}
-\end{figure}
+
 
 \begin{methods}
 \section{Methods}
@@ -266,13 +262,11 @@ The basic workflow of a curation session is:
     \item \label{browseStep} The user may browse the studies and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
     \item \label{authStep} If the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
     \item \label{userEditStep} The curator may correct tip taxon assignments with the help of taxonomic name resolution services (the ``taxomachine'' web services, which are described
-        [???? this makes it sound ike there are only two kinds of edit.  in fact there are many.]
-        elsewhere) or fix the rooting information about the tree. The study data is modified in the memory space of the 
+        elsewhere) \ejmcomment{where? should we link to the github repo?}, 
+        fix the rooting information about the tree or edit the metadata. The study data is modified in the memory space of the 
         browser and maintained there until the curator chooses to save the study.
     \item \label{putStep} To save, the curator application uses an
       HTTP request to the API and includes the data (in \nexson), the starting SHA, and a commit message to support sensible history. 
-        \ejmcomment{Do http verbs need more explanation somewhere?} 
-        \jfacomment{It does seem to raise the topic of RESTful style. Not sure this is this relevant here. [???? it isn't]}
     \item \label{validateStep} The \ps-api code validates the \nexson (rejecting the request if the data is not a legal \nexson document).
     \item \label{gitSaveStep} If the data is a legal \nexson document, then a new git commit is created with the SHA
         provided in the API request as the parent commit. The commit is placed on a 
@@ -302,8 +296,7 @@ Most of the functionality for validating the data and creating the git commits i
 An alternative implementation of the web services has also been written in the Pyramid
     web framework.
 
-\subsection*{thread-safety}
-[???? capitalize subsection headings, and no hyphens]
+\subsection*{Thread safety}
 In the current implementation, the creation of a new commit and merge are done with git's ``checkout'', ``add'', and ``commit'' commands.
 This means that the repository must use a mutual exclusion (mutex) lock for the duration of these events
     to ensure that a single thread completes this series of operations.
@@ -391,7 +384,8 @@ Use of object IDs as keys make object lookup faster, and allows the JSON to be s
     the git repository so that trivial changes (such as changing the order of nodes in a node list) will not result in 
     a difference in the stored version of the study.
 These formats are documented more fully on the \ps-api wiki mentioned above.
-[???? an example/figure might be nice here, if space permits]
+\jarcomment{an example/figure might be nice here, if space permits}
+\ejmcomment{Hmm, I'm not sure how that would work - examples are too large.}
 
 The nexson\_validation subpackage of the peyotl library is used to ensure that a \nexson file sent to the \ps
     server is valid.
@@ -402,8 +396,8 @@ The peyotl library (manuscript in preparation; see \url{http://opentreeoflife.gi
     provides a variety of convenience functions for operating on \nexson files (including support
     for exporting the phylogenetic data to widely used formats such as NeXML, NEXUS, and Newick).
 
-\subsection*{indexing}
-A significant downside of using git as database is the fact that the use of text files to store data does not inherently
+\subsection*{Indexing}
+A downside of using git as database is the fact that the use of text files to store data does not inherently
     provide a way to perform fast lookups of arbitrary objects encoded as text within the files.
 Performing text-based search across all studies (i.e. reading through all \nexson text files) in the \ps to find all nodes
     in trees that match a specific set of criteria, for instance, is a prohibitively costly operation to perform on demand.
@@ -417,7 +411,7 @@ Currently available search methods are simplistic, allowing queries based on sin
     any taxon included in some specified higher taxon).
 
 
-\subsection*{webhooks}
+\subsection*{Webhooks}
 To create an initial index, OTI reads the entire corpus of studies in the \ps data store, but this expensive operation
     is only required once per deployment of the server.
 If a study has been added, deleted or edited by a user and the update was merged to the master branch of the server data store,
@@ -442,6 +436,17 @@ For services that can tolerate high latency, it is easy to use a scheduled job (
 Because only the altered studies will have their files touched in the git pull operation, tools such
     as ``make'' can be used to update cached calculations for only the studies have changed.
 \end{methods}
+    
+\begin{figure}
+\includegraphics[scale=0.4]{workflow.png}
+ \caption{Workflow diagram demonstrating the process triggered by a curator editing a study using the curator app.
+ A work in progress branch is generated on the server repository. Upon saving it is merged to master, and the commits are pushed, 
+ via the server mirror repository, to the OpenTree github repo.
+ The record of curation changes is readily accessible (here represented with different colors for each curator).
+ Users can easily access changes to the datastore, and pull those changes into their own copy of the repository.
+ }
+\label{workflow}
+\end{figure}
 
 \section{Discussion}
 The \ps component of the \otol web infrastructure was built to fulfill a critical need for that
@@ -521,8 +526,6 @@ Almost all of the git operations and \nexson handling operations are implemented
     library peyotl.
 This is intended to make it easier for other programmers to clone
     the data store and work with it locally.
-
-\includegraphics[scale=0.4]{workflow.png}
 
 \section{Conclusion}
 We have developed a git-based datastore for archiving and curating phylogenetic estimates of species relationships.

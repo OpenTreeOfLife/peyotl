@@ -24,8 +24,8 @@ filepath = /tmp/peyotl-log
 formatter = rich
 
 [apis]
-phylesystem_api = http://devapi.opentreeoflife.org
-oti = http://devapi.opentreeoflife.org
-taxomachine = http://devapi.opentreeoflife.org
-treemachine = http://devapi.opentreeoflife.org
+phylesystem_api = http://api.opentreeoflife.org
+oti = http://api.opentreeoflife.org
+taxomachine = http://api.opentreeoflife.org
+treemachine = http://api.opentreeoflife.org
 

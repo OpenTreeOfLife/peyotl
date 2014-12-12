@@ -23,3 +23,5 @@ then
 else
     git clone https://github.com/mtholder/mini_system.git || exit
 fi
+cd .. || exit
+cp -r template_mini_par mini_par

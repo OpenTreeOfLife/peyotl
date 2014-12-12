@@ -61,9 +61,8 @@ Here we report the development of software infrastructure to support the open cu
 The backend of the system provides an interface for the standard database operations of
     creating, reading, updating, and deleting records by making commits to a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
-Hosting this datastore on GitHub provides a open access to the data store using tools
+Hosting this datastore on GitHub \cite{github} provides a open access to the data store using tools
     familiar to many developers.
-    [???? need reference for GitHub]
 We have deployed a server running the ``phylesystem-api'', which wraps the interactions with git and GitHub.
 The \otol project has also developed and deployed a \js application that uses the \ps-api and
     other web services to enable input and curation of published phylogenetic statements
@@ -93,7 +92,9 @@ The rapid growth in availability of molecular data, the development of models an
 
 
 Unfortunately, capturing the inputs and outputs of a phylogenetic analysis in a rich, standardized form is
-    wide range of inputs [????] and making few or no
+ difficult and error prone. There is no single standard for phylogenetic data, and developers of phylogenetic software often create new formats or extend existing formats in ways that make them incompatible with other programs.
+Some archiving services, such as Dryad \citep{Dryad}, have reacted to this challenge by accepting a 
+    wide range of inputs and making few or no
     guarantees to users of the database that the records will be in any particular form.
 This encourages sharing of data by making the submission process fast and easy, and is advantageous under Dryad's
     general purpose archival model--Dryad's scope is not limited to phylogenetic information.
@@ -166,8 +167,7 @@ Thus, our goals when designing \ps were to build:
     \item \label{looseOpen} a loosely coupled system that would allow the community of biologists to interact with the data in a wide variety of ways.
 \end{enumerate}
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
-    which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON).
-    [???? need reference for JSON]
+    which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON) \citep{Crockford2006}.
 The data model used for the JSON is a close derivative of the NeXML standard for data interoperability \citep{NeXML},
   and can be converted back and forth using the peyotl library.
 
@@ -222,9 +222,7 @@ The \otol project placed all of the code for the \ps under permissive, BSD-style
     project makes no claim of ownership to any of the data in the repository. 
 For new files deposited through the web application, the interface strongly encourages application of a CC0 copyright waiver, 
     allowing for later deposit in Dryad. Other data, including those files that originate from TreeBASE,
-    do not have an explicit data license (although we believe that copyright does not apply to any of the data).
-    [???? consider citing http://dx.doi.org/10.1186/1756-0500-7-79 -
-      shameless JAR self-promotion]
+    do not have an explicit data license (although we believe that copyright does not apply to any of the data, \citet{Patterson2014}).
 
 In most database-driven web services, the group of core maintainers who have shell access and 
     database passwords are the only people who have full access to the data in a data store.
@@ -271,8 +269,6 @@ The basic workflow of a curation session is:
         browser and maintained there until the curator chooses to save the study.
     \item \label{putStep} To save, the curator application uses an
       HTTP request to the API and includes the data (in \nexson), the starting SHA, and a commit message to support sensible history. 
-        \ejmcomment{Do http verbs need more explanation somewhere?} 
-        \jfacomment{It does seem to raise the topic of RESTful style. Not sure this is this relevant here. [???? it isn't]}
     \item \label{validateStep} The \ps-api code validates the \nexson (rejecting the request if the data is not a legal \nexson document).
     \item \label{gitSaveStep} If the data is a legal \nexson document, then a new git commit is created with the SHA
         provided in the API request as the parent commit. The commit is placed on a 
@@ -302,8 +298,7 @@ Most of the functionality for validating the data and creating the git commits i
 An alternative implementation of the web services has also been written in the Pyramid
     web framework.
 
-\subsection*{thread-safety}
-[???? capitalize subsection headings, and no hyphens]
+\subsection*{Thread safety}
 In the current implementation, the creation of a new commit and merge are done with git's ``checkout'', ``add'', and ``commit'' commands.
 This means that the repository must use a mutual exclusion (mutex) lock for the duration of these events
     to ensure that a single thread completes this series of operations.

@@ -8,7 +8,8 @@
 \newcommand{\js}{JavaScript\xspace}
 \newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
 \newcommand{\ejmcomment}[1]{{\color{green} \textsc{#1}}\xspace}
-\newcommand{\jfacomment}[1]{{\color{red} \textsc{#1}}\xspace}
+\newcommand{\jfacomment}[1]{{\color{blue} \textsc{#1}}\xspace}
+
 
 \usepackage{natbib}
 \bibliographystyle{apalike}
@@ -171,8 +172,8 @@ Thus, our goals when designing \ps were to build:
 \end{enumerate}
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
     which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON).
-The data model used for the JSON is a close derivative of the NeXML standard for data interoperability \citep{NeXML}.
-    \jfacomment{We might want to mention up-front that we're providing lossless conversion from more common formats! Otherwise this looks like \url{http://xkcd.com/927/}. }
+The data model used for the JSON is a close derivative of the NeXML standard for data interoperability \citep{NeXML},
+  and can be converted back and forth using the peyotl library.
 
 Our expectations that the system would have to store limited amounts of data for each study 
     (points \#\ref{fewKStudies} and \ref{fewTreesPerStudy} above) and that most
@@ -181,7 +182,7 @@ Our expectations that the system would have to store limited amounts of data for
     uses of the \ps.
 This made it feasible to use text files as the format of the data store.
 Thus far, in the six months since deployment of the study curation interface, the mean number of edits 
-    per study is only \mthcomment{Need to calculate this from git history - it is a small, number though}.
+    per study is only 2.7. \ejmcomment{I'm checking I calculated this right. - this includes commits on studies that are no longer in the repo. Seems fine tho.}
 The total size of the stored data (in JSON format with a line ending after 
     every field) is only around 150MB.
 

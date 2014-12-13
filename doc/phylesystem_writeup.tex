@@ -97,8 +97,9 @@ Unfortunately, capturing the inputs and outputs of a phylogenetic analysis in a 
 Some archiving services, such as Dryad \citep{Dryad}, have reacted to this challenge by accepting a 
     wide range of inputs and making few or no
     guarantees to users of the database that the records will be in any particular form.
-This encourages sharing of data by making the submission process fast and easy, and is advantageous under Dryad's
-    general purpose archival model--Dryad's scope is not limited to phylogenetic information.
+This encourages sharing of data by making the submission process fast and easy. %
+%, and is advantageous under Dryad's
+%    general purpose archival model--Dryad's scope is not limited to phylogenetic information.
 However, if the authors submitting the data are not conscientious in their explanations of the data, it can be difficult
     for users of the data to reliably extract all of the necessary information from the archive, or the data may not contain sufficient metadata for reuse.
 
@@ -119,8 +120,8 @@ Unfortunately, file formats read and written by tree estimation tools are idiosy
     of this topic and other challenges relating to the archiving of phylogenetic estimates).
 As a result, the TreeBASE submission process usually requires the authors of a data package to reformat their data, correct
     the rooting of the tree, alter the labels of the tips of the tree, {\em etc}.
-The TreeBASE project provides a 12-minute video 
-    \footnote{\url{http://treebase.org/treebase-web/submitTutorial.html}} 
+The TreeBASE project currently provides a 12-minute video 
+%    \footnote{\url{http://treebase.org/treebase-web/submitTutorial.html}} 
     explaining the non-trivial procedure of preparing a submission.
 Because these steps are often taken after the analyses for a publication are complete, it is likely that
     errors introduced in the submission process will not be corrected until an observant user tries to reuse the data.
@@ -128,14 +129,15 @@ If there were a universally used, rich file format for phylogenetics analyses, t
     used by TreeBASE would be less of a hurdle, since the critical metadata regarding rooting, labels, etc. could be
     stored alongside the tree itself.
 The XML-based NexML specification \citep{NeXML} defines such a format, but it is not widely used by tree estimation tools.
-We hope to overcome some historical problems with adoption of rich file formats for phylogenetics 
-   by providing tools for easily curating data and converting among formats.
+%We hope to overcome some historical problems with adoption of rich file formats for phylogenetics 
+%   by providing tools for easily curating data and converting among formats.
+
 
 Thus, the current state of phyloinformatic archival infrastructure is ripe for improvement in numerous ways.
 One such opportunity is the development of a datastore that allows the community of biologists to improve the
     accuracy and re-usability of published phylogenetic statements.
 We describe here an implementation of one such system, which we call ``phylesystem'' because it uses a set of
-    versioned text files on the filesystem (and the fact that we {\em love} bad puns).
+    versioned text files on the filesystem. % (and the fact that we {\em love} bad puns).
 The goal of \ps is not to replace systems like Dryad or TreeBASE, but to complement them by 
     storing phylogenetic statements and associated metadata in a consistent format while retaining the history of
     edits that were made to the data themselves.

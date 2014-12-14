@@ -230,7 +230,22 @@ class _TaxonomyServicesWrapper(object):
 class _TNRSServicesWrapper(object):
     def __init__(self, taxomachine_wrapper, **kwargs): #pylint: disable=W0613
         self.taxomachine = taxomachine_wrapper
+    @property
+    def endpoint(self):
+        return self.taxomachine.endpoint
     def match_names(self, *valist, **kwargs):
+        '''performs taxonomic name resolution. See https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#match_names
+        with the exception that "ids" in the API call is referred has the name "id_list" in this function.
+        The most commonly used kwargs are:
+            - context_name=<name> (see contexts and infer_context methods)
+            - do_approximate_matching=False (to speed up the search)
+            - include_dubious=True see https://github.com/OpenTreeOfLife/reference-taxonomy/wiki/taxon-flags
+            - include_deprecated=True to see deprecated taxa (see previous link to documentation about flags)
+            - wrap_response=True to return a TNRSRespose object (rather than the "raw" response of the web-services).
+        '''
+        if len(valist) == 1:
+            if not is_str_type(valist[0]):
+                return self.taxomachine.TNRS(*valist, **kwargs)
         return self.taxomachine.TNRS(*valist, **kwargs)
     def autocomplete_name(self, *valist, **kwargs):
         return self.taxomachine.autocomplete(*valist, **kwargs)
@@ -238,7 +253,18 @@ class _TNRSServicesWrapper(object):
         return self.taxomachine.contexts(*valist, **kwargs)
     def infer_context(self, *valist, **kwargs):
         return self.taxomachine.infer_context(*valist, **kwargs)
+    def names_to_ott_ids_perfect(self, names, **kwargs):
+        '''A convience function for match_names (same arguments as that function).
 
+        Returns a list of (non-dubious) OTT IDs in the same order as the original names.
+        Raises a ValueError if each name does not have exactly one perfect, non-dubious
+        (score = 1.0) match in the TNRS results.
+        This is intended for use in a pipeline for which you expect their to be no
+            misspelled names of homonyms. Rather than wading through possible matches
+            the caller can just catch the ValueError and bail out if the name matching
+            does not work as anticipated.
+        '''
+        return self.taxomachine.names_to_ott_ids_perfect(names, **kwargs)
 class _StudyServicesWrapper(object):
     def __init__(self, phylesystem_api, **kwargs): #pylint: disable=W0613
         self.phylesytem_wrapper = phylesystem_api
@@ -305,6 +331,9 @@ _VERB_TO_METHOD_DICT = {
 class _WSWrapper(object):
     def __init__(self, domain, **kwargs): #pylint: disable=W0613
         self._domain = domain
+    @property
+    def endpoint(self):
+        return self.domain
     #pylint: disable=W0102
     def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False): #pylint: disable=W0102
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression

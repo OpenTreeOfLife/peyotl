@@ -1,8 +1,203 @@
 #!/usr/bin/env python
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
+from peyotl.api.study_ref import StudyRef
+from peyotl.api.taxon import TaxonWrapper
 import anyjson
 _LOG = get_logger(__name__)
+_EMPTY_TUPLE = tuple()
+def _treemachine_tax_source2dict(tax_source):
+    d = {}
+    tax_source = tax_source.strip()
+    if not tax_source:
+        return d
+    r = [i.strip() for i in tax_source.split(',')]
+    for el in r:
+        k,v = el.split(':')
+        d[k] = v
+    return d
+
+class GoLNode(object):
+    def __init__(self,
+                 prop_dict,
+                 treemachine_wrapper=None,
+                 graph_of_life=None,
+                 taxon=None,
+                 nearest_taxon=None,
+                 node_id=None):
+        self._treemachine_wrapper = treemachine_wrapper
+        self._graph_of_life = graph_of_life
+        if node_id is None:
+            self._node_id = prop_dict['mrca_node_id']
+        else:
+            self._node_id = node_id
+        if taxon is not None:
+            self._taxon = taxon
+        else:
+            oi = prop_dict.get('ott_id')
+            if oi == 'null':
+                oi = None
+            if oi is not None:
+                taxon_dict = {'ot:ottId': oi,
+                              'rank': prop_dict.get('mrca_rank'),
+                              'ot:ottTaxonName': prop_dict.get('mrca_name'),
+                              'unique_name': prop_dict.get('mrca_unique_name'),
+                              'treemachine_node_id': self.node_id
+                             }
+                #TODO should write wrappers for getting the taxomachine wrapper from treemachine wrapper...
+                self._taxon = TaxonWrapper(prop_dict=taxon_dict)
+            else:
+                self._taxon = None
+            if nearest_taxon is None:
+                taxon_dict = {'ot:ottId': prop_dict['nearest_taxon_mrca_ott_id'],
+                              'rank': prop_dict.get('nearest_taxon_mrca_rank'),
+                              'ot:ottTaxonName': prop_dict.get('nearest_taxon_mrca_name'),
+                              'unique_name': prop_dict.get('nearest_taxon_mrca_unique_name'),
+                              'treemachine_node_id': prop_dict.get('nearest_taxon_mrca_node_id')
+                             }
+                assert prop_dict['nearest_taxon_mrca_ott_id'] != 'null'
+                #TODO should write wrappers for getting the taxomachine wrapper from treemachine wrapper...
+                self._nearest_taxon = TaxonWrapper(prop_dict=taxon_dict)
+            else:
+                self._nearest_taxon = nearest_taxon
+        if self._taxon is not None:
+            assert (nearest_taxon is None) or (nearest_taxon is self._taxon)
+            self._nearest_taxon = self._taxon
+
+        self._subtree_newick = None
+        self._synth_sources = prop_dict.get('synth_sources')
+        self._in_synth_tree = prop_dict.get('in_synth_tree')
+        self._tax_source = prop_dict.get('tax_source')
+        self._in_graph = prop_dict.get('in_graph')
+        self._num_tips = prop_dict.get('num_tips')
+        self._num_synth_children = prop_dict.get('num_synth_children')
+    @property
+    def node_info_fetched(self):
+        return not self._in_graph is None
+    def fetch_node_info(self):
+        prop_dict = self._treemachine_wrapper.node_info(node_id=self.node_id)
+        self._synth_sources = [StudyRef(i) for i in prop_dict.get('synth_sources', [])]
+        self._in_synth_tree = prop_dict.get('in_synth_tree')
+        self._tax_source = _treemachine_tax_source2dict(prop_dict.get('tax_source', ''))
+        self._in_graph = bool(prop_dict.get('in_graph'))
+        self._num_tips = prop_dict.get('num_tips')
+        self._num_synth_children = prop_dict.get('num_synth_children')
+        if prop_dict['ott_id'] not in [None, 'null']:
+            assert prop_dict['ott_id'] == self.ott_id
+            assert prop_dict['ott_id'] == self.ott_id
+            assert prop_dict['rank'] == self.rank
+        assert prop_dict['node_id'] == self.node_id
+    @property
+    def synth_sources(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._synth_sources
+    @property
+    def in_synth_tree(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._in_synth_tree
+    @property
+    def tax_source(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._tax_source
+    @property
+    def in_graph(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._in_graph
+    @property
+    def num_tips(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._num_tips
+    @property
+    def num_synth_children(self):
+        if not self.node_info_fetched:
+            self.fetch_node_info()
+        return self._num_synth_children
+
+    @property
+    def subtree_newick(self):
+        if self._subtree_newick is None:
+            r = self._treemachine_wrapper.get_synthetic_tree(node_id=self.node_id)
+            if self._graph_of_life:
+                assert r['tree_id'] == self._graph_of_life['tree_id']
+            self._subtree_newick = r['newick']
+        return self._subtree_newick
+    @property
+    def node_id(self):
+        return self._node_id
+    @property
+    def nearest_taxon(self):
+        return self._nearest_taxon
+    def write_report(self, output):
+        self._taxon.write_report(output)
+    @property
+    def is_taxon(self):
+        return self._taxon is not None
+    @property
+    def name(self):
+        return self._taxon.ott_taxon_name
+    @property
+    def is_deprecated(self):
+        return self._taxon.is_deprecated
+    @property
+    def is_dubious(self):
+        return self._taxon.is_dubious
+    @property
+    def is_synonym(self):
+        return self._taxon.is_synonym
+    @property
+    def flags(self):
+        return self._taxon.flags
+    @property
+    def synonyms(self):
+        return self._taxon.synonyms
+    @property
+    def ott_id(self):
+        return self._taxon.ott_id
+    @property
+    def taxomachine_node_id(self):
+        return self._taxon.taxomachine_node_id
+    @property
+    def treemachine_node_id(self):
+        return self._node_id
+    @property
+    def rank(self):
+        return self._taxon.rank
+    @property
+    def unique_name(self):
+        return self._taxon.unique_name
+    @property
+    def nomenclature_code(self):
+        return self._taxon.nomenclature_code
+
+class MRCAGoLNode(GoLNode):
+    def __init__(self, prop_dict, treemachine_wrapper=None, graph_of_life=None):
+        GoLNode.__init__(self, prop_dict, treemachine_wrapper=treemachine_wrapper, graph_of_life=graph_of_life)
+        x = prop_dict.get('invalid_node_ids')
+        self._invalid_node_ids = tuple(x) if x else _EMPTY_TUPLE
+        x = prop_dict.get('invalid_ott_ids')
+        self._invalid_ott_ids = tuple(x) if x else _EMPTY_TUPLE
+        x = prop_dict.get('node_ids_not_in_tree')
+        self._node_ids_not_in_tree = tuple(x) if x else _EMPTY_TUPLE
+        x = prop_dict.get('ott_ids_not_in_tree')
+        self._ott_ids_not_in_tree = tuple(x) if x else _EMPTY_TUPLE
+    @property
+    def invalid_node_ids(self):
+        return self._invalid_node_ids
+    @property
+    def invalid_ott_ids(self):
+        return self._invalid_ott_ids
+    @property
+    def node_ids_not_in_tree(self):
+        return self._node_ids_not_in_tree
+    @property
+    def ott_ids_not_in_tree(self):
+        return self._ott_ids_not_in_tree
+
 
 class _TreemachineAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
@@ -104,13 +299,16 @@ class _TreemachineAPIWrapper(_WSWrapper):
             data['ott_id'] = int(ott_id)
         return self.json_http_post_raise(uri, data=anyjson.dumps(data))
 
-    def mrca(self, ott_ids=None, node_ids=None):
+    def mrca(self, ott_ids=None, node_ids=None, wrap_response=False):
         if not (ott_ids or node_ids):
             raise ValueError('ott_ids or node_ids must be specified')
         assert not self.use_v1
         uri = '{p}/mrca'.format(p=self.prefix)
         data = {'ott_ids':ott_ids, 'node_ids': node_ids}
-        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+        resp = self.json_http_post_raise(uri, data=anyjson.dumps(data))
+        if wrap_response:
+            return MRCAGoLNode(resp, treemachine_wrapper=self)
+        return resp
     def get_synth_tree_pruned(self, tree_id=None, node_ids=None, ott_ids=None):
         if (tree_id is not None) and (tree_id != self.current_synth_tree_id):
             raise NotImplementedError("Treemachine's getDraftTreeSubtreeForNodes does not take a tree ID yet")

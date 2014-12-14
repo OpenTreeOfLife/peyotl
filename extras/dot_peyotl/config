@@ -1,4 +1,4 @@
-[phylesystem]
+#[phylesystem]
 # parent of the phylesystem, or phylesystem-1, phylesystem-2 directories...
 #   if you have multiple phylesystem repositories not contained in the same
 #   directory
@@ -24,8 +24,11 @@ filepath = /tmp/peyotl-log
 formatter = rich
 
 [apis]
+# The "api.opentree..." URLs are the default endpoints for services
+#   (as specified in the peyotl/api/wrapper.py APIDomains class)
+# You can uncomment one of the lines below if you would like to 
+#   run services against on of the dev servers. 
 phylesystem_api = http://api.opentreeoflife.org
 oti = http://api.opentreeoflife.org
 taxomachine = http://api.opentreeoflife.org
 treemachine = http://api.opentreeoflife.org
-

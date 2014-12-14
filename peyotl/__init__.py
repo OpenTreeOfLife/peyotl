@@ -4,7 +4,8 @@ Small library for conducting operations over the
 entire set of NexSON files in one or more phylesystem
 repositories.
 '''
-
+# Some imports to help our py2 code behave like py3
+from __future__ import absolute_import, print_function, division
 from peyotl.utility import get_config_setting_kwargs, \
                            get_config_object, \
                            expand_path, \

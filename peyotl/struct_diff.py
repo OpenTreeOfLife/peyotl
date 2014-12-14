@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import absolute_import, print_function, division
 class DictDiff(object):
     def __init__(self):
         self._additions = []

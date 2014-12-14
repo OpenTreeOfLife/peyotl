@@ -2,13 +2,13 @@
 # parent of the phylesystem, or phylesystem-1, phylesystem-2 directories...
 #   if you have multiple phylesystem repositories not contained in the same
 #   directory
-parent = ~/phylesystem
+#parent = ~/phylesystem
 
 # Valid repo_nexml2json values are
 #       0.0.0 (Badgerfish)
 #       1.0.0 ("direct" HoneyBadgerFish)
 #       1.2.1 ("byId" HoneyBadgerFish)
-repo_nexml2json = 1.2.1
+#repo_nexml2json = 1.2.1
 
 
 [ott]
@@ -24,7 +24,8 @@ filepath = /tmp/peyotl-log
 formatter = rich
 
 [apis]
-phylesystem_api = http://ashby.opentreeoflife.org/api
-oti_api = http://ashby.opentreeoflife.org/api
-taxomachine = http://ot9.opentreeoflife.org/
-treemachine = http://ot9.opentreeoflife.org/
+phylesystem_api = http://api.opentreeoflife.org
+oti = http://api.opentreeoflife.org
+taxomachine = http://api.opentreeoflife.org
+treemachine = http://api.opentreeoflife.org
+

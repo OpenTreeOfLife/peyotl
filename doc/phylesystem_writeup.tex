@@ -12,8 +12,7 @@
 \newcommand{\jarcomment}[1]{{\color{yellow} \textsc{#1}}\xspace}
 
 \usepackage{natbib}
-%\bibliographystyle{apalike}%
-%\bibliographystyle{plain}
+%\bibliographystyle{apalike}
 \bibliographystyle{natbib.bst}
 
 \usepackage{hyperref}
@@ -440,7 +439,7 @@ Because only the altered studies will have their files touched in the git pull o
 \end{methods}
     
 \begin{figure}
-\includegraphics[scale=0.4]{workflow.png}
+\includegraphics[scale=0.4]{workflow.eps}
  \caption{Workflow diagram demonstrating the process triggered by a curator editing a study using the curator app.
  Upon saving, a work in progress branch is generated on the server repository. 
  If the study edited has not changed on the server, the work in progress branch is merged to master.

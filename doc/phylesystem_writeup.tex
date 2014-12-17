@@ -12,7 +12,9 @@
 \newcommand{\jarcomment}[1]{{\color{yellow} \textsc{#1}}\xspace}
 
 \usepackage{natbib}
-\bibliographystyle{apalike}
+%\bibliographystyle{apalike}%
+%\bibliographystyle{plain}
+\bibliographystyle{natbib.bst}
 
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, hyperindex=true, backref}
@@ -62,7 +64,7 @@ Here we report the development of software infrastructure to support the open cu
 The backend of the system provides an interface for the standard database operations of
     creating, reading, updating, and deleting records by making commits to a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
-Hosting this datastore on GitHub \cite{github} provides a open access to the data store using tools
+Hosting this datastore on GitHub \citep{github} provides a open access to the data store using tools
     familiar to many developers.
 We have deployed a server running the ``phylesystem-api'', which wraps the interactions with git and GitHub.
 The \otol project has also developed and deployed a \js application that uses the \ps-api and
@@ -83,7 +85,7 @@ Code for that tool is available from
 
 \section{Introduction}
 
-Characterizing and systematizing relationships among species has been a goal of biologists since Linnaeus \cite{Linne1758}.
+Characterizing and systematizing relationships among species has been a goal of biologists since \cite{Linne1758}.
 The phylogenetic systematics ``revolution'' of the 1960's focused most of the effort toward this goal on the 
     task of estimating phylogenetic relationships.
 The rapid growth in availability of molecular data, the development of models and software implementations for
@@ -182,7 +184,7 @@ This made it feasible to use text files as the format of the data store.
 Thus far, in the six months since deployment of the study curation interface, the mean number of edits 
     per study is only 2.7.
 The total size of the stored data (in JSON format with a line ending after 
-    every field) is only approximately 150MB (not counting the git database that store the history).
+    every field) is only approximately 150MB (not counting the git database that stores the history).
 
 The requirement (\#\ref{history}, above) of maintaining a history of changes 
     (including an identifier for the editor) fits naturally with software version control systems.
@@ -263,8 +265,8 @@ The basic workflow of a curation session is:
         The curator application also receives the git commit SHA (a checksum of the content ) of the repository at this point.
     \item \label{browseStep} The user may browse the studies and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
     \item \label{authStep} If the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
-    \item \label{userEditStep} The curator may correct tip taxon assignments with the help of taxonomic name resolution services (the ``taxomachine'' web services, which are described
-        elsewhere) \ejmcomment{where? should we link to the github repo?}, 
+    \item \label{userEditStep} The curator may correct tip taxon assignments with the help of taxonomic name resolution services (the ``taxomachine'' web services, which are described at
+        \url{https://github.com/OpenTreeOfLife/taxomachine}) 
         fix the rooting information about the tree or edit the metadata. The study data is modified in the memory space of the 
         browser and maintained there until the curator chooses to save the study.
     \item \label{putStep} To save, the curator application uses an

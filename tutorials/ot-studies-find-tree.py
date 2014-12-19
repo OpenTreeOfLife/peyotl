@@ -7,18 +7,18 @@ import pprint
 import sys
 import json
 
-def ot_find_tree(pair, exact=True,  verbose=True, oti_wrapper=None):
+def ot_find_tree(pair, exact=True,  verbose=True, studies_wrapper=None):
                         
     '''Uses a peyotl wrapper around an Open Tree web service to get a list of trees including values `value` for a given property to be searched on `porperty`.
 
-    The oti_wrapper can be None (in which case the default wrapper from peyotl.sugar will be used.
+    The oti_wstudies_wrapperrapper can be None (in which case the default wrapper from peyotl.sugar will be used.
     All other arguments correspond to the arguments of the web-service call.
     '''
-    if oti_wrapper is None:
-        from peyotl.sugar import oti
-        oti_wrapper = oti
+    if studies_wrapper is None:
+        from peyotl.sugar import studies
+        studies_wrapper = studies
 
-    match_obj = oti_wrapper.find_trees(pair, exact=exact, verbose=verbose)
+    match_obj = studies_wrapper.find_trees(pair, exact=exact, verbose=verbose)
     return match_obj
 
 def main(argv):
@@ -40,7 +40,8 @@ def main(argv):
         arg_dict = {'ot:ottTaxonName':'Garcinia'}
         sys.stderr.write('Running a demonstration query with {}\n'.format(arg_dict))
     print("arg dict is {}".format(arg_dict))
-    print(ot_find_tree(arg_dict))
+    pp = pprint.PrettyPrinter(indent=4, stream=sys.stdout)
+    pp.pprint(ot_find_tree(arg_dict))
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])

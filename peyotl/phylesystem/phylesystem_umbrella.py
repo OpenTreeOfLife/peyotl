@@ -377,9 +377,9 @@ class _Phylesystem(_PhylesystemBase):
                                            parent_sha=parent_sha,
                                            commit_msg=commit_msg,
                                            merged_sha=master_file_blob_included)
-    def delete_study(self, study_id, auth_info, parent_sha):
+    def delete_study(self, study_id, auth_info, parent_sha, commit_msg=''):
         git_action = self.create_git_action(study_id)
-        ret = delete_study(git_action, study_id, auth_info, parent_sha)
+        ret = delete_study(git_action, study_id, auth_info, parent_sha, commit_msg)
         if not ret['merge_needed']:
             with self._index_lock:
                 try:

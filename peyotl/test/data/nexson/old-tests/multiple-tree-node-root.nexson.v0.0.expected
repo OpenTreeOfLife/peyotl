@@ -17,7 +17,7 @@
         ], 
         "@top": "trees", 
         "@treeID": "tree1", 
-        "@treesID": "tree1"
+        "@treesID": "trees2"
       }
     }, 
     "MULTIPLE_ROOT_NODES": {
@@ -29,7 +29,7 @@
         "@idref": "tree1", 
         "@top": "trees", 
         "@treeID": "tree1", 
-        "@treesID": "tree1"
+        "@treesID": "trees2"
       }
     }
   }, 
@@ -52,7 +52,7 @@
           "@idref": "tree1", 
           "@top": "trees", 
           "@treeID": "tree1", 
-          "@treesID": "tree1"
+          "@treesID": "trees2"
         }
       }, 
       {
@@ -67,7 +67,7 @@
           "@idref": "tree1", 
           "@top": "trees", 
           "@treeID": "tree1", 
-          "@treesID": "tree1"
+          "@treesID": "trees2"
         }
       }
     ]

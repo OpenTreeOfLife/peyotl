@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.utility.str_util import UNICODE, is_str_type
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
+from peyotl.api.study_ref import TreeRefList
 from peyotl.nexson_syntax import create_content_spec
 from peyotl.utility import doi2url, get_config_object, get_logger
 import anyjson
@@ -123,18 +124,21 @@ class _OTIWrapper(_WSWrapper):
                               verbose=verbose,
                               valid_keys=self.node_search_term_set,
                               kwargs=kwargs)
-    def find_trees(self, query_dict=None, exact=False, verbose=False, **kwargs):
+    def find_trees(self, query_dict=None, exact=False, verbose=False, wrap_response=False, **kwargs):
         '''Query on tree properties. See documentation for _OTIWrapper class.'''
         if self.use_v1:
             uri = '{p}/singlePropertySearchForTrees'.format(p=self.query_prefix)
         else:
             uri = '{p}/find_trees'.format(p=self.query_prefix)
-        return self._do_query(uri,
+        resp = self._do_query(uri,
                               query_dict=query_dict,
                               exact=exact,
                               verbose=verbose,
                               valid_keys=self.tree_search_term_set,
                               kwargs=kwargs)
+        if wrap_response:
+            return TreeRefList(resp)
+        return resp
     def find_studies(self, query_dict=None, exact=False, verbose=False, **kwargs):
         '''Query on study properties. See documentation for _OTIWrapper class.'''
         if self.use_v1:

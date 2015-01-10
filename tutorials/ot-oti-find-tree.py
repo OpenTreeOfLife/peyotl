@@ -7,7 +7,7 @@ import pprint
 import sys
 import json
 
-def ot_find_tree(pair, exact=True,  verbose=False, oti_wrapper=None):
+def ot_find_tree(arg_dict, exact=True,  verbose=False, oti_wrapper=None):
                         
     '''Uses a peyotl wrapper around an Open Tree web service to get a list of trees including values `value` for a given property to be searched on `porperty`.
 
@@ -17,12 +17,14 @@ def ot_find_tree(pair, exact=True,  verbose=False, oti_wrapper=None):
     if oti_wrapper is None:
         from peyotl.sugar import oti
         oti_wrapper = oti
-    return oti_wrapper.find_trees(pair, exact=exact, verbose=verbose, wrap_response=True)
+    return oti_wrapper.find_trees(arg_dict, exact=exact, verbose=verbose, wrap_response=True)
 
-def ot_get_tree(tree_ref, format='nexson'):
-    from peyotl.api import APIWrapper
-    api_wrapper = APIWrapper()
-    return api_wrapper.study.get(tree_ref, format=format)
+def print_matching_trees(arg_dict, tree_format, exact, verbose):
+    from peyotl.sugar import phylesystem_api
+    tree_list = ot_find_tree(arg_dict, exact=exact, verbose=verbose)
+    for tree_ref in tree_list:
+        print tree_ref
+        print phylesystem_api.get(tree_ref, format=tree_format)
 
 def main(argv):
     '''This function sets up a command-line option parser and then calls match_and_print
@@ -41,33 +43,20 @@ def main(argv):
         args = parser.parse_args(argv)
         arg_dict = args.arg_dict
         exact = not args.fuzzy
-        format = args.format.lower()
+        tree_format = args.format.lower()
     except:
-        arg_dict = {'ot:ottTaxonName':'Hedychium bordelonianum'}
+        arg_dict = {'ot:ottTaxonName':'Chamaedorea frondosa'}
         sys.stderr.write('Running a demonstration query with {}\n'.format(arg_dict))
         exact = True
         verbose = False
-        format = 'newick'
-    if format not in ('newick', 'nexson', 'nexml', 'nexus'):
-        raise ValueError('Unrecognized format "{}"'.format(format))
-    #print("arg dict is {}".format(arg_dict))
-    from peyotl.sugar import phylesystem_api
-    tree_list = ot_find_tree(arg_dict, exact=exact, verbose=verbose)
-    for tree_ref in tree_list:
-        print tree_ref
-        print phylesystem_api.get(tree_ref, format=format)
-        x = '''
-        study_id = study['ot:studyId']
-        for tree in study['matched_trees']:
-            print(ot_get_tree(study_id, tree['oti_tree_id'], format=format))
-            print('\n')
-        '''
-
+        tree_format = 'newick'
+    if tree_format not in ('newick', 'nexson', 'nexml', 'nexus'):
+        raise ValueError('Unrecognized format "{}"'.format(tree_format))
+    print_matching_trees(arg_dict, tree_format, exact=exact, verbose=verbose)
 
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
     except Exception, x:
-        raise
         sys.exit('{}\n'.format(str(x)))
 

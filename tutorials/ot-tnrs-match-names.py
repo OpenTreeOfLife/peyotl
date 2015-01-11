@@ -61,20 +61,20 @@ def match_and_print(name_list, context_name, do_approximate_matching, include_du
     # The code below demonstrates how to access the information from the response in the wrapper
     #   that is created by using the wrap_response option in the call
     output.write('A v2/tnrs/match_names query was performed using: {} \n'.format(tnrs.endpoint))
-    output.write('The taxonomy being served by that server is\n')
+    output.write('The taxonomy being served by that server is:')
     output.write(' {}'.format(result.taxonomy.source))
     output.write(' by {}\n'.format(result.taxonomy.author))
     output.write('Information for the taxonomy can be found at {}\n'.format(result.taxonomy.weburl))
-    output.write('{} out of {} queried names were matched\n'.format(len(result.matched_name_ids), len(name_list)))
-    output.write('{} out of {} queried names were unambiguously matched\n'.format(len(result.unambiguous_name_ids), len(name_list)))
+    output.write('{} out of {} queried name(s) were matched\n'.format(len(result.matched_name_ids), len(name_list)))
+    output.write('{} out of {} queried name(s) were unambiguously matched\n'.format(len(result.unambiguous_name_ids), len(name_list)))
     output.write('The context_name for the matched names was "{}"'.format(result.context))
     if result.context_inferred:
         output.write(' (this context was inferred based on the matches).\n')
     else:
         output.write(' (this context was supplied as an argument to speed up the name matching).\n')
-    output.write('The name matching results used approximate/fuzzy string matching? {}\n'.format(result.includes_approximate_matches))
-    output.write('The name matching results included dubious names? {}\n'.format(result.includes_dubious_names))
-    output.write('The name matching results included deprecated taxa? {}\n'.format(result.includes_deprecated_taxa))
+    output.write('The name matching result(s) used approximate/fuzzy string matching? {}\n'.format(result.includes_approximate_matches))
+    output.write('The name matching result(s) included dubious names? {}\n'.format(result.includes_dubious_names))
+    output.write('The name matching result(s) included deprecated taxa? {}\n'.format(result.includes_deprecated_taxa))
     for name in name_list:
         match_tuple = result[name]
         output.write('The query name "{}" produced {} result(s):\n'.format(name, len(match_tuple)))

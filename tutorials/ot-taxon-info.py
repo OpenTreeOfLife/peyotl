@@ -24,16 +24,12 @@ def write_taxon_info(taxon, include_anc, output):
     '''
     output.write('Taxon info for OTT ID (ot:ottId) = {}\n'.format(taxon.ott_id))
     output.write('    name (ot:ottTaxonName) = "{}"\n'.format(taxon.name))
-    #output.write('    taxon is a junior synonym ? {}\n'.format(match.is_synonym))
-    #output.write('    is deprecated form OTT? {}\n'.format(match.is_deprecated))
-    #output.write('    is dubious taxon? {}\n'.format(match.is_dubious))
     if taxon.synonyms:
         output.write('    known synonyms: "{}"\n'.format('", "'.join(taxon.synonyms)))
     else:
         output.write('    known synonyms: \n')
     output.write('    OTT flags for this taxon: {}\n'.format(taxon.flags))
     output.write('    The taxonomic rank associated with this name is: {}\n'.format(taxon.rank))
-    #output.write('    The nomenclatural code for this name is: {}\n'.format(taxon.nomenclature_code))
     output.write('    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(taxon.taxomachine_node_id))
     if include_anc:
         if taxon.parent is not None:
@@ -53,11 +49,13 @@ def main(argv):
     parser.add_argument('ids', nargs='*', type=int, help='OTT IDs')
     parser.add_argument('--include-lineage', action='store_true', default=False, required=False,
                         help='list the IDs of the ancestors as well.')
-    parser.add_argument('--list-tips', action='store_true', default=False, required=False,
-                        help='list the tips in the subtree rooted by this taxon.')
+    #uncomment when https://github.com/OpenTreeOfLife/taxomachine/issues/89 is fixed @TEMP
+    #parser.add_argument('--list-tips', action='store_true', default=False, required=False,
+    #                    help='list the tips in the subtree rooted by this taxon.')
     args = parser.parse_args(argv)
     id_list = args.ids
-    fetch_and_write_taxon_info(id_list, args.include_lineage, args.list_tips, sys.stdout)
+    list_tips = False # args.list_tips once https://github.com/OpenTreeOfLife/taxomachine/issues/89 is fixed @TEMP
+    fetch_and_write_taxon_info(id_list, args.include_lineage, list_tips, sys.stdout)
     
 if __name__ == '__main__':
     try:

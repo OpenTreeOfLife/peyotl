@@ -78,3 +78,24 @@ Note that `ot-tnrs-match-names.py` has command line arguments to control two of 
 
 will trigger an error (because "bogus" is not a valid context name). This error will
 list the currently valid context names that can be used to narrow your search for a match.
+
+For many subsequent API calls, the key information returned by the TNRS operation is the OTT ID. This the `resp.ott_id` field for a wrapped response object called `resp`.
+
+### the `ot-taxon-info.py` example script
+Once you are dealing with Open Tree of Life services, you will frequently encounter
+    OTT IDs.
+If you have an OTT ID, and you want some information about that taxon you can use the
+    web services to learn about.
+
+    $ python tutorials/ot-taxon-info.py 770311
+
+is the reverse of the `tutorials/ot-tnrs-match-names.py` call discussed above.
+It will print out the name (and some other info) for that OTT ID.
+
+If you use:
+
+    $ python tutorials/ot-taxon-info.py --include-lineage 770311
+
+you'll get information on the ancestral taxa for the OTT ID that you passed in
+    (770311, in this case) from the parent taxon all the way back to the root of
+    tree of life.

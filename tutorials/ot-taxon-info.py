@@ -46,7 +46,7 @@ def main(argv):
     import argparse
     description = 'Uses Open Tree of Life web services to find information for each OTT ID.'
     parser = argparse.ArgumentParser(prog='ot-taxon-info', description=description)
-    parser.add_argument('ids', nargs='*', type=int, help='OTT IDs')
+    parser.add_argument('ids', nargs='+', type=int, help='OTT IDs')
     parser.add_argument('--include-lineage', action='store_true', default=False, required=False,
                         help='list the IDs of the ancestors as well.')
     #uncomment when https://github.com/OpenTreeOfLife/taxomachine/issues/89 is fixed @TEMP

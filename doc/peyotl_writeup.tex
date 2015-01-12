@@ -118,7 +118,7 @@ This component of the architecture \citep[described in more detail in][]{phylesy
     tree.
 
 The `api' subpackage of \pey provides classes that provide a more ``pythonic'' interface 
-    for \otol API calls.
+for \otol API calls (see Figure 1).
 Each set of service calls is represented by a class which can perform necessary 
     format conversion of the arguments and responses so that the client code need 
     not be familiar with the details of each JSON response for the different API calls.
@@ -153,6 +153,25 @@ This makes it easy to run service calls against the development domain (\url{htt
 versions of the services without modifying the scripts involved (or cluttering each interaction with the web services with a set of arguments describing the endpoint to be used).
 
 \end{methods}
+\begin{figure}[htp]
+\begin{verbatim}
+from peyotl.sugar import oti, phylesystem_api
+matches = oti.find_trees(ott_id=84761,
+                         wrap_response=True)
+newick = phylesystem_api.get(matches[0],
+                             format='newick')
+\end{verbatim}
+
+\caption{An example of using the peyotl wrappers to search for trees containing a specific taxon, 
+designated by the Open Tree Taxonomy ID, using the Open Tree Indexer (oti) tool.
+The tree is then fetched in newick notation from the phylesystem web services.
+Here the oti wrapper takes converts the python keyword argument `ott\_id' to
+    the appropriate query for a web service call and wraps the list of dictionaries
+    returned by the API call into a list of peyotl.api.TreeRef objects.
+This object can be used as an argument to a phylesystem-api call and the wrapper around
+    the phylesystem service converts the NexSON returned to a newick string.
+}
+\end{figure}
 
 \section{Availability}
 Snapshots are posted on the PyPI, which means that \pey can be installed using the pip

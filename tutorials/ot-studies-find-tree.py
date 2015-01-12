@@ -8,10 +8,9 @@ import sys
 import json
 
 def ot_find_tree(arg_dict, exact=True,  verbose=False, oti_wrapper=None):
-                        
     '''Uses a peyotl wrapper around an Open Tree web service to get a list of trees including values `value` for a given property to be searched on `porperty`.
 
-    The oti_wrapper can be None (in which case the default wrapper from peyotl.sugar will be used.
+    The oti_wstudies_wrapperrapper can be None (in which case the default wrapper from peyotl.sugar will be used.
     All other arguments correspond to the arguments of the web-service call.
     '''
     if oti_wrapper is None:

@@ -13,11 +13,11 @@ tnrs = None
 taxonomy = None
 tree_of_life = None
 graph_of_life = None
-
+studies = None
 
 
 def _populate_globals():
-    global treemachine, oti, phylesystem_api, taxomachine, tnrs, taxonomy, tree_of_life, graph_of_life
+    global treemachine, oti, phylesystem_api, taxomachine, tnrs, taxonomy, tree_of_life, graph_of_life, studies
     from peyotl.api import APIWrapper
     api_wrapper = APIWrapper()
     treemachine = api_wrapper.treemachine
@@ -28,6 +28,7 @@ def _populate_globals():
     taxonomy = api_wrapper.taxonomy
     tree_of_life = api_wrapper.tree_of_life
     graph_of_life = api_wrapper.graph
+    studies = api_wrapper.studies
 
 _populate_globals()
 

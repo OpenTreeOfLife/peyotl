@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Phylesystem API wrappers
-permalink: /phyelesystem-api-wrappers/
+permalink: /phylesystem-api-wrapper/
 ---
 *NOTE* see the comments about the two styles of wrappers on [the API wrappers page](../api-wrappers). This page only describes the "thick" wrapper.
 

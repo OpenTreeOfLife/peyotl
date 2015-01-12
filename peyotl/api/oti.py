@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility.str_util import UNICODE, is_str_type
+from peyotl.utility.str_util import UNICODE, is_str_type, underscored2camel_case
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import TreeRefList
 from peyotl.nexson_syntax import create_content_spec
@@ -281,7 +281,19 @@ class _OTIWrapper(_WSWrapper):
             if k in valid_keys:
                 query_dict[k] = v
             else:
-                query_dict['ot:' + k] = v
+                prefixed = 'ot:' + k
+                if prefixed in valid_keys:
+                    query_dict[prefixed] = v
+                elif '_' in k:
+                    cc = underscored2camel_case(k)
+                    if cc in valid_keys:
+                        query_dict[cc] = v
+                    else:
+                        prefixed_cc = 'ot:' + cc
+                        if prefixed_cc in valid_keys:
+                            query_dict[prefixed_cc] = v
+                        else:
+                            query_dict[k] = v
         nq = len(query_dict)
         if nq == 0:
             if self.use_v1:

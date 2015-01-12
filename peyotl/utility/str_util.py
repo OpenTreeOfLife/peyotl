@@ -32,3 +32,15 @@ else:
         return {v: k for k, v in d.items()}
 
 
+
+def underscored2camel_case(v):
+    '''converts ott_id to ottId.'''
+    vlist = v.split('_')
+    c = []
+    for n, el in enumerate(vlist):
+        if el:
+            if n == 0:
+                c.append(el)
+            else:
+                c.extend([el[0].upper(), el[1:]])
+    return ''.join(c)

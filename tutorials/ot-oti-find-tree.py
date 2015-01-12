@@ -23,6 +23,10 @@ def ot_find_tree(arg_dict, exact=True,  verbose=False, oti_wrapper=None):
                                   wrap_response=True)
 
 def print_matching_trees(arg_dict, tree_format, exact, verbose):
+    '''The `TreeRef` instance returned by the oti.find_trees(... wrap_response=True)
+    can be used as an argument to the phylesystem_api.get call.
+    If you pass in a string (instead of a TreeRef), the string will be interpreted as a study ID
+    '''
     from peyotl.sugar import phylesystem_api
     tree_list = ot_find_tree(arg_dict, exact=exact, verbose=verbose)
     for tree_ref in tree_list:
@@ -30,7 +34,7 @@ def print_matching_trees(arg_dict, tree_format, exact, verbose):
         print phylesystem_api.get(tree_ref, format=tree_format)
 
 def main(argv):
-    '''This function sets up a command-line option parser and then calls match_and_print
+    '''This function sets up a command-line option parser and then calls print_matching_trees
     to do all of the real work.
     '''
     import argparse

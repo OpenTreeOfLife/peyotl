@@ -17,7 +17,10 @@ def ot_find_tree(arg_dict, exact=True,  verbose=False, oti_wrapper=None):
     if oti_wrapper is None:
         from peyotl.sugar import oti
         oti_wrapper = oti
-    return oti_wrapper.find_trees(arg_dict, exact=exact, verbose=verbose, wrap_response=True)
+    return oti_wrapper.find_trees(arg_dict,
+                                  exact=exact,
+                                  verbose=verbose,
+                                  wrap_response=True)
 
 def print_matching_trees(arg_dict, tree_format, exact, verbose):
     from peyotl.sugar import phylesystem_api
@@ -43,6 +46,7 @@ def main(argv):
         args = parser.parse_args(argv)
         arg_dict = args.arg_dict
         exact = not args.fuzzy
+        verbose = args.verbose
         tree_format = args.format.lower()
     except:
         arg_dict = {'ot:ottTaxonName':'Chamaedorea frondosa'}

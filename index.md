@@ -27,12 +27,13 @@ Currently peyotl is used to implement most of the functionality in the
 
   1. [Installation](./installation)
   2. [Configuration](./configuration)
-  3. [Testing](./testing)
-  4. [Format conversion](./format-conversion)
+  3. [Tutorials](./tutorial)
+  4. [Testing](./testing)
+  5. [Format conversion](./format-conversion)
   6. [NexSON validation](./nexson-validation)
-  6. [Phylesystem](./phylesystem)
-  7. [API wrappers](./api-wrappers)
-  8. [Roadmap](./roadmap)
+  7. [Phylesystem](./phylesystem)
+  8. [API wrappers](./api-wrappers)
+  9. [Roadmap](./roadmap)
 
 # Thanks
 

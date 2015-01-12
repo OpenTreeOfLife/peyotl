@@ -11,7 +11,6 @@ def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output, err
     mrca_node = tree_of_life.mrca(ott_ids=id_list, wrap_response=True)
     assert tuple() == mrca_node.invalid_node_ids
     assert tuple() == mrca_node.node_ids_not_in_tree
-
     if mrca_node.invalid_ott_ids:
         errstream.write('The following OTT IDs were not valid: {}\n'.format(' '.join([str(i) for i in mrca_node.invalid_ott_ids])))
     if mrca_node.ott_ids_not_in_tree:
@@ -49,7 +48,7 @@ def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output, err
     if induced_subtree:
         induced_newick = tree_of_life.induced_subtree(ott_ids=id_list)['subtree']
         errstream.write('The newick representation of the induced subtree rooted at this node is:\n')
-        output.write('\n'.format(induced_newick))
+        output.write('{}\n'.format(induced_newick))
 
 
 def main(argv):

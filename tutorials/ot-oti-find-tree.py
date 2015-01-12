@@ -3,7 +3,6 @@
    e.g. python ot-oti-find-tree.py '{"ot:ottTaxonName": "Bos"}' -n 2
     which is described at https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#find_trees
 '''
-import pprint
 import sys
 import json
 

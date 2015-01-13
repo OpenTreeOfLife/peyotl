@@ -17,7 +17,7 @@
         ], 
         "@top": "trees", 
         "@treeID": "tree1", 
-        "@treesID": "tree1"
+        "@treesID": "trees2"
       }
     }, 
     "REPEATED_ID": {
@@ -29,7 +29,7 @@
         "@idref": "edge0", 
         "@top": "trees", 
         "@treeID": "tree2", 
-        "@treesID": "tree2"
+        "@treesID": "trees2"
       }
     }
   }, 
@@ -43,7 +43,7 @@
           "@idref": "tree1", 
           "@top": "trees", 
           "@treeID": "tree1", 
-          "@treesID": "tree1"
+          "@treesID": "trees2"
         }
       }, 
       {
@@ -58,7 +58,7 @@
           "@idref": "tree1", 
           "@top": "trees", 
           "@treeID": "tree1", 
-          "@treesID": "tree1"
+          "@treesID": "trees2"
         }
       }, 
       {
@@ -69,7 +69,7 @@
           "@idref": "tree2", 
           "@top": "trees", 
           "@treeID": "tree2", 
-          "@treesID": "tree2"
+          "@treesID": "trees2"
         }
       }, 
       {
@@ -84,7 +84,7 @@
           "@idref": "tree2", 
           "@top": "trees", 
           "@treeID": "tree2", 
-          "@treesID": "tree2"
+          "@treesID": "trees2"
         }
       }
     ]

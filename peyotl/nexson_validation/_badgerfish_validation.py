@@ -81,7 +81,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             return errorReturn('lack of "tree" in trees group')
         for tree_obj in tree_list:
             t_nex_id = tree_obj.get('@id')
-            vc.push_context(_NEXEL.TREE, (tree_obj, t_nex_id))
+            vc.push_context(_NEXEL.TREE, (trees_group, tg_nex_id))
             try:
                 if t_nex_id is None:
                     self._error_event(_NEXEL.TREE,
@@ -130,13 +130,21 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                               key_list=['edge',])
             return errorReturn('no "edge" in tree')
         edge_id_list = [(i.get('@id'), i) for i in edge_list]
-        valid = self._validate_edge_list(edge_id_list, vc)
-        if not valid:
-            return False
+        vc.push_context(_NEXEL.EDGE, (tree_obj, tree_nex_id))
+        try:
+            valid = self._validate_edge_list(edge_id_list, vc)
+            if not valid:
+                return False
+        finally:
+            vc.pop_context()
         node_id_obj_list = [(i.get('@id'), i) for i in node_list]
-        valid = self._validate_node_list(node_id_obj_list, vc)
-        if not valid:
-            return False
+        vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
+        try:
+            valid = self._validate_node_list(node_id_obj_list, vc)
+            if not valid:
+                return False
+        finally:
+            vc.pop_context()
         node_dict = {}
         for i in node_id_obj_list:
             nid, nd = i
@@ -267,13 +275,17 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             finally:
                 vc.pop_context()
         if nonleaves_with_leaf_flags:
-            self._error_event(_NEXEL.TREE,
-                              obj=tree_obj,
-                              err_type=gen_InvalidKeyWarning,
-                              anc=vc.anc_list,
-                              obj_nex_id=nonleaves_with_leaf_flags,
-                              key_list=['ot:isLeaf'])
-            return errorReturn('"ot:isLeaf" for internal')
+            vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
+            try:
+                self._error_event(_NEXEL.NODE,
+                                  obj=tree_obj,
+                                  err_type=gen_InvalidKeyWarning,
+                                  anc=vc.anc_list,
+                                  obj_nex_id=nonleaves_with_leaf_flags,
+                                  key_list=['ot:isLeaf'])
+                return errorReturn('"ot:isLeaf" for internal')
+            finally:
+              vc.pop_context()
         self._detect_multilabelled_tree(otus_group_id,
                                         tree_nex_id,
                                         otuid2leaf)

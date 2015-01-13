@@ -17,7 +17,7 @@
         ], 
         "@top": "trees", 
         "@treeID": "tree1", 
-        "@treesID": "tree1"
+        "@treesID": "trees2"
       }
     }
   }, 
@@ -31,7 +31,7 @@
           "@idref": "tree1", 
           "@top": "trees", 
           "@treeID": "tree1", 
-          "@treesID": "tree1"
+          "@treesID": "trees2"
         }
       }, 
       {
@@ -46,7 +46,7 @@
           "@idref": "tree1", 
           "@top": "trees", 
           "@treeID": "tree1", 
-          "@treesID": "tree1"
+          "@treesID": "trees2"
         }
       }
     ]

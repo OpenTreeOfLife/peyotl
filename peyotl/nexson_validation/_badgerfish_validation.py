@@ -130,13 +130,21 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                               key_list=['edge',])
             return errorReturn('no "edge" in tree')
         edge_id_list = [(i.get('@id'), i) for i in edge_list]
-        valid = self._validate_edge_list(edge_id_list, vc)
-        if not valid:
-            return False
+        vc.push_context(_NEXEL.EDGE, (tree_obj, tree_nex_id))
+        try:
+            valid = self._validate_edge_list(edge_id_list, vc)
+            if not valid:
+                return False
+        finally:
+            vc.pop_context()
         node_id_obj_list = [(i.get('@id'), i) for i in node_list]
-        valid = self._validate_node_list(node_id_obj_list, vc)
-        if not valid:
-            return False
+        vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
+        try:
+            valid = self._validate_node_list(node_id_obj_list, vc)
+            if not valid:
+                return False
+        finally:
+            vc.pop_context()
         node_dict = {}
         for i in node_id_obj_list:
             nid, nd = i

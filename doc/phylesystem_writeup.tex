@@ -44,13 +44,13 @@ $^{5}$National Evolutionary Synthesis Center, Duke University, Durham, North Car
 
 \begin{abstract}
 \section{Motivation:}
-Archival storage of phylogenetic estimates from published studies can be accomplished
+Phylogenetic estimates from published studies can be archived
     using general platforms like Dryad \citep{Dryad} or TreeBASE \citep{SandersonDPE1994}.
 Those services fulfill a crucial role in making phylogenetic studies be more transparent
     and reproducible.
-However, available trees nearly always require some editing to improve the accuracy and reusability of the phylogenetic statements.
+However, available trees often require some editing to improve the accuracy and reusability of the phylogenetic statements.
 Many trees in data archives or supplemental files from publications are incorrectly rooted.
-Establishing the linkage between tip labels used in a tree and taxa in a single taxonomy 
+Establishing the linkage between tip labels used in a tree and taxa in a single taxonomy
     dramatically improves the ability of other researchers to reuse phylogenetic estimates.
 Because the process of curating a published phylogenetic estimate is not error-free,
     retaining a full record of the provenance of edits to a tree is crucial for
@@ -63,7 +63,7 @@ Here we report the development of software infrastructure to support the open cu
 The backend of the system provides an interface for the standard database operations of
     creating, reading, updating, and deleting records by making commits to a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
-Hosting this datastore on GitHub \citep{github} provides a open access to the data store using tools
+Hosting this datastore on \citet{github} provides a open access to the data store using tools
     familiar to many developers.
 We have deployed a server running the ``phylesystem-api'', which wraps the interactions with git and GitHub.
 The \otol project has also developed and deployed a \js application that uses the \ps-api and
@@ -113,7 +113,8 @@ Many journals encourage or require that each publication that estimates phylogen
     deposit containing the associated trees.
 TreeBASE produces a much more feature-rich interface for phylogenetic queries than Dryad, because each 
     TreeBASE submission is parsed thoroughly and converted to a set of records in a relational database.
-The downside of this approach is that it requires that submissions correspond to a uniform format, and without constant updating,
+The downside of this approach is that it requires that submissions correspond to a uniform format.
+Without constant updating,
     that format may not reflect new types of phylogenetic data being generated.
 
 Unfortunately, file formats read and written by tree estimation tools are idiosyncratic and often so 
@@ -121,9 +122,9 @@ Unfortunately, file formats read and written by tree estimation tools are idiosy
     of this topic and other challenges relating to the archiving of phylogenetic estimates).
 As a result, the TreeBASE submission process usually requires the authors of a data package to reformat their data, correct
     the rooting of the tree, alter the labels of the tips of the tree, {\em etc}.
-The TreeBASE project currently provides a 12-minute video 
+%The TreeBASE project currently provides a 12-minute video 
 %    \footnote{\url{http://treebase.org/treebase-web/submitTutorial.html}} 
-    explaining the non-trivial procedure of preparing a submission.
+%    explaining the non-trivial procedure of preparing a submission.
 Because these steps are often taken after the analyses for a publication are complete, it is likely that
     errors introduced in the submission process will not be corrected until an observant user tries to reuse the data.
 If there were a universally used, rich file format for phylogenetics analyses, then import constraints such as those
@@ -210,15 +211,15 @@ Fundamentally the data model of the system is the data model of NeXML.
 
 The final requirement (\#\ref{looseOpen}) of producing a maximally open,
     loosely coupled system is consistent with the use of a distributed
-    version control system; git is the most popular distributed version control system.
+    version control system.
 Distributed version control systems do not require a single, ``primary'' repository.
 Each copy of the repository maintains a copy of the entire history, and sharing documents between
     repositories is a peer-to-peer interaction.
 
-Most people will probably think of the copy of the \ps repository that is listed under the \otol organization on
+Most users will probably think of the copy of the \ps repository that is listed under the \otol organization on
     the GitHub website %(and stored on the GitHub servers)
     as the canonical version of the data store.
-Indeed, this is likely to be the most easily accessible and highest profile clone of the \ps repo.
+Indeed, this is likely to be the most easily accessible and highest profile clone of the \ps repository.
 Nevertheless, other users of git are free to fork that repo and maintain their own variants of the data store.
 Any such clone of the \ps repository maintains the ability to pull in changes from biologists who contribute
     edits to the \otol organization clone (for example, via \otol web applications).
@@ -227,7 +228,7 @@ The \otol project placed all of the code for the \ps under permissive, BSD-style
     project makes no claim of ownership to any of the data in the repository. 
 For new files deposited through the web application, the interface strongly encourages application of a CC0 copyright waiver, 
     allowing for later deposit in Dryad. Other data, including those files that originate from TreeBASE,
-    do not have an explicit data license (although we believe that copyright does not apply to any of the data, \citet{Patterson2014}).
+    do not have an explicit data license \citep[although we believe that copyright does not apply to any of the data, see][]{Patterson2014}.
 
 In most database-driven web services, the group of core maintainers who have shell access and 
     database passwords are the only people who have full access to the data in a data store.
@@ -265,8 +266,9 @@ The basic workflow of a curation session is:
     \item \label{browseStep} The user may browse the studies and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
     \item \label{authStep} If the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
     \item \label{userEditStep} The curator may correct tip taxon assignments with the help of taxonomic name resolution services (the ``taxomachine'' web services, which are described at
-        \url{https://github.com/OpenTreeOfLife/taxomachine}) 
-        fix the rooting information about the tree or edit the metadata. The study data is modified in the memory space of the 
+        \url{https://github.com/OpenTreeOfLife/taxomachine}).
+        Users can also fix the rooting information about the tree or edit the metadata.
+        The study data is modified in the memory space of the
         browser and maintained there until the curator chooses to save the study.
     \item \label{putStep} To save, the curator application uses an
       HTTP request to the API and includes the data (in \nexson), the starting SHA, and a commit message to support sensible history. 
@@ -455,7 +457,7 @@ Because only the altered studies will have their files touched in the git pull o
 \section{Discussion}
 The \ps component of the \otol web infrastructure was built to fulfill a critical need for that
     project: in the process of producing a synthetic estimate of what we know about the phylogeny
-    of life on Earth \citep{}, information from published studies has to be curated.
+    of life on Earth, information from published studies has to be curated.
 Phylogenies are simultaneously the products of analyses and the raw material for future analyses.
 A phylogenetic datastore has the advantage of collapsing potentially enormous raw sequence datasets
   into compact files capturing the inferred evolutionary history of studied species.
@@ -527,7 +529,7 @@ However, in \ps the server code and client code both deal with the same JSON fil
 Thus, developers can easily reuse the code-base of the \ps-api as they write new functionalities
     that use data from \ps or even host their own web-services using the data.
 Almost all of the git operations and \nexson handling operations are implemented in the standalone
-    library peyotl.
+    library, peyotl.
 This is intended to make it easier for other programmers to clone
     the data store and work with it locally.
 

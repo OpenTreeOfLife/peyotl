@@ -90,7 +90,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                               key_list=[otus_el])
             return errorReturn('no "@otus" in trees group')
         for t_nex_id, tree_obj in tree_by_id.items():
-            vc.push_context(_NEXEL.TREE, (tree_obj, t_nex_id))
+            vc.push_context(_NEXEL.TREE, (tree_group_obj, tg_nex_id))
             try:
                 if not self._validate_tree(t_nex_id, tree_obj, vc, otus_group_id=otus_el):
                     return False
@@ -215,7 +215,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             return errorReturn('same node used as "@target" for different edges')
         if repeated_edge_id:
             repeated_edge_id.sort()
-            self._error_event(_NEXEL.TREE,
+            self._error_event(_NEXEL.EDGE,
                               obj=tree_obj,
                               err_type=gen_RepeatedIDWarning,
                               anc=vc.anc_list,
@@ -226,8 +226,12 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         internal_node_set = set(edge_by_source.keys())
         leaf_set = node_set - internal_node_set
         leaves = [(i, node_by_id[i]) for i in leaf_set]
-        if not self._validate_leaf_list(leaves, vc):
-            return False
+        vc.push_context(_NEXEL.LEAF_NODE, (tree_obj, tree_nex_id))
+        try:
+            if not self._validate_leaf_list(leaves, vc):
+                return False
+        finally:
+            vc.pop_context()
         internal_nodes = [(i, node_by_id[i]) for i in internal_node_set]
         with_at_root_prop = {}
         for nid, n_obj in internal_nodes:
@@ -256,11 +260,19 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                               obj_nex_id=tree_nex_id,
                               node_id_list=list(with_at_root_prop.keys()) + [root_node_id])
             return errorReturn('root node not labelled as root')
-        if not self._validate_internal_node_list(internal_nodes, vc):
-            return False
+        vc.push_context(_NEXEL.INTERNAL_NODE, (tree_obj, tree_nex_id))
+        try:
+          if not self._validate_internal_node_list(internal_nodes, vc):
+              return False
+        finally:
+            vc.pop_context()
         edges = [i for i in edge_dict.items()]
-        if not self._validate_edge_list(edges, vc):
-            return False
+        vc.push_context(_NEXEL.EDGE, (tree_obj, tree_nex_id))
+        try:
+            if not self._validate_edge_list(edges, vc):
+              return False
+        finally:
+            vc.pop_context()
         otuid2leaf = {}
         for nd_id, nd in leaves:
             otuid = nd['@otu']

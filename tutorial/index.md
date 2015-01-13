@@ -133,6 +133,11 @@ Then you can be confident the OTT ID-based query for a tree will not be a spurio
     match to a homonym (and that it won't fail because of a minor typo in the 
     input name).
 
+This tutorial is also implemented in an IPython notebook, tutorials/IPeyotyl.ipynb which uses ETE to interactively visualize trees pulled from the phylesystem corpus.
+This requires installing IPython, and ETE.
+
+An image of the IPython notebook is at (http://nbviewer.ipython.org/github/OpenTreeOfLife/peyotl/blob/tutorials/tutorials/IPeyotl.ipynb)
+
 ### Getting a subtree of the synthetic tree of life produced by the Open Tree of Life
 
 Earlier, we say that the animal family Hominidae has the OTT ID 770311

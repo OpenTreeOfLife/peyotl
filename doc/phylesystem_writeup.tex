@@ -63,7 +63,7 @@ Here we report the development of software infrastructure to support the open cu
 The backend of the system provides an interface for the standard database operations of
     creating, reading, updating, and deleting records by making commits to a git repository.
 The record of the history of edits to a tree is preserved by git's version control features.
-Hosting this datastore on GitHub \citep{github} provides a open access to the data store using tools
+Hosting this data store on GitHub \citep{github} provides a open access to the data store using tools
     familiar to many developers.
 We have deployed a server running the ``phylesystem-api'', which wraps the interactions with git and GitHub.
 The \otol project has also developed and deployed a \js application that uses the \ps-api and
@@ -135,7 +135,7 @@ The XML-based NexML specification \citep{NeXML} defines such a format, but it is
 
 
 Thus, the current state of phyloinformatic archival infrastructure is ripe for improvement in numerous ways.
-One such opportunity is the development of a datastore that allows the community of biologists to improve the
+One such opportunity is the development of a data store that allows the community of biologists to improve the
     accuracy and re-usability of published phylogenetic statements.
 We describe here an implementation of one such system, which we call ``phylesystem'' because it uses a set of
     versioned text files on the filesystem. % (and the fact that we {\em love} bad puns).
@@ -235,7 +235,7 @@ Posting frequent dumps of a database can allow other users to obtain local copie
     for expensive, {\em ad hoc} calculations.
 However, a local version of the data is clearly a second-class instance and the maintainers of the 
     canonical version of the database have {\em de facto} ownership of the project.
-We hope that adopting a truly distributed backend for the datastore will reinforce the goals
+We hope that adopting a truly distributed backend for the data store will reinforce the goals
     of the \otol project to build tools that can be used and controlled by the entire community of biologists 
     (rather than a few claiming ownership on the data store in perpetuity).
 
@@ -447,7 +447,7 @@ Because only the altered studies will have their files touched in the git pull o
  via the server mirror repository, to the OpenTree github repo.
  Curation of different studies can proceed independently, and on save each will be merged to master and trigger a push to GitHub.
  The record of curation changes is readily accessible (here represented with different colors for each curator).
- Users can easily access changes to the datastore, and pull those changes into their own copy of the repository.
+ Users can easily access changes to the data store, and pull those changes into their own copy of the repository.
  }
 \label{workflow}
 \end{figure}
@@ -457,12 +457,12 @@ The \ps component of the \otol web infrastructure was built to fulfill a critica
     project: in the process of producing a synthetic estimate of what we know about the phylogeny
     of life on Earth \citep{}, information from published studies has to be curated.
 Phylogenies are simultaneously the products of analyses and the raw material for future analyses.
-A phylogenetic datastore has the advantage of collapsing potentially enormous raw sequence datasets
+A phylogenetic data store has the advantage of collapsing potentially enormous raw sequence datasets
   into compact files capturing the inferred evolutionary history of studied species.
 However, the raw output of phylogenetic analyses are nearly never sufficient for re-use by other researchers. 
 This curation primarily consists of the correction of the rooting of the tree, adding metadata about the data
     or analyses that produced the tree, and mapping the OTU labels to taxa in a taxonomy.
-Therefore, having a specialty datastore to capture the appropriate metadata is essential.
+Therefore, having a specialty data store to capture the appropriate metadata is essential.
 
 The \ps tool was designed to fill this role in way that would make the curated data as widely available
     as possible.
@@ -486,7 +486,7 @@ Not only will this update be fast, the user knows that he/she can back up to a p
     data store if needed using the standard version control features.
 
 The file format of the data to be versioned also has an impact on whether or not it is feasible
-    to use a version control system as a datastore.
+    to use a version control system as a data store.
 The native tools for comparing versions of a file are line-based.
 Ideally, such a system would version file formats in which:
     (a) each datum in a collection is described on a different line, 
@@ -532,7 +532,7 @@ This is intended to make it easier for other programmers to clone
     the data store and work with it locally.
 
 \section{Conclusion}
-We have developed a git-based datastore for archiving and curating phylogenetic estimates of species relationships.
+We have developed a git-based data store for archiving and curating phylogenetic estimates of species relationships.
 By incorporating curation into the data storage we have lowered the activation cost of entering data into
     an archive while also allowing continued curation, allowing wither the original authors or researchers
     interested in re-using these data to improve the associated metadata.

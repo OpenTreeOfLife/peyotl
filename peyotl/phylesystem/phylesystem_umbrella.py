@@ -166,15 +166,20 @@ class _Phylesystem(_PhylesystemBase):
                 expected_push_mirror_repo_path = os.path.join(push_mirror_repos_par, repo_name)
                 if os.path.isdir(expected_push_mirror_repo_path):
                     push_mirror_repo_path = expected_push_mirror_repo_path
-            shard = PhylesystemShard(repo_name,
-                                     repo_filepath,
-                                     git_ssh=git_ssh,
-                                     pkey=pkey,
-                                     repo_nexml2json=repo_nexml2json,
-                                     git_action_class=git_action_class,
-                                     push_mirror_repo_path=push_mirror_repo_path,
-                                     new_study_prefix=new_study_prefix,
-                                     infrastructure_commit_author=infrastructure_commit_author)
+            try:
+                shard = PhylesystemShard(repo_name,
+                                         repo_filepath,
+                                         git_ssh=git_ssh,
+                                         pkey=pkey,
+                                         repo_nexml2json=repo_nexml2json,
+                                         git_action_class=git_action_class,
+                                         push_mirror_repo_path=push_mirror_repo_path,
+                                         new_study_prefix=new_study_prefix,
+                                         infrastructure_commit_author=infrastructure_commit_author)
+            except:
+                f = 'Git repo "{}" found in your phylesystem parent, but it does not appear to be a phylesystem shard. Please report this as a bug if this directory is supposed to be phylesystem shard.'
+                _LOG.warn(f.format(repo_filepath))
+                continue
             # if the mirror does not exist, clone it...
             if push_mirror_repos_par and (push_mirror_repo_path is None):
                 GitAction.clone_repo(push_mirror_repos_par,

@@ -1,47 +1,35 @@
-\documentclass{bioinfo}
-\copyrightyear{2014}
-\pubyear{2014}
 \usepackage{xspace}
 \newcommand{\ps}{phylesystem\xspace}
 \newcommand{\otol}{Open Tree of Life\xspace}
 \newcommand{\nexson}{otNexSON\xspace}
 \newcommand{\js}{JavaScript\xspace}
-\newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
-\newcommand{\ejmcomment}[1]{{\color{green} \textsc{#1}}\xspace}
-\newcommand{\jfacomment}[1]{{\color{blue} \textsc{#1}}\xspace}
-\newcommand{\jarcomment}[1]{{\color{yellow} \textsc{#1}}\xspace}
-
-\usepackage{natbib}
-%\bibliographystyle{apalike}
-\bibliographystyle{natbib.bst}
-
-\usepackage{hyperref}
-\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, hyperindex=true, backref}
-\begin{document}
-\firstpage{1}
-\title[phylesystem git phylostore]{Phylesystem: a git-based data store for community curated phylogenetic estimates}
-
-\author[McTavish \textit{et~al}]{
-    Emily Jane McTavish,$^{1,2}$
+\newcommand{\authorswaffil}{Emily Jane McTavish,$^{1,2}$
     Cody E.~Hinchliff,${^3}$
     James F.~Allman,${^4}$
     Joseph W.~Brown,${^3}$
     Karen A.~Cranston,${^5}$
-    Mark T.~Holder,$^{1,2}$\footnote{to whom correspondence should be addressed}~
+    Mark T.~Holder,$^{1,2}$\myfootnote{to whom correspondence should be addressed}
     Jonathan A.~Rees,${^5}$
     Stephen A.~Smith${^3}$
 }
-\address{$^{1}$Department of Ecology and Evolutionary Biology, University of Kansas, Lawrence KS, USA\\
+\newcommand{\affil}{$^{1}$Department of Ecology and Evolutionary Biology, University of Kansas, Lawrence KS, USA\\
 $^{2}$Heidelberg Institute of Theoretical Studies, Heidelberg, Germany \\
 $^{3}$Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, Michigan, USA\\
 $^{4}$Interrobang Corporation, Wake Forest, North Carolina, USA\\
 $^{5}$National Evolutionary Synthesis Center, Duke University, Durham, North Carolina, USA}
+\begin{document}
+\firstpage{1}
+\mytitle{phylesystem git phylostore}{Phylesystem: a git-based data store for community curated phylogenetic estimates}
+
+\myauthor{McTavish \textit{et~al}}{\authorswaffil}
+
+\myaddress{\affil}
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
 
 \editor{Associate Editor: XXXXXXX}
 
 \maketitle
-
+\posttitle{\authorswaffil}{\affil}
 \begin{abstract}
 \section{Motivation:}
 Phylogenetic estimates from published studies can be archived
@@ -553,27 +541,3 @@ Jonathan ``Duke'' Leto wrote some of the code for a preliminary version of the \
 
 \end{document}
 
-\section{Useful text that we might want to reinstate}
-However, making phylogenies re-usable by researchers not involved in the original analyses often requires fairly extensive curation.
-The tip labels on trees often have meaning in the context of that analysis that are not easily translated across studies. 
-For example, the tip labels may contain abbreviations, or lab sample codes.
-Data reuse requires standardizing labels so that they are meaningful across studies.
-Taxonomic name recognition services, such as ?? Plant something, or ?? taxomachine, can attempt to automatically map names to
-operational taxonomic units, but this process also requires come subjective human intervention. 
-
-By supporting contribution and curation in an open and accessible manner, we hope to provide a database with longterm utility and widespread adoption.
-
-
-
-\section{notes}
- The current (as of May) data set
- Community contributed phylogenies
-
- - 6745 trees from 2914 published studies
- - 1188 trees from 991 studies partly curated 
- - 335 trees from 327 studies completely curated and included in the synthetic tree.
-
- The problem:
- - Large data set: Thousands of phylogenies, and always growing (hopefully!)
- - Each phylogeny requires some hand curation, often by multiple people
- - Need to be readily accessible, and editable by interested researchers

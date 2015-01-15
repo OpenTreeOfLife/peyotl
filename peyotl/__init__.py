@@ -35,7 +35,7 @@ def gen_otu_dict(nex_obj, nexson_version=None):
                 d.update(v['otuById'])
             return d
         else:
-            return otus.value()[0]['otuById']
+            return otus.values()[0]['otuById']
     o_dict = {}
     for ob in nex_obj.get('otus', []):
         for o in ob.get('otu', []):
@@ -51,7 +51,7 @@ def iter_tree(nex_obj):
 
 def iter_node(tree):
     '''Generator over each node object in the tree object.'''
-    for nd in tree.get('node', []):
+    for nd in tree.get('nodeById', {}).items():
         yield nd
 
 __all__ = ['utility',

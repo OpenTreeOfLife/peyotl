@@ -1,5 +1,6 @@
 \usepackage{xspace}
 \newcommand{\pey}{peyotl\xspace}
+\newcommand{\Pey}{Peyotl\xspace}
 \newcommand{\ps}{phylesystem\xspace}
 \newcommand{\otol}{Open Tree of Life\xspace}
 \newcommand{\nexson}{otNexSON\xspace}
@@ -10,7 +11,7 @@
     Mark T.~Holder,$^{1,2}$\myfootnote{to whom correspondence should be addressed}
 }
 \newcommand{\affil}{$^{1}$Department of Ecology and Evolutionary Biology, University of Kansas, Lawrence KS, USA\\
-$^{2}$Heidelberg Institute of Theoretical Studies, Heidelberg, Germany \\
+$^{2}$Heidelberg Institute for Theoretical Studies, Heidelberg, Germany \\
 $^{3}$Interrobang Corporation, Wake Forest, North Carolina, USA\\
 }
 \begin{document}
@@ -31,8 +32,8 @@ to build and update a taxonomy and a phylogenetic estimate that
 are intended to encompass all known species.
 The project also has built infrastructure for curating and correcting
     archived versions of phylogenetic estimates.
-That project has a service oriented architecture: the infrastructure consists of
-    a large set of software tools that interact with each through web services.
+This project has a service oriented architecture: the infrastructure consists of
+    a large set of software tools that interact with each other through web services.
 Many of the data models used as arguments and responses for these services were designed
     by the project.
 Here we describe \pey, a Python package that implements some parts of
@@ -42,7 +43,7 @@ Here we describe \pey, a Python package that implements some parts of
 The goals of \pey are to provide a well-tested library that is used
     both on the server-side by components of \otol, but also
     available for client side use.
-The library is intended to serve as an adaptor layer between \otol
+The \pey library is intended to serve as an adaptor layer between \otol
     and other phylogenetic libraries written in Python (rather 
     than providing a full-feature phylogenetic library).
 
@@ -60,15 +61,14 @@ These include analytical software tools for:
     \item constructing a supertree for the millions of species on Earth from this 
         taxonomy and published phylogenetic estimates \citep{SmithHB2013};
 \end{enumerate}
-data stores of:
+data stores, and web services for querying each of these data stores, of:
 \begin{enumerate}
    \setcounter{enumi}{2}
     \item the taxonomic names and synonymy information for the reference taxonomy \citep{OTT,taxomachine},
     \item a collection of curated phylogenetic statements \citep{phylesystem}, and
     \item a graph database aligning the phylogenetic statements to each other and the taxonomy \citep{treemachine,SmithHB2013};
 \end{enumerate}
-web services for querying each of these data stores; and web applications to provide
-user interfaces for
+ and web applications to provide user interfaces for:
 \begin{enumerate}
    \setcounter{enumi}{5}
     \item browsing and annotating the supertree estimate of the tree of life \citep{otolbrowser}, and
@@ -77,33 +77,33 @@ user interfaces for
         of the tree to a reference taxonomy \citep{otolcurator}.
 \end{enumerate}
 For the sake of efficiency, much of the communication between components of this architecture
-use new data models and formats.
+uses new data models and formats.
 
 Here we describe a python library intended to make it easy for programmers outside
     of the \otol project to use the web services and data produced by the project without
     learning the details of all the data models and web-service API.
-\pey is also used within the project, which should make it easier to keep the client library
+\Pey is also used within the project, which will make it easier to keep the client library
      in sync with the services as new versions of the \otol APIs are created.
 
 
 \begin{methods}
 \section{Methods}
-\pey is written in pure Python.
+\Pey is written in pure Python.
 It makes extensive use of subpackages to organize and isolate different components.
 At the lowest level, the `phylo' and `utility' subpackages provide methods and classes
     for simple manipulations of phylogenetic and non-phylogenetic data which do not
     depend on the data models or services of the \otol project.
-The \nexson formats \citep{NexSON}, a set of serializations of NeXML into JSON, are used
+The \nexson  formats\citep{NexSON}, a set of serializations of NeXML \citep{NeXML} into JSON, are used
     within the project for storing curated phylogenetic estimates from the literature.
-\pey supports: syntactic checking and conversions between these formats with a `nexson\_syntax'
+\Pey supports: syntactic checking and conversions between these formats with a `nexson\_syntax'
     subpackage;
     validation of the content with a `nexson\_validation' subpackage; and 
     manipulation of instances of the \nexson data model with the `manip' subpackage.
 
 The `phylesystem' subpackage contains the classes and functions used to implement the
-    server side of the `phylesystem-api` services of the \otol project.
+    server side of the `phylesystem-api' services of the \otol project.
 This component of the architecture \citep[described in more detail in][]{phylesystemapi}
-    implements a create, delete, update operations for a collection of trees in \nexson
+    implements create, delete, update operations for a collection of trees in \nexson
     format using the git versioning tool to maintain the history of edits to each
     tree.
 
@@ -113,14 +113,14 @@ Each set of service calls is represented by a class which can perform necessary
     format conversion of the arguments and responses so that the client code need 
     not be familiar with the details of each JSON response for the different API calls.
 The use of \pey's API wrappers also allow client code to be more robust to changes in the API.
-There have been 2 versions of the \otol API thus far.
-\pey's wrappers allow the client code to specifically request a particular version of the API be used.
+There have been two versions of the \otol API thus far.
+\Pey's wrappers allow the client code to specifically request a particular version of the API be used.
 For API methods that have only changed in superficial ways (e.g. changes to the name of 
 the arguments of the web services), the peyotl wrappers can format the client-supplied arguments
 to either version of the web service calls.
 Thus client code using \pey will not have to be updated if the current versions of the
     API are deprecated in favor of a richer version of the \otol API.
-\pey can convert trees from \otol web services into the widely used Newick format with tip
+\Pey can convert trees from \otol web services into the widely used Newick format with tip
     labels corresponding to either the Open Tree Taxonomy IDs or the taxonomic name of the taxon.
 In the case of trees from published studies that are a part of the phylesystem corpus, the
     leaf labels can also be displayed using the original name strings that were found in
@@ -129,7 +129,7 @@ This makes it feasible for client code to use the taxonomic assignments in phyle
     construct data sets that combine data from multiple studies.
 A group of developers at a hackathon wrote a specification of a cross-language specification
 of an Open Tree of Life API adaptors \citep{sharedapitests}.
-\pey also provides api adaptors that follow those guidelines, and the set of
+\Pey also provides api adaptors that follow those guidelines, and the set of
     tests written by that group is executed as a part of \pey's regular regression testing.
 
 
@@ -144,7 +144,7 @@ The software architecture of the \otol project was written to be modular and rel
 Thus the endpoints of the \otol web services need not start with the \url{http://api.opentreeoflife.org} domain that the project supports.
 To make \pey-based scripts configurable for different web-service endpoints at runtime, \pey
     makes use of INI-formatted configuration files.
-This makes it easy to run service calls against the development domain (\url{http://devapi.opentreeoflife.org}), the aforementioned ``production'' services, or against locally installed
+These simple configuration files make it easy to run service calls against the development domain (\url{http://devapi.opentreeoflife.org}), the aforementioned ``production'' services, or against locally installed
 versions of the services without modifying the scripts involved (or cluttering each interaction with the web services with a set of arguments describing the endpoint to be used).
 
 \end{methods}

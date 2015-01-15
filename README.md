@@ -34,6 +34,7 @@ For full(er) documentation, check out our [http://opentreeoflife.github.io/peyot
 # Testing
 
 Use:
+
     python setup.py test
 
 to trigger the unittests. The [testing page](http://opentreeoflife.github.io/peyotl/testing/) of

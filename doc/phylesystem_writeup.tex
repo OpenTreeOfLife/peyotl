@@ -22,14 +22,12 @@ $^{5}$National Evolutionary Synthesis Center, Duke University, Durham, North Car
 \mytitle{phylesystem git phylostore}{Phylesystem: a git-based data store for community curated phylogenetic estimates}
 
 \myauthor{McTavish \textit{et~al}}{\authorswaffil}
-
 \myaddress{\affil}
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
-
 \editor{Associate Editor: XXXXXXX}
-
 \maketitle
 \posttitle{\authorswaffil}{\affil}
+
 \begin{abstract}
 \section{Motivation:}
 Phylogenetic estimates from published studies can be archived
@@ -251,7 +249,7 @@ The basic workflow of a typical curation session is depicted in Fig. 1. The step
     \item The user selects the study he/she would like to view.
     \item \label{getStudyStep} The curator application requests the study in \nexson form from the \ps server.
         The curator application also receives the git commit SHA (a checksum of the content) of the repository at this point.
-    \item \label{browseStep} The user may browse the study and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
+    \item \label{browseStep} The user may browse the study and download representations of the data in NeXML, \nexson, NEXUS \cite{NEXUS}, or Newick formats without logging in.
     \item \label{authStep} If the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
     \item \label{userEditStep} The user may correct tip labels and map OTUs to a taxonomy with the help of taxonomic name resolution services (the ``taxomachine'' web services, described at
         \url{https://github.com/OpenTreeOfLife/taxomachine}). Tip labels are mapped to the 
@@ -367,10 +365,10 @@ In the badgerfish convention these meta elements would be placed as \js objects 
 Adhering to this convention would require any code operating on a JSON version of NeXML to search through (potentially
     long) lists of meta objects for each piece of annotation.
 The \nexson 1.0 and 1.2 syntaxes simply augment the badgerfish convention by using the \^{} character at the front of a
-    property name to indicate that the key-value property corresponds to a ``meta'' element on NeXML.
+    property name to indicate that the key-value property corresponds to a ``meta'' element in NeXML.
 This ensures smaller file sizes and faster property lookup.
 
-The \nexson 1.2 syntax reorganizes some of the elements of a NeXML.
+The \nexson 1.2 syntax reorganizes some of the elements of a NeXML document.
 In this version of the syntax, the OTUs, trees, nodes, and edges are contained in objects with the IDs of these entities as keys.
 In a direct badgerfish version of NeXML these entities would be objects in an array, but the order of the objects
     in these arrays is not useful.
@@ -467,11 +465,11 @@ Using git in place of a typical database is feasible for only a small set of use
 When it is feasible to use distributed version control as a data store, there are several benefits
     that make this approach appealing.
 Provenance information in the form of a commit message associated with an identification of the 
-    user creating the edit is stored ``for free'' in such an architecture:
-(1) Each modification to the data store is backed up efficiently using the VCS's ``push'' functionality.
-(2) The corpus of the data store can be made openly available in a form that is very convenient to
+    user creating the edit is stored ``for free'' in such an architecture.
+Each modification to the data store is backed up efficiently using the VCS's ``push'' functionality.
+The corpus of the data store can be made openly available in a form that is very convenient to
     other bioinformaticians.
-(3) Rather than having to unpack a new snapshot and write a script to identify
+Rather than having to unpack a new snapshot and write a script to identify
     what information has changed since the last snapshot was retrieved, a user can easily pull down
     the latest changes (with a ``git pull origin master'' command in the case of a git-based store).
 Not only will this update be fast, the user knows that he/she can back up to a previous version of the 

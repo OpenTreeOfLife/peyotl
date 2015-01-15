@@ -1,6 +1,3 @@
-\documentclass{bioinfo}
-\copyrightyear{2014}
-\pubyear{2014}
 \usepackage{xspace}
 \newcommand{\pey}{peyotl\xspace}
 \newcommand{\Pey}{Peyotl\xspace}
@@ -9,31 +6,24 @@
 \newcommand{\nexson}{otNexSON\xspace}
 \newcommand{\mthcomment}[1]{{\color{red} \textsc{#1}}\xspace}
 \newcommand{\ejmcomment}[1]{{\color{green} \textsc{#1}}\xspace}
-
-\usepackage{natbib}
-\bibliographystyle{apalike}
-
-\usepackage{hyperref}
-\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, hyperindex=true, backref}
+\newcommand{\authorswaffil}{Emily Jane McTavish,$^{1,2}$
+    James F.~Allman,$^{3}$
+    Mark T.~Holder,$^{1,2}$\myfootnote{to whom correspondence should be addressed}
+}
+\newcommand{\affil}{$^{1}$Department of Ecology and Evolutionary Biology, University of Kansas, Lawrence KS, USA\\
+$^{2}$Heidelberg Institute of Theoretical Studies, Heidelberg, Germany \\
+$^{3}$Interrobang Corporation, Wake Forest, North Carolina, USA\\
+}
 \begin{document}
 \firstpage{1}
-\title[peyotl python package]{peyotl: a Python library for using Open Tree of Life data and web services}
+\mytitle{peyotl python package}{peyotl: a Python library for using Open Tree of Life data and web services}
 
-\author[McTavish\textit{et~al}]{
-    Emily Jane McTavish,$^{1,2}$
-    Mark T.~Holder,$^{1,2}$\footnote{to whom correspondence should be addressed}~
-    Ann Other Author,$^{3}$
-    Ann Other Author,$^{4}$
-    Ann Other Author,$^{5}$ $\ldots$
-}
-\address{$^{1}$Department of Ecology and Evolutionary Biology, University of Kansas, Lawrence KS, USA\\
-$^{2}$Heidelberg Institute of Theoretical Studies, Heidelberg, Germany}
-
+\myauthor{McTavish \textit{et~al}}{\authorswaffil}
+\myaddress{\affil}
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
-
 \editor{Associate Editor: XXXXXXX}
-
 \maketitle
+\posttitle{\authorswaffil}{\affil}
 
 \begin{abstract}
 \section{Summary:}
@@ -50,7 +40,7 @@ Here we describe \pey, a Python package that implements some parts of
     the \otol architecture and also provides simple routines for 
     using the web services and data types of the project.
 
-The goals of \pey are to provide well-tested library that is used
+The goals of \pey are to provide a well-tested library that is used
     both on the server-side by components of \otol, but also
     available for client side use.
 The \pey library is intended to serve as an adaptor layer between \otol
@@ -67,24 +57,24 @@ The \otol project can be a daunting resource for programmers to interact with.
 Currently, the architecture provides separate tools for several tasks.
 These include analytical software tools for:
 \begin{enumerate}
-    \item merging many taxonomies into a comprehensive taxonomy of life,
+    \item merging many taxonomies into a comprehensive taxonomy of life \citep{smasher}, and
     \item constructing a supertree for the millions of species on Earth from this 
-            taxonomy and published phylogenetic estimates;
+        taxonomy and published phylogenetic estimates \citep{SmithHB2013};
 \end{enumerate}
 data stores, and web services for querying each of these data stores, of:
 \begin{enumerate}
    \setcounter{enumi}{2}
-    \item the taxonomic names and synonymy information for the reference taxonomy,
-    \item a collection of curated phylogenetic statements,
-    \item a graph database aligning the phylogenetic statements to each other and the taxonomy;
+    \item the taxonomic names and synonymy information for the reference taxonomy \citep{OTT,taxomachine},
+    \item a collection of curated phylogenetic statements \citep{phylesystem}, and
+    \item a graph database aligning the phylogenetic statements to each other and the taxonomy \citep{treemachine,SmithHB2013};
 \end{enumerate}
  and web applications to provide user interfaces for:
 \begin{enumerate}
    \setcounter{enumi}{5}
-    \item browsing and annotating the supertree estimate of the tree of life,
+    \item browsing and annotating the supertree estimate of the tree of life \citep{otolbrowser}, and
     \item helping systematists ``curate'' published phylogenetic statements by providing
         metadata about studies, correcting the rooting of trees, and mapping the tips
-        of the tree to a reference taxonomy.
+        of the tree to a reference taxonomy \citep{otolcurator}.
 \end{enumerate}
 For the sake of efficiency, much of the communication between components of this architecture
 uses new data models and formats.
@@ -103,17 +93,17 @@ It makes extensive use of subpackages to organize and isolate different componen
 At the lowest level, the `phylo' and `utility' subpackages provide methods and classes
     for simple manipulations of phylogenetic and non-phylogenetic data which do not
     depend on the data models or services of the \otol project.
-The NexSON formats\citep{NexSON}, a set of serializations of NeXML \citep{NeXML} into JSON, are used
+The \nexson  formats\citep{NexSON}, a set of serializations of NeXML \citep{NeXML} into JSON, are used
     within the project for storing curated phylogenetic estimates from the literature.
 \pey supports: syntactic checking and conversions between these formats with a `nexson\_syntax'
     subpackage;
     validation of the content with a `nexson\_validation' subpackage; and 
-    manipulation of instances of the NexSON data model with the `manip' subpackage.
+    manipulation of instances of the \nexson data model with the `manip' subpackage.
 
 The `phylesystem' subpackage contains the classes and functions used to implement the
     server side of the `phylesystem-api' services of the \otol project.
 This component of the architecture \citep[described in more detail in][]{phylesystemapi}
-    implements create, delete, update operations for a collection of trees in NexSON
+    implements create, delete, update operations for a collection of trees in \nexson
     format using the git versioning tool to maintain the history of edits to each
     tree.
 
@@ -137,6 +127,11 @@ In the case of trees from published studies that are a part of the phylesystem c
     the uploaded data.
 This makes it feasible for client code to use the taxonomic assignments in phylesystem to 
     construct data sets that combine data from multiple studies.
+A group of developers at a hackathon wrote a specification of a cross-language specification
+of an Open Tree of Life API adaptors \citep{sharedapitests}.
+\pey also provides api adaptors that follow those guidelines, and the set of
+    tests written by that group is executed as a part of \pey's regular regression testing.
+
 
 Some nascent subpackages (`ott' and `gcmdr') of \pey are in development as re-implementations
     of other \otol tools (for taxonomic operations and driving of the ``treemachine'' supertree tool
@@ -169,7 +164,7 @@ Here the oti wrapper takes converts the python keyword argument `ott\_id' to
     the appropriate query for a web service call and wraps the list of dictionaries
     returned by the API call into a list of peyotl.api.TreeRef objects.
 This object can be used as an argument to a phylesystem-api call and the wrapper around
-    the phylesystem service converts the NexSON returned to a newick string.
+    the phylesystem service converts the \nexson returned to a newick string.
 }
 \end{figure}
 

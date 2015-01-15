@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem, PhylesystemProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
+from peyotl.api.study_ref import TreeRef
 from peyotl.nexson_syntax import create_content_spec
 from peyotl.utility import get_logger
 import anyjson
@@ -100,6 +101,12 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             w.get('pg_10', tree_id='tree3')
         see:
         '''
+        if isinstance(study_id, TreeRef):
+            return self.get(study_id=study_id.study_id,
+                            tree_id=study_id.tree_id,
+                            content=content,
+                            schema=schema,
+                            **kwargs)
         if schema is None:
             schema = create_content_spec(content=content,
                                          repo_nexml2json=self.repo_nexml2json,
@@ -117,7 +124,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             nexson = self.json_http_get(url)
             r = {'data': nexson}
         elif self._src_code == _GET_LOCAL:
-            nexson, sha = self.phylesystem_obj.return_study(study_id)
+            nexson, sha = self.phylesystem_obj.return_study(study_id) #pylint: disable-msg=W0632
             r = {'data': nexson,
                  'sha': sha}
         else:

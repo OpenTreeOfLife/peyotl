@@ -1,11 +1,14 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, print_function, division
 from peyotl.phylo.entities import OTULabelStyleEnum
+from peyotl.phylo.tree import create_tree_from_id2par
+from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_config_object, get_logger
 import pickle
 import codecs
 import os
 _LOG = get_logger(__name__)
-NONE_PAR = -1
+NONE_PAR = None
 
 _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:
@@ -55,6 +58,8 @@ _CACHES = {'ottid2parentottid': ('ottID2parentOttId', 'ott ID-> parent\'s ott ID
            'ottid2uniq': ('ottID2uniq', 'ott ID -> uniqname for those IDs that have a uniqname field', ),
            'uniq2ottid': ('uniq2ottID', 'uniqname -> ott ID for those IDs that have a uniqname', ),
            'name2ottid': ('name2ottID', 'maps a taxon name -> ott ID ', ),
+           'homonym2ottid': ('homonym2ottID', 'maps a taxon name -> tuple of OTT IDs ', ),
+           'nonhomonym2ottid': ('nonhomonym2ottID', 'maps a taxon name -> single OTT ID ', ),
            'ottid2names': ('ottID2names', 'ottID to a name or list/tuple of names', ),
            'root': ('root', 'name and ott_id of the root of the taxonomy', ),
            'preorder2tuple': ('preorder2tuple', '''preorder # to a node definition
@@ -82,6 +87,7 @@ class OTT(object):
         self._version = None
         self._root_name = None
         self._root_ott_id = None
+        self._name2ott_ids = None
     @property
     def version(self):
         if self._version is None:
@@ -144,6 +150,10 @@ class OTT(object):
         if self._ott_id_to_names is None:
             self._ott_id_to_names = self._load_pickled('ottID2names')
         return self._ott_id_to_names
+    def get_ott_ids(self, name):
+        if self._name2ott_ids is None:
+            self._name2ott_ids = self._load_pickled('name2ottID')
+        return self._name2ott_ids.get(name)
     @property
     def root_name(self):
         if self._root_name is None:
@@ -205,9 +215,9 @@ class OTT(object):
         root_ott_id = None
         with codecs.open(taxonomy_file, 'r', encoding='utf-8') as tax_fo:
             it = iter(tax_fo)
-            first_line = it.next()
+            first_line = next(it)
             assert first_line == 'uid\t|\tparent_uid\t|\tname\t|\trank\t|\tsourceinfo\t|\tuniqname\t|\tflags\t|\t\n'
-            life_line = it.next()
+            life_line = next(it)
             root_split = life_line.split('\t|\t')
             uid = int(root_split[0])
             root_ott_id = uid
@@ -315,7 +325,7 @@ class OTT(object):
         num_lines = 0
         with codecs.open(synonyms_file, 'r', encoding='utf-8') as syn_fo:
             it = iter(syn_fo)
-            first_line = it.next()
+            first_line = next(it)
             assert first_line == 'name\t|\tuid\t|\ttype\t|\tuniqname\t|\t\n'
             for rown in it:
                 ls = rown.split('\t|\t')
@@ -362,6 +372,13 @@ class OTT(object):
                 v = tuple(v)
             _swap[k] = v
         name2id = _swap
+        homonym2id = {}
+        nonhomonym2id = {}
+        for name, ott_ids in name2id.iteritems():
+            if isinstance(ott_ids, tuple) and len(ott_ids) > 1:
+                homonym2id[name] = ott_ids
+            else:
+                nonhomonym2id[name] = ott_ids
         _LOG.debug('Making heavy tree')
         tt = make_tree_from_taxonomy(id2par)
         _LOG.debug('preorder numbering nodes')
@@ -384,6 +401,8 @@ class OTT(object):
         _write_pickle(out_dir, 'ottID2uniq', id2uniq)
         _write_pickle(out_dir, 'uniq2ottID', uniq2id)
         _write_pickle(out_dir, 'name2ottID', name2id)
+        _write_pickle(out_dir, 'homonym2ottID', homonym2id)
+        _write_pickle(out_dir, 'nonhomonym2ottID', nonhomonym2id)
         _write_pickle(out_dir, 'ottID2names', id2name)
 
         _LOG.debug('creating tree representation with preorder # to tuples')
@@ -423,17 +442,7 @@ class OTT(object):
             n = i2pi.get(n)
         return lineage
     def induced_tree(self, ott_id_list):
-        if not ott_id_list:
-            return None
-        '''nn = len(ott_id_list)
-        if nn == 1:
-            if ott_id_list[0] not in self.ott_id2par_ott_id:
-                raise KeyError('The OTT ID {} was not found'.format(ott_id))
-
-
-        line = TaxonomyDes2AncLineage(self.get_anc_lineage(ott_id_list[0]))
-        curr_ind = 1
-        '''
+        return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list)
 if _PICKLE_AS_JSON:
     def _write_pickle(directory, fn, obj):
         fp = os.path.join(directory, fn + '.pickle')
@@ -487,6 +496,43 @@ class TaxonomyDes2AncLineage(object):
         return '{r} at {i}'.format(r=self.__repr__(), i=hex(id(self)))
     def __repr__(self):
         return 'TaxonomyDes2AncLineage({l})'.format(l=repr(self._des_to_anc_list))
+
+def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
+    '''returns a pair of trees:
+        the first is that is a pruned version of tree_proxy created by pruning
+            any leaf that has not ott_id and every internal that does not have
+            any descendant with an ott_id. Nodes of out-degree 1 are suppressed
+            as part of the TreeWithPathsInEdges-style.
+        the second is the OTT induced tree for these ott_ids
+    '''
+    # create and id2par that has ott IDs only at the tips (we are
+    #   ignoring mappings at internal nodes.
+    # OTT IDs are integers, and the nodeIDs are strings - so we should not get clashes.
+    #TODO consider prefix scheme
+    ott_ids = []
+    ottId2OtuPar = {}
+    for node in tree_proxy:
+        if node.is_leaf:
+            ott_id = node.ott_id
+            if ott_id is not None:
+                ott_ids.append(ott_id)
+                assert isinstance(ott_id, int)
+                parent_id = node.parent._id
+                ottId2OtuPar[ott_id] = parent_id
+        else:
+            assert is_str_type(node._id)
+            edge = node.edge
+            if edge is not None:
+                parent_id = node.parent._id
+                ottId2OtuPar[node._id] = parent_id
+            else:
+                ottId2OtuPar[node._id] = None
+    pruned_phylo = create_tree_from_id2par(ottId2OtuPar, ott_ids)
+    taxo_tree = ott.induced_tree(ott_ids)
+    return pruned_phylo, taxo_tree
+
+
+
 if __name__ == '__main__':
     import sys
     o = OTT()

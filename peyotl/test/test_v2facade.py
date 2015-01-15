@@ -6,6 +6,20 @@ from peyotl.utility import get_logger
 import unittest
 
 _LOG = get_logger(__name__)
+def _test_tol_about(self, cdict):
+    for key in [u'date',
+                u'num_source_studies',
+                u'root_taxon_name',
+                u'study_list',
+                u'root_ott_id',
+                u'root_node_id',
+                u'tree_id',
+                u'taxonomy_version',
+                u'num_tips']:
+        self.assertTrue(key in cdict)
+    tree_id = cdict['tree_id']
+    node_id = str(cdict['root_node_id']) # Odd that this is a string
+    return tree_id, node_id
 
 class TestOTI(unittest.TestCase):
     def setUp(self):
@@ -72,18 +86,7 @@ class TestOTI(unittest.TestCase):
         self.assertTrue(r['newick'].startswith('('))
     def testSynthTree(self):
         cdict = self.ot.tree_of_life.about()
-        for key in [u'date',
-                    u'num_source_studies',
-                    u'root_taxon_name',
-                    u'study_list',
-                    u'root_ott_id',
-                    u'root_node_id',
-                    u'tree_id',
-                    u'taxonomy_version',
-                    u'num_tips']:
-            self.assertTrue(key in cdict)
-        tree_id = cdict['tree_id']
-        node_id = str(cdict['root_node_id']) # Odd that this is a string
+        tree_id, node_id = _test_tol_about(self, cdict)
         self.assertRaises(ValueError, self.ot.tree_of_life.subtree, tree_id, format='newick', node_id=node_id)
     def testPrunedTree(self):
         ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579,

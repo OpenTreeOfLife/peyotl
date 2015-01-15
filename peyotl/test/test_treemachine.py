@@ -1,6 +1,8 @@
 #! /usr/bin/env python
+from __future__ import absolute_import, print_function, division
 from peyotl.api import Treemachine, Taxomachine
 from peyotl.test.support.pathmap import get_test_ot_service_domains
+from peyotl.test.test_v2facade import _test_tol_about
 from peyotl.utility import get_logger
 import unittest
 _LOG = get_logger(__name__)
@@ -29,18 +31,7 @@ class TestTreemachine(unittest.TestCase):
                 self.assertEqual(x['treeID'], tree_id)
                 self.assertTrue(x['newick'].startswith('('))
         else:
-            for key in [u'date',
-                        u'num_source_studies',
-                        u'root_taxon_name',
-                        u'study_list',
-                        u'root_ott_id',
-                        u'root_node_id',
-                        u'tree_id',
-                        u'taxonomy_version',
-                        u'num_tips']:
-                self.assertTrue(key in cdict)
-            tree_id = cdict['tree_id']
-            node_id = str(cdict['root_node_id']) # Odd that this is a string
+            tree_id, node_id = _test_tol_about(self, cdict)
             self.assertRaises(ValueError,
                               self.treemachine.get_synthetic_tree,
                               tree_id,

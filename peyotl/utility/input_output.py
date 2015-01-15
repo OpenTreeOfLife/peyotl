@@ -2,7 +2,7 @@
 '''Simple utility functions for Input/Output do not depend on any other part of
 peyotl.
 '''
-from peyotl.utility.str_util import is_str_type
+from peyotl.utility.str_util import is_str_type, StringIO
 import codecs
 import json
 import stat
@@ -19,6 +19,10 @@ def open_for_group_write(fp, mode, encoding='utf-8'):
     o.flush()
     os.chmod(fp, stat.S_IRGRP | stat.S_IROTH | stat.S_IRUSR | stat.S_IWGRP | stat.S_IWUSR)
     return o
+def read_filepath(filepath, encoding='utf-8'):
+    with codecs.open(filepath, 'r', encoding=encoding) as fo:
+        return fo.read()
+
 
 def write_to_filepath(content, filepath, encoding='utf-8', mode='w', group_writeable=False):
     '''Writes `content` to the `filepath` Creates parent directory
@@ -59,6 +63,21 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
         out.flush()
         if opened_out:
             out.close()
+
+def pretty_dict_str(d, indent=2):
+    '''shows JSON indented representation of d'''
+    b = StringIO()
+    write_pretty_dict_str(b, d, indent=indent)
+    return b.getvalue()
+def write_pretty_dict_str(out, obj, indent=2):
+    '''writes JSON indented representation of obj to out'''
+    json.dump(obj,
+              out,
+              indent=indent,
+              sort_keys=True,
+              separators=(',', ': '),
+              ensure_ascii=False,
+              encoding="utf-8")
 
 def read_as_json(infi, encoding='utf-8'):
     with codecs.open(infi, 'r', encoding=encoding) as inpf:

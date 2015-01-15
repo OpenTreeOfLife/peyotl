@@ -11,7 +11,7 @@
     Mark T.~Holder,$^{1,2}$\myfootnote{to whom correspondence should be addressed}
 }
 \newcommand{\affil}{$^{1}$Department of Ecology and Evolutionary Biology, University of Kansas, Lawrence KS, USA\\
-$^{2}$Heidelberg Institute of Theoretical Studies, Heidelberg, Germany \\
+$^{2}$Heidelberg Institute for Theoretical Studies, Heidelberg, Germany \\
 $^{3}$Interrobang Corporation, Wake Forest, North Carolina, USA\\
 }
 \begin{document}
@@ -88,14 +88,14 @@ Here we describe a python library intended to make it easy for programmers outsi
 
 \begin{methods}
 \section{Methods}
-\pey is written in pure Python.
+\Pey is written in pure Python.
 It makes extensive use of subpackages to organize and isolate different components.
 At the lowest level, the `phylo' and `utility' subpackages provide methods and classes
     for simple manipulations of phylogenetic and non-phylogenetic data which do not
     depend on the data models or services of the \otol project.
 The \nexson  formats\citep{NexSON}, a set of serializations of NeXML \citep{NeXML} into JSON, are used
     within the project for storing curated phylogenetic estimates from the literature.
-\pey supports: syntactic checking and conversions between these formats with a `nexson\_syntax'
+\Pey supports: syntactic checking and conversions between these formats with a `nexson\_syntax'
     subpackage;
     validation of the content with a `nexson\_validation' subpackage; and 
     manipulation of instances of the \nexson data model with the `manip' subpackage.
@@ -129,7 +129,7 @@ This makes it feasible for client code to use the taxonomic assignments in phyle
     construct data sets that combine data from multiple studies.
 A group of developers at a hackathon wrote a specification of a cross-language specification
 of an Open Tree of Life API adaptors \citep{sharedapitests}.
-\pey also provides api adaptors that follow those guidelines, and the set of
+\Pey also provides api adaptors that follow those guidelines, and the set of
     tests written by that group is executed as a part of \pey's regular regression testing.
 
 

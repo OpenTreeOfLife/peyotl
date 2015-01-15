@@ -92,8 +92,9 @@ However, if the authors submitting the data are not conscientious in their expla
 
 On the opposite end of the spectrum, some databases require data providers to conform to strict
     standards with respect to input format and content.
-Since 1994, TreeBASE \citep{SandersonDPE1994} and its successor TreeBASE version 2 \citep{TreeBase2} have served
-    as the primary archival data stores for phylogenetic estimates and the data that these trees are based on.
+Examples of this approach are TreeBASE \citep{SandersonDPE1994} and its successor TreeBASE version 2 \citep{TreeBase2}.
+Since 1994, TreeBASE databases has served
+    as the primary archival data store for phylogenetic estimates and the data that these trees are based on.
 As of 2014, TreeBASE contains 4076 studies and over 12,800 trees \citep{TreeBaseWebCite}.
 Many journals encourage or require that each publication that estimates phylogenetic trees cite a TreeBASE
     deposit containing the associated trees.
@@ -103,18 +104,19 @@ The downside of this approach is that it requires that submissions correspond to
 Without constant updating,
     that format may not reflect new types of phylogenetic data being generated.
 
-Unfortunately, file formats read and written by tree estimation tools are idiosyncratic and often so 
-    terse that they omit useful information about the analysis (see \citet{StoltzfusEtAl2012} and \citet{Cranston2014} for discussions
-    of this topic and other challenges relating to the archiving of phylogenetic estimates).
+Unfortunately, tree estimation tools read and write file formats which are idiosyncratic and often so 
+    terse that they omit useful information about the analysis.
+See \citet{StoltzfusEtAl2012} and \citet{Cranston2014} for discussions
+    of this topic and other challenges relating to the archiving of phylogenetic estimates.
 As a result, the TreeBASE submission process usually requires the authors of a data package to reformat their data, correct
     the rooting of the tree, alter the labels of the tips of the tree, {\em etc}.
 %The TreeBASE project currently provides a 12-minute video 
 %    \footnote{\url{http://treebase.org/treebase-web/submitTutorial.html}} 
 %    explaining the non-trivial procedure of preparing a submission.
 Because these steps are often taken after the analyses for a publication are complete, it is likely that
-    errors introduced in the submission process will not be corrected until an observant user tries to reuse the data.
-If there were a universally used, rich file format for phylogenetics analyses, then import constraints such as those
-    used by TreeBASE would be less of a hurdle, since the critical metadata regarding rooting, labels, etc. could be
+    errors introduced in the process of preparing a submission will not be corrected until an observant user tries to reuse the data.
+If there were a rich, universally used file format for phylogenetics analyses, then import constraints such as those
+used by TreeBASE would be less of a hurdle, because the critical metadata regarding rooting, labels, {\em etc.~}would be
     stored alongside the tree itself.
 The XML-based NexML specification \citep{NeXML} defines such a format, but it is not currently  used widely by tree estimation tools.
 %We hope to overcome some historical problems with adoption of rich file formats for phylogenetics 
@@ -159,9 +161,9 @@ Thus, our goals when designing \ps were to build:
 From these requirements, we chose to implement \ps as a set of software wrappers around a data store
     which consists of a git \citep{git} repository of phylogenetic statements serialized as a \js Object Notation (JSON) \citep{Crockford2006}.
 The data model used for the JSON is a close derivative of the NeXML standard for data interoperability \citep{NeXML},
-  and can be converted back and forth using the peyotl library.
+  and can be converted back and forth using the peyotl library (\url{https://github.com/OpenTreeOfLife/peyotl}; manuscript in preparation).
 
-Our expectations that the system will have to store limited amounts of data for each study 
+Our expectations that the system will need to store limited amounts of data for each study 
     (points \#\ref{fewKStudies} and \ref{fewTreesPerStudy} above), and that most
     studies will require relatively few edits, imply that
     raw performance of the basic database operations is unlikely to be a bottleneck for most
@@ -174,8 +176,8 @@ The total size of the stored data (in JSON format with a line ending after
 
 The requirement (\#\ref{history}, above) of maintaining a history of changes 
     (including an identifier for the editor) fits naturally with software version control systems (VCSs).
-We note that wiki engines such as Gollum use git version control as a backend database.
-The idea of using git as general database has been discussed by others \citep{git-nosql-db}.
+We note that wiki engines such as Gollum use git version control as a backend database,
+and the idea of using git as general database has been discussed by others \citep[{\em e.g.}~][]{git-nosql-db}.
 
 The requirement (\#\ref{richAnnot} above) to support rich annotations
     is met by the NeXML data standard.
@@ -228,20 +230,21 @@ We hope that adopting a truly distributed backend for the data store will reinfo
 
 Currently the \ps web services use GitHub authentication for ``curators'' who edit studies.
 The requirement that editors authenticate allows the provenance of each edit to include 
-    a user name for the curator, while the use of GitHub credentials allows the \otol project
+    a user name for the curator.
+The use of GitHub credentials allows the \otol project
     to circumvent the need to maintain a database of users and passwords (or hashes).
 Thus, there is no private database that would be required for someone to fork and maintain their
     own version of the corpus (on GitHub or elsewhere).
-In the future pull requests from forks of the \ps repo will be able to contribute data to the main repository,
-   but in order to maintain data quality at this time the \ps API (typically via the curation webapp) is the only method to add studies to the database.
 The only private information relevant to \ps that is kept by the \otol project are the ssh-private
     keys that allow the project's web servers to push updated data to the GitHub-hosted clone of the 
     repository.
+In the future pull requests from forks of the \ps repo will be able to contribute data to the main repository.
+In order to maintain data quality, the \ps API (typically via the curation webapp) is currently the only method to add studies to the database.
 
 
 \begin{methods}
 \section{Methods}
-The basic workflow of a curation session is depicted in Fig. 1. The steps involved are as follows:
+The basic workflow of a typical curation session is depicted in Fig. 1. The steps involved are:
 \begin{enumerate}
     \item \label{loadAppStep} The user loads the curation webpage in his/her browser.  This fetches the \js curator application into the web browser.
     \item \label{otiListStep} A list of studies from \ps is loaded from information in a study indexing service (called ``OTI'', see below).
@@ -250,7 +253,7 @@ The basic workflow of a curation session is depicted in Fig. 1. The steps involv
         The curator application also receives the git commit SHA (a checksum of the content) of the repository at this point.
     \item \label{browseStep} The user may browse the study and download representations of the data in NeXML, \nexson, NEXUS\cite{NEXUS}, or Newick formats without logging in.
     \item \label{authStep} If the user wants to edit a study, he/she must have a GitHub account (which are available free of charge) and must authenticate at this point.
-    \item \label{userEditStep} The user may correct and map tip labels with the help of taxonomic name resolution services (the ``taxomachine'' web services, described at
+    \item \label{userEditStep} The user may correct tip labels and map OTUs to a taxonomy with the help of taxonomic name resolution services (the ``taxomachine'' web services, described at
         \url{https://github.com/OpenTreeOfLife/taxomachine}). Tip labels are mapped to the 
         comprehensive Open Tree Taxonomy, OTT (\url{https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-Taxonomy}; manuscript in preparation), so that all trees in the data 
         store can be directly compared. 
@@ -274,8 +277,8 @@ The basic workflow of a curation session is depicted in Fig. 1. The steps involv
         as there is the potential for conflicts between changes made by different simultaneous edits.
     \item\label{gitTriggerPushStep} If the new edit was successfully merged to the master branch, then an event is triggered to tell the server to push the new master branch changes to the GitHub version
         of the repository.
-    \item\label{respondStep} A response is returned to the curation app indicating whether or not the edited study was 
-        merged to the master branch, and includes the new SHA that will serve as the parent for a future commit.
+    \item\label{respondStep} A response is returned to the curation application indicating whether or not the edited study was 
+        merged to the master branch. This response includes the new SHA that will serve as the parent for a future commit.
     \item\label{pushStep} If the push event was triggered in step \#\ref{gitTriggerPushStep}, the updated master branch will be pushed to GitHub.
     \item\label{webHookStep} Using GitHub webhooks as a callback mechanism, the push generates a POST that triggers reindexing
         of the affected study by the OTI tool.
@@ -284,7 +287,7 @@ The basic workflow of a curation session is depicted in Fig. 1. The steps involv
 \section{Implementation}
 Currently \ps is implemented in a python application using web2py for the web framework.
 Most of the functionality for validating the data and creating the git commits is accomplished using
-    parts of the peyotl library (\url{https://github.com/OpenTreeOfLife/peyotl}; manuscript in preparation).
+    parts of the peyotl library.
 An alternative implementation of the web services has also been written in the Pyramid
     web framework.
 
@@ -382,7 +385,7 @@ The nexson\_validation subpackage of the peyotl library is used to ensure that a
 The serialization routines in peyotl also perform re-ordering of the elements within \nexson files to
     prevent large commits that would result from, for example, re-ordering the list of OTUs in a file or
     rotating left / right children of internal nodes.
-The peyotl library (manuscript in preparation) also 
+The peyotl library also 
     provides a variety of convenience functions for operating on \nexson files (including support
     for exporting the phylogenetic data to widely used formats such as NeXML, NEXUS, and Newick).
 

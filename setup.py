@@ -53,7 +53,7 @@ ENTRY_POINTS = {}
 EXTRA_KWARGS['scripts'] = ['scripts/nexson/validate_ot_nexson.py',
                            'scripts/nexson/nexson_newick.py',
                            'scripts/nexson/nexson_nexml.py',
-                           'scripts/phylesystem/ot_phylesystem_list_study_property.py',
+                           'scripts/phylesystem/ot_phylesystem_list_property_values.py',
                            'scripts/phylesystem/ot_phylesystem_list_study_filepaths.py',
                            'scripts/phylesystem/ot_phylesystem_list_otu_edited_labels.py',
                            'scripts/ot_taxon_report',

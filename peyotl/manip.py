@@ -8,30 +8,11 @@ from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
                                  detect_nexson_version, \
                                  get_nexml_el, \
                                  _is_by_id_hbf
+# For backwards-comp we import count_num_trees which used to be
+#   defined here
+from peyotl.nexson_syntax.inspect import count_num_trees
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
-
-def count_num_trees(nexson, nexson_version=None):
-    if nexson_version is None:
-        nexson_version = detect_nexson_version(nexson)
-    nex = get_nexml_el(nexson)
-    num_trees_by_group = []
-    if _is_by_id_hbf(nexson_version):
-        for tree_group in nex.get('treesById', {}).values():
-            nt = len(tree_group.get('treeById', {}))
-            num_trees_by_group.append(nt)
-    else:
-        trees_group = nex.get('trees', [])
-        if isinstance(trees_group, dict):
-            trees_group = [trees_group]
-        for tree_group in trees_group:
-            t = tree_group.get('tree')
-            if isinstance(t, list):
-                nt = len(t)
-            else:
-                nt = 1
-            num_trees_by_group.append(nt)
-    return sum(num_trees_by_group)
 
 def iter_trees(nexson, nexson_version=None):
     '''generator over all trees in all trees elements.

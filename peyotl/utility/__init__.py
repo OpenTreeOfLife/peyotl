@@ -129,6 +129,13 @@ def _get_util_logger():
 
 _CONFIG = None
 _CONFIG_FN = None
+
+def _replace_default_config(cfg):
+    '''Only to be used internally for testing ! 
+    '''
+    global _CONFIG
+    _CONFIG = cfg
+
 def get_default_config_filename():
     global _CONFIG_FN
     if _CONFIG_FN is None:

@@ -19,7 +19,9 @@ from peyotl.phylesystem.helper import get_repos, \
                                       _get_phylesystem_parent_with_source, \
                                       _make_phylesystem_cache_region
 
-from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, PhylesystemShard
+from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, \
+                                                 PhylesystemShard, \
+                                                 NotAPhylesystemShardError
 from peyotl.phylesystem.git_actions import GitAction
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
                                              delete_study, \
@@ -176,9 +178,12 @@ class _Phylesystem(_PhylesystemBase):
                                          push_mirror_repo_path=push_mirror_repo_path,
                                          new_study_prefix=new_study_prefix,
                                          infrastructure_commit_author=infrastructure_commit_author)
-            except:
-                f = 'Git repo "{}" found in your phylesystem parent, but it does not appear to be a phylesystem shard. Please report this as a bug if this directory is supposed to be phylesystem shard.'
-                _LOG.warn(f.format(repo_filepath))
+            except NotAPhylesystemShardError as x:
+                f = 'Git repo "{d}" found in your phylesystem parent, but it does not appear to be a phylesystem shard. ' \
+                    'Please report this as a bug if this directory is supposed to be phylesystem shard. The triggering ' \
+                    'error message was:\n{e}'
+                f = f.format(d=repo_filepath, e=str(x))
+                _LOG.warn(f)
                 continue
             # if the mirror does not exist, clone it...
             if push_mirror_repos_par and (push_mirror_repo_path is None):

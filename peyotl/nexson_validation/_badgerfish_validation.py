@@ -18,11 +18,11 @@ from peyotl.nexson_validation._validation_base import NexsonValidationAdaptor
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
-    def __init__(self, obj, logger):
+    def __init__(self, obj, logger, **kwargs):
         if not hasattr(self, '_syntax_version'):
             self._syntax_version = BADGER_FISH_NEXSON_VERSION
             self._find_first_literal_meta = find_val_for_first_bf_l_meta
-        NexsonValidationAdaptor.__init__(self, obj, logger)
+        NexsonValidationAdaptor.__init__(self, obj, logger, **kwargs)
 
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
         otu_dict = {}

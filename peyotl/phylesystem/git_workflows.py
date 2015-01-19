@@ -144,6 +144,16 @@ def commit_and_try_merge2master(git_action,
         else:
             write_as_json(file_content, fc)
         fc.flush()
+        try:
+            max_file_size = git_action.max_file_size
+        except:
+            max_file_size = None
+        if max_file_size is not None:
+            file_size = os.stat(fc.name).st_size
+            if file_size > max_file_size:
+                m = 'Commit of study "{s}" had a file size ({a} bytes) which exceeds the maximum size allowed ({b} bytes).'
+                m = m.format(s=study_id, a=file_size, b=max_file_size)
+                raise GitWorkflowError(m)
         f = "Could not acquire lock to write to study #{s}".format(s=study_id)
         acquire_lock_raise(git_action, fail_msg=f)
         try:

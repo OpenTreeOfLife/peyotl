@@ -6,15 +6,25 @@ from peyotl.phylesystem.git_workflows import acquire_lock_raise, \
                                              merge_from_master
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.utility.input_output import read_as_json
+from peyotl.utility import get_logger, read_config, _replace_default_config
 import unittest
 import codecs
 import json
 import copy
+import sys
 from peyotl.test.support import pathmap
-from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
-phylesystem = Phylesystem(pathmap.get_test_repos())
+config, cfg_filename = read_config()
+COMMITS_SHOULD_FAIL_ARG = 'tiny_max_file_size'
+COMMITS_SHOULD_FAIL = COMMITS_SHOULD_FAIL_ARG in sys.argv
+if COMMITS_SHOULD_FAIL:
+    sys.argv.remove(COMMITS_SHOULD_FAIL_ARG)
+    config.set('phylesystem', 'max_file_size', '10') # ten bytes is not large
+_replace_default_config(config)
+
+phylesystem = Phylesystem(pathmap.get_test_repos(),
+                            )
 
 _MINI_PHYL_SHA1 = '2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc'
 _SID = 'xy_10'
@@ -25,7 +35,7 @@ _AUTH = {
 }
 
 class TestPhylesystem(unittest.TestCase):
-    def xtestSimple(self):
+    def testSimple(self):
         ga = phylesystem.create_git_action(_SID)
         ga.acquire_lock()
         try:
@@ -36,7 +46,11 @@ class TestPhylesystem(unittest.TestCase):
         ac = curr_obj['nexml'].get("^acount", 0)
         ac += 1
         curr_obj['nexml']["^acount"] = ac
-        commit_and_try_merge2master(ga, curr_obj, _SID, _AUTH, sha)
+        try:
+            commit_and_try_merge2master(ga, curr_obj, _SID, _AUTH, sha)
+        except GitWorkflowError:
+            if not COMMITS_SHOULD_FAIL:
+                raise
 
     def testBranched(self):
         ga = phylesystem.create_git_action(_SID)
@@ -53,7 +67,12 @@ class TestPhylesystem(unittest.TestCase):
         # add a second commit that should merge to master
         ac += 1
         acurr_obj['nexml']["^acount"] = ac
-        v1b = commit_and_try_merge2master(ga, acurr_obj, _SID, _AUTH, sha)
+        try:
+            v1b = commit_and_try_merge2master(ga, acurr_obj, _SID, _AUTH, sha)
+        except GitWorkflowError:
+            if not COMMITS_SHOULD_FAIL:
+                raise
+            return
         self.assertFalse(v1b['merge_needed'])
         
         # add a third commit that should NOT merge to master

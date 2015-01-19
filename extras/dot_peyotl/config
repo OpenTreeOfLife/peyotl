@@ -10,6 +10,9 @@
 #       1.2.1 ("byId" HoneyBadgerFish)
 #repo_nexml2json = 1.2.1
 
+# The max_file_size is specified in bytes. the default is no size limit
+#max_file_size = 20000000
+
 
 [ott]
 # directory of holding ott. The directory name

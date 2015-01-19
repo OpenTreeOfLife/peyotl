@@ -71,8 +71,14 @@ class PhylesystemShardProxy(PhylesystemShardBase):
                 d[k] = (self.name, self.path, self.path + '/study/' + study['relpath'])
         self._study_index = d
 
+class NotAPhylesystemShardError(ValueError):
+    def __init__(self, message):
+        ValueError.__init__(self, message)
+
 class PhylesystemShard(PhylesystemShardBase):
-    '''Wrapper around a git repos holding nexson studies'''
+    '''Wrapper around a git repos holding nexson studies.
+    Raises a ValueError if the directory does not appear to be a PhylesystemShard.
+    Raises a RuntimeError for errors associated with misconfiguration.'''
     def __init__(self,
                  name,
                  path,
@@ -97,11 +103,11 @@ class PhylesystemShard(PhylesystemShardBase):
         dot_git = os.path.join(path, '.git')
         study_dir = os.path.join(path, 'study')
         if not os.path.isdir(path):
-            raise ValueError('"{p}" is not a directory'.format(p=path))
+            raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=path))
         if not os.path.isdir(dot_git):
-            raise ValueError('"{p}" is not a directory'.format(p=dot_git))
+            raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=dot_git))
         if not os.path.isdir(study_dir):
-            raise ValueError('"{p}" is not a directory'.format(p=study_dir))
+            raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=study_dir))
         self.path = path
         self._id_minting_file = os.path.join(path, 'next_study_id.json')
         if self._new_study_prefix is None:
@@ -110,7 +116,7 @@ class PhylesystemShard(PhylesystemShardBase):
                 pre_content = open(prefix_file, 'r').read().strip()
                 valid_pat = re.compile('^[a-zA-Z0-9]+_$')
                 if len(pre_content) != 3 or not valid_pat.match(pre_content):
-                    raise ValueError('Expecting prefix in new_study_prefix file to be two '\
+                    raise NotAPhylesystemShardError('Expecting prefix in new_study_prefix file to be two '\
                                      'letters followed by an underscore')
                 self._new_study_prefix = pre_content
             else:
@@ -145,6 +151,16 @@ class PhylesystemShard(PhylesystemShardBase):
                 pass
             if repo_nexml2json == None:
                 repo_nexml2json = self.diagnose_repo_nexml2json()
+        max_file_size = kwargs.get('max_file_size')
+        if max_file_size is None:
+            max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None, **kwargs)
+            if max_file_size is not None:
+                try:
+                    max_file_size = int(max_file_size)
+                except:
+                    m = 'Configuration-base value of max_file_size was "{}". Expecting and integer.'.format(max_file_size)
+                    raise RuntimeError(m)
+        self.max_file_size = max_file_size
         self.repo_nexml2json = repo_nexml2json
         self._next_study_id = None
         self._study_counter_lock = None
@@ -188,8 +204,8 @@ class PhylesystemShard(PhylesystemShardBase):
             pre_content = open(prefix_file, 'rU').read().strip()
             valid_pat = re.compile('^[a-zA-Z0-9]+_$')
             if len(pre_content) != 3 or not valid_pat.match(pre_content):
-                raise ValueError('Expecting prefix in new_study_prefix file to be two '\
-                                 'letters followed by an underscore')
+                raise NotAPhylesystemShardError('Expecting prefix in new_study_prefix file to be two '\
+                                                'letters followed by an underscore')
             self._new_study_prefix = pre_content
         else:
             self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
@@ -278,12 +294,14 @@ class PhylesystemShard(PhylesystemShardBase):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,
                               pkey=self.pkey,
-                              path_for_study_fn=self.filepath_for_global_resource_fn)
+                              path_for_study_fn=self.filepath_for_global_resource_fn,
+                              max_file_size=self.max_file_size)
     def create_git_action(self):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,
                               pkey=self.pkey,
-                              path_for_study_fn=self.filepath_for_study_id_fn)
+                              path_for_study_fn=self.filepath_for_study_id_fn,
+                              max_file_size=self.max_file_size)
     def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:
             ga = self.create_git_action()
@@ -333,7 +351,9 @@ class PhylesystemShard(PhylesystemShardBase):
         mirror_ga = self._ga_class(repo=self.push_mirror_repo_path,
                                    git_ssh=self.git_ssh,
                                    pkey=self.pkey,
-                                   path_for_study_fn=self.filepath_for_study_id_fn)
+                                   path_for_study_fn=self.filepath_for_study_id_fn,
+                                   max_file_size=None # If a study makes it into the working dir, we don't want to reject it from the mirror
+                                   )
         return mirror_ga
 
     def push_to_remote(self, remote_name):

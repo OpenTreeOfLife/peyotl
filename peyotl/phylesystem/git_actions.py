@@ -97,7 +97,8 @@ class GitAction(object):
                  git_ssh=None,
                  pkey=None,
                  cache=None, #pylint: disable=W0613
-                 path_for_study_fn=None):
+                 path_for_study_fn=None,
+                 max_file_size=None):
         """Create a GitAction object to interact with a Git repository
 
         Example:
@@ -116,6 +117,7 @@ class GitAction(object):
         self.repo_remote = remote
         self.git_ssh = git_ssh
         self.pkey = pkey
+        self.max_file_size = max_file_size
 
         if os.path.isdir("{}/.git".format(self.repo)):
             self.gitdir = "--git-dir={}/.git".format(self.repo)

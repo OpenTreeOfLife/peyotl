@@ -280,8 +280,10 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
     This class is useful merely because it allows the validation log
         and annotations to be relatively light weight, and yet easy
         to efficiently add back to the orignal NexSON object.
+
+    Currently the only kwargs used is 'max_num_trees_per_study'
     '''
-    def __init__(self, obj, logger):
+    def __init__(self, obj, logger, **kwargs):
         self._raw = obj
         self._nexml = None
         self._pyid_to_nexson_add = {}
@@ -290,6 +292,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
         self._otuid2ottid_byogid = {}
         self._ottid2otuid_list_byogid = {}
         self._dupottid_by_ogid_tree_id = {}
+        self._max_num_trees_per_study = kwargs.get('max_num_trees_per_study')
         uk = None
         for k in obj.keys():
             if k not in ['nexml', 'nex:nexml']:
@@ -330,6 +333,18 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
             add_schema_attributes(vc, self._nexson_version)
             assert self._nexson_version[:3] in ('0.0', '1.0', '1.2')
             self._validate_nexml_obj(self._nexml, vc, obj)
+            if self._max_num_trees_per_study is not None:
+                nt = count_num_trees()
+                if nt > self._max_num_trees_per_study:
+                    m = '{f:d} trees found, but a limit of {m:d} trees per nexson is being enforced'
+                    m = m.format(f=nt, m=self._max_num_trees_per_study)
+                    self._error_event(_NEXEL.TOP_LEVEL,
+                                      obj=obj,
+                                      err_type=gen_MaxSizeExceededWarning,
+                                      anc=_EMPTY_TUPLE,
+                                      obj_nex_id=None,
+                                      message=m)
+                    return ## EARLY EXIT!!
         finally:
             vc.adaptor = None # delete circular ref to help gc
             del vc

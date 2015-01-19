@@ -17,9 +17,9 @@ from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
-    def __init__(self, obj, logger):
+    def __init__(self, obj, logger, **kwargs):
         self._syntax_version = BY_ID_HONEY_BADGERFISH
-        NexsonValidationAdaptor.__init__(self, obj, logger)
+        NexsonValidationAdaptor.__init__(self, obj, logger, **kwargs)
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
         otu_obj = otus_group.get('otuById', {})
         if not isinstance(otu_obj, dict):

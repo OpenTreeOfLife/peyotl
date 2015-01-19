@@ -63,10 +63,18 @@ class _StrListDataWarningType(MessageTupleAdaptor):
         self._write_message_suffix(err_tuple, outstream)
 
 class _ArgumentlessWarningType(MessageTupleAdaptor):
-    '''Adaptor for warning with data being a list of strings
+    '''Adaptor for warning with no data
     '''
     def write(self, err_tuple, outstream, prefix):
         outstream.write(self.format.format(p=prefix))
+        self._write_message_suffix(err_tuple, outstream)
+
+class _StrArgumentWarningType(MessageTupleAdaptor):
+    '''Adaptor for warning with data being a string
+    '''
+    def write(self, err_tuple, outstream, prefix):
+        ds = err_tuple[3]
+        outstream.write(self.format.format(p=prefix, d=ds))
         self._write_message_suffix(err_tuple, outstream)
 
 class RepeatedOTUWarningType(_StrListDataWarningType):
@@ -171,6 +179,11 @@ class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor): #pylint: disable=
     def convert_data_for_json(self, err_tuple):
         return [i for i in err_tuple[3]]
 
+class MaxSizeExceededWarningType(_StrArgumentWarningType):
+    def __init__(self):
+        self.code = NexsonWarningCodes.MAX_SIZE_EXCEEDED
+        self.format = '{p}Maximum size exceeded: {d}'
+
 # A single, immutable, global instance of each warning type is created
 
 InvalidKeyWarning = InvalidKeyWarningType()
@@ -190,7 +203,7 @@ UnparseableMetaWarning = UnparseableMetaWarningType()
 UnreachableNodeWarning = UnreachableNodeWarningType()
 UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
 WrongValueTypeWarning = WrongValueTypeWarningType()
-
+MaxSizeExceededWarning = MaxSizeExceededWarningType()
 
 def gen_InvalidKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(InvalidKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
@@ -249,6 +262,8 @@ def gen_WrongValueTypeWarning(addr, pyid, logger, severity, **kwargs):
     t = (WrongValueTypeWarning, pyid, addr, key_val_type_list)
     logger.register_new_messages(t, severity=severity)
 
+def gen_MaxSizeExceededWarning(addr, pyid, logger, severity, **kwargs):
+    _str_argument_warning(MaxSizeExceededWarning, addr, pyid, logger, severity, kwargs['message'])
 
 # factory functions that call register_new_messages
 def _obj_list_warning(wt, k_list, addr, pyid, logger, severity):
@@ -265,6 +280,10 @@ def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
 
 def _argumentless_warning(wt, addr, pyid, logger, severity):
     t = (wt, pyid, addr, None)
+    logger.register_new_messages(t, severity=severity)
+
+def _str_argument_warning(wt, addr, pyid, logger, severity, message):
+    t = (wt, pyid, addr, message)
     logger.register_new_messages(t, severity=severity)
 
 
@@ -302,4 +321,5 @@ factory2code = {gen_MultipleTipsToSameOttIdWarning: NexsonWarningCodes.MULTIPLE_
                 gen_MissingMandatoryKeyWarning: NexsonWarningCodes.MISSING_MANDATORY_KEY,
                 gen_MultipleRootsWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
                 gen_InvalidKeyWarning: NexsonWarningCodes.INVALID_PROPERTY_VALUE,
+                gen_MaxSizeExceededWarning: NexsonWarningCodes.MAX_SIZE_EXCEEDED,
                }

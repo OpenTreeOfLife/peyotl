@@ -36,6 +36,7 @@ from peyotl.nexson_syntax.badgerfish2direct_nexson import Badgerfish2DirectNexso
 from peyotl.nexson_syntax.direct2badgerfish_nexson import Direct2BadgerfishNexson
 from peyotl.nexson_syntax.nexson2nexml import Nexson2Nexml
 from peyotl.nexson_syntax.nexml2nexson import Nexml2Nexson
+from peyotl.nexson_syntax.inspect import count_num_trees
 from peyotl.utility import get_logger
 import xml.dom.minidom
 import codecs

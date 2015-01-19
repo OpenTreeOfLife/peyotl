@@ -4,6 +4,7 @@ from peyotl.nexson_validation.helper import SeverityCodes, _NEXEL, errorReturn
 from peyotl.nexson_validation.schema import add_schema_attributes
 from peyotl.nexson_validation.err_generator import factory2code, \
                                                    gen_MissingExpectedListWarning, \
+                                                   gen_MaxSizeExceededWarning, \
                                                    gen_MissingMandatoryKeyWarning, \
                                                    gen_MissingOptionalKeyWarning, \
                                                    gen_MultipleTipsToSameOttIdWarning, \
@@ -18,6 +19,7 @@ from peyotl.nexson_syntax.helper import add_literal_meta, \
                                         find_nested_meta_first, \
                                         extract_meta, \
                                         _add_value_to_dict_bf
+from peyotl.nexson_syntax.inspect import count_num_trees
 from peyotl.nexson_syntax import detect_nexson_version
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
@@ -334,7 +336,7 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
             assert self._nexson_version[:3] in ('0.0', '1.0', '1.2')
             self._validate_nexml_obj(self._nexml, vc, obj)
             if self._max_num_trees_per_study is not None:
-                nt = count_num_trees()
+                nt = count_num_trees(self._raw)
                 if nt > self._max_num_trees_per_study:
                     m = '{f:d} trees found, but a limit of {m:d} trees per nexson is being enforced'
                     m = m.format(f=nt, m=self._max_num_trees_per_study)

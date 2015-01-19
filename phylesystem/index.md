@@ -21,3 +21,6 @@ But the wrappers created using `get_from='local'` are the only ones that allow y
 The `scripts/phylesystem/ot_phylesystem_list_tags.py` script demonstrates iterating
     over every study in a local version of the repository and printing the study and
     tree tags.
+
+Note that `phylesystem` section of the [configuration file](../Configuration) has settings that control
+    the size of files allowed in the phylesystem.

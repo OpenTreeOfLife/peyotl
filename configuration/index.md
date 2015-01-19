@@ -73,15 +73,20 @@ as we deploy, the domains where the APIs are configurable:
 
 ### [Phylesystem](../phylesystem)
 If you are performing operations that use a local version of the phylesystem 
-git document store, you need to tell peyotl where to find the phylsystem repo.
+git document store, you need to tell peyotl where to find the phylsystem repositories.
 If the environmental variable `PHYLESYSTEM_PARENT` is not set 
-then the config file will be used:
+then the config file will be used. For example:
 
     [phylesystem]
     parent = /home/username/phylesystem/shards
 
 Peyotl will treat any git directory in this parent that has a `study` subdirectory as if it was
 a shard of phyleystem.
+
+**WARNING:** the "parent" should point to the "shards" directory of your local copy of the phylesystem 
+repository. A better name for this setting would have been `[phylesystem]/shards`
+
+Note (in the table below) that the phylesystem section can also set a max_file_size (in bytes).
 
 #### example of bootstrapping the phylesystem configuration on a new machine
 
@@ -118,5 +123,7 @@ However, the parent of the current version of OTT can be specified using:
 | apis | X_api_version | "2" | where X = oti, treemachine or taxomachine. Acts like the api_version setting, but overrides it and only affects the wrappers for the indicated service  |
 | apis | raw_urls | "false" | "true" to use the default localhost URLs without and proxy-pass magic in the api wrappers |
 | apis | X_raw_urls | "false" | where X = oti, treemachine or taxomachine. Acts like the raw_urls setting, but overrides it and only affects the wrappers for the indicated service  |
-| phylesystem | parent | None | top-level (usually the shards directory) directory that holds each of the phylesystem-# repos (if you have a local version of these repos) | 
+| phylesystem | parent | None | top-level (usually the "shards" directory) directory that holds each of the phylesystem-# repos (if you have a local version of these repos) | 
+| phylesystem | max_file_size | None | maximum file size of a single JSON in a commit to phylesystem in number of bytes | 
+
 

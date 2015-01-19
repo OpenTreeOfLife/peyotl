@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 '''Examines the tags (ot:tag) study. Prints out a list 
 of each unique tag used in the studies '''
-tax_prop_name = '^ot:ottTaxonName'
-orig_prop_name = '^ot:originalLabel'
-label_prop_name = '@label'
-from peyotl import gen_otu_dict, iter_node
 from peyotl.manip import iter_trees
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.nexson_syntax import get_nexml_el

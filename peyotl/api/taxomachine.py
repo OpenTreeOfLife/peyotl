@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from peyotl.utility.dict_wrapper import FrozenDictAttrWrapper, FrozenDictWrapper
-from peyotl.api.taxon import TaxonWrapper
+from peyotl.api.taxon import TaxonWrapper, TaxonHolder
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import weakref
@@ -9,17 +9,17 @@ _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
 class TaxonomyInfoWrapper(FrozenDictAttrWrapper):
     pass
-class TNRSMatch(object):
+
+class TNRSMatch(TaxonHolder):
     '''Delegates to an TaxonWrapper object and adds score and is_approximate_match properties.
     part of a "wrapped" TNRS (or match_names) response.
     '''
     def __init__(self, prop_dict, taxomachine_wrapper=None, taxonomy=None, taxon=None):
-        if taxon is not None:
-            self._taxon = taxon
-        else:
-            self._taxon = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper,
-                                       taxonomy=taxonomy,
-                                       prop_dict=prop_dict)
+        if taxon is None:
+            taxon = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper,
+                                 taxonomy=taxonomy,
+                                 prop_dict=prop_dict)
+        TaxonHolder.__init__(self, taxon)
         self._score = prop_dict.get('score')
         self._is_approximate_match = prop_dict.get('is_approximate_match')
     @property

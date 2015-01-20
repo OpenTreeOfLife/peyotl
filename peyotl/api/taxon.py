@@ -147,3 +147,30 @@ class TaxonWrapper(object):
             f = f.format(self.treemachine_node_id)
             output.write(f)
 
+class TaxonHolder(object):
+    def __init__(self, taxon):
+        self._taxon = taxon
+    @property
+    def name(self):
+        return self._taxon.ott_taxon_name
+    @property
+    def is_deprecated(self):
+        return self._taxon.is_deprecated
+    @property
+    def is_dubious(self):
+        return self._taxon.is_dubious
+    @property
+    def is_synonym(self):
+        return self._taxon.is_synonym
+    @property
+    def flags(self):
+        return self._taxon.flags
+    @property
+    def synonyms(self):
+        return self._taxon.synonyms
+    @property
+    def ott_id(self):
+        return self._taxon.ott_id
+    @property
+    def taxomachine_node_id(self):
+        return self._taxon.taxomachine_node_id

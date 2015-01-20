@@ -26,15 +26,6 @@ class TNRSMatch(TaxonHolder):
     def ott_taxon_name(self):
         return self._taxon.ott_taxon_name
     @property
-    def rank(self):
-        return self._taxon.rank
-    @property
-    def unique_name(self):
-        return self._taxon.unique_name
-    @property
-    def nomenclature_code(self):
-        return self._taxon.nomenclature_code
-    @property
     def score(self):
         return self._score
     @property

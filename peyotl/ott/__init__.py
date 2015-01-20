@@ -255,6 +255,7 @@ class OTT(object):
                     fsi = f_set_id
                     f_set_id += 1
                     flag_set_id2flag_set[fsi] = f_set
+                    flag_set2flag_set_id[f_set] = fsi
                 info['f'] = fsi
             if info:
                 id2info[uid] = info
@@ -308,6 +309,7 @@ class OTT(object):
                         fsi = f_set_id
                         f_set_id += 1
                         flag_set_id2flag_set[fsi] = f_set
+                        flag_set2flag_set_id[f_set] = fsi
                     info['f'] = fsi
                 if info:
                     id2info[uid] = info

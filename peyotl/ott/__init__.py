@@ -76,7 +76,12 @@ The key "f" (if present) is an integer that can be looked up in the flag_set_id2
 dictionary.''',),
            'flagsetid2flagset': ('flagSetID2FlagSet',
                                  'maps an integer to set of flags. Used to compress the flags field'),
-           'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'), }
+           'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
+           'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'), }
+_SECOND_LEVEL_CACHES = set(['ncbi2ottid'])
+class CacheNotFoundError(RuntimeError):
+    def __init__(self, m):
+        RuntimeError.__init__(self, 'Cache {} not found'.format(m))
 class OTT(object):
     def __init__(self, ott_dir=None, **kwargs):
         self._config = get_config_object(None, **kwargs)
@@ -99,6 +104,33 @@ class OTT(object):
         self._ott_id_to_info = None
         self._flag_set_id2flag_set = None
         self._taxonomic_sources = None
+        self._ncbi_2_ott_id = None
+    def create_ncbi_to_ott(self):
+        ncbi2ott = {}
+        for ott_id, info in self.ott_id_to_info.items():
+            ncbi = info.get('ncbi')
+            if ncbi is not None:
+                if ncbi in ncbi2ott:
+                    prev = ncbi2ott[ncbi]
+                    if isinstance(prev, list):
+                        prev.append(ott_id)
+                    else:
+                        ncbi2ott[ncbi] = [prev, ott_id]
+                else:
+                    ncbi2ott[ncbi] = ott_id
+        return ncbi2ott
+
+    def ncbi(self, ncbi_id):
+        if self._ncbi_2_ott_id is None:
+            try:
+                self._ncbi_2_ott_id = self._load_pickled('ncbi2ottID')
+            except CacheNotFoundError:
+                d = self.create_ncbi_to_ott()
+                self._ncbi_2_ott_id = d
+                _write_pickle(self.ott_dir, 'ncbi2ottID', d)
+
+        return self._ncbi_2_ott_id[ncbi_id]
+
     @property
     def flag_set_id_to_flag_set(self):
         if self._flag_set_id2flag_set is None:
@@ -149,6 +181,8 @@ class OTT(object):
                 if os.path.getmtime(fp) < os.path.getmtime(self.synonyms_filepath):
                     need_build = True
         if need_build:
+            if tl in _SECOND_LEVEL_CACHES:
+                raise CacheNotFoundError(tl)
             _LOG.debug('building "{}"'.format(fp))
             self._create_caches(out_dir=self.ott_dir)
         else:
@@ -568,9 +602,10 @@ if __name__ == '__main__':
     import sys
     o = OTT()
     print('taxonomic sources = "{}"'.format('", "'.join([i for i in o.taxonomic_sources])))
-    fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
+    print(o.ncbi(1115784))
+    '''fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
     print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))
-    '''for ott_id, info in o.ott_id_to_info.items():
+    for ott_id, info in o.ott_id_to_info.items():
         if 'ncbi' in info:
             print('OTT {o:d} => NCBI {n:d}'.format(o=ott_id, n=info['ncbi']))
     print(len(o.ott_id2par_ott_id), 'ott IDs')

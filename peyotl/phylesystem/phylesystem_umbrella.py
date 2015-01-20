@@ -179,9 +179,9 @@ class _Phylesystem(_PhylesystemBase):
                                          new_study_prefix=new_study_prefix,
                                          infrastructure_commit_author=infrastructure_commit_author)
             except NotAPhylesystemShardError as x:
-                f = 'Git repo "{d}" found in your phylesystem parent, but it does not appear to be a phylesystem shard. ' \
-                    'Please report this as a bug if this directory is supposed to be phylesystem shard. The triggering ' \
-                    'error message was:\n{e}'
+                f = 'Git repo "{d}" found in your phylesystem parent, but it does not appear to be a phylesystem ' \
+                    'shard. Please report this as a bug if this directory is supposed to be phylesystem shard. '\
+                    'The triggering error message was:\n{e}'
                 f = f.format(d=repo_filepath, e=str(x))
                 _LOG.warn(f)
                 continue

@@ -13,7 +13,7 @@ def _treemachine_tax_source2dict(tax_source):
         return d
     r = [i.strip() for i in tax_source.split(',')]
     for el in r:
-        k,v = el.split(':')
+        k, v = el.split(':')
         d[k] = v
     return d
 

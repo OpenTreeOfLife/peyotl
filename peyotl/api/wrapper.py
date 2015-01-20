@@ -234,7 +234,8 @@ class _TNRSServicesWrapper(object):
     def endpoint(self):
         return self.taxomachine.endpoint
     def match_names(self, *valist, **kwargs):
-        '''performs taxonomic name resolution. See https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#match_names
+        '''performs taxonomic name resolution.
+        See https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#match_names
         with the exception that "ids" in the API call is referred has the name "id_list" in this function.
         The most commonly used kwargs are:
             - context_name=<name> (see contexts and infer_context methods)

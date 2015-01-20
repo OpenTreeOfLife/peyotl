@@ -24,7 +24,6 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     if not has_phylo_groupings:
         return None
     id2bit = pruned_phylo.add_bits4subtree_ids(None)
-    bit2id = reverse_dict(id2bit)
     taxo_tree.add_bits4subtree_ids(id2bit)
     assert taxo_tree.root.bits4subtree_ids == pruned_phylo.root.bits4subtree_ids
     taxo_nontriv_splits = taxo_tree.bits2internal_node
@@ -32,12 +31,10 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     #_LOG.debug('taxo_nontriv_splits = {}'.format(taxo_nontriv_splits))
     # might want to copy this dict rather than modify in place..
     del taxo_nontriv_splits[taxon_mask] # root bitmask is trivial
-    num_inf_taxo = len(taxo_nontriv_splits)
     _LOG.debug('taxon_mask = {} (which is {} bits)'.format(bin(taxon_mask)[2:], len(bin(taxon_mask)) - 2))
     num_ids = len(id2bit)
     _LOG.debug('id2bit has length = {}'.format(len(id2bit)))
-    incompat_taxo_splits = {}
-    #for checking tips of the phylogeny, it is nice to know which leaf OTUs attach 
+    #for checking tips of the phylogeny, it is nice to know which leaf OTUs attach
     #   at the base of the taxonomy (no other grouping)
     basal_taxo = set()
     basal_bits = 0
@@ -214,3 +211,4 @@ def _check_for_opt_score(entity, best, best_list):
 def _get_cached_set(s, dict_frozensets):
     fs = frozenset(s)
     return dict_frozensets.setdefault(fs, fs)
+

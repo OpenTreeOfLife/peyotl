@@ -131,7 +131,7 @@ _CONFIG = None
 _CONFIG_FN = None
 
 def _replace_default_config(cfg):
-    '''Only to be used internally for testing ! 
+    '''Only to be used internally for testing !
     '''
     global _CONFIG
     _CONFIG = cfg

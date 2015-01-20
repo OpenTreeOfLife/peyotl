@@ -285,7 +285,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                                   key_list=['ot:isLeaf'])
                 return errorReturn('"ot:isLeaf" for internal')
             finally:
-              vc.pop_context()
+                vc.pop_context()
         self._detect_multilabelled_tree(otus_group_id,
                                         tree_nex_id,
                                         otuid2leaf)

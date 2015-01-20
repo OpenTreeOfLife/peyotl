@@ -985,7 +985,7 @@ def extract_otu_nexson(nexson, otu_id, curr_version):
     return None
 
 def cull_nonmatching_trees(nexson, tree_id, curr_version=None):
-    '''Modifies `nexson` and returns it in version 1.2.1 
+    '''Modifies `nexson` and returns it in version 1.2.1
     with any tree that does not match the ID removed.
 
     Note that this does not search through the NexSON for

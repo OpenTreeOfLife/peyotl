@@ -27,7 +27,6 @@ class TestProxy(unittest.TestCase):
         ott = OTT()
         phylo = self.np.get_tree(tree_id='tree324')
         evaluate_tree_rooting(self.nexson, ott, phylo)
-        
 
 if __name__ == "__main__":
     unittest.main()

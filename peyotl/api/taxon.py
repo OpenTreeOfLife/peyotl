@@ -174,3 +174,12 @@ class TaxonHolder(object):
     @property
     def taxomachine_node_id(self):
         return self._taxon.taxomachine_node_id
+    @property
+    def rank(self):
+        return self._taxon.rank
+    @property
+    def unique_name(self):
+        return self._taxon.unique_name
+    @property
+    def nomenclature_code(self):
+        return self._taxon.nomenclature_code

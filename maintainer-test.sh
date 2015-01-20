@@ -10,6 +10,11 @@ if ! ./standalone-tests.sh
 then
     k=1
 fi
+t=0
+if ! ./standalone-tests.sh
+then
+    t=1
+fi
 s=0
 if ! python setup.py test
 then
@@ -28,5 +33,11 @@ then
 else
     echo "Failed at least one standalone_test."
 fi
-exit $(expr $f + $k + $s)
+if test $t -eq 0
+then
+    echo "Passed all tutorial tests passed."
+else
+    echo "Failed at least one tutorial test"
+fi
+exit $(expr $f + $k + $s + $t)
 

@@ -390,7 +390,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         else:
             anc = []
             prev = None
-            for a in reversed(child_taxon._taxonomic_lineage):
+            for resp in reversed(child_taxon._taxonomic_lineage):
                 ott_id = resp['ot:ottId']
                 curr = self._ott_id2taxon.get(ott_id)
                 if curr is None:

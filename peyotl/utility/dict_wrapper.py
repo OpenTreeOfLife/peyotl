@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 class DictWrapper(object):
+    #pylint: disable=E1101
     def __init__(self, d):
         assert '_raw_dict' not in d # this would mess up the hacky __getattr__
         object.__setattr__(self, '_raw_dict', d)
@@ -21,6 +22,8 @@ class DictWrapper(object):
     def __contains__(self, key):
         return key in self._raw_dict
 class DictAttrWrapper(DictWrapper):
+    def __init__(self, d):
+        DictWrapper.__init__(self, d)
     def __setattr__(self, key, value):
         self._raw_dict[key] = value
     def __getattr__(self, key):
@@ -39,7 +42,7 @@ class FrozenDictWrapper(DictWrapper):
 
 class FrozenDictAttrWrapper(DictAttrWrapper):
     def __init__(self, d):
-        DictWrapper.__init__(self, d)
+        DictAttrWrapper.__init__(self, d)
     def __setattr__(self, key, value):
         raise TypeError('A "frozen" class derived from FrozenDictAttrWrapper does not support rebinding keys')
     def __setitem__(self, key, value):

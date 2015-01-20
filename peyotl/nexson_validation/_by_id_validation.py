@@ -262,15 +262,15 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
             return errorReturn('root node not labelled as root')
         vc.push_context(_NEXEL.INTERNAL_NODE, (tree_obj, tree_nex_id))
         try:
-          if not self._validate_internal_node_list(internal_nodes, vc):
-              return False
+            if not self._validate_internal_node_list(internal_nodes, vc):
+                return False
         finally:
             vc.pop_context()
         edges = [i for i in edge_dict.items()]
         vc.push_context(_NEXEL.EDGE, (tree_obj, tree_nex_id))
         try:
             if not self._validate_edge_list(edges, vc):
-              return False
+                return False
         finally:
             vc.pop_context()
         otuid2leaf = {}

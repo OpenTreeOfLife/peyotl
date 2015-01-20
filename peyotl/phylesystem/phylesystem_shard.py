@@ -158,7 +158,8 @@ class PhylesystemShard(PhylesystemShardBase):
                 try:
                     max_file_size = int(max_file_size)
                 except:
-                    m = 'Configuration-base value of max_file_size was "{}". Expecting and integer.'.format(max_file_size)
+                    m = 'Configuration-base value of max_file_size was "{}". Expecting and integer.'
+                    m = m.format(max_file_size)
                     raise RuntimeError(m)
         self.max_file_size = max_file_size
         self.repo_nexml2json = repo_nexml2json
@@ -348,12 +349,13 @@ class PhylesystemShard(PhylesystemShardBase):
             self._study_index[study_id] = (self.name, self.study_dir, fp)
 
     def _create_git_action_for_mirror(self):
+        # If a study makes it into the working dir, we don't want to reject it from the mirror, so
+        #   we use max_file_size= None
         mirror_ga = self._ga_class(repo=self.push_mirror_repo_path,
                                    git_ssh=self.git_ssh,
                                    pkey=self.pkey,
                                    path_for_study_fn=self.filepath_for_study_id_fn,
-                                   max_file_size=None # If a study makes it into the working dir, we don't want to reject it from the mirror
-                                   )
+                                   max_file_size=None)
         return mirror_ga
 
     def push_to_remote(self, remote_name):

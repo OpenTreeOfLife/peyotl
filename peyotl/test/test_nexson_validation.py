@@ -1,9 +1,13 @@
 #! /usr/bin/env python
 from peyotl.nexson_syntax import detect_nexson_version, get_empty_nexson
-from peyotl.utility.str_util import UNICODE, is_str_type
+from peyotl.utility.str_util import UNICODE
 from peyotl.nexson_validation import validate_nexson
 from peyotl.test.support import pathmap
-from peyotl.test.support.helper import *
+from peyotl.test.support.helper import testing_write_json, \
+                                       testing_read_json, \
+                                       testing_through_json, \
+                                       testing_dict_eq, \
+                                       testing_conv_key_unicode_literal
 from peyotl.utility import get_logger
 import unittest
 import os

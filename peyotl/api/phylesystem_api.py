@@ -124,7 +124,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             nexson = self.json_http_get(url)
             r = {'data': nexson}
         elif self._src_code == _GET_LOCAL:
-            nexson, sha = self.phylesystem_obj.return_study(study_id) #pylint: disable-msg=W0632
+            nexson, sha = self.phylesystem_obj.return_study(study_id) #pylint: disable=W0632
             r = {'data': nexson,
                  'sha': sha}
         else:

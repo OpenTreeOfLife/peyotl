@@ -117,12 +117,12 @@ class TaxonWrapper(object):
 
     def write_report(self, output):
         if self.taxomachine_wrapper:
-            output.write('Taxon info query was obtained from: {} \n'.format(elf.taxomachine_wrapper.endpoint))
+            output.write('Taxon info query was obtained from: {} \n'.format(self.taxomachine_wrapper.endpoint))
         if self.taxonomy:
             output.write('The taxonomic source is\n')
             output.write(' {}'.format(self.taxonomy.source))
             output.write(' by {}\n'.format(self.taxonomy.author))
-            output.write('Information for the taxonomy can be found at {}\n'.format(result.taxonomy.weburl))
+            output.write('Information for the taxonomy can be found at {}\n'.format(self.taxonomy.weburl))
         output.write('OTT ID (ot:ottId) = {}\n'.format(self.ott_id))
         output.write('    name (ot:ottTaxonName) = "{}"\n'.format(self.name))
         output.write('    is a junior synonym ? {}\n'.format(bool(self.is_synonym)))
@@ -139,6 +139,11 @@ class TaxonWrapper(object):
         if self.nomenclature_code:
             output.write('    The nomenclatural code for this name is: {}\n'.format(self.nomenclature_code))
         if self.taxomachine_node_id:
-            output.write('    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(self.taxomachine_node_id))
+            f = '    The (unstable) node ID in the current taxomachine instance is: {}\n'
+            f = f.format(self.taxomachine_node_id)
+            output.write(f)
         if self.treemachine_node_id:
-            output.write('    The (unstable) node ID in the current treemachine instance is: {}\n'.format(self.treemachine_node_id))
+            f = '    The (unstable) node ID in the current treemachine instance is: {}\n'
+            f = f.format(self.treemachine_node_id)
+            output.write(f)
+

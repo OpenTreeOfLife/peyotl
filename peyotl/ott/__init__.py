@@ -570,10 +570,10 @@ if __name__ == '__main__':
     print('taxonomic sources = "{}"'.format('", "'.join([i for i in o.taxonomic_sources])))
     fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
     print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))
-    for ott_id, info in o.ott_id_to_info.items():
+    '''for ott_id, info in o.ott_id_to_info.items():
         if 'ncbi' in info:
             print('OTT {o:d} => NCBI {n:d}'.format(o=ott_id, n=info['ncbi']))
-    '''print(len(o.ott_id2par_ott_id), 'ott IDs')
+    print(len(o.ott_id2par_ott_id), 'ott IDs')
     print('call')
     print(o.get_anc_lineage(593937)) # This is the OTT id of a species in the Asterales system
     print(o.root_name)

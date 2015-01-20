@@ -68,7 +68,15 @@ Each node definition is a tuple of preorder numbers:
     internals will be: (parent, next_sib, first_child, last_child)
 if a node is the last child of its parent, next_sib will be None
 also in the map is 'root' -> root preorder number
-''', ), }
+''', ),
+           'ottid2info': ('ottID2info', '''maps an ott ID to a dict. The value
+holds a mapping of a source taxonomy name to the ID of this ott ID in that 
+taxonomy. 
+The key "f" (if present) is an integer that can be looked up in the flag_set_id2flag_set
+dictionary.''',),
+           'flagsetid2flagset': ('flagSetID2FlagSet',
+                                 'maps an integer to set of flags. Used to compress the flags field'),
+           'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'), }
 class OTT(object):
     def __init__(self, ott_dir=None, **kwargs):
         self._config = get_config_object(None, **kwargs)
@@ -88,6 +96,19 @@ class OTT(object):
         self._root_name = None
         self._root_ott_id = None
         self._name2ott_ids = None
+        self._ott_id_to_info = None
+        self._flag_set_id2flag_set = None
+        self._taxonomic_sources = None
+    @property
+    def flag_set_id_to_flag_set(self):
+        if self._flag_set_id2flag_set is None:
+            self._flag_set_id2flag_set = self._load_pickled('flagSetID2FlagSet')
+        return self._flag_set_id2flag_set
+    @property
+    def taxonomic_sources(self):
+        if self._taxonomic_sources is None:
+            self._taxonomic_sources = self._load_pickled('taxonomicSources')
+        return self._taxonomic_sources
     @property
     def version(self):
         if self._version is None:
@@ -145,6 +166,11 @@ class OTT(object):
                 fn = fn[:-len('.pickle')]
             self.make(fn.lower())
         return _load_pickle_fp_raw(fp)
+    @property
+    def ott_id_to_info(self):
+        if self._ott_id_to_info is None:
+            self._ott_id_to_info = self._load_pickled('ottID2info')
+        return self._ott_id_to_info
     @property
     def ott_id_to_names(self):
         if self._ott_id_to_names is None:
@@ -406,6 +432,9 @@ class OTT(object):
         _write_pickle(out_dir, 'homonym2ottID', homonym2id)
         _write_pickle(out_dir, 'nonhomonym2ottID', nonhomonym2id)
         _write_pickle(out_dir, 'ottID2names', id2name)
+        _write_pickle(out_dir, 'ottID2info', id2info)
+        _write_pickle(out_dir, 'flagSetID2FlagSet', flag_set_id2flag_set)
+        _write_pickle(out_dir, 'taxonomicSources', sources)
 
         _LOG.debug('creating tree representation with preorder # to tuples')
         preorder2tuples = {}
@@ -538,9 +567,16 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
 if __name__ == '__main__':
     import sys
     o = OTT()
-    print(len(o.ott_id2par_ott_id), 'ott IDs')
+    print('taxonomic sources = "{}"'.format('", "'.join([i for i in o.taxonomic_sources])))
+    fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
+    print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))
+    for ott_id, info in o.ott_id_to_info.items():
+        if 'ncbi' in info:
+            print('OTT {o:d} => NCBI {n:d}'.format(o=ott_id, n=info['ncbi']))
+    '''print(len(o.ott_id2par_ott_id), 'ott IDs')
     print('call')
     print(o.get_anc_lineage(593937)) # This is the OTT id of a species in the Asterales system
     print(o.root_name)
     o.induced_tree([458721, 883864, 128315])
+    '''
 

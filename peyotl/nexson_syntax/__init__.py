@@ -219,6 +219,10 @@ class PhyloSchema(object):
             'schema',
             'type_ext', then
             'output_nexml2json' (implicitly NexSON)
+            If exporting to a non-nexson format, `otu_label` (and then
+                `tip_label`are checked) to determine how to label the tips
+                'ot:originallabel', 'ot:ottid', and 'ot:otttaxonname'
+                are supported values
         '''
         self.content = kwargs.get('content', 'study')
         self.bracket_ingroup = bool(kwargs.get('bracket_ingroup', False))

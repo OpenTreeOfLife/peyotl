@@ -14,21 +14,49 @@ parser.add_argument('--fetch',
                     default=False,
                     required=False,
                     help="download the newick for the source tree from treemachine")
+parser.add_argument('--nexus',
+                    action='store_true',
+                    default=False,
+                    required=False,
+                    help="(if --fetch is used). format results as NEXUS")
 args = parser.parse_args(sys.argv[1:])
 download = args.fetch
+nexus = args.nexus
 out = sys.stdout
 
+if nexus:
+    out.write('#NEXUS\nBEGIN TREES;\n')
 sources = treemachine.synthetic_tree_id_list
+
+if download:
+    if nexus:
+        pref = 'TREE {} = [&R] '
+    else:
+        pref = '{}\t'
+else:
+    pref = '{}'
 for src in sources:
-    study_id, tree_id = src['study_id'], src.get('tree_id')
+    out.flush()
+    study_id, tree_id = src['study_id'], src.get('tree_id', '')
     concat = '{}_{}'.format(study_id, tree_id)
-    out.write(concat)
+    newick = ''
     if download:
-        if tree_id != 'taxonomy':
-            resp = treemachine.get_source_tree(study_id=study_id,
-                                                 tree_id=tree_id,
-                                                 git_sha=src['git_sha'])
-            newick = resp['newick']
-            out.write('\t')
-            out.write(str(newick))
-    out.write('\n')
+        try:
+            if tree_id != 'taxonomy':
+                resp = treemachine.get_source_tree(study_id=study_id,
+                                                     tree_id=tree_id,
+                                                     git_sha=src['git_sha'])
+                newick = resp['newick']
+        except:
+            sys.stderr.write('Download of {} failed.\n'.format(concat))
+            continue
+    if tree_id == 'taxonomy':
+        if nexus:
+            out.write('[taxonomy\t]\n')
+        else:
+            out.write('taxonomy\n')
+    else:
+        out.write(pref.format(concat))
+        if download:
+            out.write(newick)
+        out.write('\n')

@@ -448,6 +448,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
             #_LOG.debug('while add bitrep... self.bits2internal_node = {}'.format(self.bits2internal_node))
             p.bits4subtree_ids |= node.bits4subtree_ids
         return relevant_ids
+
 def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
     if not id_list:
         return None

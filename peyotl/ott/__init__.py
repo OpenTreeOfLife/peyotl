@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function, division
 from peyotl.phylo.entities import OTULabelStyleEnum
+from peyotl.nexson_syntax import quote_newick_name
 from peyotl.phylo.tree import create_tree_from_id2par
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_config_object, get_logger
@@ -14,9 +15,59 @@ _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:
     from peyotl.utility.input_output import read_as_json, write_as_json
 
+class OTTFlagUnion(object):
+    def __init__(self, ott, flag_set):
+        self._flag_set_keys = ott.convert_flag_string_set_to_flag_set_keys(flag_set)
+
+def write_newick_ott(out, ott, ott_id2children, root_ott_id, tip_label, prune_flags):
+    '''`out` is an output stream
+    `ott` is an OTT instance used for translating labels
+    `ott_id2children` is a dict mapping an OTT ID to the IDs of its children
+    `root_ott_id` is the root of the subtree to write.
+    `tip_label` is a facet of OTULabelStyleEnum
+    `prune_flags` is a set strings (flags) or OTTFlagUnion instance or None
+    '''
+    if prune_flags is not None:
+        if not isinstance(prune_flags, OTTFlagUnion):
+            prune_flags = ott.convert_flag_string_set_to_union(prune_flags)
+        if not ott.has_flag_intersection(root_ott_id, prune_flags):
+            return
+    else:
+        prune_flags = None
+    stack = [root_ott_id]
+    first_children = set(stack)
+    last_children = set(stack)
+    out.write('(')
+    while stack:
+        ott_id = stack.pop()
+        if isinstance(ott_id, tuple):
+            ott_id = ott_id[0]
+        else:
+            children = ott_id2children[ott_id]
+            if prune_flags is not None:
+                children = [i for i in children if not ott.has_flag_intersection(prune_flags)]
+            if ott_id not in first_children:
+                out.write(',')
+            else:
+                first_children.remove(ott_id)
+            if bool(children):
+                out.write('(')
+                first_children.add(children[0])
+                last_children.add(children[-1])
+                stack.append((ott_id,)) # a tuple will signal exiting a node...
+                stack.extend([i for i in reversed(children)])
+                continue
+        n = ott.get_label(ott_id, tip_label)
+        n = quote_newick_name(n)
+        out.write(n)
+        if ott_id in last_children:
+            out.write(')')
+            last_children.remove(ott_id)
+    out.write(';')
 class _TransitionalNode(object):
-    def __init__(self, par=None):
+    def __init__(self, ott_id=None, par=None):
         self.par = par
+        #self.ott_id = ott_id
         self.children = None
         self.preorder_number = None
         if par is not None:
@@ -51,6 +102,12 @@ class _TransitionalNode(object):
             t = (ppn, r_sib_pn, left_child_pn, right_child_pn)
         assert pn not in preorder2tuples
         preorder2tuples[pn] = t
+    def create_leaf_set(self, leaves):
+        if self.children:
+            for c in self.children:
+                c.create_leaf_set(leaves)
+        elif self.ott_id is not None:
+            leaves.add(self.ott_id)
 
 _CACHES = {'ottid2parentottid': ('ottID2parentOttId', 'ott ID-> parent\'s ott ID. root maps to -1', ),
            'ottid2preorder': ('ottID2preorder', 'ott ID -> preorder #', ),
@@ -210,6 +267,13 @@ class OTT(object):
         if self._ott_id_to_names is None:
             self._ott_id_to_names = self._load_pickled('ottID2names')
         return self._ott_id_to_names
+    def get_label(self, ott_id, name2label):
+        name_or_name_list = self.ott_id_to_names.get(ott_id)
+        if name_or_name_list is None:
+            return None
+        if is_str_type(name_or_name_list):
+            return name_or_name_list
+        return name_or_name_list[0]
     def get_ott_ids(self, name):
         if self._name2ott_ids is None:
             self._name2ott_ids = self._load_pickled('name2ottID')
@@ -486,7 +550,31 @@ class OTT(object):
         self._root_name = r['name']
         self._root_ott_id = r['ott_id']
 
-    def write_newick(self, out, root_ott_id=None, tip_label=OTULabelStyleEnum.OTT_ID):
+    def write_newick(self,
+                     out,
+                     root_ott_id=None,
+                     tip_label=OTULabelStyleEnum.OTT_ID,
+                     prune_flags=None):
+        '''treemachine prunes out the flags:
+major_rank_conflict
+major_rank_conflict_direct
+major_rank_conflict_inherited
+environmental
+unclassified_inherited
+unclassified_direct
+viral
+nootu
+barren
+not_otu
+incertae_sedis
+incertae_sedis_direct
+incertae_sedis_inherited
+extinct_inherited
+extinct_direct
+hidden
+unclassified
+tattered
+        '''
         if isinstance(tip_label, int):
             tip_label = OTULabelStyleEnum(tip_label)
         if root_ott_id is None:
@@ -494,7 +582,8 @@ class OTT(object):
         if tip_label != OTULabelStyleEnum.OTT_ID:
             raise NotImplementedError('newick from ott with labels other than ott id')
         o2p = self.ott_id2par_ott_id
-        out.write(str(o2p))
+        ott2children = make_ott_to_children(o2p)
+        write_newick_ott(out, self, ott2children, root_ott_id, tip_label, prune_flags)
     def get_anc_lineage(self, ott_id):
         curr = ott_id
         i2pi = self.ott_id2par_ott_id
@@ -508,6 +597,7 @@ class OTT(object):
         return lineage
     def induced_tree(self, ott_id_list):
         return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list)
+
 if _PICKLE_AS_JSON:
     def _write_pickle(directory, fn, obj):
         fp = os.path.join(directory, fn + '.pickle')
@@ -538,10 +628,10 @@ def _generate_parent(id2par, par_ott_id, ott2transitional):
     if gp is None:
         gp = _generate_parent(id2par, gp_id, ott2transitional)
         if gp is None:
-            root = _TransitionalNode()
+            root = _TransitionalNode(ott_id=gp_id)
             ott2transitional[gp_id] = root
             return root
-    par = _TransitionalNode(gp)
+    par = _TransitionalNode(ott_id=par_ott_id, par=gp)
     ott2transitional[par_ott_id] = par
     return par
 
@@ -549,9 +639,22 @@ def make_tree_from_taxonomy(id2par):
     ott2transitional = {}
     for ott_id, par_ott_id in id2par.items():
         par = _generate_parent(id2par, par_ott_id, ott2transitional)
-        nd = _TransitionalNode(par=par)
+        nd = _TransitionalNode(ott_id=ott_id, par=par)
         ott2transitional[ott_id] = nd
     return ott2transitional
+
+def make_ott_to_children(id2par):
+    ott2children = {}
+    emptyTuple = tuple()
+    for ott_id, par_ott_id in id2par.items():
+        pc = ott2children.get(par_ott_id)
+        if (pc is None) or (pc is emptyTuple):
+            ott2children[par_ott_id] = [ott_id]
+        else:
+            pc.append(ott_id)
+        if ott_id not in ott2children:
+            ott2children[ott_id] = emptyTuple
+    return ott2children
 
 class TaxonomyDes2AncLineage(object):
     def __init__(self, des_to_anc_list):
@@ -565,7 +668,7 @@ class TaxonomyDes2AncLineage(object):
 def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
     '''returns a pair of trees:
         the first is that is a pruned version of tree_proxy created by pruning
-            any leaf that has not ott_id and every internal that does not have
+            any leaf that has no ott_id and every internal that does not have
             any descendant with an ott_id. Nodes of out-degree 1 are suppressed
             as part of the TreeWithPathsInEdges-style.
         the second is the OTT induced tree for these ott_ids
@@ -601,8 +704,10 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
 if __name__ == '__main__':
     import sys
     o = OTT()
-    print('taxonomic sources = "{}"'.format('", "'.join([i for i in o.taxonomic_sources])))
-    print(o.ncbi(1115784))
+    #print('taxonomic sources = "{}"'.format('", "'.join([iii for iii in o.taxonomic_sources])))
+    #print(o.ncbi(1115784))
+    o.write_newick(sys.stdout)
+    sys.stdout.write('\n')
     '''fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
     print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))
     for ott_id, info in o.ott_id_to_info.items():

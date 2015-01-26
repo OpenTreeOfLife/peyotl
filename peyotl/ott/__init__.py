@@ -15,6 +15,24 @@ _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:
     from peyotl.utility.input_output import read_as_json, write_as_json
 
+_TREEMACHINE_PRUNE_FLAGS = set(['major_rank_conflict',
+                                'major_rank_conflict_direct',
+                                'major_rank_conflict_inherited',
+                                'environmental',
+                                'unclassified_inherited',
+                                'unclassified_direct',
+                                'viral',
+                                'nootu',
+                                'barren',
+                                'not_otu',
+                                'incertae_sedis',
+                                'incertae_sedis_direct',
+                                'incertae_sedis_inherited',
+                                'extinct_inherited',
+                                'extinct_direct',
+                                'hidden',
+                                'unclassified',
+                                'tattered'])
 class OTTFlagUnion(object):
     def __init__(self, ott, flag_set):
         self._flag_set_keys = ott.convert_flag_string_set_to_flag_set_keys(flag_set)
@@ -30,7 +48,7 @@ def write_newick_ott(out, ott, ott_id2children, root_ott_id, tip_label, prune_fl
     if prune_flags is not None:
         if not isinstance(prune_flags, OTTFlagUnion):
             prune_flags = ott.convert_flag_string_set_to_union(prune_flags)
-        if not ott.has_flag_intersection(root_ott_id, prune_flags):
+        if ott.has_flag_set_key_intersection(root_ott_id, prune_flags):
             return
     else:
         prune_flags = None
@@ -45,7 +63,7 @@ def write_newick_ott(out, ott, ott_id2children, root_ott_id, tip_label, prune_fl
         else:
             children = ott_id2children[ott_id]
             if prune_flags is not None:
-                children = [i for i in children if not ott.has_flag_intersection(prune_flags)]
+                children = [i for i in children if not ott.has_flag_set_key_intersection(i, prune_flags)]
             if ott_id not in first_children:
                 out.write(',')
             else:
@@ -176,6 +194,14 @@ class OTT(object):
                 else:
                     ncbi2ott[ncbi] = ott_id
         return ncbi2ott
+    def has_flag_set_key_intersection(self, ott_id, taboo):
+        info = self.ott_id_to_info.get(ott_id)
+        if info is None:
+            return None
+        flag_set_key = info.get('f')
+        if flag_set_key is None:
+            return False
+        return flag_set_key in taboo._flag_set_keys
 
     def ncbi(self, ncbi_id):
         if self._ncbi_2_ott_id is None:
@@ -187,7 +213,23 @@ class OTT(object):
                 _write_pickle(self.ott_dir, 'ncbi2ottID', d)
 
         return self._ncbi_2_ott_id[ncbi_id]
-
+    def convert_flag_string_set_to_union(self, flag_set):
+        '''Converts a set of flags to a set integers that represent
+        the flag_set keys (in this OTT wrapper) which have any intersection
+        with flag_set. Useful if you are pruning out any taxon
+        that has any flag in flag_set, because this allows the 
+        check to be based on the flag_set_key (rather than translating
+        each key to its set of strings.'''
+        return OTTFlagUnion(self, flag_set)
+    def convert_flag_string_set_to_flag_set_keys(self, flag_set):
+        if not isinstance(flag_set, set):
+            flag_set = set(flag_set)
+        iset = set()
+        for k, v in self.flag_set_id_to_flag_set.items():
+            inters = flag_set.intersection(v)
+            if inters:
+                iset.add(k)
+        return iset
     @property
     def flag_set_id_to_flag_set(self):
         if self._flag_set_id2flag_set is None:
@@ -556,24 +598,6 @@ class OTT(object):
                      tip_label=OTULabelStyleEnum.OTT_ID,
                      prune_flags=None):
         '''treemachine prunes out the flags:
-major_rank_conflict
-major_rank_conflict_direct
-major_rank_conflict_inherited
-environmental
-unclassified_inherited
-unclassified_direct
-viral
-nootu
-barren
-not_otu
-incertae_sedis
-incertae_sedis_direct
-incertae_sedis_inherited
-extinct_inherited
-extinct_direct
-hidden
-unclassified
-tattered
         '''
         if isinstance(tip_label, int):
             tip_label = OTULabelStyleEnum(tip_label)
@@ -706,7 +730,7 @@ if __name__ == '__main__':
     o = OTT()
     #print('taxonomic sources = "{}"'.format('", "'.join([iii for iii in o.taxonomic_sources])))
     #print(o.ncbi(1115784))
-    o.write_newick(sys.stdout)
+    o.write_newick(sys.stdout, prune_flags=_TREEMACHINE_PRUNE_FLAGS)
     sys.stdout.write('\n')
     '''fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
     print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))

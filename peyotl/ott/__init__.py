@@ -37,12 +37,12 @@ class OTTFlagUnion(object):
     def __init__(self, ott, flag_set):
         self._flag_set_keys = ott.convert_flag_string_set_to_flag_set_keys(flag_set)
 
-def write_newick_ott(out, ott, ott_id2children, root_ott_id, tip_label, prune_flags):
+def write_newick_ott(out, ott, ott_id2children, root_ott_id, label_style, prune_flags):
     '''`out` is an output stream
     `ott` is an OTT instance used for translating labels
     `ott_id2children` is a dict mapping an OTT ID to the IDs of its children
     `root_ott_id` is the root of the subtree to write.
-    `tip_label` is a facet of OTULabelStyleEnum
+    `label_style` is a facet of OTULabelStyleEnum
     `prune_flags` is a set strings (flags) or OTTFlagUnion instance or None
     '''
     if prune_flags is not None:
@@ -75,7 +75,7 @@ def write_newick_ott(out, ott, ott_id2children, root_ott_id, tip_label, prune_fl
                 stack.append((ott_id,)) # a tuple will signal exiting a node...
                 stack.extend([i for i in reversed(children)])
                 continue
-        n = ott.get_label(ott_id, tip_label)
+        n = ott.get_label(ott_id, label_style)
         n = quote_newick_name(n)
         out.write(n)
         if ott_id in last_children:
@@ -310,6 +310,11 @@ class OTT(object):
             self._ott_id_to_names = self._load_pickled('ottID2names')
         return self._ott_id_to_names
     def get_label(self, ott_id, name2label):
+        n = self.get_name(ott_id)
+        if name2label == OTULabelStyleEnum.CURRENT_LABEL_OTT_ID:
+            return '{n}_ott{o:d}'.format(n=n, o=ott_id)
+        return n
+    def get_name(self, ott_id):
         name_or_name_list = self.ott_id_to_names.get(ott_id)
         if name_or_name_list is None:
             return None
@@ -595,19 +600,19 @@ class OTT(object):
     def write_newick(self,
                      out,
                      root_ott_id=None,
-                     tip_label=OTULabelStyleEnum.OTT_ID,
+                     label_style=OTULabelStyleEnum.OTT_ID,
                      prune_flags=None):
         '''treemachine prunes out the flags:
         '''
-        if isinstance(tip_label, int):
-            tip_label = OTULabelStyleEnum(tip_label)
+        if isinstance(label_style, int):
+            label_style = OTULabelStyleEnum(label_style)
         if root_ott_id is None:
             root_ott_id = self.root_ott_id
-        if tip_label != OTULabelStyleEnum.OTT_ID:
+        if label_style not in [OTULabelStyleEnum.OTT_ID, OTULabelStyleEnum.CURRENT_LABEL_OTT_ID]:
             raise NotImplementedError('newick from ott with labels other than ott id')
         o2p = self.ott_id2par_ott_id
         ott2children = make_ott_to_children(o2p)
-        write_newick_ott(out, self, ott2children, root_ott_id, tip_label, prune_flags)
+        write_newick_ott(out, self, ott2children, root_ott_id, label_style, prune_flags)
     def get_anc_lineage(self, ott_id):
         curr = ott_id
         i2pi = self.ott_id2par_ott_id
@@ -730,7 +735,7 @@ if __name__ == '__main__':
     o = OTT()
     #print('taxonomic sources = "{}"'.format('", "'.join([iii for iii in o.taxonomic_sources])))
     #print(o.ncbi(1115784))
-    o.write_newick(sys.stdout, prune_flags=_TREEMACHINE_PRUNE_FLAGS)
+    o.write_newick(sys.stdout, label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID, prune_flags=_TREEMACHINE_PRUNE_FLAGS)
     sys.stdout.write('\n')
     '''fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
     print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))

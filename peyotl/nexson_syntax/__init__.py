@@ -771,11 +771,11 @@ _NEWICK_NEEDING_QUOTING = re.compile(r'(\s|[\[\]():,;])')
 _NEXUS_NEEDING_QUOTING = re.compile(r'(\s|[-()\[\]{}/\,;:=*"`+<>])')
 
 def quote_newick_name(s, needs_quotes_pattern=_NEWICK_NEEDING_QUOTING):
-    s = str(s)
+    s = UNICODE(s)
     if "'" in s:
-        return "'{}'".format("''".join(s.split("'")))
+        return u"'{}'".format("''".join(s.split("'")))
     if needs_quotes_pattern.search(s):
-        return "'{}'".format(s)
+        return u"'{}'".format(s)
     return s
 
 def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):

@@ -312,7 +312,7 @@ class OTT(object):
     def get_label(self, ott_id, name2label):
         n = self.get_name(ott_id)
         if name2label == OTULabelStyleEnum.CURRENT_LABEL_OTT_ID:
-            return '{n}_ott{o:d}'.format(n=n, o=ott_id)
+            return u'{n}_ott{o:d}'.format(n=n, o=ott_id)
         return n
     def get_name(self, ott_id):
         name_or_name_list = self.ott_id_to_names.get(ott_id)
@@ -732,11 +732,13 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
 
 if __name__ == '__main__':
     import sys
+    import codecs
+    out = codecs.getwriter('utf-8')(sys.stdout)
     o = OTT()
     #print('taxonomic sources = "{}"'.format('", "'.join([iii for iii in o.taxonomic_sources])))
     #print(o.ncbi(1115784))
-    o.write_newick(sys.stdout, label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID, prune_flags=_TREEMACHINE_PRUNE_FLAGS)
-    sys.stdout.write('\n')
+    o.write_newick(out, label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID, prune_flags=_TREEMACHINE_PRUNE_FLAGS)
+    out.write('\n')
     '''fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
     print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))
     for ott_id, info in o.ott_id_to_info.items():

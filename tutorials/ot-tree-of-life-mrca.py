@@ -26,7 +26,7 @@ def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output, err
 
     if details:
         # could call mrca_node.fetch_node_info()
-        errstream.write('Source(s) that support this node: {}\n'.format(mrca_node.synth_sources))
+        errstream.write('Source(s) that support this node: {}\n'.format(' '.join([str(i) for i in mrca_node.synth_sources])))
         errstream.write('Is in the synthetic tree of life? {}\n'.format(mrca_node.in_synth_tree))
         errstream.write('Correspondences with other taxonomies: {}\n'.format(mrca_node.tax_source))
         errstream.write('Is in the graph of life? {}\n'.format(mrca_node.in_graph))

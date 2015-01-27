@@ -40,7 +40,7 @@ def acquire_lock_raise(git_action, fail_msg=''):
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
 
-def validate_and_convert_nexson(nexson, output_version, allow_invalid):
+def validate_and_convert_nexson(nexson, output_version, allow_invalid, **kwargs):
     '''Runs the nexson validator and returns a converted 4 object:
         nexson, annotation, validation_log, nexson_adaptor
 
@@ -52,7 +52,7 @@ def validate_and_convert_nexson(nexson, output_version, allow_invalid):
     try:
         if TRACE_FILES:
             _write_to_next_free('input', nexson)
-        annotation, validation_log, nexson_adaptor = ot_validate(nexson)
+        annotation, validation_log, nexson_adaptor = ot_validate(nexson, **kwargs)    
         if TRACE_FILES:
             _write_to_next_free('annotation', annotation)
     except:

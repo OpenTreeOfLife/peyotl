@@ -20,6 +20,8 @@ COMMITS_SHOULD_FAIL_ARG = 'tiny_max_file_size'
 COMMITS_SHOULD_FAIL = COMMITS_SHOULD_FAIL_ARG in sys.argv
 if COMMITS_SHOULD_FAIL:
     sys.argv.remove(COMMITS_SHOULD_FAIL_ARG)
+    if 'phylesystem' not in config.sections():
+        config.add_section('phylesystem')
     config.set('phylesystem', 'max_file_size', '10') # ten bytes is not large
 _replace_default_config(config)
 

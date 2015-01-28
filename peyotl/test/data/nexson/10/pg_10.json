@@ -100,14 +100,10 @@
 "otus10": {
 "otuById": {
 "otu128": {
-"^ot:originalLabel": "Cycas", 
-"^ot:ottId": 99238, 
-"^ot:ottTaxonName": "Cycas"
+"^ot:originalLabel": "Cycas"
 }, 
 "otu129": {
-"^ot:originalLabel": "Ginkgo", 
-"^ot:ottId": 950165, 
-"^ot:ottTaxonName": "Ginkgo"
+"^ot:originalLabel": "Ginkgo"
 }, 
 "otu130": {
 "^ot:originalLabel": "Pinus", 

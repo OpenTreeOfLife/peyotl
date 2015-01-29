@@ -13,6 +13,30 @@ from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
 from peyotl.nexson_syntax.inspect import count_num_trees
 from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
+def iter_otus(nexson, nexson_version=None):
+    '''generator over all otus in all otus group elements.
+    yields a tuple of 3 items:
+        otus group ID,
+        otu ID,
+        the otu obj
+    '''
+    if nexson_version is None:
+        nexson_version = detect_nexson_version(nexson)
+    nex = get_nexml_el(nexson)
+    if not _is_by_id_hbf(nexson_version):
+        convert_nexson_format(nexson_blob, BY_ID_HONEY_BADGERFISH) #TODO shouldn't modify...
+    otus_group_by_id = nex['otusById']
+    group_order = nex.get('^ot:otusElementOrder', [])
+    if len(group_order) < len(otus_group_by_id):
+        group_order = list(otus_group_by_id.keys())
+        group_order.sort()
+    for otus_group_id in group_order:
+        otus_group = otus_group_by_id[otus_group_id]
+        otu_by_id = otus_group['otuById']
+        ti_order = list(otu_by_id.keys())
+        for otu_id in ti_order:
+            otu = otu_by_id[otu_id]
+            yield otus_group_id, otu_id, otu
 
 def iter_trees(nexson, nexson_version=None):
     '''generator over all trees in all trees elements.

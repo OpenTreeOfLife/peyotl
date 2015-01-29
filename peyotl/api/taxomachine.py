@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from peyotl.utility.dict_wrapper import FrozenDictAttrWrapper, FrozenDictWrapper
-from peyotl.api.taxon import TaxonWrapper
+from peyotl.api.taxon import TaxonWrapper, TaxonHolder
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import weakref
@@ -9,55 +9,22 @@ _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
 class TaxonomyInfoWrapper(FrozenDictAttrWrapper):
     pass
-class TNRSMatch(object):
+
+class TNRSMatch(TaxonHolder):
     '''Delegates to an TaxonWrapper object and adds score and is_approximate_match properties.
     part of a "wrapped" TNRS (or match_names) response.
     '''
     def __init__(self, prop_dict, taxomachine_wrapper=None, taxonomy=None, taxon=None):
-        if taxon is not None:
-            self._taxon = taxon
-        else:
-            self._taxon = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper,
-                                       taxonomy=taxonomy,
-                                       prop_dict=prop_dict)
+        if taxon is None:
+            taxon = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper,
+                                 taxonomy=taxonomy,
+                                 prop_dict=prop_dict)
+        TaxonHolder.__init__(self, taxon)
         self._score = prop_dict.get('score')
         self._is_approximate_match = prop_dict.get('is_approximate_match')
     @property
     def ott_taxon_name(self):
         return self._taxon.ott_taxon_name
-    @property
-    def name(self):
-        return self._taxon.ott_taxon_name
-    @property
-    def is_deprecated(self):
-        return self._taxon.is_deprecated
-    @property
-    def is_dubious(self):
-        return self._taxon.is_dubious
-    @property
-    def is_synonym(self):
-        return self._taxon.is_synonym
-    @property
-    def flags(self):
-        return self._taxon.flags
-    @property
-    def synonyms(self):
-        return self._taxon.synonyms
-    @property
-    def ott_id(self):
-        return self._taxon.ott_id
-    @property
-    def taxomachine_node_id(self):
-        return self._taxon.taxomachine_node_id
-    @property
-    def rank(self):
-        return self._taxon.rank
-    @property
-    def unique_name(self):
-        return self._taxon.unique_name
-    @property
-    def nomenclature_code(self):
-        return self._taxon.nomenclature_code
     @property
     def score(self):
         return self._score

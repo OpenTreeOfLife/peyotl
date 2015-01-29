@@ -21,6 +21,8 @@ class DictWrapper(object):
         self._raw_dict[key] = value
     def __contains__(self, key):
         return key in self._raw_dict
+    def __str__(self):
+        return '{c}({d})'.format(c=self.__class__.__name__, d=str(self._raw_dict))
 class DictAttrWrapper(DictWrapper):
     def __init__(self, d):
         DictWrapper.__init__(self, d)

@@ -2,7 +2,7 @@
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import StudyRef
-from peyotl.api.taxon import TaxonWrapper
+from peyotl.api.taxon import TaxonWrapper, TaxonHolder
 import anyjson
 _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
@@ -17,7 +17,7 @@ def _treemachine_tax_source2dict(tax_source):
         d[k] = v
     return d
 
-class GoLNode(object):
+class GoLNode(TaxonHolder):
     def __init__(self,
                  prop_dict,
                  treemachine_wrapper=None,
@@ -31,9 +31,7 @@ class GoLNode(object):
             self._node_id = prop_dict['mrca_node_id']
         else:
             self._node_id = node_id
-        if taxon is not None:
-            self._taxon = taxon
-        else:
+        if taxon is None:
             oi = prop_dict.get('ott_id')
             if oi == 'null':
                 oi = None
@@ -45,9 +43,7 @@ class GoLNode(object):
                               'treemachine_node_id': self.node_id
                              }
                 #TODO should write wrappers for getting the taxomachine wrapper from treemachine wrapper...
-                self._taxon = TaxonWrapper(prop_dict=taxon_dict)
-            else:
-                self._taxon = None
+                taxon = TaxonWrapper(prop_dict=taxon_dict)
             if nearest_taxon is None:
                 taxon_dict = {'ot:ottId': prop_dict['nearest_taxon_mrca_ott_id'],
                               'rank': prop_dict.get('nearest_taxon_mrca_rank'),
@@ -60,6 +56,7 @@ class GoLNode(object):
                 self._nearest_taxon = TaxonWrapper(prop_dict=taxon_dict)
             else:
                 self._nearest_taxon = nearest_taxon
+        TaxonHolder.__init__(self, taxon)
         if self._taxon is not None:
             assert (nearest_taxon is None) or (nearest_taxon is self._taxon)
             self._nearest_taxon = self._taxon
@@ -138,41 +135,8 @@ class GoLNode(object):
     def is_taxon(self):
         return self._taxon is not None
     @property
-    def name(self):
-        return self._taxon.ott_taxon_name
-    @property
-    def is_deprecated(self):
-        return self._taxon.is_deprecated
-    @property
-    def is_dubious(self):
-        return self._taxon.is_dubious
-    @property
-    def is_synonym(self):
-        return self._taxon.is_synonym
-    @property
-    def flags(self):
-        return self._taxon.flags
-    @property
-    def synonyms(self):
-        return self._taxon.synonyms
-    @property
-    def ott_id(self):
-        return self._taxon.ott_id
-    @property
-    def taxomachine_node_id(self):
-        return self._taxon.taxomachine_node_id
-    @property
     def treemachine_node_id(self):
         return self._node_id
-    @property
-    def rank(self):
-        return self._taxon.rank
-    @property
-    def unique_name(self):
-        return self._taxon.unique_name
-    @property
-    def nomenclature_code(self):
-        return self._taxon.nomenclature_code
 
 class MRCAGoLNode(GoLNode):
     def __init__(self, prop_dict, treemachine_wrapper=None, graph_of_life=None):

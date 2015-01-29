@@ -219,6 +219,10 @@ class PhyloSchema(object):
             'schema',
             'type_ext', then
             'output_nexml2json' (implicitly NexSON)
+            If exporting to a non-nexson format, `otu_label` (and then
+                `tip_label`are checked) to determine how to label the tips
+                'ot:originallabel', 'ot:ottid', and 'ot:otttaxonname'
+                are supported values
         '''
         self.content = kwargs.get('content', 'study')
         self.bracket_ingroup = bool(kwargs.get('bracket_ingroup', False))
@@ -767,11 +771,11 @@ _NEWICK_NEEDING_QUOTING = re.compile(r'(\s|[\[\]():,;])')
 _NEXUS_NEEDING_QUOTING = re.compile(r'(\s|[-()\[\]{}/\,;:=*"`+<>])')
 
 def quote_newick_name(s, needs_quotes_pattern=_NEWICK_NEEDING_QUOTING):
-    s = str(s)
+    s = UNICODE(s)
     if "'" in s:
-        return "'{}'".format("''".join(s.split("'")))
+        return u"'{}'".format("''".join(s.split("'")))
     if needs_quotes_pattern.search(s):
-        return "'{}'".format(s)
+        return u"'{}'".format(s)
     return s
 
 def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):

@@ -787,7 +787,9 @@ def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlab
     label = otu.get(label_key)
     if label is None:
         unlabeled_counter += 1
-        label = "'*unlabeled tip #{n:d}'".format(n=unlabeled_counter)
+        o = otu.get('^ot:originalLabel', '<unknown>')
+        label = "'*tip #{n:d} not mapped to OTT. Original label - {o}'"
+        label = label.format(n=unlabeled_counter, o=o)
     else:
         label = quote_newick_name(label, needs_quotes_pattern)
     if leaf_labels is not None:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-'''Simple command-line tool that wraps the taxonomic name matching service
-    which is described at https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#match_names
+'''Simple command-line tool that combines the actions 
+of the ot-tnrs-match-names.py, ot-taxon-info.py, and ot-taxon-subtree.py
+scripts
 '''
 import pprint
 import sys
@@ -40,6 +41,7 @@ def fetch_and_write_taxon_info(id_list, include_anc, list_tips, output):
                               list_terminal_descendants=list_tips,
                               wrap_response=True)
         write_taxon_info(info, include_anc, output)
+
 
 def write_taxon_info(taxon, include_anc, output):
     '''Writes out data from `taxon` to the `output` stream to demonstrate

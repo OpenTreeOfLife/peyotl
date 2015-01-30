@@ -16,6 +16,11 @@ def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output, err
     if mrca_node.ott_ids_not_in_tree:
         f = 'The following OTT IDs are valid identifiers, but not recovered in the synthetic estimate of the tree of life: {}\n'
         errstream.write(f.format(' '.join([str(i) for i in mrca_node.ott_ids_not_in_tree])))
+    DOMAIN = 'https://tree.opentreeoflife.org'
+    URL_PATH_FMT ='opentree/argus/otol.draft.22@{i:d}'
+    URL_FMT = DOMAIN + '/' + URL_PATH_FMT
+    url = URL_FMT.format(i=mrca_node.node_id)
+    errstream.write('The (unstable) UFL for seeing this node in the ToL is: {}\n'.format(url))
     errstream.write('The (unstable) ID of the MRCA node in the graph of life is: {}\n'.format(mrca_node.node_id))
     if mrca_node.is_taxon:
         errstream.write('The node in the Graph of Life corresponds to a taxon:\n')

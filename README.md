@@ -61,7 +61,7 @@ The sortattr.xslt stylesheet (which is only used in round-trip testing) is from
 The peyotl.phylesystem.git_actions (and the tests) were a part of the api.opentreeoflife.org
     repo which was primarily the work of Duke Leto (at that time).
 
-Jim Allman, Karen Cranston, Cody Hinchliff, Mark Holder, Peter Midford, and Jonathon Rees
+Jim Allman, Karen Cranston, Cody Hinchliff, Mark Holder, Peter Midford, and Jonathan Rees
 all participated in the discussions that led to the NexSON mapping.
 
 The peyotl/test/data/nexson/phenoscape/nexml test file is from

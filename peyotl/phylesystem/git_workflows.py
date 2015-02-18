@@ -191,13 +191,13 @@ def commit_and_try_merge2master(git_action,
     _LOG.debug('returning {r}'.format(r=str(r)))
     return r
 
-def delete_study(git_action, study_id, auth_info, parent_sha, commit_msg='', merged_sha=None): #pylint: disable=W0613
+def delete_study(git_action, study_id, auth_info, parent_sha, commit_msg=None, merged_sha=None): #pylint: disable=W0613
     author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % study_id)
     try:
         study_fp = git_action.path_for_study(study_id)
-        rs_resp = git_action.remove_study(gh_user, study_id, parent_sha, author)
+        rs_resp = git_action.remove_study(gh_user, study_id, parent_sha, author, commit_msg=commit_msg)
         new_sha = rs_resp['commit_sha']
         branch_name = rs_resp['branch']
         m_resp = _do_merge2master_commit(git_action,

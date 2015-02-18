@@ -320,7 +320,7 @@ class GitAction(object):
     def push(self, branch, remote):
         git(self.gitdir, 'push', remote, branch, _env=self.env())
 
-    def remove_study(self, first_arg, sec_arg, third_arg, fourth_arg=None):
+    def remove_study(self, first_arg, sec_arg, third_arg, fourth_arg=None, commit_msg=None):
         """Remove a study
         Given a study_id, branch and optionally an
         author, remove a study on the given branch
@@ -338,6 +338,10 @@ class GitAction(object):
 
         branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
         prev_file_sha = None
+        if commit_msg is None:
+            msg = "Delete Study #%s via OpenTree API" % study_id
+        else:
+            msg = commit_msg
         if os.path.exists(study_filepath):
             prev_file_sha = self.get_blob_sha_for_file(study_filepath)
             git(self.gitdir, self.gitwd, "rm", "-rf", study_dir)
@@ -345,7 +349,7 @@ class GitAction(object):
                 self.gitwd,
                 "commit",
                 author=author,
-                message="Delete Study #%s via OpenTree API" % study_id)
+                message=msg)
         new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip()
         return {'commit_sha': new_sha,
                 'branch': branch,

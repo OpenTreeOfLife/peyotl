@@ -163,3 +163,26 @@ def json_source_path(filename=None):
     if filename is None:
         filename = ""
     return os.path.join(TESTS_DATA_DIR, "json", filename)
+
+def collection_obj(filename):
+    '''Returns a dict that is the deserialized collection object
+    'filename' should be the fragment of the filepath below
+    the collection test dir.
+    '''
+    with collection_file_obj(filename) as fo:
+        fc = fo.read()
+        return anyjson.loads(fc)
+
+def collection_file_obj(filename):
+    ''' Returns file object.
+    'filename' should be the fragment of the filepath below
+    the collection test dir.
+    '''
+    fp = collection_source_path(filename=filename)
+    return codecs.open(fp, mode='r', encoding='utf-8')
+
+def collection_source_path(filename=None):
+    if filename is None:
+        filename = ""
+    return os.path.join(TESTS_DATA_DIR, "collections", filename)
+

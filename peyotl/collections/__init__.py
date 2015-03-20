@@ -13,3 +13,10 @@ def get_empty_collection():
         "queries": [ ]
     }
     return collection
+
+__all__ = [#'git_actions',
+           #'git_workflows',
+           #'helper',
+           #'collections_shard',
+           'collections_umbrella']
+from peyotl.collections.collections_umbrella import TreeCollectionStore, TreeCollectionStoreProxy

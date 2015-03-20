@@ -79,7 +79,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
     def study_list(self):
         if self._src_code == _GET_API:
             return self._remote_study_list()
-        return self.phylesystem_obj.get_study_ids()
+        return self.phylesystem_obj.get_doc_ids()
     @property
     def push_failure_state(self):
         '''Returns a tuple: the boolean for whether or not pushes succeed, and the

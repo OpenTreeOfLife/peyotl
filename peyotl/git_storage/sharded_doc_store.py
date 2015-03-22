@@ -1,4 +1,8 @@
-"""Base class for sharded document storage (for phylesystem, tree collections, etc.)"""
+"""Base class for sharded document storage (for phylesystem, tree collections, etc.)
+N.B. that this class has no knowledge of different document types. It provides
+basic functionality common to minimal *Proxy classes with remote shards, and
+more full-featured subclasses based on TypeAwareDocStore.
+"""
 from threading import Lock
 
 class ShardedDocStore(object):
@@ -17,7 +21,7 @@ class ShardedDocStore(object):
         self._prefix2shard = {}
         # We assume that consistent doc-id prefixes are used to keep like data
         # in the same shard. Each subclass has its own rules for these.
-        prefix_from_doc_id=prefix_from_doc_id
+        self.prefix_from_doc_id=prefix_from_doc_id
     def get_repo_and_path_fragment(self, doc_id):
         '''For `doc_id` returns a list of:
             [0] the repo name and,
@@ -49,12 +53,12 @@ class ShardedDocStore(object):
         except KeyError:
             # Look up the shard where the doc should be (in case it was
             #   deleted. This fall back relies on a unique prefix for each shard)
-            pref = prefix_from_doc_id(doc_id)
+            pref = self.prefix_from_doc_id(doc_id)
             return self._prefix2shard[pref]
     def get_doc_ids(self, include_aliases=False):
         k = []
         for shard in self._shards:
-            k.extend(shard.get_doc_ids(include_aliases=include_aliases))
+            k.extend(shard.get_study_ids(include_aliases=include_aliases)) # TODO:shard-edits
         return k
 
 

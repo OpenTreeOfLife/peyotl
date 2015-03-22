@@ -20,7 +20,7 @@ class TestPhylesystem(unittest.TestCase):
         self.assertEqual(2, len(p._shards))
     def testStudyIndexing(self):
         p = _Phylesystem(repos_dict=self.r)
-        k = list(p._study2shard_map.keys())
+        k = list(p._doc2shard_map.keys())
         k.sort()
         self.assertEqual(k, ['xy_10', 'xy_13', 'zz_11', 'zz_112'])
     def testURL(self):

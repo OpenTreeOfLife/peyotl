@@ -6,6 +6,7 @@ __all__ = ['sharded_doc_store',
            'git_shard']
 
 from sharded_doc_store import ShardedDocStore
+from type_aware_doc_store import TypeAwareDocStore
 from git_action import GitActionBase
 from git_workflow import GitWorkflowBase
-from git_shard import GitShardBase
+from git_shard import GitShard, TypeAwareGitShard

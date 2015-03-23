@@ -17,6 +17,7 @@ class NotAGitShardError(ValueError):
         ValueError.__init__(self, message)
 
 class GitShard(object):
+    """Bare-bones functionality needed by both normal and proxy shards."""
     def __init__(self, name):
         self._index_lock = Lock()
         self._doc_index = {}

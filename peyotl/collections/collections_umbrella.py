@@ -32,7 +32,6 @@ from peyotl.git_storage import ShardedDocStore, \
 from peyotl.phylesystem.helper import get_repos, \
                                       _get_phylesystem_parent_with_source, \
                                       _make_phylesystem_cache_region
-from peyotl.git_storage.sharded_doc_store import ShardedDocStore
 #from peyotl.collection.collections_shard import TreeCollectionStoreShardProxy, \
 #                                                 TreeCollectionStoreShard, \
 #                                                 NotATreeCollectionStoreShardError
@@ -105,6 +104,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
         '''
+        from peyotl.phylesystem.git_shard import PhylesystemShard   #TODO:remove-me
         TypeAwareDocStore.__init__(self,
                                    prefix_from_doc_id=prefix_from_collection_path,
                                    repos_dict=None,
@@ -114,6 +114,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
                                    git_ssh=None,
                                    pkey=None,
                                    git_action_class=GitAction,
+                                   git_shard_class=PhylesystemShard,  #TODO:type-specific
                                    mirror_info=None,
                                    new_doc_prefix=None,
                                    infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',

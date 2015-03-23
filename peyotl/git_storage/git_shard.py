@@ -8,8 +8,6 @@ from peyotl.utility import get_logger, get_config_setting_kwargs, write_to_filep
 
 # TODO: extract this Nexson-specific stuff!
 from peyotl.utility.input_output import read_as_json, write_as_json
-from peyotl.phylesystem.helper import DIGIT_PATTERN, create_id2study_info, diagnose_repo_study_id_convention
-from peyotl.phylesystem.git_actions import GitAction, ID_PATTERN
 from peyotl.nexson_syntax import detect_nexson_version
 
 class NotAGitShardError(ValueError):
@@ -19,6 +17,7 @@ class NotAGitShardError(ValueError):
 class GitShard(object):
     """Bare-bones functionality needed by both normal and proxy shards."""
     def __init__(self, name):
+        from peyotl.phylesystem.helper import DIGIT_PATTERN, create_id2study_info, diagnose_repo_study_id_convention
         self._index_lock = Lock()
         self._doc_index = {}
         self.name = name
@@ -61,7 +60,7 @@ class TypeAwareGitShard(GitShard):
                  assumed_doc_version=None,
                  git_ssh=None,
                  pkey=None,
-                 git_action_class=GitAction,
+                 git_action_class=None,  #TODO:peyotl.phylesystem.git_actions.GitAction,
                  push_mirror_repo_path=None,
                  new_study_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
@@ -96,6 +95,8 @@ class TypeAwareGitShard(GitShard):
                 self._new_study_prefix = pre_content
             else:
                 self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
+        from peyotl.phylesystem.helper import create_id2study_info, \
+                                              diagnose_repo_study_id_convention
         d = create_id2study_info(study_dir, name)
         rc_dict = diagnose_repo_study_id_convention(path)
         self.filepath_for_study_id_fn = rc_dict['fp_fn']
@@ -145,12 +146,15 @@ class TypeAwareGitShard(GitShard):
     def _diagnose_prefixes(self):
         '''Returns a set of all of the prefixes seen in the main document dir
         '''
+        from peyotl.phylesystem.git_actions import ID_PATTERN
         p = set()
         for name in os.listdir(self.study_dir):
             if ID_PATTERN.match(name):
                 p.add(name[:3])
         return p
     def _locked_refresh_doc_ids(self):
+        from peyotl.phylesystem.helper import create_id2study_info, \
+                                              diagnose_repo_study_id_convention
         d = create_id2study_info(self.study_dir, self.name)
         rc_dict = diagnose_repo_study_id_convention(self.path)
         self.filepath_for_study_id_fn = rc_dict['fp_fn']

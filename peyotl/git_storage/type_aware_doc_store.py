@@ -2,19 +2,9 @@
 like PhylsystemProxy by introducing more business rules and differences between document types
 in the store (eg, Nexson studies in Phylesystem, tree collections in TreeCollectionStore)."""
 from peyotl.git_storage import ShardedDocStore
-from peyotl.phylesystem.git_actions import GitAction 
+#from peyotl.phylesystem.git_actions import GitAction 
     # TODO: add any possible GitAction subclasses? or expect a path
     # (peyotl.collections.GitAction) to be provided?
-from peyotl.phylesystem.helper import get_repos, \
-                                      _get_phylesystem_parent_with_source, \
-                                      _make_phylesystem_cache_region
-from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, \
-                                                 PhylesystemShard, \
-                                                 NotAPhylesystemShardError
-from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
-                                             delete_study, \
-                                             validate_and_convert_nexson  
-                                             # TODO
 try:
     import anyjson
 except:
@@ -32,7 +22,8 @@ class TypeAwareDocStore(ShardedDocStore):
                  assumed_doc_version=None, # WAS repo_nexml2json
                  git_ssh=None,
                  pkey=None,
-                 git_action_class=GitAction, # TODO: require a *type-specific* GitAction subclass?
+                 git_action_class=None, # TODO: require a *type-specific* GitActionBase subclass?
+                 git_shard_class=None, # TODO: require a *type-specific* GitShard subclass?
                  mirror_info=None,
                  new_doc_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
@@ -54,6 +45,13 @@ class TypeAwareDocStore(ShardedDocStore):
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
         '''
+        from peyotl.phylesystem.helper import get_repos, \
+                                      _get_phylesystem_parent_with_source, \
+                                      _make_phylesystem_cache_region
+        from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
+                                                     delete_study, \
+                                                     validate_and_convert_nexson  
+                                                     # TODO
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_doc_id)
         if repos_dict is not None:
@@ -91,6 +89,8 @@ class TypeAwareDocStore(ShardedDocStore):
                 expected_push_mirror_repo_path = os.path.join(push_mirror_repos_par, repo_name)
                 if os.path.isdir(expected_push_mirror_repo_path):
                     push_mirror_repo_path = expected_push_mirror_repo_path
+            from peyotl.phylesystem.phylesystem_shard import PhylesystemShard, \
+              NotAPhylesystemShardError   #TODO:remove-me
             try:
                 shard = PhylesystemShard(repo_name,
                                          repo_filepath,
@@ -110,7 +110,7 @@ class TypeAwareDocStore(ShardedDocStore):
                 continue
             # if the mirror does not exist, clone it...
             if push_mirror_repos_par and (push_mirror_repo_path is None):
-                GitAction.clone_repo(push_mirror_repos_par,
+                GitActionBase.clone_repo(push_mirror_repos_par,
                                      repo_name,
                                      repo_filepath)
                 if not os.path.isdir(expected_push_mirror_repo_path):
@@ -123,7 +123,7 @@ class TypeAwareDocStore(ShardedDocStore):
                         m = f.format(remote_name)
                         raise ValueError(m)
                     remote_url = remote_url_prefix + '/' + repo_name + '.git'
-                    GitAction.add_remote(expected_push_mirror_repo_path, remote_name, remote_url)
+                    GitActionBase.add_remote(expected_push_mirror_repo_path, remote_name, remote_url)
                 shard.push_mirror_repo_path = expected_push_mirror_repo_path
                 for remote_name in push_mirror_remote_map.keys():
                     mga = shard._create_git_action_for_mirror() #pylint: disable=W0212

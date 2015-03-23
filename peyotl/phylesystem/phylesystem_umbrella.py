@@ -91,6 +91,7 @@ class _Phylesystem(TypeAwareDocStore):
                                    git_ssh=None,
                                    pkey=None,
                                    git_action_class=GitAction,
+                                   git_shard_class=PhylesystemShard,
                                    mirror_info=None,
                                    new_doc_prefix=None,
                                    infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',

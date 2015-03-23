@@ -7,9 +7,9 @@ import tempfile
 from peyotl.nexson_syntax import write_as_json
 from peyotl.nexson_validation import ot_validate
 from peyotl.nexson_syntax import convert_nexson_format
-from peyotl.phylesystem.git_actions import MergeException, \
-                                           get_user_author, \
-                                           GitWorkflowError
+from peyotl.git_storage.git_action import MergeException, \
+                                          get_user_author, \
+                                          GitWorkflowError
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 import traceback

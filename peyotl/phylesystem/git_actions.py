@@ -1,16 +1,10 @@
 #!/usr/bin/env python
-from peyotl.utility.str_util import is_str_type
-from peyotl.nexson_syntax import write_as_json
 from peyotl.utility import get_logger
-import tempfile #@TEMPORARY for deprecated write_study
-import shutil
-from sh import git
-import sh
 import re
 import os
 from peyotl.git_storage import GitActionBase
-from peyotl.git_storage.git_action import get_HEAD_SHA1, \
-                                          get_user_author
+
+# extract a study id from a git repo path (as returned by git-tree)
 
 _LOG = get_logger(__name__)
 class MergeException(Exception):
@@ -33,9 +27,16 @@ def get_filepath_for_namespaced_id(repo_dir, study_id):
     dest_file = dest_subdir + '.json'
     return os.path.join(repo_dir, 'study', dest_topdir, dest_subdir, dest_file)
 
-#TODO: keep this?
 def get_filepath_for_simple_id(repo_dir, study_id):
     return '{r}/study/{s}/{s}.json'.format(r=repo_dir, s=study_id)
+
+def study_id_from_repo_path(path):
+    if path.startswith('study/'):
+        try:
+            study_id = path.split('/')[-2]
+            return study_id
+        except:
+            return None
 
 class GitAction(GitActionBase):
     def __init__(self,
@@ -65,96 +66,38 @@ class GitAction(GitActionBase):
                                path_for_study_fn,
                                max_file_size,
                                path_for_doc_id_fn=get_filepath_for_namespaced_id)
+        #TODO: allow for either get-filepath function above? pass both as tuple?
+
+    # rename some generic members in the base class, for clarity and backward compatibility
     @property
     def path_for_study(self):
         return self.path_for_doc
     @property
     def return_study(self):
-        return self.return_doc
+        return self.return_document
 
-    #TODO:type-specific
-    def get_changed_studies(self, ancestral_commit_sha, study_ids_to_check=None):
-        '''Returns the set of studies that have changed on the master since
-        commit `ancestral_commit_sha` or `False` (on an error)
+    def get_changed_studies(self,
+                            ancestral_commit_sha,
+                            study_ids_to_check=None):
+        return self._get_changed_docs(ancestral_commit_sha,
+                                     doc_id_from_repo_path=study_id_from_repo_path,
+                                     doc_ids_to_check=study_ids_to_check)
 
-        if `study_ids_to_check` is passed in, it should be an iterable list of
-            IDs. Only IDs in this list will be returned.
-        '''
-        try:
-            x = git(self.gitdir,
-                    self.gitwd,
-                    "diff-tree",
-                    "--name-only",
-                    "-r",
-                    ancestral_commit_sha,
-                    "master")
-        except:
-            _LOG.exception('diff-tree failed')
-            return False
-        touched = set()
-        for f in x.split('\n'):
-            if f.startswith('study/'):
-                try:
-                    study_id = f.split('/')[-2]
-                    touched.add(study_id)
-                except:
-                    pass
-        if study_ids_to_check:
-            tc = set(study_ids_to_check)
-            return tc.intersection(touched)
-        return touched
-
-    #TODO:type-specific
     def find_WIP_branches(self, study_id):
         pat = re.compile(r'.*_study_{i}_[0-9]+'.format(i=study_id))
-        head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
-        ret = {}
-        #_LOG.debug('find_WIP_branches head_shas = "{}"'.format(head_shas.split('\n')))
-        for lin in head_shas.split('\n'):
-            try:
-                local_branch_split = lin.split(' refs/heads/')
-                if len(local_branch_split) == 2:
-                    sha, branch = local_branch_split
-                    if pat.match(branch) or branch == 'master':
-                        ret[branch] = sha
-            except:
-                raise
-        return ret
+        return self._find_WIP_branches(study_id, branch_pattern=pat)
 
-    #TODO:type-specific
-    def create_or_checkout_branch(self, gh_user, study_id, parent_sha, force_branch_name=False):
-        if force_branch_name:
-            #@TEMP deprecated
-            branch = "{ghu}_study_{rid}".format(ghu=gh_user, rid=study_id)
-            if not self.branch_exists(branch):
-                try:
-                    git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
-                    _LOG.debug('Created branch "{b}" with parent "{a}"'.format(b=branch, a=parent_sha))
-                except:
-                    raise ValueError('parent sha not in git repo')
-            self.checkout(branch)
-            return branch
+    def create_or_checkout_branch(self, 
+                                  gh_user, 
+                                  study_id, 
+                                  parent_sha, 
+                                  force_branch_name=False):
+        return self._create_or_checkout_branch(gh_user, 
+                                               study_id, 
+                                               parent_sha, 
+                                               branch_name_template="{ghu}_study_{rid}",
+                                               force_branch_name=force_branch_name)
 
-        frag = "{ghu}_study_{rid}_".format(ghu=gh_user, rid=study_id)
-        branch = self._find_head_sha(frag, parent_sha)
-        _LOG.debug('Found branch "{b}" for sha "{s}"'.format(b=branch, s=parent_sha))
-        if not branch:
-            branch = frag + '0'
-            i = 1
-            while self.branch_exists(branch):
-                branch = frag + str(i)
-                i += 1
-            _LOG.debug('lowest non existing branch =' + branch)
-            try:
-                git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
-                _LOG.debug('Created branch "{b}" with parent "{a}"'.format(b=branch, a=parent_sha))
-            except:
-                raise ValueError('parent sha not in git repo')
-        self.checkout(branch)
-        _LOG.debug('Checked out branch "{b}"'.format(b=branch))
-        return branch
-
-    #TODO:type-specific
     def remove_study(self, first_arg, sec_arg, third_arg, fourth_arg=None, commit_msg=None):
         """Remove a study
         Given a study_id, branch and optionally an
@@ -168,114 +111,29 @@ class GitAction(GitActionBase):
             parent_sha = self.get_master_sha()
         else:
             gh_user, study_id, parent_sha, author = first_arg, sec_arg, third_arg, fourth_arg
-        study_filepath = self.path_for_study(study_id)
-        study_dir = os.path.split(study_filepath)[0]
-
-        branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
-        prev_file_sha = None
         if commit_msg is None:
-            msg = "Delete Study #%s via OpenTree API" % study_id
-        else:
-            msg = commit_msg
-        if os.path.exists(study_filepath):
-            prev_file_sha = self.get_blob_sha_for_file(study_filepath)
-            git(self.gitdir, self.gitwd, "rm", "-rf", study_dir)
-            git(self.gitdir,
-                self.gitwd,
-                "commit",
-                author=author,
-                message=msg)
-        new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD").strip()
-        return {'commit_sha': new_sha,
-                'branch': branch,
-                'prev_file_sha': prev_file_sha,
-               }
+            commit_msg = "Delete Study #%s via OpenTree API" % study_id
+        return self._remove_document(gh_user, study_id, parent_sha, author, commit_msg)
 
-    #TODO:type-specific
     def write_study(self, study_id, file_content, branch, author):
         """Given a study_id, temporary filename of content, branch and auth_info
 
         Deprecated but needed until we merge api local-dep to master...
 
         """
-        parent_sha = None
         gh_user = branch.split('_study_')[0]
-        fc = tempfile.NamedTemporaryFile()
-        if is_str_type(file_content):
-            fc.write(file_content)
-        else:
-            write_as_json(file_content, fc)
-        fc.flush()
-        try:
-            study_filepath = self.path_for_study(study_id)
-            study_dir = os.path.split(study_filepath)[0]
-            if parent_sha is None:
-                self.checkout_master()
-                parent_sha = self.get_master_sha()
-            branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha, force_branch_name=True)
-            # create a study directory if this is a new study EJM- what if it isn't?
-            if not os.path.isdir(study_dir):
-                os.makedirs(study_dir)
-            shutil.copy(fc.name, study_filepath)
-            git(self.gitdir, self.gitwd, "add", study_filepath)
-            try:
-                git(self.gitdir,
-                    self.gitwd,
-                    "commit",
-                    author=author,
-                    message="Update Study #%s via OpenTree API" % study_id)
-            except Exception as e:
-                # We can ignore this if no changes are new,
-                # otherwise raise a 400
-                if "nothing to commit" in e.message:#@EJM is this dangerous?
-                    pass
-                else:
-                    _LOG.exception('"git commit" failed')
-                    self.reset_hard()
-                    raise
-            new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")
-        except Exception as e:
-            _LOG.exception('write_study exception')
-            raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
-        finally:
-            fc.close()
-        return new_sha
+        msg = "Update Study #%s via OpenTree API" % study_id
+        return self.write_document(gh_user, study_id, file_content, branch, author, 
+                                   commit_msg=msg)
 
-    #TODO:type-specific
     def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info, commit_msg=''):
         """Given a study_id, temporary filename of content, branch and auth_info
         """
-        gh_user, author = get_user_author(auth_info)
-        study_filepath = self.path_for_study(study_id)
-        study_dir = os.path.split(study_filepath)[0]
-        if parent_sha is None:
-            self.checkout_master()
-            parent_sha = self.get_master_sha()
-        branch = self.create_or_checkout_branch(gh_user, study_id, parent_sha)
-
-        # build complete commit message
-        if commit_msg:
-            commit_msg = "%s\n\n(Update Study #%s via OpenTree API)" % (commit_msg, study_id)
-        else:
-            commit_msg = "Update Study #%s via OpenTree API" % study_id
-        # create a study directory if this is a new study EJM- what if it isn't?
-        if not os.path.isdir(study_dir):
-            os.makedirs(study_dir)
-
-        if os.path.exists(study_filepath):
-            prev_file_sha = self.get_blob_sha_for_file(study_filepath)
-        else:
-            prev_file_sha = None
-        shutil.copy(tmpfi.name, study_filepath)
-        self._add_and_commit(study_filepath, author, commit_msg)
-        new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")
-        _LOG.debug('Committed study "{i}" to branch "{b}" commit SHA: "{s}"'.format(i=study_id,
-                                                                                    b=branch,
-                                                                                    s=new_sha.strip()))
-        return {'commit_sha': new_sha.strip(),
-                'branch': branch,
-                'prev_file_sha': prev_file_sha,
-               }
-
-
+        default_commit_msg="Update Study #%s via OpenTree API" % study_id
+        return self.write_doc_from_tmpfile(study_id,
+                                           tmpfi,
+                                           parent_sha, 
+                                           auth_info, 
+                                           commit_msg,
+                                           default_commit_msg)
 

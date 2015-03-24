@@ -340,7 +340,7 @@ class TypeAwareDocStore(ShardedDocStore):
             if new_study_id.startswith(self._new_doc_prefix):
                 m = 'Document IDs with the "{}" prefix can only be automatically generated.'.format(self._new_doc_prefix)
                 raise ValueError(m)
-            if not STUDY_ID_PATTERN.match(new_study_id):
+            if not STUDY_ID_PATTERN.match(new_study_id):  #TODO:type-specific
                 raise ValueError('Document ID does not match the expected pattern of alphabeticprefix_numericsuffix')
             with self._index_lock:
                 if new_study_id in self._doc2shard_map:

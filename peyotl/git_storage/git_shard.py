@@ -146,10 +146,10 @@ class TypeAwareGitShard(GitShard):
     def _diagnose_prefixes(self):
         '''Returns a set of all of the prefixes seen in the main document dir
         '''
-        from peyotl.phylesystem.git_actions import ID_PATTERN
+        from peyotl.phylesystem import STUDY_ID_PATTERN   #TODO:type-specific
         p = set()
         for name in os.listdir(self.study_dir):
-            if ID_PATTERN.match(name):
+            if STUDY_ID_PATTERN.match(name):
                 p.add(name[:3])
         return p
     def _locked_refresh_doc_ids(self):

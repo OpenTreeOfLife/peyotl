@@ -25,7 +25,7 @@ from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, \
                                                       replace_same_agent_annotation
 import os
 import re
-STUDY_ID_PATTERN = re.compile(r'^[a-zA-Z]+_+[0-9]+$')
+STUDY_ID_PATTERN = re.compile(r'[a-zA-Z][a-zA-Z]_[0-9]+')
 _LOG = get_logger(__name__)
 
 def prefix_from_study_id(study_id):

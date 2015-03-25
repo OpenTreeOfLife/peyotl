@@ -479,12 +479,12 @@ class GitActionBase(object):
         return new_sha
 
     def write_doc_from_tmpfile(self, 
-                                 doc_id, 
-                                 tmpfi, 
-                                 parent_sha, 
-                                 auth_info, 
-                                 commit_msg='',
-                                 default_commit_msg=None):
+                               doc_id, 
+                               tmpfi, 
+                               parent_sha, 
+                               auth_info, 
+                               commit_msg='',
+                               doctype_display_name="document"):
         """Given a doc_id, temporary filename of content, branch and auth_info
         """
         gh_user, author = get_user_author(auth_info)
@@ -496,8 +496,7 @@ class GitActionBase(object):
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)
 
         # build complete (probably type-specific) commit message
-        if not default_commit_msg:
-            default_commit_msg="Update document #%s via OpenTree API" % doc_id
+        default_commit_msg="Update %s #%s via OpenTree API" % (doctype_display_name, doc_id)
         if commit_msg:
             commit_msg = "%s\n\n(%s)" % (commit_msg, default_commit_msg)
         else:
@@ -521,4 +520,3 @@ class GitActionBase(object):
                 'branch': branch,
                 'prev_file_sha': prev_file_sha,
                }
-

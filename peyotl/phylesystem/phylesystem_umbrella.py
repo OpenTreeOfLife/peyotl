@@ -126,38 +126,53 @@ class _Phylesystem(TypeAwareDocStore):
     def repo_nexml2json(self,val):
         self.assumed_doc_version = val
 
-        ##  # rename some generic methods in the base class, for clarity and backward compatibility
-        ##  self.get_study_ids = self.get_doc_ids
-        ##  self.return_study = self.return_doc
-        ##  self.get_changed_studies = self.get_changed_docs
-        ##  self._mint_new_study_id = self._mint_new_doc_id
-        ## 
-        ##  # rename some generic attributes in the base class, for clarity and backward compatibility
-        ##  renamed_attributes = {'new_study_prefix':   'new_doc_prefix',
-        ##                        'repo_nexml2json':    'assumed_doc_version',
-        ##                        '_study2shard_map':   '_doc2shard_map'}
-        ##  def __getattr__(self, name):
-        ##      if type_specific_name in renamed_attributes.key():
-        ##          generic_attr_name = renamed_attributes[type_specific_name]
-        ##          return TypeAwareDocStore.__getattr(self, generic_attr_name)
-        ##      else:
-        ##          return TypeAwareDocStore.__getattr(self, name)
-        ##  def __setattr__(self, name, value):
-        ##      if type_specific_name in renamed_attributes.key():
-        ##          generic_attr_name = renamed_attributes[type_specific_name]
-        ##          return TypeAwareDocStore.__setattr(self, generic_attr_name, value)
-        ##      else:
-        ##          return TypeAwareDocStore.__setattr(self, name, value)
-        ##  def __delattr__(self, name):
-        ##      if type_specific_name in renamed_attributes.key():
-        ##          generic_attr_name = renamed_attributes[type_specific_name]
-        ##          return TypeAwareDocStore.__delattr(self, generic_attr_name)
-        ##      else:
-        ##          return TypeAwareDocStore.__delattr(self, name)
-        ##
-        ##  # rename some generic methods in the base class, for clarity and backward compatibility
-        ##  self.get_study_ids = self.get_doc_ids
-        ##  self.return_study = self.return_doc
+    def ingest_new_study(self,
+                         new_study_nexson,
+                         repo_nexml2json,
+                         auth_info,
+                         new_study_id=None):
+        placeholder_added = False
+        if new_study_id is not None:
+            if new_study_id.startswith(self._new_doc_prefix):
+                m = 'Document IDs with the "{}" prefix can only be automatically generated.'.format(self._new_doc_prefix)
+                raise ValueError(m)
+            if not STUDY_ID_PATTERN.match(new_study_id):
+                raise ValueError('Document ID does not match the expected pattern of alphabeticprefix_numericsuffix')
+            with self._index_lock:
+                if new_study_id in self._doc2shard_map:
+                    raise ValueError('Document ID is already in use!')
+                self._doc2shard_map[new_study_id] = None
+                placeholder_added = True
+        try:
+            gd, new_study_id = self.create_git_action_for_new_doc(new_study_id=new_study_id)
+            try:
+                nexml = new_study_nexson['nexml']
+                nexml['^ot:studyId'] = new_study_id
+                bundle = validate_and_convert_nexson(new_study_nexson,
+                                                     repo_nexml2json,
+                                                     allow_invalid=True)
+                nexson, annotation, nexson_adaptor = bundle[0], bundle[1], bundle[3]
+                r = self.annotate_and_write(git_data=gd,
+                                            nexson=nexson,
+                                            study_id=new_study_id,
+                                            auth_info=auth_info,
+                                            adaptor=nexson_adaptor,
+                                            annotation=annotation,
+                                            parent_sha=None,
+                                            master_file_blob_included=None)
+            except:
+                self._growing_shard.delete_study_from_index(new_study_id)
+                raise
+        except:
+            if placeholder_added:
+                with self._index_lock:
+                    if new_study_id in self._doc2shard_map:
+                        del self._doc2shard_map[new_study_id]
+            raise
+        with self._index_lock:
+            self._doc2shard_map[new_study_id] = self._growing_shard
+        return new_study_id, r
+
 
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,

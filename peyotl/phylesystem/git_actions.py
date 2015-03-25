@@ -129,11 +129,10 @@ class GitAction(GitActionBase):
     def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info, commit_msg=''):
         """Given a study_id, temporary filename of content, branch and auth_info
         """
-        default_commit_msg="Update Study #%s via OpenTree API" % study_id
         return self.write_doc_from_tmpfile(study_id,
                                            tmpfi,
                                            parent_sha, 
                                            auth_info, 
                                            commit_msg,
-                                           default_commit_msg)
+                                           doctype_display_name="study")
 

@@ -1,6 +1,10 @@
 """Base class for "type-aware" (sharded) document storage. This goes beyond simple subclasses 
 like PhylsystemProxy by introducing more business rules and differences between document types
 in the store (eg, Nexson studies in Phylesystem, tree collections in TreeCollectionStore)."""
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from peyotl.git_storage import ShardedDocStore
 #from peyotl.phylesystem.git_actions import GitAction 
     # TODO: add any possible GitAction subclasses? or expect a path
@@ -49,8 +53,7 @@ class TypeAwareDocStore(ShardedDocStore):
                                       _get_phylesystem_parent_with_source, \
                                       _make_phylesystem_cache_region
         from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
-                                                     delete_study, \
-                                                     validate_and_convert_nexson  
+                                                     delete_study
                                                      # TODO
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_doc_id)
@@ -330,53 +333,6 @@ class TypeAwareDocStore(ShardedDocStore):
                             pass
                     _shard.delete_study_from_index(doc_id)   #TODO:shard-edits
         return ret
-    def ingest_new_study(self,
-                         new_study_nexson,
-                         repo_nexml2json,
-                         auth_info,
-                         new_study_id=None):
-        placeholder_added = False
-        if new_study_id is not None:
-            if new_study_id.startswith(self._new_doc_prefix):
-                m = 'Document IDs with the "{}" prefix can only be automatically generated.'.format(self._new_doc_prefix)
-                raise ValueError(m)
-            if not STUDY_ID_PATTERN.match(new_study_id):  #TODO:type-specific
-                raise ValueError('Document ID does not match the expected pattern of alphabeticprefix_numericsuffix')
-            with self._index_lock:
-                if new_study_id in self._doc2shard_map:
-                    raise ValueError('Document ID is already in use!')
-                self._doc2shard_map[new_study_id] = None
-                placeholder_added = True
-        try:
-            gd, new_study_id = self.create_git_action_for_new_doc(new_study_id=new_study_id)
-            try:
-                nexml = new_study_nexson['nexml']
-                nexml['^ot:studyId'] = new_study_id
-                bundle = validate_and_convert_nexson(new_study_nexson,
-                                                     repo_nexml2json,
-                                                     allow_invalid=True)
-                nexson, annotation, nexson_adaptor = bundle[0], bundle[1], bundle[3]
-                r = self.annotate_and_write(git_data=gd,
-                                            nexson=nexson,
-                                            study_id=new_study_id,
-                                            auth_info=auth_info,
-                                            adaptor=nexson_adaptor,
-                                            annotation=annotation,
-                                            parent_sha=None,
-                                            master_file_blob_included=None)
-            except:
-                self._growing_shard.delete_study_from_index(new_study_id)
-                raise
-        except:
-            if placeholder_added:
-                with self._index_lock:
-                    if new_study_id in self._doc2shard_map:
-                        del self._doc2shard_map[new_study_id]
-            raise
-        with self._index_lock:
-            self._doc2shard_map[new_study_id] = self._growing_shard
-        return new_study_id, r
-
     def iter_doc_objs(self, **kwargs):
         '''Generator that iterates over all detected phylesystem studies.
         and returns the doc object (deserialized from nexson) for

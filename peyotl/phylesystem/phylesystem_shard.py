@@ -1,3 +1,5 @@
+import json
+import codecs
 from peyotl.utility import get_logger
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard
@@ -60,6 +62,35 @@ class NotAPhylesystemShardError(ValueError):
     def __init__(self, message):
         ValueError.__init__(self, message)
 
+def diagnose_repo_nexml2json(shard):
+    """Optimistic test for Nexson version in a shard (tests first study found)"""
+    with shard._index_lock:
+        fp = shard.study_index.values()[0][2]
+    _LOG.debug('diagnose_repo_nexml2json with fp={}'.format(fp))
+    with codecs.open(fp, mode='r', encoding='utf-8') as fo:
+        fj = json.load(fo)
+        from peyotl.nexson_syntax import detect_nexson_version
+        return detect_nexson_version(fj)
+
+def refresh_study_index(shard):
+    from peyotl.phylesystem.helper import create_id2study_info, \
+                                          diagnose_repo_study_id_convention
+    d = create_id2study_info(shard.study_dir, shard.name)
+    rc_dict = diagnose_repo_study_id_convention(shard.path)
+    shard.filepath_for_study_id_fn = rc_dict['fp_fn']
+    shard.id_alias_list_fn = rc_dict['id2alias_list']
+    if rc_dict['convention'] != 'simple':
+        a = {}
+        for k, v in d.items():
+            alias_list = shard.id_alias_list_fn(k)
+            for alias in alias_list:
+                a[alias] = v
+        d = a
+        shard.has_aliases = True
+    else:
+        shard.has_aliases = False
+    shard._study_index = d
+
 class PhylesystemShard(TypeAwareGitShard):
     '''Wrapper around a git repo holding nexson studies.
     Raises a ValueError if the directory does not appear to be a PhylesystemShard.
@@ -79,12 +110,14 @@ class PhylesystemShard(TypeAwareGitShard):
                                    name,
                                    path,
                                    repo_nexml2json,
+                                   diagnose_repo_nexml2json,  # version detection
+                                   refresh_study_index,  # populates 'study_index'
                                    git_ssh,
                                    pkey,
                                    git_action_class,
                                    push_mirror_repo_path,
                                    new_study_prefix,   #TODO
-                                   infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
+                                   infrastructure_commit_author,
                                    **kwargs)
 
     # rename some generic members in the base class, for clarity and backward compatibility

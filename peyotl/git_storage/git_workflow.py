@@ -17,15 +17,6 @@ _LOG = get_logger(__name__)
 
 TRACE_FILES = False
 
-def _write_to_next_free(tag, blob):
-    '''#WARNING not thread safe just a easy of debugging routine!'''
-    ind = 0
-    pref = '/tmp/peyotl-' + tag + str(ind)
-    while os.path.exists(pref):
-        ind += 1
-        pref = '/tmp/peyotl-' + tag + str(ind)
-    write_as_json(blob, pref)   #TODO:type-specific?
-
 def acquire_lock_raise(git_action, fail_msg=''):
     '''Adapts LockError to HTTP. If an exception is not thrown, the git_action has the lock (and must release it!)
     '''

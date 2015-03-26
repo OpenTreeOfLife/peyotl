@@ -66,7 +66,6 @@ class GitAction(GitActionBase):
                                path_for_study_fn,
                                max_file_size,
                                path_for_doc_id_fn=get_filepath_for_namespaced_id)
-        #TODO: allow for either get-filepath function above? pass both as tuple?
 
     # rename some generic members in the base class, for clarity and backward compatibility
     @property

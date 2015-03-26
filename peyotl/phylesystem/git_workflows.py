@@ -23,6 +23,15 @@ _LOG = get_logger(__name__)
 
 TRACE_FILES = False
 
+def _write_to_next_free(tag, blob):
+    '''#WARNING not thread safe just a easy of debugging routine!'''
+    ind = 0
+    pref = '/tmp/peyotl-' + tag + str(ind)
+    while os.path.exists(pref):
+        ind += 1
+        pref = '/tmp/peyotl-' + tag + str(ind)
+    write_as_json(blob, pref)
+
 def validate_and_convert_nexson(nexson, output_version, allow_invalid, **kwargs):
     '''Runs the nexson validator and returns a converted 4 object:
         nexson, annotation, validation_log, nexson_adaptor

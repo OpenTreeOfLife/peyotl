@@ -1,6 +1,6 @@
 """Base class git action manager (subclasses will accommodate each type)"""
 from peyotl.utility.str_util import is_str_type
-from peyotl.nexson_syntax import write_as_json #TODO:type-specific?
+from peyotl.nexson_syntax import write_as_json
 from peyotl.utility import get_logger
 import os
 from sh import git
@@ -82,7 +82,7 @@ class GitActionBase(object):
         self.repo = repo
         self.git_dir = os.path.join(repo, '.git')
         self._lock_file = os.path.join(self.git_dir, "API_WRITE_LOCK")
-        self._lock_timeout = 30  #TODO:type-specific?
+        self._lock_timeout = 30  # in seconds
         self._lock = locket.lock_file(self._lock_file, timeout=self._lock_timeout)
         self.repo_remote = remote
         self.git_ssh = git_ssh
@@ -436,6 +436,7 @@ class GitActionBase(object):
         """
         parent_sha = None
         fc = tempfile.NamedTemporaryFile()
+        # N.B. we currently assume file_content is text/JSON, or should be serialized from a dict
         if is_str_type(file_content):
             fc.write(file_content)
         else:
@@ -489,7 +490,8 @@ class GitActionBase(object):
         """
         gh_user, author = get_user_author(auth_info)
         doc_filepath = self.path_for_doc(doc_id)
-        doc_dir = os.path.split(doc_filepath)[0]  #TODO:confirm sensible results
+        doc_dir = os.path.split(doc_filepath)[0]  
+        #TODO:confirm sensible results in doc_dir for all document types
         if parent_sha is None:
             self.checkout_master()
             parent_sha = self.get_master_sha()

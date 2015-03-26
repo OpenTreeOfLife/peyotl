@@ -5,10 +5,7 @@ import re
 import codecs
 from threading import Lock
 from peyotl.utility import get_logger, get_config_setting_kwargs, write_to_filepath
-
-# TODO: extract this Nexson-specific stuff!
 from peyotl.utility.input_output import read_as_json, write_as_json
-from peyotl.nexson_syntax import detect_nexson_version
 
 class NotAGitShardError(ValueError):
     def __init__(self, message):
@@ -38,6 +35,7 @@ class GitShard(object):
     def doc_index(self):
         return self._doc_index
 
+    #TODO:type-specific
     def get_doc_ids(self, include_aliases=False):
         with self._index_lock:
             k = self._doc_index.keys()
@@ -58,6 +56,8 @@ class TypeAwareGitShard(GitShard):
                  name,
                  path,
                  assumed_doc_version=None,
+                 detect_doc_version_fn=None,
+                 refresh_doc_index_fn=None,
                  git_ssh=None,
                  pkey=None,
                  git_action_class=None,  #TODO:peyotl.phylesystem.git_actions.GitAction,
@@ -67,6 +67,7 @@ class TypeAwareGitShard(GitShard):
                  **kwargs):
         GitShard.__init__(self, name)
         self._infrastructure_commit_author = infrastructure_commit_author
+        self._locked_refresh_doc_ids = refresh_doc_index_fn
         self._doc_counter_lock = Lock()
         self._master_branch_repo_lock = Lock()
         self._new_study_prefix = new_study_prefix  #TODO:type-specific
@@ -116,7 +117,7 @@ class TypeAwareGitShard(GitShard):
             self.inferred_study_prefix = False
         self.study_dir = study_dir
         with self._index_lock:
-            self._locked_refresh_doc_ids()
+            self._locked_refresh_doc_ids(self)
         self.parent_path = os.path.split(path)[0] + '/'
         self.git_dir = dot_git
         self.push_mirror_repo_path = push_mirror_repo_path
@@ -126,7 +127,11 @@ class TypeAwareGitShard(GitShard):
             except:
                 pass
             if assumed_doc_version == None:
-                assumed_doc_version = self.diagnose_repo_nexml2json()
+                try:
+                    # pass this shard to a type-specific test
+                    assumed_doc_version = detect_doc_version_fn(self)
+                except:
+                    pass
         max_file_size = kwargs.get('max_file_size')
         if max_file_size is None:
             max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None, **kwargs)
@@ -152,24 +157,6 @@ class TypeAwareGitShard(GitShard):
             if STUDY_ID_PATTERN.match(name):
                 p.add(name[:3])
         return p
-    def _locked_refresh_doc_ids(self):
-        from peyotl.phylesystem.helper import create_id2study_info, \
-                                              diagnose_repo_study_id_convention
-        d = create_id2study_info(self.study_dir, self.name)
-        rc_dict = diagnose_repo_study_id_convention(self.path)
-        self.filepath_for_study_id_fn = rc_dict['fp_fn']
-        self.id_alias_list_fn = rc_dict['id2alias_list']
-        if rc_dict['convention'] != 'simple':
-            a = {}
-            for k, v in d.items():
-                alias_list = self.id_alias_list_fn(k)
-                for alias in alias_list:
-                    a[alias] = v
-            d = a
-            self.has_aliases = True
-        else:
-            self.has_aliases = False
-        self._study_index = d
     def infer_study_prefix(self):
         prefix_file = os.path.join(self.path, 'new_study_prefix')
         if os.path.exists(prefix_file):
@@ -255,14 +242,6 @@ class TypeAwareGitShard(GitShard):
     def next_study_id(self):
         return self._next_study_id
 
-    def diagnose_repo_nexml2json(self):
-        with self._index_lock:
-            fp = self.study_index.values()[0][2]
-        _LOG.debug('diagnose_repo_nexml2json with fp={}'.format(fp))
-        with codecs.open(fp, mode='r', encoding='utf-8') as fo:
-            fj = json.load(fo)
-            return detect_nexson_version(fj)
-
     def _create_git_action_for_global_resource(self):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,
@@ -281,7 +260,7 @@ class TypeAwareGitShard(GitShard):
             ga = self.create_git_action()
             from peyotl.phylesystem.git_workflows import _pull_gh
             _pull_gh(ga, remote, branch_name)
-            self._locked_refresh_doc_ids()
+            self._locked_refresh_doc_ids(self)
     #TODO:type-specific?
     def _advance_new_study_id(self):
         ''' ASSUMES the caller holds the _doc_counter_lock !
@@ -361,6 +340,8 @@ class TypeAwareGitShard(GitShard):
             for doc_id, info in self._doc_index.items():
                 if not self._is_alias(doc_id):
                     yield doc_id, info[-1]
+
+    #TODO:type-specific? Where and how is this used?
     def iter_doc_objs(self, **kwargs):
         '''Returns a pair: (doc_id, nexson_blob)
         for each document in this repository.
@@ -375,6 +356,7 @@ class TypeAwareGitShard(GitShard):
                         yield (obj_id, nex_obj)
                     except Exception:
                         pass
+
     #TODO:type-specific?
     def write_configuration(self, out, secret_attrs=False):
         key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json',

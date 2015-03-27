@@ -331,7 +331,7 @@ class TypeAwareDocStore(ShardedDocStore):
                             del self._doc2shard_map[alias]
                         except KeyError:
                             pass
-                    _shard.delete_study_from_index(doc_id)   #TODO:shard-edits
+                    _shard.delete_doc_from_index(doc_id)   #TODO:shard-edits
         return ret
     def iter_doc_objs(self, **kwargs):
         '''Generator that iterates over all detected phylesystem studies.

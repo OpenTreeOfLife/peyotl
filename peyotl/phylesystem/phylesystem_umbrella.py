@@ -161,7 +161,7 @@ class _Phylesystem(TypeAwareDocStore):
                                             parent_sha=None,
                                             master_file_blob_included=None)
             except:
-                self._growing_shard.delete_study_from_index(new_study_id)
+                self._growing_shard.delete_doc_from_index(new_study_id)
                 raise
         except:
             if placeholder_added:

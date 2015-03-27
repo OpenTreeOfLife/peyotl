@@ -76,13 +76,13 @@ class TypeAwareGitShard(GitShard):
         self.pkey = pkey
         path = os.path.abspath(path)
         dot_git = os.path.join(path, '.git')
-        study_dir = os.path.join(path, 'study')  #TODO:type-specific
+        doc_dir = os.path.join(path, 'study')  #TODO:type-specific
         if not os.path.isdir(path):
             raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=path))
         if not os.path.isdir(dot_git):
             raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=dot_git))
-        if not os.path.isdir(study_dir):
-            raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=study_dir))
+        if not os.path.isdir(doc_dir):
+            raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=doc_dir))
         self.path = path
         self._id_minting_file = os.path.join(path, 'next_study_id.json')
         if self._new_study_prefix is None:
@@ -98,7 +98,7 @@ class TypeAwareGitShard(GitShard):
                 self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
         from peyotl.phylesystem.helper import create_id2study_info, \
                                               diagnose_repo_study_id_convention
-        d = create_id2study_info(study_dir, name)
+        d = create_id2study_info(doc_dir, name)
         rc_dict = diagnose_repo_study_id_convention(path)
         self.filepath_for_study_id_fn = rc_dict['fp_fn']
         self.filepath_for_global_resource_fn = lambda frag: os.path.join(path, frag)
@@ -115,7 +115,7 @@ class TypeAwareGitShard(GitShard):
             self.infer_study_prefix()
         else:
             self.inferred_study_prefix = False
-        self.study_dir = study_dir
+        self.doc_dir = doc_dir
         with self._index_lock:
             self._locked_refresh_doc_ids(self)
         self.parent_path = os.path.split(path)[0] + '/'
@@ -139,7 +139,7 @@ class TypeAwareGitShard(GitShard):
                 try:
                     max_file_size = int(max_file_size)
                 except:
-                    m = 'Configuration-base value of max_file_size was "{}". Expecting and integer.'
+                    m = 'Configuration-base value of max_file_size was "{}". Expecting an integer.'
                     m = m.format(max_file_size)
                     raise RuntimeError(m)
         self.max_file_size = max_file_size
@@ -153,7 +153,7 @@ class TypeAwareGitShard(GitShard):
         '''
         from peyotl.phylesystem import STUDY_ID_PATTERN   #TODO:type-specific
         p = set()
-        for name in os.listdir(self.study_dir):
+        for name in os.listdir(self.doc_dir):
             if STUDY_ID_PATTERN.match(name):
                 p.add(name[:3])
         return p
@@ -169,15 +169,12 @@ class TypeAwareGitShard(GitShard):
         else:
             self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
 
-    def register_new_study(self, study_id):
-        pass
-
-    def delete_study_from_index(self, study_id):
-        alias_list = self.id_alias_list_fn(study_id)
+    def delete_doc_from_index(self, doc_id):
+        alias_list = self.id_alias_list_fn(doc_id)
         with self._index_lock:
             for i in alias_list:
                 try:
-                    del self._study_index[i]
+                    del self._doc_index[i]
                 except:
                     pass
 
@@ -301,7 +298,7 @@ class TypeAwareGitShard(GitShard):
     def register_study_id(self, ga, study_id):
         fp = ga.path_for_study(study_id)
         with self._index_lock:
-            self._study_index[study_id] = (self.name, self.study_dir, fp)
+            self._study_index[study_id] = (self.name, self.doc_dir, fp)
     def _create_git_action_for_mirror(self):
         # If a document makes it into the working dir, we don't want to reject it from the mirror, so
         #   we use max_file_size= None
@@ -357,45 +354,46 @@ class TypeAwareGitShard(GitShard):
                     except Exception:
                         pass
 
-    #TODO:type-specific?
     def write_configuration(self, out, secret_attrs=False):
-        key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json',
-                     'git_ssh', 'pkey', 'has_aliases', '_next_study_id',
-                     'number of studies']
+        """Generic configuration, may be overridden by type-specific version"""
+        key_order = ['name', 'path', 'git_dir', 'doc_dir', 'assumed_doc_version',
+                     'git_ssh', 'pkey', 'has_aliases', '_next_doc_id',
+                     'number of documents']
         cd = self.get_configuration_dict(secret_attrs=secret_attrs)
         for k in key_order:
             if k in cd:
                 out.write('  {} = {}'.format(k, cd[k]))
-        out.write('  studies in alias groups:\n')
-        for o in cd['studies']:
+        out.write('  documents in alias groups:\n')
+        for o in cd['documents']:
             out.write('    {} ==> {}\n'.format(o['keys'], o['relpath']))
-    #TODO:type-specific?
     def get_configuration_dict(self, secret_attrs=False):
+        """Generic configuration, may be overridden by type-specific version"""
         rd = {'name': self.name,
               'path': self.path,
               'git_dir': self.git_dir,
-              'repo_nexml2json': self.assumed_doc_version,
-              'study_dir': self.study_dir,
+              'assumed_doc_version': self.assumed_doc_version,
+              'doc_dir': self.doc_dir,
               'git_ssh': self.git_ssh, }
         if self._next_study_id is not None:
-            rd['_next_study_id'] = self._next_study_id,
+            rd['_next_doc_id'] = self._next_study_id,
         if secret_attrs:
             rd['pkey'] = self.pkey
         with self._index_lock:
             si = self._study_index
         r = _invert_dict_list_val(si)
         key_list = list(r.keys())
-        rd['number of studies'] = len(key_list)
+        rd['number of documents'] = len(key_list)
         key_list.sort()
         m = []
         for k in key_list:
             v = r[k]
             fp = k[2]
-            assert fp.startswith(self.study_dir)
-            rp = fp[len(self.study_dir) + 1:]
+            assert fp.startswith(self.doc_dir)
+            rp = fp[len(self.doc_dir) + 1:]
             m.append({'keys': v, 'relpath': rp})
-        rd['studies'] = m
+        rd['documents'] = m
         return rd
+
     def get_branch_list(self):
         ga = self.create_git_action()
         return ga.get_branch_list()

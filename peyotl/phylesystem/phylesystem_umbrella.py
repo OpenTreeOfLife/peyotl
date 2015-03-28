@@ -101,10 +101,13 @@ class _Phylesystem(TypeAwareDocStore):
         self._new_study_prefix = self._growing_shard._new_study_prefix  # TODO:shard-edits?
         self._growing_shard._determine_next_study_id()
 
+    def get_study_ids(self, include_aliases=False):
+        k = []
+        for shard in self._shards:
+            k.extend(shard.get_study_ids(include_aliases=include_aliases))
+        return k
+
     # rename some generic members in the base class, for clarity and backward compatibility
-    @property
-    def get_study_ids(self):
-        return self.get_doc_ids
     @property
     def return_study(self):
         return self.return_doc

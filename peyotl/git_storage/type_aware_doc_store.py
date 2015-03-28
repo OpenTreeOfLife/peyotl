@@ -103,7 +103,7 @@ class TypeAwareDocStore(ShardedDocStore):
                                          repo_nexml2json=assumed_doc_version,
                                          git_action_class=git_action_class,
                                          push_mirror_repo_path=push_mirror_repo_path,
-                                         new_study_prefix=new_doc_prefix,  # TODO:shard-edits
+                                         new_doc_prefix=new_doc_prefix,
                                          infrastructure_commit_author=infrastructure_commit_author)
             except NotAPhylesystemShardError as x:
                 f = 'Git repo "{d}" found in your phylesystem parent, but it does not appear to be a phylesystem ' \

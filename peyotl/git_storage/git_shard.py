@@ -14,7 +14,6 @@ class NotAGitShardError(ValueError):
 class GitShard(object):
     """Bare-bones functionality needed by both normal and proxy shards."""
     def __init__(self, name):
-        from peyotl.phylesystem.helper import DIGIT_PATTERN, create_id2study_info, diagnose_repo_study_id_convention
         self._index_lock = Lock()
         self._doc_index = {}
         self.name = name
@@ -35,18 +34,9 @@ class GitShard(object):
     def doc_index(self):
         return self._doc_index
 
-    #TODO:type-specific
-    def get_doc_ids(self, include_aliases=False):
+    def get_doc_ids(self):
         with self._index_lock:
             k = self._doc_index.keys()
-        if self.has_aliases and (not include_aliases):
-            x = []
-            for i in k:
-                if DIGIT_PATTERN.match(i) or ((len(i) > 1) and (i[-2] == '_')):
-                    pass
-                else:
-                    x.append(i)
-            return x
         return list(k)
 
 class TypeAwareGitShard(GitShard):
@@ -66,7 +56,7 @@ class TypeAwareGitShard(GitShard):
                  **kwargs):
         GitShard.__init__(self, name)
         self._infrastructure_commit_author = infrastructure_commit_author
-        self._locked_refresh_doc_ids = refresh_doc_index_fn
+        self._locked_refresh_doc_index = refresh_doc_index_fn
         self._master_branch_repo_lock = Lock()
         self._ga_class = git_action_class
         self.git_ssh = git_ssh
@@ -81,27 +71,9 @@ class TypeAwareGitShard(GitShard):
         if not os.path.isdir(doc_dir):
             raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=doc_dir))
         self.path = path
-        from peyotl.phylesystem.helper import create_id2study_info, \
-                                              diagnose_repo_study_id_convention
-        d = create_id2study_info(doc_dir, name)
-        rc_dict = diagnose_repo_study_id_convention(path)
-        self.filepath_for_study_id_fn = rc_dict['fp_fn']
-        self.id_alias_list_fn = rc_dict['id2alias_list']
-        if rc_dict['convention'] != 'simple':
-            a = {}
-            for k, v in d.items():
-                alias_list = self.id_alias_list_fn(k)
-                for alias in alias_list:
-                    a[alias] = v
-            d = a
-            self.has_aliases = True
-            self.inferred_study_prefix = True
-            self.infer_study_prefix()
-        else:
-            self.inferred_study_prefix = False
         self.doc_dir = doc_dir
         with self._index_lock:
-            self._locked_refresh_doc_ids(self)
+            self._locked_refresh_doc_index(self, initializing=True)
         self.parent_path = os.path.split(path)[0] + '/'
         self.git_dir = dot_git
         self.push_mirror_repo_path = push_mirror_repo_path
@@ -143,7 +115,7 @@ class TypeAwareGitShard(GitShard):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,
                               pkey=self.pkey,
-                              path_for_study_fn=self.filepath_for_study_id_fn,
+                              path_for_doc_fn=self.filepath_for_doc_id_fn,
                               max_file_size=self.max_file_size)
         #TODO:git-action-edits
     def pull(self, remote='origin', branch_name='master'):
@@ -151,7 +123,7 @@ class TypeAwareGitShard(GitShard):
             ga = self.create_git_action()
             from peyotl.phylesystem.git_workflows import _pull_gh
             _pull_gh(ga, remote, branch_name)
-            self._locked_refresh_doc_ids(self)
+            self._locked_refresh_doc_index(self)
     #TODO:type-specific?
     def register_study_id(self, ga, study_id):
         fp = ga.path_for_study(study_id)
@@ -163,7 +135,7 @@ class TypeAwareGitShard(GitShard):
         mirror_ga = self._ga_class(repo=self.push_mirror_repo_path,
                                    git_ssh=self.git_ssh,
                                    pkey=self.pkey,
-                                   path_for_study_fn=self.filepath_for_study_id_fn,
+                                   path_for_doc_fn=self.filepath_for_doc_id_fn,
                                    max_file_size=None)
         #TODO:git-action-edits
         return mirror_ga

@@ -55,10 +55,10 @@ class ShardedDocStore(object):
             #   deleted. This fall back relies on a unique prefix for each shard)
             pref = self.prefix_from_doc_id(doc_id)
             return self._prefix2shard[pref]
-    def get_doc_ids(self, include_aliases=False):
+    def get_doc_ids(self):
         k = []
         for shard in self._shards:
-            k.extend(shard.get_study_ids(include_aliases=include_aliases)) # TODO:shard-edits
+            k.extend(shard.get_doc_ids())
         return k
 
 

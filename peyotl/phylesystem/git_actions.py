@@ -45,7 +45,7 @@ class GitAction(GitActionBase):
                  git_ssh=None,
                  pkey=None,
                  cache=None, #pylint: disable=W0613
-                 path_for_study_fn=None,
+                 path_for_doc_fn=None,
                  max_file_size=None):
         """Create a GitAction object to interact with a Git repository
 
@@ -63,7 +63,7 @@ class GitAction(GitActionBase):
                                git_ssh,
                                pkey,
                                cache,
-                               path_for_study_fn,
+                               path_for_doc_fn,
                                max_file_size,
                                path_for_doc_id_fn=get_filepath_for_namespaced_id)
 

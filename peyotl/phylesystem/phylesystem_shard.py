@@ -7,12 +7,24 @@ from peyotl.utility import get_logger
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard, \
                                          _invert_dict_list_val
-from peyotl.phylesystem.git_actions import GitAction
 from peyotl.utility import write_to_filepath
 from peyotl.utility.input_output import read_as_json, write_as_json
 
 _LOG = get_logger(__name__)
 #class PhylesystemShardBase(object):
+
+def _get_filtered_study_ids(shard, include_aliases=False):
+    from peyotl.phylesystem.helper import DIGIT_PATTERN 
+    """Optionally filters out aliases from standard doc-id list"""
+    k = shard.get_doc_ids()
+    if shard.has_aliases and (not include_aliases):
+        x = []
+        for i in k:
+            if DIGIT_PATTERN.match(i) or ((len(i) > 1) and (i[-2] == '_')):
+                pass
+            else:
+                x.append(i)
+        return x
 
 class PhylesystemShardProxy(GitShard):
     '''Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
@@ -30,9 +42,6 @@ class PhylesystemShardProxy(GitShard):
         self.study_index = d
 
     # rename some generic members in the base class, for clarity and backward compatibility
-    @property
-    def get_study_ids(self):
-        return self.get_doc_ids
     @property
     def return_study(self):
         return self.return_doc
@@ -61,6 +70,9 @@ class PhylesystemShardProxy(GitShard):
     def new_study_prefix(self,val):
         self.new_doc_prefix = val
 
+    def get_study_ids(self, include_aliases=False):
+        return _get_filtered_study_ids(self, include_aliases)
+
 class NotAPhylesystemShardError(ValueError):
     def __init__(self, message):
         ValueError.__init__(self, message)
@@ -75,12 +87,12 @@ def diagnose_repo_nexml2json(shard):
         from peyotl.nexson_syntax import detect_nexson_version
         return detect_nexson_version(fj)
 
-def refresh_study_index(shard):
+def refresh_study_index(shard, initializing=False):
     from peyotl.phylesystem.helper import create_id2study_info, \
                                           diagnose_repo_study_id_convention
     d = create_id2study_info(shard.doc_dir, shard.name)
     rc_dict = diagnose_repo_study_id_convention(shard.path)
-    shard.filepath_for_study_id_fn = rc_dict['fp_fn']
+    shard.filepath_for_doc_id_fn = rc_dict['fp_fn']
     shard.id_alias_list_fn = rc_dict['id2alias_list']
     if rc_dict['convention'] != 'simple':
         a = {}
@@ -90,6 +102,8 @@ def refresh_study_index(shard):
                 a[alias] = v
         d = a
         shard.has_aliases = True
+        if initializing:
+            shard.infer_study_prefix()
     else:
         shard.has_aliases = False
     shard._study_index = d
@@ -98,6 +112,7 @@ class PhylesystemShard(TypeAwareGitShard):
     '''Wrapper around a git repo holding nexson studies.
     Raises a ValueError if the directory does not appear to be a PhylesystemShard.
     Raises a RuntimeError for errors associated with misconfiguration.'''
+    from peyotl.phylesystem.git_actions import GitAction
     def __init__(self,
                  name,
                  path,
@@ -143,9 +158,6 @@ class PhylesystemShard(TypeAwareGitShard):
     def next_study_id(self):
         return self._next_study_id
     @property
-    def get_study_ids(self):
-        return self.get_doc_ids
-    @property
     def iter_study_objs(self):
         return self.iter_doc_objs
     @property
@@ -176,6 +188,9 @@ class PhylesystemShard(TypeAwareGitShard):
     @repo_nexml2json.setter
     def repo_nexml2json(self,val):
         self.assumed_doc_version = val
+
+    def get_study_ids(self, include_aliases=False):
+        return _get_filtered_study_ids(self, include_aliases)
 
     # Type-specific configuration for backward compatibility
     # (config is visible to API consumers via /phylesystem_config)
@@ -340,5 +355,5 @@ class PhylesystemShard(TypeAwareGitShard):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,
                               pkey=self.pkey,
-                              path_for_study_fn=self.filepath_for_global_resource_fn,
+                              path_for_doc_fn=self.filepath_for_global_resource_fn,
                               max_file_size=self.max_file_size)

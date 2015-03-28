@@ -83,20 +83,23 @@ class _Phylesystem(TypeAwareDocStore):
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
         '''
+        self._new_study_prefix = None
         TypeAwareDocStore.__init__(self,
                                    prefix_from_doc_id=prefix_from_study_id,
-                                   repos_dict=None,
-                                   repos_par=None,
-                                   with_caching=True,
+                                   repos_dict=repos_dict,
+                                   repos_par=repos_par,
+                                   with_caching=with_caching,
                                    assumed_doc_version=repo_nexml2json,
-                                   git_ssh=None,
-                                   pkey=None,
+                                   git_ssh=git_ssh,
+                                   pkey=pkey,
                                    git_action_class=GitAction,
                                    git_shard_class=PhylesystemShard,
-                                   mirror_info=None,
-                                   new_doc_prefix=None,
+                                   mirror_info=mirror_info,
+                                   new_doc_prefix=new_study_prefix,
                                    infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                                    **kwargs)
+        self._new_study_prefix = self._growing_shard._new_study_prefix  # TODO:shard-edits?
+        self._growing_shard._determine_next_study_id()
 
     # rename some generic members in the base class, for clarity and backward compatibility
     @property
@@ -108,9 +111,6 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def get_changed_studies(self):
         return self.get_changed_docs
-    @property
-    def _mint_new_study_id(self):
-        return self._mint_new_doc_id
 
     @property
     def new_study_prefix(self):
@@ -126,6 +126,14 @@ class _Phylesystem(TypeAwareDocStore):
     def repo_nexml2json(self,val):
         self.assumed_doc_version = val
 
+    def _mint_new_study_id(self):
+        '''Checks out master branch of the shard as a side effect'''
+        return self._growing_shard._mint_new_study_id()
+
+    def create_git_action_for_new_study(self, new_study_id=None):
+        '''Checks out master branch of the shard as a side effect'''
+        return self._growing_shard.create_git_action_for_new_study(new_study_id=new_study_id)
+
     def ingest_new_study(self,
                          new_study_nexson,
                          repo_nexml2json,
@@ -133,8 +141,8 @@ class _Phylesystem(TypeAwareDocStore):
                          new_study_id=None):
         placeholder_added = False
         if new_study_id is not None:
-            if new_study_id.startswith(self._new_doc_prefix):
-                m = 'Document IDs with the "{}" prefix can only be automatically generated.'.format(self._new_doc_prefix)
+            if new_study_id.startswith(self._new_study_prefix):
+                m = 'Document IDs with the "{}" prefix can only be automatically generated.'.format(self._new_study_prefix)
                 raise ValueError(m)
             if not STUDY_ID_PATTERN.match(new_study_id):
                 raise ValueError('Document ID does not match the expected pattern of alphabeticprefix_numericsuffix')
@@ -144,7 +152,7 @@ class _Phylesystem(TypeAwareDocStore):
                 self._doc2shard_map[new_study_id] = None
                 placeholder_added = True
         try:
-            gd, new_study_id = self.create_git_action_for_new_doc(new_study_id=new_study_id)
+            gd, new_study_id = self.create_git_action_for_new_study(new_study_id=new_study_id)
             try:
                 nexml = new_study_nexson['nexml']
                 nexml['^ot:studyId'] = new_study_id

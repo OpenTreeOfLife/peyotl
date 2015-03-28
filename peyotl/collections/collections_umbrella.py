@@ -85,7 +85,6 @@ class _TreeCollectionStore(TypeAwareDocStore):
                  pkey=None,
                  git_action_class=GitAction,
                  mirror_info=None,
-                 #new_study_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
         '''
@@ -120,29 +119,10 @@ class _TreeCollectionStore(TypeAwareDocStore):
                                    infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                                    **kwargs)
 
-        # rename some generic attributes in the base class, for clarity and backward compatibility
-        renamed_attributes = {'new_collection_prefix':   'new_doc_prefix'}
-        def __getattr__(self, name):
-            if type_specific_name in renamed_attributes.key():
-                generic_attr_name = renamed_attributes[type_specific_name]
-                return TypeAwareDocStore.__getattr(self, generic_attr_name)
-            else:
-                return TypeAwareDocStore.__getattr(self, name)
-        def __setattr__(self, name, value):
-            if type_specific_name in renamed_attributes.key():
-                generic_attr_name = renamed_attributes[type_specific_name]
-                return TypeAwareDocStore.__setattr(self, generic_attr_name, value)
-            else:
-                return TypeAwareDocStore.__setattr(self, name, value)
-        def __delattr__(self, name):
-            if type_specific_name in renamed_attributes.key():
-                generic_attr_name = renamed_attributes[type_specific_name]
-                return TypeAwareDocStore.__delattr(self, generic_attr_name)
-            else:
-                return TypeAwareDocStore.__delattr(self, name)
-
-        # rename some generic methods in the base class, for clarity and backward compatibility
-        self.get_collection_ids = self.get_doc_ids
+        # rename some generic members in the base class, for clarity and backward compatibility
+        @property
+        def get_collection_ids(self):
+            return self.get_doc_ids
 
 _THE_TREE_COLLECTION_STORE = None
 def TreeCollectionStore(repos_dict=None,
@@ -153,7 +133,6 @@ def TreeCollectionStore(repos_dict=None,
                         pkey=None,
                         git_action_class=GitAction,
                         mirror_info=None,
-                        #new_study_prefix=None,
                         infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>'):
     '''Factory function for a _TreeCollectionStore object.
 
@@ -172,7 +151,6 @@ def TreeCollectionStore(repos_dict=None,
                                         pkey=pkey,
                                         git_action_class=git_action_class,
                                         mirror_info=mirror_info,
-                                        #new_study_prefix=new_study_prefix,
                                         infrastructure_commit_author=infrastructure_commit_author)
     return _THE_TREE_COLLECTION_STORE
 

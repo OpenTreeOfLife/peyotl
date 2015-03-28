@@ -1,11 +1,11 @@
 """Base class for "type-aware" (sharded) document storage. This goes beyond simple subclasses 
 like PhylsystemProxy by introducing more business rules and differences between document types
 in the store (eg, Nexson studies in Phylesystem, tree collections in TreeCollectionStore)."""
+import os
 try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
-from peyotl.git_storage import ShardedDocStore
 #from peyotl.phylesystem.git_actions import GitAction 
     # TODO: add any possible GitAction subclasses? or expect a path
     # (peyotl.collections.GitAction) to be provided?
@@ -16,6 +16,7 @@ except:
         pass
     anyjson = Wrapper()
     anyjson.loads = json.loads
+from peyotl.git_storage import ShardedDocStore
 
 class TypeAwareDocStore(ShardedDocStore):
     def __init__(self, 
@@ -113,6 +114,7 @@ class TypeAwareDocStore(ShardedDocStore):
                 continue
             # if the mirror does not exist, clone it...
             if push_mirror_repos_par and (push_mirror_repo_path is None):
+                from peyotl.git_storage import GitActionBase
                 GitActionBase.clone_repo(push_mirror_repos_par,
                                      repo_name,
                                      repo_filepath)
@@ -160,15 +162,7 @@ class TypeAwareDocStore(ShardedDocStore):
                     raise KeyError('doc "{i}" found in multiple repos'.format(i=k))
                 d[k] = s
         self._doc2shard_map = d
-        self._new_doc_prefix = self._growing_shard._new_study_prefix  # TODO:shard-edits?
-        self._growing_shard._determine_next_study_id()  # TODO:shard-edits?
 
-    def _mint_new_doc_id(self):
-        '''Checks out master branch of the shard as a side effect'''
-        return self._growing_shard._mint_new_study_id()  # TODO:shard-edits?
-    @property
-    def next_doc_id(self):
-        return self._growing_shard.next_study_id  # TODO:shard-edits?
     def has_doc(self, doc_id):
         with self._index_lock:
             return doc_id in self._doc2shard_map
@@ -176,10 +170,6 @@ class TypeAwareDocStore(ShardedDocStore):
     def create_git_action(self, doc_id):
         shard = self.get_shard(doc_id)
         return shard.create_git_action()
-
-    def create_git_action_for_new_doc(self, new_doc_id=None):
-        '''Checks out master branch of the shard as a side effect'''
-        return self._growing_shard.create_git_action_for_new_study(new_study_id=new_doc_id)  # TODO:shard-edits
 
     def add_validation_annotation(self, doc_obj, sha):
         need_to_cache = False

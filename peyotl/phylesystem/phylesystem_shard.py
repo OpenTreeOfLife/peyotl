@@ -1,10 +1,15 @@
+import os
+import re
 import json
 import codecs
+from threading import Lock
 from peyotl.utility import get_logger
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard, \
                                          _invert_dict_list_val
 from peyotl.phylesystem.git_actions import GitAction
+from peyotl.utility import write_to_filepath
+from peyotl.utility.input_output import read_as_json, write_as_json
 
 _LOG = get_logger(__name__)
 #class PhylesystemShardBase(object):
@@ -34,9 +39,6 @@ class PhylesystemShardProxy(GitShard):
     @property
     def get_changed_studies(self):
         return self.get_changed_docs
-    @property
-    def _mint_new_study_id(self):
-        return self._mint_new_doc_id
 
     @property
     def repo_nexml2json(self):
@@ -117,11 +119,29 @@ class PhylesystemShard(TypeAwareGitShard):
                                    pkey,
                                    git_action_class,
                                    push_mirror_repo_path,
-                                   new_study_prefix,   #TODO
                                    infrastructure_commit_author,
                                    **kwargs)
+        self._doc_counter_lock = Lock()
+        self._next_study_id = None
+        self._new_study_prefix = new_study_prefix
+        if self._new_study_prefix is None:
+            prefix_file = os.path.join(path, 'new_study_prefix')
+            if os.path.exists(prefix_file):
+                pre_content = open(prefix_file, 'r').read().strip()
+                valid_pat = re.compile('^[a-zA-Z0-9]+_$')
+                if len(pre_content) != 3 or not valid_pat.match(pre_content):
+                    raise NotAPhylesystemShardError('Expecting prefix in new_study_prefix file to be two '\
+                                     'letters followed by an underscore')
+                self._new_study_prefix = pre_content
+            else:
+                self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
+        self._id_minting_file = os.path.join(path, 'next_study_id.json')
+        self.filepath_for_global_resource_fn = lambda frag: os.path.join(path, frag)
 
     # rename some generic members in the base class, for clarity and backward compatibility
+    @property
+    def next_study_id(self):
+        return self._next_study_id
     @property
     def get_study_ids(self):
         return self.get_doc_ids
@@ -198,4 +218,127 @@ class PhylesystemShard(TypeAwareGitShard):
             m.append({'keys': v, 'relpath': rp})
         rd['studies'] = m
         return rd
+    def _determine_next_study_id(self):
+        """Return the numeric part of the newest study_id
 
+        Checks out master branch as a side effect!
+        """
+        if self._doc_counter_lock is None:
+            self._doc_counter_lock = Lock()
+        prefix = self._new_study_prefix
+        lp = len(prefix)
+        n = 0
+        # this function holds the lock for quite awhile,
+        #   but it only called on the first instance of
+        #   of creating a new study
+        with self._doc_counter_lock:
+            with self._index_lock:
+                for k in self._study_index.keys():
+                    if k.startswith(prefix):
+                        try:
+                            pn = int(k[lp:])
+                            if pn > n:
+                                n = pn
+                        except:
+                            pass
+            nsi_contents = self._read_master_branch_resource(self._id_minting_file, is_json=True)
+            if nsi_contents:
+                self._next_study_id = nsi_contents['next_study_id']
+                if self._next_study_id <= n:
+                    m = 'next_study_id in {} is set lower than the ID of an existing study!'
+                    m = m.format(self._id_minting_file)
+                    raise RuntimeError(m)
+            else:
+                # legacy support for repo with no next_study_id.json file
+                self._next_study_id = n
+                self._advance_new_study_id() # this will trigger the creation of the file
+
+    def _advance_new_study_id(self):
+        ''' ASSUMES the caller holds the _doc_counter_lock !
+        Returns the current numeric part of the next study ID, advances
+        the counter to the next value, and stores that value in the
+        file in case the server is restarted.
+        '''
+        c = self._next_study_id
+        self._next_study_id = 1 + c
+        content = u'{"next_study_id": %d}\n' % self._next_study_id
+        # The content is JSON, but we hand-rolled the string above
+        #       so that we can use it as a commit_msg
+        self._write_master_branch_resource(content,
+                                           self._id_minting_file,
+                                           commit_msg=content,
+                                           is_json=False)
+        return c
+
+    def _read_master_branch_resource(self, fn, is_json=False):
+        '''This will force the current branch to master! '''
+        with self._master_branch_repo_lock:
+            ga = self._create_git_action_for_global_resource()
+            with ga.lock():
+                ga.checkout_master()
+                if os.path.exists(fn):
+                    if is_json:
+                        return read_as_json(fn)
+                    return codecs.open(fn, 'rU', encoding='utf-8').read()
+                return None
+    def _write_master_branch_resource(self, content, fn, commit_msg, is_json=False):
+        '''This will force the current branch to master! '''
+        #TODO: we might want this to push, but currently it is only called in contexts in which
+        # we are about to push any way (study creation)
+        with self._master_branch_repo_lock:
+            ga = self._create_git_action_for_global_resource()
+            with ga.lock():
+                ga.checkout_master()
+                if is_json:
+                    write_as_json(content, fn)
+                else:
+                    write_to_filepath(content, fn)
+                ga._add_and_commit(fn, self._infrastructure_commit_author, commit_msg)
+
+    def _diagnose_prefixes(self):
+        '''Returns a set of all of the prefixes seen in the main document dir
+        '''
+        from peyotl.phylesystem import STUDY_ID_PATTERN   #TODO:type-specific
+        p = set()
+        for name in os.listdir(self.doc_dir):
+            if STUDY_ID_PATTERN.match(name):
+                p.add(name[:3])
+        return p
+
+    def infer_study_prefix(self):
+        prefix_file = os.path.join(self.path, 'new_study_prefix')
+        if os.path.exists(prefix_file):
+            pre_content = open(prefix_file, 'rU').read().strip()
+            valid_pat = re.compile('^[a-zA-Z0-9]+_$')
+            if len(pre_content) != 3 or not valid_pat.match(pre_content):
+                raise NotAPhylesystemShardError('Expecting prefix in new_study_prefix file to be two '\
+                                                'letters followed by an underscore')
+            self._new_study_prefix = pre_content
+        else:
+            self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
+
+    def _mint_new_study_id(self):
+        '''Checks out master branch as a side effect'''
+        # studies created by the OpenTree API start with ot_,
+        # so they don't conflict with new study id's from other sources
+        with self._doc_counter_lock:
+            c = self._advance_new_study_id()
+        #@TODO. This form of incrementing assumes that
+        #   this codebase is the only service minting
+        #   new study IDs!
+        return "{p}{c:d}".format(p=self._new_study_prefix, c=c)
+    
+    def create_git_action_for_new_study(self, new_study_id=None):
+        '''Checks out master branch as a side effect'''
+        ga = self.create_git_action()
+        if new_study_id is None:
+            new_study_id = self._mint_new_study_id()
+        self.register_study_id(ga, new_study_id)
+        return ga, new_study_id
+
+    def _create_git_action_for_global_resource(self):
+        return self._ga_class(repo=self.path,
+                              git_ssh=self.git_ssh,
+                              pkey=self.pkey,
+                              path_for_study_fn=self.filepath_for_global_resource_fn,
+                              max_file_size=self.max_file_size)

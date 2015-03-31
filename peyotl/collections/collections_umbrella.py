@@ -1,6 +1,5 @@
 # Simplified from peyotl.phylesystem.phylesystem_umbrella
 # TODO:
-#   - replace repo_nexml2json with repo_collection_version or similar?
 #   - clobber all references to study prefix (eg, 'pg')
 #   - add uniqueness test for collection_id instead
 #   - replace collection_id with collection_id; this should be a unique
@@ -80,7 +79,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
                  repos_dict=None,
                  repos_par=None,
                  with_caching=True,
-                 #repo_nexml2json=None,
+                 assumed_doc_version=None,
                  git_ssh=None,
                  pkey=None,
                  git_action_class=GitAction,
@@ -91,7 +90,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
         `with_caching` should be True for non-debugging uses.
-        `repo_nexml2json` is optional. If specified all TreeCollectionStoreShard repos are assumed to store
+        `assumed_doc_version` is optional. If specified all TreeCollectionStoreShard repos are assumed to store
             files of this version of nexson syntax.
         `git_ssh` is the path of an executable for git-ssh operations.
         `pkey` is the PKEY that has to be in the env for remote, authenticated operations to work
@@ -128,7 +127,7 @@ _THE_TREE_COLLECTION_STORE = None
 def TreeCollectionStore(repos_dict=None,
                         repos_par=None,
                         with_caching=True,
-                        #repo_nexml2json=None,
+                        assumed_doc_version=None,
                         git_ssh=None,
                         pkey=None,
                         git_action_class=GitAction,
@@ -146,7 +145,7 @@ def TreeCollectionStore(repos_dict=None,
         _THE_TREE_COLLECTION_STORE = _TreeCollectionStore(repos_dict=repos_dict,
                                         repos_par=repos_par,
                                         with_caching=with_caching,
-                                        #repo_nexml2json=repo_nexml2json,
+                                        assumed_doc_version=assumed_doc_version,
                                         git_ssh=git_ssh,
                                         pkey=pkey,
                                         git_action_class=git_action_class,

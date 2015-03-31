@@ -7,7 +7,7 @@ from threading import Lock
 from peyotl.utility import get_logger, get_config_setting_kwargs, write_to_filepath
 from peyotl.utility.input_output import read_as_json, write_as_json
 
-class NotAGitShardError(ValueError):
+class FailedShardCreationError(ValueError):
     def __init__(self, message):
         ValueError.__init__(self, message)
 
@@ -50,7 +50,7 @@ class TypeAwareGitShard(GitShard):
                  refresh_doc_index_fn=None,
                  git_ssh=None,
                  pkey=None,
-                 git_action_class=None,  #TODO:peyotl.phylesystem.git_actions.GitAction,
+                 git_action_class=None,
                  push_mirror_repo_path=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
@@ -65,11 +65,11 @@ class TypeAwareGitShard(GitShard):
         dot_git = os.path.join(path, '.git')
         doc_dir = os.path.join(path, 'study')  #TODO:type-specific
         if not os.path.isdir(path):
-            raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=path))
+            raise FailedShardCreationError('"{p}" is not a directory'.format(p=path))
         if not os.path.isdir(dot_git):
-            raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=dot_git))
+            raise FailedShardCreationError('"{p}" is not a directory'.format(p=dot_git))
         if not os.path.isdir(doc_dir):
-            raise NotAPhylesystemShardError('"{p}" is not a directory'.format(p=doc_dir))
+            raise FailedShardCreationError('"{p}" is not a directory'.format(p=doc_dir))
         self.path = path
         self.doc_dir = doc_dir
         with self._index_lock:
@@ -78,10 +78,6 @@ class TypeAwareGitShard(GitShard):
         self.git_dir = dot_git
         self.push_mirror_repo_path = push_mirror_repo_path
         if assumed_doc_version is None:
-            try:
-                assumed_doc_version = get_config_setting_kwargs(None, 'phylesystem', 'repo_nexml2json', **kwargs)
-            except:
-                pass
             if assumed_doc_version == None:
                 try:
                     # pass this shard to a type-specific test
@@ -90,7 +86,6 @@ class TypeAwareGitShard(GitShard):
                     pass
         max_file_size = kwargs.get('max_file_size')
         if max_file_size is None:
-            max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None, **kwargs)
             if max_file_size is not None:
                 try:
                     max_file_size = int(max_file_size)
@@ -117,7 +112,6 @@ class TypeAwareGitShard(GitShard):
                               pkey=self.pkey,
                               path_for_doc_fn=self.filepath_for_doc_id_fn,
                               max_file_size=self.max_file_size)
-        #TODO:git-action-edits
     def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:
             ga = self.create_git_action()
@@ -137,7 +131,6 @@ class TypeAwareGitShard(GitShard):
                                    pkey=self.pkey,
                                    path_for_doc_fn=self.filepath_for_doc_id_fn,
                                    max_file_size=None)
-        #TODO:git-action-edits
         return mirror_ga
     def push_to_remote(self, remote_name):
         if self.push_mirror_repo_path is None:

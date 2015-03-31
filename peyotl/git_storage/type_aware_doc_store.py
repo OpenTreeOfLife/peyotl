@@ -6,9 +6,6 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
-#from peyotl.phylesystem.git_actions import GitAction 
-    # TODO: add any possible GitAction subclasses? or expect a path
-    # (peyotl.collections.GitAction) to be provided?
 try:
     import anyjson
 except:
@@ -17,6 +14,7 @@ except:
     anyjson = Wrapper()
     anyjson.loads = json.loads
 from peyotl.git_storage import ShardedDocStore
+from peyotl.git_storage.git_shard import FailedShardCreationError
 
 class TypeAwareDocStore(ShardedDocStore):
     def __init__(self, 
@@ -24,7 +22,7 @@ class TypeAwareDocStore(ShardedDocStore):
                  repos_dict=None,
                  repos_par=None,
                  with_caching=True,
-                 assumed_doc_version=None, # WAS repo_nexml2json
+                 assumed_doc_version=None,
                  git_ssh=None,
                  pkey=None,
                  git_action_class=None, # TODO: require a *type-specific* GitActionBase subclass?
@@ -58,6 +56,7 @@ class TypeAwareDocStore(ShardedDocStore):
                                                      # TODO
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_doc_id)
+        self.assumed_doc_version = assumed_doc_version
         if repos_dict is not None:
             self._filepath_args = 'repos_dict = {}'.format(repr(repos_dict))
         elif repos_par is not None:
@@ -93,19 +92,18 @@ class TypeAwareDocStore(ShardedDocStore):
                 expected_push_mirror_repo_path = os.path.join(push_mirror_repos_par, repo_name)
                 if os.path.isdir(expected_push_mirror_repo_path):
                     push_mirror_repo_path = expected_push_mirror_repo_path
-            from peyotl.phylesystem.phylesystem_shard import PhylesystemShard, \
-              NotAPhylesystemShardError   #TODO:remove-me
             try:
-                shard = PhylesystemShard(repo_name,
-                                         repo_filepath,
-                                         git_ssh=git_ssh,
-                                         pkey=pkey,
-                                         repo_nexml2json=assumed_doc_version,
-                                         git_action_class=git_action_class,
-                                         push_mirror_repo_path=push_mirror_repo_path,
-                                         new_doc_prefix=new_doc_prefix,
-                                         infrastructure_commit_author=infrastructure_commit_author)
-            except NotAPhylesystemShardError as x:
+                # assumes uniform __init__ arguments for all GitShard subclasses
+                shard = git_shard_class(repo_name,
+                                        repo_filepath,
+                                        git_ssh,
+                                        pkey,
+                                        assumed_doc_version,
+                                        git_action_class,
+                                        push_mirror_repo_path,
+                                        new_doc_prefix,
+                                        infrastructure_commit_author)
+            except FailedShardCreationError as x:
                 f = 'Git repo "{d}" found in your phylesystem parent, but it does not appear to be a phylesystem ' \
                     'shard. Please report this as a bug if this directory is supposed to be phylesystem shard. '\
                     'The triggering error message was:\n{e}'
@@ -145,7 +143,9 @@ class TypeAwareDocStore(ShardedDocStore):
                 self._prefix2shard[prefix] = shard
         with self._index_lock:
             self._locked_refresh_doc_ids()
-        self.repo_nexml2json = shards[-1].repo_nexml2json
+        if self.assumed_doc_version is None:
+            # if no version was specified, try to pick it up from a shard's contents (using auto-detect)
+            self.assumed_doc_version = shards[-1].assumed_doc_version
         if with_caching:
             self._cache_region = _make_phylesystem_cache_region()
         else:
@@ -324,9 +324,8 @@ class TypeAwareDocStore(ShardedDocStore):
                     _shard.delete_doc_from_index(doc_id)   #TODO:shard-edits
         return ret
     def iter_doc_objs(self, **kwargs):
-        '''Generator that iterates over all detected phylesystem studies.
-        and returns the doc object (deserialized from nexson) for
-        each doc.
+        '''Generator that iterates over all detected documents (eg, nexson studies)
+        and returns the doc object (deserialized from JSON) for each doc.
         Order is by shard, but arbitrary within shards.
         @TEMP not locked to prevent doc creation/deletion
         '''
@@ -334,9 +333,8 @@ class TypeAwareDocStore(ShardedDocStore):
             for doc_id, blob in shard.iter_study_objs(**kwargs):   #TODO:shard-edits
                 yield doc_id, blob
     def iter_doc_filepaths(self, **kwargs):
-        '''Generator that iterates over all detected phylesystem studies.
-        and returns the doc object (deserialized from nexson) for
-        each doc.
+        '''Generator that iterates over all detected documents.
+        and returns the filesystem path to each doc.
         Order is by shard, but arbitrary within shards.
         @TEMP not locked to prevent doc creation/deletion
         '''
@@ -353,7 +351,7 @@ class TypeAwareDocStore(ShardedDocStore):
         self.write_configuration(out)
         return out.getvalue()
     def write_configuration(self, out, secret_attrs=False):
-        key_order = ['repo_nexml2json',
+        key_order = ['assumed_doc_version',
                      'number_of_shards',
                      'initialization',]
         cd = self.get_configuration_dict(secret_attrs=secret_attrs)
@@ -364,7 +362,7 @@ class TypeAwareDocStore(ShardedDocStore):
             out.write('Shard {}:\n'.format(n))
             shard.write_configuration(out)
     def get_configuration_dict(self, secret_attrs=False):
-        cd = {'repo_nexml2json': self.repo_nexml2json,
+        cd = {'assumed_doc_version': self.assumed_doc_version,
               'number_of_shards': len(self._shards),
               'initialization': self._filepath_args}
         cd['shards'] = []
@@ -385,4 +383,4 @@ class TypeAwareDocStore(ShardedDocStore):
                 break
         if ret is not None:
             return ret
-        raise ValueError('No phylesystem shard returned changed dociments for the SHA')
+        raise ValueError('No docstore shard returned changed dociments for the SHA')

@@ -1,4 +1,5 @@
-from peyotl.utility import get_logger
+from peyotl.utility import get_logger, \
+                           get_config_setting_kwargs
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -14,8 +15,7 @@ from peyotl.phylesystem.helper import get_repos, \
 from peyotl.git_storage import ShardedDocStore, \
                                TypeAwareDocStore
 from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, \
-                                                 PhylesystemShard, \
-                                                 NotAPhylesystemShardError
+                                                 PhylesystemShard
 from peyotl.phylesystem.git_actions import GitAction
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
                                              delete_study, \
@@ -203,6 +203,8 @@ def Phylesystem(repos_dict=None,
     If you need distinct _Phylesystem objects, you'll need to
     call that class directly.
     '''
+    if not repo_nexml2json:
+        repo_nexml2json = get_config_setting_kwargs(None, 'phylesystem', 'repo_nexml2json')
     global _THE_PHYLESYSTEM
     if _THE_PHYLESYSTEM is None:
         _THE_PHYLESYSTEM = _Phylesystem(repos_dict=repos_dict,

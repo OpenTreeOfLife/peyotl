@@ -3,11 +3,13 @@ import re
 import json
 import codecs
 from threading import Lock
-from peyotl.utility import get_logger
+from peyotl.utility import get_logger, \
+                           get_config_setting_kwargs, \
+                           write_to_filepath
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard, \
+                                         FailedShardCreationError, \
                                          _invert_dict_list_val
-from peyotl.utility import write_to_filepath
 from peyotl.utility.input_output import read_as_json, write_as_json
 
 _LOG = get_logger(__name__)
@@ -73,10 +75,6 @@ class PhylesystemShardProxy(GitShard):
     def get_study_ids(self, include_aliases=False):
         return _get_filtered_study_ids(self, include_aliases)
 
-class NotAPhylesystemShardError(ValueError):
-    def __init__(self, message):
-        ValueError.__init__(self, message)
-
 def diagnose_repo_nexml2json(shard):
     """Optimistic test for Nexson version in a shard (tests first study found)"""
     with shard._index_lock:
@@ -116,7 +114,7 @@ class PhylesystemShard(TypeAwareGitShard):
     def __init__(self,
                  name,
                  path,
-                 repo_nexml2json=None,
+                 assumed_doc_version=None,
                  git_ssh=None,
                  pkey=None,
                  git_action_class=GitAction,
@@ -124,10 +122,11 @@ class PhylesystemShard(TypeAwareGitShard):
                  new_study_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
+        self.max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None)
         TypeAwareGitShard.__init__(self, 
                                    name,
                                    path,
-                                   repo_nexml2json,
+                                   assumed_doc_version,
                                    diagnose_repo_nexml2json,  # version detection
                                    refresh_study_index,  # populates 'study_index'
                                    git_ssh,
@@ -145,8 +144,8 @@ class PhylesystemShard(TypeAwareGitShard):
                 pre_content = open(prefix_file, 'r').read().strip()
                 valid_pat = re.compile('^[a-zA-Z0-9]+_$')
                 if len(pre_content) != 3 or not valid_pat.match(pre_content):
-                    raise NotAPhylesystemShardError('Expecting prefix in new_study_prefix file to be two '\
-                                     'letters followed by an underscore')
+                    raise FailedShardCreationError('Expecting prefix in new_study_prefix file to be two '\
+                                                   'letters followed by an underscore')
                 self._new_study_prefix = pre_content
             else:
                 self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
@@ -211,7 +210,7 @@ class PhylesystemShard(TypeAwareGitShard):
         rd = {'name': self.name,
               'path': self.path,
               'git_dir': self.git_dir,
-              'repo_nexml2json': self.assumed_doc_version,
+              'repo_nexml2json': self.repo_nexml2json,  # assumed_doc_version
               'study_dir': self.doc_dir,
               'git_ssh': self.git_ssh, }
         if self._next_study_id is not None:
@@ -326,8 +325,8 @@ class PhylesystemShard(TypeAwareGitShard):
             pre_content = open(prefix_file, 'rU').read().strip()
             valid_pat = re.compile('^[a-zA-Z0-9]+_$')
             if len(pre_content) != 3 or not valid_pat.match(pre_content):
-                raise NotAPhylesystemShardError('Expecting prefix in new_study_prefix file to be two '\
-                                                'letters followed by an underscore')
+                raise FailedShardCreationError('Expecting prefix in new_study_prefix file to be two '\
+                                               'letters followed by an underscore')
             self._new_study_prefix = pre_content
         else:
             self._new_study_prefix = 'ot_' # ot_ is the default if there is no file

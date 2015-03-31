@@ -25,8 +25,8 @@ class TypeAwareDocStore(ShardedDocStore):
                  assumed_doc_version=None,
                  git_ssh=None,
                  pkey=None,
-                 git_action_class=None, # TODO: require a *type-specific* GitActionBase subclass?
-                 git_shard_class=None, # TODO: require a *type-specific* GitShard subclass?
+                 git_action_class=None, # requires a *type-specific* GitActionBase subclass
+                 git_shard_class=None, # requires a *type-specific* GitShard subclass
                  mirror_info=None,
                  new_doc_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
@@ -167,7 +167,7 @@ class TypeAwareDocStore(ShardedDocStore):
 
     def get_filepath_for_doc(self, doc_id):
         ga = self.create_git_action(doc_id)
-        return ga.path_for_study(doc_id)   # TODO:git-action-edits
+        return ga.path_for_doc(doc_id)
 
     def return_doc(self,
                    doc_id,
@@ -178,10 +178,10 @@ class TypeAwareDocStore(ShardedDocStore):
         with ga.lock():
             #_LOG.debug('pylesystem.return_doc({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
 
-            blob = ga.return_study(doc_id,   # TODO:git-action-edits
-                                   branch=branch,
-                                   commit_sha=commit_sha,
-                                   return_WIP_map=return_WIP_map)
+            blob = ga.return_document(doc_id,
+                                      branch=branch,
+                                      commit_sha=commit_sha,
+                                      return_WIP_map=return_WIP_map)
             content = blob[0]
             if content is None:
                 raise KeyError('Document {} not found'.format(doc_id))
@@ -192,13 +192,12 @@ class TypeAwareDocStore(ShardedDocStore):
 
     def get_blob_sha_for_doc_id(self, doc_id, head_sha):
         ga = self.create_git_action(doc_id)
-        docpath = ga.path_for_study(doc_id)   # TODO:git-action-edits
-        return ga.get_blob_sha_for_file(docpath, head_sha)   # TODO:git-action-edits
-
+        docpath = ga.path_for_doc(doc_id)
+        return ga.get_blob_sha_for_file(docpath, head_sha)
 
     def get_version_history_for_doc_id(self, doc_id):
         ga = self.create_git_action(doc_id)
-        docpath = ga.path_for_study(doc_id)   # TODO:git-action-edits
+        docpath = ga.path_for_doc(doc_id)
         #from pprint import pprint
         #pprint('```````````````````````````````````')
         #pprint(ga.get_version_history_for_file(docpath))
@@ -287,7 +286,7 @@ class TypeAwareDocStore(ShardedDocStore):
                             del self._doc2shard_map[alias]
                         except KeyError:
                             pass
-                    _shard.delete_doc_from_index(doc_id)   #TODO:shard-edits
+                    _shard.delete_doc_from_index(doc_id)
         return ret
     def iter_doc_objs(self, **kwargs):
         '''Generator that iterates over all detected documents (eg, nexson studies)
@@ -296,7 +295,7 @@ class TypeAwareDocStore(ShardedDocStore):
         @TEMP not locked to prevent doc creation/deletion
         '''
         for shard in self._shards:
-            for doc_id, blob in shard.iter_study_objs(**kwargs):   #TODO:shard-edits
+            for doc_id, blob in shard.iter_doc_objs(**kwargs):
                 yield doc_id, blob
     def iter_doc_filepaths(self, **kwargs):
         '''Generator that iterates over all detected documents.
@@ -305,7 +304,7 @@ class TypeAwareDocStore(ShardedDocStore):
         @TEMP not locked to prevent doc creation/deletion
         '''
         for shard in self._shards:
-            for doc_id, blob in shard.iter_study_filepaths(**kwargs):   #TODO:shard-edits
+            for doc_id, blob in shard.iter_doc_filepaths(**kwargs):
                 yield doc_id, blob
     def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:

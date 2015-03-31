@@ -120,7 +120,7 @@ class TypeAwareGitShard(GitShard):
             self._locked_refresh_doc_index(self)
     #TODO:type-specific?
     def register_study_id(self, ga, study_id):
-        fp = ga.path_for_study(study_id)
+        fp = ga.path_for_doc(study_id)
         with self._index_lock:
             self._study_index[study_id] = (self.name, self.doc_dir, fp)
     def _create_git_action_for_mirror(self):

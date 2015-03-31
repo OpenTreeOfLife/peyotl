@@ -312,7 +312,7 @@ class PhylesystemShard(TypeAwareGitShard):
     def _diagnose_prefixes(self):
         '''Returns a set of all of the prefixes seen in the main document dir
         '''
-        from peyotl.phylesystem import STUDY_ID_PATTERN   #TODO:type-specific
+        from peyotl.phylesystem import STUDY_ID_PATTERN
         p = set()
         for name in os.listdir(self.doc_dir):
             if STUDY_ID_PATTERN.match(name):

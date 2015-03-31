@@ -49,8 +49,7 @@ class TypeAwareDocStore(ShardedDocStore):
                 appended to create the URL for pushing).
         '''
         from peyotl.phylesystem.helper import get_repos, \
-                                      _get_phylesystem_parent_with_source, \
-                                      _make_phylesystem_cache_region
+                                      _get_phylesystem_parent_with_source
         from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
                                                      delete_study
                                                      # TODO
@@ -104,10 +103,10 @@ class TypeAwareDocStore(ShardedDocStore):
                                         new_doc_prefix,
                                         infrastructure_commit_author)
             except FailedShardCreationError as x:
-                f = 'Git repo "{d}" found in your phylesystem parent, but it does not appear to be a phylesystem ' \
-                    'shard. Please report this as a bug if this directory is supposed to be phylesystem shard. '\
+                f = 'Git repo "{d}" found in your docstore parent, but it does not appear to be a {c}' \
+                    'shard. Please report this as a bug if this directory is supposed to be this type of shard. '\
                     'The triggering error message was:\n{e}'
-                f = f.format(d=repo_filepath, e=str(x))
+                f = f.format(d=repo_filepath, c=git_shard_class, e=str(x))
                 _LOG.warn(f)
                 continue
             # if the mirror does not exist, clone it...
@@ -146,12 +145,7 @@ class TypeAwareDocStore(ShardedDocStore):
         if self.assumed_doc_version is None:
             # if no version was specified, try to pick it up from a shard's contents (using auto-detect)
             self.assumed_doc_version = shards[-1].assumed_doc_version
-        if with_caching:
-            self._cache_region = _make_phylesystem_cache_region()
-        else:
-            self._cache_region = None
         self.git_action_class = git_action_class
-        self._cache_hits = 0
     def _locked_refresh_doc_ids(self):
         '''Assumes that the caller has the _index_lock !
         '''
@@ -170,34 +164,6 @@ class TypeAwareDocStore(ShardedDocStore):
     def create_git_action(self, doc_id):
         shard = self.get_shard(doc_id)
         return shard.create_git_action()
-
-    def add_validation_annotation(self, doc_obj, sha):
-        need_to_cache = False
-        adaptor = None
-        if self._cache_region is not None:
-            key = 'v' + sha
-            annot_event = self._cache_region.get(key, ignore_expiration=True)
-            if annot_event != NO_VALUE:
-                _LOG.debug('cache hit for ' + key)
-                adaptor = NexsonAnnotationAdder()
-                self._cache_hits += 1
-            else:
-                _LOG.debug('cache miss for ' + key)
-                need_to_cache = True
-
-        if adaptor is None:
-            bundle = ot_validate(doc_obj)
-            annotation = bundle[0]
-            annot_event = annotation['annotationEvent']
-            #del annot_event['@dateCreated'] #TEMP
-            #del annot_event['@id'] #TEMP
-            adaptor = bundle[2]
-        replace_same_agent_annotation(doc_obj, annot_event)   # TODO: add a type-specific hook for this? if self.annotation_BLAH: ...
-        if need_to_cache:
-            self._cache_region.set(key, annot_event)
-            _LOG.debug('set cache for ' + key)
-
-        return annot_event
 
     def get_filepath_for_doc(self, doc_id):
         ga = self.create_git_action(doc_id)

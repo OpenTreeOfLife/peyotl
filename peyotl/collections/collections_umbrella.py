@@ -29,11 +29,9 @@ except:
 from peyotl.git_storage import ShardedDocStore, \
                                TypeAwareDocStore
 from peyotl.phylesystem.helper import get_repos, \
-                                      _get_phylesystem_parent_with_source, \
-                                      _make_phylesystem_cache_region
+                                      _get_phylesystem_parent_with_source
 #from peyotl.collection.collections_shard import TreeCollectionStoreShardProxy, \
-#                                                 TreeCollectionStoreShard, \
-#                                                 NotATreeCollectionStoreShardError
+#                                                 TreeCollectionStoreShard
 from peyotl.phylesystem.git_actions import GitAction
 #from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
 #                                             delete_study, \

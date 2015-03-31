@@ -100,6 +100,11 @@ class _Phylesystem(TypeAwareDocStore):
                                    **kwargs)
         self._new_study_prefix = self._growing_shard._new_study_prefix  # TODO:shard-edits?
         self._growing_shard._determine_next_study_id()
+        if with_caching:
+            self._cache_region = _make_phylesystem_cache_region()
+        else:
+            self._cache_region = None
+        self._cache_hits = 0
 
     def get_study_ids(self, include_aliases=False):
         k = []
@@ -184,6 +189,31 @@ class _Phylesystem(TypeAwareDocStore):
             self._doc2shard_map[new_study_id] = self._growing_shard
         return new_study_id, r
 
+    def add_validation_annotation(self, doc_obj, sha):
+        need_to_cache = False
+        adaptor = None
+        if self._cache_region is not None:
+            key = 'v' + sha
+            annot_event = self._cache_region.get(key, ignore_expiration=True)
+            if annot_event != NO_VALUE:
+                _LOG.debug('cache hit for ' + key)
+                adaptor = NexsonAnnotationAdder()
+                self._cache_hits += 1
+            else:
+                _LOG.debug('cache miss for ' + key)
+                need_to_cache = True
+        if adaptor is None:
+            bundle = ot_validate(doc_obj)
+            annotation = bundle[0]
+            annot_event = annotation['annotationEvent']
+            #del annot_event['@dateCreated'] #TEMP
+            #del annot_event['@id'] #TEMP
+            adaptor = bundle[2]
+        replace_same_agent_annotation(doc_obj, annot_event)
+        if need_to_cache:
+            self._cache_region.set(key, annot_event)
+            _LOG.debug('set cache for ' + key)
+        return annot_event
 
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,

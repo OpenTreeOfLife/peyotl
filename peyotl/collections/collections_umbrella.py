@@ -2,7 +2,7 @@
 # TODO:
 #   - clobber all references to study prefix (eg, 'pg')
 #   - add uniqueness test for collection_id instead
-#   - replace collection_id with collection_id; this should be a unique
+#   - replace study_id with collection_id; this should be a unique
 #     "path" string composed of '{ownerid}/{slugified-collection-name}'
 #     EXAMPLES: 'jimallman/trees-about-bees'
 #               'jimallman/other-interesting-stuff'

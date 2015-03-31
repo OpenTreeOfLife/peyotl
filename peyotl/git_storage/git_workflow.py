@@ -1,4 +1,5 @@
-"""Base class git workflow  manager (subclasses will accommodate each type)"""
+'''Generic workflows (combinations of git actions) used as opentree git porcelain
+'''
 from sh import git
 from locket import LockError
 import tempfile

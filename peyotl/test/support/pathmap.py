@@ -62,6 +62,7 @@ def get_test_ot_service_domains():
 def get_test_repos():
     return {'mini_phyl': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_phyl'),
             'mini_system': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_system'),
+            'mini_collections': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_collections'),
            }
 
 def get_test_phylesystem_mirror_parent():

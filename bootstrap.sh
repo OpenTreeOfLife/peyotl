@@ -1,5 +1,5 @@
 #!/bin/sh
-# Checks out mini_phyl and mini_system repos into 
+# Checks out mini_* repos into 
 #   peyotl/test/data/template_mini_par
 d="$(dirname $0)"
 cd "$d"
@@ -22,6 +22,14 @@ then
     echo "mini_system exists"
 else
     git clone https://github.com/mtholder/mini_system.git || exit
+fi
+if test -d mini_collections
+then
+    echo "mini_collections exists"
+else
+    echo "fetching mini_collections..."
+    git clone https://github.com/jimallman/mini_collections.git || exit
+    echo "got mini_collections!"
 fi
 cd .. || exit
 cp -r template_mini_par mini_par

@@ -16,6 +16,9 @@ except:
 from peyotl.git_storage import ShardedDocStore
 from peyotl.git_storage.git_shard import FailedShardCreationError
 
+from peyotl.utility import pretty_timestamp, get_logger
+_LOG = get_logger(__name__)
+
 class TypeAwareDocStore(ShardedDocStore):
     def __init__(self, 
                  prefix_from_doc_id,

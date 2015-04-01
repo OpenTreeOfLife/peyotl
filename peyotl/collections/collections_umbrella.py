@@ -30,8 +30,8 @@ from peyotl.git_storage import ShardedDocStore, \
                                TypeAwareDocStore
 from peyotl.phylesystem.helper import get_repos, \
                                       _get_phylesystem_parent_with_source
-#from peyotl.collection.collections_shard import TreeCollectionStoreShardProxy, \
-#                                                 TreeCollectionStoreShard
+from peyotl.collections.collections_shard import TreeCollectionsShardProxy, \
+                                                 TreeCollectionsShard
 from peyotl.phylesystem.git_actions import GitAction
 #from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
 #                                             delete_study, \
@@ -61,7 +61,7 @@ class TreeCollectionStoreProxy(ShardedDocStore):
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_collection_path)
         for s in config.get('shards', []):
-            self._shards.append(TreeCollectionStoreShardProxy(s))
+            self._shards.append(TreeCollectionsShardProxy(s))
         d = {}
         for s in self._shards:
             for k in s.collection_index.keys():
@@ -100,7 +100,6 @@ class _TreeCollectionStore(TypeAwareDocStore):
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
         '''
-        from peyotl.phylesystem.git_shard import PhylesystemShard   #TODO:remove-me
         TypeAwareDocStore.__init__(self,
                                    prefix_from_doc_id=prefix_from_collection_path,
                                    repos_dict=None,
@@ -110,7 +109,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
                                    git_ssh=None,
                                    pkey=None,
                                    git_action_class=GitAction,
-                                   git_shard_class=PhylesystemShard,  #TODO:type-specific
+                                   git_shard_class=TreeCollectionsShard,
                                    mirror_info=None,
                                    new_doc_prefix=None,
                                    infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',

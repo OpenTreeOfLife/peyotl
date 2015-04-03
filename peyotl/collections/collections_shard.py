@@ -13,24 +13,15 @@ from peyotl.git_storage.git_shard import GitShard, \
 from peyotl.utility.input_output import read_as_json, write_as_json
 
 _LOG = get_logger(__name__)
-#class PhylesystemShardBase(object):
 
-doc_holder_subpath = 'study'
+doc_holder_subpath = 'collections-by-owner'
 
-def _get_filtered_study_ids(shard, include_aliases=False):
-    from peyotl.phylesystem.helper import DIGIT_PATTERN 
-    """Optionally filters out aliases from standard doc-id list"""
-    k = shard.get_doc_ids()
-    if shard.has_aliases and (not include_aliases):
-        x = []
-        for i in k:
-            if DIGIT_PATTERN.match(i) or ((len(i) > 1) and (i[-2] == '_')):
-                pass
-            else:
-                x.append(i)
-        return x
+def filepath_for_collection_id(repo_dir, collection_id):
+    # in this case, simply expand the id to a full path
+    collection_filename = '{i}.json'.format(i=collection_id)
+    return os.path.join(repo_dir, doc_holder_subpath, collection_filename)
 
-class PhylesystemShardProxy(GitShard):
+class TreeCollectionsShardProxy(GitShard):
     '''Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
     '''
     def __init__(self, config):
@@ -42,40 +33,8 @@ class PhylesystemShardProxy(GitShard):
             if len(kl) > 1:
                 self.has_aliases = True
             for k in study['keys']:
-                d[k] = (self.name, self.path, self.path + '/study/' + study['relpath'])
+                d[k] = (self.name, self.path, self.path + '/collections-by-owner/' + study['relpath'])
         self.study_index = d
-
-    # rename some generic members in the base class, for clarity and backward compatibility
-    @property
-    def return_study(self):
-        return self.return_doc
-    @property
-    def get_changed_studies(self):
-        return self.get_changed_docs
-
-    @property
-    def repo_nexml2json(self):
-        return self.assumed_doc_version
-    @repo_nexml2json.setter
-    def repo_nexml2json(self,val):
-        self.assumed_doc_version = val
-
-    @property
-    def study_index(self):
-        return self.doc_index
-    @study_index.setter
-    def study_index(self,val):
-        self._doc_index = val
-
-    @property
-    def new_study_prefix(self):
-        return self.new_doc_prefix
-    @new_study_prefix.setter
-    def new_study_prefix(self,val):
-        self.new_doc_prefix = val
-
-    def get_study_ids(self, include_aliases=False):
-        return _get_filtered_study_ids(self, include_aliases)
 
 def diagnose_repo_nexml2json(shard):
     """Optimistic test for Nexson version in a shard (tests first study found)"""
@@ -87,28 +46,27 @@ def diagnose_repo_nexml2json(shard):
         from peyotl.nexson_syntax import detect_nexson_version
         return detect_nexson_version(fj)
 
-def refresh_study_index(shard, initializing=False):
-    from peyotl.phylesystem.helper import create_id2study_info, \
-                                          diagnose_repo_study_id_convention
-    d = create_id2study_info(shard.doc_dir, shard.name)
-    rc_dict = diagnose_repo_study_id_convention(shard.path)
-    shard.filepath_for_doc_id_fn = rc_dict['fp_fn']
-    shard.id_alias_list_fn = rc_dict['id2alias_list']
-    if rc_dict['convention'] != 'simple':
-        a = {}
-        for k, v in d.items():
-            alias_list = shard.id_alias_list_fn(k)
-            for alias in alias_list:
-                a[alias] = v
-        d = a
-        shard.has_aliases = True
-        if initializing:
-            shard.infer_study_prefix()
-    else:
-        shard.has_aliases = False
-    shard._study_index = d
+def create_id2collection_info(path, tag):
+    '''Searchers for JSON files in this repo and returns
+    a map of collection id ==> (`tag`, dir, collection filepath)
+    where `tag` is typically the shard name
+    '''
+    d = {}
+    for triple in os.walk(path):
+        root, files = triple[0], triple[2]
+        for filename in files:
+            if filename.endswith('.json'):
+                # trim file extension and prepend ownerid (from path)
+                collection_id = "{u}/{n}".format(u=root.split('/')[-1], n=filename[:-5])
+                d[collection_id] = (tag, root, os.path.join(root, filename))
+    return d
 
-class PhylesystemShard(TypeAwareGitShard):
+def refresh_collection_index(shard, initializing=False):
+    d = create_id2collection_info(shard.doc_dir, shard.name)
+    shard.has_aliases = False
+    shard._doc_index = d
+
+class TreeCollectionsShard(TypeAwareGitShard):
     '''Wrapper around a git repo holding nexson studies.
     Raises a ValueError if the directory does not appear to be a PhylesystemShard.
     Raises a RuntimeError for errors associated with misconfiguration.'''
@@ -131,15 +89,15 @@ class PhylesystemShard(TypeAwareGitShard):
                                    doc_holder_subpath,
                                    assumed_doc_version,
                                    diagnose_repo_nexml2json,  # version detection
-                                   refresh_study_index,  # populates 'study_index'
+                                   refresh_collection_index,  # populates _doc_index
                                    git_ssh,
                                    pkey,
                                    git_action_class,
                                    push_mirror_repo_path,
                                    infrastructure_commit_author,
                                    **kwargs)
+        self.filepath_for_doc_id_fn = filepath_for_collection_id
         self._doc_counter_lock = Lock()
-        self._next_study_id = None
         self._new_study_prefix = new_study_prefix
         if self._new_study_prefix is None:
             prefix_file = os.path.join(path, 'new_study_prefix')
@@ -157,50 +115,24 @@ class PhylesystemShard(TypeAwareGitShard):
 
     # rename some generic members in the base class, for clarity and backward compatibility
     @property
-    def next_study_id(self):
-        return self._next_study_id
-    @property
     def iter_study_objs(self):
         return self.iter_doc_objs
     @property
     def iter_study_filepaths(self):
         return self.iter_doc_filepaths
     @property
-    def get_changed_studies(self):
-        return self.get_changed_docs
-    @property
     def known_prefixes(self):
         if self._known_prefixes is None:
             self._known_prefixes = self._diagnose_prefixes()
         return self._known_prefixes
-    @property
-    def new_study_prefix(self):
-        return self._new_study_prefix
 
-    @property
-    def study_index(self):
-        return self.doc_index
-    @study_index.setter
-    def study_index(self,val):
-        self._doc_index = val
-
-    @property
-    def repo_nexml2json(self):
-        return self.assumed_doc_version
-    @repo_nexml2json.setter
-    def repo_nexml2json(self,val):
-        self.assumed_doc_version = val
-
-    def get_study_ids(self, include_aliases=False):
-        return _get_filtered_study_ids(self, include_aliases)
 
     # Type-specific configuration for backward compatibility
     # (config is visible to API consumers via /phylesystem_config)
     def write_configuration(self, out, secret_attrs=False):
         """Generic configuration, may be overridden by type-specific version"""
-        key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json',
-                     'git_ssh', 'pkey', 'has_aliases', '_next_study_id',
-                     'number of studies']
+        key_order = ['name', 'path', 'git_dir', 'doc_dir', 'assumed_doc_version',
+                     'git_ssh', 'pkey', 'has_aliases', 'number of studies']
         cd = self.get_configuration_dict(secret_attrs=secret_attrs)
         for k in key_order:
             if k in cd:
@@ -213,15 +145,13 @@ class PhylesystemShard(TypeAwareGitShard):
         rd = {'name': self.name,
               'path': self.path,
               'git_dir': self.git_dir,
-              'repo_nexml2json': self.repo_nexml2json,  # assumed_doc_version
-              'study_dir': self.doc_dir,
+              'assumed_doc_version': self.assumed_doc_version,
+              'doc_dir': self.doc_dir,
               'git_ssh': self.git_ssh, }
-        if self._next_study_id is not None:
-            rd['_next_study_id'] = self._next_study_id,
         if secret_attrs:
             rd['pkey'] = self.pkey
         with self._index_lock:
-            si = self._study_index
+            si = self._doc_index
         r = _invert_dict_list_val(si)
         key_list = list(r.keys())
         rd['number of studies'] = len(key_list)
@@ -235,57 +165,6 @@ class PhylesystemShard(TypeAwareGitShard):
             m.append({'keys': v, 'relpath': rp})
         rd['studies'] = m
         return rd
-    def _determine_next_study_id(self):
-        """Return the numeric part of the newest study_id
-
-        Checks out master branch as a side effect!
-        """
-        if self._doc_counter_lock is None:
-            self._doc_counter_lock = Lock()
-        prefix = self._new_study_prefix
-        lp = len(prefix)
-        n = 0
-        # this function holds the lock for quite awhile,
-        #   but it only called on the first instance of
-        #   of creating a new study
-        with self._doc_counter_lock:
-            with self._index_lock:
-                for k in self._study_index.keys():
-                    if k.startswith(prefix):
-                        try:
-                            pn = int(k[lp:])
-                            if pn > n:
-                                n = pn
-                        except:
-                            pass
-            nsi_contents = self._read_master_branch_resource(self._id_minting_file, is_json=True)
-            if nsi_contents:
-                self._next_study_id = nsi_contents['next_study_id']
-                if self._next_study_id <= n:
-                    m = 'next_study_id in {} is set lower than the ID of an existing study!'
-                    m = m.format(self._id_minting_file)
-                    raise RuntimeError(m)
-            else:
-                # legacy support for repo with no next_study_id.json file
-                self._next_study_id = n
-                self._advance_new_study_id() # this will trigger the creation of the file
-
-    def _advance_new_study_id(self):
-        ''' ASSUMES the caller holds the _doc_counter_lock !
-        Returns the current numeric part of the next study ID, advances
-        the counter to the next value, and stores that value in the
-        file in case the server is restarted.
-        '''
-        c = self._next_study_id
-        self._next_study_id = 1 + c
-        content = u'{"next_study_id": %d}\n' % self._next_study_id
-        # The content is JSON, but we hand-rolled the string above
-        #       so that we can use it as a commit_msg
-        self._write_master_branch_resource(content,
-                                           self._id_minting_file,
-                                           commit_msg=content,
-                                           is_json=False)
-        return c
 
     def _read_master_branch_resource(self, fn, is_json=False):
         '''This will force the current branch to master! '''
@@ -315,15 +194,17 @@ class PhylesystemShard(TypeAwareGitShard):
     def _diagnose_prefixes(self):
         '''Returns a set of all of the prefixes seen in the main document dir
         '''
-        from peyotl.phylesystem import STUDY_ID_PATTERN
+        from peyotl.collections import COLLECTION_ID_PATTERN
         p = set()
-        for name in os.listdir(self.doc_dir):
-            if STUDY_ID_PATTERN.match(name):
-                p.add(name[:3])
+        for owner_dirname in os.listdir(self.doc_dir):
+            example_collection_name = "{n}/xxxxx".format(n=owner_dirname)
+            if COLLECTION_ID_PATTERN.match(example_collection_name):
+                p.add(owner_dirname)
         return p
 
     def infer_study_prefix(self):
-        prefix_file = os.path.join(self.path, 'new_study_prefix')
+        prefix_file = os.path.join(self.path, 'new_study_prefix')  #TODO:remove-me
+
         if os.path.exists(prefix_file):
             pre_content = open(prefix_file, 'rU').read().strip()
             valid_pat = re.compile('^[a-zA-Z0-9]+_$')

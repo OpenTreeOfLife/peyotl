@@ -19,4 +19,6 @@ __all__ = [#'git_actions',
            #'helper',
            #'collections_shard',
            'collections_umbrella']
-from peyotl.collections.collections_umbrella import TreeCollectionStore, TreeCollectionStoreProxy
+from peyotl.collections.collections_umbrella import TreeCollectionStore, \
+                                                    TreeCollectionStoreProxy, \
+                                                    COLLECTION_ID_PATTERN

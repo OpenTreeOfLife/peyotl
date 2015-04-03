@@ -2,14 +2,15 @@
 # TODO:
 #   - clobber all references to study prefix (eg, 'pg')
 #   - add uniqueness test for collection_id instead
-#   - replace study_id with collection_id; this should be a unique
-#     "path" string composed of '{ownerid}/{slugified-collection-name}'
+#   - a collection id should be a unique "path" string composed 
+#     of '{ownerid}/{slugified-collection-name}'
 #     EXAMPLES: 'jimallman/trees-about-bees'
 #               'jimallman/other-interesting-stuff'
 #               'kcranston/trees-about-bees'
 #               'jimallman/trees-about-bees-2'
 #   - refactor shard to base class, with generalized 'items'?
 from peyotl.utility import get_logger
+from peyotl.utility.str_util import slugify
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -32,7 +33,9 @@ from peyotl.phylesystem.helper import get_repos, \
                                       _get_phylesystem_parent_with_source
 from peyotl.collections.collections_shard import TreeCollectionsShardProxy, \
                                                  TreeCollectionsShard
-from peyotl.phylesystem.git_actions import GitAction
+from peyotl.collections import get_empty_collection
+from peyotl.collection_validation import validate_collection
+from peyotl.collections.git_actions import TreeCollectionsGitAction
 #from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
 #                                             delete_study, \
 #                                             validate_and_convert_nexson
@@ -40,14 +43,16 @@ from peyotl.phylesystem.git_actions import GitAction
 from threading import Lock
 import os
 import re
-COLLECTION_ID_PATTERN = re.compile(r'^[a-zA-Z]+_+[0-9]+$')
-# TODO: allow simple slug-ified strings and slash separator (no whitespace!)
+
+COLLECTION_ID_PATTERN = re.compile(r'^[a-zA-Z0-9-]+/[a-z0-9-]+$')
+# Allow simple slug-ified strings and slash separator (no whitespace!)
+
 _LOG = get_logger(__name__)
 
 def prefix_from_collection_path(collection_id):
-    # The collection id is a sort of "path", e.g. '{userid}/{collection-name-as-slug}'
+    # The collection id is a sort of "path", e.g. '{ownerid}/{collection-name-as-slug}'
     #   EXAMPLES: 'jimallman/trees-about-bees', 'kcranston/interesting-trees-2'
-    # Assume that the userid will work as a prefix, esp. by assigning all of a
+    # Assume that the ownerid will work as a prefix, esp. by assigning all of a
     # user's collections to a single shard.for grouping in shards
     path_parts = collection_id.split('/')
     if len(path_parts) > 1:
@@ -64,7 +69,7 @@ class TreeCollectionStoreProxy(ShardedDocStore):
             self._shards.append(TreeCollectionsShardProxy(s))
         d = {}
         for s in self._shards:
-            for k in s.collection_index.keys():
+            for k in s.doc_index.keys():
                 if k in d:
                     raise KeyError('Collection "{i}" found in multiple repos'.format(i=k))
                 d[k] = s
@@ -80,7 +85,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
                  assumed_doc_version=None,
                  git_ssh=None,
                  pkey=None,
-                 git_action_class=GitAction,
+                 git_action_class=TreeCollectionsGitAction,
                  mirror_info=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
@@ -92,8 +97,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
             files of this version of nexson syntax.
         `git_ssh` is the path of an executable for git-ssh operations.
         `pkey` is the PKEY that has to be in the env for remote, authenticated operations to work
-        `git_action_class` is a subclass of GitAction to use. the __init__ syntax must be compatible
-            with GitAction
+        `git_action_class` is a subclass of GitActionBase to use. the __init__ syntax must be compatible
+            with PhylesystemGitAction
         If you want to use a mirrors of the repo for pushes or pulls, send in a `mirror_info` dict:
             mirror_info['push'] and mirror_info['pull'] should be dicts with the following keys:
             'parent_dir' - the parent directory of the mirrored repos
@@ -102,13 +107,13 @@ class _TreeCollectionStore(TypeAwareDocStore):
         '''
         TypeAwareDocStore.__init__(self,
                                    prefix_from_doc_id=prefix_from_collection_path,
-                                   repos_dict=None,
+                                   repos_dict=repos_dict,
                                    repos_par=None,
                                    with_caching=True,
                                    assumed_doc_version=None,
                                    git_ssh=None,
                                    pkey=None,
-                                   git_action_class=GitAction,
+                                   git_action_class=TreeCollectionsGitAction,
                                    git_shard_class=TreeCollectionsShard,
                                    mirror_info=None,
                                    new_doc_prefix=None,
@@ -120,6 +125,83 @@ class _TreeCollectionStore(TypeAwareDocStore):
         def get_collection_ids(self):
             return self.get_doc_ids
 
+        def add_new_collection(self, ownerid, json):
+            """Validate and save this JSON. Ensure (and return) a unique collection id"""
+            collection = self._coerce_json_to_collection(json)
+            if collection is None:
+                #TODO: return an exception?
+                msg = "File failed to parse as JSON:\n{j}".format(j=json)
+                return msg
+            if not _is_valid_collection_json(self, collection):
+                #TODO: return an exception?
+                msg = "JSON is not a valid collection:\n{j}".format(j=json)
+                return msg
+            # extract a working title and make it unique
+            coll_name = _slugify_internal_collection_name(json)
+            kkkkk
+
+
+            #TODO: pass the name and collection JSON to a proper git action
+
+            pass
+
+        def copy_existing_collection(self, ownerid, old_collection_id):
+            """Ensure a unique id, whether from the same user or a different one"""
+            pass
+        
+        def rename_existing_collection(self, ownerid, old_collection_id, new_slug=None):
+            """Use slug provided, or use internal name to generate a new id"""
+            pass
+
+        def delete_collection(self, collection_id):
+            """Find and remove the matching collection (if any)"""
+            pass
+
+        def _slugify_internal_collection_name(self, json):
+            """Parse the JSON, find its name, return a slug of its name"""
+            collection = self._coerce_json_to_collection(json)
+            if collection is None:
+                return None
+            internal_name = collection['name']
+            return slugify(internal_name)
+
+        def _is_valid_collection_id(self, test_id):
+            """Test for the expected format '{ownerid}/{slug}', return T/F
+            N.B. This does not test for a working GitHub username!"""
+            return bool(COLLECTION_ID_PATTERN.match(test_id))
+
+        def _is_existing_id(self, test_id):
+            """Test to see if this id is non-unique (already exists in a shard)"""
+            pass
+        
+        def _is_valid_collection_json(self, json):
+            """Call the primary validator for a quick test"""
+            collection = self._coerce_json_to_collection(json)
+            if collection is None:
+                # invalid JSON, definitely broken
+                return False
+            aa = validate_collection(collection)
+            errors = aa[0]
+            for e in errors:
+                _LOG.debug('> invalid JSON: {m}'.format(m=UNICODE(e)))
+            if len(errors) > 0:
+                return False
+            return True
+
+        def _coerce_json_to_collection(self, json):
+            """Use to ensure that a JSON string (if found) is parsed to the equivalent dict in python.
+            If the incoming value is already parsed, do nothing. If a string fails to parse, return None."""
+            if type(json) is dict:
+                collection = json
+            else:
+                try:
+                    collection = anyjson.loads(json)
+                except:
+                    #TODO: raise an exception? return an error?
+                    msg = "File failed to validate cleanly. See {o}".format(o=ofn)
+                    return None
+            return collection
+
 _THE_TREE_COLLECTION_STORE = None
 def TreeCollectionStore(repos_dict=None,
                         repos_par=None,
@@ -127,7 +209,7 @@ def TreeCollectionStore(repos_dict=None,
                         assumed_doc_version=None,
                         git_ssh=None,
                         pkey=None,
-                        git_action_class=GitAction,
+                        git_action_class=TreeCollectionsGitAction,
                         mirror_info=None,
                         infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>'):
     '''Factory function for a _TreeCollectionStore object.

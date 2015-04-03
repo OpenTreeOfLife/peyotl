@@ -43,8 +43,8 @@ class TypeAwareDocStore(ShardedDocStore):
             files of this version of the primary document syntax.
         `git_ssh` is the path of an executable for git-ssh operations.
         `pkey` is the PKEY that has to be in the env for remote, authenticated operations to work
-        `git_action_class` is a subclass of GitAction to use. the __init__ syntax must be compatible
-            with GitAction
+        `git_action_class` is a subclass of GitActionBase to use. the __init__ syntax must be compatible
+            with PhylesystemGitAction
         If you want to use a mirrors of the repo for pushes or pulls, send in a `mirror_info` dict:
             mirror_info['push'] and mirror_info['pull'] should be dicts with the following keys:
             'parent_dir' - the parent directory of the mirrored repos
@@ -86,14 +86,15 @@ class TypeAwareDocStore(ShardedDocStore):
         shards = []
         repo_name_list = list(repos_dict.keys())
         repo_name_list.sort()
+        #import pdb; pdb.set_trace()
         for repo_name in repo_name_list:
-            #import pdb; pdb.set_trace()
             repo_filepath = repos_dict[repo_name]
             push_mirror_repo_path = None
             if push_mirror_repos_par:
                 expected_push_mirror_repo_path = os.path.join(push_mirror_repos_par, repo_name)
                 if os.path.isdir(expected_push_mirror_repo_path):
                     push_mirror_repo_path = expected_push_mirror_repo_path
+            #import pdb; pdb.set_trace()
             try:
                 # assumes uniform __init__ arguments for all GitShard subclasses
                 shard = git_shard_class(repo_name,
@@ -345,10 +346,10 @@ class TypeAwareDocStore(ShardedDocStore):
     def get_changed_docs(self, ancestral_commit_sha, doc_ids_to_check=None):
         ret = None
         for i in self._shards:
-            x = i.get_changed_studies(ancestral_commit_sha, doc_ids_to_check=doc_ids_to_check)
+            x = i.get_changed_docs(ancestral_commit_sha, doc_ids_to_check=doc_ids_to_check)
             if x is not False:
                 ret = x
                 break
         if ret is not None:
             return ret
-        raise ValueError('No docstore shard returned changed dociments for the SHA')
+        raise ValueError('No docstore shard returned changed documents for the SHA')

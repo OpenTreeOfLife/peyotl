@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.phylesystem.git_actions import GitAction
+from peyotl.phylesystem.git_actions import PhylesystemGitAction
 import unittest
 from peyotl.phylesystem.helper import get_repos
 try:
@@ -16,7 +16,7 @@ class TestCreate(unittest.TestCase):
     def testConstructor(self):
         self.reponame = list(get_repos().keys())[0]
         self.repodir = get_repos()[self.reponame]
-        gd = GitAction(self.repodir)
+        gd = PhylesystemGitAction(self.repodir)
         gd.acquire_lock()
         gd.release_lock()
         gd.checkout_master()

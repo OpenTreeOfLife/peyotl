@@ -30,15 +30,16 @@ def get_filepath_for_namespaced_id(repo_dir, study_id):
 def get_filepath_for_simple_id(repo_dir, study_id):
     return '{r}/study/{s}/{s}.json'.format(r=repo_dir, s=study_id)
 
-def study_id_from_repo_path(path):
-    if path.startswith('study/'):
+def collection_id_from_repo_path(path):
+    doc_parent_dir = 'collections-by-owner/'
+    if path.startswith(doc_parent_dir):
         try:
-            study_id = path.split('/')[-2]
+            study_id = path.split(doc_parent_dir)[1]
             return study_id
         except:
             return None
 
-class PhylesystemGitAction(GitActionBase):
+class TreeCollectionsGitAction(GitActionBase):
     def __init__(self,
                  repo,
                  remote=None,
@@ -47,10 +48,10 @@ class PhylesystemGitAction(GitActionBase):
                  cache=None, #pylint: disable=W0613
                  path_for_doc_fn=None,
                  max_file_size=None):
-        """Create a GitAction object to interact with a Git repository
+        """GitActionBase subclass to interact with a Git repository
 
         Example:
-        gd   = PhylesystemGitAction(repo="/home/user/git/foo")
+        gd   = TreeCollectionsGitAction(repo="/home/user/git/foo")
 
         Note that this requires write access to the
         git repository directory, so it can create a
@@ -79,8 +80,8 @@ class PhylesystemGitAction(GitActionBase):
                          ancestral_commit_sha,
                          doc_ids_to_check=None):
         return self._get_changed_docs(ancestral_commit_sha,
-                                     doc_id_from_repo_path=study_id_from_repo_path,
-                                     doc_ids_to_check=doc_ids_to_check)
+                                      doc_id_from_repo_path=collection_id_from_repo_path,
+                                      doc_ids_to_check=doc_ids_to_check)
 
     def find_WIP_branches(self, study_id):
         pat = re.compile(r'.*_study_{i}_[0-9]+'.format(i=study_id))

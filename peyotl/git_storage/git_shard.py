@@ -45,6 +45,7 @@ class TypeAwareGitShard(GitShard):
     def __init__(self,
                  name,
                  path,
+                 doc_holder_subpath='',
                  assumed_doc_version=None,
                  detect_doc_version_fn=None,
                  refresh_doc_index_fn=None,
@@ -63,7 +64,7 @@ class TypeAwareGitShard(GitShard):
         self.pkey = pkey
         path = os.path.abspath(path)
         dot_git = os.path.join(path, '.git')
-        doc_dir = os.path.join(path, 'study')  #TODO:type-specific
+        doc_dir = os.path.join(path, doc_holder_subpath)  # type-specific, e.g. 'study'
         if not os.path.isdir(path):
             raise FailedShardCreationError('"{p}" is not a directory'.format(p=path))
         if not os.path.isdir(dot_git):
@@ -219,7 +220,7 @@ class TypeAwareGitShard(GitShard):
         return ga.get_branch_list()
     def get_changed_docs(self, ancestral_commit_sha, doc_ids_to_check=None):
         ga = self.create_git_action()
-        return ga.get_changed_studies(ancestral_commit_sha, study_ids_to_check=doc_ids_to_check)
+        return ga.get_changed_docs(ancestral_commit_sha, doc_ids_to_check=doc_ids_to_check)
         #TODO:git-action-edits
 
 def _invert_dict_list_val(d):

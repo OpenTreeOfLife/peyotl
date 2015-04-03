@@ -16,7 +16,7 @@ from peyotl.git_storage import ShardedDocStore, \
                                TypeAwareDocStore
 from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, \
                                                  PhylesystemShard
-from peyotl.phylesystem.git_actions import GitAction
+from peyotl.phylesystem.git_actions import PhylesystemGitAction
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
                                              delete_study, \
                                              validate_and_convert_nexson
@@ -62,7 +62,7 @@ class _Phylesystem(TypeAwareDocStore):
                  repo_nexml2json=None,
                  git_ssh=None,
                  pkey=None,
-                 git_action_class=GitAction,
+                 git_action_class=PhylesystemGitAction,
                  mirror_info=None,
                  new_study_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
@@ -75,8 +75,8 @@ class _Phylesystem(TypeAwareDocStore):
             files of this version of nexson syntax.
         `git_ssh` is the path of an executable for git-ssh operations.
         `pkey` is the PKEY that has to be in the env for remote, authenticated operations to work
-        `git_action_class` is a subclass of GitAction to use. the __init__ syntax must be compatible
-            with GitAction
+        `git_action_class` is a subclass of GitActionBase to use. the __init__ syntax must be compatible
+            with PhylesystemGitAction
         If you want to use a mirrors of the repo for pushes or pulls, send in a `mirror_info` dict:
             mirror_info['push'] and mirror_info['pull'] should be dicts with the following keys:
             'parent_dir' - the parent directory of the mirrored repos
@@ -92,7 +92,7 @@ class _Phylesystem(TypeAwareDocStore):
                                    assumed_doc_version=repo_nexml2json,
                                    git_ssh=git_ssh,
                                    pkey=pkey,
-                                   git_action_class=GitAction,
+                                   git_action_class=PhylesystemGitAction,
                                    git_shard_class=PhylesystemShard,
                                    mirror_info=mirror_info,
                                    new_doc_prefix=new_study_prefix,
@@ -222,7 +222,7 @@ def Phylesystem(repos_dict=None,
                 repo_nexml2json=None,
                 git_ssh=None,
                 pkey=None,
-                git_action_class=GitAction,
+                git_action_class=PhylesystemGitAction,
                 mirror_info=None,
                 new_study_prefix=None,
                 infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>'):

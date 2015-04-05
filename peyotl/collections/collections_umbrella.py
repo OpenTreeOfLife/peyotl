@@ -29,8 +29,6 @@ except:
     pass #caching is optional
 from peyotl.git_storage import ShardedDocStore, \
                                TypeAwareDocStore
-from peyotl.phylesystem.helper import get_repos, \
-                                      _get_phylesystem_parent_with_source
 from peyotl.collections.collections_shard import TreeCollectionsShardProxy, \
                                                  TreeCollectionsShard
 from peyotl.collections import get_empty_collection

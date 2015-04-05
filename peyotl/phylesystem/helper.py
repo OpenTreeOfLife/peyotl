@@ -47,8 +47,12 @@ def get_repos(par_list=None, **kwargs):
         par_list = [par_list]
     for p in par_list:
         if not os.path.isdir(p):
-            raise ValueError('No phylesystem parent "{p}" is not a directory'.format(p=p))
+            raise ValueError('Phylesystem parent "{p}" is not a directory'.format(p=p))
         for name in os.listdir(p):
+            #TODO: Add an option to filter just phylesystem repos (or any specified type?) here!
+            #  - add optional list arg `allowed_repo_names`?
+            #  - let the FailedShardCreationError work harmlessly?
+            #  - treat this function as truly for phylesystem only?
             if os.path.isdir(os.path.join(p, name + '/.git')):
                 _repos[name] = os.path.abspath(os.path.join(p, name))
     if len(_repos) == 0:

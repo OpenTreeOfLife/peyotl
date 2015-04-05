@@ -12,8 +12,8 @@ _LOG = get_logger(__name__)
 _repos = pathmap.get_test_repos()
 mc = _repos['mini_collections']
 
-# use just the collections repo(s) for these tests
-_repos = {'mini_collections': mc}
+#TODO: filter repo list to just tree-collection shards? or rely on smart (failed) shard creation?
+#_repos = {'mini_collections': mc}
 
 @unittest.skipIf(not os.path.isdir(mc), 
                  'Peyotl not configured for maintainer test of mini_collections.' \
@@ -63,6 +63,7 @@ class TestTreeCollections(unittest.TestCase):
         #self.assertTrue(nsi.startswith('zz_'))
     def testChangedCollections(self):
         c = _TreeCollectionStore(repos_dict=self.r)
+        c.pull()  # get the full git history
         # check for known changed collections in this repo
         changed = c.get_changed_docs('637bb5a35f861d84c115e5e6c11030d1ecec92e0')
         self.assertEqual(set(), changed)

@@ -27,9 +27,7 @@ if test -d mini_collections
 then
     echo "mini_collections exists"
 else
-    echo "fetching mini_collections..."
     git clone https://github.com/jimallman/mini_collections.git || exit
-    echo "got mini_collections!"
 fi
 cd .. || exit
 cp -r template_mini_par mini_par

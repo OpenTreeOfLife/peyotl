@@ -52,7 +52,7 @@ class TypeAwareDocStore(ShardedDocStore):
                 appended to create the URL for pushing).
         '''
         from peyotl.phylesystem.helper import get_repos, \
-                                      _get_phylesystem_parent_with_source
+                                              _get_phylesystem_parent_with_source
         from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
                                                      delete_study
                                                      # TODO
@@ -67,6 +67,7 @@ class TypeAwareDocStore(ShardedDocStore):
             fmt = '<No arg> default phylesystem_parent from {}'
             a = _get_phylesystem_parent_with_source(**kwargs)[1]
             self._filepath_args = fmt.format(a)
+        _LOG.warn("_filepath_args={}".format(self._filepath_args))
         push_mirror_repos_par = None
         push_mirror_remote_map = {}
         if mirror_info:
@@ -86,7 +87,6 @@ class TypeAwareDocStore(ShardedDocStore):
         shards = []
         repo_name_list = list(repos_dict.keys())
         repo_name_list.sort()
-        #import pdb; pdb.set_trace()
         for repo_name in repo_name_list:
             repo_filepath = repos_dict[repo_name]
             push_mirror_repo_path = None
@@ -94,7 +94,6 @@ class TypeAwareDocStore(ShardedDocStore):
                 expected_push_mirror_repo_path = os.path.join(push_mirror_repos_par, repo_name)
                 if os.path.isdir(expected_push_mirror_repo_path):
                     push_mirror_repo_path = expected_push_mirror_repo_path
-            #import pdb; pdb.set_trace()
             try:
                 # assumes uniform __init__ arguments for all GitShard subclasses
                 shard = git_shard_class(repo_name,
@@ -137,9 +136,9 @@ class TypeAwareDocStore(ShardedDocStore):
             shards.append(shard)
 
         self._shards = shards
+        _LOG.warn("NEW shards: {}".format(self._shards))
         self._growing_shard = shards[-1] # generalize with config...
         self._prefix2shard = {}
-        #import pdb; pdb.set_trace()
         for shard in shards:
             for prefix in shard.known_prefixes:
                 assert prefix not in self._prefix2shard # we don't currently support multiple shards with the same ID prefix scheme

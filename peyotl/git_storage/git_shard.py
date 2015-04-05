@@ -116,7 +116,7 @@ class TypeAwareGitShard(GitShard):
     def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:
             ga = self.create_git_action()
-            from peyotl.phylesystem.git_workflows import _pull_gh
+            from peyotl.git_storage.git_workflow import _pull_gh
             _pull_gh(ga, remote, branch_name)
             self._locked_refresh_doc_index(self)
     #TODO:type-specific?

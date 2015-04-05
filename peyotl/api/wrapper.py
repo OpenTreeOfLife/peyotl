@@ -148,6 +148,7 @@ class APIWrapper(object):
         if crefresh:
             kwargs.setdefault('refresh', crefresh)
         kwargs['config'] = self._config
+        _LOG.warn("kwargs:{}".format(kwargs))
         self._phylesystem_api = _PhylesystemAPIWrapper(self.domains.phylesystem_api, **kwargs)
         return self._phylesystem_api
     @property

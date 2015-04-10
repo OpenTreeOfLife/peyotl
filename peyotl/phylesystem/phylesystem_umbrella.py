@@ -241,7 +241,9 @@ def Phylesystem(repos_dict=None,
     call that class directly.
     '''
     if not repo_nexml2json:
+        _LOG.debug('NO repo_nexml2json!')
         repo_nexml2json = get_config_setting_kwargs(None, 'phylesystem', 'repo_nexml2json')
+        _LOG.debug('FOUND repo_nexml2json via get_config_setting_kwargs: {}'.format(repo_nexml2json))
     global _THE_PHYLESYSTEM
     if _THE_PHYLESYSTEM is None:
         _THE_PHYLESYSTEM = _Phylesystem(repos_dict=repos_dict,

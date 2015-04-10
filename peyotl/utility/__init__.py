@@ -356,10 +356,15 @@ def get_config_setting_kwargs(config_obj, section, param, default=None, **kwargs
 
 def get_config_object(config_obj, **kwargs):
     if config_obj is not None:
+        _get_util_logger().debug('=== returning config_obj')
         return config_obj
     c = kwargs.get('config')
     if c is None:
-        return ConfigWrapper()
+        _get_util_logger().debug('=== using ConfigWrapper')
+        _c = ConfigWrapper()
+        _c.report()
+        return _c
+    _get_util_logger().debug('=== using kwargs[config]')
     return c
 get_config_var = get_config
 

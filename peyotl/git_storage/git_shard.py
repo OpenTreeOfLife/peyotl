@@ -79,7 +79,7 @@ class TypeAwareGitShard(GitShard):
         self.git_dir = dot_git
         self.push_mirror_repo_path = push_mirror_repo_path
         if assumed_doc_version is None:
-            if assumed_doc_version == None:
+            if assumed_doc_version == None:  #TODO: remove redundant test?
                 try:
                     # pass this shard to a type-specific test
                     assumed_doc_version = detect_doc_version_fn(self)

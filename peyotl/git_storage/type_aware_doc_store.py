@@ -136,7 +136,7 @@ class TypeAwareDocStore(ShardedDocStore):
             shards.append(shard)
 
         self._shards = shards
-        _LOG.warn("NEW shards: {}".format(self._shards))
+        #_LOG.warn("NEW shards: {}".format(self._shards))
         self._growing_shard = shards[-1] # generalize with config...
         self._prefix2shard = {}
         for shard in shards:

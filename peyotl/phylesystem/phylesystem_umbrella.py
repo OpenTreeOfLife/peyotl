@@ -128,6 +128,10 @@ class _Phylesystem(TypeAwareDocStore):
         self.new_doc_prefix = val
 
     @property
+    def get_blob_sha_for_study_id(self):
+        return self.get_blob_sha_for_doc_id
+
+    @property
     def repo_nexml2json(self):
         return self.assumed_doc_version
     @repo_nexml2json.setter

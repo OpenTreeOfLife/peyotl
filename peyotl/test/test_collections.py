@@ -55,12 +55,12 @@ class TestTreeCollections(unittest.TestCase):
                     'test-user-a/my-favorite-trees', 'test-user-a/trees-about-bees']
         self.assertEqual(k, expected)
     def testNewCollectionIds(self):
-        # assign new ids based on uniqueness, serializing with $NAME-2, etc as needed
+        # We assign each new collection a unique id based on the owner's userid +
+        # the slugified name, serializing with $NAME-2, etc if this id already exists.
         c = _TreeCollectionStore(repos_dict=self.r)
         # TODO: fetch an existing study, copy to the other user (id should reflect new username)
         # TODO: fetch an existing study, save a copy alongside it (should nudge id via serialization)
-        #self.assertEqual(int(nsi.split('_')[-1]) + 1, read_as_json(mf)['next_study_id'])
-        #self.assertTrue(nsi.startswith('zz_'))
+        # TODO: create a new study (with the same name) alongside thes (should nudge id via serialization)
     def testChangedCollections(self):
         c = _TreeCollectionStore(repos_dict=self.r)
         c.pull()  # get the full git history

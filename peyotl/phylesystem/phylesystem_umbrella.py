@@ -130,6 +130,9 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def get_blob_sha_for_study_id(self):
         return self.get_blob_sha_for_doc_id
+    @property
+    def get_version_history_for_study_id(self):
+        return self.get_version_history_for_doc_id
 
     @property
     def repo_nexml2json(self):

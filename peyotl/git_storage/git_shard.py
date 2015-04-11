@@ -88,7 +88,7 @@ class TypeAwareGitShard(GitShard):
                     # pass this shard to a type-specific test
                     assumed_doc_version = detect_doc_version_fn(self)
                 except Exception as x:
-                    f = 'detect_doc_version_fn FAILED with this error:\n{}')
+                    f = 'detect_doc_version_fn FAILED with this error:\n{}'
                     f = f.format(str(x))
                     _LOG.warn(f)
                     pass

@@ -181,7 +181,7 @@ class _Phylesystem(TypeAwareDocStore):
                 nexson, annotation, nexson_adaptor = bundle[0], bundle[1], bundle[3]
                 r = self.annotate_and_write(git_data=gd,
                                             nexson=nexson,
-                                            study_id=new_study_id,
+                                            doc_id=new_study_id,
                                             auth_info=auth_info,
                                             adaptor=nexson_adaptor,
                                             annotation=annotation,

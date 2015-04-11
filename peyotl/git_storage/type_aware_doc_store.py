@@ -67,7 +67,6 @@ class TypeAwareDocStore(ShardedDocStore):
             fmt = '<No arg> default phylesystem_parent from {}'
             a = _get_phylesystem_parent_with_source(**kwargs)[1]
             self._filepath_args = fmt.format(a)
-        _LOG.warn("_filepath_args={}".format(self._filepath_args))
         push_mirror_repos_par = None
         push_mirror_remote_map = {}
         if mirror_info:
@@ -136,7 +135,6 @@ class TypeAwareDocStore(ShardedDocStore):
             shards.append(shard)
 
         self._shards = shards
-        #_LOG.warn("NEW shards: {}".format(self._shards))
         self._growing_shard = shards[-1] # generalize with config...
         self._prefix2shard = {}
         for shard in shards:
@@ -145,9 +143,7 @@ class TypeAwareDocStore(ShardedDocStore):
                 self._prefix2shard[prefix] = shard
         with self._index_lock:
             self._locked_refresh_doc_ids()
-        _LOG.warn("CHECK LAST SHARD FOR assumed_doc_version? only if None: {}".format(self.assumed_doc_version))
         if self.assumed_doc_version is None:
-            _LOG.warn("YES, checking last shard now: {}".format(shards[-1].assumed_doc_version))
             # if no version was specified, try to pick it up from a shard's contents (using auto-detect)
             self.assumed_doc_version = shards[-1].assumed_doc_version
         self.git_action_class = git_action_class

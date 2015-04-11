@@ -12,7 +12,7 @@ from peyotl.git_storage.git_shard import GitShard, \
                                          _invert_dict_list_val
 from peyotl.utility.input_output import read_as_json, write_as_json
 
-_LOG = get_logger(__name__)
+#_LOG = get_logger(__name__)
 #class PhylesystemShardBase(object):
 
 doc_holder_subpath = 'study'
@@ -79,15 +79,8 @@ class PhylesystemShardProxy(GitShard):
 
 def diagnose_repo_nexml2json(shard):
     """Optimistic test for Nexson version in a shard (tests first study found)"""
-    _LOG = get_logger('TEST-'.format(__name__))
     with shard._index_lock:
-        import pprint
-        _LOG.debug('shard.study_index.values:\n{}'.format(pprint.pformat(shard.study_index.values())))
-        _LOG.debug('shard.study_index:\n{}'.format(pprint.pformat(shard.study_index)))
-        _LOG.debug('shard.doc_index:\n{}'.format(pprint.pformat(shard.doc_index)))
-        _LOG.debug('shard._doc_index:\n{}'.format(pprint.pformat(shard._doc_index)))
         fp = shard.study_index.values()[0][2]
-    _LOG.debug('diagnose_repo_nexml2json with fp={}'.format(fp))
     with codecs.open(fp, mode='r', encoding='utf-8') as fo:
         fj = json.load(fo)
         from peyotl.nexson_syntax import detect_nexson_version

@@ -55,8 +55,6 @@ class TypeAwareGitShard(GitShard):
                  push_mirror_repo_path=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
-        _LOG = get_logger('TypeAwareGitShard')
-        _LOG.warn('INCOMING (__init__) assumed_doc_version (expecting None): {}'.format(assumed_doc_version))
         GitShard.__init__(self, name)
         self._infrastructure_commit_author = infrastructure_commit_author
         self._locked_refresh_doc_index = refresh_doc_index_fn
@@ -81,23 +79,21 @@ class TypeAwareGitShard(GitShard):
         self.git_dir = dot_git
         self.push_mirror_repo_path = push_mirror_repo_path
         if assumed_doc_version is None:
-            _LOG.warn('assumed_doc_version IS None)')
-            if assumed_doc_version == None:  #TODO: remove redundant test?
-                _LOG.warn('assumed_doc_version == None)')
-                try:
-                    # pass this shard to a type-specific test
-                    assumed_doc_version = detect_doc_version_fn(self)
-                except IndexError as x:
-                    # no studies in this shard!
-                    _LOG.warn('No studies in this shard! Auto-detection of assumed_doc_version failed.')
-                    pass
-                except Exception as x:
-                    f = 'Auto-detection of assumed_doc_version FAILED with this error:\n{}'
-                    f = f.format(str(x))
-                    _LOG.warn(f)
-                    pass
-                except:
-                    pass
+            _LOG = get_logger('TypeAwareGitShard')
+            try:
+                # pass this shard to a type-specific test
+                assumed_doc_version = detect_doc_version_fn(self)
+            except IndexError as x:
+                # no studies in this shard!
+                _LOG.warn('No studies in this shard! Auto-detection of assumed_doc_version failed.')
+                pass
+            except Exception as x:
+                f = 'Auto-detection of assumed_doc_version FAILED with this error:\n{}'
+                f = f.format(str(x))
+                _LOG.warn(f)
+                pass
+            except:
+                pass
         max_file_size = kwargs.get('max_file_size')
         if max_file_size is None:
             if max_file_size is not None:

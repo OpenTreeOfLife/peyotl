@@ -81,6 +81,7 @@ def diagnose_repo_nexml2json(shard):
     """Optimistic test for Nexson version in a shard (tests first study found)"""
     with shard._index_lock:
         fp = shard.study_index.values()[0][2]
+    _LOG = get_logger('TEST-'.format(__name__))
     _LOG.debug('diagnose_repo_nexml2json with fp={}'.format(fp))
     with codecs.open(fp, mode='r', encoding='utf-8') as fo:
         fj = json.load(fo)

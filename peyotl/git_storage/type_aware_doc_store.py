@@ -145,7 +145,9 @@ class TypeAwareDocStore(ShardedDocStore):
                 self._prefix2shard[prefix] = shard
         with self._index_lock:
             self._locked_refresh_doc_ids()
+        _LOG.warn("CHECK LAST SHARD FOR assumed_doc_version? only if None: {}".format(self.assumed_doc_version))
         if self.assumed_doc_version is None:
+            _LOG.warn("YES, checking last shard now: {}".format(shards[-1].assumed_doc_version))
             # if no version was specified, try to pick it up from a shard's contents (using auto-detect)
             self.assumed_doc_version = shards[-1].assumed_doc_version
         self.git_action_class = git_action_class

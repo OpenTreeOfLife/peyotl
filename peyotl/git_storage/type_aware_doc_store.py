@@ -229,14 +229,15 @@ class TypeAwareDocStore(ShardedDocStore):
                                     parent_sha,
                                     commit_msg='',
                                     merged_sha=None):
+        from peyotl.phylesystem.git_workflows import commit_and_try_merge2master as _commit_and_try
         git_action = self.create_git_action(doc_id)
-        resp = commit_and_try_merge2master(git_action,
-                                           file_content,
-                                           doc_id,
-                                           auth_info,
-                                           parent_sha,
-                                           commit_msg,
-                                           merged_sha=merged_sha)
+        resp = _commit_and_try(git_action,
+                               file_content,
+                               doc_id,
+                               auth_info,
+                               parent_sha,
+                               commit_msg,
+                               merged_sha=merged_sha)
         if not resp['merge_needed']:
             self._doc_merged_hook(git_action, doc_id)
         return resp
@@ -273,6 +274,7 @@ class TypeAwareDocStore(ShardedDocStore):
                                            merged_sha=master_file_blob_included)
     def delete_doc(self, doc_id, auth_info, parent_sha, **kwargs):
         git_action = self.create_git_action(doc_id)
+        from peyotl.phylesystem.git_workflows import delete_study
         ret = delete_study(git_action, doc_id, auth_info, parent_sha, **kwargs)   #TODO:git-workflow-edits
         if not ret['merge_needed']:
             with self._index_lock:

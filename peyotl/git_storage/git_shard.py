@@ -87,8 +87,12 @@ class TypeAwareGitShard(GitShard):
                 try:
                     # pass this shard to a type-specific test
                     assumed_doc_version = detect_doc_version_fn(self)
+                except Exception as x:
+                    f = 'detect_doc_version_fn FAILED with this error:\n{}')
+                    f = f.format(str(x))
+                    _LOG.warn(f)
+                    pass
                 except:
-                    _LOG.warn('detect_doc_version_fn FAILED!')
                     pass
         max_file_size = kwargs.get('max_file_size')
         if max_file_size is None:

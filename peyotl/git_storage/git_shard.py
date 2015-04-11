@@ -132,7 +132,7 @@ class TypeAwareGitShard(GitShard):
     def register_study_id(self, ga, study_id):
         fp = ga.path_for_doc(study_id)
         with self._index_lock:
-            self._study_index[study_id] = (self.name, self.doc_dir, fp)
+            self._doc_index[study_id] = (self.name, self.doc_dir, fp)
     def _create_git_action_for_mirror(self):
         # If a document makes it into the working dir, we don't want to reject it from the mirror, so
         #   we use max_file_size= None
@@ -209,7 +209,7 @@ class TypeAwareGitShard(GitShard):
         if secret_attrs:
             rd['pkey'] = self.pkey
         with self._index_lock:
-            si = self._study_index
+            si = self._doc_index
         r = _invert_dict_list_val(si)
         key_list = list(r.keys())
         rd['number of documents'] = len(key_list)

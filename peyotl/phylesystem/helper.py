@@ -14,7 +14,6 @@ import re
 from threading import Lock
 _LOG = get_logger(__name__)
 _study_index_lock = Lock()
-_study_index = None
 
 def _get_phylesystem_parent_with_source(**kwargs):
     src = 'environment'

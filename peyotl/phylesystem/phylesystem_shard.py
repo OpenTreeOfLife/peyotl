@@ -112,7 +112,7 @@ def refresh_study_index(shard, initializing=False):
             shard.infer_study_prefix()
     else:
         shard.has_aliases = False
-    shard._study_index = d
+    shard.study_index = d
 
 class PhylesystemShard(TypeAwareGitShard):
     '''Wrapper around a git repo holding nexson studies.
@@ -227,7 +227,7 @@ class PhylesystemShard(TypeAwareGitShard):
         if secret_attrs:
             rd['pkey'] = self.pkey
         with self._index_lock:
-            si = self._study_index
+            si = self.study_index
         r = _invert_dict_list_val(si)
         key_list = list(r.keys())
         rd['number of studies'] = len(key_list)
@@ -256,7 +256,7 @@ class PhylesystemShard(TypeAwareGitShard):
         #   of creating a new study
         with self._doc_counter_lock:
             with self._index_lock:
-                for k in self._study_index.keys():
+                for k in self.study_index.keys():
                     if k.startswith(prefix):
                         try:
                             pn = int(k[lp:])

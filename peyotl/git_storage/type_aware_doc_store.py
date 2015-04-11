@@ -262,13 +262,12 @@ class TypeAwareDocStore(ShardedDocStore):
                                           annotation['annotationEvent'],
                                           annotation['agent'],
                                           add_agent_only=True)
-        return commit_and_try_merge2master(git_action=git_data,
-                                           file_content=nexson,
-                                           study_id=study_id,   #TODO:git-workflow-edits
-                                           auth_info=auth_info,
-                                           parent_sha=parent_sha,
-                                           commit_msg=commit_msg,
-                                           merged_sha=master_file_blob_included)
+        return self.commit_and_try_merge2master(file_content=nexson,
+                                                doc_id=doc_id,
+                                                auth_info=auth_info,
+                                                parent_sha=parent_sha,
+                                                commit_msg=commit_msg,
+                                                merged_sha=master_file_blob_included)
     def delete_doc(self, doc_id, auth_info, parent_sha, **kwargs):
         git_action = self.create_git_action(doc_id)
         from peyotl.phylesystem.git_workflows import delete_study

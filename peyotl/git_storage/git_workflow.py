@@ -101,7 +101,6 @@ def delete_document(git_action,
     acquire_lock_raise(git_action, 
                        fail_msg="Could not acquire lock to delete %s #%s" % (doctype_display_name, doc_id))
     try:
-        #import pdb; pdb.set_trace()
         doc_fp = git_action.path_for_doc(doc_id)
         rs_resp = git_action._remove_document(gh_user, doc_id, parent_sha, author, commit_msg=commit_msg)
         new_sha = rs_resp['commit_sha']

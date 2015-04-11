@@ -98,9 +98,9 @@ class TypeAwareDocStore(ShardedDocStore):
                 # assumes uniform __init__ arguments for all GitShard subclasses
                 shard = git_shard_class(repo_name,
                                         repo_filepath,
+                                        assumed_doc_version,
                                         git_ssh,
                                         pkey,
-                                        assumed_doc_version,
                                         git_action_class,
                                         push_mirror_repo_path,
                                         new_doc_prefix,

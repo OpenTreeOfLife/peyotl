@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 from peyotl.git_storage.git_workflow import acquire_lock_raise
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
-                                             delete_study, \
                                              GitWorkflowError
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.utility.input_output import read_as_json

@@ -101,6 +101,7 @@ def delete_document(git_action,
     acquire_lock_raise(git_action, 
                        fail_msg="Could not acquire lock to delete %s #%s" % (doctype_display_name, doc_id))
     try:
+        #import pdb; pdb.set_trace()
         doc_fp = git_action.path_for_doc(doc_id)
         rs_resp = git_action._remove_document(gh_user, doc_id, parent_sha, author, commit_msg=commit_msg)
         new_sha = rs_resp['commit_sha']
@@ -153,17 +154,17 @@ def merge_from_master(git_action, doc_id, auth_info, parent_sha, doctype_display
         "merged_sha": master_file_blob_sha,
     }
 
-def commit_and_try_merge2master(git_action,
-                                file_content,
-                                doc_id,
-                                auth_info,
-                                parent_sha,
-                                commit_msg='',
-                                merged_sha=None,
-                                doctype_display_name="document"):
+def generic_commit_and_try_merge2master_wf(git_action,
+                                          file_content,
+                                          doc_id,
+                                          auth_info,
+                                          parent_sha,
+                                          commit_msg='',
+                                          merged_sha=None,
+                                          doctype_display_name="document"):
     """Actually make a local Git commit and push it to our remote
     """
-    #_LOG.debug('commit_and_try_merge2master doc_id="{s}" \
+    #_LOG.debug('generic_commit_and_try_merge2master_wf: doc_id="{s}" \
     #            parent_sha="{p}" merged_sha="{m}"'.format(
     #            s=doc_id, p=parent_sha, m=merged_sha))
     merge_needed = False

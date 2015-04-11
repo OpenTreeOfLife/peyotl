@@ -53,9 +53,6 @@ class TypeAwareDocStore(ShardedDocStore):
         '''
         from peyotl.phylesystem.helper import get_repos, \
                                               _get_phylesystem_parent_with_source
-        from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
-                                                     delete_study
-                                                     # TODO
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_doc_id)
         self.assumed_doc_version = assumed_doc_version
@@ -229,15 +226,15 @@ class TypeAwareDocStore(ShardedDocStore):
                                     parent_sha,
                                     commit_msg='',
                                     merged_sha=None):
-        from peyotl.phylesystem.git_workflows import commit_and_try_merge2master as _commit_and_try
+        from peyotl.git_storage.git_workflow import generic_commit_and_try_merge2master_wf
         git_action = self.create_git_action(doc_id)
-        resp = _commit_and_try(git_action,
-                               file_content,
-                               doc_id,
-                               auth_info,
-                               parent_sha,
-                               commit_msg,
-                               merged_sha=merged_sha)
+        resp = generic_commit_and_try_merge2master_wf(git_action,
+                                                      file_content,
+                                                      doc_id,
+                                                      auth_info,
+                                                      parent_sha,
+                                                      commit_msg,
+                                                      merged_sha=merged_sha)
         if not resp['merge_needed']:
             self._doc_merged_hook(git_action, doc_id)
         return resp
@@ -319,6 +316,7 @@ class TypeAwareDocStore(ShardedDocStore):
         self.write_configuration(out)
         return out.getvalue()
     def write_configuration(self, out, secret_attrs=False):
+        """Generic configuration, may be overridden by type-specific version"""
         key_order = ['assumed_doc_version',
                      'number_of_shards',
                      'initialization',]
@@ -330,6 +328,7 @@ class TypeAwareDocStore(ShardedDocStore):
             out.write('Shard {}:\n'.format(n))
             shard.write_configuration(out)
     def get_configuration_dict(self, secret_attrs=False):
+        """Generic configuration, may be overridden by type-specific version"""
         cd = {'assumed_doc_version': self.assumed_doc_version,
               'number_of_shards': len(self._shards),
               'initialization': self._filepath_args}

@@ -8,7 +8,7 @@ from peyotl.nexson_syntax import convert_nexson_format
 from peyotl.git_storage.git_workflow import acquire_lock_raise, \
                                             _do_merge2master_commit, \
                                             delete_document, \
-                                            commit_and_try_merge2master as _commit_and_try_merge2master, \
+                                            generic_commit_and_try_merge2master_wf, \
                                             merge_from_master as _merge_from_master
 
 from peyotl.git_storage.git_action import GitWorkflowError
@@ -66,14 +66,14 @@ def commit_and_try_merge2master(git_action,
                                 merged_sha=None):
     """Actually make a local Git commit and push it to our remote
     """
-    return _commit_and_try_merge2master(git_action,
-                                        file_content,
-                                        doc_id=study_id,
-                                        auth_info=auth_info,
-                                        parent_sha=parent_sha,
-                                        commit_msg=commit_msg,
-                                        merged_sha=merged_sha,
-                                        doctype_display_name="study")
+    return generic_commit_and_try_merge2master_wf(git_action,
+                                                  file_content,
+                                                  doc_id=study_id,
+                                                  auth_info=auth_info,
+                                                  parent_sha=parent_sha,
+                                                  commit_msg=commit_msg,
+                                                  merged_sha=merged_sha,
+                                                  doctype_display_name="study")
 
 def delete_study(git_action, 
                  study_id, 

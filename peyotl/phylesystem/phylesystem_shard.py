@@ -196,7 +196,7 @@ class PhylesystemShard(TypeAwareGitShard):
     # Type-specific configuration for backward compatibility
     # (config is visible to API consumers via /phylesystem_config)
     def write_configuration(self, out, secret_attrs=False):
-        """Generic configuration, may be overridden by type-specific version"""
+        """Type-specific configuration for backward compatibility"""
         key_order = ['name', 'path', 'git_dir', 'study_dir', 'repo_nexml2json',
                      'git_ssh', 'pkey', 'has_aliases', '_next_study_id',
                      'number of studies']
@@ -208,7 +208,7 @@ class PhylesystemShard(TypeAwareGitShard):
         for o in cd['studies']:
             out.write('    {} ==> {}\n'.format(o['keys'], o['relpath']))
     def get_configuration_dict(self, secret_attrs=False):
-        """Generic configuration, may be overridden by type-specific version"""
+        """Type-specific configuration for backward compatibility"""
         rd = {'name': self.name,
               'path': self.path,
               'git_dir': self.git_dir,

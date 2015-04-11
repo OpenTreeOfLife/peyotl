@@ -366,7 +366,7 @@ def get_config_object(config_obj, **kwargs):
     if c is None:
         #_LOG().debug('=== using ConfigWrapper')
         _c = ConfigWrapper()
-        _c.report(sys.stdout)
+        #_c.report(sys.stdout)   # dump current config to terminal
         return _c
     #_LOG().debug('=== using kwargs[config]')
     return c

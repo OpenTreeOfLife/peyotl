@@ -17,9 +17,7 @@ from peyotl.git_storage import ShardedDocStore, \
 from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, \
                                                  PhylesystemShard
 from peyotl.phylesystem.git_actions import PhylesystemGitAction
-from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
-                                             delete_study, \
-                                             validate_and_convert_nexson
+from peyotl.phylesystem.git_workflows import validate_and_convert_nexson
 from peyotl.nexson_validation import ot_validate
 from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, \
                                                       replace_same_agent_annotation
@@ -40,7 +38,10 @@ class PhylesystemProxy(ShardedDocStore):
     def __init__(self, config):
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_study_id)
-        self.repo_nexml2json = config['repo_nexml2json']
+        self.repo_nexml2json = config.get('repo_nexml2json', None)
+        if self.repo_nexml2json is None:
+            # TODO: remove this fallback for older remote phylesystem config
+            self.repo_nexml2json = config.get('assumed_doc_version', None)
         self._shards = []
         for s in config.get('shards', []):
             self._shards.append(PhylesystemShardProxy(s))
@@ -133,6 +134,9 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def get_version_history_for_study_id(self):
         return self.get_version_history_for_doc_id
+    @property
+    def delete_study(self):
+        return self.delete_doc
 
     @property
     def repo_nexml2json(self):
@@ -221,6 +225,28 @@ class _Phylesystem(TypeAwareDocStore):
             self._cache_region.set(key, annot_event)
             _LOG.debug('set cache for ' + key)
         return annot_event
+
+    def write_configuration(self, out, secret_attrs=False):
+        """Type-specific configuration for backward compatibility"""
+        key_order = ['repo_nexml2json',
+                     'number_of_shards',
+                     'initialization',]
+        cd = self.get_configuration_dict(secret_attrs=secret_attrs)
+        for k in key_order:
+            if k in cd:
+                out.write('  {} = {}'.format(k, cd[k]))
+        for n, shard in enumerate(self._shards):
+            out.write('Shard {}:\n'.format(n))
+            shard.write_configuration(out)
+    def get_configuration_dict(self, secret_attrs=False):
+        """Type-specific configuration for backward compatibility"""
+        cd = {'repo_nexml2json': self.repo_nexml2json,
+              'number_of_shards': len(self._shards),
+              'initialization': self._filepath_args}
+        cd['shards'] = []
+        for i in self._shards:
+            cd['shards'].append(i.get_configuration_dict(secret_attrs=secret_attrs))
+        return cd
 
 _THE_PHYLESYSTEM = None
 def Phylesystem(repos_dict=None,

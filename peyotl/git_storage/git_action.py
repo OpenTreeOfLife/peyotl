@@ -405,7 +405,7 @@ class GitActionBase(object):
         Remove a document on the given branch and attribute the commit to author.
         Returns the SHA of the commit on branch.
         """
-        doc_filepath = self.path_for_doc_fn(doc_id)
+        doc_filepath = self.path_for_doc(doc_id)
         doc_dir = os.path.split(doc_filepath)[0]
 
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)

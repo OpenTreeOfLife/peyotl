@@ -45,7 +45,10 @@ class ShardedDocStore(object):
         shard = self.get_shard(doc_id)
         with self._index_lock:
             self._doc2shard_map[doc_id] = shard
-        shard.register_doc_id(ga, doc_id)
+        try:
+            shard.register_study_id(ga, doc_id)  #TODO:type-specific!
+        except AttributeError:
+            pass
     def get_shard(self, doc_id):
         try:
             with self._index_lock:

@@ -132,7 +132,10 @@ class TypeAwareDocStore(ShardedDocStore):
             shards.append(shard)
 
         self._shards = shards
-        self._growing_shard = shards[-1] # generalize with config...
+        if len(shards) < 1:
+            self._growing_shard = None
+        else:
+            self._growing_shard = shards[-1] # generalize with config...
         self._prefix2shard = {}
         for shard in shards:
             for prefix in shard.known_prefixes:
@@ -142,7 +145,8 @@ class TypeAwareDocStore(ShardedDocStore):
             self._locked_refresh_doc_ids()
         if self.assumed_doc_version is None:
             # if no version was specified, try to pick it up from a shard's contents (using auto-detect)
-            self.assumed_doc_version = shards[-1].assumed_doc_version
+            if self._growing_shard:
+                self.assumed_doc_version = self._growing_shard.assumed_doc_version
         self.git_action_class = git_action_class
     def _locked_refresh_doc_ids(self):
         '''Assumes that the caller has the _index_lock !
@@ -350,3 +354,9 @@ class TypeAwareDocStore(ShardedDocStore):
         if ret is not None:
             return ret
         raise ValueError('No docstore shard returned changed documents for the SHA')
+    def get_doc_ids(self, include_aliases=False):
+        k = []
+        for shard in self._shards:
+            k.extend(shard.get_doc_ids(include_aliases=include_aliases))
+        return k
+

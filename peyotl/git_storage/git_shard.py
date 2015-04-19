@@ -34,7 +34,7 @@ class GitShard(object):
     def doc_index(self):
         return self._doc_index
 
-    def get_doc_ids(self):
+    def get_doc_ids(self, **kwargs):
         with self._index_lock:
             k = self._doc_index.keys()
         return list(k)

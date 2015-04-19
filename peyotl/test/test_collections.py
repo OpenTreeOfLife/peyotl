@@ -54,6 +54,13 @@ class TestTreeCollections(unittest.TestCase):
         expected = ['TestUserB/fungal-trees', 'TestUserB/my-favorite-trees', 
                     'test-user-a/my-favorite-trees', 'test-user-a/trees-about-bees']
         self.assertEqual(k, expected)
+    def testCollectionCreation(self):
+        c = _TreeCollectionStore(repos_dict=self.r)
+        # TODO: create a new collection with a unique name, confirm it exists
+    def testCollectionCopying(self):
+        c = _TreeCollectionStore(repos_dict=self.r)
+        # TODO: copy an existing study under the same user, confirm it's in the right place
+        # TODO: copy an existing study under a new user, confirm it's in the right place
     def testNewCollectionIds(self):
         # We assign each new collection a unique id based on the owner's userid +
         # the slugified name, serializing with $NAME-2, etc if this id already exists.
@@ -61,6 +68,10 @@ class TestTreeCollections(unittest.TestCase):
         # TODO: fetch an existing study, copy to the other user (id should reflect new username)
         # TODO: fetch an existing study, save a copy alongside it (should nudge id via serialization)
         # TODO: create a new study (with the same name) alongside thes (should nudge id via serialization)
+    def testCollectionDeletion(self):
+        c = _TreeCollectionStore(repos_dict=self.r)
+        # TODO: create a new collection with a unique name, confirm it exists
+        # TODO: delete the collection, make sure it's gone
     def testChangedCollections(self):
         c = _TreeCollectionStore(repos_dict=self.r)
         c.pull()  # get the full git history

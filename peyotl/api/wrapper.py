@@ -64,6 +64,7 @@ class APIDomains(object):
         self._oti = kwargs.get('oti')
         self._phylografter = 'http://www.reelab.net/phylografter'
         self._phylesystem_api = kwargs.get('phylesystem')
+        self._collections_api = kwargs.get('collections')
         self._taxomachine = kwargs.get('taxomachine')
         self._treemachine = kwargs.get('treemachine')
     @property
@@ -80,6 +81,13 @@ class APIDomains(object):
                                                                     'phylesystem_api',
                                                                     'http://api.opentreeoflife.org')
         return self._phylesystem_api
+    @property
+    def collections_api(self):
+        if self._collections_api is None:
+            self._collections_api = self._config.get_config_setting('apis',
+                                                                    'collections_api',
+                                                                    'http://api.opentreeoflife.org')
+        return self._collections_api
     @property
     def phylografter(self):
         return self._phylografter
@@ -104,7 +112,7 @@ def get_domains_obj(**kwargs):
     return api_domains
 
 class APIWrapper(object):
-    def __init__(self, domains=None, phylesystem_api_kwargs=None, **kwargs):
+    def __init__(self, domains=None, phylesystem_api_kwargs=None, collections_api_kwargs=None, **kwargs):
         if domains is None:
             domains = get_domains_obj(**kwargs)
         self.domains = domains
@@ -124,6 +132,10 @@ class APIWrapper(object):
             self._phylesystem_api_kwargs = {}
         else:
             self._phylesystem_api_kwargs = dict(phylesystem_api_kwargs)
+        if collections_api_kwargs is None:
+            self._collections_api_kwargs = {}
+        else:
+            self._collections_api_kwargs = dict(collections_api_kwargs)
     @property
     def oti(self):
         from peyotl.api.oti import _OTIWrapper #pylint: disable=R0401
@@ -155,6 +167,31 @@ class APIWrapper(object):
         if self._phylesystem_api is None:
             self.wrap_phylesystem_api()
         return self._phylesystem_api
+    def wrap_collections_api(self, **kwargs):
+        from peyotl.api.collections_api import _TreeCollectionsAPIWrapper
+        cfrom = self._config.get_config_setting('apis',
+                                                'collections_get_from',
+                                                self._collections_api_kwargs.get('get_from', 'external'))
+        ctrans = self._config.get_config_setting('apis',
+                                                 'collections_transform',
+                                                 self._collections_api_kwargs.get('transform', 'client'))
+        crefresh = self._config.get_config_setting('apis',
+                                                   'collections_refresh',
+                                                   self._collections_api_kwargs.get('refresh', 'never'))
+        if cfrom:
+            kwargs.setdefault('get_from', cfrom)
+        if ctrans:
+            kwargs.setdefault('transform', ctrans)
+        if crefresh:
+            kwargs.setdefault('refresh', crefresh)
+        kwargs['config'] = self._config
+        self._collections_api = _TreeCollectionsAPIWrapper(self.domains.collections_api, **kwargs)
+        return self._collections_api
+    @property
+    def collections_api(self):
+        if self._collections_api is None:
+            self.wrap_collections_api()
+        return self._collections_api
     @property
     def phylografter(self):
         from peyotl.api.phylografter import _PhylografterWrapper

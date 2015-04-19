@@ -4,31 +4,16 @@ import re
 import os
 from peyotl.git_storage import GitActionBase
 
-# extract a study id from a git repo path (as returned by git-tree)
+# extract a collection id from a git repo path (as returned by git-tree)
 
 _LOG = get_logger(__name__)
 class MergeException(Exception):
     pass
 
-def get_filepath_for_namespaced_id(repo_dir, study_id):
-    if len(study_id) < 4:
-        while len(study_id) < 2:
-            study_id = '0' + study_id
-        study_id = 'pg_' + study_id
-    elif study_id[2] != '_':
-        study_id = 'pg_' + study_id
-    from peyotl.phylesystem import STUDY_ID_PATTERN
-    assert bool(STUDY_ID_PATTERN.match(study_id))
-    frag = study_id[-2:]
-    while len(frag) < 2:
-        frag = '0' + frag
-    dest_topdir = study_id[:3] + frag
-    dest_subdir = study_id
-    dest_file = dest_subdir + '.json'
-    return os.path.join(repo_dir, 'study', dest_topdir, dest_subdir, dest_file)
-
-def get_filepath_for_simple_id(repo_dir, study_id):
-    return '{r}/study/{s}/{s}.json'.format(r=repo_dir, s=study_id)
+def get_filepath_for_id(repo_dir, collection_id):
+    from peyotl.collections import COLLECTION_ID_PATTERN
+    assert bool(COLLECTION_ID_PATTERN.match(collection_id))
+    return '{r}/collections-by-owner/{s}.json'.format(r=repo_dir, s=collection_id)
 
 def collection_id_from_repo_path(path):
     doc_parent_dir = 'collections-by-owner/'
@@ -66,7 +51,7 @@ class TreeCollectionsGitAction(GitActionBase):
                                cache,
                                path_for_doc_fn,
                                max_file_size,
-                               path_for_doc_id_fn=get_filepath_for_namespaced_id)
+                               path_for_doc_id_fn=get_filepath_for_id)
 
     # rename some generic members in the base class, for clarity and backward compatibility
     @property

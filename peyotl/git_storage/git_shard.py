@@ -33,6 +33,9 @@ class GitShard(object):
     @property
     def doc_index(self):
         return self._doc_index
+    @doc_index.setter
+    def doc_index(self,val):
+        self._doc_index = val
 
     def get_doc_ids(self, **kwargs):
         with self._index_lock:

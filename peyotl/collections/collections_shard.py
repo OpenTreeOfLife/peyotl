@@ -26,7 +26,7 @@ class TreeCollectionsShardProxy(GitShard):
     '''
     def __init__(self, config):
         GitShard.__init__(self, config['name'])
-        self.repo_nexml2json = config['repo_nexml2json']
+        self.assumed_doc_version = config['assumed_doc_version']
         d = {}
         for collection in config['collections']:
             kl = collection['keys']

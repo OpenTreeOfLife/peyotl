@@ -19,8 +19,8 @@ def collection_id_from_repo_path(path):
     doc_parent_dir = 'collections-by-owner/'
     if path.startswith(doc_parent_dir):
         try:
-            study_id = path.split(doc_parent_dir)[1]
-            return study_id
+            collection_id = path.split(doc_parent_dir)[1]
+            return collection_id
         except:
             return None
 
@@ -55,10 +55,10 @@ class TreeCollectionsGitAction(GitActionBase):
 
     # rename some generic members in the base class, for clarity and backward compatibility
     @property
-    def path_for_study(self):
+    def path_for_collection(self):
         return self.path_for_doc
     @property
-    def return_study(self):
+    def return_collection(self):
         return self.return_document
 
     def get_changed_docs(self,
@@ -68,56 +68,56 @@ class TreeCollectionsGitAction(GitActionBase):
                                       doc_id_from_repo_path=collection_id_from_repo_path,
                                       doc_ids_to_check=doc_ids_to_check)
 
-    def find_WIP_branches(self, study_id):
-        pat = re.compile(r'.*_study_{i}_[0-9]+'.format(i=study_id))
-        return self._find_WIP_branches(study_id, branch_pattern=pat)
+    def find_WIP_branches(self, collection_id):
+        pat = re.compile(r'.*_collection_{i}_[0-9]+'.format(i=collection_id))
+        return self._find_WIP_branches(collection_id, branch_pattern=pat)
 
     def create_or_checkout_branch(self, 
                                   gh_user, 
-                                  study_id, 
+                                  collection_id, 
                                   parent_sha, 
                                   force_branch_name=False):
         return self._create_or_checkout_branch(gh_user, 
-                                               study_id, 
+                                               collection_id, 
                                                parent_sha, 
-                                               branch_name_template="{ghu}_study_{rid}",
+                                               branch_name_template="{ghu}_collection_{rid}",
                                                force_branch_name=force_branch_name)
 
-    def remove_study(self, first_arg, sec_arg, third_arg, fourth_arg=None, commit_msg=None):
-        """Remove a study
-        Given a study_id, branch and optionally an
-        author, remove a study on the given branch
+    def remove_collection(self, first_arg, sec_arg, third_arg, fourth_arg=None, commit_msg=None):
+        """Remove a collection
+        Given a collection_id, branch and optionally an
+        author, remove a collection on the given branch
         and attribute the commit to author.
         Returns the SHA of the commit on branch.
         """
         if fourth_arg is None:
-            study_id, branch_name, author = first_arg, sec_arg, third_arg
-            gh_user = branch_name.split('_study_')[0]
+            collection_id, branch_name, author = first_arg, sec_arg, third_arg
+            gh_user = branch_name.split('_collection_')[0]
             parent_sha = self.get_master_sha()
         else:
-            gh_user, study_id, parent_sha, author = first_arg, sec_arg, third_arg, fourth_arg
+            gh_user, collection_id, parent_sha, author = first_arg, sec_arg, third_arg, fourth_arg
         if commit_msg is None:
-            commit_msg = "Delete Study #%s via OpenTree API" % study_id
-        return self._remove_document(gh_user, study_id, parent_sha, author, commit_msg)
+            commit_msg = "Delete Collection #%s via OpenTree API" % collection_id
+        return self._remove_document(gh_user, collection_id, parent_sha, author, commit_msg)
 
-    def write_study(self, study_id, file_content, branch, author):
-        """Given a study_id, temporary filename of content, branch and auth_info
+    def write_collection(self, collection_id, file_content, branch, author):
+        """Given a collection_id, temporary filename of content, branch and auth_info
 
         Deprecated but needed until we merge api local-dep to master...
 
         """
-        gh_user = branch.split('_study_')[0]
-        msg = "Update Study #%s via OpenTree API" % study_id
-        return self.write_document(gh_user, study_id, file_content, branch, author, 
+        gh_user = branch.split('_collection_')[0]
+        msg = "Update Collection #%s via OpenTree API" % collection_id
+        return self.write_document(gh_user, collection_id, file_content, branch, author, 
                                    commit_msg=msg)
 
-    def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info, commit_msg=''):
-        """Given a study_id, temporary filename of content, branch and auth_info
+    def write_collection_from_tmpfile(self, collection_id, tmpfi, parent_sha, auth_info, commit_msg=''):
+        """Given a collection_id, temporary filename of content, branch and auth_info
         """
-        return self.write_doc_from_tmpfile(study_id,
+        return self.write_doc_from_tmpfile(collection_id,
                                            tmpfi,
                                            parent_sha, 
                                            auth_info, 
                                            commit_msg,
-                                           doctype_display_name="study")
+                                           doctype_display_name="collection")
 

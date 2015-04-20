@@ -34,7 +34,6 @@ class _TreeCollectionsAPIWrapper(_WSWrapper):
         self._transform = kwargs.setdefault('transform', 'client').lower()
         self._refresh = kwargs.setdefault('refresh', 'never').lower()
         self._src_code = _GET_FROM_VALUES.index(self._get_from)
-        #self._trans_code = _TRANSFORM_VALUES.index(self._transform)
         self._refresh_code = _REFRESH_VALUES.index(self._refresh)
         self._assumed_doc_version = None
         self._store_config = None
@@ -57,7 +56,6 @@ class _TreeCollectionsAPIWrapper(_WSWrapper):
         return self._docstore_obj
 
     def _fetch_store_config(self):
-        import pdb; pdb.set_trace()
         if self._src_code == _GET_LOCAL:
             return self.docstore_obj.get_configuration_dict()
         else:
@@ -79,11 +77,9 @@ class _TreeCollectionsAPIWrapper(_WSWrapper):
     def get_external_url(self, collection_id):
         if self._src_code == _GET_API:
             return self._remote_external_url(collection_id)['url']
-        import pdb; pdb.set_trace()
         return self.docstore_obj.get_external_url(collection_id)
     @property
     def collection_list(self):
-        import pdb; pdb.set_trace()
         if self._src_code == _GET_API:
             return self._remote_collection_list()
         return self.docstore_obj.get_collection_ids()
@@ -122,14 +118,12 @@ class _TreeCollectionsAPIWrapper(_WSWrapper):
             nexson = self.json_http_get(url)
             r = {'data': nexson}
         elif self._src_code == _GET_LOCAL:
-            nexson, sha = self.docstore_obj.return_collection(collection_id) #pylint: disable=W0632
+            nexson, sha = self.docstore_obj.return_doc(collection_id) #pylint: disable=W0632
             r = {'data': nexson,
                  'sha': sha}
         else:
             assert self._src_code == _GET_API
             r = self._remote_get_collection(collection_id, schema)
-        if (isinstance(r, dict) and 'data' in r) and (self._trans_code == _TRANS_CLIENT) and (schema is not None):
-            r['data'] = schema.convert(r['data'])
         return r
     @property
     def auth_token(self):
@@ -196,18 +190,8 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return u
 
     def _remote_get_collection(self, collection_id, schema):
-        data = {}
-        expect_json = True
-        if self._trans_code == _TRANS_SERVER:
-            uri, params = schema.phylesystem_api_url(self._prefix, collection_id)
-            data.update(params)
-            expect_json = schema.is_json()
-        else:
-            uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
-            data['output_nexml2json'] = 'native'
-        if not data:
-            data = None
-        return self.json_http_get(uri, params=data, text=not expect_json)
+        uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
+        return self.json_http_get(uri)  # , params=None, text=False)
 
 def TreeCollectionsAPI(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).wrap_collections_api(**kwargs)

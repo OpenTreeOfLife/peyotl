@@ -19,12 +19,14 @@ class TestTreeCollectionsAPI(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()
     def _do_sugar_tests(self, tca):
-        import pdb; pdb.set_trace()
-        x = tca.get('TestUserB/my-favorite-trees')['data']
-        #TODO:sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
-        self.assertTrue(sid in ['10', 'TestUserB/my-favorite-trees'])
-        y = tca.get('TestUserB/my-favorite-trees', tree_id='tree3', format='newick')
-        self.assertTrue(y.startswith('('))
+        try:
+            c = tca.get('TestUserB/my-favorite-trees')  #['data']
+        except KeyError:
+            # alternate collection for remote/proxied docstore
+            c = tca.get('jimallman/my-test-collection')  #['data']
+        #from pprint import pprint
+        #pprint('TESTING collection name {}'.format(c['name']))
+        self.assertTrue(c['name'] in [u'My favorite trees!', u'My test collection'])
     def testRemoteTransSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api', transform='server')
         self._do_sugar_tests(tca)
@@ -66,7 +68,6 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         u = tca.get_external_url('TestUserB/my-favorite-trees')
         re = requests.get(u).json()
-        import pdb; pdb.set_trace()
         #sid = find_val_literal_meta_first(re['nexml'], 'ot:studyId', detect_nexson_version(re))
         self.assertTrue(sid in ['10', 'TestUserB/my-favorite-trees'])
 

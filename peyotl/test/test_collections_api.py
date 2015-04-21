@@ -5,6 +5,7 @@ from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
 import requests
+from pprint import pprint
 
 _LOG = get_logger(__name__)
 from peyotl.collections.helper import get_repos
@@ -20,16 +21,12 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         self.domains = get_test_ot_service_domains()
     def _do_sugar_tests(self, tca):
         try:
-            c = tca.get('TestUserB/my-favorite-trees')  #['data']
-        except KeyError:
+            c = tca.get('TestUserB/my-favorite-trees')
+        except:
             # alternate collection for remote/proxied docstore
-            c = tca.get('jimallman/my-test-collection')  #['data']
-        #from pprint import pprint
-        #pprint('TESTING collection name {}'.format(c['name']))
-        self.assertTrue(c['name'] in [u'My favorite trees!', u'My test collection'])
-    def testRemoteTransSugar(self):
-        tca = TreeCollectionsAPI(self.domains, get_from='api', transform='server')
-        self._do_sugar_tests(tca)
+            c = tca.get('jimallman/my-test-collection')
+        cn = c['name']
+        self.assertTrue(cn in [u'My favorite trees!', u'My test collection'])
     @unittest.skipIf(not HAS_LOCAL_COLLECTIONS_REPOS,
                      'only available if you are have a [phylesystem] section ' \
                      'with "parent" variable in your peyotl config')
@@ -40,13 +37,15 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         self.assertTrue(len(cl) > 0)
     def testPushFailureState(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
+        #import pdb; pdb.set_trace()
         sl = tca.push_failure_state
         self.assertTrue(sl[0] is True)
     def testFetchCollectionRemote(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
-        x = tca.get_collection('jimallman/trees-about-bees')['data']
-        #TODO:sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
-        self.assertTrue(sid in ['10', 'TestUserB/my-favorite-trees'])
+        c = tca.get_collection('jimallman/my-test-collection')
+        # N.B. we get the JSON "wrapper" with history, etc.
+        cn = c['data']['name']
+        self.assertTrue(cn == u'My test collection')
     def testRemoteSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         self._do_sugar_tests(tca)
@@ -68,8 +67,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         u = tca.get_external_url('TestUserB/my-favorite-trees')
         re = requests.get(u).json()
-        #sid = find_val_literal_meta_first(re['nexml'], 'ot:studyId', detect_nexson_version(re))
-        self.assertTrue(sid in ['10', 'TestUserB/my-favorite-trees'])
+        self.assertTrue(c['name'] == u'My test collection')
 
 if __name__ == "__main__":
     unittest.main()

@@ -191,6 +191,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return self.json_http_put(uri,
                                   params=params,
                                   data=anyjson.dumps({'nexson': nexson}))
+    # TODO: add delete_study method here?
     def _remote_phylesystem_config(self):
         uri = '{d}/phylesystem_config'.format(d=self._prefix)
         return self.json_http_get(uri)

@@ -130,7 +130,7 @@ class _TreeCollectionsAPIWrapper(_WSWrapper):
         if self._github_oauth_token is None:
             auth_token = os.environ.get('GITHUB_OAUTH_TOKEN')
             if auth_token is None:
-                raise RuntimeError('''To use the write methods of the Open Tree of Life's Nexson document store
+                raise RuntimeError('''To use the write methods of the Open Tree of Life's document stores
 you must supply a GitHub OAuth Token. Peyotl uses the GITHUB_OAUTH_TOKEN environmental
 variable to obtain this token. If you need to obtain your key, see the instructions at:
     https://github.com/OpenTreeOfLife/api.opentreeoflife.org/tree/master/docs#getting-a-github-oauth-token
@@ -164,10 +164,10 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                                    params=params,
                                    data=anyjson.dumps({'json': json}))
     def put_collection(self,
-                  collection_id,
-                  nexson,
-                  starting_commit_sha,
-                  commit_msg=None):
+                       collection_id,
+                       nexson,
+                       starting_commit_sha,
+                       commit_msg=None):
         assert nexson is not None
         uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
         params = {'starting_commit_SHA':starting_commit_sha,
@@ -177,6 +177,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return self.json_http_put(uri,
                                   params=params,
                                   data=anyjson.dumps({'nexson': nexson}))
+    # TODO: add delete_collection method here?
     def _remote_store_config(self):
         uri = '{d}/collections/store_config'.format(d=self._prefix)
         return self.json_http_get(uri)

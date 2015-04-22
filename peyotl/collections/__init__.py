@@ -21,4 +21,5 @@ __all__ = [#'git_actions',
            'collections_umbrella']
 from peyotl.collections.collections_umbrella import TreeCollectionStore, \
                                                     TreeCollectionStoreProxy, \
+                                                    OWNER_ID_PATTERN, \
                                                     COLLECTION_ID_PATTERN

@@ -42,6 +42,7 @@ from threading import Lock
 import os
 import re
 
+OWNER_ID_PATTERN =      re.compile(r'^[a-zA-Z0-9-]+$')
 COLLECTION_ID_PATTERN = re.compile(r'^[a-zA-Z0-9-]+/[a-z0-9-]+$')
 # Allow simple slug-ified strings and slash separator (no whitespace!)
 
@@ -123,23 +124,60 @@ class _TreeCollectionStore(TypeAwareDocStore):
     def get_collection_ids(self):
         return self.get_doc_ids
 
-    def add_new_collection(self, ownerid, json):
+    def create_git_action_for_new_collection(self, new_collection_id=None):
+        '''Checks out master branch of the shard as a side effect'''
+        return self._growing_shard.create_git_action_for_new_collection(new_collection_id=new_collection_id) #TODO
+
+    def add_new_collection(self, ownerid, json, collection_id=None):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""
         collection = self._coerce_json_to_collection(json)
         if collection is None:
-            #TODO: return an exception?
             msg = "File failed to parse as JSON:\n{j}".format(j=json)
-            return msg
+            raise ValueError(msg)
         if not _is_valid_collection_json(self, collection):
-            #TODO: return an exception?
             msg = "JSON is not a valid collection:\n{j}".format(j=json)
-            return msg
-        # extract a working title and make it unique
-        coll_name = _slugify_internal_collection_name(json)
-
-        #TODO: pass the name and collection JSON to a proper git action
-
-        pass
+            raise ValueError(msg)
+        if collection_id:
+            # try to use this id
+            found_ownerid, slug = collection_id.split('/')
+            assert found_ownerid == ownerid
+        else:
+            # extract a working title and "slugify" it
+            slug = _slugify_internal_collection_name(json)
+            collection_id = '{i}/{s}'.format(i=ownerid, s=slug)
+        # Check the proposed id for uniqueness in any case. Increment until
+        # we have a new id, then "reserve" it using a placeholder value.
+        with self._index_lock:
+            while collection_id in self._doc2shard_map:
+                collection_id = self._increment_id(collection_id)
+            self._doc2shard_map[collection_id] = None
+        # pass the id and collection JSON to a proper git action
+        try:
+            gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=new_collection_id)
+            try:
+                # now that have a final destination, update the stored URL in this collection
+                dest_url = 'TODO_BASE_URL/'.format(new_collection_id) #TODO: prepend base URL
+                collection['url'] = dest_url
+                commit_msg = ''  #TODO: will this be set downstream?
+                # keep it simple (collection is already validated! no annotations needed!)
+                r = self.commit_and_try_merge2master(file_content=collection, #TODO: convert to string?
+                                                          doc_id=new_collection_id,
+                                                          auth_info=auth_info,
+                                                          parent_sha=None,
+                                                          commit_msg=commit_msg,
+                                                          merged_sha=None)
+            except:
+                self._growing_shard.delete_doc_from_index(new_collection_id)
+                raise
+        except:
+            if placeholder_added:
+                with self._index_lock:
+                    if new_collection_id in self._doc2shard_map:
+                        del self._doc2shard_map[new_collection_id]
+            raise
+        with self._index_lock:
+            self._doc2shard_map[new_collection_id] = self._growing_shard
+        return new_collection_id, r
 
     def copy_existing_collection(self, ownerid, old_collection_id):
         """Ensure a unique id, whether from the same user or a different one"""
@@ -147,11 +185,11 @@ class _TreeCollectionStore(TypeAwareDocStore):
     
     def rename_existing_collection(self, ownerid, old_collection_id, new_slug=None):
         """Use slug provided, or use internal name to generate a new id"""
-        pass
+        raise NotImplementedError, 'TODO'
 
     def delete_collection(self, collection_id):
         """Find and remove the matching collection (if any)"""
-        pass
+        raise NotImplementedError, 'TODO'
 
     def _slugify_internal_collection_name(self, json):
         """Parse the JSON, find its name, return a slug of its name"""
@@ -168,7 +206,22 @@ class _TreeCollectionStore(TypeAwareDocStore):
 
     def _is_existing_id(self, test_id):
         """Test to see if this id is non-unique (already exists in a shard)"""
-        pass
+        return test_id in self.get_collection_ids()
+    
+    def _increment_id(self, test_id):
+        """Advance (or add) a serial counter to the end of this id"""
+        id_parts = test_id.split('-')
+        counter = id_parts[:1]
+        try:
+            # if it's an integer, increment it
+            counter = int(counter) + 1
+            id_parts[:1] = counter
+        except:
+            # there's no counter!
+            counter = '2'
+            id_parts.append(counter)
+        incremented_id = '-'.join(id_parts)
+        return incremented_id
     
     def _is_valid_collection_json(self, json):
         """Call the primary validator for a quick test"""

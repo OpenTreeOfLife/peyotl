@@ -128,7 +128,11 @@ class _TreeCollectionStore(TypeAwareDocStore):
         '''Checks out master branch of the shard as a side effect'''
         return self._growing_shard.create_git_action_for_new_collection(new_collection_id=new_collection_id)
 
-    def add_new_collection(self, ownerid, json, collection_id=None):
+    def add_new_collection(self, 
+                           ownerid, 
+                           json, 
+                           auth_info,
+                           collection_id=None):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""
         collection = self._coerce_json_to_collection(json)
         if collection is None:

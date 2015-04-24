@@ -112,13 +112,17 @@ class TypeAwareGitShard(GitShard):
         pass
 
     def delete_doc_from_index(self, doc_id):
-        alias_list = self.id_alias_list_fn(doc_id)
+        if self.id_alias_list_fn:
+            alias_list = self.id_alias_list_fn(doc_id)
+        else:
+            alias_list = [doc_id]
         with self._index_lock:
             for i in alias_list:
                 try:
                     del self._doc_index[i]
                 except:
                     pass
+
     def create_git_action(self):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,

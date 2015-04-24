@@ -134,7 +134,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
         if collection is None:
             msg = "File failed to parse as JSON:\n{j}".format(j=json)
             raise ValueError(msg)
-        if not _is_valid_collection_json(self, collection):
+        if not self._is_valid_collection_json(self, collection):
             msg = "JSON is not a valid collection:\n{j}".format(j=json)
             raise ValueError(msg)
         if collection_id:
@@ -143,7 +143,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
             assert found_ownerid == ownerid
         else:
             # extract a working title and "slugify" it
-            slug = _slugify_internal_collection_name(json)
+            slug = self._slugify_internal_collection_name(json)
             collection_id = '{i}/{s}'.format(i=ownerid, s=slug)
         # Check the proposed id for uniqueness in any case. Increment until
         # we have a new id, then "reserve" it using a placeholder value.

@@ -152,6 +152,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
                 collection_id = self._increment_id(collection_id)
             self._doc2shard_map[collection_id] = None
         # pass the id and collection JSON to a proper git action
+        new_collection_id = None
+        r = None
         try:
             gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=new_collection_id)
             try:

@@ -216,11 +216,11 @@ class _TreeCollectionStore(TypeAwareDocStore):
     def _increment_id(self, test_id):
         """Advance (or add) a serial counter to the end of this id"""
         id_parts = test_id.split('-')
-        counter = id_parts[:-1]
+        counter = id_parts[-1]
         try:
             # if it's an integer, increment it
             counter = int(counter) + 1
-            id_parts[:-1] = counter
+            id_parts[-1] = counter
         except:
             # there's no counter!
             counter = '2'

@@ -170,10 +170,9 @@ class _TreeCollectionStore(TypeAwareDocStore):
                 self._growing_shard.delete_doc_from_index(new_collection_id)
                 raise
         except:
-            if placeholder_added:
-                with self._index_lock:
-                    if new_collection_id in self._doc2shard_map:
-                        del self._doc2shard_map[new_collection_id]
+            with self._index_lock:
+                if new_collection_id in self._doc2shard_map:
+                    del self._doc2shard_map[new_collection_id]
             raise
         with self._index_lock:
             self._doc2shard_map[new_collection_id] = self._growing_shard

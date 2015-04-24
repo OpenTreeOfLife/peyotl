@@ -349,7 +349,7 @@ class PhylesystemShard(TypeAwareGitShard):
         ga = self.create_git_action()
         if new_study_id is None:
             new_study_id = self._mint_new_study_id()
-        self.register_study_id(ga, new_study_id)
+        self.register_doc_id(ga, new_study_id)
         return ga, new_study_id
 
     def _create_git_action_for_global_resource(self):

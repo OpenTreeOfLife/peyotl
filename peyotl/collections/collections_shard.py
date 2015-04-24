@@ -174,6 +174,14 @@ class TreeCollectionsShard(TypeAwareGitShard):
                 p.add(owner_dirname)
         return p
 
+    def create_git_action_for_new_collection(self, new_collection_id=None):
+        '''Checks out master branch as a side effect'''
+        ga = self.create_git_action()
+        assert new_collection_id is not None
+        # id should have been sorted out by the caller
+        self.register_doc_id(ga, new_collection_id)
+        return ga, new_collection_id
+
     def _create_git_action_for_global_resource(self):
         return self._ga_class(repo=self.path,
                               git_ssh=self.git_ssh,

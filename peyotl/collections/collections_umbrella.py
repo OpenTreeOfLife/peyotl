@@ -126,7 +126,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
 
     def create_git_action_for_new_collection(self, new_collection_id=None):
         '''Checks out master branch of the shard as a side effect'''
-        return self._growing_shard.create_git_action_for_new_collection(new_collection_id=new_collection_id) #TODO
+        return self._growing_shard.create_git_action_for_new_collection(new_collection_id=new_collection_id)
 
     def add_new_collection(self, ownerid, json, collection_id=None):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""
@@ -155,7 +155,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
         new_collection_id = None
         r = None
         try:
-            gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=new_collection_id)
+            gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=collection_id)
             try:
                 # now that have a final destination, update the stored URL in this collection
                 dest_url = 'TODO_BASE_URL/'.format(new_collection_id) #TODO: prepend base URL

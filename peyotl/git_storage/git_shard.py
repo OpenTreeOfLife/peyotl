@@ -131,11 +131,10 @@ class TypeAwareGitShard(GitShard):
             from peyotl.git_storage.git_workflow import _pull_gh
             _pull_gh(ga, remote, branch_name)
             self._locked_refresh_doc_index(self)
-    #TODO:type-specific?
-    def register_study_id(self, ga, study_id):
-        fp = ga.path_for_doc(study_id)
+    def register_doc_id(self, ga, doc_id):
+        fp = ga.path_for_doc(doc_id)
         with self._index_lock:
-            self._doc_index[study_id] = (self.name, self.doc_dir, fp)
+            self._doc_index[doc_id] = (self.name, self.doc_dir, fp)
     def _create_git_action_for_mirror(self):
         # If a document makes it into the working dir, we don't want to reject it from the mirror, so
         #   we use max_file_size= None

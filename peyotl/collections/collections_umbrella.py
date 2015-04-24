@@ -134,7 +134,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
         if collection is None:
             msg = "File failed to parse as JSON:\n{j}".format(j=json)
             raise ValueError(msg)
-        if not self._is_valid_collection_json(self, collection):
+        if not self._is_valid_collection_json(collection):
             msg = "JSON is not a valid collection:\n{j}".format(j=json)
             raise ValueError(msg)
         if collection_id:

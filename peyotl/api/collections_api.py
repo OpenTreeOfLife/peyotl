@@ -136,6 +136,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     https://github.com/OpenTreeOfLife/api.opentreeoflife.org/tree/master/docs#getting-a-github-oauth-token
 ''')
             self._github_oauth_token = auth_token
+        _LOG.debug('auth_token first test: {}'.format(self._github_oauth_token))
         return self._github_oauth_token
     def _remote_collection_list(self):
         '''Returns a list of strings which are the collection IDs'''

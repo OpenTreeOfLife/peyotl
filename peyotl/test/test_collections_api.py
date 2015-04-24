@@ -5,10 +5,12 @@ from peyotl.api import TreeCollectionsAPI
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 from peyotl.collections import get_empty_collection
-from peyotl.utility.str_util import slugify
+from peyotl.utility.str_util import slugify, \
+                                    increment_slug
 import unittest
 import requests
 from pprint import pprint
+import re
 
 _LOG = get_logger(__name__)
 from peyotl.collections.helper import get_repos
@@ -18,10 +20,15 @@ try:
 except:
     HAS_LOCAL_COLLECTIONS_REPOS = False
 
-
 class TestTreeCollectionsAPI(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()
+    def tearDown(self):
+        # TODO: restore all docstore repos to their prior state?
+        #   - 'git revert' to force remote master "backwards"?
+        #   - delete new collections in each test? (will add to history)
+        #   - suspend git push to remote, and undo history?
+        pass
     def _do_sugar_tests(self, tca):
         try:
             c = tca.get('TestUserB/my-favorite-trees')
@@ -49,22 +56,34 @@ class TestTreeCollectionsAPI(unittest.TestCase):
     def testCreateCollectionRemote(self):
         # drive RESTful API via wrapper
         tca = TreeCollectionsAPI(self.domains, get_from='api')
+        # remove any prior clones of our tests collection? or let them pile up for now?
+        cl = tca.collection_list
+        pprint("OLD collections list")
+        pprint(cl)
+        test_collection_name = 'My test collection'
+        test_collection_id_base = 'jimallman/my-test-collection'
+        expected_id = test_collection_id_base
+        while expected_id in cl:
+            # keep generating ids until we find a new one
+            expected_id = increment_slug(expected_id)
         # generate a new collection and name it
         cjson = get_empty_collection()
-        cjson['name'] = 'My test collection'
+        cjson['name'] = test_collection_name
         # N.B. this name already exists! should force a new, serial id
         cslug = slugify(cjson['name'])
         cid = 'jimallman/{}'.format(cslug)
-        ### TODO: generate a unique based on this json, and modify it internally?
-        ##cid, cjson  = assign_unique_collection_name(cjson)  
+        ### TODO: generate a unique URL based on this json, and modify it internally?
         commit_msg = 'Test of creating collections via API wrapper'
         result = tca.post_collection(cjson,
                                      cid,
                                      commit_msg)
-        self.assertEqual(result['params']['commit_msg'], commit_msg)
-        self.assertEqual(result['data']['url'], 'my-test-collection-2')
         cl = tca.collection_list
-        self.assertTrue(cid in cl)  # TODO: look for *new* (unique) id!
+        pprint("NEW collections list")
+        pprint(cl)
+        self.assertEqual(result['error'], 0)
+        self.assertEqual(result['merge_needed'], False)
+        self.assertEqual(result['resource_id'], expected_id)
+        self.assertTrue(expected_id in cl)
     def testFetchCollectionRemote(self):
         # drive RESTful API via wrapper
         tca = TreeCollectionsAPI(self.domains, get_from='api')

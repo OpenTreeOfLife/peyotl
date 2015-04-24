@@ -10,7 +10,8 @@
 #               'jimallman/trees-about-bees-2'
 #   - refactor shard to base class, with generalized 'items'?
 from peyotl.utility import get_logger
-from peyotl.utility.str_util import slugify
+from peyotl.utility.str_util import slugify, \
+                                    increment_slug
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -153,7 +154,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
         # we have a new id, then "reserve" it using a placeholder value.
         with self._index_lock:
             while collection_id in self._doc2shard_map:
-                collection_id = self._increment_id(collection_id)
+                collection_id = increment_slug(collection_id)
             self._doc2shard_map[collection_id] = None
         # pass the id and collection JSON to a proper git action
         new_collection_id = None
@@ -212,21 +213,6 @@ class _TreeCollectionStore(TypeAwareDocStore):
     def _is_existing_id(self, test_id):
         """Test to see if this id is non-unique (already exists in a shard)"""
         return test_id in self.get_collection_ids()
-    
-    def _increment_id(self, test_id):
-        """Advance (or add) a serial counter to the end of this id"""
-        id_parts = test_id.split('-')
-        counter = id_parts[-1]
-        try:
-            # if it's an integer, increment it
-            counter = int(counter) + 1
-            id_parts[-1] = counter
-        except:
-            # there's no counter!
-            counter = 2
-            id_parts.append(counter)
-        incremented_id = '-'.join(str(v) for v in id_parts)
-        return incremented_id
     
     def _is_valid_collection_json(self, json):
         """Call the primary validator for a quick test"""

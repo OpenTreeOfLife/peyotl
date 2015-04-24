@@ -223,9 +223,9 @@ class _TreeCollectionStore(TypeAwareDocStore):
             id_parts[-1] = counter
         except:
             # there's no counter!
-            counter = '2'
+            counter = 2
             id_parts.append(counter)
-        incremented_id = '-'.join(id_parts)
+        incremented_id = '-'.join(str(v) for v in id_parts)
         return incremented_id
     
     def _is_valid_collection_json(self, json):

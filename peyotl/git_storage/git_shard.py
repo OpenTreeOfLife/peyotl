@@ -112,9 +112,11 @@ class TypeAwareGitShard(GitShard):
         pass
 
     def delete_doc_from_index(self, doc_id):
-        if self.id_alias_list_fn:
+        try:
+            # some types use aliases, e.g. '123', 'pg_123'
             alias_list = self.id_alias_list_fn(doc_id)
-        else:
+        except AttributeError:
+            # simpler types don't use aliases
             alias_list = [doc_id]
         with self._index_lock:
             for i in alias_list:

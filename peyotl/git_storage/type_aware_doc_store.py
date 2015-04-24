@@ -165,6 +165,9 @@ class TypeAwareDocStore(ShardedDocStore):
 
     def create_git_action(self, doc_id):
         shard = self.get_shard(doc_id)
+        if shard is None:
+            shard = self._growing_shard
+        assert shard is not None
         return shard.create_git_action()
 
     def get_filepath_for_doc(self, doc_id):

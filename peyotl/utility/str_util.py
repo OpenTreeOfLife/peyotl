@@ -60,19 +60,19 @@ def increment_slug(s):
          TestUserA/my-test-3
          ...
     """
-        slug_parts = s.split('-')
-        counter = slug_parts[-1]
-        # advance (or add) the serial counter on the end of this slug
-        try:
-            # if it's an integer, increment it
-            counter = int(counter) + 1
-            slug_parts[-1] = counter
-        except:
-            # there's no counter! add one now
-            counter = 2
-            slug_parts.append(counter)
-        incremented = '-'.join(str(v) for v in slug_parts)
-        return incremented
+    slug_parts = s.split('-')
+    counter = slug_parts[-1]
+    # advance (or add) the serial counter on the end of this slug
+    try:
+        # if it's an integer, increment it
+        counter = int(counter) + 1
+        slug_parts[-1] = counter
+    except:
+        # there's no counter! add one now
+        counter = 2
+        slug_parts.append(counter)
+    incremented = '-'.join(str(v) for v in slug_parts)
+    return incremented
 
 def underscored2camel_case(v):
     '''converts ott_id to ottId.'''

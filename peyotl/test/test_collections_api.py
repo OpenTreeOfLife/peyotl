@@ -7,6 +7,7 @@ from peyotl.utility import get_logger
 from peyotl.collections import get_empty_collection
 from peyotl.utility.str_util import slugify, \
                                     increment_slug
+from requests.exceptions import HTTPError
 import unittest
 import requests
 from pprint import pprint
@@ -19,6 +20,11 @@ try:
     HAS_LOCAL_COLLECTIONS_REPOS = True
 except:
     HAS_LOCAL_COLLECTIONS_REPOS = False
+
+def raise_HTTPError_with_more_detail(err):
+    # show more useful information (JSON payload) from the server
+    details = err.response.text
+    raise ValueError("{e}, details: {m}".format(e=err, m=details))
 
 class TestTreeCollectionsAPI(unittest.TestCase):
     def setUp(self):
@@ -58,8 +64,6 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         # remove any prior clones of our tests collection? or let them pile up for now?
         cl = tca.collection_list
-        pprint("OLD collections list")
-        pprint(cl)
         test_collection_name = 'My test collection'
         test_collection_id_base = 'jimallman/my-test-collection'
         expected_id = test_collection_id_base
@@ -78,8 +82,6 @@ class TestTreeCollectionsAPI(unittest.TestCase):
                                      cid,
                                      commit_msg)
         cl = tca.collection_list
-        pprint("NEW collections list")
-        pprint(cl)
         self.assertEqual(result['error'], 0)
         self.assertEqual(result['merge_needed'], False)
         self.assertEqual(result['resource_id'], expected_id)
@@ -87,7 +89,12 @@ class TestTreeCollectionsAPI(unittest.TestCase):
     def testFetchCollectionRemote(self):
         # drive RESTful API via wrapper
         tca = TreeCollectionsAPI(self.domains, get_from='api')
-        c = tca.get_collection('jimallman/my-test-collection')
+        try:
+            c = tca.get_collection('jimallman/my-test-collection')
+        except HTTPError, err:
+            raise_HTTPError_with_more_detail(err)
+        except Exception, err:
+            raise err
         # N.B. we get the JSON "wrapper" with history, etc.
         cn = c['data']['name']
         self.assertTrue(cn == u'My test collection')
@@ -99,7 +106,12 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         raise NotImplementedError, 'TODO'
     def testRemoteSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
-        self._do_sugar_tests(tca)
+        try:
+            self._do_sugar_tests(tca)
+        except HTTPError, err:
+            raise_HTTPError_with_more_detail(err)
+        except Exception, err:
+            raise err
     def testExternalSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='external')
         self._do_sugar_tests(tca)

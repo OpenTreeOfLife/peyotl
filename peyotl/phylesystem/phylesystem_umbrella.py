@@ -120,6 +120,9 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def get_changed_studies(self):
         return self.get_changed_docs
+    @property
+    def push_study_to_remote(self):
+        return self.push_doc_to_remote
 
     @property
     def new_study_prefix(self):

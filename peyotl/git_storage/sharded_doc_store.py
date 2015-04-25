@@ -57,7 +57,11 @@ class ShardedDocStore(object):
             # Look up the shard where the doc should be (in case it was
             #   deleted. This fall back relies on a unique prefix for each shard)
             pref = self.prefix_from_doc_id(doc_id)
-            return self._prefix2shard[pref]
+            try:
+                return self._prefix2shard[pref]
+            except KeyError:
+                # it's a new prefix! return the latest ("growing") shard
+                return self._shards[-1]
     def get_doc_ids(self):
         k = []
         for shard in self._shards:

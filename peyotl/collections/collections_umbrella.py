@@ -58,8 +58,12 @@ def prefix_from_collection_path(collection_id):
     path_parts = collection_id.split('/')
     _LOG.debug('> prefix_from_collection_path(), found {} path parts'.format(len(path_parts)))
     if len(path_parts) > 1:
-        return path_parts[0]
-    return 'anonymous'  # or perhaps None?
+        owner_id = path_parts[0]
+    elif path_parts[0] == '':
+        owner_id = 'anonymous'
+    else:
+        owner_id = 'anonymous'   # or perhaps None?
+    return owner_id
 
 class TreeCollectionStoreProxy(ShardedDocStore):
     '''Proxy for interacting with external resources if given the configuration of a remote TreeCollectionStore

@@ -214,7 +214,7 @@ class TypeAwareDocStore(ShardedDocStore):
         using the mirroring strategy to cut down on locking of the working repo.
 
         `doc_id` is used to determine which shard should be pushed.
-        if `doc_id is None, all shards are pushed.
+        if `doc_id` is None, all shards are pushed.
         '''
         if doc_id is None:
             ret = True

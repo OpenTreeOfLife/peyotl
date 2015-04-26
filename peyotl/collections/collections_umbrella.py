@@ -169,7 +169,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
             gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=collection_id)
             try:
                 # now that have a final destination, update the stored URL in this collection
-                from peyotl.sugar import phylesystem_api as base_url
+                from peyotl.sugar import collections_api
+                base_url = collections_api.domains._collections_api
                 dest_url = '{b}/{c}'.format(b=base_url, c=new_collection_id)
                 collection['url'] = dest_url
                 commit_msg = ''  # usually this is set downstream

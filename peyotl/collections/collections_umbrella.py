@@ -170,7 +170,12 @@ class _TreeCollectionStore(TypeAwareDocStore):
             try:
                 # now that have a final destination, update the stored URL in this collection
                 from peyotl.sugar import collections_api
-                base_url = collections_api.domains._collections_api
+                from pprint import pprint
+                pprint(">>> collections_api:")
+                pprint(collections_api)
+                pprint(">>> collections_api.domain:")
+                pprint(collections_api.domain)
+                base_url = collections_api.domain
                 dest_url = '{b}/{c}'.format(b=base_url, c=new_collection_id)
                 collection['url'] = dest_url
                 commit_msg = ''  # usually this is set downstream

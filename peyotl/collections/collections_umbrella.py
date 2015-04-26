@@ -168,16 +168,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
         try:
             gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=collection_id)
             try:
-                # now that have a final destination, update the stored URL in this collection
-                from peyotl.sugar import collections_api
-                from pprint import pprint
-                pprint(">>> collections_api:")
-                pprint(collections_api)
-                pprint(">>> collections_api.domain:")
-                pprint(collections_api.domain)
-                base_url = collections_api.domain
-                dest_url = '{b}/{c}'.format(b=base_url, c=new_collection_id)
-                collection['url'] = dest_url
+                # let's remove the 'url' field; it will be populated when the doc is fetched (via API)
+                del collection['url']
                 commit_msg = ''  # usually this is set downstream
                 # keep it simple (collection is already validated! no annotations needed!)
                 r = self.commit_and_try_merge2master(file_content=collection,

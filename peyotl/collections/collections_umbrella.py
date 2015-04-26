@@ -186,8 +186,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
     def update_existing_collection(self, 
                                    ownerid, 
                                    collection_id=None,
-                                   json, 
-                                   auth_info,
+                                   json=None, 
+                                   auth_info=None,
                                    parent_sha=None,
                                    merged_sha=None):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""

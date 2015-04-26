@@ -55,6 +55,8 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         #import pdb; pdb.set_trace()
         sl = tca.push_failure_state
+        if sl[0] is not True: 
+            pprint(sl)
         self.assertTrue(sl[0] is True)
     @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
                      'only available if GITHUB_OAUTH_TOKEN is found in env ' \

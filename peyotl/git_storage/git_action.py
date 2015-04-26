@@ -411,7 +411,7 @@ class GitActionBase(object):
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)
         prev_file_sha = None
         if commit_msg is None:
-            msg = "Delete document #%s via OpenTree API" % doc_id
+            msg = "Delete document '%s' via OpenTree API" % doc_id
         else:
             msg = commit_msg
         if os.path.exists(doc_filepath):
@@ -455,7 +455,7 @@ class GitActionBase(object):
             shutil.copy(fc.name, doc_filepath)
             git(self.gitdir, self.gitwd, "add", doc_filepath)
             if commit_msg is None:
-                commit_msg="Update document #%s via OpenTree API" % doc_id
+                commit_msg="Update document '%s' via OpenTree API" % doc_id
             try:
                 git(self.gitdir,
                     self.gitwd,
@@ -498,7 +498,7 @@ class GitActionBase(object):
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)
 
         # build complete (probably type-specific) commit message
-        default_commit_msg="Update %s #%s via OpenTree API" % (doctype_display_name, doc_id)
+        default_commit_msg="Update %s '%s' via OpenTree API" % (doctype_display_name, doc_id)
         if commit_msg:
             commit_msg = "%s\n\n(%s)" % (commit_msg, default_commit_msg)
         else:

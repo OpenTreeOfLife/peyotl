@@ -97,7 +97,7 @@ class TreeCollectionsGitAction(GitActionBase):
         else:
             gh_user, collection_id, parent_sha, author = first_arg, sec_arg, third_arg, fourth_arg
         if commit_msg is None:
-            commit_msg = "Delete Collection #%s via OpenTree API" % collection_id
+            commit_msg = "Delete Collection '%s' via OpenTree API" % collection_id
         return self._remove_document(gh_user, collection_id, parent_sha, author, commit_msg)
 
     def write_collection(self, collection_id, file_content, branch, author):
@@ -107,7 +107,7 @@ class TreeCollectionsGitAction(GitActionBase):
 
         """
         gh_user = branch.split('_collection_')[0]
-        msg = "Update Collection #%s via OpenTree API" % collection_id
+        msg = "Update Collection '%s' via OpenTree API" % collection_id
         return self.write_document(gh_user, collection_id, file_content, branch, author, 
                                    commit_msg=msg)
 

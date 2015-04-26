@@ -118,6 +118,7 @@ class APIWrapper(object):
         self.domains = domains
         self._phylografter = None
         self._phylesystem_api = None
+        self._collections_api = None
         self._taxomachine = None
         self._treemachine = None
         self._oti = None

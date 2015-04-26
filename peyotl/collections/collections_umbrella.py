@@ -169,11 +169,12 @@ class _TreeCollectionStore(TypeAwareDocStore):
             gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=collection_id)
             try:
                 # now that have a final destination, update the stored URL in this collection
-                dest_url = 'TODO_BASE_URL/'.format(new_collection_id) #TODO: prepend base URL
+                from peyotl.sugar import phylesystem_api as base_url
+                dest_url = '{b}/{c}'.format(b=base_url, c=new_collection_id)
                 collection['url'] = dest_url
-                commit_msg = ''  #TODO: will this be set downstream?
+                commit_msg = ''  # usually this is set downstream
                 # keep it simple (collection is already validated! no annotations needed!)
-                r = self.commit_and_try_merge2master(file_content=collection, #TODO: convert to string?
+                r = self.commit_and_try_merge2master(file_content=collection,
                                                           doc_id=new_collection_id,
                                                           auth_info=auth_info,
                                                           parent_sha=None,

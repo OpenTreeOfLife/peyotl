@@ -166,33 +166,64 @@ class _TreeCollectionStore(TypeAwareDocStore):
         new_collection_id = None
         r = None
         try:
-            gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=collection_id)
-            try:
-                # let's remove the 'url' field; it will be populated when the doc is fetched (via API)
-                del collection['url']
-                commit_msg = ''  # usually this is set downstream
-                # keep it simple (collection is already validated! no annotations needed!)
-                r = self.commit_and_try_merge2master(file_content=collection,
-                                                          doc_id=new_collection_id,
-                                                          auth_info=auth_info,
-                                                          parent_sha=None,
-                                                          commit_msg=commit_msg,
-                                                          merged_sha=None)
-            except:
-                self._growing_shard.delete_doc_from_index(new_collection_id)
-                raise
+            # let's remove the 'url' field; it will be restored when the doc is fetched (via API)
+            del collection['url']
+            commit_msg = ''  # usually this is set downstream
+            # keep it simple (collection is already validated! no annotations needed!)
+            r = self.commit_and_try_merge2master(file_content=collection,
+                                                 doc_id=new_collection_id,
+                                                 auth_info=auth_info,
+                                                 parent_sha=None,
+                                                 commit_msg=commit_msg,
+                                                 merged_sha=None)
         except:
-            with self._index_lock:
-                if new_collection_id in self._doc2shard_map:
-                    del self._doc2shard_map[new_collection_id]
+            self._growing_shard.delete_doc_from_index(new_collection_id)
             raise
         with self._index_lock:
             self._doc2shard_map[new_collection_id] = self._growing_shard
         return new_collection_id, r
 
+    def update_existing_collection(self, 
+                                   ownerid, 
+                                   collection_id=None,
+                                   json, 
+                                   auth_info,
+                                   parent_sha=None,
+                                   merged_sha=None):
+        """Validate and save this JSON. Ensure (and return) a unique collection id"""
+        collection = self._coerce_json_to_collection(json)
+        if collection is None:
+            msg = "File failed to parse as JSON:\n{j}".format(j=json)
+            raise ValueError(msg)
+        if not self._is_valid_collection_json(collection):
+            msg = "JSON is not a valid collection:\n{j}".format(j=json)
+            raise ValueError(msg)
+        if not collection_id:
+            raise ValueError("Collection id not provided (or invalid)")
+        if not self.has_doc(collection_id):
+            msg = "Unexpected collection id '{}' (expected an existing id!)".format(collection_id)
+            raise ValueError(msg)
+        # pass the id and collection JSON to a proper git action
+        r = None
+        try:
+            # remove any 'url' field before saving; it will be restored when the doc is fetched (via API)
+            del collection['url']
+            commit_msg = ''  # usually this is set downstream
+            # keep it simple (collection is already validated! no annotations needed!)
+            r = self.commit_and_try_merge2master(file_content=collection,
+                                                 doc_id=collection_id,
+                                                 auth_info=auth_info,
+                                                 parent_sha=parent_sha,
+                                                 commit_msg=commit_msg,
+                                                 merged_sha=merged_sha)
+            # identify shard for this id!?
+        except:
+            raise
+        return r
+
     def copy_existing_collection(self, ownerid, old_collection_id):
         """Ensure a unique id, whether from the same user or a different one"""
-        pass
+        raise NotImplementedError, 'TODO'
     
     def rename_existing_collection(self, ownerid, old_collection_id, new_slug=None):
         """Use slug provided, or use internal name to generate a new id"""

@@ -166,18 +166,26 @@ class _TreeCollectionStore(TypeAwareDocStore):
         new_collection_id = None
         r = None
         try:
-            # let's remove the 'url' field; it will be restored when the doc is fetched (via API)
-            del collection['url']
-            commit_msg = ''  # usually this is set downstream
-            # keep it simple (collection is already validated! no annotations needed!)
-            r = self.commit_and_try_merge2master(file_content=collection,
-                                                 doc_id=new_collection_id,
-                                                 auth_info=auth_info,
-                                                 parent_sha=None,
-                                                 commit_msg=commit_msg,
-                                                 merged_sha=None)
+            # assign the new id to a shard (important prep for commit_and_try_merge2master)
+            gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=collection_id)
+            try:
+                # let's remove the 'url' field; it will be restored when the doc is fetched (via API)
+                del collection['url']
+                commit_msg = ''  # usually this is set downstream
+                # keep it simple (collection is already validated! no annotations needed!)
+                r = self.commit_and_try_merge2master(file_content=collection,
+                                                     doc_id=new_collection_id,
+                                                     auth_info=auth_info,
+                                                     parent_sha=None,
+                                                     commit_msg=commit_msg,
+                                                     merged_sha=None)
+            except:
+                self._growing_shard.delete_doc_from_index(new_collection_id)
+                raise
         except:
-            self._growing_shard.delete_doc_from_index(new_collection_id)
+            with self._index_lock:
+                if new_collection_id in self._doc2shard_map:
+                    del self._doc2shard_map[new_collection_id]
             raise
         with self._index_lock:
             self._doc2shard_map[new_collection_id] = self._growing_shard

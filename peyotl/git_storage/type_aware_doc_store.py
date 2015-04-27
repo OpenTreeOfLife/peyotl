@@ -287,6 +287,8 @@ class TypeAwareDocStore(ShardedDocStore):
                 _LOG.warn(self._doc2shard_map)
                 try:
                     _shard = self._doc2shard_map[doc_id]
+                    _LOG.warn(">>>>>>>> FOUND SHARD:")
+                    _LOG.warn(_shard)
                 except KeyError:
                     pass
                 else:

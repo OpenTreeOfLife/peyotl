@@ -101,11 +101,65 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         cn = c['data']['name']
         self.assertTrue(cn == u'My test collection')
     def testModifyCollectionRemote(self):
-        #TODO: drive RESTful API via wrapper
-        raise NotImplementedError, 'TODO'
+        # drive RESTful API via wrapper
+        tca = TreeCollectionsAPI(self.domains, get_from='api')
+        try:
+            c = tca.get_collection('jimallman/my-test-collection')
+        except HTTPError, err:
+            raise_HTTPError_with_more_detail(err)
+        except Exception, err:
+            raise err
+        # N.B. we get the JSON "wrapper" with history, etc.
+        cd = c['data']['description']
+        # let's treat this as a numeric value and increment it
+        try:
+            cd_number = int(cd)
+        except:
+            cd_number = 0
+        cd_number += 1
+        c['data']['description'] = str(cd_number)
+        c = tca.put_collection('jimallman/my-test-collection',
+                               c['data'],
+                               c['sha'])  # TODO: add commit msg?
+        # retrieve the new version and see if it has the modified description
+        try:
+            c = tca.get_collection('jimallman/my-test-collection')
+        except HTTPError, err:
+            raise_HTTPError_with_more_detail(err)
+        except Exception, err:
+            raise err
+        self.assertEqual(c['data']['description'], str(cd_number))
     def testDeleteCollectionRemote(self):
-        #TODO: drive RESTful API via wrapper
-        raise NotImplementedError, 'TODO'
+        # drive RESTful API via wrapper
+        tca = TreeCollectionsAPI(self.domains, get_from='api')
+        # remove any prior clones of our tests collection? or let them pile up for now?
+        cl = tca.collection_list
+        cid = 'jimallman/doomed-collection'
+        if cid not in cl:
+            # add our dummy collection so just we can delete it
+            cjson = get_empty_collection()
+            commit_msg = 'Creating temporary collection via API wrapper'
+            result = tca.post_collection(cjson,
+                                         cid,
+                                         commit_msg)
+            cl = tca.collection_list
+            self.assertEqual(result['error'], 0)
+            self.assertEqual(result['merge_needed'], False)
+            self.assertEqual(result['resource_id'], cid)
+            self.assertTrue(cid in cl)
+        # now try to clobber it
+        try:
+            c = tca.get_collection(cid)
+        except HTTPError, err:
+            raise_HTTPError_with_more_detail(err)
+        except Exception, err:
+            raise err
+        c = tca.delete_collection(cid,
+                                  c['sha'])
+        # is it really gone?
+        cl = tca.collection_list
+        assertTrue(cid not in cl)
+        
     def testRemoteSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         try:

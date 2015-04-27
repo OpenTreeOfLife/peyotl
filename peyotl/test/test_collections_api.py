@@ -21,8 +21,6 @@ try:
 except:
     HAS_LOCAL_COLLECTIONS_REPOS = False
 
-try: 
-
 def raise_HTTPError_with_more_detail(err):
     # show more useful information (JSON payload) from the server
     details = err.response.text

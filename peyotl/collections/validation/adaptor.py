@@ -8,19 +8,6 @@ def create_validation_adaptor(obj, errors, **kwargs):
     # just one simple version for now, so one adapter class
     return CollectionValidationAdaptor(obj, errors, **kwargs)
 
-from peyotl.nexson_validation.err_generator import factory2code, \
-                                                   gen_MissingExpectedListWarning, \
-                                                   gen_MaxSizeExceededWarning, \
-                                                   gen_MissingMandatoryKeyWarning, \
-                                                   gen_MissingOptionalKeyWarning, \
-                                                   gen_MultipleTipsToSameOttIdWarning, \
-                                                   gen_ReferencedIDNotFoundWarning, \
-                                                   gen_RepeatedIDWarning, \
-                                                   gen_UnparseableMetaWarning, \
-                                                   gen_UnrecognizedKeyWarning, \
-                                                   gen_WrongValueTypeWarning
-
-
 # TODO: Define a simple adapter based on 
 # nexson_validation._badgerfish_validation.BadgerFishValidationAdapter.
 # N.B. that this doesn't need to inherit from NexsonValidationAdapter, since

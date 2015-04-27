@@ -44,7 +44,7 @@ def get_repos(par_list=None, **kwargs):
         par_list = [par_list]
     for p in par_list:
         if not os.path.isdir(p):
-            raise ValueError('Phylesystem parent "{p}" is not a directory'.format(p=p))
+            raise ValueError('Docstore parent "{p}" is not a directory'.format(p=p))
         for name in os.listdir(p):
             #TODO: Add an option to filter just phylesystem repos (or any specified type?) here!
             #  - add optional list arg `allowed_repo_names`?
@@ -55,29 +55,6 @@ def get_repos(par_list=None, **kwargs):
     if len(_repos) == 0:
         raise ValueError('No git repos in {parent}'.format(parent=str(par_list)))
     return _repos
-
-def create_id2study_info(path, tag):
-    '''Searchers for *.json files in this repo and returns
-    a map of study id ==> (`tag`, dir, study filepath)
-    where `tag` is typically the shard name
-    '''
-    d = {}
-    for triple in os.walk(path):
-        root, files = triple[0], triple[2]
-        for filename in files:
-            if filename.endswith('.json'):
-                study_id = filename[:-5]
-                d[study_id] = (tag, root, os.path.join(root, filename))
-    return d
-
-def _initialize_study_index(repos_par=None, **kwargs):
-    d = {} # Key is study id, value is repo,dir tuple
-    repos = get_repos(repos_par, **kwargs)
-    for repo in repos:
-        p = os.path.join(repos[repo], 'study')
-        dr = create_id2study_info(p, repo)
-        d.update(dr)
-    return d
 
 _CACHE_REGION_CONFIGURED = False
 _REGION = None

@@ -130,6 +130,9 @@ class _TreeCollectionStore(TypeAwareDocStore):
     @property
     def get_collection_ids(self):
         return self.get_doc_ids
+    @property
+    def delete_collection(self):
+        return self.delete_doc
 
     def create_git_action_for_new_collection(self, new_collection_id=None):
         '''Checks out master branch of the shard as a side effect'''
@@ -235,10 +238,6 @@ class _TreeCollectionStore(TypeAwareDocStore):
     
     def rename_existing_collection(self, ownerid, old_collection_id, new_slug=None):
         """Use slug provided, or use internal name to generate a new id"""
-        raise NotImplementedError, 'TODO'
-
-    def delete_collection(self, collection_id):
-        """Find and remove the matching collection (if any)"""
         raise NotImplementedError, 'TODO'
 
     def _slugify_internal_collection_name(self, json):

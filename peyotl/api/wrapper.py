@@ -365,7 +365,8 @@ def _http_method_summary_str(url, verb, headers, params, data=None):
 _VERB_TO_METHOD_DICT = {
     'GET': requests.get,
     'POST': requests.post,
-    'PUT': requests.put
+    'PUT': requests.put,
+    'DELETE': requests.delete
 }
 class _WSWrapper(object):
     def __init__(self, domain, **kwargs): #pylint: disable=W0613
@@ -403,6 +404,14 @@ class _WSWrapper(object):
         if 'error' in r:
             raise ValueError(r['error'])
         return r
+    def json_http_delete(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False): #pylint: disable=W0102
+        # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
+        with warnings.catch_warnings():
+            try:
+                warnings.simplefilter("ignore", ResourceWarning) #pylint: disable=E0602
+            except NameError:
+                pass # on py2.7 we don't have ResourceWarning, but we don't need to filter...
+            return self._do_http(url, 'DELETE', headers=headers, params=params, data=data, text=text)
     def _do_http(self, url, verb, headers, params, data, text=False): #pylint: disable=R0201
         if CURL_LOGGER is not None:
             log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)

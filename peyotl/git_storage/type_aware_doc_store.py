@@ -281,18 +281,28 @@ class TypeAwareDocStore(ShardedDocStore):
         ret = delete_study(git_action, doc_id, auth_info, parent_sha, **kwargs)   #TODO:git-workflow-edits
         if not ret['merge_needed']:
             with self._index_lock:
+                _LOG.warn(">>>>>>>> doc_id:")
+                _LOG.warn(doc_id)
+                _LOG.warn(">>>>>>>> _doc2shard_map:")
+                _LOG.warn(self._doc2shard_map)
                 try:
                     _shard = self._doc2shard_map[doc_id]
                 except KeyError:
                     pass
                 else:
-                    alias_list = _shard.id_alias_list_fn(doc_id)
-                    for alias in alias_list:
-                        try:
-                            del self._doc2shard_map[alias]
-                        except KeyError:
-                            pass
-                    _shard.delete_doc_from_index(doc_id)
+                    # complex types use aliases
+                    try:
+                        alias_list = _shard.id_alias_list_fn(doc_id)
+                        for alias in alias_list:
+                            try:
+                                del self._doc2shard_map[alias]
+                            except KeyError:
+                                pass
+                        _shard.delete_doc_from_index(doc_id)
+                    except:
+                        e_fmt = 'This doc id "{}" is not in _doc2shard_map, and not an alias'
+                        e = e_fmt.format(doc_id)
+                        raise ValueError(e)
         return ret
     def iter_doc_objs(self, **kwargs):
         '''Generator that iterates over all detected documents (eg, nexson studies)

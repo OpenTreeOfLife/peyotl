@@ -96,12 +96,15 @@ def delete_document(git_action,
                     commit_msg=None, 
                     merged_sha=None,
                     doctype_display_name="document"): #pylint: disable=W0613
+    _LOG = get_logger(__name__)
     author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action, 
                        fail_msg="Could not acquire lock to delete %s #%s" % (doctype_display_name, doc_id))
     try:
         doc_fp = git_action.path_for_doc(doc_id)
+        _LOG.warn(">>>> doc_fp (path to delete): {}".format(doc_fp))
+        raise NotImplementedError("REMOVE ME, just stopping aggressive deletion") # TODO TODO TODO
         rs_resp = git_action._remove_document(gh_user, doc_id, parent_sha, author, commit_msg=commit_msg)
         new_sha = rs_resp['commit_sha']
         branch_name = rs_resp['branch']

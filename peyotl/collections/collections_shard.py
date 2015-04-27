@@ -19,7 +19,9 @@ doc_holder_subpath = 'collections-by-owner'
 def filepath_for_collection_id(repo_dir, collection_id):
     # in this case, simply expand the id to a full path
     collection_filename = '{i}.json'.format(i=collection_id)
-    return os.path.join(repo_dir, doc_holder_subpath, collection_filename)
+    full_path_to_file = os.path.join(repo_dir, doc_holder_subpath, collection_filename)
+    _LOG.warn(">>>> filepath_for_collection_id: full path is {}".format(full_path_to_file))
+    return full_path_to_file
 
 class TreeCollectionsShardProxy(GitShard):
     '''Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem

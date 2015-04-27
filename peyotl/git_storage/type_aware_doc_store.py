@@ -287,7 +287,7 @@ class TypeAwareDocStore(ShardedDocStore):
                               **kwargs)
         if not ret['merge_needed']:
             with self._index_lock:
-                _LOG.warn(">>>>>>>> AFTER DELECTION of {} doc_id:".format()
+                _LOG.warn(">>>>>>>> AFTER DELECTION of doc_id {}:".format(doc_id))
                 _LOG.warn(doc_id)
                 _LOG.warn(">>>>>>>> _doc2shard_map:")
                 _LOG.warn(self._doc2shard_map)

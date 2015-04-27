@@ -104,7 +104,6 @@ def delete_document(git_action,
     try:
         doc_fp = git_action.path_for_doc(doc_id)
         _LOG.warn(">>>> doc_fp (path to delete): {}".format(doc_fp))
-        raise NotImplementedError("REMOVE ME, just stopping aggressive deletion") # TODO TODO TODO
         rs_resp = git_action._remove_document(gh_user, doc_id, parent_sha, author, commit_msg=commit_msg)
         new_sha = rs_resp['commit_sha']
         branch_name = rs_resp['branch']

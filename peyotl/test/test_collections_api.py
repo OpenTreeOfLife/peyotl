@@ -134,6 +134,8 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         # remove any prior clones of our tests collection? or let them pile up for now?
         cl = tca.collection_list
+        pprint("################### BEFORE deletion collection list (test for doomed file):")
+        pprint(cl)
         cid = 'jimallman/doomed-collection'
         if cid not in cl:
             # add our dummy collection so just we can delete it
@@ -143,6 +145,8 @@ class TestTreeCollectionsAPI(unittest.TestCase):
                                          cid,
                                          commit_msg)
             cl = tca.collection_list
+            pprint("################### BEFORE deletion collection list (doomed file should be here):")
+            pprint(cl)
             self.assertEqual(result['error'], 0)
             self.assertEqual(result['merge_needed'], False)
             self.assertEqual(result['resource_id'], cid)
@@ -158,6 +162,8 @@ class TestTreeCollectionsAPI(unittest.TestCase):
                                   c['sha'])
         # is it really gone?
         cl = tca.collection_list
+        pprint("################### AFTER deletion collection list (doomed file should be GONE):")
+        pprint(cl)
         assertTrue(cid not in cl)
         
     def testRemoteSugar(self):

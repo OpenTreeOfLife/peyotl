@@ -71,6 +71,7 @@ class GitActionBase(object):
         git(git_dir_arg, 'remote', 'add', remote_name, remote_url)
 
     def __init__(self,
+                 doc_type,
                  repo,
                  remote=None,
                  git_ssh=None,
@@ -80,6 +81,7 @@ class GitActionBase(object):
                  max_file_size=None,
                  path_for_doc_id_fn=None):
         self.repo = repo
+        self.doc_type = doc_type
         self.git_dir = os.path.join(repo, '.git')
         self._lock_file = os.path.join(self.git_dir, "API_WRITE_LOCK")
         self._lock_timeout = 30  # in seconds
@@ -121,8 +123,8 @@ class GitActionBase(object):
         '''Returns doc_dir and doc_filepath for doc_id.
         '''
         full_path = self.path_for_doc_fn(self.repo, doc_id)
-        _LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc_fn: {}'.format(self.path_for_doc_fn))
-        _LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc returning: [{}]'.format(full_path))
+        #_LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc_fn: {}'.format(self.path_for_doc_fn))
+        #_LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc returning: [{}]'.format(full_path))
         return full_path
 
     def lock(self):
@@ -368,13 +370,13 @@ class GitActionBase(object):
 
     def _create_or_checkout_branch(self, 
                                    gh_user, 
-                                   study_id, 
+                                   doc_id, 
                                    parent_sha, 
                                    branch_name_template='{ghu}_doc_{rid}',
                                    force_branch_name=False):
         if force_branch_name:
             #@TEMP deprecated
-            branch = branch_name_template.format(ghu=gh_user, rid=study_id)
+            branch = branch_name_template.format(ghu=gh_user, rid=doc_id)
             if not self.branch_exists(branch):
                 try:
                     git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
@@ -384,7 +386,7 @@ class GitActionBase(object):
             self.checkout(branch)
             return branch
 
-        frag = branch_name_template.format(ghu=gh_user, rid=study_id) + "_"
+        frag = branch_name_template.format(ghu=gh_user, rid=doc_id) + "_"
         branch = self._find_head_sha(frag, parent_sha)
         _LOG.debug('Found branch "{b}" for sha "{s}"'.format(b=branch, s=parent_sha))
         if not branch:
@@ -408,12 +410,9 @@ class GitActionBase(object):
         Remove a document on the given branch and attribute the commit to author.
         Returns the SHA of the commit on branch.
         """
-        _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_id={}".format(doc_id))
+        #_LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_id={}".format(doc_id))
         doc_filepath = self.path_for_doc(doc_id)
-        _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_filepath={}".format(doc_filepath))
-        doc_dir = os.path.split(doc_filepath)[0]
-        _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))
-        raise NotImplementedError("STOPPING aggressive deletion!")
+        #_LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_filepath={}".format(doc_filepath))
 
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)
         prev_file_sha = None
@@ -423,7 +422,16 @@ class GitActionBase(object):
             msg = commit_msg
         if os.path.exists(doc_filepath):
             prev_file_sha = self.get_blob_sha_for_file(doc_filepath)
-            git(self.gitdir, self.gitwd, "rm", "-rf", doc_dir)
+            if self.doc_type == 'nexson':
+                # delete the parent directory entirely
+                doc_dir = os.path.split(doc_filepath)[0]
+                #_LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))
+                git(self.gitdir, self.gitwd, "rm", "-rf", doc_dir)
+            elif self.doc_type in ('collection', 'favorites'):
+                # delete just the target file
+                git(self.gitdir, self.gitwd, "rm", doc_filepath)
+            else:
+                raise NotImplementedError("No deletion rules for doc_type '{}'".format(self.doc_type))
             git(self.gitdir,
                 self.gitwd,
                 "commit",
@@ -498,7 +506,6 @@ class GitActionBase(object):
         gh_user, author = get_user_author(auth_info)
         doc_filepath = self.path_for_doc(doc_id)
         doc_dir = os.path.split(doc_filepath)[0]  
-        #TODO:confirm sensible results in doc_dir for all document types
         if parent_sha is None:
             self.checkout_master()
             parent_sha = self.get_master_sha()

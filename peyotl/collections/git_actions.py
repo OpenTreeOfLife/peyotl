@@ -44,6 +44,7 @@ class TreeCollectionsGitAction(GitActionBase):
 
         """
         GitActionBase.__init__(self,
+                               'collection',
                                repo,
                                remote,
                                git_ssh,

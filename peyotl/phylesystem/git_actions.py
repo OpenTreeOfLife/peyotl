@@ -58,6 +58,7 @@ class PhylesystemGitAction(GitActionBase):
 
         """
         GitActionBase.__init__(self,
+                               'nexson',
                                repo,
                                remote,
                                git_ssh,

@@ -302,14 +302,14 @@ class TypeAwareDocStore(ShardedDocStore):
                     try:
                         # complex types use aliases (clean these up)
                         alias_list = _shard.id_alias_list_fn(doc_id)
-                        for alias in alias_list:
-                            try:
-                                del self._doc2shard_map[alias]
-                            except KeyError:
-                                pass
                     except:
                         # it's a simple type, with no alias list
-                        pass
+                        alias_list = [doc_id]
+                    for alias in alias_list:
+                        try:
+                            del self._doc2shard_map[alias]
+                        except KeyError:
+                            pass
         return ret
     def iter_doc_objs(self, **kwargs):
         '''Generator that iterates over all detected documents (eg, nexson studies)

@@ -82,12 +82,12 @@ class CollectionValidationAdaptor():
                     assert k in ['login', 'name']
                 except:
                     errors.append("Unexpected key '{k}' found in creator".format(k=k))
-            if self._creator.has_key('login'):
+            if 'login' in self._creator:
                 try:
                     assert isinstance(self._creator.get('name'), string_types)
                 except:
                     errors.append("Creator 'name' should be a string")
-            if self._creator.has_key('name'):
+            if 'name' in self._creator:
                 try:
                     assert isinstance(self._creator.get('login'), string_types)
                 except:
@@ -102,12 +102,12 @@ class CollectionValidationAdaptor():
                             assert k in ['login', 'name']
                         except:
                             errors.append("Unexpected key '{k}' found in contributor".format(k=k))
-                    if c.has_key('login'):
+                    if 'login' in c:
                         try:
                             assert isinstance(c.get('name'), string_types)
                         except:
                             errors.append("Contributor 'name' should be a string")
-                    if c.has_key('name'):
+                    if 'name' in c:
                         try:
                             assert isinstance(c.get('login'), string_types)
                         except:

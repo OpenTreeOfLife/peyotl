@@ -163,14 +163,13 @@ class TypeAwareGitShard(GitShard):
                            remote=remote_name)
         return True
     def _is_alias(self, doc_id):
-        #try:
-        #    # some types use aliases, e.g. '123', 'pg_123'
-        #    alias_list = self.id_alias_list_fn(doc_id)
-        #except AttributeError:
-        #    # simpler types don't use aliases
-        #    return False
+        try:
+            # some types use aliases, e.g. '123', 'pg_123'
+            alias_list = self.id_alias_list_fn(doc_id)
+        except AttributeError:
+            # simpler types don't use aliases
+            return False
         # some types use aliases, e.g. '123', 'pg_123'
-        alias_list = self.id_alias_list_fn(doc_id)
         if len(alias_list) > 1:
             ml = max([len(i) for i in alias_list])
             if ml > len(doc_id):

@@ -5,8 +5,8 @@ __all__ = ['sharded_doc_store',
            'git_workflow',
            'git_shard']
 
-from sharded_doc_store import ShardedDocStore
-from type_aware_doc_store import TypeAwareDocStore
-from git_action import GitActionBase, RepoLock
-from git_workflow import GitWorkflowBase
-from git_shard import GitShard, TypeAwareGitShard
+from peyotl.git_storage.sharded_doc_store import ShardedDocStore
+from peyotl.git_storage.type_aware_doc_store import TypeAwareDocStore
+from peyotl.git_storage.git_action import GitActionBase, RepoLock
+from peyotl.git_storage.git_workflow import GitWorkflowBase
+from peyotl.git_storage.git_shard import GitShard, TypeAwareGitShard

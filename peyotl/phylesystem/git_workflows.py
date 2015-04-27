@@ -82,12 +82,12 @@ def delete_study(git_action,
                  commit_msg=None, 
                  merged_sha=None): #pylint: disable=W0613
     return delete_document(git_action, 
-                                study_id, 
-                                auth_info, 
-                                parent_sha, 
-                                commit_msg, 
-                                merged_sha,
-                                doctype_display_name="study")
+                           study_id, 
+                           auth_info, 
+                           parent_sha, 
+                           commit_msg, 
+                           merged_sha,
+                           doctype_display_name="study")
 
 def merge_from_master(git_action, study_id, auth_info, parent_sha):
     """merge from master into the WIP for this study/author

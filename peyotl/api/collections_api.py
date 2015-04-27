@@ -166,10 +166,10 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                                    data=anyjson.dumps({'json': json}))
     def put_collection(self,
                        collection_id,
-                       nexson,
+                       json,
                        starting_commit_sha,
                        commit_msg=None):
-        assert nexson is not None
+        assert json is not None
         uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
         params = {'starting_commit_SHA':starting_commit_sha,
                   'auth_token': self.auth_token}
@@ -177,7 +177,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             params['commit_msg'] = commit_msg
         return self.json_http_put(uri,
                                   params=params,
-                                  data=anyjson.dumps({'nexson': nexson}))
+                                  data=anyjson.dumps({'json': json}))
     # TODO: add delete_collection method here?
     def _remote_store_config(self):
         uri = '{d}/collections/store_config'.format(d=self._prefix)

@@ -203,10 +203,6 @@ class TypeAwareDocStore(ShardedDocStore):
     def get_version_history_for_doc_id(self, doc_id):
         ga = self.create_git_action(doc_id)
         docpath = ga.path_for_doc(doc_id)
-        #from pprint import pprint
-        #pprint('```````````````````````````````````')
-        #pprint(ga.get_version_history_for_file(docpath))
-        #pprint('```````````````````````````````````')
         return ga.get_version_history_for_file(docpath)
 
     def push_doc_to_remote(self, remote_name, doc_id=None):
@@ -287,14 +283,8 @@ class TypeAwareDocStore(ShardedDocStore):
                               **kwargs)
         if not ret['merge_needed']:
             with self._index_lock:
-                _LOG.warn(">>>>>>>> AFTER DELECTION of doc_id {}:".format(doc_id))
-                _LOG.warn(doc_id)
-                _LOG.warn(">>>>>>>> _doc2shard_map:")
-                _LOG.warn(self._doc2shard_map)
                 try:
                     _shard = self._doc2shard_map[doc_id]
-                    _LOG.warn(">>>>>>>> FOUND SHARD:")
-                    _LOG.warn(_shard)
                 except KeyError:
                     pass
                 else:

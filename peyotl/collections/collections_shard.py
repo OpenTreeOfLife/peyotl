@@ -1,6 +1,4 @@
 import os
-import re
-import json
 import codecs
 from threading import Lock
 from peyotl.utility import get_logger, \
@@ -8,7 +6,6 @@ from peyotl.utility import get_logger, \
                            write_to_filepath
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard, \
-                                         FailedShardCreationError, \
                                          _invert_dict_list_val
 from peyotl.utility.input_output import read_as_json, write_as_json
 
@@ -76,7 +73,7 @@ class TreeCollectionsShard(TypeAwareGitShard):
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
         self.max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None)
-        TypeAwareGitShard.__init__(self, 
+        TypeAwareGitShard.__init__(self,
                                    name,
                                    path,
                                    doc_holder_subpath,

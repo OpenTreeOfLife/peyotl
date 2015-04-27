@@ -27,7 +27,7 @@ from peyotl.nexson_validation.err_generator import factory2code, \
 # we're not adding annotations to the target document. Similarly, we're not using 
 # the usual validation logger here, just a list of possible error strings.
 class CollectionValidationAdaptor():
-    def __init__(self, obj, errors=[ ], **kwargs):
+    def __init__(self, obj, errors=[], **kwargs):
         try:
             # Python 2.x
             string_types = (str, unicode)
@@ -56,12 +56,12 @@ class CollectionValidationAdaptor():
                 uk.append(k)
         if uk:
             uk.sort()
-            self._warn_event(_NEXEL.TOP_LEVEL,
-                             obj=obj,
-                             err_type=gen_UnrecognizedKeyWarning,
-                             anc=_EMPTY_TUPLE,
-                             obj_nex_id=None,
-                             key_list=uk)
+            # self._warn_event(_NEXEL.TOP_LEVEL,
+            #                  obj=obj,
+            #                  err_type=gen_UnrecognizedKeyWarning,
+            #                  anc=_EMPTY_TUPLE,
+            #                  obj_nex_id=None,
+            #                  key_list=uk)
 
         # test for existence and types of all required elements
         for el_key, el_type in self.required_toplevel_elements.items():
@@ -79,7 +79,7 @@ class CollectionValidationAdaptor():
         if isinstance(self._creator, dict):
             for k in self._creator.keys():
                 try:
-                    assert k in ['login','name']
+                    assert k in ['login', 'name']
                 except:
                     errors.append("Unexpected key '{k}' found in creator".format(k=k))
             if self._creator.has_key('login'):
@@ -99,7 +99,7 @@ class CollectionValidationAdaptor():
                 if isinstance(c, dict):
                     for k in c.keys():
                         try:
-                            assert k in ['login','name']
+                            assert k in ['login', 'name']
                         except:
                             errors.append("Unexpected key '{k}' found in contributor".format(k=k))
                     if c.has_key('login'):
@@ -119,8 +119,8 @@ class CollectionValidationAdaptor():
         # disregard this position for EXCLUDED trees.
         self._decisions = obj.get('decisions')
         if isinstance(self._decisions, list):
-            text_props = ['name','studyID','treeID','SHA','decision']
-            decision_values = ['INCLUDED','EXCLUDED','UNDECIDED']
+            text_props = ['name', 'studyID', 'treeID', 'SHA', 'decision']
+            decision_values = ['INCLUDED', 'EXCLUDED', 'UNDECIDED']
             for d in self._decisions:
                 try:
                     assert d.get('decision') in decision_values

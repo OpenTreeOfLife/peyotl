@@ -94,7 +94,7 @@ class _TreeCollectionsAPIWrapper(_WSWrapper):
             raise RuntimeError('push_failure_state only pertains to work with remote phyleysystem instances')
         r = self._remote_push_failure()
         return r['pushes_succeeding'], r
-    def get(self, collection_id, content=None, schema=None, **kwargs):
+    def get(self, collection_id, content=None, **kwargs):
         '''Syntactic sugar around to make it easier to get fine-grained access
         to the parts of a file without composing a PhyloSchema object.
         Possible invocations include:
@@ -105,14 +105,12 @@ class _TreeCollectionsAPIWrapper(_WSWrapper):
         see:
         '''
         assert COLLECTION_ID_PATTERN.match(collection_id)
-        r = self.get_collection(collection_id, schema)
-        #if schema.content == 'study' and schema.format_str == 'nexson':
-        #    return r
+        r = self.get_collection(collection_id)
         if isinstance(r, dict) and ('data' in r):
             return r['data']
         return r
 
-    def get_collection(self, collection_id, schema=None):
+    def get_collection(self, collection_id):
         if self._src_code == _GET_EXTERNAL:
             url = self.get_external_url(collection_id)
             nexson = self.json_http_get(url)
@@ -123,7 +121,7 @@ class _TreeCollectionsAPIWrapper(_WSWrapper):
                  'sha': sha}
         else:
             assert self._src_code == _GET_API
-            r = self._remote_get_collection(collection_id, schema)
+            r = self._remote_get_collection(collection_id)
         return r
     @property
     def auth_token(self):
@@ -195,13 +193,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     def _remote_external_url(self, collection_id):
         uri = '{d}/collections/external_url/{i}'.format(d=self._prefix, i=collection_id)
         return self.json_http_get(uri)
-    def url_for_api_get_collection(self, collection_id, schema):
-        u, d = schema.phylesystem_api_url(self._prefix, collection_id)
-        if d:
-            return '{u}?{d}'.format(u=u, d=urllib.urlencode(d))
-        return u
-
-    def _remote_get_collection(self, collection_id, schema):
+    def _remote_get_collection(self, collection_id):
         uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
         return self.json_http_get(uri)  # , params=None, text=False)
 

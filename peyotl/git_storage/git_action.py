@@ -98,6 +98,12 @@ class GitActionBase(object):
         else: #EJM needs a test?
             raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
 
+    # some methods are required, but particular to each subclass
+    def find_WIP_branches(self):
+        raise NotImplementedError("Subclass must implement find_WIP_branches!")
+    def create_or_checkout_branch(self):
+        raise NotImplementedError("Subclass must implement create_or_checkout_branch!")
+
     def env(self): #@TEMP could be ref to a const singleton.
         d = dict(os.environ)
         if self.git_ssh:

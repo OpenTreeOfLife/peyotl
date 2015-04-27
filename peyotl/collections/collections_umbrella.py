@@ -1,6 +1,6 @@
 # Simplified from peyotl.phylesystem.phylesystem_umbrella
 #
-# A collection id should be a unique "path" string composed 
+# A collection id should be a unique "path" string composed
 #     of '{ownerid}/{slugified-collection-name}'
 #     EXAMPLES: 'jimallman/trees-about-bees'
 #               'jimallman/other-interesting-stuff'
@@ -136,9 +136,9 @@ class _TreeCollectionStore(TypeAwareDocStore):
         '''Checks out master branch of the shard as a side effect'''
         return self._growing_shard.create_git_action_for_new_collection(new_collection_id=new_collection_id)
 
-    def add_new_collection(self, 
-                           ownerid, 
-                           json, 
+    def add_new_collection(self,
+                           ownerid,
+                           json,
                            auth_info,
                            collection_id=None):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""
@@ -192,10 +192,10 @@ class _TreeCollectionStore(TypeAwareDocStore):
             self._doc2shard_map[new_collection_id] = self._growing_shard
         return new_collection_id, r
 
-    def update_existing_collection(self, 
-                                   ownerid, 
+    def update_existing_collection(self,
+                                   ownerid,
                                    collection_id=None,
-                                   json=None, 
+                                   json=None,
                                    auth_info=None,
                                    parent_sha=None,
                                    merged_sha=None):
@@ -233,7 +233,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
     def copy_existing_collection(self, ownerid, old_collection_id):
         """Ensure a unique id, whether from the same user or a different one"""
         raise NotImplementedError('TODO')
-    
+
     def rename_existing_collection(self, ownerid, old_collection_id, new_slug=None):
         """Use slug provided, or use internal name to generate a new id"""
         raise NotImplementedError('TODO')
@@ -254,7 +254,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
     def _is_existing_id(self, test_id):
         """Test to see if this id is non-unique (already exists in a shard)"""
         return test_id in self.get_collection_ids()
-    
+
     def _is_valid_collection_json(self, json):
         """Call the primary validator for a quick test"""
         collection = self._coerce_json_to_collection(json)
@@ -264,7 +264,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
         aa = validate_collection(collection)
         errors = aa[0]
         for e in errors:
-            _LOG.debug('> invalid JSON: {m}'.format(m=UNICODE(e)))
+            _LOG.debug('> invalid JSON: {m}'.format(m=e.encode('utf-8')))
         if len(errors) > 0:
             return False
         return True
@@ -278,8 +278,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
             try:
                 collection = anyjson.loads(json)
             except:
-                #TODO: raise an exception? return an error?
-                msg = "File failed to validate cleanly. See {o}".format(o=ofn)
+                _LOG.warn('> invalid JSON (failed anyjson parsing)')
                 return None
         return collection
 
@@ -303,13 +302,13 @@ def TreeCollectionStore(repos_dict=None,
     global _THE_TREE_COLLECTION_STORE
     if _THE_TREE_COLLECTION_STORE is None:
         _THE_TREE_COLLECTION_STORE = _TreeCollectionStore(repos_dict=repos_dict,
-                                        repos_par=repos_par,
-                                        with_caching=with_caching,
-                                        assumed_doc_version=assumed_doc_version,
-                                        git_ssh=git_ssh,
-                                        pkey=pkey,
-                                        git_action_class=git_action_class,
-                                        mirror_info=mirror_info,
-                                        infrastructure_commit_author=infrastructure_commit_author)
+                                                          repos_par=repos_par,
+                                                          with_caching=with_caching,
+                                                          assumed_doc_version=assumed_doc_version,
+                                                          git_ssh=git_ssh,
+                                                          pkey=pkey,
+                                                          git_action_class=git_action_class,
+                                                          mirror_info=mirror_info,
+                                                          infrastructure_commit_author=infrastructure_commit_author)
     return _THE_TREE_COLLECTION_STORE
 

@@ -3,6 +3,7 @@
 import os
 import re
 import codecs
+import anyjson
 from threading import Lock
 from peyotl.utility import get_logger, get_config_setting_kwargs, write_to_filepath
 from peyotl.utility.input_output import read_as_json, write_as_json
@@ -197,7 +198,7 @@ class TypeAwareGitShard(GitShard):
                 with codecs.open(fp, 'r', 'utf-8') as fo:
                     try:
                         nex_obj = anyjson.loads(fo.read())
-                        yield (obj_id, nex_obj)
+                        yield (doc_id, nex_obj)
                     except Exception:
                         pass
 

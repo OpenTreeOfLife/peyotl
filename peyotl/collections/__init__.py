@@ -8,16 +8,16 @@ def get_empty_collection():
         "name": "",
         "description": "",
         "creator": {"login": "", "name": ""},
-        "contributors": [ ],
-        "decisions": [ ],
-        "queries": [ ]
+        "contributors": [],
+        "decisions": [],
+        "queries": []
     }
     return collection
 
-__all__ = [#'git_actions',
-           #'git_workflows',
-           #'helper',
-           #'collections_shard',
+__all__ = ['git_actions',
+           'helper',
+           'validation',
+           'collections_shard',
            'collections_umbrella']
 from peyotl.collections.collections_umbrella import TreeCollectionStore, \
                                                     TreeCollectionStoreProxy, \

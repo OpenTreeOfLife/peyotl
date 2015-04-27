@@ -62,6 +62,7 @@ class TestPhylesystemAPI(unittest.TestCase):
         # TODO: remove 'assumed_doc_version' once the preset API domain has newer code
     @unittest.skip('See https://github.com/OpenTreeOfLife/phylesystem-api/issues/116 ')
     def testExternalURL(self):
+        # N.B. that the URL for this API call is an odd one, e.g. http://devapi.opentreeoflife.org/phylesystem/external_url/pg_10
         pa = PhylesystemAPI(self.domains, get_from='api')
         u = pa.get_external_url('pg_10')
         re = requests.get(u).json()

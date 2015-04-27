@@ -94,9 +94,9 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         try:
             c = tca.get_collection('jimallman/my-test-collection')
-        except HTTPError, err:
+        except HTTPError as err:
             raise_HTTPError_with_more_detail(err)
-        except Exception, err:
+        except Exception as err:
             raise err
         # N.B. we get the JSON "wrapper" with history, etc.
         cn = c['data']['name']
@@ -109,9 +109,9 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         try:
             c = tca.get_collection('jimallman/my-test-collection')
-        except HTTPError, err:
+        except HTTPError as err:
             raise_HTTPError_with_more_detail(err)
-        except Exception, err:
+        except Exception as err:
             raise err
         # N.B. we get the JSON "wrapper" with history, etc.
         cd = c['data']['description']
@@ -128,9 +128,9 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         # retrieve the new version and see if it has the modified description
         try:
             c = tca.get_collection('jimallman/my-test-collection')
-        except HTTPError, err:
+        except HTTPError as err:
             raise_HTTPError_with_more_detail(err)
-        except Exception, err:
+        except Exception as err:
             raise err
         self.assertEqual(c['data']['description'], str(cd_number))
     @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
@@ -157,9 +157,9 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         # now try to clobber it
         try:
             c = tca.get_collection(cid)
-        except HTTPError, err:
+        except HTTPError as err:
             raise_HTTPError_with_more_detail(err)
-        except Exception, err:
+        except Exception as err:
             raise err
         c = tca.delete_collection(cid,
                                   c['sha'])
@@ -171,9 +171,9 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         try:
             self._do_sugar_tests(tca)
-        except HTTPError, err:
+        except HTTPError as err:
             raise_HTTPError_with_more_detail(err)
-        except Exception, err:
+        except Exception as err:
             raise err
     def testExternalSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='external')
@@ -188,12 +188,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         x = tca.store_config
         self.assertTrue('assumed_doc_version' in x.keys())
-    @unittest.skip('See https://github.com/OpenTreeOfLife/phylesystem-api/issues/116 ')
-    def testExternalURL(self):
-        tca = TreeCollectionsAPI(self.domains, get_from='api')
-        u = tca.get_external_url('TestUserB/my-favorite-trees')
-        re = requests.get(u).json()
-        self.assertTrue(c['name'] == u'My test collection')
+    #TODO: add testExternalURL and support for this call in collections API?
 
 if __name__ == "__main__":
     unittest.main()

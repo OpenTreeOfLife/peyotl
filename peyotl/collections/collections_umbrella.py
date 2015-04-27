@@ -1,14 +1,12 @@
 # Simplified from peyotl.phylesystem.phylesystem_umbrella
-# TODO:
-#   - clobber all references to study prefix (eg, 'pg')
-#   - add uniqueness test for collection_id instead
-#   - a collection id should be a unique "path" string composed 
+#
+# A collection id should be a unique "path" string composed 
 #     of '{ownerid}/{slugified-collection-name}'
 #     EXAMPLES: 'jimallman/trees-about-bees'
 #               'jimallman/other-interesting-stuff'
 #               'kcranston/trees-about-bees'
 #               'jimallman/trees-about-bees-2'
-#   - refactor shard to base class, with generalized 'items'?
+#
 from peyotl.utility import get_logger
 from peyotl.utility.str_util import slugify, \
                                     increment_slug
@@ -33,7 +31,7 @@ from peyotl.git_storage import ShardedDocStore, \
 from peyotl.collections.collections_shard import TreeCollectionsShardProxy, \
                                                  TreeCollectionsShard
 from peyotl.collections import get_empty_collection
-from peyotl.collection_validation import validate_collection
+from peyotl.collections.validation import validate_collection
 from peyotl.collections.git_actions import TreeCollectionsGitAction
 #from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
 #                                             delete_study, \
@@ -234,11 +232,11 @@ class _TreeCollectionStore(TypeAwareDocStore):
 
     def copy_existing_collection(self, ownerid, old_collection_id):
         """Ensure a unique id, whether from the same user or a different one"""
-        raise NotImplementedError, 'TODO'
+        raise NotImplementedError('TODO')
     
     def rename_existing_collection(self, ownerid, old_collection_id, new_slug=None):
         """Use slug provided, or use internal name to generate a new id"""
-        raise NotImplementedError, 'TODO'
+        raise NotImplementedError('TODO')
 
     def _slugify_internal_collection_name(self, json):
         """Parse the JSON, find its name, return a slug of its name"""

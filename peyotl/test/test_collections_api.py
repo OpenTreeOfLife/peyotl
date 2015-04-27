@@ -164,7 +164,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         cl = tca.collection_list
         pprint("################### AFTER deletion collection list (doomed file should be GONE):")
         pprint(cl)
-        assertTrue(cid not in cl)
+        self.assertTrue(cid not in cl)
         
     def testRemoteSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api')

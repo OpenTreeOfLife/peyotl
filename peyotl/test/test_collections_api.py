@@ -21,6 +21,8 @@ try:
 except:
     HAS_LOCAL_COLLECTIONS_REPOS = False
 
+try: 
+
 def raise_HTTPError_with_more_detail(err):
     # show more useful information (JSON payload) from the server
     details = err.response.text
@@ -101,6 +103,9 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         # N.B. we get the JSON "wrapper" with history, etc.
         cn = c['data']['name']
         self.assertTrue(cn == u'My test collection')
+    @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
+                     'only available if GITHUB_OAUTH_TOKEN is found in env ' \
+                     ' (required to use docstore write methods)')
     def testModifyCollectionRemote(self):
         # drive RESTful API via wrapper
         tca = TreeCollectionsAPI(self.domains, get_from='api')
@@ -130,6 +135,9 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         except Exception, err:
             raise err
         self.assertEqual(c['data']['description'], str(cd_number))
+    @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
+                     'only available if GITHUB_OAUTH_TOKEN is found in env ' \
+                     ' (required to use docstore write methods)')
     def testDeleteCollectionRemote(self):
         # drive RESTful API via wrapper
         tca = TreeCollectionsAPI(self.domains, get_from='api')

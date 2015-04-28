@@ -54,8 +54,8 @@ for f in sl:
         # store in scratch.
         valid_bf = os.path.join(scratch_dir, 'v0.0.0-' + source_study + '.json')
         debug('Raw phylografter from "{}" to valid 0.0.0 NexSON at "{}" ...'.format(full_source, valid_bf))
-        inp = codecs.open(full_source, mode='rU', encoding='utf-8')
-        obj = json.load(inp)
+        with codecs.open(full_source, mode='rU', encoding='utf-8') as inp:
+            obj = json.load(inp)
         try:
             workaround_phylografter_export_diffs(obj, valid_bf)
         except:
@@ -79,8 +79,8 @@ for f in sl:
         if rc != 0:
             failed.append(f)
         else:
-            inp = codecs.open(unchecked_hbf, mode='rU', encoding='utf-8')
-            obj = json.load(inp)
+            with codecs.open(unchecked_hbf, mode='rU', encoding='utf-8') as inp:
+                obj = json.load(inp)
             aug_hbf = os.path.join(scratch_dir, 'augmentedv1.2.1-' + source_study + '.json')
             add_default_prop(obj, aug_hbf)
             # validate

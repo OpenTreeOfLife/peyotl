@@ -18,16 +18,15 @@ args = parser.parse_args(sys.argv[1:])
 if os.path.exists(args.output):
     sys.exit('{} already exists! Exiting...\n'.format(args.output))
 phy = Phylesystem()
-out = codecs.open(args.output, 'w', encoding='utf-8')
-num_unmapped = 0
-
-for study_id, n in phy.iter_study_objs():
-    for og, otu_id, otu in iter_otus(n):
-        if '^ot:ottTaxonName' in otu:
-            out.write(u'{s}\t{o}\t{r}\t{m}\n'.format(s=study_id,
-                                                    o=otu_id,
-                                                    r=otu['^ot:originalLabel'],
-                                                    m=otu['^ot:ottTaxonName']))
-        else:
-            num_unmapped += 1
+with codecs.open(args.output, 'w', encoding='utf-8') as out:
+    num_unmapped = 0
+    for study_id, n in phy.iter_study_objs():
+        for og, otu_id, otu in iter_otus(n):
+            if '^ot:ottTaxonName' in otu:
+                out.write(u'{s}\t{o}\t{r}\t{m}\n'.format(s=study_id,
+                                                        o=otu_id,
+                                                        r=otu['^ot:originalLabel'],
+                                                        m=otu['^ot:ottTaxonName']))
+            else:
+                num_unmapped += 1
 sys.stderr.write('{n:d} unmapped otus\n'.format(n=num_unmapped))

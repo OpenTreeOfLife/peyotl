@@ -316,8 +316,8 @@ class GitActionBase(object):
             head_sha = commit_sha
         doc_filepath = self.path_for_doc(doc_id)
         try:
-            f = codecs.open(doc_filepath, mode='r', encoding='utf-8')
-            content = f.read()
+            with codecs.open(doc_filepath, mode='r', encoding='utf-8') as f:
+                content = f.read()
         except:
             content = None
         if return_WIP_map:

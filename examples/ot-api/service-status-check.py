@@ -6,7 +6,8 @@ import time
 import sys
 
 def report_results(tag, duration, expected_fn, result):
-    expected = json.load(codecs.open(expected_fn, 'rU', encoding='utf-8'))
+    with codecs.open(expected_fn, 'rU', encoding='utf-8') as f:
+        expected = json.load(f)
     succeeded = True
     if expected != result:
         obtained_fn = expected_fn + '-obtained.json'

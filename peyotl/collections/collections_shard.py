@@ -146,7 +146,9 @@ class TreeCollectionsShard(TypeAwareGitShard):
                 if os.path.exists(fn):
                     if is_json:
                         return read_as_json(fn)
-                    return codecs.open(fn, 'rU', encoding='utf-8').read()
+                    with codecs.open(fn, 'rU', encoding='utf-8') as f:
+                        ret = f.read()
+                    return ret
                 return None
     def _write_master_branch_resource(self, content, fn, commit_msg, is_json=False):
         '''This will force the current branch to master! '''

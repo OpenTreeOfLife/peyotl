@@ -1,6 +1,6 @@
 [
   "Unexpected type for contributor (should be dict)", 
   "Unexpected type for contributor (should be dict)", 
-  "Decision property 'treeID' should be one of (<type 'str'>, <type 'unicode'>)", 
+  "Decision property 'treeID' should be one of (<class 'str'>,)", 
   "Each 'decision' should be one of ['INCLUDED', 'EXCLUDED', 'UNDECIDED']"
 ]

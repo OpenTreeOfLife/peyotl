@@ -88,8 +88,8 @@ class TypeAwareGitShard(GitShard):
                 # pass this shard to a type-specific test
                 assumed_doc_version = detect_doc_version_fn(self)
             except IndexError as x:
-                # no studies in this shard!
-                _LOG.warn('No studies in this shard! Auto-detection of assumed_doc_version failed.')
+                # no documents in this shard!
+                _LOG.warn('No documents in this shard! Auto-detection of assumed_doc_version failed.')
                 pass
             except Exception as x:
                 f = 'Auto-detection of assumed_doc_version FAILED with this error:\n{}'

@@ -72,21 +72,21 @@ class APIDomains(object):
         if self._oti is None:
             self._oti = self._config.get_config_setting('apis',
                                                         'oti',
-                                                        'http://api.opentreeoflife.org')
+                                                        'http://devapi.opentreeoflife.org')
         return self._oti
     @property
     def phylesystem_api(self):
         if self._phylesystem_api is None:
             self._phylesystem_api = self._config.get_config_setting('apis',
                                                                     'phylesystem_api',
-                                                                    'http://api.opentreeoflife.org')
+                                                                    'http://devapi.opentreeoflife.org')
         return self._phylesystem_api
     @property
     def collections_api(self):
         if self._collections_api is None:
             self._collections_api = self._config.get_config_setting('apis',
                                                                     'collections_api',
-                                                                    'http://api.opentreeoflife.org')
+                                                                    'http://devapi.opentreeoflife.org')
         return self._collections_api
     @property
     def phylografter(self):
@@ -96,14 +96,14 @@ class APIDomains(object):
         if self._taxomachine is None:
             self._taxomachine = self._config.get_config_setting('apis',
                                                                 'taxomachine',
-                                                                'http://api.opentreeoflife.org')
+                                                                'http://devapi.opentreeoflife.org')
         return self._taxomachine
     @property
     def treemachine(self):
         if self._treemachine is None:
             self._treemachine = self._config.get_config_setting('apis',
                                                                 'treemachine',
-                                                                'http://api.opentreeoflife.org')
+                                                                'http://devapi.opentreeoflife.org')
         return self._treemachine
 
 def get_domains_obj(**kwargs):

@@ -80,7 +80,7 @@ class PhylesystemShardProxy(GitShard):
 def diagnose_repo_nexml2json(shard):
     """Optimistic test for Nexson version in a shard (tests first study found)"""
     with shard._index_lock:
-        fp = shard.study_index.values()[0][2]
+        fp = next(iter(shard.study_index.values()))[2]
     with codecs.open(fp, mode='r', encoding='utf-8') as fo:
         fj = json.load(fo)
         from peyotl.nexson_syntax import detect_nexson_version

@@ -103,10 +103,8 @@ class TypeAwareDocStore(ShardedDocStore):
                                         new_doc_prefix,
                                         infrastructure_commit_author)
             except FailedShardCreationError as x:
-                f = 'Git repo "{d}" found in your docstore parent, but it does not appear to be a {c}' \
-                    'shard. Please report this as a bug if this directory is supposed to be this type of shard. '\
-                    'The triggering error message was:\n{e}'
-                f = f.format(d=repo_filepath, c=git_shard_class, e=str(x))
+                f = 'SKIPPING repo "{d}" (not a {c}). Details:\n  {e}'
+                f = f.format(d=repo_filepath, c=git_shard_class.__name__, e=str(x))
                 _LOG.warn(f)
                 continue
             # if the mirror does not exist, clone it...

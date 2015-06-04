@@ -43,7 +43,6 @@ class TestExtract(unittest.TestCase):
         self.assertFalse(bool(result_data))
         out_schema = PhyloSchema(schema='nexus', content='tree', content_id='bogusID here')
         result_data = out_schema.convert(study_nexson, serialize=True, src_schema=src_schema)
-        print result_data
         self.assertFalse(bool(result_data))
 if __name__ == "__main__":
     unittest.main()

@@ -899,6 +899,8 @@ def convert_tree_to_newick(tree,
     return sio.getvalue()
 
 def _write_nexus_format(quoted_leaf_labels, tree_name_newick_list):
+    if not tree_name_newick_list:
+        return ''
     f, wrapper = get_utf_8_string_io_writer()
     wrapper.write('''#NEXUS
 BEGIN TAXA;

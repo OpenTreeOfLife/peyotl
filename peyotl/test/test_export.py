@@ -35,5 +35,15 @@ class TestExtract(unittest.TestCase):
         n = pathmap.nexson_obj('10/pg_10.json')
         newick = extract_tree(n, 'tree3', PhyloSchema('nexus', tip_label='ot:ottTaxonName'))
         self.assertTrue(newick.startswith('#'))
+    def testMimicPhylesystemExport(self):
+        study_nexson = pathmap.nexson_obj('10/pg_10.json')
+        src_schema = PhyloSchema('nexson', version='1.2.1')
+        out_schema = PhyloSchema(schema='newick', content='tree', content_id='bogusID here')
+        result_data = out_schema.convert(study_nexson, serialize=True, src_schema=src_schema)
+        self.assertFalse(bool(result_data))
+        out_schema = PhyloSchema(schema='nexus', content='tree', content_id='bogusID here')
+        result_data = out_schema.convert(study_nexson, serialize=True, src_schema=src_schema)
+        print result_data
+        self.assertFalse(bool(result_data))
 if __name__ == "__main__":
     unittest.main()

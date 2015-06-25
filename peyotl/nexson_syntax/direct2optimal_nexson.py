@@ -54,6 +54,8 @@ class Direct2OptimalNexson(NexsonConverter):
         return otusById, otusElementOrder
 
     def convert_tree(self, tree):
+        '''Return (tree_id, tree) or None (if the tree has no edges).
+        '''
         nodeById = {}
         root_node = None
         node_list = _index_list_of_values(tree, 'node')
@@ -79,8 +81,6 @@ class Direct2OptimalNexson(NexsonConverter):
         tree['^ot:rootNodeId'] = root_node['@id']
         # Make the struct leaner
         tid = tree['@id']
-        _LOG.warn('tid = {}'.format(tid))
-        _LOG.warn('tree.keys = {}'.format(tree.keys()))
         if self.remove_old_structs:
             del tree['@id']
             del tree['node']
@@ -88,8 +88,14 @@ class Direct2OptimalNexson(NexsonConverter):
                 del tree['edge']
             except:
                 # Tree Tr75035 in http://treebase.org/treebase-web/search/study/summary.html?id=14763
-                #   is empty. in NeXML that shows up as a tree with a node but no edges
-                pass 
+                #   is empty. in NeXML that shows up as a tree with a node but no edges.
+                #   See https://github.com/OpenTreeOfLife/opentree/issues/641
+                # TODO: returning None seems safest, but could cull trees with just metadata.
+                #       but creating a fake tree for metadata is ugly. So, I'm fine with not
+                #       supporting this.
+                _LOG.warn('Tree with ID "{}" is being dropped because it has no edges'.format(tid))
+                assert not edge_list
+                return None
             for node in node_list:
                 if '^ot:isLeaf' in node:
                     del node['^ot:isLeaf']
@@ -131,6 +137,8 @@ class Direct2OptimalNexson(NexsonConverter):
             for tree in tree_array:
                 #_LOG.debug('# pre-convert keys = {}'.format(tree.keys()))
                 t_t = self.convert_tree(tree)
+                if t_t is None:
+                    continue
                 tid, tree_alias = t_t
                 if tid in tree_id_set:
                     raise NexsonError('Repeated tree element id "{}"'.format(tid))

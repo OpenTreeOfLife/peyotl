@@ -21,6 +21,8 @@ parser.add_argument('--nexus',
                     help="(if --fetch is used). format results as NEXUS")
 args = parser.parse_args(sys.argv[1:])
 download = args.fetch
+if download:
+    sys.exit('The fetch option is no longer supported because of https://github.com/OpenTreeOfLife/treemachine/issues/170\n')
 nexus = args.nexus
 out = sys.stdout
 

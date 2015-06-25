@@ -79,10 +79,17 @@ class Direct2OptimalNexson(NexsonConverter):
         tree['^ot:rootNodeId'] = root_node['@id']
         # Make the struct leaner
         tid = tree['@id']
+        _LOG.warn('tid = {}'.format(tid))
+        _LOG.warn('tree.keys = {}'.format(tree.keys()))
         if self.remove_old_structs:
             del tree['@id']
             del tree['node']
-            del tree['edge']
+            try:
+                del tree['edge']
+            except:
+                # Tree Tr75035 in http://treebase.org/treebase-web/search/study/summary.html?id=14763
+                #   is empty. in NeXML that shows up as a tree with a node but no edges
+                pass 
             for node in node_list:
                 if '^ot:isLeaf' in node:
                     del node['^ot:isLeaf']

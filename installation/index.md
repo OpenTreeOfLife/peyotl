@@ -3,14 +3,19 @@ layout: page
 title: Installation
 permalink: /installation/
 ---
-# TL;DR
+# If you are familiar with installing python packages
 
     $ git clone https://github.com/OpenTreeOfLife/peyotl.git
     $ cd peyotl
     $ pip install -r requirements.txt
     $ python setup.py develop
 
-and then look at the [configuration page](../configuration)
+and then look at the [configuration page](../configuration).
+
+Depending on how you are running python, you may have to change the 
+last line `sudo python setup.py develop`.
+You should probably be using a virtualenv (described below) in
+which case the sudo is not needed, but you need to activate your virtualenv.
 
 # Download
 
@@ -29,6 +34,7 @@ We highly recommend that you install in a sandbox environment using [virtualenv]
     $ source my-env/bin/activate
     
 If you do not use virtualenv, you'll need to install [pip](https://pypi.python.org/pypi/pip) (virtualenv installs pip for you).
+Note that you'll have to run the `source` command in every shell that needs to use this virtualenv.
 
 To install the dependencies:
 

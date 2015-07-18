@@ -20,7 +20,7 @@ class TestTreemachine(unittest.TestCase):
         else:
             f = source_id_list[0]
             r = self.treemachine.get_source_tree(**f)
-            self.assertTrue(r['newick'].startswith('('))
+            self.assertTrue(str(r['newick']).startswith('('))
     def testSynthTree(self):
         cdict = self.treemachine.synthetic_tree_info
         if self.treemachine.use_v1:

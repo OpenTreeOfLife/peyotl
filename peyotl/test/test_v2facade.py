@@ -87,7 +87,7 @@ class TestOTI(unittest.TestCase):
         else:
             f = source_id_list[0]
             r = self.ot.graph.source_tree(**f)
-            self.assertTrue(r['newick'].startswith('('))
+            self.assertTrue(str(r['newick']).startswith('('))
     def testSynthTree(self):
         cdict = self.ot.tree_of_life.about()
         tree_id, node_id = _test_tol_about(self, cdict)

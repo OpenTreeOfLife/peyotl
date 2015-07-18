@@ -52,7 +52,7 @@ class TestTreemachine(unittest.TestCase):
             r = self.treemachine.induced_subtree(ott_ids=ott_ids)
             for key in ['ott_ids_not_in_tree', u'node_ids_not_in_tree']:
                 self.assertEqual(r[key], [])
-        self.assertTrue(r['subtree'].startswith('('))
+        self.assertTrue(r['newick'].startswith('('))
     def testMRCA(self):
         ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182,
                    301424, 876348, 515698, 1045579, 267484,

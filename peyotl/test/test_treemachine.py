@@ -4,6 +4,7 @@ from peyotl.api import Treemachine, Taxomachine
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.test.test_v2facade import _test_tol_about
 from peyotl.utility import get_logger
+from requests.exceptions import HTTPError
 import unittest
 _LOG = get_logger(__name__)
  #pylint: disable=W0713
@@ -33,7 +34,9 @@ class TestTreemachine(unittest.TestCase):
                 self.assertTrue(x['newick'].startswith('('))
         else:
             tree_id, node_id = _test_tol_about(self, cdict)
-            self.assertRaises(ValueError,
+            # This now exceed the limit for tips in a tree, so expect HTTPError (400 Client Error: Bad Request) 
+            # instead of the previously expected ValueError
+            self.assertRaises(HTTPError,
                               self.treemachine.get_synthetic_tree,
                               tree_id,
                               format='newick',

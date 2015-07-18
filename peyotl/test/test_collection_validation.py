@@ -11,6 +11,7 @@ from peyotl.test.support.helper import testing_write_json, \
                                        testing_conv_key_unicode_literal
 from peyotl.utility import get_logger
 import unittest
+import sys
 import os
 _LOG = get_logger(__name__)
 
@@ -47,11 +48,17 @@ class TestCollectionValidator(unittest.TestCase):
             pass
     def testExpectedWarnings(self):
         msg = ''
-        # TODO: add test files (.input and .expected for each)
+        # compare test files (.input and .expected for each)
+        # N.B. in some cases, python 2 and python 3 will have different output!
         for fn in pathmap.all_files(os.path.join('collections', 'warn_err')):
             if fn.endswith('.input'):
                 frag = fn[:-len('.input')]
                 efn = frag + '.expected'
+                # check for a python version-specific file, like 'foo.expected-py3'
+                current_python_version = (sys.version_info > (3, 0)) and 'py3' or 'py2'
+                versioned_efn = '{f}-{v}'.format(f=efn, v=current_python_version)
+                if os.path.exists(versioned_efn):
+                    efn = versioned_efn
                 if os.path.exists(efn):
                     inp = testing_read_json(fn)
                     aa = validate_collection(inp)

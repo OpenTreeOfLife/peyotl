@@ -22,21 +22,21 @@ def write_taxon_info(taxon, include_anc, output):
     If `include_anc` is True, then ancestor information was requested (so a None parent is only
         expected at the root of the tree)
     '''
-    output.write('Taxon info for OTT ID (ot:ottId) = {}\n'.format(taxon.ott_id))
-    output.write('    name (ot:ottTaxonName) = "{}"\n'.format(taxon.name))
+    output.write(u'Taxon info for OTT ID (ot:ottId) = {}\n'.format(taxon.ott_id))
+    output.write(u'    name (ot:ottTaxonName) = "{}"\n'.format(taxon.name))
     if taxon.synonyms:
-        output.write('    known synonyms: "{}"\n'.format('", "'.join(taxon.synonyms)))
+        output.write(u'    known synonyms: "{}"\n'.format('", "'.join(taxon.synonyms)))
     else:
-        output.write('    known synonyms: \n')
-    output.write('    OTT flags for this taxon: {}\n'.format(taxon.flags))
-    output.write('    The taxonomic rank associated with this name is: {}\n'.format(taxon.rank))
-    output.write('    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(taxon.taxomachine_node_id))
+        output.write(u'    known synonyms: \n')
+    output.write(u'    OTT flags for this taxon: {}\n'.format(taxon.flags))
+    output.write(u'    The taxonomic rank associated with this name is: {}\n'.format(taxon.rank))
+    output.write(u'    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(taxon.taxomachine_node_id))
     if include_anc:
         if taxon.parent is not None:
-            output.write('Taxon {c} is a child of {p}.\n'.format(c=taxon.ott_id, p=taxon.parent.ott_id))
+            output.write(u'Taxon {c} is a child of {p}.\n'.format(c=taxon.ott_id, p=taxon.parent.ott_id))
             write_taxon_info(taxon.parent, True, output)
         else:
-            output.write('Taxon {c} is the root of the taxonomy.'.format(c=taxon.ott_id))
+            output.write('uTaxon {c} is the root of the taxonomy.'.format(c=taxon.ott_id))
 
 
 def main(argv):
@@ -44,6 +44,10 @@ def main(argv):
     to do all of the real work.
     '''
     import argparse
+    import codecs
+    # have to be ready to deal with utf-8 names
+    out = codecs.getwriter('utf-8')(sys.stdout)
+    
     description = 'Uses Open Tree of Life web services to find information for each OTT ID.'
     parser = argparse.ArgumentParser(prog='ot-taxon-info', description=description)
     parser.add_argument('ids', nargs='+', type=int, help='OTT IDs')
@@ -55,7 +59,7 @@ def main(argv):
     args = parser.parse_args(argv)
     id_list = args.ids
     list_tips = False # args.list_tips once https://github.com/OpenTreeOfLife/taxomachine/issues/89 is fixed @TEMP
-    fetch_and_write_taxon_info(id_list, args.include_lineage, list_tips, sys.stdout)
+    fetch_and_write_taxon_info(id_list, args.include_lineage, list_tips, out)
     
 if __name__ == '__main__':
     try:

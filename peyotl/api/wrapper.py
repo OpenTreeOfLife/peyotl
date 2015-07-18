@@ -112,6 +112,9 @@ def get_domains_obj(**kwargs):
     return api_domains
 
 class APIWrapper(object):
+    # deprecated service
+    # see https://github.com/OpenTreeOfLife/treemachine/issues/170
+    SUPPORTING_GET_SOURCE_TREE = False
     def __init__(self, domains=None, phylesystem_api_kwargs=None, collections_api_kwargs=None, **kwargs):
         if domains is None:
             domains = get_domains_obj(**kwargs)
@@ -316,8 +319,9 @@ class _GraphOfLifeServicesWrapper(object):
     def info(self):
         return self.treemachine.graph_info
     about = info
-    def source_tree(self, *valist, **kwargs):
-        return self.treemachine.get_source_tree(*valist, **kwargs)
+    # deprecated due to https://github.com/OpenTreeOfLife/treemachine/issues/170
+    #def source_tree(self, *valist, **kwargs):
+    #    return self.treemachine.get_source_tree(*valist, **kwargs)
     def node_info(self, *valist, **kwargs):
         return self.treemachine.node_info(*valist, **kwargs)
 

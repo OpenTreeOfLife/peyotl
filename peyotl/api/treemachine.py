@@ -222,21 +222,22 @@ class _TreemachineAPIWrapper(_WSWrapper):
     def synthetic_source_list(self):
         uri = '{p}/getSynthesisSourceList'.format(p=self.prefix)
         return self.json_http_post_raise(uri)
+    # deprecated due to https://github.com/OpenTreeOfLife/treemachine/issues/170
     # format is redefined to match API
     #pylint: disable=W0622
-    def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, **kwargs):
-        if self.use_v1:
-            uri = '{p}/getSourceTree'.format(p=self.prefix)
-            return self._get_tree(uri, tree_id, format=format, node_id=node_id, max_depth=max_depth)
-        else:
-            uri = '{p}/source_tree'.format(p=self.graph_prefix)
-            study_id = kwargs.get('study_id', '')
-            if len(study_id) < 3 or study_id[2] != '_':
-                study_id = 'pg_' + study_id
-            data = {'git_sha': kwargs.get('git_sha', ''),
-                    'study_id': study_id,
-                    'tree_id': tree_id}
-            return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+    #def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, **kwargs):
+    #    if self.use_v1:
+    #        uri = '{p}/getSourceTree'.format(p=self.prefix)
+    #        return self._get_tree(uri, tree_id, format=format, node_id=node_id, max_depth=max_depth)
+    #    else:
+    #        uri = '{p}/source_tree'.format(p=self.graph_prefix)
+    #        study_id = kwargs.get('study_id', '')
+    #        if len(study_id) < 3 or study_id[2] != '_':
+    #            study_id = 'pg_' + study_id
+    #        data = {'git_sha': kwargs.get('git_sha', ''),
+    #                'study_id': study_id,
+    #                'tree_id': tree_id}
+    #        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
     def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, ott_id=None): #pylint: disable=W0622
         if self.use_v1:
             uri = '{p}/getSyntheticTree'.format(p=self.prefix)

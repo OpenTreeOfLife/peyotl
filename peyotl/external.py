@@ -201,5 +201,9 @@ def get_ot_study_info_from_treebase_nexml(src=None,
 def import_nexson_from_treebase(treebase_id,
                                 nexson_syntax_version=DEFAULT_NEXSON_VERSION):
     url = _get_treebase_url(treebase_id)
-    return get_ot_study_info_from_treebase_nexml(src=url,
-                                                 nexson_syntax_version=nexson_syntax_version)
+    try:
+        return get_ot_study_info_from_treebase_nexml(src=url,
+                                                     nexson_syntax_version=nexson_syntax_version)
+    except Exception as x:
+        _LOG.exception('Error parsing NeXML from {}'.format(url))
+        raise

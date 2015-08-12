@@ -5,7 +5,7 @@ from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
 import requests
-
+import os
 _LOG = get_logger(__name__)
 from peyotl.phylesystem.helper import get_repos
 try:
@@ -15,6 +15,9 @@ except:
     HAS_LOCAL_PHYLESYSTEM_REPOS = False
 
 
+@unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
+                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                'Open Tree of Life web services are disabled.')
 class TestPhylesystemAPI(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()

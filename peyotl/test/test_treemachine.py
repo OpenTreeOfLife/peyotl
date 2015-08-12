@@ -5,8 +5,12 @@ from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.test.test_v2facade import _test_tol_about
 from peyotl.utility import get_logger
 import unittest
+import os
 _LOG = get_logger(__name__)
  #pylint: disable=W0713
+@unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
+                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                'Open Tree of Life web services are disabled.')
 class TestTreemachine(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()

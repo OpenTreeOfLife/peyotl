@@ -12,7 +12,6 @@ VALID_NEXSON_DIRS = ['9', 'otu', ]
 
 
 class TestConvert(unittest.TestCase):
-
     def testValidFilesPass(self):
         format_list = ['1.0', '1.2']
         TESTS_WITH_GT_ONE_TREE = ['9']

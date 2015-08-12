@@ -4,6 +4,7 @@ from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
 import json
+import os
 _LOG = get_logger(__name__)
 #pylint does not realize that serialize returns a string, so generates lots of
 #   spurious errors
@@ -12,6 +13,9 @@ _LOG = get_logger(__name__)
 RT_DIRS = ['otu', '9', ]
 
 
+@unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
+                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                'Open Tree of Life web services are disabled.')
 class TestPhyloSchema(unittest.TestCase):
     def testUrlGen(self):
         _prefix = 'http://devapi.opentreeoflife.org/v2'

@@ -31,6 +31,11 @@ with messages that refer to Peyotl not being configured for maintainer tests.
 If you have not checked out these testing repos with the git protocol
 then the push-to-mirror operations will not be tested.
 
+## Testing wrappers of web-services
+
+Put `RUN_WEB_SERVICE_TESTS` in your environment if you want the 
+tests that call open tree of life web services to run.
+Without this variable, those tests are skipped.
 
 ## Some tricks 
 These are probably mainly of interest to people who develop `peyotl`

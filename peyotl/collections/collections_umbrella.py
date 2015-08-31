@@ -140,7 +140,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
                            ownerid,
                            json,
                            auth_info,
-                           collection_id=None):
+                           collection_id=None,
+                           commit_msg=''):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""
         collection = self._coerce_json_to_collection(json)
         if collection is None:
@@ -172,7 +173,6 @@ class _TreeCollectionStore(TypeAwareDocStore):
             try:
                 # let's remove the 'url' field; it will be restored when the doc is fetched (via API)
                 del collection['url']
-                commit_msg = ''  # usually this is set downstream
                 # keep it simple (collection is already validated! no annotations needed!)
                 r = self.commit_and_try_merge2master(file_content=collection,
                                                      doc_id=new_collection_id,
@@ -198,7 +198,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
                                    json=None,
                                    auth_info=None,
                                    parent_sha=None,
-                                   merged_sha=None):
+                                   merged_sha=None,
+                                   commit_msg=''):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""
         collection = self._coerce_json_to_collection(json)
         if collection is None:
@@ -217,7 +218,6 @@ class _TreeCollectionStore(TypeAwareDocStore):
         try:
             # remove any 'url' field before saving; it will be restored when the doc is fetched (via API)
             del collection['url']
-            commit_msg = ''  # usually this is set downstream
             # keep it simple (collection is already validated! no annotations needed!)
             r = self.commit_and_try_merge2master(file_content=collection,
                                                  doc_id=collection_id,

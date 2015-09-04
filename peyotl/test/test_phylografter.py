@@ -4,9 +4,13 @@ from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
+import os
 
 _LOG = get_logger(__name__)
 
+@unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
+                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                'Open Tree of Life web services are disabled.')
 class TestPhylografterAPI(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()

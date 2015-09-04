@@ -5,7 +5,7 @@ from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_
 from peyotl.utility import get_logger
 from requests.exceptions import HTTPError
 import unittest
-
+import os
 _LOG = get_logger(__name__)
 def _test_tol_about(self, cdict):
     for key in [u'date',
@@ -22,7 +22,10 @@ def _test_tol_about(self, cdict):
     node_id = str(cdict['root_node_id']) # Odd that this is a string
     return tree_id, node_id
 
-class TestOTI(unittest.TestCase):
+@unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
+                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                'Open Tree of Life web services are disabled.')
+class TestV2Facade(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()
         self.ot = APIWrapper(d)

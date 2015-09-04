@@ -3,7 +3,7 @@ from peyotl.api.taxomachine import Taxomachine, TNRSResponse
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
 import unittest
-
+import os
 _LOG = get_logger(__name__)
 example_response = {
     u'context': u'All life',
@@ -98,6 +98,9 @@ example_response = {
     u'unambiguous_name_ids': [u'Veronica', u'Homo sapiens'],
     u'unmatched_name_ids': [u'Homo sapien']}
 
+@unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
+                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                'Open Tree of Life web services are disabled.')
 class TestTNRSResponse(unittest.TestCase):
     def testWrap(self):
         #pylint: disable=E1101
@@ -114,6 +117,9 @@ class TestTNRSResponse(unittest.TestCase):
         self.assertEqual(tr['Homo sapiens'][0].is_approximate_match, False)
         self.assertFalse(bool(tr['Homo sapien']))
 
+@unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
+                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                'Open Tree of Life web services are disabled.')
 class TestTaxomachine(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()

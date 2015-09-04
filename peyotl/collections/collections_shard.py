@@ -46,7 +46,7 @@ def create_id2collection_info(path, tag):
         root, files = triple[0], triple[2]
         for filename in files:
             if filename.endswith('.json'):
-                # trim file extension and prepend ownerid (from path)
+                # trim file extension and prepend owner_id (from path)
                 collection_id = "{u}/{n}".format(u=root.split('/')[-1], n=filename[:-5])
                 d[collection_id] = (tag, root, os.path.join(root, filename))
     return d

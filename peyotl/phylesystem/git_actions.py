@@ -80,21 +80,21 @@ class PhylesystemGitAction(GitActionBase):
                          ancestral_commit_sha,
                          doc_ids_to_check=None):
         return self._get_changed_docs(ancestral_commit_sha,
-                                     doc_id_from_repo_path=study_id_from_repo_path,
-                                     doc_ids_to_check=doc_ids_to_check)
+                                      doc_id_from_repo_path=study_id_from_repo_path,
+                                      doc_ids_to_check=doc_ids_to_check)
 
     def find_WIP_branches(self, study_id):
         pat = re.compile(r'.*_study_{i}_[0-9]+'.format(i=study_id))
         return self._find_WIP_branches(study_id, branch_pattern=pat)
 
-    def create_or_checkout_branch(self, 
-                                  gh_user, 
-                                  study_id, 
-                                  parent_sha, 
+    def create_or_checkout_branch(self,
+                                  gh_user,
+                                  study_id,
+                                  parent_sha,
                                   force_branch_name=False):
-        return self._create_or_checkout_branch(gh_user, 
-                                               study_id, 
-                                               parent_sha, 
+        return self._create_or_checkout_branch(gh_user,
+                                               study_id,
+                                               parent_sha,
                                                branch_name_template="{ghu}_study_{rid}",
                                                force_branch_name=force_branch_name)
 
@@ -123,7 +123,11 @@ class PhylesystemGitAction(GitActionBase):
         """
         gh_user = branch.split('_study_')[0]
         msg = "Update Study #%s via OpenTree API" % study_id
-        return self.write_document(gh_user, study_id, file_content, branch, author, 
+        return self.write_document(gh_user,
+                                   study_id,
+                                   file_content,
+                                   branch,
+                                   author,
                                    commit_msg=msg)
 
     def write_study_from_tmpfile(self, study_id, tmpfi, parent_sha, auth_info, commit_msg=''):
@@ -131,8 +135,8 @@ class PhylesystemGitAction(GitActionBase):
         """
         return self.write_doc_from_tmpfile(study_id,
                                            tmpfi,
-                                           parent_sha, 
-                                           auth_info, 
+                                           parent_sha,
+                                           auth_info,
                                            commit_msg,
                                            doctype_display_name="study")
 

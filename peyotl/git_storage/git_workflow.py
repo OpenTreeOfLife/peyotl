@@ -5,8 +5,6 @@ from locket import LockError
 import tempfile
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
-import traceback
-import json
 import os
 from peyotl.git_storage.git_action import MergeException, \
                                           get_user_author, \
@@ -89,17 +87,17 @@ def _do_merge2master_commit(git_action,
         merge_needed = True
     return new_sha, branch_name, merge_needed
 
-def delete_document(git_action, 
-                    doc_id, 
-                    auth_info, 
-                    parent_sha, 
-                    commit_msg=None, 
+def delete_document(git_action,
+                    doc_id,
+                    auth_info,
+                    parent_sha,
+                    commit_msg=None,
                     merged_sha=None,
                     doctype_display_name="document"): #pylint: disable=W0613
     _LOG = get_logger(__name__)
     author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
-    acquire_lock_raise(git_action, 
+    acquire_lock_raise(git_action,
                        fail_msg="Could not acquire lock to delete %s #%s" % (doctype_display_name, doc_id))
     try:
         doc_fp = git_action.path_for_doc(doc_id)
@@ -126,13 +124,13 @@ def delete_document(git_action,
         "merge_needed": merge_needed,
     }
 
-def merge_from_master(git_action, doc_id, auth_info, parent_sha, doctype_display_name="document" ):
+def merge_from_master(git_action, doc_id, auth_info, parent_sha, doctype_display_name="document"):
     """merge from master into the WIP for this document/author
     this is needed to allow a worker's future saves to
     be merged seamlessly into master
     """
     gh_user = get_user_author(auth_info)[0]
-    acquire_lock_raise(git_action, 
+    acquire_lock_raise(git_action,
                        fail_msg="Could not acquire lock to merge %s #%s" % (doctype_display_name, doc_id))
     try:
         git_action.checkout_master()
@@ -156,13 +154,13 @@ def merge_from_master(git_action, doc_id, auth_info, parent_sha, doctype_display
     }
 
 def generic_commit_and_try_merge2master_wf(git_action,
-                                          file_content,
-                                          doc_id,
-                                          auth_info,
-                                          parent_sha,
-                                          commit_msg='',
-                                          merged_sha=None,
-                                          doctype_display_name="document"):
+                                           file_content,
+                                           doc_id,
+                                           auth_info,
+                                           parent_sha,
+                                           commit_msg='',
+                                           merged_sha=None,
+                                           doctype_display_name="document"):
     """Actually make a local Git commit and push it to our remote
     """
     #_LOG.debug('generic_commit_and_try_merge2master_wf: doc_id="{s}" \
@@ -184,17 +182,23 @@ def generic_commit_and_try_merge2master_wf(git_action,
         if max_file_size is not None:
             file_size = os.stat(fc.name).st_size
             if file_size > max_file_size:
-                m = 'Commit of {t} "{i}" had a file size ({a} bytes) which exceeds the maximum size allowed ({b} bytes).'
+                m = 'Commit of {t} "{i}" had a file size ({a} bytes) which ' \
+                    'exceeds the maximum size allowed ({b} bytes).'
                 m = m.format(t=doctype_display_name, i=doc_id, a=file_size, b=max_file_size)
                 raise GitWorkflowError(m)
         f = "Could not acquire lock to write to %s #%s" % (doctype_display_name, doc_id)
         acquire_lock_raise(git_action, fail_msg=f)
         try:
             try:
-                commit_resp = git_action.write_doc_from_tmpfile(doc_id, fc, parent_sha, auth_info, commit_msg, doctype_display_name)
+                commit_resp = git_action.write_doc_from_tmpfile(doc_id,
+                                                                fc,
+                                                                parent_sha,
+                                                                auth_info,
+                                                                commit_msg,
+                                                                doctype_display_name)
             except Exception as e:
                 _LOG.exception('write_doc_from_tmpfile exception')
-                raise GitWorkflowError("Could not write to %s #%s ! Details: \n%s" % 
+                raise GitWorkflowError("Could not write to %s #%s ! Details: \n%s" %
                                        (doctype_display_name, doc_id, e.message))
             written_fp = git_action.path_for_doc(doc_id)
             branch_name = commit_resp['branch']

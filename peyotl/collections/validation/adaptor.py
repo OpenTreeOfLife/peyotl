@@ -8,13 +8,15 @@ def create_validation_adaptor(obj, errors, **kwargs):
     # just one simple version for now, so one adapter class
     return CollectionValidationAdaptor(obj, errors, **kwargs)
 
-# TODO: Define a simple adapter based on 
+# TODO: Define a simple adapter based on
 # nexson_validation._badgerfish_validation.BadgerFishValidationAdapter.
 # N.B. that this doesn't need to inherit from NexsonValidationAdapter, since
-# we're not adding annotations to the target document. Similarly, we're not using 
+# we're not adding annotations to the target document. Similarly, we're not using
 # the usual validation logger here, just a list of possible error strings.
-class CollectionValidationAdaptor():
-    def __init__(self, obj, errors=[], **kwargs):
+class CollectionValidationAdaptor(object):
+    def __init__(self, obj, errors=None, **kwargs):
+        if errors is None:
+            errors = []
         try:
             # Python 2.x
             string_types = (str, unicode)
@@ -25,10 +27,10 @@ class CollectionValidationAdaptor():
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
             'url': string_types,
-            'name': string_types, 
-            'description': string_types, 
-            'creator': dict, 
-            'contributors': list, 
+            'name': string_types,
+            'description': string_types,
+            'creator': dict,
+            'contributors': list,
             'decisions': list,
             'queries': list,
         }

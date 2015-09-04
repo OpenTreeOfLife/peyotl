@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from peyotl.utility import get_logger
 import re
-import os
 from peyotl.git_storage import GitActionBase
 
 # extract a collection id from a git repo path (as returned by git-tree)
@@ -73,14 +72,14 @@ class TreeCollectionsGitAction(GitActionBase):
         pat = re.compile(r'.*_collection_{i}_[0-9]+'.format(i=collection_id))
         return self._find_WIP_branches(collection_id, branch_pattern=pat)
 
-    def create_or_checkout_branch(self, 
-                                  gh_user, 
-                                  collection_id, 
-                                  parent_sha, 
+    def create_or_checkout_branch(self,
+                                  gh_user,
+                                  collection_id,
+                                  parent_sha,
                                   force_branch_name=False):
-        return self._create_or_checkout_branch(gh_user, 
-                                               collection_id, 
-                                               parent_sha, 
+        return self._create_or_checkout_branch(gh_user,
+                                               collection_id,
+                                               parent_sha,
                                                branch_name_template="{ghu}_collection_{rid}",
                                                force_branch_name=force_branch_name)
 
@@ -109,7 +108,10 @@ class TreeCollectionsGitAction(GitActionBase):
         """
         gh_user = branch.split('_collection_')[0]
         msg = "Update Collection '%s' via OpenTree API" % collection_id
-        return self.write_document(gh_user, collection_id, file_content, branch, author, 
+        return self.write_document(gh_user,
+                                   collection_id,
+                                   file_content,
+                                   branch, author,
                                    commit_msg=msg)
 
     def write_collection_from_tmpfile(self, collection_id, tmpfi, parent_sha, auth_info, commit_msg=''):
@@ -117,8 +119,8 @@ class TreeCollectionsGitAction(GitActionBase):
         """
         return self.write_doc_from_tmpfile(collection_id,
                                            tmpfi,
-                                           parent_sha, 
-                                           auth_info, 
+                                           parent_sha,
+                                           auth_info,
                                            commit_msg,
                                            doctype_display_name="collection")
 

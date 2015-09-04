@@ -3,8 +3,7 @@ import re
 import json
 import codecs
 from threading import Lock
-from peyotl.utility import get_logger, \
-                           get_config_setting_kwargs, \
+from peyotl.utility import get_config_setting_kwargs, \
                            write_to_filepath
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard, \
@@ -18,8 +17,8 @@ from peyotl.utility.input_output import read_as_json, write_as_json
 doc_holder_subpath = 'study'
 
 def _get_filtered_study_ids(shard, include_aliases=False):
-    from peyotl.phylesystem.helper import DIGIT_PATTERN 
     """Optionally filters out aliases from standard doc-id list"""
+    from peyotl.phylesystem.helper import DIGIT_PATTERN
     k = shard.get_doc_ids()
     if shard.has_aliases and (not include_aliases):
         x = []
@@ -57,21 +56,21 @@ class PhylesystemShardProxy(GitShard):
     def repo_nexml2json(self):
         return self.assumed_doc_version
     @repo_nexml2json.setter
-    def repo_nexml2json(self,val):
+    def repo_nexml2json(self, val):
         self.assumed_doc_version = val
 
     @property
     def study_index(self):
         return self.doc_index
     @study_index.setter
-    def study_index(self,val):
+    def study_index(self, val):
         self._doc_index = val
 
     @property
     def new_study_prefix(self):
         return self.new_doc_prefix
     @new_study_prefix.setter
-    def new_study_prefix(self,val):
+    def new_study_prefix(self, val):
         self.new_doc_prefix = val
 
     def get_study_ids(self, include_aliases=False):
@@ -124,7 +123,7 @@ class PhylesystemShard(TypeAwareGitShard):
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
         self.max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None)
-        TypeAwareGitShard.__init__(self, 
+        TypeAwareGitShard.__init__(self,
                                    name,
                                    path,
                                    doc_holder_subpath,
@@ -181,14 +180,14 @@ class PhylesystemShard(TypeAwareGitShard):
     def study_index(self):
         return self.doc_index
     @study_index.setter
-    def study_index(self,val):
+    def study_index(self, val):
         self._doc_index = val
 
     @property
     def repo_nexml2json(self):
         return self.assumed_doc_version
     @repo_nexml2json.setter
-    def repo_nexml2json(self,val):
+    def repo_nexml2json(self, val):
         self.assumed_doc_version = val
 
     def get_study_ids(self, include_aliases=False):
@@ -347,7 +346,7 @@ class PhylesystemShard(TypeAwareGitShard):
         #   this codebase is the only service minting
         #   new study IDs!
         return "{p}{c:d}".format(p=self._new_study_prefix, c=c)
-    
+
     def create_git_action_for_new_study(self, new_study_id=None):
         '''Checks out master branch as a side effect'''
         ga = self.create_git_action()

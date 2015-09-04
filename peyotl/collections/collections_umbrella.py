@@ -1,7 +1,7 @@
 # Simplified from peyotl.phylesystem.phylesystem_umbrella
 #
 # A collection id should be a unique "path" string composed
-#     of '{ownerid}/{slugified-collection-name}'
+#     of '{owner_id}/{slugified-collection-name}'
 #     EXAMPLES: 'jimallman/trees-about-bees'
 #               'jimallman/other-interesting-stuff'
 #               'kcranston/trees-about-bees'
@@ -10,10 +10,6 @@
 from peyotl.utility import get_logger
 from peyotl.utility.str_util import slugify, \
                                     increment_slug
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
 import json
 try:
     import anyjson
@@ -22,35 +18,29 @@ except:
         pass
     anyjson = Wrapper()
     anyjson.loads = json.loads
-try:
-    from dogpile.cache.api import NO_VALUE
-except:
-    pass #caching is optional
 from peyotl.git_storage import ShardedDocStore, \
                                TypeAwareDocStore
 from peyotl.collections.collections_shard import TreeCollectionsShardProxy, \
                                                  TreeCollectionsShard
-from peyotl.collections import get_empty_collection
+
 from peyotl.collections.validation import validate_collection
 from peyotl.collections.git_actions import TreeCollectionsGitAction
 #from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
 #                                             delete_study, \
 #                                             validate_and_convert_nexson
 #from peyotl.nexson_validation import ot_validate
-from threading import Lock
-import os
 import re
 
-OWNER_ID_PATTERN =      re.compile(r'^[a-zA-Z0-9-]+$')
+OWNER_ID_PATTERN = re.compile(r'^[a-zA-Z0-9-]+$')
 COLLECTION_ID_PATTERN = re.compile(r'^[a-zA-Z0-9-]+/[a-z0-9-]+$')
 # Allow simple slug-ified strings and slash separator (no whitespace!)
 
 _LOG = get_logger(__name__)
 
 def prefix_from_collection_path(collection_id):
-    # The collection id is a sort of "path", e.g. '{ownerid}/{collection-name-as-slug}'
+    # The collection id is a sort of "path", e.g. '{owner_id}/{collection-name-as-slug}'
     #   EXAMPLES: 'jimallman/trees-about-bees', 'kcranston/interesting-trees-2'
-    # Assume that the ownerid will work as a prefix, esp. by assigning all of a
+    # Assume that the owner_id will work as a prefix, esp. by assigning all of a
     # user's collections to a single shard.for grouping in shards
     _LOG.debug('> prefix_from_collection_path(), testing this id: {i}'.format(i=collection_id))
     path_parts = collection_id.split('/')
@@ -137,27 +127,27 @@ class _TreeCollectionStore(TypeAwareDocStore):
         return self._growing_shard.create_git_action_for_new_collection(new_collection_id=new_collection_id)
 
     def add_new_collection(self,
-                           ownerid,
-                           json,
+                           owner_id,
+                           json_repr,
                            auth_info,
                            collection_id=None,
                            commit_msg=''):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""
-        collection = self._coerce_json_to_collection(json)
+        collection = self._coerce_json_to_collection(json_repr)
         if collection is None:
-            msg = "File failed to parse as JSON:\n{j}".format(j=json)
+            msg = "File failed to parse as JSON:\n{j}".format(j=json_repr)
             raise ValueError(msg)
         if not self._is_valid_collection_json(collection):
-            msg = "JSON is not a valid collection:\n{j}".format(j=json)
+            msg = "JSON is not a valid collection:\n{j}".format(j=json_repr)
             raise ValueError(msg)
         if collection_id:
             # try to use this id
-            found_ownerid, slug = collection_id.split('/')
-            assert found_ownerid == ownerid
+            found_owner_id, slug = collection_id.split('/')
+            assert found_owner_id == owner_id
         else:
             # extract a working title and "slugify" it
-            slug = self._slugify_internal_collection_name(json)
-            collection_id = '{i}/{s}'.format(i=ownerid, s=slug)
+            slug = self._slugify_internal_collection_name(json_repr)
+            collection_id = '{i}/{s}'.format(i=owner_id, s=slug)
         # Check the proposed id for uniqueness in any case. Increment until
         # we have a new id, then "reserve" it using a placeholder value.
         with self._index_lock:
@@ -169,7 +159,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
         r = None
         try:
             # assign the new id to a shard (important prep for commit_and_try_merge2master)
-            gd, new_collection_id = self.create_git_action_for_new_collection(new_collection_id=collection_id)
+            gd_id_pair = self.create_git_action_for_new_collection(new_collection_id=collection_id)
+            new_collection_id = gd_id_pair[1]
             try:
                 # let's remove the 'url' field; it will be restored when the doc is fetched (via API)
                 del collection['url']
@@ -193,20 +184,20 @@ class _TreeCollectionStore(TypeAwareDocStore):
         return new_collection_id, r
 
     def update_existing_collection(self,
-                                   ownerid,
+                                   owner_id,
                                    collection_id=None,
-                                   json=None,
+                                   json_repr=None,
                                    auth_info=None,
                                    parent_sha=None,
                                    merged_sha=None,
                                    commit_msg=''):
         """Validate and save this JSON. Ensure (and return) a unique collection id"""
-        collection = self._coerce_json_to_collection(json)
+        collection = self._coerce_json_to_collection(json_repr)
         if collection is None:
-            msg = "File failed to parse as JSON:\n{j}".format(j=json)
+            msg = "File failed to parse as JSON:\n{j}".format(j=json_repr)
             raise ValueError(msg)
         if not self._is_valid_collection_json(collection):
-            msg = "JSON is not a valid collection:\n{j}".format(j=json)
+            msg = "JSON is not a valid collection:\n{j}".format(j=json_repr)
             raise ValueError(msg)
         if not collection_id:
             raise ValueError("Collection id not provided (or invalid)")
@@ -230,24 +221,24 @@ class _TreeCollectionStore(TypeAwareDocStore):
             raise
         return r
 
-    def copy_existing_collection(self, ownerid, old_collection_id):
+    def copy_existing_collection(self, owner_id, old_collection_id):
         """Ensure a unique id, whether from the same user or a different one"""
         raise NotImplementedError('TODO')
 
-    def rename_existing_collection(self, ownerid, old_collection_id, new_slug=None):
+    def rename_existing_collection(self, owner_id, old_collection_id, new_slug=None):
         """Use slug provided, or use internal name to generate a new id"""
         raise NotImplementedError('TODO')
 
-    def _slugify_internal_collection_name(self, json):
+    def _slugify_internal_collection_name(self, json_repr):
         """Parse the JSON, find its name, return a slug of its name"""
-        collection = self._coerce_json_to_collection(json)
+        collection = self._coerce_json_to_collection(json_repr)
         if collection is None:
             return None
         internal_name = collection['name']
         return slugify(internal_name)
 
     def _is_valid_collection_id(self, test_id):
-        """Test for the expected format '{ownerid}/{slug}', return T/F
+        """Test for the expected format '{owner_id}/{slug}', return T/F
         N.B. This does not test for a working GitHub username!"""
         return bool(COLLECTION_ID_PATTERN.match(test_id))
 
@@ -255,9 +246,9 @@ class _TreeCollectionStore(TypeAwareDocStore):
         """Test to see if this id is non-unique (already exists in a shard)"""
         return test_id in self.get_collection_ids()
 
-    def _is_valid_collection_json(self, json):
+    def _is_valid_collection_json(self, json_repr):
         """Call the primary validator for a quick test"""
-        collection = self._coerce_json_to_collection(json)
+        collection = self._coerce_json_to_collection(json_repr)
         if collection is None:
             # invalid JSON, definitely broken
             return False
@@ -269,14 +260,14 @@ class _TreeCollectionStore(TypeAwareDocStore):
             return False
         return True
 
-    def _coerce_json_to_collection(self, json):
+    def _coerce_json_to_collection(self, json_repr):
         """Use to ensure that a JSON string (if found) is parsed to the equivalent dict in python.
         If the incoming value is already parsed, do nothing. If a string fails to parse, return None."""
-        if type(json) is dict:
-            collection = json
+        if isinstance(json_repr, dict):
+            collection = json_repr
         else:
             try:
-                collection = anyjson.loads(json)
+                collection = anyjson.loads(json_repr)
             except:
                 _LOG.warn('> invalid JSON (failed anyjson parsing)')
                 return None

@@ -1,4 +1,4 @@
-from peyotl.utility import expand_path, get_logger, get_config_setting_kwargs
+from peyotl.utility import get_logger
 import json
 try:
     import anyjson
@@ -7,28 +7,11 @@ except:
         pass
     anyjson = Wrapper()
     anyjson.loads = json.loads
-from peyotl.collections.git_actions import get_filepath_for_id
+from peyotl.phylesystem.helper import _get_phylesystem_parent
 import os
-import re
 from threading import Lock
 _LOG = get_logger(__name__)
 _study_index_lock = Lock()
-
-#def _get_phylesystem_parent_with_source(**kwargs):
-#    src = 'environment'
-#    if 'PHYLESYSTEM_PARENT' in os.environ:
-#        phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
-#    else:
-#        try:
-#            phylesystem_parent = expand_path(get_config_setting_kwargs(None, 'phylesystem', 'parent', **kwargs))
-#            src = 'configfile'
-#        except:
-#            raise ValueError('No [phylesystem] "parent" specified in config or environmental variables')
-#    x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
-#    return x, src
-#
-#def _get_phylesystem_parent(**kwargs):
-#    return _get_phylesystem_parent_with_source(**kwargs)[0]
 
 def get_repos(par_list=None, **kwargs):
     '''Returns a dictionary of name -> filepath

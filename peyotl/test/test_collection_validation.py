@@ -5,10 +5,7 @@ from peyotl.utility.str_util import UNICODE
 from peyotl.collections.validation import validate_collection
 from peyotl.test.support import pathmap
 from peyotl.test.support.helper import testing_write_json, \
-                                       testing_read_json, \
-                                       testing_through_json, \
-                                       testing_dict_eq, \
-                                       testing_conv_key_unicode_literal
+                                       testing_read_json
 from peyotl.utility import get_logger
 import unittest
 import sys

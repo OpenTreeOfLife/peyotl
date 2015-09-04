@@ -10,8 +10,8 @@ import os
 _LOG = get_logger(__name__)
  #pylint: disable=W0713
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
-                'Open Tree of Life web services are disabled.')
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'Open Tree of Life web services are disabled.')
 class TestTreemachine(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()
@@ -38,7 +38,7 @@ class TestTreemachine(unittest.TestCase):
                 self.assertTrue(x['newick'].startswith('('))
         else:
             tree_id, node_id = _test_tol_about(self, cdict)
-            # This now exceed the limit for tips in a tree, so expect HTTPError (400 Client Error: Bad Request) 
+            # This now exceed the limit for tips in a tree, so expect HTTPError (400 Client Error: Bad Request)
             # instead of the previously expected ValueError
             self.assertRaises(HTTPError,
                               self.treemachine.get_synthetic_tree,

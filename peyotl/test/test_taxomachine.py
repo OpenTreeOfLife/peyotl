@@ -41,56 +41,56 @@ example_response = {
                 u'Pseudolysimachion',
                 u'Veronica'],
             u'unique_name': u'Veronica'}]}, {
-        u'id': u'Homo sapiens',
-        u'matches': [{
-            u'flags': [],
-            u'is_approximate_match': False,
-            u'is_deprecated': False,
-            u'is_dubious': False,
-            u'is_synonym': False,
-            u'matched_name': u'Homo sapiens',
-            u'matched_node_id': 3553897,
-            u'nomenclature_code': u'ICZN',
-            u'ot:ottId': 770315,
-            u'ot:ottTaxonName': u'Homo sapiens',
-            u'rank': u'',
-            u'score': 1.0,
-            u'search_string': u'homo sapiens',
-            u'synonyms': [
-                u'Homo palestinus',
-                u'Homo melaninus',
-                u'Homo spelaeus',
-                u'Homo scythicus',
-                u'Homo proto-aethiopicus',
-                u'Homo monstrosus',
-                u'Homo dawsoni',
-                u'Homo cafer',
-                u'Homo eurafricanus',
-                u'Homo helmei',
-                u'man',
-                u'Homo sinicus',
-                u'Homo sapiens',
-                u'Homo cro-magnonensis',
-                u'Homo grimaldii',
-                u'Homo indicus',
-                u'Homo arabicus',
-                u'Homo patagonus',
-                u'Homo aurignacensis',
-                u'Homo drennani',
-                u'Homo troglodytes',
-                u'Homo australasicus',
-                u'Homo japeticus',
-                u'Homo grimaldiensis',
-                u'Homo hottentotus',
-                u'Homo neptunianus',
-                u'Homo hyperboreus',
-                u'Homo americanus',
-                u'human',
-                u'Homo capensis',
-                u'Homo kanamensis',
-                u'Homo columbicus',
-                u'Homo aethiopicus'],
-            u'unique_name': u'Homo sapiens'}]}],
+            u'id': u'Homo sapiens',
+            u'matches': [{
+                u'flags': [],
+                u'is_approximate_match': False,
+                u'is_deprecated': False,
+                u'is_dubious': False,
+                u'is_synonym': False,
+                u'matched_name': u'Homo sapiens',
+                u'matched_node_id': 3553897,
+                u'nomenclature_code': u'ICZN',
+                u'ot:ottId': 770315,
+                u'ot:ottTaxonName': u'Homo sapiens',
+                u'rank': u'',
+                u'score': 1.0,
+                u'search_string': u'homo sapiens',
+                u'synonyms': [
+                    u'Homo palestinus',
+                    u'Homo melaninus',
+                    u'Homo spelaeus',
+                    u'Homo scythicus',
+                    u'Homo proto-aethiopicus',
+                    u'Homo monstrosus',
+                    u'Homo dawsoni',
+                    u'Homo cafer',
+                    u'Homo eurafricanus',
+                    u'Homo helmei',
+                    u'man',
+                    u'Homo sinicus',
+                    u'Homo sapiens',
+                    u'Homo cro-magnonensis',
+                    u'Homo grimaldii',
+                    u'Homo indicus',
+                    u'Homo arabicus',
+                    u'Homo patagonus',
+                    u'Homo aurignacensis',
+                    u'Homo drennani',
+                    u'Homo troglodytes',
+                    u'Homo australasicus',
+                    u'Homo japeticus',
+                    u'Homo grimaldiensis',
+                    u'Homo hottentotus',
+                    u'Homo neptunianus',
+                    u'Homo hyperboreus',
+                    u'Homo americanus',
+                    u'human',
+                    u'Homo capensis',
+                    u'Homo kanamensis',
+                    u'Homo columbicus',
+                    u'Homo aethiopicus'],
+                u'unique_name': u'Homo sapiens'}]}],
     u'taxonomy': {
         u'author': u'open tree of life project',
         u'source': u'ott2.8',
@@ -99,8 +99,8 @@ example_response = {
     u'unmatched_name_ids': [u'Homo sapien']}
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
-                'Open Tree of Life web services are disabled.')
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'Open Tree of Life web services are disabled.')
 class TestTNRSResponse(unittest.TestCase):
     def testWrap(self):
         #pylint: disable=E1101
@@ -118,8 +118,8 @@ class TestTNRSResponse(unittest.TestCase):
         self.assertFalse(bool(tr['Homo sapien']))
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
-                'Open Tree of Life web services are disabled.')
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'Open Tree of Life web services are disabled.')
 class TestTaxomachine(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()

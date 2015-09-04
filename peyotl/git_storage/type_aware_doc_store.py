@@ -1,4 +1,4 @@
-"""Base class for "type-aware" (sharded) document storage. This goes beyond simple subclasses 
+"""Base class for "type-aware" (sharded) document storage. This goes beyond simple subclasses
 like PhylsystemProxy by introducing more business rules and differences between document types
 in the store (eg, Nexson studies in Phylesystem, tree collections in TreeCollectionStore)."""
 import os
@@ -16,12 +16,11 @@ except:
     anyjson.loads = json.loads
 from peyotl.git_storage import ShardedDocStore
 from peyotl.git_storage.git_shard import FailedShardCreationError
-
-from peyotl.utility import pretty_timestamp, get_logger
+from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 class TypeAwareDocStore(ShardedDocStore):
-    def __init__(self, 
+    def __init__(self,
                  prefix_from_doc_id,
                  repos_dict=None,
                  repos_par=None,
@@ -111,8 +110,8 @@ class TypeAwareDocStore(ShardedDocStore):
             if push_mirror_repos_par and (push_mirror_repo_path is None):
                 from peyotl.git_storage import GitActionBase
                 GitActionBase.clone_repo(push_mirror_repos_par,
-                                     repo_name,
-                                     repo_filepath)
+                                         repo_name,
+                                         repo_filepath)
                 if not os.path.isdir(expected_push_mirror_repo_path):
                     e_msg = 'git clone in mirror bootstrapping did not produce a directory at {}'
                     e = e_msg.format(expected_push_mirror_repo_path)
@@ -138,7 +137,8 @@ class TypeAwareDocStore(ShardedDocStore):
         self._prefix2shard = {}
         for shard in shards:
             for prefix in shard.known_prefixes:
-                assert prefix not in self._prefix2shard # we don't currently support multiple shards with the same ID prefix scheme
+                # we don't currently support multiple shards with the same ID prefix scheme
+                assert prefix not in self._prefix2shard
                 self._prefix2shard[prefix] = shard
         with self._index_lock:
             self._locked_refresh_doc_ids()
@@ -274,10 +274,10 @@ class TypeAwareDocStore(ShardedDocStore):
         git_action = self.create_git_action(doc_id)
         from peyotl.git_storage.git_workflow import delete_document
         doctype_display_name = kwargs.get('doctype_display_name', None)
-        ret = delete_document(git_action, 
-                              doc_id, 
-                              auth_info, 
-                              parent_sha, 
+        ret = delete_document(git_action,
+                              doc_id,
+                              auth_info,
+                              parent_sha,
                               doctype_display_name=doctype_display_name,
                               **kwargs)
         if not ret['merge_needed']:

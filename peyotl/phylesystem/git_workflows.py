@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 '''Combinations of git actions used as the opentree git porcelain
 '''
-import tempfile
 from peyotl.nexson_syntax import write_as_json
 from peyotl.nexson_validation import ot_validate
 from peyotl.nexson_syntax import convert_nexson_format
-from peyotl.git_storage.git_workflow import acquire_lock_raise, \
-                                            _do_merge2master_commit, \
-                                            delete_document, \
+from peyotl.git_storage.git_workflow import delete_document, \
                                             generic_commit_and_try_merge2master_wf, \
                                             merge_from_master as _merge_from_master
-
 from peyotl.git_storage.git_action import GitWorkflowError
-from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 import traceback
 import json
@@ -44,7 +39,7 @@ def validate_and_convert_nexson(nexson, output_version, allow_invalid, **kwargs)
     try:
         if TRACE_FILES:
             _write_to_next_free('input', nexson)
-        annotation, validation_log, nexson_adaptor = ot_validate(nexson, **kwargs)    
+        annotation, validation_log, nexson_adaptor = ot_validate(nexson, **kwargs)
         if TRACE_FILES:
             _write_to_next_free('annotation', annotation)
     except:
@@ -75,17 +70,17 @@ def commit_and_try_merge2master(git_action,
                                                   merged_sha=merged_sha,
                                                   doctype_display_name="study")
 
-def delete_study(git_action, 
-                 study_id, 
-                 auth_info, 
-                 parent_sha, 
-                 commit_msg=None, 
+def delete_study(git_action,
+                 study_id,
+                 auth_info,
+                 parent_sha,
+                 commit_msg=None,
                  merged_sha=None): #pylint: disable=W0613
-    return delete_document(git_action, 
-                           study_id, 
-                           auth_info, 
-                           parent_sha, 
-                           commit_msg, 
+    return delete_document(git_action,
+                           study_id,
+                           auth_info,
+                           parent_sha,
+                           commit_msg,
                            merged_sha,
                            doctype_display_name="study")
 
@@ -94,8 +89,8 @@ def merge_from_master(git_action, study_id, auth_info, parent_sha):
     this is needed to allow a worker's future saves to
     be merged seamlessly into master
     """
-    return _merge_from_master(git_action, 
-                              doc_id=study_id, 
-                              auth_info=auth_info, 
+    return _merge_from_master(git_action,
+                              doc_id=study_id,
+                              auth_info=auth_info,
                               parent_sha=parent_sha,
                               doctype_display_name="study")

@@ -9,9 +9,7 @@ from peyotl.utility.str_util import slugify, \
                                     increment_slug
 from requests.exceptions import HTTPError
 import unittest
-import requests
 from pprint import pprint
-import re
 
 _LOG = get_logger(__name__)
 from peyotl.collections.helper import get_repos
@@ -55,7 +53,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         #import pdb; pdb.set_trace()
         sl = tca.push_failure_state
-        if sl[0] is not True: 
+        if sl[0] is not True:
             pprint('\npush-failure (possibly a stale result? re-run to find out!):\n')
             pprint(sl)
         self.assertTrue(sl[0] is True)
@@ -166,7 +164,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         # is it really gone?
         cl = tca.collection_list
         self.assertTrue(cid not in cl)
-        
+
     def testRemoteSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
         try:

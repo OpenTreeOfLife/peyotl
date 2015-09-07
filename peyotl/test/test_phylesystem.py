@@ -5,7 +5,7 @@ import unittest
 from peyotl.test.support import pathmap
 import os
 
-from peyotl.utility import pretty_timestamp, get_logger
+from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 _repos = pathmap.get_test_repos()

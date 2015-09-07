@@ -1,11 +1,9 @@
 #! /usr/bin/env python
 from peyotl.nexson_validation import validate_nexson
-from peyotl.test.support.helper import *
+from peyotl.test.support.helper import testing_write_json, testing_read_json
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
-import codecs
-import json
 import os
 _LOG = get_logger(__name__)
 

@@ -1,12 +1,10 @@
 """Base class for individual shard (repo) used in a doc store.
    Subclasses will accommodate each type."""
 import os
-import re
 import codecs
 import anyjson
 from threading import Lock
-from peyotl.utility import get_logger, get_config_setting_kwargs, write_to_filepath
-from peyotl.utility.input_output import read_as_json, write_as_json
+from peyotl.utility import get_logger
 
 class FailedShardCreationError(ValueError):
     def __init__(self, message):
@@ -35,7 +33,7 @@ class GitShard(object):
     def doc_index(self):
         return self._doc_index
     @doc_index.setter
-    def doc_index(self,val):
+    def doc_index(self, val):
         self._doc_index = val
 
     def get_doc_ids(self, **kwargs):
@@ -60,6 +58,8 @@ class TypeAwareGitShard(GitShard):
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
         GitShard.__init__(self, name)
+        self.filepath_for_doc_id_fn = None # overwritten in refresh_doc_index_fn
+        self.id_alias_list_fn = None # overwritten in refresh_doc_index_fn
         self._infrastructure_commit_author = infrastructure_commit_author
         self._locked_refresh_doc_index = refresh_doc_index_fn
         self._master_branch_repo_lock = Lock()
@@ -90,12 +90,10 @@ class TypeAwareGitShard(GitShard):
             except IndexError as x:
                 # no documents in this shard!
                 _LOG.warn('No documents in this shard! Auto-detection of assumed_doc_version failed.')
-                pass
             except Exception as x:
                 f = 'Auto-detection of assumed_doc_version FAILED with this error:\n{}'
                 f = f.format(str(x))
                 _LOG.warn(f)
-                pass
             except:
                 pass
         max_file_size = kwargs.get('max_file_size')
@@ -110,7 +108,6 @@ class TypeAwareGitShard(GitShard):
         self.max_file_size = max_file_size
         self.assumed_doc_version = assumed_doc_version
         self._known_prefixes = None
-        pass
 
     def delete_doc_from_index(self, doc_id):
         try:

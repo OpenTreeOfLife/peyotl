@@ -2,7 +2,6 @@
 from peyotl.ott import create_pruned_and_taxonomy_for_tip_ott_ids
 from peyotl.phylo.compat import compare_bits_as_splits, SplitComparison
 from peyotl.utility import any_early_exit, get_logger
-from peyotl.utility.str_util import reverse_dict
 _LOG = get_logger(__name__)
 def evaluate_tree_rooting(nexson, ott, tree_proxy):
     '''

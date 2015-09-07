@@ -44,7 +44,7 @@ def slugify(s):
     """
     slug = s.lower()                        # force to lower case
     slug = re.sub('[^a-z0-9 -]', '', slug)  # remove invalid chars
-    slug = re.sub('\s+', '-', slug)         # collapse whitespace and replace by -
+    slug = re.sub(r'\s+', '-', slug)         # collapse whitespace and replace by -
     slug = re.sub('-+', '-', slug)          # collapse dashes
     if not slug:
         slug = 'untitled'
@@ -54,7 +54,7 @@ def increment_slug(s):
     """Generate next slug for a series.
 
        Some docstore types will use slugs (see above) as document ids. To
-       support unique ids, we'll serialize them as follows: 
+       support unique ids, we'll serialize them as follows:
          TestUserA/my-test
          TestUserA/my-test-2
          TestUserA/my-test-3

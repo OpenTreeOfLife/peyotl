@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 # coding=utf-8
-from peyotl.utility.input_output import read_as_json
 from peyotl.collections.collections_umbrella import _TreeCollectionStore
 import unittest
 from peyotl.test.support import pathmap
 import os
 
-from peyotl.utility import pretty_timestamp, get_logger
+from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 _repos = pathmap.get_test_repos()
@@ -15,7 +14,7 @@ mc = _repos['mini_collections']
 #TODO: filter repo list to just tree-collection shards? or rely on smart (failed) shard creation?
 #_repos = {'mini_collections': mc}
 
-@unittest.skipIf(not os.path.isdir(mc), 
+@unittest.skipIf(not os.path.isdir(mc),
                  'Peyotl not configured for maintainer test of mini_collections.' \
                  'Skipping this test is normal (for everyone other than maintainers).\n' \
                  'See http://opentreeoflife.github.io/peyotl/maintainer/')
@@ -41,7 +40,7 @@ class TestTreeCollections(unittest.TestCase):
         c = _TreeCollectionStore(repos_dict=self.r)
         k = list(c._doc2shard_map.keys())
         k.sort()
-        expected = ['TestUserB/fungal-trees', 'TestUserB/my-favorite-trees', 
+        expected = ['TestUserB/fungal-trees', 'TestUserB/my-favorite-trees',
                     'test-user-a/my-favorite-trees', 'test-user-a/trees-about-bees']
         self.assertEqual(k, expected)
     def testURL(self):
@@ -51,7 +50,7 @@ class TestTreeCollections(unittest.TestCase):
         c = _TreeCollectionStore(repos_dict=self.r)
         k = list(c.get_doc_ids())
         k.sort()
-        expected = ['TestUserB/fungal-trees', 'TestUserB/my-favorite-trees', 
+        expected = ['TestUserB/fungal-trees', 'TestUserB/my-favorite-trees',
                     'test-user-a/my-favorite-trees', 'test-user-a/trees-about-bees']
         self.assertEqual(k, expected)
     def testCollectionCreation(self):
@@ -84,7 +83,7 @@ class TestTreeCollections(unittest.TestCase):
         expected = set([u'test-user-a/my-favorite-trees.json', u'TestUserB/fungal-trees.json'])
         self.assertEqual(expected, changed)
         # check a doc that changed
-        changed = c.get_changed_docs('af72fb2cc060936c9afce03495ec0ab662a783f6', 
+        changed = c.get_changed_docs('af72fb2cc060936c9afce03495ec0ab662a783f6',
                                      [u'TestUserB/fungal-trees.json'])
         self.assertEqual(set([u'TestUserB/fungal-trees.json']), changed)
         # check a doc that didn't change

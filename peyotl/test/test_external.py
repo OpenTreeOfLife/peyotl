@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 from peyotl.external import get_ot_study_info_from_treebase_nexml
-from peyotl.test.support import pathmap
 from peyotl import write_as_json
 from peyotl.utility import get_logger
 import unittest

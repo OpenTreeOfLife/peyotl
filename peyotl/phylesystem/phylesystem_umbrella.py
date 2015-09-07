@@ -1,17 +1,10 @@
 from peyotl.utility import get_logger, \
                            get_config_setting_kwargs
 try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
-import json
-try:
     from dogpile.cache.api import NO_VALUE
 except:
     pass #caching is optional
-from peyotl.phylesystem.helper import get_repos, \
-                                      _get_phylesystem_parent_with_source, \
-                                      _make_phylesystem_cache_region
+from peyotl.phylesystem.helper import _make_phylesystem_cache_region
 from peyotl.git_storage import ShardedDocStore, \
                                TypeAwareDocStore
 from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, \
@@ -21,7 +14,6 @@ from peyotl.phylesystem.git_workflows import validate_and_convert_nexson
 from peyotl.nexson_validation import ot_validate
 from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, \
                                                       replace_same_agent_annotation
-import os
 import re
 STUDY_ID_PATTERN = re.compile(r'[a-zA-Z][a-zA-Z]_[0-9]+')
 
@@ -128,7 +120,7 @@ class _Phylesystem(TypeAwareDocStore):
     def new_study_prefix(self):
         return self.new_doc_prefix
     @new_study_prefix.setter
-    def new_study_prefix(self,val):
+    def new_study_prefix(self, val):
         self.new_doc_prefix = val
 
     @property
@@ -145,7 +137,7 @@ class _Phylesystem(TypeAwareDocStore):
     def repo_nexml2json(self):
         return self.assumed_doc_version
     @repo_nexml2json.setter
-    def repo_nexml2json(self,val):
+    def repo_nexml2json(self, val):
         self.assumed_doc_version = val
 
     def _mint_new_study_id(self):
@@ -164,7 +156,8 @@ class _Phylesystem(TypeAwareDocStore):
         placeholder_added = False
         if new_study_id is not None:
             if new_study_id.startswith(self._new_study_prefix):
-                m = 'Document IDs with the "{}" prefix can only be automatically generated.'.format(self._new_study_prefix)
+                m = 'Document IDs with the "{}" prefix can only be automatically generated.'
+                m = m.format(self._new_study_prefix)
                 raise ValueError(m)
             if not STUDY_ID_PATTERN.match(new_study_id):
                 raise ValueError('Document ID does not match the expected pattern of alphabeticprefix_numericsuffix')

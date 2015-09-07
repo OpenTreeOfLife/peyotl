@@ -99,9 +99,13 @@ class GitActionBase(object):
             raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
 
     # some methods are required, but particular to each subclass
-    def find_WIP_branches(self):
+    def find_WIP_branches(self, some_id): #pylint: disable=W0613
         raise NotImplementedError("Subclass must implement find_WIP_branches!")
-    def create_or_checkout_branch(self):
+    def create_or_checkout_branch(self,
+                                  gh_user,
+                                  some_id,
+                                  parent_sha,
+                                  force_branch_name=False): #pylint: disable=W0613
         raise NotImplementedError("Subclass must implement create_or_checkout_branch!")
 
     def env(self): #@TEMP could be ref to a const singleton.
@@ -325,10 +329,10 @@ class GitActionBase(object):
             return content, head_sha, d
         return content, head_sha
 
-    def _get_changed_docs(self, 
-                         ancestral_commit_sha, 
-                         doc_id_from_repo_path,
-                         doc_ids_to_check=None):
+    def _get_changed_docs(self,
+                          ancestral_commit_sha,
+                          doc_id_from_repo_path,
+                          doc_ids_to_check=None):
         '''Returns the set of documents that have changed on the master since
         commit `ancestral_commit_sha` or `False` (on an error)
 
@@ -374,10 +378,10 @@ class GitActionBase(object):
                 raise
         return ret
 
-    def _create_or_checkout_branch(self, 
-                                   gh_user, 
-                                   doc_id, 
-                                   parent_sha, 
+    def _create_or_checkout_branch(self,
+                                   gh_user,
+                                   doc_id,
+                                   parent_sha,
                                    branch_name_template='{ghu}_doc_{rid}',
                                    force_branch_name=False):
         if force_branch_name:
@@ -476,7 +480,7 @@ class GitActionBase(object):
             shutil.copy(fc.name, doc_filepath)
             git(self.gitdir, self.gitwd, "add", doc_filepath)
             if commit_msg is None:
-                commit_msg="Update document '%s' via OpenTree API" % doc_id
+                commit_msg = "Update document '%s' via OpenTree API" % doc_id
             try:
                 git(self.gitdir,
                     self.gitwd,
@@ -500,25 +504,25 @@ class GitActionBase(object):
             fc.close()
         return new_sha
 
-    def write_doc_from_tmpfile(self, 
-                               doc_id, 
-                               tmpfi, 
-                               parent_sha, 
-                               auth_info, 
+    def write_doc_from_tmpfile(self,
+                               doc_id,
+                               tmpfi,
+                               parent_sha,
+                               auth_info,
                                commit_msg='',
                                doctype_display_name="document"):
         """Given a doc_id, temporary filename of content, branch and auth_info
         """
         gh_user, author = get_user_author(auth_info)
         doc_filepath = self.path_for_doc(doc_id)
-        doc_dir = os.path.split(doc_filepath)[0]  
+        doc_dir = os.path.split(doc_filepath)[0]
         if parent_sha is None:
             self.checkout_master()
             parent_sha = self.get_master_sha()
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)
 
         # build complete (probably type-specific) commit message
-        default_commit_msg="Update %s '%s' via OpenTree API" % (doctype_display_name, doc_id)
+        default_commit_msg = "Update %s '%s' via OpenTree API" % (doctype_display_name, doc_id)
         if commit_msg:
             commit_msg = "%s\n\n(%s)" % (commit_msg, default_commit_msg)
         else:

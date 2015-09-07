@@ -16,7 +16,7 @@ def validate_collection(obj, retain_deprecated=True, **kwargs):
         the log message to `obj` if
     '''
     # Gather and report errors in a simple list
-    errors = [ ]
+    errors = []
     n = create_validation_adaptor(obj, errors, **kwargs)
     return errors, n
 

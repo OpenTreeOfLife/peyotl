@@ -217,7 +217,7 @@ class OTT(object):
         '''Converts a set of flags to a set integers that represent
         the flag_set keys (in this OTT wrapper) which have any intersection
         with flag_set. Useful if you are pruning out any taxon
-        that has any flag in flag_set, because this allows the 
+        that has any flag in flag_set, because this allows the
         check to be based on the flag_set_key (rather than translating
         each key to its set of strings.'''
         return OTTFlagUnion(self, flag_set)
@@ -732,13 +732,12 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
 
 if __name__ == '__main__':
     import sys
-    import codecs
-    out = codecs.getwriter('utf-8')(sys.stdout)
+    cout = codecs.getwriter('utf-8')(sys.stdout)
     o = OTT()
     #print('taxonomic sources = "{}"'.format('", "'.join([iii for iii in o.taxonomic_sources])))
     #print(o.ncbi(1115784))
-    o.write_newick(out, label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID, prune_flags=_TREEMACHINE_PRUNE_FLAGS)
-    out.write('\n')
+    o.write_newick(cout, label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID, prune_flags=_TREEMACHINE_PRUNE_FLAGS)
+    cout.write('\n')
     '''fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
     print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))
     for ott_id, info in o.ott_id_to_info.items():

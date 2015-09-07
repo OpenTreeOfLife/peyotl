@@ -22,9 +22,9 @@ def iter_otus(nexson, nexson_version=None):
     '''
     if nexson_version is None:
         nexson_version = detect_nexson_version(nexson)
-    nex = get_nexml_el(nexson)
     if not _is_by_id_hbf(nexson_version):
-        convert_nexson_format(nexson_blob, BY_ID_HONEY_BADGERFISH) #TODO shouldn't modify...
+        convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH) #TODO shouldn't modify...
+    nex = get_nexml_el(nexson)
     otus_group_by_id = nex['otusById']
     group_order = nex.get('^ot:otusElementOrder', [])
     if len(group_order) < len(otus_group_by_id):

@@ -8,8 +8,8 @@ from threading import Lock
 class ShardedDocStore(object):
     '''Shared functionality for PhylesystemBase, TreeCollectionStoreBase, etc.
     We'll use 'doc' here to refer to a single object of interest (eg, a study or
-    tree collection) in the collection. 
-    
+    tree collection) in the collection.
+
     N.B. In current subclasses, each docstore has one main document type, and
     each document is stored as a single file in git. Watch for complications if
     either of these assumptions is challenged for a new type!
@@ -21,7 +21,7 @@ class ShardedDocStore(object):
         self._prefix2shard = {}
         # We assume that consistent doc-id prefixes are used to keep like data
         # in the same shard. Each subclass has its own rules for these.
-        self.prefix_from_doc_id=prefix_from_doc_id
+        self.prefix_from_doc_id = prefix_from_doc_id
     def get_repo_and_path_fragment(self, doc_id):
         '''For `doc_id` returns a list of:
             [0] the repo name and,

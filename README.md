@@ -51,7 +51,7 @@ of people who have contributed code.
 The fabulous <a href="http://karlgude.com/about/">Karl Gude</a> created the logo.
 
 Several parts of the setup.py, logging, documentation, and test suite were 
-based on Jeet Sukumraran's work in the [DendroPy](http://pythonhosted.org/DendroPy/) package.
+based on Jeet Sukumaran's work in the [DendroPy](http://pythonhosted.org/DendroPy/) package.
 
 The tree/node iteration functions in peyotl.phylo.tree are also adapted from DendroPy.
 

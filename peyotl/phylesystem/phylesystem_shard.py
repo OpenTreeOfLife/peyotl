@@ -46,9 +46,6 @@ class PhylesystemShardProxy(GitShard):
 
     # rename some generic members in the base class, for clarity and backward compatibility
     @property
-    def return_study(self):
-        return self.return_doc
-    @property
     def get_changed_studies(self):
         return self.get_changed_docs
 

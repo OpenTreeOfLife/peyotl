@@ -1,5 +1,5 @@
 """Base class for "type-aware" (sharded) document storage. This goes beyond simple subclasses
-like PhylsystemProxy by introducing more business rules and differences between document types
+like PhylesystemProxy by introducing more business rules and differences between document types
 in the store (eg, Nexson studies in Phylesystem, tree collections in TreeCollectionStore)."""
 import os
 try:

@@ -1,6 +1,6 @@
 '''Generic workflows (combinations of git actions) used as opentree git porcelain
 '''
-from sh import git
+from sh import git  #pylint: disable=E0611
 from locket import LockError
 import tempfile
 from peyotl.utility.str_util import is_str_type

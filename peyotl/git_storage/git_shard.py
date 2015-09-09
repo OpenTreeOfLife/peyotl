@@ -61,7 +61,7 @@ class TypeAwareGitShard(GitShard):
                  **kwargs):
         GitShard.__init__(self, name)
         self.filepath_for_doc_id_fn = None # overwritten in refresh_doc_index_fn
-        self.id_alias_list_fn = None # overwritten in refresh_doc_index_fn
+        self.id_alias_list_fn = None  # overwritten in refresh_doc_index_fn
         self._infrastructure_commit_author = infrastructure_commit_author
         self._locked_refresh_doc_index = refresh_doc_index_fn
         self._master_branch_repo_lock = Lock()
@@ -114,7 +114,7 @@ class TypeAwareGitShard(GitShard):
     def delete_doc_from_index(self, doc_id):
         try:
             # some types use aliases, e.g. '123', 'pg_123'
-            alias_list = self.id_alias_list_fn(doc_id)
+            alias_list = self.id_alias_list_fn(doc_id)  #pylint: disable=E1102
         except AttributeError:
             # simpler types don't use aliases
             alias_list = [doc_id]
@@ -165,7 +165,7 @@ class TypeAwareGitShard(GitShard):
     def _is_alias(self, doc_id):
         try:
             # some types use aliases, e.g. '123', 'pg_123'
-            alias_list = self.id_alias_list_fn(doc_id)
+            alias_list = self.id_alias_list_fn(doc_id)  #pylint: disable=E1102
         except AttributeError:
             # simpler types don't use aliases
             return False
@@ -246,6 +246,9 @@ class TypeAwareGitShard(GitShard):
         return ga.get_changed_docs(ancestral_commit_sha, doc_ids_to_check=doc_ids_to_check)
         #TODO:git-action-edits
 
+    def _create_git_action_for_global_resource(self):
+        """This should be implemented by all subclasses"""
+        raise NotImplementedError('Type-specific shard class should have "_create_git_action_for_global_resource" method')
     def _read_master_branch_resource(self, fn, is_json=False):
         '''This will force the current branch to master! '''
         with self._master_branch_repo_lock:

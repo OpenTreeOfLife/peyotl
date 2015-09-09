@@ -3,7 +3,7 @@ from peyotl.utility.str_util import is_str_type
 from peyotl.nexson_syntax import write_as_json
 from peyotl.utility import get_logger
 import os
-from sh import git
+from sh import git  #pylint: disable=E0611
 import shutil
 import sh
 import locket

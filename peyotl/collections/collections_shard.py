@@ -112,30 +112,12 @@ class TreeCollectionsShard(TypeAwareGitShard):
         for o in cd['collections']:
             out.write('    {} ==> {}\n'.format(o['keys'], o['relpath']))
     def get_configuration_dict(self, secret_attrs=False):
-        """Generic configuration, may be overridden by type-specific version"""
-        rd = {'name': self.name,
-              'path': self.path,
-              'git_dir': self.git_dir,
-              'assumed_doc_version': self.assumed_doc_version,
-              'doc_dir': self.doc_dir,
-              'git_ssh': self.git_ssh, }
-        if secret_attrs:
-            rd['pkey'] = self.pkey
-        with self._index_lock:
-            si = self._doc_index
-        r = _invert_dict_list_val(si)
-        key_list = list(r.keys())
-        rd['number of collections'] = len(key_list)
-        key_list.sort()
-        m = []
-        for k in key_list:
-            v = r[k]
-            fp = k[2]
-            assert fp.startswith(self.doc_dir)
-            rp = fp[len(self.doc_dir) + 1:]
-            m.append({'keys': v, 'relpath': rp})
-        rd['collections'] = m
-        return rd
+        """Overrides superclass method and renames some properties"""
+        cd = super(TypeAwareGitShard, self).get_configuration_dict(secret_attrs=secret_attrs)
+        # "rename" some keys in the dict provided
+        cd['number of collections'] = cd.pop('number of documents')
+        cd['collections'] = cd.pop('documents')
+        return cd
 
     def _read_master_branch_resource(self, fn, is_json=False):
         '''This will force the current branch to master! '''

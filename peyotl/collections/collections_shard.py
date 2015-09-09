@@ -113,7 +113,7 @@ class TreeCollectionsShard(TypeAwareGitShard):
             out.write('    {} ==> {}\n'.format(o['keys'], o['relpath']))
     def get_configuration_dict(self, secret_attrs=False):
         """Overrides superclass method and renames some properties"""
-        cd = super(TypeAwareGitShard, self).get_configuration_dict(secret_attrs=secret_attrs)
+        cd = super(TreeCollectionsShard, self).get_configuration_dict(secret_attrs=secret_attrs)
         # "rename" some keys in the dict provided
         cd['number of collections'] = cd.pop('number of documents')
         cd['collections'] = cd.pop('documents')

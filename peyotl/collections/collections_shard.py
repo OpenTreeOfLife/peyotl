@@ -2,12 +2,10 @@ import os
 import codecs
 from threading import Lock
 from peyotl.utility import get_logger, \
-                           get_config_setting_kwargs, \
-                           write_to_filepath
+                           get_config_setting_kwargs
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard, \
                                          _invert_dict_list_val
-from peyotl.utility.input_output import read_as_json, write_as_json
 
 _LOG = get_logger(__name__)
 
@@ -118,33 +116,6 @@ class TreeCollectionsShard(TypeAwareGitShard):
         cd['number of collections'] = cd.pop('number of documents')
         cd['collections'] = cd.pop('documents')
         return cd
-
-    def _read_master_branch_resource(self, fn, is_json=False):
-        '''This will force the current branch to master! '''
-        with self._master_branch_repo_lock:
-            ga = self._create_git_action_for_global_resource()
-            with ga.lock():
-                ga.checkout_master()
-                if os.path.exists(fn):
-                    if is_json:
-                        return read_as_json(fn)
-                    with codecs.open(fn, 'rU', encoding='utf-8') as f:
-                        ret = f.read()
-                    return ret
-                return None
-    def _write_master_branch_resource(self, content, fn, commit_msg, is_json=False):
-        '''This will force the current branch to master! '''
-        #TODO: we might want this to push, but currently it is only called in contexts in which
-        # we are about to push any way (doc creation)
-        with self._master_branch_repo_lock:
-            ga = self._create_git_action_for_global_resource()
-            with ga.lock():
-                ga.checkout_master()
-                if is_json:
-                    write_as_json(content, fn)
-                else:
-                    write_to_filepath(content, fn)
-                ga._add_and_commit(fn, self._infrastructure_commit_author, commit_msg)
 
     def _diagnose_prefixes(self):
         '''Returns a set of all of the prefixes seen in the main document dir

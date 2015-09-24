@@ -11,3 +11,4 @@ setuptools-*
 requests-*egg
 .eggs
 dev/external_deps.txt
+is-oti-up.sh

@@ -163,6 +163,9 @@ class TypeAwareGitShard(GitShard):
                            remote=remote_name)
         return True
     def _is_alias(self, doc_id):
+        if self.id_alias_list_fn is None:
+            # simpler types may not have this
+            return False
         try:
             # some types use aliases, e.g. '123', 'pg_123'
             alias_list = self.id_alias_list_fn(doc_id)  #pylint: disable=E1102
@@ -191,15 +194,21 @@ class TypeAwareGitShard(GitShard):
         for each document in this repository.
         Order is arbitrary.
         '''
-        for doc_id, fp in self.iter_doc_filepaths(**kwargs):
-            if not self._is_alias(doc_id):
-                #TODO:hook for type-specific parser?
-                with codecs.open(fp, 'r', 'utf-8') as fo:
-                    try:
-                        nex_obj = anyjson.loads(fo.read())
-                        yield (doc_id, nex_obj)
-                    except Exception:
-                        pass
+        _LOG = get_logger('TypeAwareGitShard')
+        try:
+            for doc_id, fp in self.iter_doc_filepaths(**kwargs):
+                if not self._is_alias(doc_id):
+                    #TODO:hook for type-specific parser?
+                    with codecs.open(fp, 'r', 'utf-8') as fo:
+                        try:
+                            nex_obj = anyjson.loads(fo.read())
+                            yield (doc_id, nex_obj)
+                        except Exception:
+                            pass
+        except Exception as x:
+            f = 'iter_doc_filepaths FAILED with this error:\n{}'
+            f = f.format(str(x))
+            _LOG.warn(f)
 
     def write_configuration(self, out, secret_attrs=False):
         """Generic configuration, may be overridden by type-specific version"""

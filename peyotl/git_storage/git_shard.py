@@ -115,7 +115,7 @@ class TypeAwareGitShard(GitShard):
         try:
             # some types use aliases, e.g. '123', 'pg_123'
             alias_list = self.id_alias_list_fn(doc_id)  #pylint: disable=E1102
-        except AttributeError:
+        except:
             # simpler types don't use aliases
             alias_list = [doc_id]
         with self._index_lock:
@@ -163,13 +163,10 @@ class TypeAwareGitShard(GitShard):
                            remote=remote_name)
         return True
     def _is_alias(self, doc_id):
-        if self.id_alias_list_fn is None:
-            # simpler types may not have this
-            return False
         try:
             # some types use aliases, e.g. '123', 'pg_123'
             alias_list = self.id_alias_list_fn(doc_id)  #pylint: disable=E1102
-        except AttributeError:
+        except:
             # simpler types don't use aliases
             return False
         # some types use aliases, e.g. '123', 'pg_123'

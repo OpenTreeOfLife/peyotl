@@ -24,6 +24,9 @@ def raise_HTTPError_with_more_detail(err):
     details = err.response.text
     raise ValueError("{e}, details: {m}".format(e=err, m=details))
 
+@unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'Open Tree of Life web services are disabled.')
 class TestTreeCollectionsAPI(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()

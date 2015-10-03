@@ -3,6 +3,7 @@ from peyotl.api import APIWrapper
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_meta_first
 from peyotl.utility import get_logger
+from requests.exceptions import HTTPError
 import unittest
 import os
 _LOG = get_logger(__name__)
@@ -22,8 +23,8 @@ def _test_tol_about(self, cdict):
     return tree_id, node_id
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
-                'Open Tree of Life web services are disabled.')
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'Open Tree of Life web services are disabled.')
 class TestV2Facade(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()
@@ -91,7 +92,8 @@ class TestV2Facade(unittest.TestCase):
     def testSynthTree(self):
         cdict = self.ot.tree_of_life.about()
         tree_id, node_id = _test_tol_about(self, cdict)
-        self.assertRaises(ValueError, self.ot.tree_of_life.subtree, tree_id, format='newick', node_id=node_id)
+        # this service is no longer supported, so returns an HTTPError
+        self.assertRaises(HTTPError, self.ot.tree_of_life.subtree, tree_id, format='newick', node_id=node_id)
     def testPrunedTree(self):
         ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579,
                    267484, 128308, 380453, 678579, 883864, 863991, 3898562,
@@ -99,7 +101,7 @@ class TestV2Facade(unittest.TestCase):
         r = self.ot.tree_of_life.induced_subtree(ott_ids=ott_ids)
         for key in ['ott_ids_not_in_tree', u'node_ids_not_in_tree']:
             self.assertEqual(r[key], [])
-        self.assertTrue(r['subtree'].startswith('('))
+        self.assertTrue(r['newick'].startswith('('))
     def testMRCA(self):
         ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579,
                    267484, 128308, 380453, 678579, 883864, 863991,

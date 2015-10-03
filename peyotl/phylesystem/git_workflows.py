@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 '''Combinations of git actions used as the opentree git porcelain
 '''
-from sh import git
-from locket import LockError
-import tempfile
 from peyotl.nexson_syntax import write_as_json
 from peyotl.nexson_validation import ot_validate
 from peyotl.nexson_syntax import convert_nexson_format
-from peyotl.phylesystem.git_actions import MergeException, \
-                                           get_user_author, \
-                                           GitWorkflowError
-from peyotl.utility.str_util import is_str_type
+from peyotl.git_storage.git_workflow import delete_document, \
+                                            generic_commit_and_try_merge2master_wf, \
+                                            merge_from_master as _merge_from_master
+from peyotl.git_storage.git_action import GitWorkflowError
 from peyotl.utility import get_logger
 import traceback
 import json
@@ -30,16 +27,6 @@ def _write_to_next_free(tag, blob):
         pref = '/tmp/peyotl-' + tag + str(ind)
     write_as_json(blob, pref)
 
-def acquire_lock_raise(git_action, fail_msg=''):
-    '''Adapts LockError to HTTP. If an exception is not thrown, the git_action has the lock (and must release it!)
-    '''
-    try:
-        git_action.acquire_lock()
-    except LockError as e:
-        msg = '{o} Details: {d}'.format(o=fail_msg, d=e.message)
-        _LOG.debug(msg)
-        raise GitWorkflowError(msg)
-
 def validate_and_convert_nexson(nexson, output_version, allow_invalid, **kwargs):
     '''Runs the nexson validator and returns a converted 4 object:
         nexson, annotation, validation_log, nexson_adaptor
@@ -52,7 +39,7 @@ def validate_and_convert_nexson(nexson, output_version, allow_invalid, **kwargs)
     try:
         if TRACE_FILES:
             _write_to_next_free('input', nexson)
-        annotation, validation_log, nexson_adaptor = ot_validate(nexson, **kwargs)    
+        annotation, validation_log, nexson_adaptor = ot_validate(nexson, **kwargs)
         if TRACE_FILES:
             _write_to_next_free('annotation', annotation)
     except:
@@ -65,65 +52,6 @@ def validate_and_convert_nexson(nexson, output_version, allow_invalid, **kwargs)
         _write_to_next_free('converted', nexson)
     return nexson, annotation, validation_log, nexson_adaptor
 
-
-def _pull_gh(git_action, remote, branch_name):#
-    try:
-        git_env = git_action.env()
-        # TIMING = api_utils.log_time_diff(_LOG, 'lock acquisition', TIMING)
-        git(git_action.gitdir, "fetch", remote, _env=git_env)
-        git(git_action.gitdir, git_action.gitwd, "merge", remote + '/' + branch_name, _env=git_env)
-        _LOG.debug('performed a git pull from branch "{b}" of "{r}" in "{d}"'.format(r=remote,
-                                                                                     b=branch_name,
-                                                                                     d=git_action.gitwd))
-        # TIMING = api_utils.log_time_diff(_LOG, 'git pull', TIMING)
-    except Exception as e:
-        # We can ignore this if the branch doesn't exist yet on the remote,
-        # otherwise raise a 400
-#            raise #@EJM what was this doing?
-        if "not something we can merge" not in e.message:
-            # Attempt to abort a merge, in case of conflicts
-            try:
-                git(git_action.gitdir, "merge", "--abort")
-            except:
-                pass
-            msg_f = "Could not pull or merge latest %s branch from %s ! Details: \n%s"
-            msg = msg_f % (branch_name, git_action.repo_remote, e.message)
-            _LOG.debug(msg)
-            raise GitWorkflowError(msg)
-
-
-def _do_merge2master_commit(git_action,
-                            new_sha,
-                            branch_name,
-                            study_filepath,
-                            merged_sha,
-                            prev_file_sha):
-    merge_needed = False
-    git_action.checkout_master()
-    if os.path.exists(study_filepath):
-        b = git_action.get_blob_sha_for_file(study_filepath)
-        _LOG.debug('master SHA for that file path is {b}'.format(b=b))
-    else:
-        b = None
-    if merged_sha is None:
-        same_sha = prev_file_sha
-    else:
-        same_sha = merged_sha
-    if b == same_sha:
-        try:
-            new_sha = git_action.merge(branch_name, 'master')
-        except MergeException:
-            _LOG.error('MergeException in a "safe" merge !!!')
-            merge_needed = True
-        else:
-            _LOG.debug('merge to master succeeded')
-            git_action.delete_branch(branch_name)
-            branch_name = 'master'
-    else:
-        _LOG.debug('Edit from different source. merge_needed <- True')
-        merge_needed = True
-    return new_sha, branch_name, merge_needed
-
 def commit_and_try_merge2master(git_action,
                                 file_content,
                                 study_id,
@@ -133,116 +61,36 @@ def commit_and_try_merge2master(git_action,
                                 merged_sha=None):
     """Actually make a local Git commit and push it to our remote
     """
-    #_LOG.debug('commit_and_try_merge2master study_id="{s}" \
-    #            parent_sha="{p}" merged_sha="{m}"'.format(
-    #            s=study_id, p=parent_sha, m=merged_sha))
-    merge_needed = False
-    fc = tempfile.NamedTemporaryFile()
-    try:
-        if is_str_type(file_content):
-            fc.write(file_content)
-        else:
-            write_as_json(file_content, fc)
-        fc.flush()
-        try:
-            max_file_size = git_action.max_file_size
-        except:
-            max_file_size = None
-        if max_file_size is not None:
-            file_size = os.stat(fc.name).st_size
-            if file_size > max_file_size:
-                m = 'Commit of study "{s}" had a file size ({a} bytes) which exceeds the maximum size allowed ({b} bytes).'
-                m = m.format(s=study_id, a=file_size, b=max_file_size)
-                raise GitWorkflowError(m)
-        f = "Could not acquire lock to write to study #{s}".format(s=study_id)
-        acquire_lock_raise(git_action, fail_msg=f)
-        try:
-            try:
-                commit_resp = git_action.write_study_from_tmpfile(study_id, fc, parent_sha, auth_info, commit_msg)
-            except Exception as e:
-                _LOG.exception('write_study_from_tmpfile exception')
-                raise GitWorkflowError("Could not write to study #%s ! Details: \n%s" % (study_id, e.message))
-            written_fp = git_action.path_for_study(study_id)
-            branch_name = commit_resp['branch']
-            new_sha = commit_resp['commit_sha']
-            _LOG.debug('write of study {s} on parent {p} returned = {c}'.format(s=study_id,
-                                                                                p=parent_sha,
-                                                                                c=str(commit_resp)))
-            m_resp = _do_merge2master_commit(git_action,
-                                             new_sha,
-                                             branch_name,
-                                             written_fp,
-                                             merged_sha=merged_sha,
-                                             prev_file_sha=commit_resp.get('prev_file_sha'))
-            new_sha, branch_name, merge_needed = m_resp
-        finally:
-            git_action.release_lock()
-    finally:
-        fc.close()
-    # What other useful information should be returned on a successful write?
-    r = {
-        "error": 0,
-        "resource_id": study_id,
-        "branch_name": branch_name,
-        "description": "Updated study #%s" % study_id,
-        "sha":  new_sha,
-        "merge_needed": merge_needed,
-    }
-    _LOG.debug('returning {r}'.format(r=str(r)))
-    return r
+    return generic_commit_and_try_merge2master_wf(git_action,
+                                                  file_content,
+                                                  doc_id=study_id,
+                                                  auth_info=auth_info,
+                                                  parent_sha=parent_sha,
+                                                  commit_msg=commit_msg,
+                                                  merged_sha=merged_sha,
+                                                  doctype_display_name="study")
 
-def delete_study(git_action, study_id, auth_info, parent_sha, commit_msg=None, merged_sha=None): #pylint: disable=W0613
-    author = "{} <{}>".format(auth_info['name'], auth_info['email'])
-    gh_user = auth_info['login']
-    acquire_lock_raise(git_action, fail_msg="Could not acquire lock to delete the study #%s" % study_id)
-    try:
-        study_fp = git_action.path_for_study(study_id)
-        rs_resp = git_action.remove_study(gh_user, study_id, parent_sha, author, commit_msg=commit_msg)
-        new_sha = rs_resp['commit_sha']
-        branch_name = rs_resp['branch']
-        m_resp = _do_merge2master_commit(git_action,
-                                         new_sha,
-                                         branch_name,
-                                         study_fp,
-                                         merged_sha=merged_sha,
-                                         prev_file_sha=rs_resp.get('prev_file_sha'))
-        new_sha, branch_name, merge_needed = m_resp
-    except Exception as e:
-        raise GitWorkflowError("Could not remove study #%s! Details: %s" % (study_id, e.message))
-    finally:
-        git_action.release_lock()
-    return {
-        "error": 0,
-        "branch_name": branch_name,
-        "description": "Deleted study #%s" % study_id,
-        "sha":  new_sha,
-        "merge_needed": merge_needed,
-    }
+def delete_study(git_action,
+                 study_id,
+                 auth_info,
+                 parent_sha,
+                 commit_msg=None,
+                 merged_sha=None): #pylint: disable=W0613
+    return delete_document(git_action,
+                           study_id,
+                           auth_info,
+                           parent_sha,
+                           commit_msg,
+                           merged_sha,
+                           doctype_display_name="study")
 
 def merge_from_master(git_action, study_id, auth_info, parent_sha):
     """merge from master into the WIP for this study/author
     this is needed to allow a worker's future saves to
     be merged seamlessly into master
     """
-    gh_user = get_user_author(auth_info)[0]
-    acquire_lock_raise(git_action, fail_msg="Could not acquire lock to merge study #{s}".format(s=study_id))
-    try:
-        git_action.checkout_master()
-        written_fp = git_action.path_for_study(study_id)
-        if os.path.exists(written_fp):
-            master_file_blob_sha = git_action.get_blob_sha_for_file(written_fp)
-        else:
-            raise GitWorkflowError('Study "{}" does not exist on master'.format(study_id))
-        branch = git_action.create_or_checkout_branch(gh_user, study_id, parent_sha)
-        new_sha = git_action.merge('master', branch)
-    finally:
-        git_action.release_lock()
-    # What other useful information should be returned on a successful write?
-    return {
-        "error": 0,
-        "resource_id": study_id,
-        "branch_name": branch,
-        "description": "Updated study #%s" % study_id,
-        "sha":  new_sha,
-        "merged_sha": master_file_blob_sha,
-    }
+    return _merge_from_master(git_action,
+                              doc_id=study_id,
+                              auth_info=auth_info,
+                              parent_sha=parent_sha,
+                              doctype_display_name="study")

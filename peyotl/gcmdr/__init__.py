@@ -133,7 +133,8 @@ def treemachine_synthesize(java_invoc, treemachine_jar, synth_db, synth_ott_id, 
     tm_list = [to_treemachine_name(obj=i) for i in loaded]
     tm_list.append('taxonomy')
     java_invoc.extend(['synthesizedrafttreelist_ottid', synth_ott_id, ','.join(tm_list), synth_db])
-    _run(java_invoc, stdout=codecs.open(log_filepath, 'a', encoding='utf-8'))
+    with codecs.open(log_filepath, 'a', encoding='utf-8') as logf:
+        _run(java_invoc, stdout=logf)
 
 class PropertiesFromConfig(object):
     def __init__(self, config=None, read_config_files=None):

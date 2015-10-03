@@ -556,7 +556,7 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
         tree.write_newick(o)
         from peyotl.utility.tokenizer import NewickEventFactory
         nef = NewickEventFactory(newick=o.getvalue())
-        ptree = TreeWithPathsInEdges(newick_events=nef)
+        TreeWithPathsInEdges(newick_events=nef)
 
 def parse_newick(newick=None, stream=None, filepath=None, _class=TreeWithPathsInEdges):
     from peyotl.utility.tokenizer import NewickEventFactory, NewickTokenizer

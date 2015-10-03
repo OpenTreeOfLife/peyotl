@@ -34,15 +34,18 @@ _LOG = get_logger(__name__)
 
 try:
     import pkg_resources
+    # NOTE that resource_filename can return an absolute or package-relative
+    # path, depending on the package/egg type! We'll try to ensure absolute
+    # paths in some areas below.
     TESTS_DIR = pkg_resources.resource_filename("peyotl", "test")
     SCRIPTS_DIR = pkg_resources.resource_filename("peyotl", os.path.join(os.pardir, "scripts"))
-    #_LOG.debug("using pkg_resources path mapping")
+    _LOG.debug("using pkg_resources path mapping")
 except:
     LOCAL_DIR = os.path.dirname(__file__)
     TESTS_DIR = os.path.join(LOCAL_DIR, os.path.pardir)
     PACKAGE_DIR = os.path.join(TESTS_DIR, os.path.pardir)
     SCRIPTS_DIR = os.path.join(PACKAGE_DIR, os.path.pardir, "scripts")
-    #_LOG.debug("using local filesystem path mapping")
+    _LOG.debug("using local filesystem path mapping")
 
 TESTS_DATA_DIR = os.path.join(TESTS_DIR, "data")
 TESTS_OUTPUT_DIR = os.path.join(TESTS_DIR, "output")
@@ -60,8 +63,17 @@ def get_test_ot_service_domains():
     return get_domains_obj() #We may need to point this at dev instances in some cases.
 
 def get_test_repos():
-    return {'mini_phyl': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_phyl'),
-            'mini_system': os.path.join(TEST_PHYLESYSTEM_PAR, 'mini_system'),
+    repo_parent_path = TEST_PHYLESYSTEM_PAR
+    _LOG.warn("TESTING repo_parent_path:{}".format(repo_parent_path))
+    # NOTE that we want absolute filesystem paths for repos, so that downstream git
+    # actions can always find their target files regardless of --work-tree
+    # setting (which dictates the working directory for git ops)
+    if not os.path.isabs(repo_parent_path):
+        repo_parent_path = os.path.abspath(repo_parent_path)
+        _LOG.warn("ABSOLUTE repo_parent_path:{}".format(repo_parent_path))
+    return {'mini_phyl': os.path.join(repo_parent_path, 'mini_phyl'),
+            'mini_system': os.path.join(repo_parent_path, 'mini_system'),
+            'mini_collections': os.path.join(repo_parent_path, 'mini_collections'),
            }
 
 def get_test_phylesystem_mirror_parent():
@@ -163,3 +175,26 @@ def json_source_path(filename=None):
     if filename is None:
         filename = ""
     return os.path.join(TESTS_DATA_DIR, "json", filename)
+
+def collection_obj(filename):
+    '''Returns a dict that is the deserialized collection object
+    'filename' should be the fragment of the filepath below
+    the collection test dir.
+    '''
+    with collection_file_obj(filename) as fo:
+        fc = fo.read()
+        return anyjson.loads(fc)
+
+def collection_file_obj(filename):
+    ''' Returns file object.
+    'filename' should be the fragment of the filepath below
+    the collection test dir.
+    '''
+    fp = collection_source_path(filename=filename)
+    return codecs.open(fp, mode='r', encoding='utf-8')
+
+def collection_source_path(filename=None):
+    if filename is None:
+        filename = ""
+    return os.path.join(TESTS_DATA_DIR, "collections", filename)
+

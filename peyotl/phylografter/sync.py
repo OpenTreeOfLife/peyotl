@@ -30,7 +30,8 @@ def get_previous_set_of_dirty_nexsons(dir_dict):
     '''
     filename = dir_dict['nexson_state_db']
     if os.path.exists(filename):
-        old = json.load(codecs.open(filename, 'r', encoding='utf-8'))
+        with codecs.open(filename, 'r', encoding='utf-8') as f:
+            old = json.load(f)
         if 'to_download_from_pg' in old:
             old['to_download_from_pg'] = set(old['to_download_from_pg'])
         if 'to_upload_to_phylesystem' in old:
@@ -293,7 +294,8 @@ class PhylografterNexsonDocStoreSync(object):
             if not os.path.exists(nexson_path):
                 should_write = True
             else:
-                prev_content = json.load(codecs.open(nexson_path, 'r', encoding='utf-8'))
+                with codecs.open(nexson_path, 'r', encoding='utf-8') as f:
+                    prev_content = json.load(f)
                 if prev_content != er:
                     should_write = True
             if should_write:

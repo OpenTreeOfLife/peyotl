@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.phylesystem.git_actions import GitAction
+from peyotl.phylesystem.git_actions import PhylesystemGitAction
 import unittest
 from peyotl.utility.input_output import read_as_json
 from peyotl.test.support import pathmap
@@ -19,7 +19,7 @@ class TestCreate(unittest.TestCase):
     def testWriteStudy(self):
         self.reponame = list(get_repos().keys())[0]
         self.repodir = get_repos()[self.reponame]
-        GitAction(self.repodir)
+        PhylesystemGitAction(self.repodir)
 
 if __name__ == "__main__":
     unittest.main()

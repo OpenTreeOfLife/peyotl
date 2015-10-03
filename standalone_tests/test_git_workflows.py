@@ -1,9 +1,8 @@
 #! /usr/bin/env python
-from peyotl.phylesystem.git_workflows import acquire_lock_raise, \
-                                             commit_and_try_merge2master, \
-                                             delete_study, \
-                                             GitWorkflowError, \
-                                             merge_from_master
+from peyotl.git_storage.git_workflow import acquire_lock_raise, \
+                                            merge_from_master
+from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
+                                             GitWorkflowError
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.utility.input_output import read_as_json
 from peyotl.utility import get_logger, read_config, _replace_default_config
@@ -129,7 +128,6 @@ class TestPhylesystem(unittest.TestCase):
         self.assertEqual(mblob["error"], 0)
         self.assertEqual(mblob["resource_id"], _SID)
         
-        
         # add a 7th commit onto commit 6. This should NOT merge to master because we don't give it the secret arg.
         zc += 1
         zcurr_obj['nexml']["^zcount"] = zc
@@ -137,7 +135,7 @@ class TestPhylesystem(unittest.TestCase):
         self.assertNotEqual(v3b['sha'], v5b['sha'])
         self.assertTrue(v5b['merge_needed'])
         
-        # add a 7th commit onto commit 6. This should merge to master because we don't give it the secret arg.
+        # add a 7th commit onto commit 6. This should merge to master because we provide the merged SHA
         zc += 1
         zcurr_obj['nexml']["^zcount"] = zc
         v6b = commit_and_try_merge2master(ga, zcurr_obj, _SID, _AUTH, v5b['sha'], merged_sha=mblob['merged_sha'])

@@ -7,6 +7,8 @@ import logging
 import json
 import time
 import os
+import sys
+
 def any_early_exit(iterable, predicate):
     for i in iterable:
         if predicate(i):
@@ -332,9 +334,10 @@ def create_overrides_from_config(config, config_filename):
     '''Returns a dictionary of all of the settings in a config file. the
     returned dict is appropriate for use as the overrides arg for a ConfigWrapper.__init__() call.
     '''
+    #_LOG = get_logger(name="PEYOTL-CONFIG")
     if _READING_LOGGING_CONF:
         read_logging_config()
-    _get_util_logger().debug('creating override dict from ' + config_filename)
+    #_LOG().debug('creating override dict from ' + config_filename)
     return _do_create_overrides_from_config(config)
 
 def _do_create_overrides_from_config(config):
@@ -355,11 +358,17 @@ def get_config_setting_kwargs(config_obj, section, param, default=None, **kwargs
     return cfg.get_config_setting(section, param, default)
 
 def get_config_object(config_obj, **kwargs):
+    #_LOG = get_logger(name="PEYOTL-CONFIG")
     if config_obj is not None:
+        #_LOG().debug('=== returning config_obj')
         return config_obj
     c = kwargs.get('config')
     if c is None:
-        return ConfigWrapper()
+        #_LOG().debug('=== using ConfigWrapper')
+        _c = ConfigWrapper()
+        #_c.report(sys.stdout)   # dump current config to terminal
+        return _c
+    #_LOG().debug('=== using kwargs[config]')
     return c
 get_config_var = get_config
 

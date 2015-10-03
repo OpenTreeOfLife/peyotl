@@ -64,6 +64,7 @@ class APIDomains(object):
         self._oti = kwargs.get('oti')
         self._phylografter = 'http://www.reelab.net/phylografter'
         self._phylesystem_api = kwargs.get('phylesystem')
+        self._collections_api = kwargs.get('collections')
         self._taxomachine = kwargs.get('taxomachine')
         self._treemachine = kwargs.get('treemachine')
     @property
@@ -71,15 +72,22 @@ class APIDomains(object):
         if self._oti is None:
             self._oti = self._config.get_config_setting('apis',
                                                         'oti',
-                                                        'http://api.opentreeoflife.org')
+                                                        'http://devapi.opentreeoflife.org')
         return self._oti
     @property
     def phylesystem_api(self):
         if self._phylesystem_api is None:
             self._phylesystem_api = self._config.get_config_setting('apis',
                                                                     'phylesystem_api',
-                                                                    'http://api.opentreeoflife.org')
+                                                                    'http://devapi.opentreeoflife.org')
         return self._phylesystem_api
+    @property
+    def collections_api(self):
+        if self._collections_api is None:
+            self._collections_api = self._config.get_config_setting('apis',
+                                                                    'collections_api',
+                                                                    'http://devapi.opentreeoflife.org')
+        return self._collections_api
     @property
     def phylografter(self):
         return self._phylografter
@@ -88,14 +96,14 @@ class APIDomains(object):
         if self._taxomachine is None:
             self._taxomachine = self._config.get_config_setting('apis',
                                                                 'taxomachine',
-                                                                'http://api.opentreeoflife.org')
+                                                                'http://devapi.opentreeoflife.org')
         return self._taxomachine
     @property
     def treemachine(self):
         if self._treemachine is None:
             self._treemachine = self._config.get_config_setting('apis',
                                                                 'treemachine',
-                                                                'http://api.opentreeoflife.org')
+                                                                'http://devapi.opentreeoflife.org')
         return self._treemachine
 
 def get_domains_obj(**kwargs):
@@ -107,12 +115,13 @@ class APIWrapper(object):
     # deprecated service
     # see https://github.com/OpenTreeOfLife/treemachine/issues/170
     SUPPORTING_GET_SOURCE_TREE = False
-    def __init__(self, domains=None, phylesystem_api_kwargs=None, **kwargs):
+    def __init__(self, domains=None, phylesystem_api_kwargs=None, collections_api_kwargs=None, **kwargs):
         if domains is None:
             domains = get_domains_obj(**kwargs)
         self.domains = domains
         self._phylografter = None
         self._phylesystem_api = None
+        self._collections_api = None
         self._taxomachine = None
         self._treemachine = None
         self._oti = None
@@ -127,6 +136,10 @@ class APIWrapper(object):
             self._phylesystem_api_kwargs = {}
         else:
             self._phylesystem_api_kwargs = dict(phylesystem_api_kwargs)
+        if collections_api_kwargs is None:
+            self._collections_api_kwargs = {}
+        else:
+            self._collections_api_kwargs = dict(collections_api_kwargs)
     @property
     def oti(self):
         from peyotl.api.oti import _OTIWrapper #pylint: disable=R0401
@@ -158,6 +171,31 @@ class APIWrapper(object):
         if self._phylesystem_api is None:
             self.wrap_phylesystem_api()
         return self._phylesystem_api
+    def wrap_collections_api(self, **kwargs):
+        from peyotl.api.collections_api import _TreeCollectionsAPIWrapper
+        cfrom = self._config.get_config_setting('apis',
+                                                'collections_get_from',
+                                                self._collections_api_kwargs.get('get_from', 'external'))
+        ctrans = self._config.get_config_setting('apis',
+                                                 'collections_transform',
+                                                 self._collections_api_kwargs.get('transform', 'client'))
+        crefresh = self._config.get_config_setting('apis',
+                                                   'collections_refresh',
+                                                   self._collections_api_kwargs.get('refresh', 'never'))
+        if cfrom:
+            kwargs.setdefault('get_from', cfrom)
+        if ctrans:
+            kwargs.setdefault('transform', ctrans)
+        if crefresh:
+            kwargs.setdefault('refresh', crefresh)
+        kwargs['config'] = self._config
+        self._collections_api = _TreeCollectionsAPIWrapper(self.domains.collections_api, **kwargs)
+        return self._collections_api
+    @property
+    def collections_api(self):
+        if self._collections_api is None:
+            self.wrap_collections_api()
+        return self._collections_api
     @property
     def phylografter(self):
         from peyotl.api.phylografter import _PhylografterWrapper
@@ -331,7 +369,8 @@ def _http_method_summary_str(url, verb, headers, params, data=None):
 _VERB_TO_METHOD_DICT = {
     'GET': requests.get,
     'POST': requests.post,
-    'PUT': requests.put
+    'PUT': requests.put,
+    'DELETE': requests.delete
 }
 class _WSWrapper(object):
     def __init__(self, domain, **kwargs): #pylint: disable=W0613
@@ -369,6 +408,14 @@ class _WSWrapper(object):
         if 'error' in r:
             raise ValueError(r['error'])
         return r
+    def json_http_delete(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False): #pylint: disable=W0102
+        # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
+        with warnings.catch_warnings():
+            try:
+                warnings.simplefilter("ignore", ResourceWarning) #pylint: disable=E0602
+            except NameError:
+                pass # on py2.7 we don't have ResourceWarning, but we don't need to filter...
+            return self._do_http(url, 'DELETE', headers=headers, params=params, data=data, text=text)
     def _do_http(self, url, verb, headers, params, data, text=False): #pylint: disable=R0201
         if CURL_LOGGER is not None:
             log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)

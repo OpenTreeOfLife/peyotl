@@ -4,8 +4,15 @@ from peyotl.phylesystem.phylesystem_umbrella import _Phylesystem
 import unittest
 from peyotl.test.support import pathmap
 import os
+
+from peyotl.utility import get_logger
+_LOG = get_logger(__name__)
+
 _repos = pathmap.get_test_repos()
 ms, mp = _repos['mini_system'], _repos['mini_phyl']
+
+#TODO: filter repo list to just phylesystem shards? or rely on smart (failed) shard creation?
+#_repos = {s: _repos[s] for s in _repos if s in ('mini_system', 'mini_phyl',)}
 
 #pylint: disable=W0212
 @unittest.skipIf((not os.path.isdir(ms)) or (not os.path.isdir(mp)),
@@ -20,7 +27,7 @@ class TestPhylesystem(unittest.TestCase):
         self.assertEqual(2, len(p._shards))
     def testStudyIndexing(self):
         p = _Phylesystem(repos_dict=self.r)
-        k = list(p._study2shard_map.keys())
+        k = list(p._doc2shard_map.keys())
         k.sort()
         self.assertEqual(k, ['xy_10', 'xy_13', 'zz_11', 'zz_112'])
     def testURL(self):
@@ -40,6 +47,7 @@ class TestPhylesystem(unittest.TestCase):
         self.assertTrue(nsi.startswith('zz_'))
     def testChangedStudies(self):
         p = _Phylesystem(repos_dict=self.r)
+        p.pull()  # get the full git history
         changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc')
         self.assertEqual(set(['xy_13', 'xy_10']), changed)
         changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc', ['zz_11'])

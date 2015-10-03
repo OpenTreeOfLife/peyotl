@@ -4,7 +4,8 @@ import codecs
 import json
 
 def testing_read_json(fp):
-    return json.load(codecs.open(fp, 'r', encoding='utf-8'))
+    with codecs.open(fp, 'r', encoding='utf-8') as f:
+        return json.load(f)
 def testing_write_json(o, fp):
     with codecs.open(fp, 'w', encoding='utf-8') as fo:
         json.dump(o, fo, indent=2, sort_keys=True)

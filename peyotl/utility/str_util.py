@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # python 2 to 3 dealing with unicode....
 import sys
+import re
 if sys.version_info.major == 2:
     from cStringIO import StringIO
     import codecs
@@ -32,6 +33,46 @@ else:
         return {v: k for k, v in d.items()}
 
 
+def slugify(s):
+    """Convert any string to a "slug", a simplified form suitable for filename and URL part.
+     EXAMPLE: "Trees about bees" => 'trees-about-bees'
+     EXAMPLE: "My favorites!" => 'my-favorites'
+    N.B. that its behavior should match this client-side slugify function, so
+    we can accurately "preview" slugs in the browser:
+     https://github.com/OpenTreeOfLife/opentree/blob/553546942388d78545cc8dcc4f84db78a2dd79ac/curator/static/js/curation-helpers.js#L391-L397
+    TODO: Should we also trim leading and trailing spaces (or dashes in the final slug)?
+    """
+    slug = s.lower()                        # force to lower case
+    slug = re.sub('[^a-z0-9 -]', '', slug)  # remove invalid chars
+    slug = re.sub(r'\s+', '-', slug)         # collapse whitespace and replace by -
+    slug = re.sub('-+', '-', slug)          # collapse dashes
+    if not slug:
+        slug = 'untitled'
+    return slug
+
+def increment_slug(s):
+    """Generate next slug for a series.
+
+       Some docstore types will use slugs (see above) as document ids. To
+       support unique ids, we'll serialize them as follows:
+         TestUserA/my-test
+         TestUserA/my-test-2
+         TestUserA/my-test-3
+         ...
+    """
+    slug_parts = s.split('-')
+    counter = slug_parts[-1]
+    # advance (or add) the serial counter on the end of this slug
+    try:
+        # if it's an integer, increment it
+        counter = int(counter) + 1
+        slug_parts[-1] = counter
+    except:
+        # there's no counter! add one now
+        counter = 2
+        slug_parts.append(counter)
+    incremented = '-'.join(str(v) for v in slug_parts)
+    return incremented
 
 def underscored2camel_case(v):
     '''converts ott_id to ottId.'''

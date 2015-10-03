@@ -8,7 +8,8 @@ from peyotl.nexson_syntax import get_ot_study_info_from_nexml, \
                                  convert_nexson_format, \
                                  sort_arbitrarily_ordered_nexson
 from peyotl.nexson_syntax.helper import _simplify_all_meta_by_id_del
-
+from peyotl.utility import get_logger
+_LOG = get_logger(__name__)
 def _get_treebase_url(treebase_id):
     # Use TreeBASE API to fetch NeXML, then pass it as a string
     # to _import_nexson_from_nexml()
@@ -204,6 +205,6 @@ def import_nexson_from_treebase(treebase_id,
     try:
         return get_ot_study_info_from_treebase_nexml(src=url,
                                                      nexson_syntax_version=nexson_syntax_version)
-    except Exception as x:
+    except Exception:
         _LOG.exception('Error parsing NeXML from {}'.format(url))
         raise

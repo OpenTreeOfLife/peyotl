@@ -139,7 +139,7 @@ class Direct2OptimalNexson(NexsonConverter):
                 t_t = self.convert_tree(tree)
                 if t_t is None:
                     continue
-                tid, tree_alias = t_t
+                tid, tree_alias = t_t  #pylint: disable=W0633
                 if tid in tree_id_set:
                     raise NexsonError('Repeated tree element id "{}"'.format(tid))
                 tree_id_set.add(tid)

@@ -4,13 +4,14 @@ from peyotl.api import Treemachine, Taxomachine
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.test.test_v2facade import _test_tol_about
 from peyotl.utility import get_logger
+from requests.exceptions import HTTPError
 import unittest
 import os
 _LOG = get_logger(__name__)
  #pylint: disable=W0713
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
-                'Open Tree of Life web services are disabled.')
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'Open Tree of Life web services are disabled.')
 class TestTreemachine(unittest.TestCase):
     def setUp(self):
         self.domains = get_test_ot_service_domains()
@@ -37,7 +38,9 @@ class TestTreemachine(unittest.TestCase):
                 self.assertTrue(x['newick'].startswith('('))
         else:
             tree_id, node_id = _test_tol_about(self, cdict)
-            self.assertRaises(ValueError,
+            # This now exceed the limit for tips in a tree, so expect HTTPError (400 Client Error: Bad Request)
+            # instead of the previously expected ValueError
+            self.assertRaises(HTTPError,
                               self.treemachine.get_synthetic_tree,
                               tree_id,
                               format='newick',
@@ -53,7 +56,7 @@ class TestTreemachine(unittest.TestCase):
             r = self.treemachine.induced_subtree(ott_ids=ott_ids)
             for key in ['ott_ids_not_in_tree', u'node_ids_not_in_tree']:
                 self.assertEqual(r[key], [])
-        self.assertTrue(r['subtree'].startswith('('))
+        self.assertTrue(r['newick'].startswith('('))
     def testMRCA(self):
         ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182,
                    301424, 876348, 515698, 1045579, 267484,

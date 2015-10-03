@@ -69,7 +69,10 @@ class _PhylesystemAPIWrapper(_WSWrapper):
     @property
     def repo_nexml2json(self):
         if self._repo_nexml2json is None:
-            self._repo_nexml2json = self.phylesystem_config['repo_nexml2json']
+            self._repo_nexml2json = self.phylesystem_config.get('assumed_doc_version')
+            if self._repo_nexml2json is None:
+                # TODO: remove this fall-back to legacy configuration once deployed phylesystems are up to date
+                self._repo_nexml2json = self.phylesystem_config.get('repo_nexml2json')
         return self._repo_nexml2json
     def get_external_url(self, study_id):
         if self._src_code == _GET_API:

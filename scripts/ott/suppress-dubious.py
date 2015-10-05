@@ -2,7 +2,6 @@
 from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json
 from peyotl.ott import OTT
-
 if __name__ == '__main__':
     import argparse
     import codecs
@@ -26,18 +25,28 @@ if __name__ == '__main__':
                         type=str,
                         required=False,
                         help='Optional output location of JSON file describing the operation')
+    parser.add_argument('--flags',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='Optional comma-separated list of flags to prune')
     args = parser.parse_args(sys.argv[1:])
     ott_dir, output, log_filename = args.ott_dir, args.output, args.log
+    flags_str = args.flags
     try:
         assert os.path.isdir(args.ott_dir)
     except:
         sys.exit('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
+    if flags_str is None:
+        flags = ott.TREEMACHINE_SUPPRESS_FLAGS
+    else:
+        flags = flags_str.split(',')
     ott = OTT(ott_dir=args.ott_dir)
     create_log = log_filename is not None
     with codecs.open(args.output, 'w', encoding='utf-8') as outp:
         log = ott.write_newick(outp,
                                label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID,
-                               prune_flags=ott.TREEMACHINE_SUPPRESS_FLAGS,
+                               prune_flags=flags,
                                create_log_dict=create_log)
         outp.write('\n')
     if create_log:

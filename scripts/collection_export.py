@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from peyotl import read_as_json
+from peyotl import collection_to_included_trees, read_as_json
+
 if __name__ == '__main__':
     import argparse
     import codecs
@@ -21,14 +22,13 @@ if __name__ == '__main__':
     if not os.path.isfile(args.collection):
         sys.exit('Input collection "{}" does not exist.\n'.format(args.collection))
     try:
-        coll = read_as_json(args.collection)
+        included = collection_to_included_trees(args.collection)
     except:
         sys.stderr.write('JSON parse error when reading collection "{}".\n'.format(args.collection))
         raise
-    for d in coll['decisions']:
-        if d['decision'] == 'INCLUDED':
-            if export == 'studyID_treeID':
-                print '_'.join([d['studyID'], d['treeID']])
-            else:
-                assert export == 'studyID'
-                print d['studyID']
+    for d in included:
+        if export == 'studyID_treeID':
+            print '_'.join([d['studyID'], d['treeID']])
+        else:
+            assert export == 'studyID'
+            print d['studyID']

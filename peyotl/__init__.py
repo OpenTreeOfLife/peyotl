@@ -11,6 +11,8 @@ from peyotl.utility import get_config_setting_kwargs, \
                            expand_path, \
                            get_logger
 from peyotl.utility.input_output import pretty_dict_str
+
+from peyotl.collections import collection_to_included_trees
 from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \

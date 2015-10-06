@@ -37,11 +37,11 @@ if __name__ == '__main__':
         assert os.path.isdir(args.ott_dir)
     except:
         sys.exit('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
+    ott = OTT(ott_dir=args.ott_dir)
     if flags_str is None:
         flags = ott.TREEMACHINE_SUPPRESS_FLAGS
     else:
         flags = flags_str.split(',')
-    ott = OTT(ott_dir=args.ott_dir)
     create_log = log_filename is not None
     with codecs.open(args.output, 'w', encoding='utf-8') as outp:
         log = ott.write_newick(outp,

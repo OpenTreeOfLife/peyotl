@@ -100,32 +100,40 @@ for tree_info in studytreelist:
         raise Exception, u"Unable to parse this JSON response:\n\n{}".format(resp.raw())
     matched_studies = matches.get('matched_studies', None)
     # check (carefully) for one matching study...
-    if not matched_studies:
+    if matched_studies is None:
         raise Exception, "matched_studies NOT FOUND in JSON response for {}".format(expected_id)
-    if len(matched_studies) == 0:
-        raise Exception, u"No matching study found for {}".format(expected_id)
     if len(matched_studies) > 1:
         raise Exception, u"Multiple matching studies found for {}".format(expected_id)
-    the_study = matched_studies[0]
-    # ... with one matching tree
-    matched_trees = the_study.get('matched_trees', None)
-    if not matched_trees:
-        raise Exception, "matched_trees NOT FOUND in JSON response for {}".format(expected_id)
-    if len(matched_trees) == 0:
-        raise Exception, u"No matching tree found for {}".format(expected_id)
-    if len(matched_trees) > 1:
-        raise Exception, u"Multiple matching trees found for {}".format(expected_id)
-    the_tree = matched_trees[0]
-    # its name (read-only descriptor) is in the form 'tree1234 (Smith, 2010)'
-    # NOTE that this logic mirrors that in the 'curation-helpers.js' script of the curation webapp.
-    #  https://github.com/OpenTreeOfLife/opentree/blob/fa36b973aa8f881d5355add0477337c2441a31df/curator/static/js/curation-helpers.js#L807
-    compact_ref = full_to_compact_reference(the_study.get('ot:studyPublicationReference', ""))
-    tree_name = the_tree.get('@label', None) or tree_id
-    tree_and_study = u"{t} ({s})".format(t=tree_name, s=compact_ref)
+    if len(matched_studies) == 0:
+        #raise Exception, u"No matching study found for {}".format(expected_id)
+        # add a 'NOT FOUND' entry for this tree (will hide in normal use)
+        # or should this be 'DEPRECATED', 'NO LONGER FOUND', ???
+        decision = 'NOT FOUND'
+        tree_and_study = u"{t} ({s})".format(t=tree_id, s=study_id)
+    else:
+        decision = 'INCLUDED'
+        the_study = matched_studies[0]
+        # ... with one matching tree
+        matched_trees = the_study.get('matched_trees', None)
+        if not matched_trees:
+            raise Exception, "matched_trees NOT FOUND in JSON response for {}".format(expected_id)
+        if len(matched_trees) == 0:
+            raise Exception, u"No matching tree found for {}".format(expected_id)
+        if len(matched_trees) > 1:
+            raise Exception, u"Multiple matching trees found for {}".format(expected_id)
+        the_tree = matched_trees[0]
+        # its name (read-only descriptor) is in the form 'tree1234 (Smith, 2010)'
+        # NOTE that this logic mirrors that in the 'curation-helpers.js' script of the curation webapp.
+        #  https://github.com/OpenTreeOfLife/opentree/blob/fa36b973aa8f881d5355add0477337c2441a31df/curator/static/js/curation-helpers.js#L807
+        compact_ref = full_to_compact_reference(the_study.get('ot:studyPublicationReference', ""))
+        tree_name = the_tree.get('@label', None) or tree_id
+        tree_and_study = u"{t} ({s})".format(t=tree_name, s=compact_ref)
+
     # build and add an entry for this tree 
     d.append({'SHA':'',
               'decision': 'INCLUDED',
               'name': tree_and_study,
+              'comments': "",
               'studyID': study_id, 
               'treeID': tree_id
               })

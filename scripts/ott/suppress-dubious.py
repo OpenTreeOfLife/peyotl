@@ -1,4 +1,4 @@
-#!/us/bin/env python
+#!/usr/bin/env python
 from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json
 from peyotl.ott import OTT

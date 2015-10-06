@@ -58,7 +58,6 @@ def full_to_compact_reference(full_ref):
         return "(Untitled)"
     # capture the first valid year in the reference
     regex = re.compile('(?P<year>\d{4})')
-    #import pdb; pdb.set_trace()
     match = regex.search(full_ref)
     if match:
         compact_year = match.group('year') 
@@ -120,7 +119,6 @@ for tree_info in studytreelist:
     # its name (read-only descriptor) is in the form 'tree1234 (Smith, 2010)'
     # NOTE that this logic mirrors that in the 'curation-helpers.js' script of the curation webapp.
     #  https://github.com/OpenTreeOfLife/opentree/blob/fa36b973aa8f881d5355add0477337c2441a31df/curator/static/js/curation-helpers.js#L807
-    #import pdb; pdb.set_trace()
     compact_ref = full_to_compact_reference(the_study.get('ot:studyPublicationReference', ""))
     tree_name = the_tree.get('@label', None) or tree_id
     tree_and_study = u"{t} ({s})".format(t=tree_name, s=compact_ref)

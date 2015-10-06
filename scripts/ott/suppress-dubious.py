@@ -29,7 +29,7 @@ if __name__ == '__main__':
                         default=None,
                         type=str,
                         required=False,
-                        help='Optional comma-separated list of flags to prune')
+                        help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
     args = parser.parse_args(sys.argv[1:])
     ott_dir, output, log_filename = args.ott_dir, args.output, args.log
     flags_str = args.flags

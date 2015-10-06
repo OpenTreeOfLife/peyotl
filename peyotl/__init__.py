@@ -15,6 +15,7 @@ from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \
                                  get_ot_study_info_from_nexml, \
+                                 read_as_json, \
                                  write_as_json, \
                                  write_obj_as_nexml, \
                                  _is_by_id_hbf

@@ -134,21 +134,33 @@ if __name__ == '__main__':
             debug('Ingroup node is root.')
         
         leaves = [i for i in edge_by_target.keys() if i not in edge_by_source]
-        ott_id_to_node_otu_pair_list = defaultdict(list)
+        ott_id_to_sortable_list = defaultdict(list)
         leaf_ott_ids = set()
-        for leaf in leaves:
-            node_obj = tree['nodeById'][leaf]
+        has_an_exemplar_spec = set()
+        for leaf_id in leaves:
+            node_obj = tree['nodeById'][leaf_id]
             otu_id = node_obj['@otu']
             otu_obj = otus[otu_id]
             ott_id = otu_obj.get('^ot:ottId')
-            ott_id_to_node_otu_pair_list[ott_id].append((node_obj, otu_obj))
+            is_exemplar = node_obj.get('^ot:isTaxonExemplar', False)
+            int_is_exemplar = 0
+            if is_exemplar:
+                has_an_exemplar_spec.add(leaf_id)
+                int_is_exemplar = -1 # to sort to the front of the list
+            sortable_el = (int_is_exemplar, leaf_id, node_obj, otu_obj)
+            ott_id_to_sortable_list[ott_id].append(sortable_el)
             if ott_id is not None:
                 leaf_ott_ids.add(ott_id)
-            print node_obj, otu_obj
+            
+        for v in ott_id_to_sortable_list.values():
+            v.sort()
+            print v
+        sys.exit()
         common_anc_id_set = set()
         ca_rev_order = None
         anc_leaf_ott_ids = set()
         traversed_ott_ids = set()
+        suppressed_by_anc_exemplar = defaultdict(list)
         for ott_id in leaf_ott_ids:
             ancs = ott.get_anc_lineage(ott_id)
             assert ancs.pop(0) == ott_id
@@ -167,7 +179,19 @@ if __name__ == '__main__':
                     break
                 traversed_ott_ids.add(anc)
                 if anc in leaf_ott_ids:
-                    anc_leaf_ott_ids.add(anc)
+                    if anc in has_an_exemplar_spec(anc):
+                        if ott_id in has_an_exemplar_spec:
+                            anc_leaf_ott_ids.add(anc)
+                            has_an_exemplar_spec.remove(anc)
+                            if anc in suppressed_by_anc_exemplar:
+                                del suppressed_by_anc_exemplar[anc]
+                        else:
+                            suppressed_by_anc_exemplar[anc].append(ott_id)
+                    else:
+                        anc_leaf_ott_ids.add(anc)
+        all_suppressed_by_anc = set()
+        for anc, des_list in suppressed_by_anc_exemplar.items():
+            all_suppressed_by_anc.update(set(des_list))
 
         print leaf_ott_ids
     sys.exit(0)

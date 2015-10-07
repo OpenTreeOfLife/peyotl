@@ -4,6 +4,11 @@ from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
 from collections import defaultdict
+_VERBOSE = True
+def debug(msg):
+    if _VERBOSE:
+        sys.stderr.write(msg)
+        sys.stderr.write('\n')
 
 def to_edge_by_target_id(tree):
     ebt = {}
@@ -128,8 +133,43 @@ if __name__ == '__main__':
         else:
             debug('Ingroup node is root.')
         
-        print ingroup_node
-        print tree.keys()
+        leaves = [i for i in edge_by_target.keys() if i not in edge_by_source]
+        ott_id_to_node_otu_pair_list = defaultdict(list)
+        leaf_ott_ids = set()
+        for leaf in leaves:
+            node_obj = tree['nodeById'][leaf]
+            otu_id = node_obj['@otu']
+            otu_obj = otus[otu_id]
+            ott_id = otu_obj.get('^ot:ottId')
+            ott_id_to_node_otu_pair_list[ott_id].append((node_obj, otu_obj))
+            if ott_id is not None:
+                leaf_ott_ids.add(ott_id)
+            print node_obj, otu_obj
+        common_anc_id_set = set()
+        ca_rev_order = None
+        anc_leaf_ott_ids = set()
+        traversed_ott_ids = set()
+        for ott_id in leaf_ott_ids:
+            ancs = ott.get_anc_lineage(ott_id)
+            assert ancs.pop(0) == ott_id
+            if not bool(ancs):
+                continue
+            if ca_rev_order is None:
+                ca_rev_order = list(ancs)
+                ca_rev_order.reverse()
+                common_anc_id_set.update(set(ca_order))
+            for anc in ancs:
+                if anc in traversed_ott_ids:
+                    if anc in common_anc_id_set:
+                        while ca_rev_order[-1] != anc:
+                            x = ca_rev_order.pop()
+                            common_anc_id_set.remove(x)
+                    break
+                traversed_ott_ids.add(anc)
+                if anc in leaf_ott_ids:
+                    anc_leaf_ott_ids.add(anc)
+
+        print leaf_ott_ids
     sys.exit(0)
     ott = OTT(ott_dir=args.ott_dir)
     if flags_str is None:

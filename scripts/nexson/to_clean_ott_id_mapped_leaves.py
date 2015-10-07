@@ -3,6 +3,9 @@ from peyotl.nexson_syntax import extract_tree_nexson, get_nexml_el
 from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
+from peyotl import get_logger
+_LOG = get_logger(__name__)
+
 from collections import defaultdict
 _VERBOSE = True
 def debug(msg):
@@ -11,6 +14,7 @@ def debug(msg):
         sys.stderr.write('\n')
 
 def to_edge_by_target_id(tree):
+    '''creates a edge_by_target dict with the same edge objects as the edge_by_source'''
     ebt = {}
     ebs = tree['edgeBySourceId']
     for edge_dict in ebs.values():
@@ -19,10 +23,11 @@ def to_edge_by_target_id(tree):
             edge['@id'] = edge_id
             assert target_id not in ebt
             ebt[target_id] = edge
-    check_rev_dict(tree, ebt)
+    #check_rev_dict(tree, ebt)
     return ebt
 
 def check_rev_dict(tree, ebt):
+    '''Verifyies that `ebt` is the inverse of the `edgeBySourceId` data member of `tree`'''
     ebs = defaultdict(dict)
     for edge in ebt.values():
         source_id = edge['@source']
@@ -38,7 +43,10 @@ def find_tree_and_otus_in_nexson(nexson, tree_id):
 
 def prune_clade(edge_by_target, edge_by_source, node_id, nodes_deleted, edges_deleted):
     '''Prune `node_id` and the edges and nodes that are tipward of it.
-    Caller must delete the edge to node_id'''
+    Caller must delete the edge to node_id.
+
+    nodes_deleted, edges_deleted are lists of ids that will be appended to.
+    '''
     to_del_nodes = [node_id]
     while bool(to_del_nodes):
         node_id = to_del_nodes.pop(0)
@@ -53,15 +61,6 @@ def prune_clade(edge_by_target, edge_by_source, node_id, nodes_deleted, edges_de
             del edge_by_source[node_id] # deletes all of the edges out of this node (still held in edge_by_target til children are encountered)
             to_del_nodes.extend(new_nodes)
     
-
-def prune_to_ingroup(edge_by_target, edge_by_source, ingroup_node, log_obj):
-    edge_to_del = edge_by_target.get(ingroup_node)
-    if edge_to_del is None:
-        return
-    nodes_deleted = []
-    edges_deleted = []
-    prune_edge_and_below(edge_by_target, edge_by_source, edge_to_del, nodes_deleted, edges_deleted)
-    log_obj['outgroup'] = {'nodes': nodes_deleted, 'edges': edges_deleted}
 
 def prune_edge_and_below(edge_by_target, edge_by_source, edge_to_del, nodes_deleted, edges_deleted):
     while edge_to_del is not None:
@@ -81,13 +80,144 @@ def prune_edge_and_below(edge_by_target, edge_by_source, edge_to_del, nodes_dele
             del edge_by_source[source_id]
         edge_to_del = edge_by_target.get(source_id)
 
+def _prune_to_ingroup(edge_by_target, edge_by_source, ingroup_node, log_obj):
+    '''Performs the actions of `prune_ingroup` when the ingroup is not the root'''
+    edge_to_del = edge_by_target.get(ingroup_node)
+    if edge_to_del is None:
+        return
+    nodes_deleted = []
+    edges_deleted = []
+    prune_edge_and_below(edge_by_target, edge_by_source, edge_to_del, nodes_deleted, edges_deleted)
+    if log_obj is not None:
+        log_obj['outgroup'] = {'nodes': nodes_deleted, 'edges': edges_deleted}
+
+def prune_ingroup(tree, edge_by_target, edge_by_source, log_obj=None):
+    '''Remove nodes and edges from `tree` if they are not the ingroup or a descendant of it.
+
+    `tree` must be a HBF Nexson tree with each of its edge objects indexed in both
+        `edge_by_target` and `edge_by_source`
+    Returns the root of the pruned tree.
+    If log_obj is not None, actions are stored in log_obj by overwriting the 'outgroup' key
+        of that dict with {'nodes': nodes_deleted, 'edges': edges_deleted}
+    '''
+    # Prune to just the ingroup
+    ingroup_node_id = tree.get('^ot:rootNodeId')
+    root_node_id = tree['^ot:rootNodeId']
+    if ingroup_node_id is None:
+        _LOG.debug('No ingroup node specified.')
+    elif ingroup_node_id != root_node_id:
+        _prune_to_ingroup(edge_by_target, edge_by_source, ingroup_node_id, log_obj=log_obj)
+        return ingroup_node_id
+    else:
+        _LOG.debug('Ingroup node is root.')
+    return root_node_id
+
+def group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus):
+    '''returns a dict mapping ott_id to list of elements referring to leafs mapped
+    to that ott_id. They keys will be ott_ids and None (for unmapped tips). The values
+    are lists of tuples. Each tuple represents a different leaf and contains:
+        (integer_for_of_is_examplar: -1 if the node is flagged by ^ot:isTaxonExemplar. 0 otherwise
+        the leaf's node_id,
+        the node object
+        the otu object for the node
+        )
+    Side effects:
+      - adds an @id element to each leaf node object in tree['nodeById']
+    '''
+    leaves = [i for i in edge_by_target.keys() if i not in edge_by_source]
+    node_by_id = tree['nodeById']
+    ott_id_to_sortable_list = defaultdict(list)
+    leaf_ott_ids = set()
+    has_an_exemplar_spec = set()
+    for leaf_id in leaves:
+        node_obj = node_by_id[leaf_id]
+        node_obj['@id'] = leaf_id
+        otu_id = node_obj['@otu']
+        otu_obj = otus[otu_id]
+        ott_id = otu_obj.get('^ot:ottId')
+        is_exemplar = node_obj.get('^ot:isTaxonExemplar', False)
+        int_is_exemplar = 0
+        if is_exemplar:
+            has_an_exemplar_spec.add(leaf_id)
+            int_is_exemplar = -1 # to sort to the front of the list
+        sortable_el = (int_is_exemplar, leaf_id, node_obj, otu_obj)
+        ott_id_to_sortable_list[ott_id].append(sortable_el)
+        if ott_id is not None:
+            leaf_ott_ids.add(ott_id)
+    for v in ott_id_to_sortable_list.values():
+        v.sort()
+    return ott_id_to_sortable_list
+
+def induced_taxonomy_for_ott_id_dict(ott, by_ott_id):
+    '''Takes an ott wrapper and a dict `by_ott_id` that has ott_id keys (or the key None) mapped
+    to a mapped object.
+    Returns a dict with ott_ids as keys and values:
+    '''
+    k = [i for i in by_ott_id.keys() if i is not None]
+    return ott.induced_tree([458721, 883864, 128315])
+
+def prune_tree_for_supertree(nexson,
+                             tree_id,
+                             ott,
+                             log_obj):
+    '''
+    '''
+    tree, otus = find_tree_and_otus_in_nexson(nexson, tree_id)
+    if tree is None:
+        raise KeyError('Tree "{}" was not found.'.format(tree_id))
+    edge_by_target = to_edge_by_target_id(tree)
+    edge_by_source = tree['edgeBySourceId']
+    ingroup_node = prune_ingroup(tree, edge_by_target, edge_by_source, log_obj)
+    by_ott_id = group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus)
+    ott_tree = induced_taxonomy_for_ott_id_dict(ott, by_ott_id)
+    print ott_tree.__dict__
+    sys.exit()
+    common_anc_id_set = set()
+    ca_rev_order = None
+    anc_leaf_ott_ids = set()
+    traversed_ott_ids = set()
+    suppressed_by_anc_exemplar = defaultdict(list)
+    for ott_id in leaf_ott_ids:
+        ancs = ott.get_anc_lineage(ott_id)
+        assert ancs.pop(0) == ott_id
+        if not bool(ancs):
+            continue
+        if ca_rev_order is None:
+            ca_rev_order = list(ancs)
+            ca_rev_order.reverse()
+            common_anc_id_set.update(set(ca_order))
+        for anc in ancs:
+            if anc in traversed_ott_ids:
+                if anc in common_anc_id_set:
+                    while ca_rev_order[-1] != anc:
+                        x = ca_rev_order.pop()
+                        common_anc_id_set.remove(x)
+                break
+            traversed_ott_ids.add(anc)
+            if anc in leaf_ott_ids:
+                if anc in has_an_exemplar_spec(anc):
+                    if ott_id in has_an_exemplar_spec:
+                        anc_leaf_ott_ids.add(anc)
+                        has_an_exemplar_spec.remove(anc)
+                        if anc in suppressed_by_anc_exemplar:
+                            del suppressed_by_anc_exemplar[anc]
+                    else:
+                        suppressed_by_anc_exemplar[anc].append(ott_id)
+                else:
+                    anc_leaf_ott_ids.add(anc)
+    all_suppressed_by_anc = set()
+    for anc, des_list in suppressed_by_anc_exemplar.items():
+        all_suppressed_by_anc.update(set(des_list))
+
+    print leaf_ott_ids
+
 if __name__ == '__main__':
     import argparse
     import codecs
     import sys
     import os
     description = ''
-    parser = argparse.ArgumentParser(prog='suppress-dubious', description=description)
+    parser = argparse.ArgumentParser(prog='to_clean_ott_id_mapped_leaves.py', description=description)
     parser.add_argument('nexson',
                         nargs="+",
                         type=str,
@@ -114,88 +244,22 @@ if __name__ == '__main__':
         assert os.path.isdir(args.ott_dir)
     except:
         sys.exit('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
+    ott = OTT(ott_dir=args.ott_dir)
     for inp in args.nexson:
         log_obj = {}
         study_tree = '.'.join(inp.split('.')[:-1]) # strip extension
+        x = study_tree.split('_')
+        if len(x) != 3:
+            sys.exit('Currently using the NexSON file name to indicate the tree via: studyID_treeID.json. Expected exactly 2 _ in the filename.\n')
         tree_id = study_tree.split('_')[-1]
-        blob = read_as_json(inp)
-        tree, otus = find_tree_and_otus_in_nexson(blob, tree_id)
-        assert tree is not None
-        edge_by_target = to_edge_by_target_id(tree)
-        edge_by_source = tree['edgeBySourceId']
-
-        # Prune to just the ingroup
-        ingroup_node = tree.get('^ot:rootNodeId')
-        if ingroup_node is None:
-            debug('No ingroup node specified.')
-        elif ingroup_node != tree['^ot:rootNodeId']:
-            prune_to_ingroup(edge_by_target, edge_by_source, ingroup_node, log_obj)
-        else:
-            debug('Ingroup node is root.')
-        
-        leaves = [i for i in edge_by_target.keys() if i not in edge_by_source]
-        ott_id_to_sortable_list = defaultdict(list)
-        leaf_ott_ids = set()
-        has_an_exemplar_spec = set()
-        for leaf_id in leaves:
-            node_obj = tree['nodeById'][leaf_id]
-            otu_id = node_obj['@otu']
-            otu_obj = otus[otu_id]
-            ott_id = otu_obj.get('^ot:ottId')
-            is_exemplar = node_obj.get('^ot:isTaxonExemplar', False)
-            int_is_exemplar = 0
-            if is_exemplar:
-                has_an_exemplar_spec.add(leaf_id)
-                int_is_exemplar = -1 # to sort to the front of the list
-            sortable_el = (int_is_exemplar, leaf_id, node_obj, otu_obj)
-            ott_id_to_sortable_list[ott_id].append(sortable_el)
-            if ott_id is not None:
-                leaf_ott_ids.add(ott_id)
-            
-        for v in ott_id_to_sortable_list.values():
-            v.sort()
-            print v
-        sys.exit()
-        common_anc_id_set = set()
-        ca_rev_order = None
-        anc_leaf_ott_ids = set()
-        traversed_ott_ids = set()
-        suppressed_by_anc_exemplar = defaultdict(list)
-        for ott_id in leaf_ott_ids:
-            ancs = ott.get_anc_lineage(ott_id)
-            assert ancs.pop(0) == ott_id
-            if not bool(ancs):
-                continue
-            if ca_rev_order is None:
-                ca_rev_order = list(ancs)
-                ca_rev_order.reverse()
-                common_anc_id_set.update(set(ca_order))
-            for anc in ancs:
-                if anc in traversed_ott_ids:
-                    if anc in common_anc_id_set:
-                        while ca_rev_order[-1] != anc:
-                            x = ca_rev_order.pop()
-                            common_anc_id_set.remove(x)
-                    break
-                traversed_ott_ids.add(anc)
-                if anc in leaf_ott_ids:
-                    if anc in has_an_exemplar_spec(anc):
-                        if ott_id in has_an_exemplar_spec:
-                            anc_leaf_ott_ids.add(anc)
-                            has_an_exemplar_spec.remove(anc)
-                            if anc in suppressed_by_anc_exemplar:
-                                del suppressed_by_anc_exemplar[anc]
-                        else:
-                            suppressed_by_anc_exemplar[anc].append(ott_id)
-                    else:
-                        anc_leaf_ott_ids.add(anc)
-        all_suppressed_by_anc = set()
-        for anc, des_list in suppressed_by_anc_exemplar.items():
-            all_suppressed_by_anc.update(set(des_list))
-
-        print leaf_ott_ids
+        nexson_blob = read_as_json(inp)
+        prune_tree_for_supertree(nexson=nexson_blob,
+                                 tree_id=tree_id,
+                                 ott=ott,
+                                 log_obj=log_obj)
+    
+    
     sys.exit(0)
-    ott = OTT(ott_dir=args.ott_dir)
     if flags_str is None:
         flags = ott.TREEMACHINE_SUPPRESS_FLAGS
     else:

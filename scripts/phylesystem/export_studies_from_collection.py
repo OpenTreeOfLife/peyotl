@@ -1,17 +1,48 @@
 #!/usr/bin/env python
 from peyotl.collections import get_empty_collection
-from peyotl import collection_to_included_trees, read_as_json
+from peyotl import collection_to_included_trees, \
+                   read_as_json, \
+                   write_as_json
 from peyotl.phylesystem import Phylesystem
 from collections import defaultdict
+import filecmp
+import shutil
 import codecs
 import copy
 import sys
 import os
 
-def copy_phylesystem_file_if_differing(git_action, coll_decision, out_dir, cd_to_new_map):
+_VERBOSE = False
+def debug(msg):
+    if _VERBOSE:
+        sys.stderr.write(msg)
+        sys.stderr.write('\n')
+def copy_phylesystem_file_if_differing(git_action,
+                                       sha,
+                                       coll_decision,
+                                       out_dir,
+                                       cd_to_new_map):
     study_id = coll_decision['studyID']
+    tree_id = coll_decision['treeID']
     fp = git_action.path_for_doc(study_id)
-    print fp
+    if not os.path.isfile(fp):
+        debug(fp + ' does not exist')
+        assert os.path.isfile(fp)
+    new_name = '{}_{}.json'.format(study_id, tree_id)
+    np = os.path.join(out_dir, new_name)
+    # create a new "decision" entry that is bound to this SHA
+    concrete_coll_decision = copy.deepcopy(coll_decision)
+    concrete_coll_decision['SHA'] = sha
+    cd_to_new_map[id(coll_decision)] = concrete_coll_decision
+    # copy the file, if necessary
+    if (not os.path.exists(np)) or (not filecmp.cmp(fp, np)):
+        debug('cp "{}" "{}"'.format(fp, np))
+        shutil.copy(fp, np)
+        return True
+    debug('"{}" and "{}" are identical'.format(fp, np))
+    return False
+
+
 
 if __name__ == '__main__':
     import argparse
@@ -31,7 +62,13 @@ if __name__ == '__main__':
                         type=str,
                         required='False',
                         help='filepath for the output directory')
+    parser.add_argument('-v', '--verbose',
+                        default=False,
+                        action='store_true',
+                        help='Verbose mode')
     args = parser.parse_args(sys.argv[1:])
+    if args.verbose:
+        _VERBOSE = True
     out_dir = '.' if args.output_dir is None else args.output_dir
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
@@ -60,6 +97,7 @@ if __name__ == '__main__':
     # map id of input included tree to concrete form
     generic2concrete = {}
     use_latest_trees = included_by_sha['']
+    num_moved = 0
     if use_latest_trees:
         sha_to_inc = defaultdict(list)
         for ult in use_latest_trees:
@@ -71,22 +109,42 @@ if __name__ == '__main__':
             inc = from_this_sha_inc.pop(0)
             study_id = inc['studyID']
             ga = ps.create_git_action(study_id)
-            ga.checkout_master()
-            copy_phylesystem_file_if_differing(ga, inc, out_dir, generic2concrete)
+            with ga.lock():
+                ga.checkout_master()
+                if copy_phylesystem_file_if_differing(ga,
+                                                      sha,
+                                                      inc,
+                                                      out_dir,
+                                                      generic2concrete):
+                    num_moved += 1
             for inc in from_this_sha_inc:
                 ga = ps.create_git_action(study_id)
-                ga.checkout_master()
-                copy_phylesystem_file_if_differing(ga, inc, out_dir, generic2concrete)
+                with ga.lock():
+                    ga.checkout_master()
+                    if copy_phylesystem_file_if_differing(ga,
+                                                          sha, inc,
+                                                          out_dir,
+                                                          generic2concrete):
+                        num_moved += 1
+
     for sha, from_this_sha_inc in included_by_sha.items():
         if sha == '':
             continue
         for inc in from_this_sha_inc:
             study_id = inc['studyID']
             ga = ps.create_git_action(study_id)
-            ga.checkout(sha)
-            copy_phylesystem_file_if_differing(ga, inc, out_dir, generic2concrete)
-            ga.checkout_master()
-    sys.exit()
+            with ga.lock():
+                ga.checkout(sha)
+                if copy_phylesystem_file_if_differing(ga,
+                                                      sha,
+                                                      inc,
+                                                      out_dir,
+                                                      generic2concrete):
+                    num_moved += 1
+                ga.checkout_master()
+    debug('{} total trees'.format(len(included)))
+    debug('{} JSON files copied'.format(num_moved))
+    # now we write a "concrete" version of this snapshot
     coll_name = os.path.split(args.collection)[-1]
     concrete_collection = get_empty_collection()
     concrete_collection['description'] = 'Concrete form of collection "{}"'.format(coll_name)
@@ -94,5 +152,5 @@ if __name__ == '__main__':
     for inc in included:
         concrete = generic2concrete[id(inc)]
         cd_list.append(concrete)
-    concrete_fn = os.path.join(out_dir, 'concrete-' + coll_name)
+    concrete_fn = os.path.join(out_dir, 'concrete_' + coll_name)
     write_as_json(concrete_collection, concrete_fn)

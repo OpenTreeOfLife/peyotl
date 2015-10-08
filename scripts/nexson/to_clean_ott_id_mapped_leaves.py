@@ -189,15 +189,18 @@ def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, l
     edges_deleted = []
     orphaned_root = None
     while bool(ind_nd_id_list):
-        next_ind_nd_id_list = []
+        next_ind_nd_id_list = set()
         for nd_id in ind_nd_id_list:
-            out_edges = edge_by_source[nd_id]
-            out_degree = len(out_edges)
+            out_edges = edge_by_source.get(nd_id)
+            if out_edges is None:
+                out_degree == 0
+            else:
+                out_degree = len(out_edges)
             if out_degree < 2:
                 to_par = edge_by_target.get(nd_id)
                 if to_par:
                     par = to_par['@source']
-                    next_ind_nd_id_list.append(par)
+                    next_ind_nd_id_list.add(par)
                     if out_degree == 1:
                         out_edge = out_edges.values()[0]
                         suppress_deg_one_node(tree,
@@ -205,7 +208,7 @@ def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, l
                                               edge_by_source,
                                               to_par, 
                                               nd_id,
-                                              out_edges[0],
+                                              out_edge,
                                               nodes_deleted,
                                               edges_deleted)
                     else:
@@ -214,10 +217,10 @@ def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, l
                         to_par_edge_id = to_par['@id']
                         edges_deleted.append(to_par_edge_id)
                         del edge_by_source[par][to_par_edge_id]
-                    
+                    if nd_id in next_ind_nd_id_list:
+                            next_ind_nd_id_list.remove(nd_id)
                 else:
-                    assert out_degree == 1
-                    assert orphaned_root is None
+                    assert (orphaned_root is None) or (orphaned_root == nd_id)
                     orphaned_root = nd_id
         ind_nd_id_list = next_ind_nd_id_list
     if orphaned_root is not None:
@@ -231,7 +234,7 @@ def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, l
     return new_root
 
 def prune_tips(tree, edge_by_target, edge_by_source, leaf_el_list, reason, log_obj):
-    par_to_check = []
+    par_to_check = set()
     nodes_deleted = []
     edges_deleted = []
     for leaf_el in leaf_el_list:
@@ -242,7 +245,7 @@ def prune_tips(tree, edge_by_target, edge_by_source, leaf_el_list, reason, log_o
         edges_deleted.append(edge_id)
         source_id = edge['@source']
         del edge_by_source[source_id][edge_id]
-        par_to_check.append(source_id)
+        par_to_check.add(source_id)
         nodes_deleted.append(leaf_id)
     l = log_obj.setdefault(reason, {'nodes':[], 'edges':[]})
     l['nodes'].extend(nodes_deleted)
@@ -292,7 +295,6 @@ def prune_tree_for_supertree(nexson,
             by_ott_id = old_node_list
     # Get the induced tree to look for leaves mapped to ancestors of other leaves
     ott_tree = induced_taxonomy_for_ott_id_dict(ott, by_ott_id)
-    print ott_tree.__dict__
     sys.exit()
     common_anc_id_set = set()
     ca_rev_order = None

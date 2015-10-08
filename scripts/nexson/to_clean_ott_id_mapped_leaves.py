@@ -147,12 +147,6 @@ def group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus):
         v.sort()
     return ott_id_to_sortable_list
 
-def induced_taxonomy_for_ott_id_dict(ott, by_ott_id):
-    '''Takes an ott wrapper and a dict `by_ott_id` that has ott_id keys (or the key None) mapped
-    to a mapped object.
-    Returns a dict with ott_ids as keys and values:
-    '''
-    return ott.induced_tree(k, tip_mapping_log)
 
 def suppress_deg_one_node(tree, edge_by_target, edge_by_source, to_par_edge, nd_id, to_child_edge, nodes_deleted, edges_deleted):
     '''Deletes to_par_edge and nd_id. To be used when nd_id is an out-degree= 1 node'''
@@ -181,7 +175,6 @@ def prune_deg_one_root(tree, edge_by_target, edge_by_source, orphaned_root, node
         if ebs_el == None:
             return None
     return new_root
-
 
 def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, log_obj):
     nodes_deleted = []
@@ -292,8 +285,19 @@ def prune_tree_for_supertree(nexson,
             v.sort()
         else:
             by_ott_id = old_node_list
+    lost_tips = set(unrecog)
+    lost_tips.update(set(forward2unrecog))
+
     # Get the induced tree to look for leaves mapped to ancestors of other leaves
-    ott_tree = induced_taxonomy_for_ott_id_dict(ott, by_ott_id)
+    ott_tree = ott.induced_tree(mapped)
+    taxon_contains_other_ott_ids = []
+    for ott_id in by_ott_id:
+        if ott_id in lost_tips:
+            continue
+        ott_id = old2new.get(ott_id, ott_id)
+        nd = ott_tree.find_node(ott_id)
+        assert nd is not None
+        print nd.children, dir(nd)
     sys.exit()
     common_anc_id_set = set()
     ca_rev_order = None

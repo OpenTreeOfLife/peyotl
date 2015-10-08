@@ -34,6 +34,9 @@ class Node(object):
     def child_iter(self):
         return iter(self._children)
     @property
+    def children(self):
+        return tuple(self._children)
+    @property
     def is_leaf(self):
         return not bool(self._children)
     @property

@@ -153,8 +153,101 @@ def induced_taxonomy_for_ott_id_dict(ott, by_ott_id):
     to a mapped object.
     Returns a dict with ott_ids as keys and values:
     '''
-    k = [i for i in by_ott_id.keys() if i is not None]
-    return ott.induced_tree([458721, 883864, 128315])
+    return ott.induced_tree(k, tip_mapping_log)
+
+def suppress_deg_one_node(tree, edge_by_target, edge_by_source, to_par_edge, nd_id, to_child_edge, nodes_deleted, edges_deleted):
+    '''Deletes to_par_edge and nd_id. To be used when nd_id is an out-degree= 1 node'''
+    nodes_deleted.append(nd_id)
+    to_par_edge_id = to_par_edge['@id']
+    par = to_par_edge['@source']
+    edges_deleted.append(to_par_edge_id)
+    to_child_edge_id = to_child_edge['@id']
+    del edge_by_source[par][to_par_edge_id]
+    del edge_by_target[nd_id]
+    del edge_by_source[nd_id]
+    edge_by_source[par][to_child_edge_id] = to_child_edge
+    to_child_edge['@source'] = par
+
+def prune_deg_one_root(tree, edge_by_target, edge_by_source, orphaned_root, nodes_deleted, edges_deleted):
+    new_root = orphaned_root
+    ebs_el = edge_by_source[new_root]
+    while len(ebs_el) == 1:
+        edge = ebs_el.values()[0]
+        del edge_by_source[new_root]
+        nodes_deleted.append(new_root)
+        new_root = edge['@target']
+        del edge_by_target[new_root]
+        edges_deleted.append(edge['@id'])
+        ebs_el = edge_by_source.get(new_root)
+        if ebs_el == None:
+            return None
+    return new_root
+
+
+def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, log_obj):
+    nodes_deleted = []
+    edges_deleted = []
+    orphaned_root = None
+    while bool(ind_nd_id_list):
+        next_ind_nd_id_list = []
+        for nd_id in ind_nd_id_list:
+            out_edges = edge_by_source[nd_id]
+            out_degree = len(out_edges)
+            if out_degree < 2:
+                to_par = edge_by_target.get(nd_id)
+                if to_par:
+                    par = to_par['@source']
+                    next_ind_nd_id_list.append(par)
+                    if out_degree == 1:
+                        out_edge = out_edges.values()[0]
+                        suppress_deg_one_node(tree,
+                                              edge_by_target,
+                                              edge_by_source,
+                                              to_par, 
+                                              nd_id,
+                                              out_edges[0],
+                                              nodes_deleted,
+                                              edges_deleted)
+                    else:
+                        nodes_deleted.append(nd_id)
+                        del edge_by_target[nd_id]
+                        to_par_edge_id = to_par['@id']
+                        edges_deleted.append(to_par_edge_id)
+                        del edge_by_source[par][to_par_edge_id]
+                    
+                else:
+                    assert out_degree == 1
+                    assert orphaned_root is None
+                    orphaned_root = nd_id
+        ind_nd_id_list = next_ind_nd_id_list
+    if orphaned_root is not None:
+        new_root = prune_deg_one_root(tree, edge_by_target, edge_by_source, orphaned_root, nodes_deleted, edges_deleted)
+    else:
+        new_root = None
+    reason = 'became_trivial'
+    l = log_obj.setdefault(reason, {'nodes':[], 'edges':[]})
+    l['nodes'].extend(nodes_deleted)
+    l['edges'].extend(edges_deleted)
+    return new_root
+
+def prune_tips(tree, edge_by_target, edge_by_source, leaf_el_list, reason, log_obj):
+    par_to_check = []
+    nodes_deleted = []
+    edges_deleted = []
+    for leaf_el in leaf_el_list:
+        int_is_exemplar, leaf_id, node, otu = leaf_el
+        edge = edge_by_target[leaf_id]
+        del edge_by_target[leaf_id]
+        edge_id = edge['@id']
+        edges_deleted.append(edge_id)
+        source_id = edge['@source']
+        del edge_by_source[source_id][edge_id]
+        par_to_check.append(source_id)
+        nodes_deleted.append(leaf_id)
+    l = log_obj.setdefault(reason, {'nodes':[], 'edges':[]})
+    l['nodes'].extend(nodes_deleted)
+    l['edges'].extend(edges_deleted)
+    return prune_if_deg_too_low(tree, edge_by_target, edge_by_source, par_to_check, log_obj)
 
 def prune_tree_for_supertree(nexson,
                              tree_id,
@@ -169,6 +262,35 @@ def prune_tree_for_supertree(nexson,
     edge_by_source = tree['edgeBySourceId']
     ingroup_node = prune_ingroup(tree, edge_by_target, edge_by_source, log_obj)
     by_ott_id = group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus)
+    revised_ingroup_node = ingroup_node
+    # Leaf nodes with no OTT ID at all...
+    if None in by_ott_id:
+        nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[None], 'unmapped_otu', log_obj)
+        del by_ott_id[None]
+        if nr is not None:
+            revised_ingroup_node = nr
+    # Check the stored OTT Ids against the current version of OTT
+    mapped, unrecog, forward2unrecog, old2new = ott.map_ott_ids(by_ott_id.keys())
+    for ott_id in unrecog:
+        nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], 'unrecognized_ott_id', log_obj)
+        del by_ott_id[ott_id]
+        if nr is not None:
+            revised_ingroup_node = nr
+    for ott_id in forward2unrecog:
+        nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], 'forwarded_to_unrecognized_ott_id', log_obj)
+        del by_ott_id[ott_id]
+        if nr is not None:
+            revised_ingroup_node = nr
+    for old_id, new_id in old2new.items():
+        old_node_list = by_ott_id[old_id]
+        del by_ott_id[ott_id]
+        if new_id in by_ott_id:
+            v = by_ott_id[new_id]
+            v.extend(old_node_list)
+            v.sort()
+        else:
+            by_ott_id = old_node_list
+    # Get the induced tree to look for leaves mapped to ancestors of other leaves
     ott_tree = induced_taxonomy_for_ott_id_dict(ott, by_ott_id)
     print ott_tree.__dict__
     sys.exit()
@@ -257,6 +379,7 @@ if __name__ == '__main__':
                                  tree_id=tree_id,
                                  ott=ott,
                                  log_obj=log_obj)
+        
     
     
     sys.exit(0)

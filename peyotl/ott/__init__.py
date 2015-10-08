@@ -232,7 +232,8 @@ dictionary.''',),
            'flagsetid2flagset': ('flagSetID2FlagSet',
                                  'maps an integer to set of flags. Used to compress the flags field'),
            'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
-           'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'), }
+           'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'), 
+           'forwardingtable': ('forward_table', 'maps a deprecated ID to its forwarded ID')}
 _SECOND_LEVEL_CACHES = set(['ncbi2ottid'])
 class CacheNotFoundError(RuntimeError):
     def __init__(self, m):
@@ -261,6 +262,7 @@ class OTT(object):
         self._flag_set_id2flag_set = None
         self._taxonomic_sources = None
         self._ncbi_2_ott_id = None
+        self._forward_table = None
     def create_ncbi_to_ott(self):
         ncbi2ott = {}
         for ott_id, info in self.ott_id_to_info.items():
@@ -317,6 +319,11 @@ class OTT(object):
                 iset.add(k)
         return iset
     @property
+    def forward_table(self):
+        if self._forward_table is None:
+            self._forward_table = self._load_pickled('forwardingTable')
+        return self._forward_table
+    @property
     def flag_set_id_to_flag_set(self):
         if self._flag_set_id2flag_set is None:
             self._flag_set_id2flag_set = self._load_pickled('flagSetID2FlagSet')
@@ -338,6 +345,12 @@ class OTT(object):
     @property
     def synonyms_filepath(self):
         return os.path.abspath(os.path.join(self.ott_dir, 'synonyms.tsv'))
+    @property
+    def forwarding_filepath(self):
+        return os.path.abspath(os.path.join(self.ott_dir, 'forwards.tsv'))
+    @property
+    def legacy_forwarding_filepath(self):
+        return os.path.abspath(os.path.join(self.ott_dir, 'legacy-forwards.tsv'))
     @property
     def ott_id2par_ott_id(self):
         if self._ott_id2par_ott_id is None:
@@ -666,7 +679,8 @@ class OTT(object):
         _write_pickle(out_dir, 'ottID2info', id2info)
         _write_pickle(out_dir, 'flagSetID2FlagSet', flag_set_id2flag_set)
         _write_pickle(out_dir, 'taxonomicSources', sources)
-
+        forward_table = self._parse_forwarding_files()
+        _write_pickle(out_dir, 'forwardingTable', forward_table)
         _LOG.debug('creating tree representation with preorder # to tuples')
         preorder2tuples = {}
         root.par = _TransitionalNode() # fake parent of root
@@ -674,6 +688,35 @@ class OTT(object):
         root.fill_preorder2tuples(None, preorder2tuples)
         preorder2tuples['root'] = root.preorder_number
         _write_pickle(out_dir, 'preorder2tuple', preorder2tuples)
+    def _parse_forwarding_files(self):
+        r = {}
+        fp_list = [self.forwarding_filepath, self.legacy_forwarding_filepath]
+        for fp in fp_list:
+            if os.path.exists(fp):
+                with codecs.open(fp, 'r', encoding='utf-8') as syn_fo:
+                    for line in syn_fo:
+                        ls = line.split('\t')
+                        try:
+                            if ls[0] == 'id': # deal with header
+                                continue
+                            old_id, new_id = ls[0], ls[1]
+                        except:
+                            if line.strip():
+                                raise RuntimeError('error parsing line in "{}":\n{}'.format(fp, line))
+                        if old_id in r:
+                            _LOG.warn('fp: "{}" {} -> {} but {} -> {} already.'.format(fp, old_id, new_id, old_id, r[old_id]))
+                            assert old_id not in r
+                        r[old_id] = new_id
+        while True:
+            reforward = [(k, v) for k, v in r.items() if v in r]
+            if not reforward:
+                break
+            for oldest_id, old_id in reforward:
+                new_id = r[old_id]
+                _LOG.debug('Reforwarding {} from {} to {}'.format(oldest_id, old_id, new_id))
+                r[oldest_id] = new_id
+        return r
+
     def _write_root_properties(self, out_dir, name, ott_id):
         root_info = {'name': name,
                      'ott_id': ott_id, }
@@ -719,6 +762,32 @@ class OTT(object):
         return lineage
     def induced_tree(self, ott_id_list):
         return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list)
+    def map_ott_ids(self, ott_id_list):
+        '''returns:
+          - a list of recognized ott_ids. 
+          - a list of unrecognized ott_ids
+          - a list of ott_ids that forward to unrecognized ott_ids
+          - a dict mapping input Id to forwarded Id
+        The relative order will be the input order, but the unrecognized elements will
+            be deleted.
+        '''
+        mapped, unrecog, forward2unrecog, old2new = [], [], [], {}
+        oi2poi = self.ott_id2par_ott_id
+        ft = self.forward_table
+        for old_id in ott_id_list:
+            if old_id in oi2poi:
+                mapped.append(old_id)
+            else:
+                new_id = ft.get(old_id)
+                if new_id is None:
+                    unrecog.append(old_id)
+                else:
+                    if new_id in oi2poi:
+                        old2new[old_id] = new_id
+                        mapped.append(new_id)
+                    else:
+                        forward2unrecog.append(old_id)
+        return mapped, unrecog, forward2unrecog, old2new
 
 if _PICKLE_AS_JSON:
     def _write_pickle(directory, fn, obj):

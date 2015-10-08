@@ -60,7 +60,6 @@ def prune_clade(edge_by_target, edge_by_source, node_id, nodes_deleted, edges_de
                 new_nodes.append(edge['@target'])
             del edge_by_source[node_id] # deletes all of the edges out of this node (still held in edge_by_target til children are encountered)
             to_del_nodes.extend(new_nodes)
-    
 
 def prune_edge_and_below(edge_by_target, edge_by_source, edge_to_del, nodes_deleted, edges_deleted):
     while edge_to_del is not None:

@@ -160,11 +160,15 @@ def suppress_deg_one_node(tree, edge_by_target, edge_by_source, to_par_edge, nd_
     par = to_par_edge['@source']
     edges_deleted.append(to_par_edge_id)
     to_child_edge_id = to_child_edge['@id']
+    #ebtk = list(edge_by_target.keys()); ebtk.sort(); _LOG.debug('suppress_deg_one_node {} ebt keys = {}'.format(nd_id, ebtk))
     del edge_by_source[par][to_par_edge_id]
     del edge_by_target[nd_id]
     del edge_by_source[nd_id]
     edge_by_source[par][to_child_edge_id] = to_child_edge
     to_child_edge['@source'] = par
+
+class EmptyTreeError(Exception):
+    pass
 
 def prune_deg_one_root(tree, edge_by_target, edge_by_source, orphaned_root, nodes_deleted, edges_deleted):
     new_root = orphaned_root
@@ -173,12 +177,13 @@ def prune_deg_one_root(tree, edge_by_target, edge_by_source, orphaned_root, node
         edge = ebs_el.values()[0]
         del edge_by_source[new_root]
         nodes_deleted.append(new_root)
+        #ebtk = list(edge_by_target.keys()); ebtk.sort(); _LOG.debug('prune_deg_one_root {} ebt keys = {}'.format(new_root, ebtk))
         new_root = edge['@target']
         del edge_by_target[new_root]
         edges_deleted.append(edge['@id'])
         ebs_el = edge_by_source.get(new_root)
         if ebs_el == None:
-            return None
+            raise EmptyTreeError();
     return new_root
 
 def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, log_obj):
@@ -209,6 +214,7 @@ def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, l
                                               nodes_deleted,
                                               edges_deleted)
                     else:
+                        #ebtk = list(edge_by_target.keys()); ebtk.sort(); _LOG.debug('prune_if_deg_too_low {} ebt keys = {}'.format(nd_id, ebtk))
                         nodes_deleted.append(nd_id)
                         del edge_by_target[nd_id]
                         to_par_edge_id = to_par['@id']
@@ -236,6 +242,7 @@ def prune_tips(tree, edge_by_target, edge_by_source, leaf_el_list, reason, log_o
     edges_deleted = []
     for leaf_el in leaf_el_list:
         int_is_exemplar, leaf_id, node, otu = leaf_el
+        #ebtk = list(edge_by_target.keys()); ebtk.sort(); _LOG.debug('prune_tips {} ebt keys = {}'.format(leaf_id, ebtk))
         edge = edge_by_target[leaf_id]
         del edge_by_target[leaf_id]
         edge_id = edge['@id']
@@ -266,6 +273,7 @@ def prune_tree_for_supertree(nexson,
     node_by_id[ingroup_node]['@id'] = ingroup_node
     by_ott_id = group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, node_by_id, otus)
     revised_ingroup_node = ingroup_node
+    #ebtk = list(edge_by_target.keys()); ebtk.sort(); _LOG.debug('prune_tree_for_supertree ebt keys = {}'.format(ebtk))
     # Leaf nodes with no OTT ID at all...
     if None in by_ott_id:
         nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[None], 'unmapped_otu', log_obj)
@@ -409,6 +417,7 @@ if __name__ == '__main__':
     ott = OTT(ott_dir=args.ott_dir)
     to_prune_fsi_set = ott.convert_flag_string_set_to_union(flags)
     for inp in inp_files:
+        sys.stderr.write('{}\n'.format(inp))
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
         study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
@@ -417,11 +426,15 @@ if __name__ == '__main__':
             sys.exit('Currently using the NexSON file name to indicate the tree via: studyID_treeID.json. Expected exactly 2 _ in the filename.\n')
         tree_id = study_tree.split('_')[-1]
         nexson_blob = read_as_json(inp)
-        x = prune_tree_for_supertree(nexson=nexson_blob,
-                                     tree_id=tree_id,
-                                     ott=ott,
-                                     to_prune_fsi_set=to_prune_fsi_set,
-                                     log_obj=log_obj)
+        try:
+            x = prune_tree_for_supertree(nexson=nexson_blob,
+                                         tree_id=tree_id,
+                                         ott=ott,
+                                         to_prune_fsi_set=to_prune_fsi_set,
+                                         log_obj=log_obj)
+        except EmptyTreeError:
+            log_obj['EMPTY_TREE'] = True
+            x = None
         out_log = os.path.join(args.out_dir, study_tree + '.json')
         write_as_json(log_obj, out_log)
         newick_fp = os.path.join(args.out_dir, study_tree + '.tre')
@@ -431,8 +444,8 @@ if __name__ == '__main__':
             except:
                 # internal nodes may lack otu's but we still want the node Ids
                 return '_{}_'.format(str(node['@id']))
-        with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:
-            if x is not None:
+        if x is not None:
+            with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:
                 ingroup, edges, nodes, otus = x
                 nexson_frag_write_newick(outp,
                                          edges,

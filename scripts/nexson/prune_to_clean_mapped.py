@@ -444,8 +444,8 @@ if __name__ == '__main__':
             except:
                 # internal nodes may lack otu's but we still want the node Ids
                 return '_{}_'.format(str(node['@id']))
-        if x is not None:
-            with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:
+        with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:
+            if x is not None:
                 ingroup, edges, nodes, otus = x
                 nexson_frag_write_newick(outp,
                                          edges,

@@ -67,5 +67,8 @@ class ShardedDocStore(object):
         for shard in self._shards:
             k.extend(shard.get_doc_ids())
         return k
+    def get_doc_filepath(self, doc_id):
+        shard = self.get_shard(doc_id)
+        return shard.get_doc_filepath(doc_id)
 
 

@@ -281,6 +281,9 @@ class TypeAwareGitShard(GitShard):
                 else:
                     write_to_filepath(content, fn)
                 ga._add_and_commit(fn, self._infrastructure_commit_author, commit_msg)
+    def get_doc_filepath(self, doc_id):
+        ga = self.create_git_action()
+        return ga.path_for_doc(doc_id)
 
 def _invert_dict_list_val(d):
     o = {}

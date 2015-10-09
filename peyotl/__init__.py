@@ -11,15 +11,19 @@ from peyotl.utility import get_config_setting_kwargs, \
                            expand_path, \
                            get_logger
 from peyotl.utility.input_output import pretty_dict_str
+
+from peyotl.collections import collection_to_included_trees
 from peyotl.nexson_syntax import can_convert_nexson_forms, \
                                  convert_nexson_format, \
                                  detect_nexson_version, \
                                  get_ot_study_info_from_nexml, \
+                                 read_as_json, \
                                  write_as_json, \
                                  write_obj_as_nexml, \
                                  _is_by_id_hbf
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.utility.str_util import UNICODE, is_str_type
+from peyotl.phylo.entities import OTULabelStyleEnum
 
 def gen_otu_dict(nex_obj, nexson_version=None):
     '''Takes a NexSON object and returns a dict of

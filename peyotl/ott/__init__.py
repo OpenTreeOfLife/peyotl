@@ -5,6 +5,7 @@ from peyotl.nexson_syntax import quote_newick_name
 from peyotl.phylo.tree import create_tree_from_id2par
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_config_object, get_logger
+from collections import defaultdict
 import pickle
 import codecs
 import os
@@ -33,55 +34,134 @@ _TREEMACHINE_PRUNE_FLAGS = set(['major_rank_conflict',
                                 'hidden',
                                 'unclassified',
                                 'tattered'])
+
 class OTTFlagUnion(object):
     def __init__(self, ott, flag_set):
         self._flag_set_keys = ott.convert_flag_string_set_to_flag_set_keys(flag_set)
+    def keys(self):
+        return set(self._flag_set_keys)
 
-def write_newick_ott(out, ott, ott_id2children, root_ott_id, label_style, prune_flags):
+
+def write_newick_ott(out,
+                     ott,
+                     ott_id2children,
+                     root_ott_id,
+                     label_style,
+                     prune_flags,
+                     create_log_dict=False):
     '''`out` is an output stream
     `ott` is an OTT instance used for translating labels
     `ott_id2children` is a dict mapping an OTT ID to the IDs of its children
     `root_ott_id` is the root of the subtree to write.
     `label_style` is a facet of OTULabelStyleEnum
     `prune_flags` is a set strings (flags) or OTTFlagUnion instance or None
+    if `create_log_dict` is True, a dict will be returned that contains statistics
+        about the pruning.
     '''
-    if prune_flags is not None:
+    flags_to_prune_list = list(prune_flags) if prune_flags else []
+    flags_to_prune_set = frozenset(flags_to_prune_list)
+    pfd = {}
+    # create to_prune_fsi_set a set of flag set indices to prune...
+    if flags_to_prune_list:
         if not isinstance(prune_flags, OTTFlagUnion):
-            prune_flags = ott.convert_flag_string_set_to_union(prune_flags)
-        if ott.has_flag_set_key_intersection(root_ott_id, prune_flags):
-            return
+            to_prune_fsi_set = ott.convert_flag_string_set_to_union(prune_flags)
     else:
-        prune_flags = None
-    stack = [root_ott_id]
-    first_children = set(stack)
-    last_children = set(stack)
-    out.write('(')
-    while stack:
-        ott_id = stack.pop()
-        if isinstance(ott_id, tuple):
-            ott_id = ott_id[0]
-        else:
-            children = ott_id2children[ott_id]
-            if prune_flags is not None:
-                children = [i for i in children if not ott.has_flag_set_key_intersection(i, prune_flags)]
-            if ott_id not in first_children:
-                out.write(',')
+        to_prune_fsi_set = None
+
+    log_dict = None
+    if create_log_dict:
+        log_dict = {}
+        log_dict['version'] = ott.version
+        log_dict['flags_to_prune'] = flags_to_prune_list
+        fsi_to_str_flag_set = {}
+        for k, v in dict(ott.flag_set_id_to_flag_set).items():
+            fsi_to_str_flag_set[k] = frozenset(list(v))
+        if to_prune_fsi_set:
+            pfd = {}
+            for f in to_prune_fsi_set.keys():
+                s = fsi_to_str_flag_set[f]
+                str_flag_intersection = flags_to_prune_set.intersection(s)
+                pfd[f] = list(str_flag_intersection)
+                pfd[f].sort()
+        #log_dict['prune_flags_d'] = d
+        #log_dict['pfd'] = pfd
+        pruned_dict = {}
+    num_tips = 0
+    num_pruned_anc_nodes = 0
+    num_nodes = 0
+    num_monotypic_nodes = 0
+    if to_prune_fsi_set and ott.has_flag_set_key_intersection(root_ott_id, to_prune_fsi_set):
+        # entire taxonomy is pruned off
+        if log_dict is not None:
+            fsi = ott.get_flag_set_key(root_ott_id)
+            pruned_dict[fsi] = {'': [root_ott_id]}
+        num_pruned_anc_nodes += 1
+    else:
+        stack = [root_ott_id]
+        first_children = set(stack)
+        last_children = set(stack)
+        out.write('(')
+        while stack:
+            ott_id = stack.pop()
+            if isinstance(ott_id, tuple):
+                ott_id = ott_id[0]
             else:
-                first_children.remove(ott_id)
-            if bool(children):
-                out.write('(')
-                first_children.add(children[0])
-                last_children.add(children[-1])
-                stack.append((ott_id,)) # a tuple will signal exiting a node...
-                stack.extend([i for i in reversed(children)])
-                continue
-        n = ott.get_label(ott_id, label_style)
-        n = quote_newick_name(n)
-        out.write(n)
-        if ott_id in last_children:
-            out.write(')')
-            last_children.remove(ott_id)
-    out.write(';')
+                num_nodes += 1
+                children = ott_id2children[ott_id]
+                if to_prune_fsi_set is not None:
+                    c = []
+                    for child_id in children:
+                        if ott.has_flag_set_key_intersection(child_id, to_prune_fsi_set):
+                            if log_dict is not None:
+                                fsi = ott.get_flag_set_key(child_id)
+                                fd = pruned_dict.get(fsi)
+                                if fd is None:
+                                    pruned_dict[fsi] = {'anc_ott_id_pruned': [child_id]}
+                                else:
+                                    fd['anc_ott_id_pruned'].append(child_id)
+                            num_pruned_anc_nodes += 1
+                        else:
+                            c.append(child_id)
+                    children = c
+                    nc = len(children)
+                    if nc < 2:
+                        if nc == 1:
+                            num_monotypic_nodes += 1
+                        else:
+                            num_tips += 1
+                if ott_id not in first_children:
+                    out.write(',')
+                else:
+                    first_children.remove(ott_id)
+                if bool(children):
+                    out.write('(')
+                    first_children.add(children[0])
+                    last_children.add(children[-1])
+                    stack.append((ott_id,)) # a tuple will signal exiting a node...
+                    stack.extend([i for i in reversed(children)])
+                    continue
+            n = ott.get_label(ott_id, label_style)
+            n = quote_newick_name(n)
+            out.write(n)
+            if ott_id in last_children:
+                out.write(')')
+                last_children.remove(ott_id)
+        out.write(';')
+    if create_log_dict:
+        log_dict['pruned'] = {}
+        for fsi, obj in pruned_dict.items():
+            f = pfd[fsi]
+            f.sort()
+            obj['flags_causing_prune'] = f
+            nk = ','.join(f)
+            log_dict['pruned'][nk] = obj
+        log_dict['num_tips'] = num_tips
+        log_dict['num_pruned_anc_nodes'] = num_pruned_anc_nodes
+        log_dict['num_nodes'] = num_nodes
+        log_dict['num_non_leaf_nodes'] = num_nodes - num_tips
+        log_dict['num_non_leaf_nodes_with_multiple_children'] = num_nodes - num_tips - num_monotypic_nodes
+        log_dict['num_monotypic_nodes'] = num_monotypic_nodes
+    return log_dict
 class _TransitionalNode(object):
     def __init__(self, ott_id=None, par=None):
         self.par = par
@@ -158,6 +238,7 @@ class CacheNotFoundError(RuntimeError):
     def __init__(self, m):
         RuntimeError.__init__(self, 'Cache {} not found'.format(m))
 class OTT(object):
+    TREEMACHINE_SUPPRESS_FLAGS = _TREEMACHINE_PRUNE_FLAGS
     def __init__(self, ott_dir=None, **kwargs):
         self._config = get_config_object(None, **kwargs)
         if ott_dir is None:
@@ -202,7 +283,12 @@ class OTT(object):
         if flag_set_key is None:
             return False
         return flag_set_key in taboo._flag_set_keys
-
+    def get_flag_set_key(self, ott_id):
+        info = self.ott_id_to_info.get(ott_id)
+        if info is None:
+            return None
+        return info.get('f')
+        
     def ncbi(self, ncbi_id):
         if self._ncbi_2_ott_id is None:
             try:
@@ -601,8 +687,9 @@ class OTT(object):
                      out,
                      root_ott_id=None,
                      label_style=OTULabelStyleEnum.OTT_ID,
-                     prune_flags=None):
-        '''treemachine prunes out the flags:
+                     prune_flags=None,
+                     create_log_dict=False):
+        '''
         '''
         if isinstance(label_style, int):
             label_style = OTULabelStyleEnum(label_style)
@@ -612,7 +699,13 @@ class OTT(object):
             raise NotImplementedError('newick from ott with labels other than ott id')
         o2p = self.ott_id2par_ott_id
         ott2children = make_ott_to_children(o2p)
-        write_newick_ott(out, self, ott2children, root_ott_id, label_style, prune_flags)
+        return write_newick_ott(out,
+                                self,
+                                ott2children,
+                                root_ott_id,
+                                label_style,
+                                prune_flags,
+                                create_log_dict=create_log_dict)
     def get_anc_lineage(self, ott_id):
         curr = ott_id
         i2pi = self.ott_id2par_ott_id

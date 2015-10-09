@@ -6,14 +6,17 @@ from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
 from peyotl import get_logger
-_LOG = get_logger(__name__)
-
 from collections import defaultdict
+import sys
+import os
+_SCRIPT_NAME = os.path.split(sys.argv[0])[-1]
+_LOG = get_logger(__name__)
 _VERBOSE = True
 def debug(msg):
     if _VERBOSE:
-        sys.stderr.write(msg)
-        sys.stderr.write('\n')
+        sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
+def error(msg):
+    sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
 
 def to_edge_by_target_id(tree):
     '''creates a edge_by_target dict with the same edge objects as the edge_by_source'''
@@ -113,7 +116,7 @@ def prune_ingroup(tree, edge_by_target, edge_by_source, log_obj=None):
         _LOG.debug('Ingroup node is root.')
     return root_node_id
 
-def group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus):
+def group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, node_by_id, otus):
     '''returns a dict mapping ott_id to list of elements referring to leafs mapped
     to that ott_id. They keys will be ott_ids and None (for unmapped tips). The values
     are lists of tuples. Each tuple represents a different leaf and contains:
@@ -125,7 +128,6 @@ def group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus):
     Side effects:
       - adds an @id element to each node object in tree['nodeById']
     '''
-    node_by_id = tree['nodeById']
     ott_id_to_sortable_list = defaultdict(list)
     leaf_ott_ids = set()
     has_an_exemplar_spec = set()
@@ -259,7 +261,9 @@ def prune_tree_for_supertree(nexson,
     edge_by_target = to_edge_by_target_id(tree)
     edge_by_source = tree['edgeBySourceId']
     ingroup_node = prune_ingroup(tree, edge_by_target, edge_by_source, log_obj)
-    by_ott_id = group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus)
+    node_by_id = tree['nodeById']
+    node_by_id[ingroup_node]['@id'] = ingroup_node
+    by_ott_id = group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, node_by_id, otus)
     revised_ingroup_node = ingroup_node
     # Leaf nodes with no OTT ID at all...
     if None in by_ott_id:
@@ -328,7 +332,7 @@ def prune_tree_for_supertree(nexson,
                 revised_ingroup_node = nr
     if revised_ingroup_node != ingroup_node:
         log_obj['new_ingroup_node'] = revised_ingroup_node
-    return revised_ingroup_node, edge_by_source, tree['nodeById'], otus
+    return revised_ingroup_node, edge_by_source, node_by_id, otus
 
 if __name__ == '__main__':
     import argparse
@@ -338,9 +342,19 @@ if __name__ == '__main__':
     description = ''
     parser = argparse.ArgumentParser(prog='to_clean_ott_id_mapped_leaves.py', description=description)
     parser.add_argument('nexson',
-                        nargs="+",
+                        nargs='*',
                         type=str,
                         help='nexson files with the name pattern studyID_treeID.json')
+    parser.add_argument('--input-dir',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='a directory to prepend to the nexson filename or tag')
+    parser.add_argument('--nexson-file-tags',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='a filepath to a file that holds the studyID_treeID "tag" for the inputs, one per line. ".json" will be appended to create the filenames.')
     parser.add_argument('--ott-dir',
                         default=None,
                         type=str,
@@ -362,9 +376,25 @@ if __name__ == '__main__':
     try:
         assert os.path.isdir(args.ott_dir)
     except:
-        sys.exit('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
+        error('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
+        sys.exit(1)
+    if args.nexson:
+        inp_files = list(args.nexson)
+    else:
+        tag_filepath = os.path.expanduser(args.nexson_file_tags)
+        if not tag_filepath:
+            error('nexson file must be specified as a positional argument or via the --nexson-file-tags argument.')
+            sys.exit(1)
+        with open(tag_filepath, 'rU') as tf:
+            inp_files = ['{}.json'.format(i.strip()) for i in tf if i.strip()]
+    if not inp_files:
+        error('No input files specified.')
+    in_dir = args.input_dir
+    if in_dir:
+        in_dir = os.path.expanduser(in_dir)
+        inp_files = [os.path.join(in_dir, i) for i in inp_files]
     ott = OTT(ott_dir=args.ott_dir)
-    for inp in args.nexson:
+    for inp in inp_files:
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
         study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension

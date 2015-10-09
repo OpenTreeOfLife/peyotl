@@ -779,8 +779,11 @@ def quote_newick_name(s, needs_quotes_pattern=NEWICK_NEEDING_QUOTING):
     return s
 
 def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
-    '''`leaf_labels` is a (list, dict) pair where the list is the order encountered,
-    and the dict maps name to index in the list
+    '''
+    `label_key` is a string (a key in the otu object) or a callable that takes two arguments: the node, and the otu
+    If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
+        hold the order encountered,
+        and the dict will map name to index in the list
     '''
     otu_id = node['@otu']
     otu = otu_group[otu_id]
@@ -803,14 +806,20 @@ def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlab
     return unlabeled_counter
 
 def _write_newick_internal_label(out, node, otu_group, label_key, needs_quotes_pattern):
+    '''`label_key` is a string (a key in the otu object) or a callable that takes two arguments: 
+        the node, and the otu (which may be None for an internal node)
+    If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
+        hold the order encountered,
+        and the dict will map name to index in the list
+    '''
     otu_id = node.get('@otu')
-    if otu_id is None:
-        return
-    otu = otu_group[otu_id]
     if is_str_type(label_key):
+        if otu_id is None:
+            return
+        otu = otu_group[otu_id]
         label = otu.get(label_key)
     else:
-        label = quote_newick_name(label_key(node, otu), needs_quotes_pattern)
+        label = label_key(node, None)
     if label is not None:
         label = quote_newick_name(label, needs_quotes_pattern)
         out.write(label)
@@ -829,6 +838,12 @@ def convert_tree_to_newick(tree,
                            needs_quotes_pattern=NEWICK_NEEDING_QUOTING,
                            subtree_id=None,
                            bracket_ingroup=False):
+    '''`label_key` is a string (a key in the otu object) or a callable that takes two arguments: 
+        the node, and the otu (which may be None for an internal node)
+    If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
+        hold the order encountered,
+        and the dict will map name to index in the list
+    '''
     assert (not is_str_type(label_key)) or (label_key in PhyloSchema._NEWICK_PROP_VALS) #pylint: disable=W0212
     ingroup_node_id = tree.get('^ot:inGroupClade')
     if subtree_id:
@@ -868,6 +883,12 @@ def nexson_frag_write_newick(out,
                              ingroup_id=None,
                              bracket_ingroup=False,
                              with_edge_lengths=True):
+    '''`label_key` is a string (a key in the otu object) or a callable that takes two arguments: 
+        the node, and the otu (which may be None for an internal node)
+    If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
+        hold the order encountered,
+        and the dict will map name to index in the list
+    '''
     unlabeled_counter = 0
     curr_node_id = root_id
     curr_edge = None

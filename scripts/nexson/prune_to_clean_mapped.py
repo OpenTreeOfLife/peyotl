@@ -123,25 +123,26 @@ def group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus):
         the otu object for the node
         )
     Side effects:
-      - adds an @id element to each leaf node object in tree['nodeById']
+      - adds an @id element to each node object in tree['nodeById']
     '''
-    leaves = [i for i in edge_by_target.keys() if i not in edge_by_source]
     node_by_id = tree['nodeById']
     ott_id_to_sortable_list = defaultdict(list)
     leaf_ott_ids = set()
     has_an_exemplar_spec = set()
-    for leaf_id in leaves:
-        node_obj = node_by_id[leaf_id]
-        node_obj['@id'] = leaf_id
+    for node_id in edge_by_target.keys():
+        node_obj = node_by_id[node_id]
+        node_obj['@id'] = node_id
+        if node_id in edge_by_source:
+            continue
         otu_id = node_obj['@otu']
         otu_obj = otus[otu_id]
         ott_id = otu_obj.get('^ot:ottId')
         is_exemplar = node_obj.get('^ot:isTaxonExemplar', False)
         int_is_exemplar = 0
         if is_exemplar:
-            has_an_exemplar_spec.add(leaf_id)
+            has_an_exemplar_spec.add(node_id)
             int_is_exemplar = -1 # to sort to the front of the list
-        sortable_el = (int_is_exemplar, leaf_id, node_obj, otu_obj)
+        sortable_el = (int_is_exemplar, node_id, node_obj, otu_obj)
         ott_id_to_sortable_list[ott_id].append(sortable_el)
         if ott_id is not None:
             leaf_ott_ids.add(ott_id)
@@ -380,7 +381,11 @@ if __name__ == '__main__':
         write_as_json(log_obj, out_log)
         newick_fp = os.path.join(args.out_dir, study_tree + '.tre')
         def compose_label(node, otu):
-            return '_'.join([otu['^ot:ottTaxonName'], str(node['@id']), 'ott' + str(otu['^ot:ottId'])])
+            try:
+                return '_'.join([otu['^ot:ottTaxonName'], str(node['@id']), 'ott' + str(otu['^ot:ottId'])])
+            except:
+                # internal nodes may lack otu's but we still want the node Ids
+                return '_{}_'.format(str(node['@id']))
         with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:
             if x is not None:
                 ingroup, edges, nodes, otus = x

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax import extract_tree_nexson, get_nexml_el
+from peyotl.nexson_syntax import extract_tree_nexson, \
+                                 get_nexml_el, \
+                                 nexson_frag_write_newick
 from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
@@ -287,56 +289,45 @@ def prune_tree_for_supertree(nexson,
             by_ott_id = old_node_list
     lost_tips = set(unrecog)
     lost_tips.update(set(forward2unrecog))
-
     # Get the induced tree to look for leaves mapped to ancestors of other leaves
     ott_tree = ott.induced_tree(mapped)
     taxon_contains_other_ott_ids = []
+    to_retain = []
     for ott_id in by_ott_id:
         if ott_id in lost_tips:
             continue
-        ott_id = old2new.get(ott_id, ott_id)
-        nd = ott_tree.find_node(ott_id)
+        n = old2new.get(ott_id)
+        if n is None:
+            n = ott_id
+        nd = ott_tree.find_node(n)
         assert nd is not None
-        print nd.children, dir(nd)
-    sys.exit()
-    common_anc_id_set = set()
-    ca_rev_order = None
-    anc_leaf_ott_ids = set()
-    traversed_ott_ids = set()
-    suppressed_by_anc_exemplar = defaultdict(list)
-    for ott_id in leaf_ott_ids:
-        ancs = ott.get_anc_lineage(ott_id)
-        assert ancs.pop(0) == ott_id
-        if not bool(ancs):
-            continue
-        if ca_rev_order is None:
-            ca_rev_order = list(ancs)
-            ca_rev_order.reverse()
-            common_anc_id_set.update(set(ca_order))
-        for anc in ancs:
-            if anc in traversed_ott_ids:
-                if anc in common_anc_id_set:
-                    while ca_rev_order[-1] != anc:
-                        x = ca_rev_order.pop()
-                        common_anc_id_set.remove(x)
-                break
-            traversed_ott_ids.add(anc)
-            if anc in leaf_ott_ids:
-                if anc in has_an_exemplar_spec(anc):
-                    if ott_id in has_an_exemplar_spec:
-                        anc_leaf_ott_ids.add(anc)
-                        has_an_exemplar_spec.remove(anc)
-                        if anc in suppressed_by_anc_exemplar:
-                            del suppressed_by_anc_exemplar[anc]
-                    else:
-                        suppressed_by_anc_exemplar[anc].append(ott_id)
-                else:
-                    anc_leaf_ott_ids.add(anc)
-    all_suppressed_by_anc = set()
-    for anc, des_list in suppressed_by_anc_exemplar.items():
-        all_suppressed_by_anc.update(set(des_list))
-
-    print leaf_ott_ids
+        if nd.children:
+            # nd must be an internal node.
+            #   given that the descendants of this node are mapped in a more specific
+            #   way, we will prune this ott_id from the tree
+            taxon_contains_other_ott_ids.append(ott_id)
+        else:
+            to_retain.append(ott_id)
+    for ott_id in taxon_contains_other_ott_ids:
+        nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], 'mapped_to_taxon_containing_other_mapped_tips', log_obj)
+        del by_ott_id[ott_id]
+        if nr is not None:
+            revised_ingroup_node = nr
+    # finally, we walk through any ott_id's mapped to multiple nodes
+    for ott_id in to_retain:
+        nm = by_ott_id[ott_id]
+        if len(nm) > 1:
+            i, retained_nd_id, n, o = nm.pop(0)
+            if i == -1:
+                reason = 'replaced_by_exemplar_node'
+            else:
+                reason = 'replaced_by_arbitrary_node'
+            nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], reason, log_obj)
+            if nr is not None:
+                revised_ingroup_node = nr
+    if revised_ingroup_node != ingroup_node:
+        log_obj['new_ingroup_node'] = revised_ingroup_node
+    return revised_ingroup_node, edge_by_source, tree['nodeById'], otus
 
 if __name__ == '__main__':
     import argparse
@@ -374,30 +365,33 @@ if __name__ == '__main__':
     ott = OTT(ott_dir=args.ott_dir)
     for inp in args.nexson:
         log_obj = {}
-        study_tree = '.'.join(inp.split('.')[:-1]) # strip extension
+        inp_fn = os.path.split(inp)[-1]
+        study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
         x = study_tree.split('_')
         if len(x) != 3:
             sys.exit('Currently using the NexSON file name to indicate the tree via: studyID_treeID.json. Expected exactly 2 _ in the filename.\n')
         tree_id = study_tree.split('_')[-1]
         nexson_blob = read_as_json(inp)
-        prune_tree_for_supertree(nexson=nexson_blob,
-                                 tree_id=tree_id,
-                                 ott=ott,
-                                 log_obj=log_obj)
-        
-    
-    
-    sys.exit(0)
-    if flags_str is None:
-        flags = ott.TREEMACHINE_SUPPRESS_FLAGS
-    else:
-        flags = flags_str.split(',')
-    create_log = log_filename is not None
-    with codecs.open(args.output, 'w', encoding='utf-8') as outp:
-        log = ott.write_newick(outp,
-                               label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID,
-                               prune_flags=flags,
-                               create_log_dict=create_log)
-        outp.write('\n')
-    if create_log:
-        write_as_json(log, log_filename)
+        x = prune_tree_for_supertree(nexson=nexson_blob,
+                                     tree_id=tree_id,
+                                     ott=ott,
+                                     log_obj=log_obj)
+        out_log = os.path.join(args.out_dir, study_tree + '.json')
+        write_as_json(log_obj, out_log)
+        newick_fp = os.path.join(args.out_dir, study_tree + '.tre')
+        def compose_label(node, otu):
+            return '_'.join([otu['^ot:ottTaxonName'], str(node['@id']), 'ott' + str(otu['^ot:ottId'])])
+        with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:
+            if x is not None:
+                ingroup, edges, nodes, otus = x
+                nexson_frag_write_newick(outp,
+                                         edges,
+                                         nodes,
+                                         otus,
+                                         label_key=compose_label,
+                                         leaf_labels=None,
+                                         root_id=ingroup,
+                                         ingroup_id=None,
+                                         bracket_ingroup=False,
+                                         with_edge_lengths=False)
+                outp.write('\n')

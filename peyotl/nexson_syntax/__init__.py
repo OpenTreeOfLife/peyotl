@@ -767,10 +767,10 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
     return nexson
 
 _EMPTY_TUPLE = tuple
-_NEWICK_NEEDING_QUOTING = re.compile(r'(\s|[\[\]():,;])')
-_NEXUS_NEEDING_QUOTING = re.compile(r'(\s|[-()\[\]{}/\,;:=*"`+<>])')
+NEWICK_NEEDING_QUOTING = re.compile(r'(\s|[\[\]():,;])')
+NEXUS_NEEDING_QUOTING = re.compile(r'(\s|[-()\[\]{}/\,;:=*"`+<>])')
 
-def quote_newick_name(s, needs_quotes_pattern=_NEWICK_NEEDING_QUOTING):
+def quote_newick_name(s, needs_quotes_pattern=NEWICK_NEEDING_QUOTING):
     s = UNICODE(s)
     if "'" in s:
         return u"'{}'".format("''".join(s.split("'")))
@@ -784,14 +784,17 @@ def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlab
     '''
     otu_id = node['@otu']
     otu = otu_group[otu_id]
-    label = otu.get(label_key)
-    if label is None:
-        unlabeled_counter += 1
-        o = otu.get('^ot:originalLabel', '<unknown>')
-        label = "'*tip #{n:d} not mapped to OTT. Original label - {o}'"
-        label = label.format(n=unlabeled_counter, o=o)
+    if is_str_type(label_key):
+        label = otu.get(label_key)
+        if label is None:
+            unlabeled_counter += 1
+            o = otu.get('^ot:originalLabel', '<unknown>')
+            label = "'*tip #{n:d} not mapped to OTT. Original label - {o}'"
+            label = label.format(n=unlabeled_counter, o=o)
+        else:
+            label = quote_newick_name(label, needs_quotes_pattern)
     else:
-        label = quote_newick_name(label, needs_quotes_pattern)
+        label = quote_newick_name(label_key(node, otu), needs_quotes_pattern)
     if leaf_labels is not None:
         if label not in leaf_labels[1]:
             leaf_labels[1][label] = len(leaf_labels[0])
@@ -804,7 +807,10 @@ def _write_newick_internal_label(out, node, otu_group, label_key, needs_quotes_p
     if otu_id is None:
         return
     otu = otu_group[otu_id]
-    label = otu.get(label_key)
+    if is_str_type(label_key):
+        label = otu.get(label_key)
+    else:
+        label = quote_newick_name(label_key(node, otu), needs_quotes_pattern)
     if label is not None:
         label = quote_newick_name(label, needs_quotes_pattern)
         out.write(label)
@@ -820,11 +826,10 @@ def convert_tree_to_newick(tree,
                            otu_group,
                            label_key,
                            leaf_labels,
-                           needs_quotes_pattern,
+                           needs_quotes_pattern=NEWICK_NEEDING_QUOTING,
                            subtree_id=None,
                            bracket_ingroup=False):
-    assert label_key in PhyloSchema._NEWICK_PROP_VALS #pylint: disable=W0212
-    unlabeled_counter = 0
+    assert (not is_str_type(label_key)) or (label_key in PhyloSchema._NEWICK_PROP_VALS) #pylint: disable=W0212
     ingroup_node_id = tree.get('^ot:inGroupClade')
     if subtree_id:
         if subtree_id == 'ingroup':
@@ -838,11 +843,36 @@ def convert_tree_to_newick(tree,
     if root_id not in edges:
         return None
     nodes = tree['nodeById']
+    sio, out = get_utf_8_string_io_writer()
+    nexson_frag_write_newick(out,
+                             edges,
+                             nodes,
+                             otu_group,
+                             label_key,
+                             leaf_labels,
+                             root_id,
+                             needs_quotes_pattern=needs_quotes_pattern,
+                             ingroup_id=ingroup_node_id,
+                             bracket_ingroup=bracket_ingroup)
+    flush_utf_8_writer(out)
+    return sio.getvalue()
+
+def nexson_frag_write_newick(out,
+                             edges,
+                             nodes,
+                             otu_group,
+                             label_key,
+                             leaf_labels,
+                             root_id,
+                             needs_quotes_pattern=NEWICK_NEEDING_QUOTING,
+                             ingroup_id=None,
+                             bracket_ingroup=False,
+                             with_edge_lengths=True):
+    unlabeled_counter = 0
     curr_node_id = root_id
     curr_edge = None
     curr_sib_list = []
     curr_stack = []
-    sio, out = get_utf_8_string_io_writer()
     going_tipward = True
     while True:
         if going_tipward:
@@ -856,12 +886,13 @@ def convert_tree_to_newick(tree,
                                                              leaf_labels,
                                                              unlabeled_counter,
                                                              needs_quotes_pattern)
-                _write_newick_edge_len(out, curr_edge)
+                if with_edge_lengths:
+                    _write_newick_edge_len(out, curr_edge)
                 going_tipward = False
             else:
                 te = [(i, e) for i, e in outgoing_edges.items()]
                 te.sort() # produce a consistent rotation... Necessary?
-                if bracket_ingroup and (ingroup_node_id == curr_node_id):
+                if bracket_ingroup and (ingroup_id == curr_node_id):
                     out.write('[pre-ingroup-marker]')
                 out.write('(')
                 next_p = te.pop(0)
@@ -884,8 +915,9 @@ def convert_tree_to_newick(tree,
                                                  otu_group,
                                                  label_key,
                                                  needs_quotes_pattern)
-                    _write_newick_edge_len(out, curr_edge)
-                    if bracket_ingroup and (ingroup_node_id == curr_node_id):
+                    if with_edge_lengths:
+                        _write_newick_edge_len(out, curr_edge)
+                    if bracket_ingroup and (ingroup_id == curr_node_id):
                         out.write('[post-ingroup-marker]')
                 else:
                     break
@@ -895,8 +927,6 @@ def convert_tree_to_newick(tree,
             curr_node_id = curr_edge['@target']
             going_tipward = True
     out.write(';')
-    flush_utf_8_writer(out)
-    return sio.getvalue()
 
 def _write_nexus_format(quoted_leaf_labels, tree_name_newick_list):
     if not tree_name_newick_list:
@@ -922,10 +952,10 @@ def convert_tree(tree_id, tree, otu_group, schema, subtree_id=None):
     label_key = schema.otu_label_prop
     if schema.format_str == 'nexus':
         leaf_labels = ([], {})
-        needs_quotes_pattern = _NEXUS_NEEDING_QUOTING
+        needs_quotes_pattern = NEXUS_NEEDING_QUOTING
     else:
         leaf_labels = None
-        needs_quotes_pattern = _NEWICK_NEEDING_QUOTING
+        needs_quotes_pattern = NEWICK_NEEDING_QUOTING
         assert schema.format_str == 'newick'
     newick = convert_tree_to_newick(tree,
                                     otu_group,
@@ -944,7 +974,7 @@ def convert_trees(tid_tree_otus_list, schema, subtree_id=None):
     label_key = schema.otu_label_prop
     if schema.format_str == 'nexus':
         leaf_labels = ([], {})
-        needs_quotes_pattern = _NEXUS_NEEDING_QUOTING
+        needs_quotes_pattern = NEXUS_NEEDING_QUOTING
         conv_tree_list = []
         for tree_id, tree, otu_group in tid_tree_otus_list:
             newick = convert_tree_to_newick(tree,

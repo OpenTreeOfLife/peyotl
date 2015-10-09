@@ -762,32 +762,46 @@ class OTT(object):
         return lineage
     def induced_tree(self, ott_id_list):
         return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list)
-    def map_ott_ids(self, ott_id_list):
+    def map_ott_ids(self, ott_id_list, to_prune_fsi_set):
         '''returns:
           - a list of recognized ott_ids. 
           - a list of unrecognized ott_ids
           - a list of ott_ids that forward to unrecognized ott_ids
+          - list of ott_ids that do not appear in the tree because they are flagged to be pruned.
           - a dict mapping input Id to forwarded Id
         The relative order will be the input order, but the unrecognized elements will
             be deleted.
         '''
-        mapped, unrecog, forward2unrecog, old2new = [], [], [], {}
+        mapped, unrecog, forward2unrecog, pruned, old2new = [], [], [], [], {}
+        known_unpruned = set()
         oi2poi = self.ott_id2par_ott_id
         ft = self.forward_table
         for old_id in ott_id_list:
             if old_id in oi2poi:
-                mapped.append(old_id)
+                p = False
+                if to_prune_fsi_set is not None:
+                    p = self.check_if_in_pruned_subtree(old_id, known_unpruned, known_pruned, to_prune_fsi_set)
+                if p:
+                    pruned.append(old_id)
+                else:
+                    mapped.append(old_id)
             else:
                 new_id = ft.get(old_id)
                 if new_id is None:
                     unrecog.append(old_id)
                 else:
                     if new_id in oi2poi:
-                        old2new[old_id] = new_id
-                        mapped.append(new_id)
+                        p = False
+                        if to_prune_fsi_set is not None:
+                            p = self.check_if_in_pruned_subtree(new_id, known_unpruned, known_pruned, to_prune_fsi_set)
+                        if p:
+                            pruned.append(old_id) # could be in a forward2pruned
+                        else:
+                            old2new[old_id] = new_id
+                            mapped.append(new_id)
                     else:
                         forward2unrecog.append(old_id)
-        return mapped, unrecog, forward2unrecog, old2new
+        return mapped, unrecog, forward2unrecog, pruned, old2new
 
 if _PICKLE_AS_JSON:
     def _write_pickle(directory, fn, obj):

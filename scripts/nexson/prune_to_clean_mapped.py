@@ -252,6 +252,7 @@ def prune_tips(tree, edge_by_target, edge_by_source, leaf_el_list, reason, log_o
 def prune_tree_for_supertree(nexson,
                              tree_id,
                              ott,
+                             to_prune_fsi_set,
                              log_obj):
     '''
     '''
@@ -272,7 +273,7 @@ def prune_tree_for_supertree(nexson,
         if nr is not None:
             revised_ingroup_node = nr
     # Check the stored OTT Ids against the current version of OTT
-    mapped, unrecog, forward2unrecog, old2new = ott.map_ott_ids(by_ott_id.keys())
+    mapped, unrecog, forward2unrecog, pruned, old2new = ott.map_ott_ids(by_ott_id.keys(), to_prune_fsi_set)
     for ott_id in unrecog:
         nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], 'unrecognized_ott_id', log_obj)
         del by_ott_id[ott_id]
@@ -365,14 +366,19 @@ if __name__ == '__main__':
                         type=str,
                         required=True,
                         help='Output directory for the newick files.')
-    parser.add_argument('--flags',
+    parser.add_argument('--ott-prune-flags',
                         default=None,
                         type=str,
                         required=False,
                         help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
+    parser.add_argument('--input-files-list',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='A list of input NexSON filenames.')
     args = parser.parse_args(sys.argv[1:])
     ott_dir, out_dir = args.ott_dir, args.out_dir
-    flags_str = args.flags
+    flags_str = args.ott_prune_flags
     try:
         assert os.path.isdir(args.ott_dir)
     except:
@@ -381,19 +387,27 @@ if __name__ == '__main__':
     if args.nexson:
         inp_files = list(args.nexson)
     else:
-        tag_filepath = os.path.expanduser(args.nexson_file_tags)
-        if not tag_filepath:
-            error('nexson file must be specified as a positional argument or via the --nexson-file-tags argument.')
+        if args.nexson_file_tags:
+            with open(os.path.expanduser(args.nexson_file_tags), 'rU') as tf:
+                inp_files = ['{}.json'.format(i.strip()) for i in tf if i.strip()]
+        elif args.input_files_list:
+            with open(os.path.expanduser(args.input_files_list), 'rU') as tf:
+                inp_files = [i.strip() for i in tf if i.strip()]
+        else:
+            error('nexson file must be specified as a positional argument or via the --nexson-file-tags or --input-files-list argument.')
             sys.exit(1)
-        with open(tag_filepath, 'rU') as tf:
-            inp_files = ['{}.json'.format(i.strip()) for i in tf if i.strip()]
     if not inp_files:
         error('No input files specified.')
     in_dir = args.input_dir
     if in_dir:
         in_dir = os.path.expanduser(in_dir)
         inp_files = [os.path.join(in_dir, i) for i in inp_files]
+    if flags_str is None:
+        flags = ott.TREEMACHINE_SUPPRESS_FLAGS
+    else:
+        flags = flags_str.split(',')
     ott = OTT(ott_dir=args.ott_dir)
+    to_prune_fsi_set = ott.convert_flag_string_set_to_union(flags)
     for inp in inp_files:
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
@@ -406,6 +420,7 @@ if __name__ == '__main__':
         x = prune_tree_for_supertree(nexson=nexson_blob,
                                      tree_id=tree_id,
                                      ott=ott,
+                                     to_prune_fsi_set=to_prune_fsi_set,
                                      log_obj=log_obj)
         out_log = os.path.join(args.out_dir, study_tree + '.json')
         write_as_json(log_obj, out_log)

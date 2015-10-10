@@ -43,16 +43,30 @@ class NexsonTreeWrapper(object):
         if self.tree is None:
             raise KeyError('Tree "{}" was not found.'.format(tree_id))
         self._log_obj = log_obj
-        self._root_node_id = self.tree['^ot:rootNodeId']
-        self._ingroup_node_id = self.tree.get('^ot:inGroupClade')
         self._edge_by_source = self.tree['edgeBySourceId']
         self._node_by_id = self.tree['nodeById']
+        self._root_node_id = None
+        self.root_node_id = self.tree['^ot:rootNodeId']
+        assert self.root_node_id
+        self._ingroup_node_id = self.tree.get('^ot:inGroupClade')
         for k, v in self._node_by_id.items():
             v['@id'] = k
         self._edge_by_target = self._create_edge_by_target()
         self.nodes_deleted, self.edges_deleted = [], []
         self._by_ott_id = None
         self.is_empty = False
+    def get_root_node_id(self):
+        return self._root_node_id
+    def set_root_node_id(self, r):
+        try:
+            assert r
+            assert r in self._edge_by_source
+            assert r in self._node_by_id
+        except:
+            error('Illegal root node "{}"'.format(r))
+            raise
+        self._root_node_id = r
+    root_node_id = property(get_root_node_id, set_root_node_id)
     def _create_edge_by_target(self):
         '''creates a edge_by_target dict with the same edge objects as the edge_by_source.
         Also adds an '@id' field to each edge.'''
@@ -85,15 +99,15 @@ class NexsonTreeWrapper(object):
     def prune_to_ingroup(self):
         '''Remove nodes and edges from tree if they are not the ingroup or a descendant of it.'''
         # Prune to just the ingroup
-        if self._ingroup_node_id is None:
+        if not self._ingroup_node_id:
             _LOG.debug('No ingroup node was specified.')
-            self._ingroup_node_id = self._root_node_id
-        elif self._ingroup_node_id != self._root_node_id:
+            self._ingroup_node_id = self.root_node_id
+        elif self._ingroup_node_id != self.root_node_id:
             self._do_prune_to_ingroup()
-            self._root_node_id = self._ingroup_node_id
+            self.root_node_id = self._ingroup_node_id
         else:
             _LOG.debug('Ingroup node is root.')
-        return self._root_node_id
+        return self.root_node_id
     def prune_edge_and_rootward(self, edge_to_del):
         while edge_to_del is not None:
             source_id, target_id = self._del_edge(edge_to_del)
@@ -232,7 +246,7 @@ class NexsonTreeWrapper(object):
                 new_root = self.prune_deg_one_root(orphaned_root)
                 if self._log_obj is not None:
                     self._log_obj['revised_ingroup_node'] = new_root
-                self._root_node_id, self._ingroup_node_id = new_root, new_root
+                self.root_node_id, self._ingroup_node_id = new_root, new_root
         finally:
             self._log_deletions('became_trivial')
 
@@ -284,6 +298,7 @@ class NexsonTreeWrapper(object):
         lost_tips = set(unrecog)
         lost_tips.update(set(forward2unrecog))
         # Get the induced tree...
+        assert self.root_node_id
         ott_tree = ott.induced_tree(mapped)
         # ... so that we can look for leaves mapped to ancestors of other leaves
         taxon_contains_other_ott_ids = []
@@ -390,7 +405,7 @@ if __name__ == '__main__':
     ott = OTT(ott_dir=args.ott_dir)
     to_prune_fsi_set = ott.convert_flag_string_set_to_union(flags)
     for inp in inp_files:
-        _LOG.debug('{}\n'.format(inp))
+        _LOG.debug('{}'.format(inp))
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
         study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
@@ -400,6 +415,7 @@ if __name__ == '__main__':
         tree_id = study_tree.split('_')[-1]
         nexson_blob = read_as_json(inp)
         ntw = NexsonTreeWrapper(nexson_blob, tree_id, log_obj=log_obj)
+        assert ntw.root_node_id
         try:
             ntw.prune_tree_for_supertree(ott=ott, to_prune_fsi_set=to_prune_fsi_set)
         except EmptyTreeError:
@@ -421,7 +437,7 @@ if __name__ == '__main__':
                                          ntw.otus,
                                          label_key=compose_label,
                                          leaf_labels=None,
-                                         root_id=ntw._ingroup_node_id,
+                                         root_id=ntw.root_node_id,
                                          ingroup_id=None,
                                          bracket_ingroup=False,
                                          with_edge_lengths=False)

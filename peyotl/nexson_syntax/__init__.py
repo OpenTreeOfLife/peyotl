@@ -896,6 +896,7 @@ def nexson_frag_write_newick(out,
     curr_stack = []
     going_tipward = True
     while True:
+        print edges
         if going_tipward:
             outgoing_edges = edges.get(curr_node_id)
             if outgoing_edges is None:

@@ -13,10 +13,12 @@ import sys
 import os
 
 _VERBOSE = False
+_SCRIPT_NAME = 'export_studies_from_collection.py'
 def debug(msg):
     if _VERBOSE:
-        sys.stderr.write(msg)
-        sys.stderr.write('\n')
+         sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
+def error(msg):
+    sys.stderr.write('{}: Error: {}\n'.format(_SCRIPT_NAME, msg))
 def copy_phylesystem_file_if_differing(git_action,
                                        sha,
                                        coll_decision,
@@ -47,7 +49,7 @@ def copy_phylesystem_file_if_differing(git_action,
 if __name__ == '__main__':
     import argparse
     description = 'Takes an collection JSON and prints out information from it'
-    parser = argparse.ArgumentParser(prog='suppress-dubious', description=description)
+    parser = argparse.ArgumentParser(prog=_SCRIPT_NAME, description=description)
     parser.add_argument('--phylesystem-par',
                         default=None,
                         type=str,
@@ -62,11 +64,29 @@ if __name__ == '__main__':
                         type=str,
                         required='False',
                         help='filepath for the output directory')
+    parser.add_argument('--select',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='filepath of the nexson to be produced. If this is passed in, then only that study will be exported')
     parser.add_argument('-v', '--verbose',
                         default=False,
                         action='store_true',
                         help='Verbose mode')
     args = parser.parse_args(sys.argv[1:])
+    selected_fn = args.select
+    selected_study, selected_tree = None, None
+    if selected_fn:
+        if selected_fn.endswith('.json'):
+            b = selected_fn[:-5]
+            b = b.split('_')
+            if len(b) > 1:
+                selected_study, selected_tree = '_'.join(b[:-1]), b[-1]
+                if os.path.split(selected_study)[0]:
+                    error('a directory cannot be in the select argument. Use the --output-dir flag.')
+                    selected_study = None
+        if selected_study is None:
+            error('expecting the --select argument to be in the form of "studyID_treeID.json"\n')
     if args.verbose:
         _VERBOSE = True
     out_dir = '.' if args.output_dir is None else args.output_dir
@@ -85,7 +105,8 @@ if __name__ == '__main__':
             raise
     # Get the list of included trees
     if not os.path.isfile(args.collection):
-        sys.exit('Input collection "{}" does not exist.\n'.format(args.collection))
+        error('Input collection "{}" does not exist.\n'.format(args.collection))
+        sys.exit(1)
     try:
         included = collection_to_included_trees(args.collection)
     except:
@@ -98,7 +119,11 @@ if __name__ == '__main__':
     generic2concrete = {}
     use_latest_trees = included_by_sha['']
     num_moved = 0
+    selected_study_found = False
+    if selected_study is not None:
+        use_latest_trees = [i for i in use_latest_trees if (i['studyID'] == selected_study and i['treeID'] == selected_tree)]
     if use_latest_trees:
+        selected_study_found = True
         sha_to_inc = defaultdict(list)
         for ult in use_latest_trees:
             study_id = ult['studyID']
@@ -132,6 +157,11 @@ if __name__ == '__main__':
             continue
         for inc in from_this_sha_inc:
             study_id = inc['studyID']
+            if selected_study is not None:
+                if selected_study == study_id and inc['treeID'] == selected_tree:
+                    selected_study_found = True
+                else:
+                    continue
             ga = ps.create_git_action(study_id)
             with ga.lock():
                 ga.checkout(sha)
@@ -144,6 +174,11 @@ if __name__ == '__main__':
                 ga.checkout_master()
     debug('{} total trees'.format(len(included)))
     debug('{} JSON files copied'.format(num_moved))
+    if selected_study is not None:
+        if selected_study_found:
+            sys.exit(0)
+        error('The selected tree {}_{}.json was not found in the collection\n.'.format(selected_study, selected_tree))
+        sys.exit(1)
     # now we write a "concrete" version of this snapshot
     coll_name = os.path.split(args.collection)[-1]
     concrete_collection = get_empty_collection()

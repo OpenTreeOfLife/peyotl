@@ -9,7 +9,7 @@ if __name__ == '__main__':
     import os
     description = 'Takes a ott directory, and output filename. Produces a newick representation of OTT with ' \
                   '"dubious" taxa pruned. Writes that newick to the specified file location.'
-    parser = argparse.ArgumentParser(prog='suppress-dubious', description=description)
+    parser = argparse.ArgumentParser(prog='suppress_by_flag.py', description=description)
     parser.add_argument('--ott-dir',
                         default=None,
                         type=str,

@@ -29,7 +29,8 @@ The syntax for the config file is the standard [INI file](http://en.wikipedia.or
 The easiest way to get a framework for a config file is to copy the example `dot_peyotl` directory
 to the default location:
 
-    $ cp extras/dot_peyotl ~/.peyotl
+    $ mkdir ~/.peyotl
+    $ cp extras/dot_peyotl ~/.peyotl/config
 
 and then edit `~/.peyotl/config` in your text editor to reflect the paths to 
 the parent directory of the phylesystem, then the peyotl library can find

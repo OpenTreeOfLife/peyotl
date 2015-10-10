@@ -390,7 +390,7 @@ if __name__ == '__main__':
     ott = OTT(ott_dir=args.ott_dir)
     to_prune_fsi_set = ott.convert_flag_string_set_to_union(flags)
     for inp in inp_files:
-        sys.stderr.write('{}\n'.format(inp))
+        _LOG.debug('{}\n'.format(inp))
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
         study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension

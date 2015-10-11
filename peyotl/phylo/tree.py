@@ -464,6 +464,7 @@ def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
         return None
     nn = len(id_list)
     if nn == 1:
+        tree = _class(id_to_par_id=id2par)
         if id_list[0] not in id2par:
             raise KeyError('The ID {} was not found'.format(id_list[0]))
         n = tree.create_leaf(id_list[0])

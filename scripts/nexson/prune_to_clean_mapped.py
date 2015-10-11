@@ -85,7 +85,7 @@ class NexsonTreeWrapper(object):
         self.edges_deleted = []
     def _log_deletions(self, key):
         if log_obj is not None:
-            o = log_obj.get(key, {'nodes':[], 'edges':[]})
+            o = log_obj.setdefault(key, {'nodes':[], 'edges':[]})
             o['nodes'].extend(self.nodes_deleted)
             o['edges'].extend(self.edges_deleted)
         self._clear_del_log()

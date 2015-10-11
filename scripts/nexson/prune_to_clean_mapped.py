@@ -276,6 +276,7 @@ class NexsonTreeWrapper(object):
 
     def prune_tree_for_supertree(self, ott, to_prune_fsi_set):
         '''
+        `to_prune_fsi_set` is a set of flag indices to be pruned.
         '''
         self.prune_to_ingroup()
         self.prune_unmapped_leaves()
@@ -287,6 +288,9 @@ class NexsonTreeWrapper(object):
         for ott_id in forward2unrecog:
             self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'forwarded_to_unrecognized_ott_id')
             del self.by_ott_id[ott_id]
+        for ott_id in pruned:
+            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'flagged')
+            del self.by_ott_id[ott_id]
         for old_id, new_id in old2new.items():
             old_node_list = self.by_ott_id[old_id]
             del self.by_ott_id[ott_id]
@@ -296,6 +300,7 @@ class NexsonTreeWrapper(object):
                 v.sort()
             else:
                 self.by_ott_id = old_node_list
+            raise NotImplementedError('Forwarded OTT: need to update the otu object of each affected node!')
         lost_tips = set(unrecog)
         lost_tips.update(forward2unrecog)
         lost_tips.update(pruned)

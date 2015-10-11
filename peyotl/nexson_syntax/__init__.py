@@ -891,6 +891,7 @@ def nexson_frag_write_newick(out,
     '''
     unlabeled_counter = 0
     curr_node_id = root_id
+    assert curr_node_id
     curr_edge = None
     curr_sib_list = []
     curr_stack = []
@@ -900,6 +901,8 @@ def nexson_frag_write_newick(out,
             outgoing_edges = edges.get(curr_node_id)
             if outgoing_edges is None:
                 curr_node = nodes[curr_node_id]
+                assert curr_node_id is not None
+                assert curr_node_id is not None
                 unlabeled_counter = _write_newick_leaf_label(out,
                                                              curr_node,
                                                              otu_group,

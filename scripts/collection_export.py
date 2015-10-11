@@ -7,7 +7,7 @@ if __name__ == '__main__':
     import sys
     import os
     description = 'Takes an collection JSON and prints out information from it'
-    parser = argparse.ArgumentParser(prog='suppress-dubious', description=description)
+    parser = argparse.ArgumentParser(prog='collection_export.py', description=description)
     parser.add_argument('--export',
                         default='studyID_treeID',
                         type=str,

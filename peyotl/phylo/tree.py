@@ -168,6 +168,9 @@ class _TreeWithNodeIDs(object):
             _write_node_info_newick(out, node, **kwargs)
         self._root.before_after_apply(before_fn=_open_newick, after_fn=_a, leaf_fn=_t)
         out.write(';\n')
+class SpikeTreeError(Exception):
+    def __init__(self, anc):
+        self.anc = anc
 class TreeWithPathsInEdges(_TreeWithNodeIDs):
     def __init__(self, id_to_par_id=None, newick_events=None):
         _TreeWithNodeIDs.__init__(self)
@@ -254,6 +257,8 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                     self._root_tail_hits_real_root = True
                 else:
                     if p1 in anc2d:
+                        if p1 == i2:
+                            raise SpikeTreeError(i2)
                         return self._init_create_mrca(n1, n2, p1)
                     else:
                         curr_id1 = p1
@@ -267,6 +272,8 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                     self._root_tail_hits_real_root = True
                 else:
                     if p2 in anc1d:
+                        if p2 == i1:
+                            raise SpikeTreeError(i1)
                         return self._init_create_mrca(n2, n1, p2)
                     else:
                         curr_id2 = p2
@@ -456,20 +463,55 @@ def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
     if not id_list:
         return None
     nn = len(id_list)
-    tree = _class(id_to_par_id=id2par)
     if nn == 1:
+        tree = _class(id_to_par_id=id2par)
         if id_list[0] not in id2par:
             raise KeyError('The ID {} was not found'.format(id_list[0]))
         n = tree.create_leaf(id_list[0])
         tree._root = n
         del tree._id2par
         return tree
-    tree._init_with_cherry(id_list[0], id_list[1])
-    curr_ind = 2
-    while curr_ind < nn:
-        next_id = id_list[curr_ind]
+    f = id_list.pop(0)
+    s = id_list.pop(0)
+    delayed = []
+    tree_formed = False
+    tree = _class(id_to_par_id=id2par)
+    try:
+        tree._init_with_cherry(f, s)
+    except SpikeTreeError as x:
+        y = x.anc
+        delayed.append(y)
+        if y == s:
+            f = s
+        else:
+            assert y == f
+        del s
+        while id_list:
+            s = id_list.pop(0)
+            tree = _class(id_to_par_id=id2par)
+            try:
+                tree._init_with_cherry(f, s)
+            except SpikeTreeError as z:
+                y = z.anc
+                delayed.append(y)
+                if y == s:
+                    f = s
+                else:
+                    assert y == f
+                del s
+                del tree
+            else:
+                tree_formed = True
+                break
+    else:
+        tree_formed = True
+    if not tree_formed:
+        raise SpikeTreeError(None)
+    while id_list:
+        next_id = id_list.pop(0)
         tree._add_node_for_id(next_id)
-        curr_ind += 1
+    for next_id in delayed:
+        tree._add_node_for_id(next_id)
     del tree._id2par
     return tree
 

@@ -5,30 +5,31 @@ from peyotl.nexson_syntax import extract_tree_nexson, \
 from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
+from peyotl.phylo.tree import SpikeTreeError
 from peyotl import get_logger
-_LOG = get_logger(__name__)
-
 from collections import defaultdict
+import sys
+import os
+_SCRIPT_NAME = os.path.split(sys.argv[0])[-1]
+_LOG = get_logger(__name__)
 _VERBOSE = True
 def debug(msg):
     if _VERBOSE:
-        sys.stderr.write(msg)
-        sys.stderr.write('\n')
+        sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
+def error(msg):
+    sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
 
-def to_edge_by_target_id(tree):
-    '''creates a edge_by_target dict with the same edge objects as the edge_by_source'''
-    ebt = {}
-    ebs = tree['edgeBySourceId']
-    for edge_dict in ebs.values():
-        for edge_id, edge in edge_dict.items():
-            target_id = edge['@target']
-            edge['@id'] = edge_id
-            assert target_id not in ebt
-            ebt[target_id] = edge
-    #check_rev_dict(tree, ebt)
-    return ebt
 
-def check_rev_dict(tree, ebt):
+def find_tree_and_otus_in_nexson(nexson, tree_id):
+    tl = extract_tree_nexson(nexson, tree_id)
+    assert len(tl) == 1
+    tree_id, tree, otus = tl[0]
+    return tree, otus
+
+class EmptyTreeError(Exception):
+    pass
+
+def _check_rev_dict(tree, ebt):
     '''Verifyies that `ebt` is the inverse of the `edgeBySourceId` data member of `tree`'''
     ebs = defaultdict(dict)
     for edge in ebt.values():
@@ -37,298 +38,304 @@ def check_rev_dict(tree, ebt):
         ebs[source_id][edge_id] = edge
     assert ebs == tree['edgeBySourceId']
 
-def find_tree_and_otus_in_nexson(nexson, tree_id):
-    tl = extract_tree_nexson(nexson, tree_id)
-    assert len(tl) == 1
-    tree_id, tree, otus = tl[0]
-    return tree, otus
+class NexsonTreeWrapper(object):
+    def __init__(self, nexson, tree_id, log_obj=None):
+        self.tree, self.otus = find_tree_and_otus_in_nexson(nexson, tree_id)
+        if self.tree is None:
+            raise KeyError('Tree "{}" was not found.'.format(tree_id))
+        self._log_obj = log_obj
+        self._edge_by_source = self.tree['edgeBySourceId']
+        self._node_by_id = self.tree['nodeById']
+        self._root_node_id = None
+        self.root_node_id = self.tree['^ot:rootNodeId']
+        assert self.root_node_id
+        self._ingroup_node_id = self.tree.get('^ot:inGroupClade')
+        for k, v in self._node_by_id.items():
+            v['@id'] = k
+        self._edge_by_target = self._create_edge_by_target()
+        self.nodes_deleted, self.edges_deleted = [], []
+        self._by_ott_id = None
+        self.is_empty = False
+    def get_root_node_id(self):
+        return self._root_node_id
+    def set_root_node_id(self, r):
+        try:
+            assert r
+            assert r in self._edge_by_source
+            assert r in self._node_by_id
+        except:
+            error('Illegal root node "{}"'.format(r))
+            raise
+        self._root_node_id = r
+    root_node_id = property(get_root_node_id, set_root_node_id)
+    def _create_edge_by_target(self):
+        '''creates a edge_by_target dict with the same edge objects as the edge_by_source.
+        Also adds an '@id' field to each edge.'''
+        ebt = {}
+        for edge_dict in self._edge_by_source.values():
+            for edge_id, edge in edge_dict.items():
+                target_id = edge['@target']
+                edge['@id'] = edge_id
+                assert target_id not in ebt
+                ebt[target_id] = edge
+        #_check_rev_dict(self._tree, ebt)
+        return ebt
+    def _clear_del_log(self):
+        self.nodes_deleted = []
+        self.edges_deleted = []
+    def _log_deletions(self, key):
+        if log_obj is not None:
+            o = log_obj.get(key, {'nodes':[], 'edges':[]})
+            o['nodes'].extend(self.nodes_deleted)
+            o['edges'].extend(self.edges_deleted)
+        self._clear_del_log()
+    def _do_prune_to_ingroup(self):
+        edge_to_del = self._edge_by_target.get(self._ingroup_node_id)
+        if edge_to_del is None:
+            return
+        try:
+            self.prune_edge_and_rootward(edge_to_del)
+        finally:
+            self._log_deletions('outgroup')
+    def prune_to_ingroup(self):
+        '''Remove nodes and edges from tree if they are not the ingroup or a descendant of it.'''
+        # Prune to just the ingroup
+        if not self._ingroup_node_id:
+            _LOG.debug('No ingroup node was specified.')
+            self._ingroup_node_id = self.root_node_id
+        elif self._ingroup_node_id != self.root_node_id:
+            self._do_prune_to_ingroup()
+            self.root_node_id = self._ingroup_node_id
+        else:
+            _LOG.debug('Ingroup node is root.')
+        return self.root_node_id
+    def prune_edge_and_rootward(self, edge_to_del):
+        while edge_to_del is not None:
+            source_id, target_id = self._del_edge(edge_to_del)
+            ebsd = self._edge_by_source.get(source_id)
+            if ebsd:
+                to_prune = list(ebsd.values()) # will modify ebsd in loop below, so shallow copy
+                for edge in to_prune:
+                    self.prune_edge_and_tipward(edge)
+                assert source_id not in self._edge_by_source
+            edge_to_del = self._edge_by_target.get(source_id)
+    def prune_edge_and_tipward(self, edge):
+        source_id, target_id = self._del_edge(edge)
+        self.prune_clade(target_id)
+    def prune_clade(self, node_id):
+        '''Prune `node_id` and the edges and nodes that are tipward of it.
+        Caller must delete the edge to node_id.'''
+        to_del_nodes = [node_id]
+        while bool(to_del_nodes):
+            node_id = to_del_nodes.pop(0)
+            self._flag_node_as_del_and_del_in_by_target(node_id)
+            ebsd = self._edge_by_source.get(node_id)
+            if ebsd is not None:
+                child_edges = list(ebsd.values())
+                to_del_nodes.extend([i['@target'] for i in child_edges])
+                del self._edge_by_source[node_id] # deletes all of the edges out of this node (still held in edge_by_target til children are encountered)
 
-def prune_clade(edge_by_target, edge_by_source, node_id, nodes_deleted, edges_deleted):
-    '''Prune `node_id` and the edges and nodes that are tipward of it.
-    Caller must delete the edge to node_id.
+    def _flag_node_as_del_and_del_in_by_target(self, node_id):
+        '''Flags a node as deleted, and removes it from the _edge_by_target (and parent's edge_by_source), if it is still found there.
+        Does NOT remove the node's entries from self._edge_by_source.'''
+        self.nodes_deleted.append(node_id)
+        etp = self._edge_by_target.get(node_id)
+        if etp is not None:
+            del self._edge_by_target[node_id]
 
-    nodes_deleted, edges_deleted are lists of ids that will be appended to.
-    '''
-    to_del_nodes = [node_id]
-    while bool(to_del_nodes):
-        node_id = to_del_nodes.pop(0)
-        nodes_deleted.append(node_id)
-        del edge_by_target[node_id] # delete reference to parent edge
-        ebsd = edge_by_source.get(node_id)
-        if ebsd is not None:
-            new_nodes = []
-            for edge_id, edge in ebsd.items():
-                edges_deleted.append(edge_id)
-                new_nodes.append(edge['@target'])
-            del edge_by_source[node_id] # deletes all of the edges out of this node (still held in edge_by_target til children are encountered)
-            to_del_nodes.extend(new_nodes)
-
-def prune_edge_and_below(edge_by_target, edge_by_source, edge_to_del, nodes_deleted, edges_deleted):
-    while edge_to_del is not None:
+    def _del_edge(self, edge_to_del):
         edge_id = edge_to_del['@id']
-        t = edge_to_del['@target']
-        del edge_by_target[t]
+        target_id = edge_to_del['@target']
         source_id = edge_to_del['@source']
-        ebsd = edge_by_source[source_id]
+        del self._edge_by_target[target_id]
+        ebsd = self._edge_by_source[source_id]
         del ebsd[edge_id]
-        nodes_deleted.append(source_id)
-        edges_deleted.append(edge_to_del)
-        while True:
-            for edge_id, edge in ebsd.items():
-                edges_deleted.append(edge_id)
-                node_id = edge['@target']
-                prune_clade(edge_by_target, edge_by_source, node_id, nodes_deleted, edges_deleted)
-            del edge_by_source[source_id]
-        edge_to_del = edge_by_target.get(source_id)
+        if not ebsd:
+            del self._edge_by_source[source_id]
+        self.edges_deleted.append(edge_to_del)
+        return source_id, target_id
 
-def _prune_to_ingroup(edge_by_target, edge_by_source, ingroup_node, log_obj):
-    '''Performs the actions of `prune_ingroup` when the ingroup is not the root'''
-    edge_to_del = edge_by_target.get(ingroup_node)
-    if edge_to_del is None:
-        return
-    nodes_deleted = []
-    edges_deleted = []
-    prune_edge_and_below(edge_by_target, edge_by_source, edge_to_del, nodes_deleted, edges_deleted)
-    if log_obj is not None:
-        log_obj['outgroup'] = {'nodes': nodes_deleted, 'edges': edges_deleted}
-
-def prune_ingroup(tree, edge_by_target, edge_by_source, log_obj=None):
-    '''Remove nodes and edges from `tree` if they are not the ingroup or a descendant of it.
-
-    `tree` must be a HBF Nexson tree with each of its edge objects indexed in both
-        `edge_by_target` and `edge_by_source`
-    Returns the root of the pruned tree.
-    If log_obj is not None, actions are stored in log_obj by overwriting the 'outgroup' key
-        of that dict with {'nodes': nodes_deleted, 'edges': edges_deleted}
-    '''
-    # Prune to just the ingroup
-    ingroup_node_id = tree.get('^ot:rootNodeId')
-    root_node_id = tree['^ot:rootNodeId']
-    if ingroup_node_id is None:
-        _LOG.debug('No ingroup node specified.')
-    elif ingroup_node_id != root_node_id:
-        _prune_to_ingroup(edge_by_target, edge_by_source, ingroup_node_id, log_obj=log_obj)
-        return ingroup_node_id
-    else:
-        _LOG.debug('Ingroup node is root.')
-    return root_node_id
-
-def group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus):
-    '''returns a dict mapping ott_id to list of elements referring to leafs mapped
-    to that ott_id. They keys will be ott_ids and None (for unmapped tips). The values
-    are lists of tuples. Each tuple represents a different leaf and contains:
-        (integer_for_of_is_examplar: -1 if the node is flagged by ^ot:isTaxonExemplar. 0 otherwise
-        the leaf's node_id,
-        the node object
-        the otu object for the node
-        )
-    Side effects:
-      - adds an @id element to each node object in tree['nodeById']
-    '''
-    node_by_id = tree['nodeById']
-    ott_id_to_sortable_list = defaultdict(list)
-    leaf_ott_ids = set()
-    has_an_exemplar_spec = set()
-    for node_id in edge_by_target.keys():
-        node_obj = node_by_id[node_id]
-        node_obj['@id'] = node_id
-        if node_id in edge_by_source:
-            continue
-        otu_id = node_obj['@otu']
-        otu_obj = otus[otu_id]
-        ott_id = otu_obj.get('^ot:ottId')
-        is_exemplar = node_obj.get('^ot:isTaxonExemplar', False)
-        int_is_exemplar = 0
-        if is_exemplar:
-            has_an_exemplar_spec.add(node_id)
-            int_is_exemplar = -1 # to sort to the front of the list
-        sortable_el = (int_is_exemplar, node_id, node_obj, otu_obj)
-        ott_id_to_sortable_list[ott_id].append(sortable_el)
-        if ott_id is not None:
-            leaf_ott_ids.add(ott_id)
-    for v in ott_id_to_sortable_list.values():
-        v.sort()
-    return ott_id_to_sortable_list
+    def _del_tip(self, node_id):
+        '''Assumes that there is no entry in edge_by_source[node_id] to clean up.'''
+        self.nodes_deleted.append(node_id)
+        etp = self._edge_by_target.get(node_id)
+        assert etp is not None
+        source_id, target_id = self._del_edge(etp)
+        assert target_id == node_id
+        return source_id
 
 
-def suppress_deg_one_node(tree, edge_by_target, edge_by_source, to_par_edge, nd_id, to_child_edge, nodes_deleted, edges_deleted):
-    '''Deletes to_par_edge and nd_id. To be used when nd_id is an out-degree= 1 node'''
-    nodes_deleted.append(nd_id)
-    to_par_edge_id = to_par_edge['@id']
-    par = to_par_edge['@source']
-    edges_deleted.append(to_par_edge_id)
-    to_child_edge_id = to_child_edge['@id']
-    del edge_by_source[par][to_par_edge_id]
-    del edge_by_target[nd_id]
-    del edge_by_source[nd_id]
-    edge_by_source[par][to_child_edge_id] = to_child_edge
-    to_child_edge['@source'] = par
-
-def prune_deg_one_root(tree, edge_by_target, edge_by_source, orphaned_root, nodes_deleted, edges_deleted):
-    new_root = orphaned_root
-    ebs_el = edge_by_source[new_root]
-    while len(ebs_el) == 1:
-        edge = ebs_el.values()[0]
-        del edge_by_source[new_root]
-        nodes_deleted.append(new_root)
-        new_root = edge['@target']
-        del edge_by_target[new_root]
-        edges_deleted.append(edge['@id'])
-        ebs_el = edge_by_source.get(new_root)
-        if ebs_el == None:
-            return None
-    return new_root
-
-def prune_if_deg_too_low(tree, edge_by_target, edge_by_source, ind_nd_id_list, log_obj):
-    nodes_deleted = []
-    edges_deleted = []
-    orphaned_root = None
-    while bool(ind_nd_id_list):
-        next_ind_nd_id_list = set()
-        for nd_id in ind_nd_id_list:
-            out_edges = edge_by_source.get(nd_id)
-            if out_edges is None:
-                out_degree == 0
-            else:
-                out_degree = len(out_edges)
-            if out_degree < 2:
-                to_par = edge_by_target.get(nd_id)
-                if to_par:
-                    par = to_par['@source']
-                    next_ind_nd_id_list.add(par)
-                    if out_degree == 1:
-                        out_edge = out_edges.values()[0]
-                        suppress_deg_one_node(tree,
-                                              edge_by_target,
-                                              edge_by_source,
-                                              to_par, 
-                                              nd_id,
-                                              out_edge,
-                                              nodes_deleted,
-                                              edges_deleted)
-                    else:
-                        nodes_deleted.append(nd_id)
-                        del edge_by_target[nd_id]
-                        to_par_edge_id = to_par['@id']
-                        edges_deleted.append(to_par_edge_id)
-                        del edge_by_source[par][to_par_edge_id]
-                    if nd_id in next_ind_nd_id_list:
-                            next_ind_nd_id_list.remove(nd_id)
-                else:
-                    assert (orphaned_root is None) or (orphaned_root == nd_id)
-                    orphaned_root = nd_id
-        ind_nd_id_list = next_ind_nd_id_list
-    if orphaned_root is not None:
-        new_root = prune_deg_one_root(tree, edge_by_target, edge_by_source, orphaned_root, nodes_deleted, edges_deleted)
-    else:
-        new_root = None
-    reason = 'became_trivial'
-    l = log_obj.setdefault(reason, {'nodes':[], 'edges':[]})
-    l['nodes'].extend(nodes_deleted)
-    l['edges'].extend(edges_deleted)
-    return new_root
-
-def prune_tips(tree, edge_by_target, edge_by_source, leaf_el_list, reason, log_obj):
-    par_to_check = set()
-    nodes_deleted = []
-    edges_deleted = []
-    for leaf_el in leaf_el_list:
-        int_is_exemplar, leaf_id, node, otu = leaf_el
-        edge = edge_by_target[leaf_id]
-        del edge_by_target[leaf_id]
-        edge_id = edge['@id']
-        edges_deleted.append(edge_id)
-        source_id = edge['@source']
-        del edge_by_source[source_id][edge_id]
-        par_to_check.add(source_id)
-        nodes_deleted.append(leaf_id)
-    l = log_obj.setdefault(reason, {'nodes':[], 'edges':[]})
-    l['nodes'].extend(nodes_deleted)
-    l['edges'].extend(edges_deleted)
-    return prune_if_deg_too_low(tree, edge_by_target, edge_by_source, par_to_check, log_obj)
-
-def prune_tree_for_supertree(nexson,
-                             tree_id,
-                             ott,
-                             log_obj):
-    '''
-    '''
-    tree, otus = find_tree_and_otus_in_nexson(nexson, tree_id)
-    if tree is None:
-        raise KeyError('Tree "{}" was not found.'.format(tree_id))
-    edge_by_target = to_edge_by_target_id(tree)
-    edge_by_source = tree['edgeBySourceId']
-    ingroup_node = prune_ingroup(tree, edge_by_target, edge_by_source, log_obj)
-    by_ott_id = group_and_sort_leaves_by_ott_id(tree, edge_by_target, edge_by_source, otus)
-    revised_ingroup_node = ingroup_node
-    # Leaf nodes with no OTT ID at all...
-    if None in by_ott_id:
-        nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[None], 'unmapped_otu', log_obj)
-        del by_ott_id[None]
-        if nr is not None:
-            revised_ingroup_node = nr
-    # Check the stored OTT Ids against the current version of OTT
-    mapped, unrecog, forward2unrecog, old2new = ott.map_ott_ids(by_ott_id.keys())
-    for ott_id in unrecog:
-        nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], 'unrecognized_ott_id', log_obj)
-        del by_ott_id[ott_id]
-        if nr is not None:
-            revised_ingroup_node = nr
-    for ott_id in forward2unrecog:
-        nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], 'forwarded_to_unrecognized_ott_id', log_obj)
-        del by_ott_id[ott_id]
-        if nr is not None:
-            revised_ingroup_node = nr
-    for old_id, new_id in old2new.items():
-        old_node_list = by_ott_id[old_id]
-        del by_ott_id[ott_id]
-        if new_id in by_ott_id:
-            v = by_ott_id[new_id]
-            v.extend(old_node_list)
+    def group_and_sort_leaves_by_ott_id(self):
+        '''returns a dict mapping ott_id to list of elements referring to leafs mapped
+        to that ott_id. They keys will be ott_ids and None (for unmapped tips). The values
+        are lists of tuples. Each tuple represents a different leaf and contains:
+            (integer_for_of_is_examplar: -1 if the node is flagged by ^ot:isTaxonExemplar. 0 otherwise
+            the leaf's node_id,
+            the node object
+            the otu object for the node
+            )
+        '''
+        ott_id_to_sortable_list = defaultdict(list)
+        for node_id in self._edge_by_target.keys():
+            node_obj = self._node_by_id[node_id]
+            if node_id in self._edge_by_source:
+                continue
+            otu_id = node_obj['@otu']
+            otu_obj = self.otus[otu_id]
+            ott_id = otu_obj.get('^ot:ottId')
+            is_exemplar = node_obj.get('^ot:isTaxonExemplar', False)
+            int_is_exemplar = 0
+            if is_exemplar:
+                int_is_exemplar = -1 # to sort to the front of the list
+            sortable_el = (int_is_exemplar, node_id, node_obj, otu_obj)
+            ott_id_to_sortable_list[ott_id].append(sortable_el)
+        for v in ott_id_to_sortable_list.values():
             v.sort()
-        else:
-            by_ott_id = old_node_list
-    lost_tips = set(unrecog)
-    lost_tips.update(set(forward2unrecog))
-    # Get the induced tree to look for leaves mapped to ancestors of other leaves
-    ott_tree = ott.induced_tree(mapped)
-    taxon_contains_other_ott_ids = []
-    to_retain = []
-    for ott_id in by_ott_id:
-        if ott_id in lost_tips:
-            continue
-        n = old2new.get(ott_id)
-        if n is None:
-            n = ott_id
-        nd = ott_tree.find_node(n)
-        assert nd is not None
-        if nd.children:
-            # nd must be an internal node.
-            #   given that the descendants of this node are mapped in a more specific
-            #   way, we will prune this ott_id from the tree
-            taxon_contains_other_ott_ids.append(ott_id)
-        else:
-            to_retain.append(ott_id)
-    for ott_id in taxon_contains_other_ott_ids:
-        nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], 'mapped_to_taxon_containing_other_mapped_tips', log_obj)
-        del by_ott_id[ott_id]
-        if nr is not None:
-            revised_ingroup_node = nr
-    # finally, we walk through any ott_id's mapped to multiple nodes
-    for ott_id in to_retain:
-        nm = by_ott_id[ott_id]
-        if len(nm) > 1:
-            i, retained_nd_id, n, o = nm.pop(0)
-            if i == -1:
-                reason = 'replaced_by_exemplar_node'
+        return ott_id_to_sortable_list
+    @property
+    def by_ott_id(self):
+        if self._by_ott_id is None:
+            self._by_ott_id = self.group_and_sort_leaves_by_ott_id()
+        return self._by_ott_id
+    
+    def prune_unmapped_leaves(self):
+        # Leaf nodes with no OTT ID at all...
+        if None in self.by_ott_id:
+            self.prune_tip_in_sortable_list(self.by_ott_id[None], 'unmapped_otu')
+            del self.by_ott_id[None]
+    def prune_tip_in_sortable_list(self, sortable_list, reason):
+        try:
+            par_to_check = set()
+            for sortable_el in sortable_list:
+                node_id = sortable_el[1]
+                par_to_check.add(self._del_tip(node_id))
+                self.nodes_deleted.append(node_id)
+        finally:
+            self._log_deletions(reason)
+        self.prune_if_deg_too_low(par_to_check)
+
+    prune_ott_problem_leaves = prune_tip_in_sortable_list
+
+    def prune_if_deg_too_low(self, ind_nd_id_list):
+        try:
+            orphaned_root = None
+            while bool(ind_nd_id_list):
+                next_ind_nd_id_list = set()
+                for nd_id in ind_nd_id_list:
+                    out_edges = self._edge_by_source.get(nd_id)
+                    if out_edges is None:
+                        out_degree = 0
+                    else:
+                        out_degree = len(out_edges)
+                    if out_degree < 2:
+                        to_par = self._edge_by_target.get(nd_id)
+                        if to_par:
+                            par = to_par['@source']
+                            next_ind_nd_id_list.add(par)
+                            if out_degree == 1:
+                                out_edge = out_edges.values()[0]
+                                self.suppress_deg_one_node(to_par, nd_id, out_edge)
+                            else:
+                                self._del_tip(nd_id)
+                            if nd_id in next_ind_nd_id_list:
+                                next_ind_nd_id_list.remove(nd_id)
+                        else:
+                            assert (orphaned_root is None) or (orphaned_root == nd_id)
+                            orphaned_root = nd_id
+                ind_nd_id_list = next_ind_nd_id_list
+            if orphaned_root is not None:
+                new_root = self.prune_deg_one_root(orphaned_root)
+                if self._log_obj is not None:
+                    self._log_obj['revised_ingroup_node'] = new_root
+                self.root_node_id, self._ingroup_node_id = new_root, new_root
+        finally:
+            self._log_deletions('became_trivial')
+
+    def suppress_deg_one_node(self, to_par_edge, nd_id, to_child_edge):
+        '''Deletes to_par_edge and nd_id. To be used when nd_id is an out-degree= 1 node'''
+        # circumvent the node with nd_id
+        to_child_edge_id = to_child_edge['@id']
+        par = to_par_edge['@source']
+        self._edge_by_source[par][to_child_edge_id] = to_child_edge
+        to_child_edge['@source'] = par
+        # make it a tip...
+        del self._edge_by_source[nd_id]
+        # delete it
+        self._del_tip(nd_id)
+    def prune_deg_one_root(self, new_root):
+        while True:
+            ebs_el = self._edge_by_source.get(new_root)
+            if ebs_el is None:
+                self.is_empty = True
+                raise EmptyTreeError()
+            if len(ebs_el) > 1:
+                return new_root
+            edge = ebs_el.values()[0]
+            new_root = edge['@target']
+            self._del_tip(new_root)
+
+    def prune_tree_for_supertree(self, ott, to_prune_fsi_set):
+        '''
+        '''
+        self.prune_to_ingroup()
+        self.prune_unmapped_leaves()
+        # Check the stored OTT Ids against the current version of OTT
+        mapped, unrecog, forward2unrecog, pruned, old2new = ott.map_ott_ids(self.by_ott_id.keys(), to_prune_fsi_set)
+        for ott_id in unrecog:
+            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'unrecognized_ott_id')
+            del self.by_ott_id[ott_id]
+        for ott_id in forward2unrecog:
+            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'forwarded_to_unrecognized_ott_id')
+            del self.by_ott_id[ott_id]
+        for old_id, new_id in old2new.items():
+            old_node_list = self.by_ott_id[old_id]
+            del self.by_ott_id[ott_id]
+            if new_id in self.by_ott_id:
+                v = self.by_ott_id[new_id]
+                v.extend(old_node_list)
+                v.sort()
             else:
-                reason = 'replaced_by_arbitrary_node'
-            nr = prune_tips(tree, edge_by_target, edge_by_source, by_ott_id[ott_id], reason, log_obj)
-            if nr is not None:
-                revised_ingroup_node = nr
-    if revised_ingroup_node != ingroup_node:
-        log_obj['new_ingroup_node'] = revised_ingroup_node
-    return revised_ingroup_node, edge_by_source, tree['nodeById'], otus
+                self.by_ott_id = old_node_list
+        lost_tips = set(unrecog)
+        lost_tips.update(forward2unrecog)
+        lost_tips.update(pruned)
+        # Get the induced tree...
+        assert self.root_node_id
+        try:
+            ott_tree = ott.induced_tree(mapped)
+        except SpikeTreeError:
+            error('SpikeTreeError from mapped ott_id list = {}'.format(', '.join([str(i) for i in mapped])))
+            raise EmptyTreeError()
+        # ... so that we can look for leaves mapped to ancestors of other leaves
+        taxon_contains_other_ott_ids = []
+        to_retain = []
+        for ott_id in self.by_ott_id:
+            if ott_id in lost_tips:
+                continue
+            n = old2new.get(ott_id)
+            if n is None:
+                n = ott_id
+            nd = ott_tree.find_node(n)
+            assert nd is not None
+            if nd.children:
+                # nd must be an internal node.
+                #   given that the descendants of this node are mapped in a more specific
+                #   way, we will prune this ott_id from the tree
+                taxon_contains_other_ott_ids.append(ott_id)
+            else:
+                to_retain.append(ott_id)
+
+        for ott_id in taxon_contains_other_ott_ids:
+            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'mapped_to_taxon_containing_other_mapped_tips')
+        # finally, we walk through any ott_id's mapped to multiple nodes
+        for ott_id in to_retain:
+            nm = self.by_ott_id[ott_id]
+            if len(nm) > 1:
+                el = nm.pop(0)
+                reason = 'replaced_by_exemplar_node' if (el[0] == -1) else 'replaced_by_arbitrary_node'
+                self.prune_ott_problem_leaves(self.by_ott_id[ott_id], reason)
+                self.by_ott_id[ott_id] = [el]
+        return self
 
 if __name__ == '__main__':
     import argparse
@@ -338,9 +345,19 @@ if __name__ == '__main__':
     description = ''
     parser = argparse.ArgumentParser(prog='to_clean_ott_id_mapped_leaves.py', description=description)
     parser.add_argument('nexson',
-                        nargs="+",
+                        nargs='*',
                         type=str,
                         help='nexson files with the name pattern studyID_treeID.json')
+    parser.add_argument('--input-dir',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='a directory to prepend to the nexson filename or tag')
+    parser.add_argument('--nexson-file-tags',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='a filepath to a file that holds the studyID_treeID "tag" for the inputs, one per line. ".json" will be appended to create the filenames.')
     parser.add_argument('--ott-dir',
                         default=None,
                         type=str,
@@ -351,20 +368,50 @@ if __name__ == '__main__':
                         type=str,
                         required=True,
                         help='Output directory for the newick files.')
-    parser.add_argument('--flags',
+    parser.add_argument('--ott-prune-flags',
                         default=None,
                         type=str,
                         required=False,
                         help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
+    parser.add_argument('--input-files-list',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='A list of input NexSON filenames.')
     args = parser.parse_args(sys.argv[1:])
     ott_dir, out_dir = args.ott_dir, args.out_dir
-    flags_str = args.flags
+    flags_str = args.ott_prune_flags
     try:
         assert os.path.isdir(args.ott_dir)
     except:
-        sys.exit('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
+        error('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
+        sys.exit(1)
+    if args.nexson:
+        inp_files = list(args.nexson)
+    else:
+        if args.nexson_file_tags:
+            with open(os.path.expanduser(args.nexson_file_tags), 'rU') as tf:
+                inp_files = ['{}.json'.format(i.strip()) for i in tf if i.strip()]
+        elif args.input_files_list:
+            with open(os.path.expanduser(args.input_files_list), 'rU') as tf:
+                inp_files = [i.strip() for i in tf if i.strip()]
+        else:
+            error('nexson file must be specified as a positional argument or via the --nexson-file-tags or --input-files-list argument.')
+            sys.exit(1)
+    if not inp_files:
+        error('No input files specified.')
+    in_dir = args.input_dir
+    if in_dir:
+        in_dir = os.path.expanduser(in_dir)
+        inp_files = [os.path.join(in_dir, i) for i in inp_files]
+    if flags_str is None:
+        flags = ott.TREEMACHINE_SUPPRESS_FLAGS
+    else:
+        flags = flags_str.split(',')
     ott = OTT(ott_dir=args.ott_dir)
-    for inp in args.nexson:
+    to_prune_fsi_set = ott.convert_flag_string_set_to_union(flags)
+    for inp in inp_files:
+        _LOG.debug('{}'.format(inp))
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
         study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
@@ -373,10 +420,12 @@ if __name__ == '__main__':
             sys.exit('Currently using the NexSON file name to indicate the tree via: studyID_treeID.json. Expected exactly 2 _ in the filename.\n')
         tree_id = study_tree.split('_')[-1]
         nexson_blob = read_as_json(inp)
-        x = prune_tree_for_supertree(nexson=nexson_blob,
-                                     tree_id=tree_id,
-                                     ott=ott,
-                                     log_obj=log_obj)
+        ntw = NexsonTreeWrapper(nexson_blob, tree_id, log_obj=log_obj)
+        assert ntw.root_node_id
+        try:
+            ntw.prune_tree_for_supertree(ott=ott, to_prune_fsi_set=to_prune_fsi_set)
+        except EmptyTreeError:
+            log_obj['EMPTY_TREE'] = True
         out_log = os.path.join(args.out_dir, study_tree + '.json')
         write_as_json(log_obj, out_log)
         newick_fp = os.path.join(args.out_dir, study_tree + '.tre')
@@ -387,15 +436,14 @@ if __name__ == '__main__':
                 # internal nodes may lack otu's but we still want the node Ids
                 return '_{}_'.format(str(node['@id']))
         with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:
-            if x is not None:
-                ingroup, edges, nodes, otus = x
+            if not ntw.is_empty:
                 nexson_frag_write_newick(outp,
-                                         edges,
-                                         nodes,
-                                         otus,
+                                         ntw._edge_by_source,
+                                         ntw._node_by_id,
+                                         ntw.otus,
                                          label_key=compose_label,
                                          leaf_labels=None,
-                                         root_id=ingroup,
+                                         root_id=ntw.root_node_id,
                                          ingroup_id=None,
                                          bracket_ingroup=False,
                                          with_edge_lengths=False)

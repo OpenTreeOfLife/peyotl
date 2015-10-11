@@ -5,6 +5,7 @@ from peyotl.nexson_syntax import extract_tree_nexson, \
 from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
+from peyotl.phylo.tree import SpikeTreeError
 from peyotl import get_logger
 from collections import defaultdict
 import sys
@@ -300,7 +301,11 @@ class NexsonTreeWrapper(object):
         lost_tips.update(pruned)
         # Get the induced tree...
         assert self.root_node_id
-        ott_tree = ott.induced_tree(mapped)
+        try:
+            ott_tree = ott.induced_tree(mapped)
+        except SpikeTreeError:
+            error('SpikeTreeError from mapped ott_id list = {}'.format(', '.join([str(i) for i in mapped])))
+            raise EmptyTreeError()
         # ... so that we can look for leaves mapped to ancestors of other leaves
         taxon_contains_other_ott_ids = []
         to_retain = []

@@ -296,7 +296,8 @@ class NexsonTreeWrapper(object):
             else:
                 self.by_ott_id = old_node_list
         lost_tips = set(unrecog)
-        lost_tips.update(set(forward2unrecog))
+        lost_tips.update(forward2unrecog)
+        lost_tips.update(pruned)
         # Get the induced tree...
         assert self.root_node_id
         ott_tree = ott.induced_tree(mapped)

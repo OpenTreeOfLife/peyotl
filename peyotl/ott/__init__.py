@@ -776,7 +776,7 @@ class OTT(object):
                 known_unpruned.update(new_id_list)
                 return False
             if (self.has_flag_set_key_intersection(n, to_prune_fsi_set)) or (n in known_pruned):
-                known_pruned.append(new_id_list)
+                known_pruned.update(new_id_list)
                 return True
             curr_id = n
 

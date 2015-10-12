@@ -300,7 +300,12 @@ class NexsonTreeWrapper(object):
                 v.sort()
             else:
                 self.by_ott_id = old_node_list
-            raise NotImplementedError('Forwarded OTT: need to update the otu object of each affected node!')
+            for sortable_el in old_node_list:
+                otu = sortable_el[3]
+                assert otu['^ot:ottId'] == old_id
+                otu['^ot:ottId'] = new_id
+                assert '^ot:ottTaxonName' in otu
+                otu['^ot:ottTaxonName'] = ott.get_name(new_id)
         lost_tips = set(unrecog)
         lost_tips.update(forward2unrecog)
         lost_tips.update(pruned)

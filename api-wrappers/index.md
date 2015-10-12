@@ -56,6 +56,6 @@ You can get these by accessing the property of the factory instance:
 Below is a list of attributes and links to the pages that describe each wrapper:
 
 * `phylesystem_api` - the [phylesystem_api wrapper](../phylesystem-api-wrapper)
-* `oti` - the [oti wrapper](otiwrapper)
+* `oti` - the [oti wrapper](../oti-wrapper)
 * `taxomachine` - the [Taxomachine wrapper](../taxomachine-wrapper)
 * `treemachine` - the [Treemachine wrapper](../treemachine-wrapper)

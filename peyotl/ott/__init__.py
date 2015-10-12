@@ -224,11 +224,11 @@ Each node definition is a tuple of preorder numbers:
 if a node is the last child of its parent, next_sib will be None
 also in the map is 'root' -> root preorder number
 ''', ),
-           'ottid2info': ('ottID2info', '''maps an ott ID to a dict. The value
+           'ottid2sources': ('ottIDsources', '''maps an ott ID to a dict. The value
 holds a mapping of a source taxonomy name to the ID of this ott ID in that 
-taxonomy. 
-The key "f" (if present) is an integer that can be looked up in the flag_set_id2flag_set
-dictionary.''',),
+taxonomy.''',),
+           'ottid2flags': ('ottID2flags', '''maps an ott ID to an integer that can be looked up in the flag_set_id2flag_set
+dictionary. Absence of a ott ID means that there were no flags set.''',),
            'flagsetid2flagset': ('flagSetID2FlagSet',
                                  'maps an integer to set of flags. Used to compress the flags field'),
            'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
@@ -258,15 +258,16 @@ class OTT(object):
         self._root_name = None
         self._root_ott_id = None
         self._name2ott_ids = None
-        self._ott_id_to_info = None
+        self._ott_id_to_flags = None
+        self._ott_id_to_sources = None
         self._flag_set_id2flag_set = None
         self._taxonomic_sources = None
         self._ncbi_2_ott_id = None
         self._forward_table = None
     def create_ncbi_to_ott(self):
         ncbi2ott = {}
-        for ott_id, info in self.ott_id_to_info.items():
-            ncbi = info.get('ncbi')
+        for ott_id, sources in self.ott_id_to_sources.items():
+            ncbi = sources.get('ncbi')
             if ncbi is not None:
                 if ncbi in ncbi2ott:
                     prev = ncbi2ott[ncbi]
@@ -278,18 +279,12 @@ class OTT(object):
                     ncbi2ott[ncbi] = ott_id
         return ncbi2ott
     def has_flag_set_key_intersection(self, ott_id, taboo):
-        info = self.ott_id_to_info.get(ott_id)
-        if info is None:
-            return None
-        flag_set_key = info.get('f')
+        flag_set_key = self.ott_id_to_flags.get(ott_id)
         if flag_set_key is None:
             return False
         return flag_set_key in taboo._flag_set_keys
     def get_flag_set_key(self, ott_id):
-        info = self.ott_id_to_info.get(ott_id)
-        if info is None:
-            return None
-        return info.get('f')
+        return self.ott_id_to_flags.get(ott_id)
         
     def ncbi(self, ncbi_id):
         if self._ncbi_2_ott_id is None:
@@ -399,10 +394,15 @@ class OTT(object):
             self.make(fn.lower())
         return _load_pickle_fp_raw(fp)
     @property
-    def ott_id_to_info(self):
-        if self._ott_id_to_info is None:
-            self._ott_id_to_info = self._load_pickled('ottID2info')
-        return self._ott_id_to_info
+    def ott_id_to_flags(self):
+        if self._ott_id_to_flags is None:
+            self._ott_id_to_flags = self._load_pickled('ottID2flags')
+        return self._ott_id_to_flags
+    @property
+    def ott_id_to_sources(self):
+        if self._ott_id_to_sources is None:
+            self._ott_id_to_sources = self._load_pickled('ottID2sources')
+        return self._ott_id_to_sources
     @property
     def ott_id_to_names(self):
         if self._ott_id_to_names is None:
@@ -474,14 +474,15 @@ class OTT(object):
         id2name = {} # UID to 'name' field
         id2uniq = {} # UID to 'uniqname' field
         uniq2id = {} # uniqname to UID
-        id2info = {} # UID to {rank: ... silva: ..., ncbi: ... gbif:..., irmng : f}
-                     # where the value for f is a key in flag_set_id2flag_set
+        id2flag = {} # UID to a key in flag_set_id2flag_set
+        id2source = {} # UID to {rank: ... silva: ..., ncbi: ... gbif:..., irmng : , f}
+                     # where the value for f is 
         flag_set_id2flag_set = {}
         flag_set2flag_set_id = {}
         sources = set()
         flag_set = set()
         f_set_id = 0
-        info = {}
+        source = {}
         root_ott_id = None
         with codecs.open(taxonomy_file, 'r', encoding='utf-8') as tax_fo:
             it = iter(tax_fo)
@@ -512,7 +513,7 @@ class OTT(object):
                     except:
                         pass
                     sources.add(src)
-                    info[src] = sid
+                    source[src] = sid
             if flags:
                 f_list = flags.split(',')
                 if len(f_list) > 1:
@@ -526,10 +527,10 @@ class OTT(object):
                     f_set_id += 1
                     flag_set_id2flag_set[fsi] = f_set
                     flag_set2flag_set_id[f_set] = fsi
-                info['f'] = fsi
-            if info:
-                id2info[uid] = info
-                info = {}
+                id2flag[uid] = fsi
+            if source:
+                id2source[uid] = source
+                source = {}
             for rown in it:
                 ls = rown.split('\t|\t')
                 uid, par, name = ls[:3]
@@ -566,7 +567,7 @@ class OTT(object):
                         except:
                             pass
                         sources.add(src)
-                        info[src] = sid
+                        source[src] = sid
                 if flags:
                     f_list = flags.split(',')
                     if len(f_list) > 1:
@@ -580,10 +581,10 @@ class OTT(object):
                         f_set_id += 1
                         flag_set_id2flag_set[fsi] = f_set
                         flag_set2flag_set_id[f_set] = fsi
-                    info['f'] = fsi
-                if info:
-                    id2info[uid] = info
-                    info = {}
+                    id2flag[uid] = fsi
+                if source:
+                    id2info[uid] = source
+                    source = {}
 
                 num_lines += 1
                 if num_lines % 100000 == 0:
@@ -676,7 +677,8 @@ class OTT(object):
         _write_pickle(out_dir, 'homonym2ottID', homonym2id)
         _write_pickle(out_dir, 'nonhomonym2ottID', nonhomonym2id)
         _write_pickle(out_dir, 'ottID2names', id2name)
-        _write_pickle(out_dir, 'ottID2info', id2info)
+        _write_pickle(out_dir, 'ottID2sources', id2source)
+        _write_pickle(out_dir, 'ottID2flags', id2flag)
         _write_pickle(out_dir, 'flagSetID2FlagSet', flag_set_id2flag_set)
         _write_pickle(out_dir, 'taxonomicSources', sources)
         forward_table = self._parse_forwarding_files()
@@ -932,7 +934,7 @@ if __name__ == '__main__':
     cout.write('\n')
     '''fstrs = ['{k:d}: {v}'.format(k=k, v=v) for k, v in o.flag_set_id_to_flag_set.items()]
     print('flag_set_id_to_flag_set =\n  {}'.format('\n  '.join(fstrs)))
-    for ott_id, info in o.ott_id_to_info.items():
+    for ott_id, info in o.ott_id_to_sources.items():
         if 'ncbi' in info:
             print('OTT {o:d} => NCBI {n:d}'.format(o=ott_id, n=info['ncbi']))
     print(len(o.ott_id2par_ott_id), 'ott IDs')

@@ -61,7 +61,7 @@ def concatenate_collections(collection_list):
                 if not inc_d:
                     raise ValueError('Collections disagree on inclusion of study_tree = "{}"'.format(key))
             elif key in not_inc_set:
-                if not inc_d:
+                if inc_d:
                     raise ValueError('Collections disagree on inclusion of study_tree = "{}"'.format(key))
             else:
                 if inc_d:

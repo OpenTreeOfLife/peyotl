@@ -274,7 +274,7 @@ class NexsonTreeWrapper(object):
             new_root = edge['@target']
             self._del_tip(new_root)
 
-    def prune_tree_for_supertree(self, ott, to_prune_fsi_set):
+    def prune_tree_for_supertree(self, ott, to_prune_fsi_set, taxonomy_treefile=None):
         '''
         `to_prune_fsi_set` is a set of flag indices to be pruned.
         '''
@@ -316,6 +316,9 @@ class NexsonTreeWrapper(object):
         except SpikeTreeError:
             error('SpikeTreeError from mapped ott_id list = {}'.format(', '.join([str(i) for i in mapped])))
             raise EmptyTreeError()
+        if taxonomy_treefile is not None:
+            with codecs.open(taxonomy_treefile, 'w', encoding='utf-8') as tto:
+                ott_tree.write_newick(tto)
         # ... so that we can look for leaves mapped to ancestors of other leaves
         taxon_contains_other_ott_ids = []
         to_retain = []
@@ -432,8 +435,11 @@ if __name__ == '__main__':
         nexson_blob = read_as_json(inp)
         ntw = NexsonTreeWrapper(nexson_blob, tree_id, log_obj=log_obj)
         assert ntw.root_node_id
+        taxonomy_treefile = os.path.join(args.out_dir, study_tree + '-taxonomy.tre')
         try:
-            ntw.prune_tree_for_supertree(ott=ott, to_prune_fsi_set=to_prune_fsi_set)
+            ntw.prune_tree_for_supertree(ott=ott, 
+                                         to_prune_fsi_set=to_prune_fsi_set,
+                                         taxonomy_treefile=taxonomy_treefile)
         except EmptyTreeError:
             log_obj['EMPTY_TREE'] = True
         out_log = os.path.join(args.out_dir, study_tree + '.json')

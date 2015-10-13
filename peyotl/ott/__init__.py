@@ -583,7 +583,7 @@ class OTT(object):
                         flag_set2flag_set_id[f_set] = fsi
                     id2flag[uid] = fsi
                 if source:
-                    id2info[uid] = source
+                    id2source[uid] = source
                     source = {}
 
                 num_lines += 1

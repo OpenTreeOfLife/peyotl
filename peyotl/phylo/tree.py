@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from peyotl.utility.tokenizer import NewickEvents
 from peyotl.utility import get_logger
+import sys
 _LOG = get_logger(__name__)
 
 def _write_node_info_newick(out, node, **kwargs): #TODO
@@ -124,14 +125,16 @@ class Node(object):
         new_c._child_index_in_parent = i
         new_c._parent = self
 class NodeWithPathInEdges(Node):
-    def __init__(self, _id=None):
+    def __init__(self, _id=None, path_ids=None):
         Node.__init__(self, _id)
-        if _id is not None:
-            self._path_ids = [_id]
-            self._path_set = set([_id])
+        if path_ids is not None:
+            self._path_ids = list(path_ids)
         else:
-            self._path_ids = []
-            self._path_set = set()
+            if _id is not None:
+                self._path_ids = [_id]
+            else:
+                self._path_ids = []
+        self._path_set = set(self._path_ids)
 class _TreeWithNodeIDs(object):
     def __init__(self):
         self._id2node = {}
@@ -232,175 +235,10 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
         assert node_id not in self._id2node
         if register_node:
             self._register_node(n)
-    def _init_with_cherry(self, i1, i2):
-        n1 = self.create_leaf(node_id=i1, register_node=False)
-        if i1 == i2:
-            self.set_root(n1)
-            return self
-        anc1 = n1._path_ids
-        curr_id1 = i1
-        anc1d = n1._path_set
-        extending1 = True
-        n2 = self.create_leaf(node_id=i2, register_node=False)
-        anc2 = n2._path_ids
-        curr_id2 = i2
-        anc2d = n2._path_set
-        extending2 = True
-        while True:
-            if not (extending1 or extending2):
-                raise ValueError('Disconnected tips cannot be used to build a tree')
-            if extending1:
-                p1 = self._id2par[curr_id1]
-                assert p1 not in anc1d
-                if p1 is None:
-                    extending1 = False
-                    self._root_tail_hits_real_root = True
-                else:
-                    if p1 in anc2d:
-                        if p1 == i2:
-                            raise SpikeTreeError(i2)
-                        return self._init_create_mrca(n1, n2, p1)
-                    else:
-                        curr_id1 = p1
-                        anc1.append(p1)
-                        anc1d.add(p1)
-            if extending2:
-                p2 = self._id2par[curr_id2]
-                assert p2 not in anc2d
-                if p2 is None:
-                    extending2 = False
-                    self._root_tail_hits_real_root = True
-                else:
-                    if p2 in anc1d:
-                        if p2 == i1:
-                            raise SpikeTreeError(i1)
-                        return self._init_create_mrca(n2, n1, p2)
-                    else:
-                        curr_id2 = p2
-                        anc2.append(p2)
-                        anc2d.add(p2)
-    def _add_node_for_id(self, ott_id):
-        #_LOG.debug('_add_node_for_id({o})'.format(o=ott_id))
-        if ott_id in self._id2node:
-            return
-        n1 = self.create_leaf(node_id=ott_id, register_node=False)
-        anc1 = n1._path_ids
-        curr_id1 = ott_id
-        anc1d = n1._path_set
-        extending1 = True
-        #_LOG.debug('anc1d at start = {}'.format(anc1d))
-        n2 = self._root
-        if self._root_tail_hits_real_root:
-            extending2 = False
-        else:
-            extending2 = True
-            anc2 = n2._path_ids
-            curr_id2 = anc2[-1]
-        anc2d = self._id2node
-        #_LOG.debug('curr_id2 = {}  anc2d at start = {}'.format(curr_id2, anc2d.keys()))
-        while True:
-            if not (extending1 or extending2):
-                raise ValueError('Disconnected tips cannot be used to build a tree')
-            if extending1:
-                p1 = self._id2par[curr_id1]
-                assert p1 not in anc1d
-                if p1 is None:
-                    extending1 = False
-                    self._root_tail_hits_real_root = True
-                else:
-                    if p1 in anc2d:
-                        #_LOG.debug(' lineage 1 hit the tree at {}'.format(p1))
-                        return self._new_tip_hit_existing_tree(n1, p1)
-                    else:
-                        curr_id1 = p1
-                        anc1.append(p1)
-                        anc1d.add(p1)
-                        #_LOG.debug('anc1d is now = {} after the addition of {}'.format(anc1d, p1))
-            if extending2:
-                p2 = self._id2par[curr_id2]
-                #_LOG.debug('p2 = {p} anc2d={a}'.format(p=p2, a=anc2d.keys()))
-                assert p2 not in anc2d
-                if p2 is None:
-                    extending2 = False
-                    self._root_tail_hits_real_root = True
-                else:
-                    if p2 in anc1d:
-                        #_LOG.debug(' the "root tail" of the tree hit the new lineage at {}'.format(p2))
-                        return self._existing_tree_hit_new_tip(n2, n1, p2)
-                    else:
-                        curr_id2 = p2
-                        anc2d[p2] = n2
-                        anc2.append(p2)
-                        n2._path_set.add(p2)
-                        #_LOG.debug('anc2d is now = {} after the addition of {}'.format(anc2d.keys(), p2))
-    def _new_tip_hit_existing_tree(self, growing, mrca_id):
-        assert mrca_id not in growing._path_set
-        node_for_mrca = self._id2node[mrca_id]
-        if mrca_id == node_for_mrca._id:
-            node_for_mrca.add_child(growing)
-            self._register_node(growing)
-            if mrca_id in self._leaves:
-                self._leaves.remove(mrca_id)
-            return node_for_mrca
-        return self._init_create_mrca(growing, node_for_mrca, mrca_id, register_hit_ids=False)
-
-    def _existing_tree_hit_new_tip(self, growing, hit, mrca_id):
-        assert mrca_id not in growing._path_set
-        return self._init_create_mrca(growing, hit, mrca_id, register_hit_ids=True)
-
-
-    def _init_create_mrca(self, growing, hit, mrca_id, register_hit_ids=True):
-        assert mrca_id not in growing._path_set
-        assert mrca_id in hit._path_set
-        #_LOG.debug('_init_create_mrca growing._path_ids = {}'.format(growing._path_ids))
-        if mrca_id == hit._id:
-            if hit._children:
-                #_LOG.debug('_init_create_mrca the mrca ID ({}) is the end of an internal node path'.format(mrca_id))
-                hit.add_child(growing)
-                self._register_node(growing)
-            else:
-                #_LOG.debug('_init_create_mrca the mrca ID ({}) is the tip of a path'.format(mrca_id))
-                hit._path_ids = growing._path_ids + hit._path_ids
-                hit._path_set.update(growing._path_set)
-                self._leaves.remove(hit._id)
-                hit._id = growing._id
-                self._register_node(hit)
-            return hit
-
-        #_LOG.debug('_init_create_mrca the mrca ID ({}) is inside a path that ends with {}'.format(mrca_id, hit._id))
-        m = NodeWithPathInEdges(mrca_id)
-        rs = m._path_set
-        rl = m._path_ids
-        h_anc = hit._path_ids
-        h_s = hit._path_set
-        next_id = h_anc.pop()
-        h_s.remove(next_id)
-        while next_id != mrca_id:
-            rs.add(next_id)
-            rl.insert(1, next_id) # the mrca should stay el 0, we add the other elements in reverse order
-            next_id = h_anc.pop()
-            h_s.remove(next_id)
-        m._mrca_node_for = set([mrca_id])
-        m._mrca_node_for.update(growing._path_set)
-        m._mrca_node_for.update(h_s)
-        if hit._parent:
-            hit._parent.replace_child(hit, m)
-        m.add_child(hit)
-        m.add_child(growing)
-        #_LOG.debug('new mrca node {} created with children {}'.format(m._id, [i._id for i in m._children]))
-        if (self._root is None) or (self._root is hit) or (self._root is growing):
-            #_LOG.debug('_root reset to {}'.format(m._id))
-            self._root = m
-        self._register_node(growing)
-        if register_hit_ids:
-            self._register_node(hit)
-        self._register_node(m)
-        return m
     def set_root(self, n):
         assert self._root is None
         self._root = n
         self._add_node(n)
-
     @property
     def leaves(self):
         return [self._id2node[i] for i in self._leaves]
@@ -459,59 +297,96 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
             p.bits4subtree_ids |= node.bits4subtree_ids
         return relevant_ids
 
-def create_tree_from_id2par(id2par, id_list, _class=TreeWithPathsInEdges):
+def create_anc_lineage_from_id2par(id2par_id, ott_id):
+    '''Returns a list from [ott_id, ott_id's par, ..., root ott_id]'''
+    curr = ott_id
+    n = id2par_id.get(curr)
+    if n is None:
+        raise KeyError('The OTT ID {} was not found'.format(ott_id))
+    lineage = [curr]
+    while n is not None and n != None:
+        lineage.append(n)
+        n = id2par_id.get(n)
+    return lineage
+
+def create_tree_from_id2par(id2par,
+                            id_list,
+                            _class=TreeWithPathsInEdges,
+                            create_monotypic_nodes=False):
     if not id_list:
         return None
-    nn = len(id_list)
-    if nn == 1:
-        tree = _class(id_to_par_id=id2par)
-        if id_list[0] not in id2par:
-            raise KeyError('The ID {} was not found'.format(id_list[0]))
-        n = tree.create_leaf(id_list[0])
+    f = id_list.pop(0)
+    anc_spike = create_anc_lineage_from_id2par(id2par, f)
+    #_LOG.debug('anc_spike = {}'.format(anc_spike))
+    assert f == anc_spike[0]
+    tree = _class(id_to_par_id=id2par)
+    if not id_list:
+        n = tree.create_leaf(f)
         tree._root = n
         del tree._id2par
         return tree
-    f = id_list.pop(0)
-    s = id_list.pop(0)
-    delayed = []
-    tree_formed = False
-    tree = _class(id_to_par_id=id2par)
-    try:
-        tree._init_with_cherry(f, s)
-    except SpikeTreeError as x:
-        y = x.anc
-        delayed.append(y)
-        if y == s:
-            f = s
-        else:
-            assert y == f
-        del s
-        while id_list:
-            s = id_list.pop(0)
-            tree = _class(id_to_par_id=id2par)
-            try:
-                tree._init_with_cherry(f, s)
-            except SpikeTreeError as z:
-                y = z.anc
-                delayed.append(y)
-                if y == s:
-                    f = s
-                else:
-                    assert y == f
-                del s
-                del tree
+    # build a dictionary of par ID to sets of children
+    realized_to_children = {f : set()}
+    root_nd = anc_spike[-1]
+    for n, child in enumerate(anc_spike[:-1]):
+        par = anc_spike[n + 1]
+        realized_to_children[par] = set([child])
+    id_set = set([f])
+    for ott_id in id_list:
+        id_set.add(ott_id)
+        if ott_id in realized_to_children:
+            _LOG.debug('element of id_list is a duplicate or ancestor or another element')
+            continue
+        realized_to_children[ott_id] = set()
+        while True:
+            par = id2par[ott_id]
+            if par is None:
+                raise ValueError('Id "{}" not found in id to parent mapping'.format(ott_id))
+            par_realized_children = realized_to_children.get(par)
+            if par_realized_children is None:
+                realized_to_children[par] = set([ott_id])
             else:
-                tree_formed = True
+                if ott_id not in par_realized_children:
+                    par_realized_children.add(ott_id)
                 break
-    else:
-        tree_formed = True
-    if not tree_formed:
-        raise SpikeTreeError(None)
-    while id_list:
-        next_id = id_list.pop(0)
-        tree._add_node_for_id(next_id)
-    for next_id in delayed:
-        tree._add_node_for_id(next_id)
+            ott_id = par
+    # Walk from the root to the "first fork"
+    rc = realized_to_children[root_nd]
+    while len(rc) == 1:
+        if root_nd in id_set:
+            break
+        root_nd = rc.pop()
+        rc = realized_to_children[root_nd]
+    # Now create a map from parent to (leaf_or_internal_des, [child, grandchild, ..., par_of_leaf_or_internal])
+    to_process = [root_nd]
+    tree._root = NodeWithPathInEdges(_id=root_nd)
+    id2tree_node = {root_nd: tree._root}
+    while to_process:
+        nd_id = to_process.pop(0)
+        nd = id2tree_node[nd_id]
+        c_id_set = realized_to_children[nd_id]
+        for child_id in c_id_set:
+            des_id = child_id
+            dc_id_set = realized_to_children[des_id]
+            path_ids = []
+            if create_monotypic_nodes:
+                path_ids.append(des_id)
+            else:
+                while len(dc_id_set) == 1:
+                    path_ids.append(des_id)
+                    des_id = dc_id_set.pop()
+                    dc_id_set = realized_to_children[des_id]
+                path_ids.append(des_id)
+                path_ids.reverse()
+            #_LOG.debug('NodeWithPathInEdges({}, path_ids={})'.format(des_id, path_ids))
+            nn = NodeWithPathInEdges(des_id, path_ids=path_ids)
+            id2tree_node[des_id] = nn
+            nd.add_child(nn)
+            if dc_id_set:
+                to_process.append(des_id)
+            else:
+                tree._register_node(nn)
+        tree._register_node(nd)
     del tree._id2par
     return tree
 

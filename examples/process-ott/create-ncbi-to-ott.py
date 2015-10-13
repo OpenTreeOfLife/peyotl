@@ -10,7 +10,7 @@ if __name__ == '__main__':
         sys.exit('{} already exists'.format(picklefn))
     ott = OTT()
     ncbi2ott = {}
-    for ott_id, info in ott.ott_id_to_info.items():
+    for ott_id, info in ott.ott_id_to_sources.items():
         ncbi = info.get('ncbi')
         if ncbi is not None:
             if ncbi in ncbi2ott:

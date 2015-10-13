@@ -27,12 +27,13 @@ _bogus_id2par = {'h': 'hp',
 _LOG = get_logger(__name__)
 class TestPhyloTree(unittest.TestCase):
     def testLengthenEdge(self):
-        tree = create_tree_from_id2par(_bogus_id2par, ['hp', 'g', 'h'])
+        tree = create_tree_from_id2par(_bogus_id2par, ['hp', 'g', 'h'], create_monotypic_nodes=True)
         self.assertEqual(tree.find_node('hp')._id, 'hp')
         li = tree.leaf_ids
         li.sort()
         self.assertEqual(li, ['g', 'h'])
         tree.do_full_check_of_invariants(self, id2par=_bogus_id2par)
+class X:
     def testSingleton(self):
         tree = create_tree_from_id2par(_bogus_id2par, ['h'])
         self.assertEqual(tree.find_node('h')._id, 'h')

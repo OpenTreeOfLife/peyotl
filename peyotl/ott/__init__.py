@@ -2,7 +2,7 @@
 from __future__ import absolute_import, print_function, division
 from peyotl.phylo.entities import OTULabelStyleEnum
 from peyotl.nexson_syntax import quote_newick_name
-from peyotl.phylo.tree import create_tree_from_id2par
+from peyotl.phylo.tree import create_tree_from_id2par, create_anc_lineage_from_id2par
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_config_object, get_logger
 from collections import defaultdict
@@ -752,18 +752,21 @@ class OTT(object):
                                 prune_flags,
                                 create_log_dict=create_log_dict)
     def get_anc_lineage(self, ott_id):
-        curr = ott_id
-        i2pi = self.ott_id2par_ott_id
-        n = i2pi.get(curr)
-        if n is None:
-            raise KeyError('The OTT ID {} was not found'.format(ott_id))
-        lineage = [curr]
-        while n is not None and n != NONE_PAR:
-            lineage.append(n)
-            n = i2pi.get(n)
-        return lineage
-    def induced_tree(self, ott_id_list):
-        return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list)
+        return create_anc_lineage_from_id2par(self.ott_id2par_ott_id, ott_id)
+
+    def _debug_anc_spikes(self, ott_id_list):
+        al = [self.get_anc_lineage(o) for o in ott_id_list]
+        asl = []
+        for a in al:
+            asl.append(' -> '.join(['{:<8}'.format(i) for i in a]))
+        l = [len(i) for i in asl]
+        m = max(l)
+        fmt = "{:<8} : {:>%d}" % m
+        for n, o in enumerate(ott_id_list):
+            _LOG.debug(fmt.format(o, asl[n]))
+    def induced_tree(self, ott_id_list, create_monotypic_nodes=False):
+        self._debug_anc_spikes(ott_id_list)
+        return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list, create_monotypic_nodes=create_monotypic_nodes)
     def check_if_in_pruned_subtree(self, curr_id, known_unpruned, known_pruned, to_prune_fsi_set):
         if curr_id in known_pruned:
             return True
@@ -888,7 +891,7 @@ class TaxonomyDes2AncLineage(object):
     def __repr__(self):
         return 'TaxonomyDes2AncLineage({l})'.format(l=repr(self._des_to_anc_list))
 
-def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
+def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott, create_monotypic_nodes=False):
     '''returns a pair of trees:
         the first is that is a pruned version of tree_proxy created by pruning
             any leaf that has no ott_id and every internal that does not have
@@ -918,7 +921,7 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott):
                 ottId2OtuPar[node._id] = parent_id
             else:
                 ottId2OtuPar[node._id] = None
-    pruned_phylo = create_tree_from_id2par(ottId2OtuPar, ott_ids)
+    pruned_phylo = create_tree_from_id2par(ottId2OtuPar, ott_ids, create_monotypic_nodes=create_monotypic_nodes)
     taxo_tree = ott.induced_tree(ott_ids)
     return pruned_phylo, taxo_tree
 

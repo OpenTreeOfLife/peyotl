@@ -312,7 +312,7 @@ class NexsonTreeWrapper(object):
         # Get the induced tree...
         assert self.root_node_id
         try:
-            ott_tree = ott.induced_tree(mapped)
+            ott_tree = ott.induced_tree(mapped, create_monotypic_nodes=True)
         except SpikeTreeError:
             error('SpikeTreeError from mapped ott_id list = {}'.format(', '.join([str(i) for i in mapped])))
             raise EmptyTreeError()

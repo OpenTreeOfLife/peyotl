@@ -765,7 +765,7 @@ class OTT(object):
         for n, o in enumerate(ott_id_list):
             _LOG.debug(fmt.format(o, asl[n]))
     def induced_tree(self, ott_id_list, create_monotypic_nodes=False):
-        self._debug_anc_spikes(ott_id_list)
+        #self._debug_anc_spikes(ott_id_list)
         return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list, create_monotypic_nodes=create_monotypic_nodes)
     def check_if_in_pruned_subtree(self, curr_id, known_unpruned, known_pruned, to_prune_fsi_set):
         if curr_id in known_pruned:

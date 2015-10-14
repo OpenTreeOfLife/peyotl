@@ -774,16 +774,16 @@ class OTT(object):
             return False
         oi2poi = self.ott_id2par_ott_id
         new_id_list = []
+        assert curr_id is not None
         while True:
-            n = oi2poi.get(curr_id)
             new_id_list.append(curr_id)
-            if (n is None) or (n in known_unpruned):
-                known_unpruned.update(new_id_list)
-                return False
-            if (self.has_flag_set_key_intersection(n, to_prune_fsi_set)) or (n in known_pruned):
+            if (self.has_flag_set_key_intersection(curr_id, to_prune_fsi_set)) or (curr_id in known_pruned):
                 known_pruned.update(new_id_list)
                 return True
-            curr_id = n
+            curr_id = oi2poi.get(curr_id)
+            if (curr_id is None) or (curr_id in known_unpruned):
+                known_unpruned.update(new_id_list)
+                return False
 
     def map_ott_ids(self, ott_id_list, to_prune_fsi_set):
         '''returns:
@@ -812,8 +812,6 @@ class OTT(object):
                     unrecog.append(old_id)
                 else:
                     if new_id in oi2poi:
-                        if to_prune_fsi_set is not None:
-                            p = self.check_if_in_pruned_subtree(new_id, known_unpruned, known_pruned, to_prune_fsi_set)
                         if (to_prune_fsi_set is not None) and \
                             self.check_if_in_pruned_subtree(new_id, known_unpruned, known_pruned, to_prune_fsi_set):
                             pruned.append(old_id) # could be in a forward2pruned

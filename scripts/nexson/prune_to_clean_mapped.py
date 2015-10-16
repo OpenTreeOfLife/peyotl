@@ -152,7 +152,7 @@ class NexsonTreeWrapper(object):
         del ebsd[edge_id]
         if not ebsd:
             del self._edge_by_source[source_id]
-        self.edges_deleted.append(edge_to_del)
+        self.edges_deleted.append(edge_id)
         return source_id, target_id
 
     def _del_tip(self, node_id):

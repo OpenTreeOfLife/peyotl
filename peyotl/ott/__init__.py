@@ -99,8 +99,7 @@ def write_newick_ott(out,
     else:
         stack = [root_ott_id]
         first_children = set(stack)
-        last_children = set(stack)
-        out.write('(')
+        last_children = set()
         while stack:
             ott_id = stack.pop()
             if isinstance(ott_id, tuple):

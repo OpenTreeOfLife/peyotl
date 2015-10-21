@@ -30,8 +30,13 @@ if __name__ == '__main__':
                         type=str,
                         required=False,
                         help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
+    parser.add_argument('--root',
+                        default=None,
+                        type=int,
+                        required=False,
+                        help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
     args = parser.parse_args(sys.argv[1:])
-    ott_dir, output, log_filename = args.ott_dir, args.output, args.log
+    ott_dir, output, log_filename, root = args.ott_dir, args.output, args.log, args.root
     flags_str = args.flags
     try:
         assert os.path.isdir(args.ott_dir)
@@ -46,6 +51,7 @@ if __name__ == '__main__':
     with codecs.open(args.output, 'w', encoding='utf-8') as outp:
         log = ott.write_newick(outp,
                                label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID,
+                               root_ott_id=root,
                                prune_flags=flags,
                                create_log_dict=create_log)
         outp.write('\n')

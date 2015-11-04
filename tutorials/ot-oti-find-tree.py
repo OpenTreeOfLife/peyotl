@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''Simple command-line tool that wraps OTI to get trees for an argument which is a property value pair
-   e.g. python ot-oti-find-tree.py '{"ot:ottTaxonName": "Bos"}' -n 2
+   e.g. python ot-oti-find-tree.py '{"ot:ottTaxonName": "Bos"}'
     which is described at https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#find_trees
 '''
 import sys

@@ -118,6 +118,9 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def iter_study_objs(self):
         return self.iter_doc_objs
+    @property
+    def iter_study_filepaths(self):
+        return self.iter_doc_filepaths
 
     @property
     def new_study_prefix(self):

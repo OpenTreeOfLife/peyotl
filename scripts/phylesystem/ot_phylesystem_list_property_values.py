@@ -38,7 +38,11 @@ else:
 def process_val(v, id_str):
     if v is not None:
         if report_ids:
-            v_dict.setdefault(v, []).append(id_str)
+            try:
+                v_dict.setdefault(v, []).append(id_str)
+            except:
+                # not a hashable type! convert to string
+                v_dict.setdefault(str(v), []).append(id_str)
         elif summarize_as_set:
             v_dict[v] += 1
         else:

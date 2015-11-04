@@ -52,11 +52,11 @@ class TestPhylesystem(unittest.TestCase):
     def testChangedStudies(self):
         p = _Phylesystem(repos_dict=self.r)
         p.pull()  # get the full git history
-        changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc')
+        changed = p.get_changed_studies('5f50b669cb4867d39e9a85e7fd1e2aa8e9a3242b')
         self.assertEqual(set(['xy_13', 'xy_10']), changed)
-        changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc', ['zz_11'])
+        changed = p.get_changed_studies('5f50b669cb4867d39e9a85e7fd1e2aa8e9a3242b', ['zz_11'])
         self.assertEqual(set(), changed)
-        changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc', ['zz_112'])
+        changed = p.get_changed_studies('5f50b669cb4867d39e9a85e7fd1e2aa8e9a3242b', ['zz_112'])
         self.assertEqual(set(), changed)
         self.assertRaises(ValueError, p.get_changed_studies, 'bogus')
     def testIterateStudies(self):

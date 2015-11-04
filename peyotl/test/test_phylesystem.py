@@ -1,4 +1,8 @@
 #! /usr/bin/env python
+
+# put tests here that use local phylesystem
+# see http://opentreeoflife.github.io/peyotl/maintainer/ for setup
+
 from peyotl.utility.input_output import read_as_json
 from peyotl.phylesystem.phylesystem_umbrella import _Phylesystem
 import unittest
@@ -55,6 +59,17 @@ class TestPhylesystem(unittest.TestCase):
         changed = p.get_changed_studies('2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc', ['zz_112'])
         self.assertEqual(set(), changed)
         self.assertRaises(ValueError, p.get_changed_studies, 'bogus')
+    def testIterateStudies(self):
+        p = _Phylesystem(repos_dict=self.r)
+        k = list(p.get_study_ids())
+        count = 0
+        for study_id, file_path in p.iter_study_filepaths():
+            count+=1
+        self.assertEqual(count,len(k))
+        count = 0
+        for study_id, n in p.iter_study_objs():
+            count+=1
+        self.assertEqual(count,len(k))
 
 
 if __name__ == "__main__":

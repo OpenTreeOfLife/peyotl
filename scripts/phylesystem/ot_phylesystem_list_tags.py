@@ -32,9 +32,13 @@ for study_id, n in phy.iter_study_objs():
             else:
                 tree_dict[t] += 1
 print '\nStudy tag counts:'
+if len(study_dict.items()) == 0:
+    print "No study tags found!"
 for k,v in study_dict.items():
     print k,'\t',v
 print '\nTree tag counts:'
+if len(tree_dict.items()) == 0:
+    print "No tree tags found!"
 for k,v in tree_dict.items():
     print k,'\t',v
 

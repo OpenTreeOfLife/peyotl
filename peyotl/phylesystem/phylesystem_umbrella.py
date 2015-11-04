@@ -115,6 +115,12 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def push_study_to_remote(self):
         return self.push_doc_to_remote
+    @property
+    def iter_study_objs(self):
+        return self.iter_doc_objs
+    @property
+    def iter_study_filepaths(self):
+        return self.iter_doc_filepaths
 
     @property
     def new_study_prefix(self):

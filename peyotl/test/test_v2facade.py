@@ -75,12 +75,12 @@ class TestV2Facade(unittest.TestCase):
         resp = self.ot.tnrs.match_names(name, 'Mammals')
         self.assertFalse(resp['results'][0]['matches'][0]['is_approximate_match'])
     def testHomonymName(self):
-        name = 'Nandina'
+        name = 'Drosophila'
         resp = self.ot.tnrs.match_names(name)
         self.assertEqual(len(resp['results'][0]['matches']), 2)
         resp = self.ot.tnrs.match_names(name, 'Animals')
         self.assertEqual(len(resp['results'][0]['matches']), 1)
-        resp = self.ot.tnrs.match_names(name, 'Flowering plants')
+        resp = self.ot.tnrs.match_names(name, 'Fungi')
         self.assertEqual(len(resp['results'][0]['matches']), 1)
     def testSourceTree(self):
         source_id_list = self.ot.tree_of_life.about()['study_list']

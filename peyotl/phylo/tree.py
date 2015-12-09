@@ -199,7 +199,6 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                     curr.add_child(n)
                 else:
                     curr.add_sib(n)
-
                 curr = n
             elif t == NewickEvents.TIP:
                 n = NodeWithPathInEdges(_id=event['label'])
@@ -209,6 +208,7 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                     curr.add_sib(n)
                 curr = n
                 self._id2node[n._id] = n
+                self._leaves.add(curr)
             else:
                 assert t == NewickEvents.CLOSE_SUBTREE
                 curr = curr._parent
@@ -483,6 +483,7 @@ def parse_newick(newick=None, stream=None, filepath=None, _class=TreeWithPathsIn
     nt = NewickTokenizer(stream=stream, newick=newick, filepath=filepath)
     nef = NewickEventFactory(tokenizer=nt)
     return _class(newick_events=nef)
+
 def parse_id2par_dict(id2par=None,
                       id_list=None,
                       id2par_stream=None,

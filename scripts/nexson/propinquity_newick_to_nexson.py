@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from peyotl.phylo.tree import parse_newick
+<<<<<<< HEAD
 from peyotl.nexson_syntax import get_empty_nexson
 from peyotl import write_as_json
 import codecs
@@ -23,12 +24,12 @@ Writes a NexSON representation of the tree to
     out = codecs.getwriter('utf-8')(sys.stdout)
     with codecs.open(args.newick, 'r', encoding='utf8') as inp:
         tree = parse_newick(stream=inp)
+        print tree.leaf_ids
         nexson = get_empty_nexson()
         body = nexson['nexml']
         otus, tree = body['otusById'].values()[0]['otuById'], body['treesById'].values()[0]['treeById']
         print otus, tree
         #write_as_json(nexson, out)
-        
 
 if __name__ == '__main__':
     _main()

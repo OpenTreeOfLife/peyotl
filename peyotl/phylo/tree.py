@@ -199,7 +199,6 @@ class TreeWithPathsInEdges(_TreeWithNodeIDs):
                     curr.add_child(n)
                 else:
                     curr.add_sib(n)
-
                 curr = n
             elif t == NewickEvents.TIP:
                 n = NodeWithPathInEdges(_id=event['label'])

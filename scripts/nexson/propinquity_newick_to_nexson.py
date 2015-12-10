@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from peyotl.phylo.tree import parse_newick
-<<<<<<< HEAD
 from peyotl.nexson_syntax import get_empty_nexson
 from peyotl import write_as_json
 import codecs

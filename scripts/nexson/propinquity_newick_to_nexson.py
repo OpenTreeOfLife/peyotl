@@ -25,22 +25,39 @@ Writes a NexSON representation of the tree to
 
     parser = argparse.ArgumentParser(description=_HELP_MESSAGE,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("-i", "--ids", 
+                        required=True,
+                        help="comma separated list of tree IDs to be assigned to the trees in the newick file.")
     parser.add_argument('newick', help='filepath of the newick tree')
     args = parser.parse_args()
     if not os.path.exists(args.newick):
         sys.exit('The file "{}" does not exist'.format(args.newick))
+    tree_id_list = args.ids.split(',')
+    if not tree_id_list:
+        sys.exit('At least one tree ID must be provided')
+    tree_id_it = iter(tree_id_list)
     out = codecs.getwriter('utf-8')(sys.stdout)
     pyid2int = {}
     curr_nd_counter = 1
     with codecs.open(args.newick, 'r', encoding='utf8') as inp:
         tree = parse_newick(stream=inp)
+        tree_id = tree_id_it.next()
         nexson = get_empty_nexson()
         body = nexson['nexml']
-        otus = body['otusById'].values()[0]['otuById']
-        ntree = body['treesById'].values()[0]['treeById']
+        all_otus_groups = body['otusById'].values()
+        assert len(all_otus_groups) == 1
+        first_otus_group = all_otus_groups[0]
+        all_trees_groups = body['treesById'].values()
+        assert len(all_trees_groups) == 1
+        first_trees_group = all_trees_groups[0]
+        first_trees_group['^ot:treeElementOrder'].append(tree_id)
+        otus = first_otus_group['otuById']
+        all_trees_dict = first_trees_group['treeById']
+        ntree = all_trees_dict.setdefault(tree_id, {})
         ebsi, nbi = {}, {}
         ntree['edgeBySourceId'] = ebsi
         ntree['nodeById'] = nbi
+        root_node_id = None
         for node in tree._root.preorder_iter():
             nid = id(node)
             i = pyid2int.get(nid)
@@ -53,6 +70,7 @@ Writes a NexSON representation of the tree to
             n_obj = nbi.setdefault(node_id_s, {})
             if node is tree._root:
                 n_obj['@root'] = True
+                root_node_id = node_id_s
             else:
                 edge_id_s = 'edge{}'.format(i)
                 pid = id(node.parent)
@@ -64,6 +82,8 @@ Writes a NexSON representation of the tree to
                 orig = node._id
                 ott_id = ott_id_from_label(orig)
                 otus[otu_id_s] = {"^ot:originalLabel": orig, "^ot:ottId": ott_id}
+        assert root_node_id is not None
+        ntree['^ot:rootNodeId'] = root_node_id
         write_as_json(nexson, out)
 
 if __name__ == '__main__':

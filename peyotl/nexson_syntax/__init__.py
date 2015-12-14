@@ -872,6 +872,35 @@ def convert_tree_to_newick(tree,
     flush_utf_8_writer(out)
     return sio.getvalue()
 
+def get_subtree_otus(nexson, tree_id, subtree_id=None): #EJMTODO write test I guess..
+    tree = extract_tree_nexson(nexson, tree_id)[0][1]
+    ingroup_node_id = tree.get('^ot:inGroupClade')
+    edges = tree['edgeBySourceId']
+    nodes = tree['nodeById']
+    if subtree_id:
+        if subtree_id == 'ingroup':
+            root_id = ingroup_node_id
+        else:
+            root_id = subtree_id
+    else:
+        root_id = tree['^ot:rootNodeId']
+    if root_id not in edges:
+        return None
+    otuset = set()
+    todo = set()
+    todo.add(root_id)
+    while todo:
+        curr_node_id = todo.pop()
+        outgoing_edges = edges.get(curr_node_id)
+        if outgoing_edges is None:
+            otu = nodes.get(curr_node_id).get('@otu')
+            assert(otu)
+            otuset.add(otu)
+        else:
+            for edge, info in outgoing_edges.items():
+                todo.add(info.get('@target'))
+    return(otuset)
+
 def nexson_frag_write_newick(out,
                              edges,
                              nodes,
@@ -1014,6 +1043,7 @@ def convert_trees(tid_tree_otus_list, schema, subtree_id=None):
         return _write_nexus_format(leaf_labels[0], conv_tree_list)
     else:
         raise NotImplementedError('convert_tree for {}'.format(schema.format_str))
+
 def nexml_el_of_by_id(nexson, curr_version=None):
     if curr_version is None:
         curr_version = detect_nexson_version(nexson)
@@ -1075,7 +1105,6 @@ def cull_nonmatching_trees(nexson, tree_id, curr_version=None):
         nexml_el['^ot:treesElementOrder'].remove(tgid)
         del tree_groups[tgid]
     return nexson
-
 
 def extract_tree_nexson(nexson, tree_id, curr_version=None):
     '''Returns a list of (id, tree, otus_group) tuples for the

@@ -81,7 +81,7 @@ Writes a NexSON representation of the tree to
                 n_obj['@otu'] = otu_id_s
                 orig = node._id
                 ott_id = ott_id_from_label(orig)
-                otus[otu_id_s] = {"^ot:originalLabel": orig, "^ot:ottId": ott_id}
+                otus[otu_id_s] = {"^ot:originalLabel": orig, "^ot:ottId": ott_id, "^ot:ottTaxonName": orig}
         assert root_node_id is not None
         ntree['^ot:rootNodeId'] = root_node_id
         write_as_json(nexson, out)

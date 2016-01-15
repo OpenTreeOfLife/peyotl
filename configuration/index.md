@@ -113,10 +113,10 @@ However, the parent of the current version of OTT can be specified using:
 | logging | level | WARNING | filter for what level of messages are displayed |
 | logging | formatter | '%H:%M:%S' | formatter string for messages. See https://docs.python.org/2/library/logging.html#formatter-objects | 
 | logging | filepath | None | filepath for log file |
-| apis | oti | http://api.opentreeoflife.org | Domain of oti server for wrapper around oti |
-| apis | phylesystem_api | http://api.opentreeoflife.org | Domain of phylesystem-api server for wrapper around that service |
-| apis | taxomachine | http://api.opentreeoflife.org | Domain of taxomachine server for wrapper around that service |
-| apis | treemachine | http://api.opentreeoflife.org | Domain of treemachine server for wrapper around that service |
+| apis | oti | https://api.opentreeoflife.org | Domain of oti server for wrapper around oti |
+| apis | phylesystem_api | https://api.opentreeoflife.org | Domain of phylesystem-api server for wrapper around that service |
+| apis | taxomachine | https://api.opentreeoflife.org | Domain of taxomachine server for wrapper around that service |
+| apis | treemachine | https://api.opentreeoflife.org | Domain of treemachine server for wrapper around that service |
 | apis | phylesystem_get_from | external | source for a phylesystem-api wrapper's study GET operations (choices are "local", "api", and "external") | 
 | apis | phylesystem_transform | client | where a phylesystem-api wrapper should perform transformations between different NexSON versions (choices are "client" and "server") |
 | apis | phylesystem_refresh | never | when a local phylesystem wrapper should call "git pull" |

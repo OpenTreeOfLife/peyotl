@@ -65,10 +65,10 @@ of Life web services. Because we use peyotl in testing the services
 as we deploy, the domains where the APIs are configurable:
 
     [apis]
-    phylesystem_api = http://api.opentreeoflife.org
-    oti = http://api.opentreeoflife.org
-    taxomachine = http://api.opentreeoflife.org
-    treemachine = http://api.opentreeoflife.org
+    phylesystem_api = https://api.opentreeoflife.org
+    oti = https://api.opentreeoflife.org
+    taxomachine = https://api.opentreeoflife.org
+    treemachine = https://api.opentreeoflife.org
     api_version = 2
     raw_urls = false
 

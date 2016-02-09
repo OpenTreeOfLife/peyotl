@@ -3,7 +3,7 @@
 "@about": "#study", 
 "@generator": "Phylografter nexml-json exporter", 
 "@id": "study", 
-"@nexmljson": "http://opentree.wikispaces.com/NexSON", 
+"@nexmljson": "https://github.com/OpenTreeOfLife/phylesystem-api/wiki/NexSON", 
 "@version": "0.9", 
 "@xmlns": {
 "$": "http://www.nexml.org/2009", 

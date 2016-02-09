@@ -22,7 +22,9 @@ def error(msg):
 
 def find_tree_and_otus_in_nexson(nexson, tree_id):
     tl = extract_tree_nexson(nexson, tree_id)
-    assert len(tl) == 1
+    if (len(tl) != 1):
+#        sys.stderr.write('{}: len(tl) = {}\n'.format(tree_id,len(tl)))
+        return None, None
     tree_id, tree, otus = tl[0]
     return tree, otus
 

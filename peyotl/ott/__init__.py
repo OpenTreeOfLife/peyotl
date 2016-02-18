@@ -766,6 +766,27 @@ class OTT(object):
     def induced_tree(self, ott_id_list, create_monotypic_nodes=False):
         #self._debug_anc_spikes(ott_id_list)
         return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list, create_monotypic_nodes=create_monotypic_nodes)
+
+    def check_if_above_root(self, curr_id, known_below_root, known_above_root, root_ott_id):
+        if (root_ott_id is None):
+            return False
+        if curr_id in known_below_root:
+            return False
+        if curr_id in known_above_root:
+            return True
+        oi2poi = self.ott_id2par_ott_id
+        new_id_list = []
+        assert curr_id is not None
+        while True:
+            new_id_list.append(curr_id)
+            if (curr_id is None) or (curr_id in known_above_root):
+                known_above_root.update(new_id_list)
+                return True
+            curr_id = oi2poi.get(curr_id)
+            if (curr_id in known_below_root) or (curr_id == root_ott_id):
+                known_below_root.update(new_id_list)
+                return False
+
     def check_if_in_pruned_subtree(self, curr_id, known_unpruned, known_pruned, to_prune_fsi_set):
         if curr_id in known_pruned:
             return True
@@ -784,23 +805,27 @@ class OTT(object):
                 known_unpruned.update(new_id_list)
                 return False
 
-    def map_ott_ids(self, ott_id_list, to_prune_fsi_set):
+    def map_ott_ids(self, ott_id_list, to_prune_fsi_set, root_ott_id):
         '''returns:
           - a list of recognized ott_ids. 
           - a list of unrecognized ott_ids
           - a list of ott_ids that forward to unrecognized ott_ids
-          - list of ott_ids that do not appear in the tree because they are flagged to be pruned.
+          - a list of ott_ids that do not appear in the tree because they are flagged to be pruned.
+          - a list of ott_ids that do not appear in the tree because they are above the root of the relevant subtree.
           - a dict mapping input Id to forwarded Id
         The relative order will be the input order, but the unrecognized elements will
             be deleted.
         '''
-        mapped, unrecog, forward2unrecog, pruned, old2new = [], [], [], [], {}
+        mapped, unrecog, forward2unrecog, pruned, above_root, old2new = [], [], [], [], [], {}
         known_unpruned, known_pruned = set(), set()
+        known_above_root, known_below_root = set(), set()
         oi2poi = self.ott_id2par_ott_id
         ft = self.forward_table
         for old_id in ott_id_list:
             if old_id in oi2poi:
-                if (to_prune_fsi_set is not None) and \
+                if self.check_if_above_root(old_id, known_above_root, known_below_root, root_ott_id):
+                    above_root.append(old_id)
+                elif (to_prune_fsi_set is not None) and \
                     self.check_if_in_pruned_subtree(old_id, known_unpruned, known_pruned, to_prune_fsi_set):
                     pruned.append(old_id)
                 else:
@@ -819,7 +844,7 @@ class OTT(object):
                             mapped.append(new_id)
                     else:
                         forward2unrecog.append(old_id)
-        return mapped, unrecog, forward2unrecog, pruned, old2new
+        return mapped, unrecog, forward2unrecog, pruned, above_root, old2new
 
 if _PICKLE_AS_JSON:
     def _write_pickle(directory, fn, obj):

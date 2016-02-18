@@ -22,7 +22,9 @@ def error(msg):
 
 def find_tree_and_otus_in_nexson(nexson, tree_id):
     tl = extract_tree_nexson(nexson, tree_id)
-    assert len(tl) == 1
+    if (len(tl) != 1):
+#        sys.stderr.write('{}: len(tl) = {}\n'.format(tree_id,len(tl)))
+        return None, None
     tree_id, tree, otus = tl[0]
     return tree, otus
 
@@ -274,14 +276,14 @@ class NexsonTreeWrapper(object):
             new_root = edge['@target']
             self._del_tip(new_root)
 
-    def prune_tree_for_supertree(self, ott, to_prune_fsi_set, taxonomy_treefile=None):
+    def prune_tree_for_supertree(self, ott, to_prune_fsi_set, root_ott_id, taxonomy_treefile=None):
         '''
         `to_prune_fsi_set` is a set of flag indices to be pruned.
         '''
         self.prune_to_ingroup()
         self.prune_unmapped_leaves()
         # Check the stored OTT Ids against the current version of OTT
-        mapped, unrecog, forward2unrecog, pruned, old2new = ott.map_ott_ids(self.by_ott_id.keys(), to_prune_fsi_set)
+        mapped, unrecog, forward2unrecog, pruned, above_root, old2new = ott.map_ott_ids(self.by_ott_id.keys(), to_prune_fsi_set, root_ott_id)
         for ott_id in unrecog:
             self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'unrecognized_ott_id')
             del self.by_ott_id[ott_id]
@@ -290,6 +292,9 @@ class NexsonTreeWrapper(object):
             del self.by_ott_id[ott_id]
         for ott_id in pruned:
             self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'flagged')
+            del self.by_ott_id[ott_id]
+        for ott_id in above_root:
+            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'above_root')
             del self.by_ott_id[ott_id]
         for old_id, new_id in old2new.items():
             old_node_list = self.by_ott_id[old_id]
@@ -386,13 +391,18 @@ if __name__ == '__main__':
                         type=str,
                         required=False,
                         help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
+    parser.add_argument('--root',
+                        default=None,
+                        type=int,
+                        required=False,
+                        help='Optional taxonomy root argument.')
     parser.add_argument('--input-files-list',
                         default=None,
                         type=str,
                         required=False,
                         help='A list of input NexSON filenames.')
     args = parser.parse_args(sys.argv[1:])
-    ott_dir, out_dir = args.ott_dir, args.out_dir
+    ott_dir, out_dir, root = args.ott_dir, args.out_dir, args.root
     flags_str = args.ott_prune_flags
     try:
         assert os.path.isdir(args.ott_dir)
@@ -439,6 +449,7 @@ if __name__ == '__main__':
         try:
             ntw.prune_tree_for_supertree(ott=ott, 
                                          to_prune_fsi_set=to_prune_fsi_set,
+                                         root_ott_id=root,
                                          taxonomy_treefile=taxonomy_treefile)
         except EmptyTreeError:
             log_obj['EMPTY_TREE'] = True

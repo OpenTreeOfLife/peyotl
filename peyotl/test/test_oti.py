@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import absolute_import, print_function, division
 from peyotl.api import OTI
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
@@ -13,6 +14,10 @@ class TestOTI(unittest.TestCase):
     def setUp(self):
         d = get_test_ot_service_domains()
         self.oti = OTI(d)
+    def testSearchProperties(self):
+        st = self.oti.search_terms
+        self.assertIn('study_properties', st)
+        self.assertIn('tree_properties', st)
     def testFindAllStudies(self):
         x = self.oti.find_all_studies(verbose=True)
         self.assertTrue(len(x) > 0)
@@ -52,6 +57,7 @@ class TestOTI(unittest.TestCase):
     def testBadTreeTerms(self):
         qd = {'bogus key': 'Aponogeoton ulvaceus 1 2'}
         self.assertRaises(ValueError, self.oti.find_trees, qd)
+
 if __name__ == "__main__":
     unittest.main(verbosity=5)
 

@@ -31,7 +31,7 @@ formatter = rich
 #   (as specified in the peyotl/api/wrapper.py APIDomains class)
 # You can uncomment one of the lines below if you would like to 
 #   run services against on of the dev servers. 
-# phylesystem_api = http://devapi.opentreeoflife.org
-# oti_api = http://devapi.opentreeoflife.org/api
-# taxomachine = http://devapi.opentreeoflife.org/
-# treemachine = http://devapi.opentreeoflife.org/
+# phylesystem_api = https://api.opentreeoflife.org
+# oti = https://api.opentreeoflife.org/api
+# taxomachine = https://api.opentreeoflife.org/
+# treemachine = https://api.opentreeoflife.org/

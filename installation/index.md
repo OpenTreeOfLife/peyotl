@@ -51,3 +51,5 @@ If you have followed the recommended approach then you'll just need to run:
     $ git pull origin master
 
 to pull down the latest changes from the `git` repository from which you cloned `peyotl`.
+
+# Next step: [Configuration](../configuration)

@@ -15,7 +15,7 @@ try:
         do_test = True
 except:
     _LOG.debug('[ott]/parent setting could not be read correctly.')
-@unittest.skipIf(not do_test, 'the test_evaluate_tree.py is only run if you have your OTT/parent configuration set' \
+@unittest.skipIf(True or (not do_test), 'the test_evaluate_tree.py is experimental, and currently skipped. You can only run if you have your OTT/parent configuration set' \
                               ' to point to a directory called "aster" (which should hold the taxonomy of Asterales) ' \
                               'See http://opentreeoflife.github.io/peyotl/configuration/ ' \
                               ' and open tree of life reference taxonomy documentation about the Asterales test system')

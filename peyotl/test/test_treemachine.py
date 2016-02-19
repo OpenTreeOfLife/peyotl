@@ -64,7 +64,7 @@ class TestTreemachine(unittest.TestCase):
         if not self.treemachine.use_v1:
             r = self.treemachine.mrca(ott_ids=ott_ids)
             self.assertTrue('mrca_node_id' in r)
-            print('node_info is', self.treemachine.node_info(r['mrca_node_id']))
+            #print('node_info is', self.treemachine.node_info(r['mrca_node_id']))
     @unittest.skipIf(True, 'not sure whether this should be skipped...')
     def testSearchForTaxon(self):
         taxomachine = Taxomachine(self.domains)

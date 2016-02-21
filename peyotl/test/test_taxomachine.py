@@ -165,12 +165,12 @@ class TestTaxomachine(unittest.TestCase):
         resp = self.taxomachine.TNRS(name, 'Mammals')
         self.assertFalse(resp['results'][0]['matches'][0]['is_approximate_match'])
     def testHomonymName(self):
-        name = 'Nandina'
+        name = 'Drosophila'
         resp = self.taxomachine.TNRS(name)
         self.assertEqual(len(resp['results'][0]['matches']), 2)
         resp = self.taxomachine.TNRS(name, 'Animals')
         self.assertEqual(len(resp['results'][0]['matches']), 1)
-        resp = self.taxomachine.TNRS(name, 'Flowering plants')
+        resp = self.taxomachine.TNRS(name, 'Fungi')
         self.assertEqual(len(resp['results'][0]['matches']), 1)
 
 if __name__ == "__main__":

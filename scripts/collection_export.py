@@ -28,7 +28,7 @@ if __name__ == '__main__':
         raise
     for d in included:
         if export == 'studyID_treeID':
-            print '_'.join([d['studyID'], d['treeID']])
+            print '@'.join([d['studyID'], d['treeID']])
         else:
             assert export == 'studyID'
             print d['studyID']

@@ -30,7 +30,7 @@ def copy_phylesystem_file_if_differing(git_action,
     if not os.path.isfile(fp):
         debug(fp + ' does not exist')
         assert os.path.isfile(fp)
-    new_name = '{}_{}.json'.format(study_id, tree_id)
+    new_name = '{}@{}.json'.format(study_id, tree_id)
     np = os.path.join(out_dir, new_name)
     # create a new "decision" entry that is bound to this SHA
     concrete_coll_decision = copy.deepcopy(coll_decision)

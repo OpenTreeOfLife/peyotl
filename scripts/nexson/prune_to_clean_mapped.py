@@ -365,7 +365,7 @@ if __name__ == '__main__':
     parser.add_argument('nexson',
                         nargs='*',
                         type=str,
-                        help='nexson files with the name pattern studyID_treeID.json')
+                        help='nexson files with the name pattern studyID@treeID.json')
     parser.add_argument('--input-dir',
                         default=None,
                         type=str,
@@ -375,7 +375,7 @@ if __name__ == '__main__':
                         default=None,
                         type=str,
                         required=False,
-                        help='a filepath to a file that holds the studyID_treeID "tag" for the inputs, one per line. ".json" will be appended to create the filenames.')
+                        help='a filepath to a file that holds the studyID@treeID "tag" for the inputs, one per line. ".json" will be appended to create the filenames.')
     parser.add_argument('--ott-dir',
                         default=None,
                         type=str,
@@ -438,10 +438,10 @@ if __name__ == '__main__':
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
         study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
-        x = study_tree.split('_')
-        if len(x) != 3:
-            sys.exit('Currently using the NexSON file name to indicate the tree via: studyID_treeID.json. Expected exactly 2 _ in the filename.\n')
-        tree_id = study_tree.split('_')[-1]
+        x = study_tree.split('@')
+        if len(x) != 2:
+            sys.exit('Currently using the NexSON file name to indicate the tree via: studyID@treeID.json. Expected exactly 1 @ in the filename.\n')
+        tree_id = study_tree.split('@')[-1]
         nexson_blob = read_as_json(inp)
         ntw = NexsonTreeWrapper(nexson_blob, tree_id, log_obj=log_obj)
         assert ntw.root_node_id

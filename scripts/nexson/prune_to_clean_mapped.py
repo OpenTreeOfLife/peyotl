@@ -6,7 +6,7 @@ from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
 from peyotl.phylo.tree import SpikeTreeError
-from peyotl.util import propinquity_fn_to_study_tree
+from peyotl.utility import propinquity_fn_to_study_tree
 from peyotl import get_logger
 from collections import defaultdict
 import sys

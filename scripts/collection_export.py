@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# exports information from a collection
+# called by propinquity when building synthetic tree
+
 from peyotl import collection_to_included_trees, read_as_json
 
 if __name__ == '__main__':

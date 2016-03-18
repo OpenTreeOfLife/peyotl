@@ -6,6 +6,7 @@ from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
 from peyotl.phylo.tree import SpikeTreeError
+from peyotl.utility import propinquity_fn_to_study_tree
 from peyotl import get_logger
 from collections import defaultdict
 import sys
@@ -438,10 +439,7 @@ if __name__ == '__main__':
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
         study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
-        x = study_tree.split('@')
-        if len(x) != 2:
-            sys.exit('Currently using the NexSON file name to indicate the tree via: studyID@treeID.json. Expected exactly 1 @ in the filename.\n')
-        tree_id = study_tree.split('@')[-1]
+        study_id, tree_id = propinquity_fn_to_study_tree(inp_fn)
         nexson_blob = read_as_json(inp)
         ntw = NexsonTreeWrapper(nexson_blob, tree_id, log_obj=log_obj)
         assert ntw.root_node_id

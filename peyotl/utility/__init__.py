@@ -413,3 +413,22 @@ def get_test_config(overrides=None):
     if overrides is not None:
         d.update(overrides)
     return ConfigWrapper(None, overrides=d)
+
+
+def propinquity_fn_to_study_tree(inp_fn, strip_extension=True):
+    '''This should only be called by propinquity - other code should be treating theses
+    filenames (and the keys that are based on them) as opaque strings.
+
+    Takes a filename (or key if strip_extension is False), returns (study_id, tree_id)
+
+    propinquity provides a map to look up the study ID and tree ID (and git SHA)
+    from these strings.
+    '''
+    if strip_extension:
+        study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
+    else:
+        study_tree = inp_fn
+    x = study_tree.split('@')
+    if len(x) != 2:
+        raise ValueError('Currently we are expecting studyID@treeID.<file extension> format. Expected exactly 1 @ in the filename.')
+    return x

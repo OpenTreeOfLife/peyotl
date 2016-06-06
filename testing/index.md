@@ -45,9 +45,9 @@ that these are *not* dependencies for normal usage of
 MTH's validate-nexml is shell script:
 
     #!/bin/sh
-    java -jar "${NEXML_PARENT}/xml-validator-read-only/target/xml-validator-1.0-SNAPSHOT-jar-with-dependencies.jar" -s "${NEXML_PARENT}/nexml/xsd/nexml.xsd" $@
+    java -jar "${NEXML_PARENT}/xml-validator/target/xml-validator-1.0-SNAPSHOT-jar-with-dependencies.jar" -s "${NEXML_PARENT}/nexml/xsd/nexml.xsd" $@
 
-where xml-validator-read-only is from http://code.google.com/p/xml-validator/source/checkout
+where xml-validator is a compiled clone of <a href="https://github.com/wiztools/xml-validator">https://github.com/wiztools/xml-validator</a> (you have to run <tt>mvn package</tt> to build)
 and nexml is a clone of https://github.com/nexml/nexml
 
 You can tweak this by deciding on your NEXML_PARENT dir and running:

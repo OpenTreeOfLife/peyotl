@@ -18,3 +18,7 @@ def equal_blob_check(unit_test, diff_file_tag, first, second):
             m_fmt = "TreeBase conversion failed see files {o} and {e}"
             m = m_fmt.format(o=ofn, e=efn)
             unit_test.assertEqual("", m)
+
+example_ott_id_list = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579,
+                   267484, 128308, 380453, 678579, 883864, 5537065,
+                   3898562, 5507605, 673540, 122251, 5507740, 1084532, 541659]

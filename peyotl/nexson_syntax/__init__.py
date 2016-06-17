@@ -523,6 +523,7 @@ def get_ot_study_info_from_nexml(src=None,
             if src.startswith('http://') or src.startswith('https://'):
                 from peyotl.utility import download
                 nexml_content = download(url=src, encoding=encoding)
+                nexml_content = nexml_content.encode('utf-8')
             else:
                 with codecs.open(src, 'r', encoding=encoding) as src:
                     nexml_content = src.read().encode('utf-8')

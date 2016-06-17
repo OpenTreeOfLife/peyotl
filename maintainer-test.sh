@@ -11,7 +11,7 @@ then
     k=1
 fi
 t=0
-if ! ./standalone-tests.sh
+if ! ./tutorial-tests.sh
 then
     t=1
 fi

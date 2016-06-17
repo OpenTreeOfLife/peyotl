@@ -6,6 +6,7 @@ from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
 from peyotl.phylo.tree import SpikeTreeError
+from peyotl.utility import propinquity_fn_to_study_tree
 from peyotl import get_logger
 from collections import defaultdict
 import sys
@@ -22,7 +23,9 @@ def error(msg):
 
 def find_tree_and_otus_in_nexson(nexson, tree_id):
     tl = extract_tree_nexson(nexson, tree_id)
-    assert len(tl) == 1
+    if (len(tl) != 1):
+#        sys.stderr.write('{}: len(tl) = {}\n'.format(tree_id,len(tl)))
+        return None, None
     tree_id, tree, otus = tl[0]
     return tree, otus
 
@@ -274,14 +277,14 @@ class NexsonTreeWrapper(object):
             new_root = edge['@target']
             self._del_tip(new_root)
 
-    def prune_tree_for_supertree(self, ott, to_prune_fsi_set, taxonomy_treefile=None):
+    def prune_tree_for_supertree(self, ott, to_prune_fsi_set, root_ott_id, taxonomy_treefile=None):
         '''
         `to_prune_fsi_set` is a set of flag indices to be pruned.
         '''
         self.prune_to_ingroup()
         self.prune_unmapped_leaves()
         # Check the stored OTT Ids against the current version of OTT
-        mapped, unrecog, forward2unrecog, pruned, old2new = ott.map_ott_ids(self.by_ott_id.keys(), to_prune_fsi_set)
+        mapped, unrecog, forward2unrecog, pruned, above_root, old2new = ott.map_ott_ids(self.by_ott_id.keys(), to_prune_fsi_set, root_ott_id)
         for ott_id in unrecog:
             self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'unrecognized_ott_id')
             del self.by_ott_id[ott_id]
@@ -290,6 +293,9 @@ class NexsonTreeWrapper(object):
             del self.by_ott_id[ott_id]
         for ott_id in pruned:
             self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'flagged')
+            del self.by_ott_id[ott_id]
+        for ott_id in above_root:
+            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'above_root')
             del self.by_ott_id[ott_id]
         for old_id, new_id in old2new.items():
             old_node_list = self.by_ott_id[old_id]
@@ -360,7 +366,7 @@ if __name__ == '__main__':
     parser.add_argument('nexson',
                         nargs='*',
                         type=str,
-                        help='nexson files with the name pattern studyID_treeID.json')
+                        help='nexson files with the name pattern studyID@treeID.json')
     parser.add_argument('--input-dir',
                         default=None,
                         type=str,
@@ -370,7 +376,7 @@ if __name__ == '__main__':
                         default=None,
                         type=str,
                         required=False,
-                        help='a filepath to a file that holds the studyID_treeID "tag" for the inputs, one per line. ".json" will be appended to create the filenames.')
+                        help='a filepath to a file that holds the studyID@treeID "tag" for the inputs, one per line. ".json" will be appended to create the filenames.')
     parser.add_argument('--ott-dir',
                         default=None,
                         type=str,
@@ -386,13 +392,18 @@ if __name__ == '__main__':
                         type=str,
                         required=False,
                         help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
+    parser.add_argument('--root',
+                        default=None,
+                        type=int,
+                        required=False,
+                        help='Optional taxonomy root argument.')
     parser.add_argument('--input-files-list',
                         default=None,
                         type=str,
                         required=False,
                         help='A list of input NexSON filenames.')
     args = parser.parse_args(sys.argv[1:])
-    ott_dir, out_dir = args.ott_dir, args.out_dir
+    ott_dir, out_dir, root = args.ott_dir, args.out_dir, args.root
     flags_str = args.ott_prune_flags
     try:
         assert os.path.isdir(args.ott_dir)
@@ -428,10 +439,7 @@ if __name__ == '__main__':
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
         study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
-        x = study_tree.split('_')
-        if len(x) != 3:
-            sys.exit('Currently using the NexSON file name to indicate the tree via: studyID_treeID.json. Expected exactly 2 _ in the filename.\n')
-        tree_id = study_tree.split('_')[-1]
+        study_id, tree_id = propinquity_fn_to_study_tree(inp_fn)
         nexson_blob = read_as_json(inp)
         ntw = NexsonTreeWrapper(nexson_blob, tree_id, log_obj=log_obj)
         assert ntw.root_node_id
@@ -439,6 +447,7 @@ if __name__ == '__main__':
         try:
             ntw.prune_tree_for_supertree(ott=ott, 
                                          to_prune_fsi_set=to_prune_fsi_set,
+                                         root_ott_id=root,
                                          taxonomy_treefile=taxonomy_treefile)
         except EmptyTreeError:
             log_obj['EMPTY_TREE'] = True

@@ -34,7 +34,7 @@ if __name__ == '__main__':
                         default=None,
                         type=int,
                         required=False,
-                        help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
+                        help='Optional taxonomy root argument.')
     args = parser.parse_args(sys.argv[1:])
     ott_dir, output, log_filename, root = args.ott_dir, args.output, args.log, args.root
     flags_str = args.flags

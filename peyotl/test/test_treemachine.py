@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function, division
 from peyotl.api import Treemachine, Taxomachine
 from peyotl.test.support.pathmap import get_test_ot_service_domains
+from peyotl.test.support import example_ott_id_list
 from peyotl.test.test_v2facade import _test_tol_about
 from peyotl.utility import get_logger
 from requests.exceptions import HTTPError
@@ -46,25 +47,19 @@ class TestTreemachine(unittest.TestCase):
                               format='newick',
                               node_id=node_id)
     def testPrunedTree(self):
-        ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579,
-                   267484, 128308, 380453, 678579, 883864, 863991,
-                   3898562, 23821, 673540, 122251, 106729, 1084532, 541659]
         if self.treemachine.use_v1:
-            r = self.treemachine.get_synth_tree_pruned(ott_ids=ott_ids)
-            self.assertEqual(len(ott_ids), len(r['found_nodes']))
+            r = self.treemachine.get_synth_tree_pruned(ott_ids=example_ott_id_list)
+            self.assertEqual(len(example_ott_id_list), len(r['found_nodes']))
         else:
-            r = self.treemachine.induced_subtree(ott_ids=ott_ids)
+            r = self.treemachine.induced_subtree(ott_ids=example_ott_id_list)
             for key in ['ott_ids_not_in_tree', u'node_ids_not_in_tree']:
                 self.assertEqual(r[key], [])
         self.assertTrue(r['newick'].startswith('('))
     def testMRCA(self):
-        ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182,
-                   301424, 876348, 515698, 1045579, 267484,
-                   128308, 380453, 678579, 883864, 863991, 3898562, 23821, 673540, 122251, 106729, 1084532, 541659]
         if not self.treemachine.use_v1:
-            r = self.treemachine.mrca(ott_ids=ott_ids)
+            r = self.treemachine.mrca(ott_ids=example_ott_id_list)
             self.assertTrue('mrca_node_id' in r)
-            print('node_info is', self.treemachine.node_info(r['mrca_node_id']))
+            #print('node_info is', self.treemachine.node_info(r['mrca_node_id']))
     @unittest.skipIf(True, 'not sure whether this should be skipped...')
     def testSearchForTaxon(self):
         taxomachine = Taxomachine(self.domains)

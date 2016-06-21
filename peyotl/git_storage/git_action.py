@@ -437,7 +437,7 @@ class GitActionBase(object):
                 doc_dir = os.path.split(doc_filepath)[0]
                 #_LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))
                 git(self.gitdir, self.gitwd, "rm", "-rf", doc_dir)
-            elif self.doc_type in ('collection', 'favorites'):
+            elif self.doc_type in ('collection', 'favorites', 'amendment'):
                 # delete just the target file
                 git(self.gitdir, self.gitwd, "rm", doc_filepath)
             else:

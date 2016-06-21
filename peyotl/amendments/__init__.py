@@ -7,7 +7,7 @@ def get_empty_amendment():
     amendment = {
         # TODO: review fields and structure
         "curator": {"login": "", "name": ""},
-        "date_created": datetime.datetime.utcnow().isoformat(),
+        "date_created": datetime.datetime.utcnow().date().isoformat(),
         "study_id": "",
         "taxa": [ ],
         "comment": "",

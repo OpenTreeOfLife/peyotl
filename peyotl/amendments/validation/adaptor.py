@@ -28,15 +28,16 @@ class AmendmentValidationAdaptor(object):
             # depending on its value. Either is fine here.
             'curator': dict,
             'date_created': string,
-            'study_id': string_types,
             'taxa': list,
         }
-        # currently all allowed elements are also required
-        #self.optional_toplevel_elements = {}
+        self.optional_toplevel_elements = {
+            'study_id': string_types,
+        }
         # track unknown keys in top-level object
         uk = None
         for k in obj.keys():
-            if k not in self.required_toplevel_elements.keys():
+            if k not in self.required_toplevel_elements.keys() and
+               k not in self.optional_toplevel_elements.keys():
                 if uk is None:
                     uk = []
                 uk.append(k)

@@ -105,12 +105,13 @@ class AmendmentValidationAdaptor(object):
             # N.B. required property cannot be empty!
             self.required_toplevel_taxon_elements = {
                 'name': string_types,
+                'name_derivation': string_types,  # from controlled vocabulary
                 'parent': string_types,
-                'rank': string_types,  # can be 'no rank'
                 'sources': list,
             }
             self.optional_toplevel_taxon_elements = {
                 'comment': string_types,
+                'rank': string_types,  # can be 'no rank'
                 'tag': object  # can be anything (int, string, ...)
             }
 
@@ -134,6 +135,8 @@ class AmendmentValidationAdaptor(object):
                         assert isinstance(test_el, el_type)
                     except:
                         errors.append("Taxon property '{p}' should be one of these: {t}".format(p=el_key, t=el_type))
+
+                # TODO: name_derivation should be one of a limited set of values
 
                 # any optional properties found should also be of the required type(s)
                 for el_key, el_type in self.optional_toplevel_taxon_elements.items():

@@ -26,6 +26,7 @@ class AmendmentValidationAdaptor(object):
         self.required_toplevel_elements = {
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
+            'id': string_types,
             'curator': dict,
             'date_created': string_types,
             'taxa': list,
@@ -62,6 +63,15 @@ class AmendmentValidationAdaptor(object):
                 assert isinstance(test_el, el_type)
             except:
                 errors.append("Property '{p}' should be one of these: {t}".format(p=el_key, t=el_type))
+
+        # test a non-empty id against our expected pattern
+        self._id = obj.get('id')
+        if self._id and isinstance(self._id, string_types):
+            try:
+                from peyotl.amendments import AMENDMENT_ID_PATTERN
+                assert bool(AMENDMENT_ID_PATTERN.match(self._id))
+            except:
+                errors.append("The top-level amendment 'id' provided is not valid")
 
         # test a non-empty curator for expected 'login' and 'name' fields
         self._curator = obj.get('curator')

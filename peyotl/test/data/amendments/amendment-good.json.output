@@ -1,3 +1,4 @@
 [
-  "Taxon must have at least one valid source (none found)!"
+  "Property 'id' not found!", 
+  "Property 'id' should be one of these: (<type 'str'>, <type 'unicode'>)"
 ]

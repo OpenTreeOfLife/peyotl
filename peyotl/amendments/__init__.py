@@ -5,7 +5,7 @@
 def get_empty_amendment():
     import datetime
     amendment = {
-        "id": ""  # assigned when new ottids are minted
+        "id": "",  # assigned when new ottids are minted
         "curator": {"login": "", "name": ""},
         "date_created": datetime.datetime.utcnow().date().isoformat(),
         "study_id": "",
@@ -18,5 +18,8 @@ __all__ = ['git_actions',
            'validation',
            'amendments_shard',
            'amendments_umbrella']
+from peyotl.amendments.amendments_umbrella import TaxonomicAmendmentStore, \
+                                                  TaxonomicAmendmentStoreProxy, \
+                                                  AMENDMENT_ID_PATTERN
 
 # TODO: Define common support functions here (see collections/__init_.py for inspiration)

@@ -36,20 +36,18 @@ AMENDMENT_ID_PATTERN = re.compile(r'^(additions|changes|deletions)-[0-9]{7,8}-[0
 _LOG = get_logger(__name__)
 
 def prefix_from_amendment_path(amendment_id):
-    # The amendment id is a sort of "path", e.g. '{owner_id}/{amendment-name-as-slug}'
-    #   EXAMPLES: 'jimallman/trees-about-bees', 'kcranston/interesting-trees-2'
-    # Assume that the owner_id will work as a prefix, esp. by assigning all of a
-    # user's amendments to a single shard.for grouping in shards
+    # The amendment id is in the form '{subtype}-{first ottid}-{last-ottid}'
+    #   EXAMPLE: 'additions-0000000-0000005'
+    # TODO: Perhaps subtype could work as a prefix? Implies that we'd assign all matching
+    # amendments to a single shard.for grouping in shards. Let's try it and see...
     _LOG.debug('> prefix_from_amendment_path(), testing this id: {i}'.format(i=amendment_id))
-    path_parts = amendment_id.split('/')
-    _LOG.debug('> prefix_from_amendment_path(), found {} path parts'.format(len(path_parts)))
+    id_parts = amendment_id.split('-')
+    _LOG.debug('> prefix_from_amendment_path(), found {} parts'.format(len(path_parts)))
     if len(path_parts) > 1:
-        owner_id = path_parts[0]
-    elif path_parts[0] == '':
-        owner_id = 'anonymous'
+        subtype = path_parts[0]
     else:
-        owner_id = 'anonymous'   # or perhaps None?
-    return owner_id
+        subtype = 'unknown_subtype'   # or perhaps None?
+    return subtype
 
 class TaxonomicAmendmentStoreProxy(ShardedDocStore):
     '''Proxy for interacting with external resources if given the configuration of a remote TaxonomicAmendmentStore
@@ -125,11 +123,10 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
         return self._growing_shard.create_git_action_for_new_amendment(new_amendment_id=new_amendment_id)
 
     def add_new_amendment(self,
-                           owner_id,
-                           json_repr,
-                           auth_info,
-                           amendment_id=None,
-                           commit_msg=''):
+                          json_repr,
+                          auth_info,
+                          amendment_id=None,
+                          commit_msg=''):
         """Validate and save this JSON. Ensure (and return) a unique amendment id"""
         amendment = self._coerce_json_to_amendment(json_repr)
         if amendment is None:
@@ -138,20 +135,18 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
         if not self._is_valid_amendment_json(amendment):
             msg = "JSON is not a valid amendment:\n{j}".format(j=json_repr)
             raise ValueError(msg)
-        if amendment_id:
-            # try to use this id
-            found_owner_id, slug = amendment_id.split('/')
-            assert found_owner_id == owner_id
-        else:
-            # extract a working title and "slugify" it
-            slug = self._slugify_internal_amendment_name(json_repr)
-            amendment_id = '{i}/{s}'.format(i=owner_id, s=slug)
+
+        # TODO: Modify for amendment id format '{subtype}-{first ottid}-{last-ottid}'
+        if not amendment_id:
+            # TODO: extract a working id from JSON contents?
+            amendment_id = self._build_amendment_id(json_repr)
         # Check the proposed id for uniqueness in any case. Increment until
         # we have a new id, then "reserve" it using a placeholder value.
         with self._index_lock:
             while amendment_id in self._doc2shard_map:
                 amendment_id = increment_slug(amendment_id)
             self._doc2shard_map[amendment_id] = None
+
         # pass the id and amendment JSON to a proper git action
         new_amendment_id = None
         r = None
@@ -180,13 +175,12 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
         return new_amendment_id, r
 
     def update_existing_amendment(self,
-                                   owner_id,
-                                   amendment_id=None,
-                                   json_repr=None,
-                                   auth_info=None,
-                                   parent_sha=None,
-                                   merged_sha=None,
-                                   commit_msg=''):
+                                  amendment_id=None,
+                                  json_repr=None,
+                                  auth_info=None,
+                                  parent_sha=None,
+                                  merged_sha=None,
+                                  commit_msg=''):
         """Validate and save this JSON. Ensure (and return) a unique amendment id"""
         amendment = self._coerce_json_to_amendment(json_repr)
         if amendment is None:
@@ -215,24 +209,19 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
             raise
         return r
 
-    def copy_existing_amendment(self, owner_id, old_amendment_id):
-        """Ensure a unique id, whether from the same user or a different one"""
-        raise NotImplementedError('TODO')
-
-    def rename_existing_amendment(self, owner_id, old_amendment_id, new_slug=None):
-        """Use slug provided, or use internal name to generate a new id"""
-        raise NotImplementedError('TODO')
-
-    def _slugify_internal_amendment_name(self, json_repr):
-        """Parse the JSON, find its name, return a slug of its name"""
+    def _build_amendment_id(self, json_repr):
+        """Parse the JSON, return a slug in the form '{subtype}-{first ottid}-{last-ottid}'."""
         amendment = self._coerce_json_to_amendment(json_repr)
         if amendment is None:
             return None
-        internal_name = amendment['name']
-        return slugify(internal_name)
+        amendment_subtype = 'additions'
+        # TODO: Look more deeply once we have other subtypes!
+        first_ottid = amendment['TODO']
+        last_ottid = amendment['TODO']
+        return slugify('{s}-{f}-{l}'.format(s=amendment_subtype, f=first_ottid, l=last_ottid))
 
     def _is_valid_amendment_id(self, test_id):
-        """Test for the expected format '{owner_id}/{slug}', return T/F
+        """Test for the expected format '{subtype}-{first ottid}-{last-ottid}', return T/F
         N.B. This does not test for a working GitHub username!"""
         return bool(AMENDMENT_ID_PATTERN.match(test_id))
 

@@ -10,7 +10,6 @@ def get_empty_amendment():
         "date_created": datetime.datetime.utcnow().date().isoformat(),
         "study_id": "",
         "taxa": [ ],
-        "comment": "",
     }
     return amendment
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.collections.collections_umbrella import TaxonomicAmendmentStore, TaxonomicAmendmentStoreProxy
+from peyotl.amendments.amendments_umbrella import TaxonomicAmendmentStore, TaxonomicAmendmentStoreProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.collections import COLLECTION_ID_PATTERN
 from peyotl.utility import get_logger

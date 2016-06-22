@@ -27,7 +27,7 @@ class AmendmentValidationAdaptor(object):
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
             'curator': dict,
-            'date_created': string,
+            'date_created': string_types,
             'taxa': list,
         }
         self.optional_toplevel_elements = {
@@ -36,8 +36,8 @@ class AmendmentValidationAdaptor(object):
         # track unknown keys in top-level object
         uk = None
         for k in obj.keys():
-            if k not in self.required_toplevel_elements.keys() and
-               k not in self.optional_toplevel_elements.keys():
+            if (k not in self.required_toplevel_elements.keys() and
+                k not in self.optional_toplevel_elements.keys()):
                 if uk is None:
                     uk = []
                 uk.append(k)
@@ -90,9 +90,9 @@ class AmendmentValidationAdaptor(object):
         except:
             errors.append("Property 'date_created' is not a valid ISO date")
 
-        # test for a valid study_id
+        # test for a valid study_id (if it's not an empty string)
         self._study_id = obj.get('study_id')
-        if isinstance(self._study_id, string_types):
+        if self._study_id and isinstance(self._study_id, string_types):
             from peyotl.phylesystem import STUDY_ID_PATTERN
             try:
                 assert bool(STUDY_ID_PATTERN.match(self._study_id))
@@ -119,13 +119,13 @@ class AmendmentValidationAdaptor(object):
             uk = None
             for taxon in self._taxa:
                 for k in taxon.keys():
-                    if k not in self.required_toplevel_taxon_elements.keys() and 
-                       k not in self.optional_toplevel_taxon_elements.keys():
+                    if (k not in self.required_toplevel_taxon_elements.keys() and 
+                        k not in self.optional_toplevel_taxon_elements.keys()):
                         if uk is None:
                             uk = []
                         uk.append(k)
 
-                for el_key, el_type in self.required_toplevel_elements.items():
+                for el_key, el_type in self.required_toplevel_taxon_elements.items():
                     test_el = taxon.get(el_key, None)
                     try:
                         assert test_el is not None
@@ -141,7 +141,7 @@ class AmendmentValidationAdaptor(object):
                 # any optional properties found should also be of the required type(s)
                 for el_key, el_type in self.optional_toplevel_taxon_elements.items():
                     if el_key in taxon:
-                        test_el = taxon.get(el_key), None)
+                        test_el = taxon.get(el_key, None)
                         try:
                             assert isinstance(test_el, el_type)
                         except:
@@ -161,16 +161,19 @@ class AmendmentValidationAdaptor(object):
                     for s in taxon.get('sources'):
                         s_type = s.get('source_type', None)
                         try:
-                            assert 'source_type' in self.source_types_requiring_value or
-                                   'source_type' in self.source_types_not_requiring_value
+                            assert (s_type in self.source_types_requiring_value or
+                                    s_type in self.source_types_not_requiring_value)
+                            if s_type in self.source_types_requiring_value:
+                                try:
+                                    # the 'source' (value) field should be a non-empty string
+                                    assert s.get('source', None)
+                                    valid_source_found = True
+                                except:
+                                    errors.append("Missing value for taxon source of type '{t}'!".format(t=s_type))
+                            else:
+                                valid_source_found = True
                         except:
                             errors.append("Unknown taxon source type '{t}'!".format(t=s_type))
-                        if s_type in self.source_types_requiring_value:
-                            try:
-                                # the 'source' (value) field should be a non-empty string
-                                assert s.get('source', None)
-                            except:
-                                errors.append("Missing value for taxon source of type '{t}'!".format(t=s_type))
 
                 if not valid_source_found:
                     errors.append("Taxon must have at least one valid source (none found)!")

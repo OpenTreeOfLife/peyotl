@@ -7,9 +7,17 @@
     "study_id": "ot_234",
     "taxa": [
         {
-            "source_type": "The taxon is described in this study",
-            "source": null
-        },
-    ],
-    "comment": "A simple test amendment."
+            "name": "",
+            "parent": "",
+            "name": "",
+            "name_derivation": "",
+            "sources": [
+                {
+                    "source_type": "The taxon is described in this study",
+                    "source": null,
+                    "comment": "A simple test amendment."
+                }
+            ]
+        }
+    ]
 }

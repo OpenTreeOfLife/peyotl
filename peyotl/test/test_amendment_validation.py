@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from peyotl.amendments import get_empty_amendments
+from peyotl.amendments import get_empty_amendment
 from peyotl.utility.str_util import UNICODE
 from peyotl.amendments.validation import validate_amendment
 from peyotl.test.support import pathmap

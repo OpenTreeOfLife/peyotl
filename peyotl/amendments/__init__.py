@@ -5,7 +5,7 @@
 def get_empty_amendment():
     import datetime
     amendment = {
-        # TODO: review fields and structure
+        "id": ""  # assigned when new ottids are minted
         "curator": {"login": "", "name": ""},
         "date_created": datetime.datetime.utcnow().date().isoformat(),
         "study_id": "",

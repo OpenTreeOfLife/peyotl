@@ -44,6 +44,12 @@ class TestTaxonomicAmendments(unittest.TestCase):
     def testAmendmentCreation(self):
         c = _TaxonomicAmendmentStore(repos_dict=self.r)
         # TODO: create a new amendment with a unique name, confirm it exists AND has the expected id.
+    def testNewAmendmentIds(self):
+        # We assign each new 'additions' amendment a unique id based on the
+        # range of minted ottids.
+        # TODO: Determine behavior for other subtypes
+        c = _TaxonomicAmendmentStore(repos_dict=self.r)
+        # TODO: create a new amendment with a specified range of ottids
     def testAmendmentDeletion(self):
         c = _TaxonomicAmendmentStore(repos_dict=self.r)
         # TODO: create a new amendment with a unique name, confirm it exists

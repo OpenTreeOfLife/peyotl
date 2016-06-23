@@ -1,4 +1,5 @@
 {
+    "user_agent": "opentree-reference-taxonomy",
     "id": "additions-1234567-12345678",
     "curator": {
         "login": "jimallman", 

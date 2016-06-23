@@ -30,6 +30,7 @@ class AmendmentValidationAdaptor(object):
             'curator': dict,
             'date_created': string_types,
             'taxa': list,
+            'user_agent': string_types,
         }
         self.optional_toplevel_elements = {
             'study_id': string_types,

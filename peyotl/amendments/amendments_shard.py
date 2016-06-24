@@ -135,14 +135,14 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
         '''
         return set()
 
-    def _advance_new_ott_id(self):
+    def _mint_new_ott_ids(self, how_many=1):
         ''' ASSUMES the caller holds the _doc_counter_lock !
-        Returns the current int value of the next ottid, advances
-        the counter to the next value, and stores that value in the
-        file in case the server is restarted.
-        '''
-        n = self._next_ott_id
-        self._next_ott_id = 1 + n
+        Checks the current int value of the next ottid, reserves a block of
+        {how_many} ids, advances the counter to the next available value,
+        stores the counter in a file in case the server is restarted.
+        Checks out master branch as a side effect.'''
+        first_minted_id = self._next_ott_id
+        self._next_ott_id = first_minted_id + how_many
         content = u'{"next_ott_id": %d}\n' % self._next_ott_id
         # The content is JSON, but we hand-rolled the string above
         #       so that we can use it as a commit_msg
@@ -150,14 +150,8 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
                                            self._id_minting_file,
                                            commit_msg=content,
                                            is_json=False)
-        return n
-
-    def _mint_new_ott_id(self):
-        '''Checks out master branch as a side effect'''
-        # TODO: Drop this wrapper? There's nothing much left here.
-        with self._doc_counter_lock:
-            n = self._advance_new_ott_id()
-        return n
+        last_minted_id = self._next_ott_id - 1
+        return first_minted_id, last_minted_id
 
     def create_git_action_for_new_amendment(self, new_amendment_id=None):
         '''Checks out master branch as a side effect'''

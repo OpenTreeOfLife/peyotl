@@ -41,11 +41,12 @@ class TestTaxonomicAmendments(unittest.TestCase):
         expected = ['TestUserB/fungal-trees', 'TestUserB/my-favorite-trees',
                     'test-user-a/my-favorite-trees', 'test-user-a/trees-about-bees']  # TODO
         self.assertEqual(k, expected)
-    def testNextOTTId(self):
-        c = _TaxonomicAmendmentStore(repos_dict=self.r)
-        mf = c._growing_shard._id_minting_file
-        noi = p._mint_new_ott_id()
-        self.assertEqual(noi + 1, read_as_json(mf)['next_ott_id'])
+    ## Is there a safer way to test ottid-minting, without making "counterfeit" ids?
+    # def testNextOTTId(self):
+    #     c = _TaxonomicAmendmentStore(repos_dict=self.r)
+    #     mf = c._growing_shard._id_minting_file
+    #     noi = p._mint_new_ott_ids(how_many=3)
+    #     self.assertEqual(noi + 3, read_as_json(mf)['next_ott_id'])
     def testAmendmentCreation(self):
         c = _TaxonomicAmendmentStore(repos_dict=self.r)
         # TODO: create a new amendment with a unique name, confirm it exists AND has the expected id.

@@ -34,6 +34,7 @@ class AmendmentValidationAdaptor(object):
         }
         self.optional_toplevel_elements = {
             'study_id': string_types,
+            'new_ottids_required': int,  # provided by some agents
         }
         # track unknown keys in top-level object
         uk = None
@@ -117,13 +118,15 @@ class AmendmentValidationAdaptor(object):
             self.required_toplevel_taxon_elements = {
                 'name': string_types,
                 'name_derivation': string_types,  # from controlled vocabulary
-                'parent': string_types,
                 'sources': list,
             }
             self.optional_toplevel_taxon_elements = {
                 'comment': string_types,
                 'rank': string_types,  # can be 'no rank'
-                'tag': object  # can be anything (int, string, ...)
+                'parent': string_types,
+                'parent_tag': string_types,
+                'tag': object,  # can be anything (int, string, ...)
+                'ott_id': int   # if already assigned
             }
 
             # N.B. we should reject any unknown keys (not listed above)!
@@ -157,6 +160,12 @@ class AmendmentValidationAdaptor(object):
                             assert isinstance(test_el, el_type)
                         except:
                             errors.append("Taxon property '{p}' should be one of these: {t}".format(p=el_key, t=el_type))
+
+                # each taxon must have either 'parent' or 'parent_tag'!
+                try:
+                    assert ('parent' in taxon) or ('parent_tag' in taxon)
+                except:
+                    errors.append("Taxon has neither 'parent' nor 'parent_tag'!")
 
                 # we need at least one source with type and (sometimes) non-empty value
                 self.source_types_requiring_value = [

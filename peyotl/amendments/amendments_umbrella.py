@@ -118,10 +118,6 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
     def delete_amendment(self):
         return self.delete_doc
 
-    def _mint_new_ott_id(self):
-        '''Checks out master branch of the shard as a side effect'''
-        return self._growing_shard._mint_new_ott_id()
-
     def create_git_action_for_new_amendment(self, new_amendment_id=None):
         '''Checks out master branch of the shard as a side effect'''
         return self._growing_shard.create_git_action_for_new_amendment(new_amendment_id=new_amendment_id)
@@ -139,47 +135,110 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
             msg = "JSON is not a valid amendment:\n{j}".format(j=json_repr)
             raise ValueError(msg)
 
-        # TODO: Mint any needed ottids, update the document accordingly, and
+        # Mint any needed ottids, update the document accordingly, and
         # prepare a response with
         #  - per-taxon mapping of tag to ottid
         #  - resulting id (or URL) to the stored amendment
         # To ensure synchronization of ottids and amendments, this should be an
         # atomic operation!
 
-        # TODO: Modify for amendment id format '{subtype}-{first ottid}-{last-ottid}'
-        if not amendment_id:
-            # TODO: extract a working id from JSON contents?
-            amendment_id = self._build_amendment_id(json_repr)
-        # Check the proposed id for uniqueness in any case. Increment until
-        # we have a new id, then "reserve" it using a placeholder value.
-        with self._index_lock:
-            while amendment_id in self._doc2shard_map:
-                amendment_id = increment_slug(amendment_id)
-            self._doc2shard_map[amendment_id] = None
-
-        # pass the id and amendment JSON to a proper git action
-        new_amendment_id = None
-        r = None
-        try:
-            # assign the new id to a shard (important prep for commit_and_try_merge2master)
-            gd_id_pair = self.create_git_action_for_new_amendment(new_amendment_id=amendment_id)
-            new_amendment_id = gd_id_pair[1]
+        # check for tags and confirm count of new ottids required (if provided)
+        num_taxa_eligible_for_ids = 0
+        for taxon in amendment.get("taxa"):
+            # N.B. We don't require 'tag' in amendment validation; check for it now!
+            if not "tag" in taxon:
+                raise KeyError('Requested Taxon is missing "tag" property!')
+            # allow for taxa that have already been assigned (use cases?)
+            if not "ott_id" in taxon:
+                num_taxa_eligible_for_ids += 1
+        if 'new_ottids_required' in amendment:
+            requested_ids = amendment['new_ottids_required']
             try:
-                # it's already been validated, so keep it simple
-                r = self.commit_and_try_merge2master(file_content=amendment,
-                                                     doc_id=new_amendment_id,
-                                                     auth_info=auth_info,
-                                                     parent_sha=None,
-                                                     commit_msg=commit_msg,
-                                                     merged_sha=None)
+                assert (requested_ids == num_taxa_eligible_for_ids)
             except:
-                self._growing_shard.delete_doc_from_index(new_amendment_id)
-                raise
-        except:
+                raise ValueError('Number of OTT ids requested ({r}) does not match eligible taxa ({t})'.format(r=requested_ids, t=num_taxa_eligible_for_ids))
+
+        # mint new ids and assign each to an eligible taxon
+        with self._growing_shard._doc_counter_lock:
+            # build a map of tags to ottids, to return to the caller
+            tag_to_id = {}
+            first_new_id = self._growing_shard.next_ott_id
+            last_new_id = first_new_id + num_taxa_eligible_for_ids - 1
+            new_id = first_new_id
+            for taxon in amendment.get("taxa"):
+                if not "ott_id" in taxon:
+                    taxon["ott_id"] = new_id
+                    ttag = taxon["tag"]
+                    tag_to_id[ttag] = new_id
+                    new_id += 1
+                    ptag = taxon.get("parent_tag")
+                    if ptag != None:
+                        taxon["parent"] = tag_to_id[ptag]
+            try:
+                assert (new_id == (last_new_id + 1))
+            except:
+                applied = last_new_id - first_new_id + 1
+                raise ValueError('Number of OTT ids requested ({r}) does not match ids actually applied ({a})'.format(r=requested_ids, a=applied))
+
+            # Build a proper amendment id, in the format '{subtype}-{first ottid}-{last-ottid}'
+            amendment_subtype = 'additions'
+            # TODO: Handle other subtypes (beyond additions) by examining JSON?
+            amendment_id = "{s}-{f}-{l}".format(s=amendment_subtype, f=first_new_id, l=last_new_id)
+
+            # Check the proposed id for uniqueness (just to be safe), then
+            # "reserve" it using a placeholder value.
             with self._index_lock:
-                if new_amendment_id in self._doc2shard_map:
-                    del self._doc2shard_map[new_amendment_id]
-            raise
+                if amendment_id in self._doc2shard_map:
+                    # this should never happen!
+                    raise KeyError('Amendment "{i}" already exists!'.format(i=amendment_id))
+                self._doc2shard_map[amendment_id] = None
+
+            # Set the amendment's top-level "id" property to match
+            amendment["id"] = amendment_id
+
+            # pass the id and amendment JSON to a proper git action
+            new_amendment_id = None
+            r = None
+            # TODO: If commit fails, reverse the ott-id counter?
+            try:
+                # assign the new id to a shard (important prep for commit_and_try_merge2master)
+                gd_id_pair = self.create_git_action_for_new_amendment(new_amendment_id=amendment_id)
+                new_amendment_id = gd_id_pair[1]
+                # For amendments, the id should not have changed!
+                try:
+                    assert new_amendment_id == amendment_id
+                except:
+                    raise KeyError('Amendment id unexpectedly changed from "{o}" to "{n}"!'.format(
+                              o=amendment_id, n=new_amendment_id))
+                try:
+                    # it's already been validated, so keep it simple
+                    r = self.commit_and_try_merge2master(file_content=amendment,
+                                                         doc_id=new_amendment_id,
+                                                         auth_info=auth_info,
+                                                         parent_sha=None,
+                                                         commit_msg=commit_msg,
+                                                         merged_sha=None)
+                except:
+                    self._growing_shard.delete_doc_from_index(new_amendment_id)
+                    raise
+
+                # amendment is now in the repo, so we can safely reserve the ottids
+                first_minted_id, last_minted_id = self._growing_shard._mint_new_ott_ids(
+                    how_many=num_taxa_eligible_for_ids)
+                # do a final check for errors!
+                try:
+                    assert first_minted_id == first_new_id
+                    assert last_minted_id == last_new_id
+                except:
+                    raise KeyError('Amendment id unexpectedly changed from "{o}" to "{n}"!'.format(
+                              o=amendment_id, n=new_amendment_id))
+
+            except:
+                with self._index_lock:
+                    if new_amendment_id in self._doc2shard_map:
+                        del self._doc2shard_map[new_amendment_id]
+                raise
+
         with self._index_lock:
             self._doc2shard_map[new_amendment_id] = self._growing_shard
         return new_amendment_id, r

@@ -80,7 +80,7 @@ class AmendmentValidationAdaptor(object):
         if isinstance(self._curator, dict):
             for k in self._curator.keys():
                 try:
-                    assert k in ['login', 'name']
+                    assert k in ['login', 'name', 'email',]
                 except:
                     errors.append("Unexpected key '{k}' found in curator".format(k=k))
             if 'login' in self._curator:
@@ -93,6 +93,12 @@ class AmendmentValidationAdaptor(object):
                     assert isinstance(self._curator.get('login'), string_types)
                 except:
                     errors.append("Curator 'login' should be a string")
+            if 'email' in self._curator:
+                try:
+                    assert isinstance(self._curator.get('email'), string_types)
+                except:
+                    # TODO: Attempt to validate as an email address?
+                    errors.append("Curator 'email' should be a string (a valid email address)")
 
         # test for a valid date_created (should be valid ISO 8601)
         self._date_created = obj.get('date_created')

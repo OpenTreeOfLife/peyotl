@@ -86,9 +86,16 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
                                    **kwargs)
         self.filepath_for_doc_id_fn = filepath_for_amendment_id
         self._doc_counter_lock = Lock()
+        self._next_ott_id = None
+        self._id_minting_file = os.path.join(path, 'next_ott_id.json')
+        # N.B. This is for minting invididual taxon (OTT) ids, not amendment ids!
+        # We construct each amendment from its unique series of ottids.
         self.filepath_for_global_resource_fn = lambda frag: os.path.join(path, frag)
 
     # rename some generic members in the base class, for clarity and backward compatibility
+    @property
+    def next_ott_id(self):
+        return self._next_ott_id
     @property
     def known_prefixes(self):
         # this is required by TypeAwareDocStore
@@ -101,7 +108,8 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
     def write_configuration(self, out, secret_attrs=False):
         """Generic configuration, may be overridden by type-specific version"""
         key_order = ['name', 'path', 'git_dir', 'doc_dir', 'assumed_doc_version',
-                     'git_ssh', 'pkey', 'has_aliases', 'number of amendments']
+                     'git_ssh', 'pkey', 'has_aliases', '_next_ott_id', 
+                     'number of amendments']
         cd = self.get_configuration_dict(secret_attrs=secret_attrs)
         for k in key_order:
             if k in cd:
@@ -115,6 +123,9 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
         # "rename" some keys in the dict provided
         cd['number of amendments'] = cd.pop('number of documents')
         cd['amendments'] = cd.pop('documents')
+        # add keys particular to this shard subclass
+        if self._next_ott_id is not None:
+            cd['_next_ott_id'] = self._next_ott_id,
         return cd
 
     def _diagnose_prefixes(self):
@@ -123,6 +134,30 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
            naming taxonomic amendments.)
         '''
         return set()
+
+    def _advance_new_ott_id(self):
+        ''' ASSUMES the caller holds the _doc_counter_lock !
+        Returns the current int value of the next ottid, advances
+        the counter to the next value, and stores that value in the
+        file in case the server is restarted.
+        '''
+        n = self._next_ott_id
+        self._next_ott_id = 1 + n
+        content = u'{"next_ott_id": %d}\n' % self._next_ott_id
+        # The content is JSON, but we hand-rolled the string above
+        #       so that we can use it as a commit_msg
+        self._write_master_branch_resource(content,
+                                           self._id_minting_file,
+                                           commit_msg=content,
+                                           is_json=False)
+        return n
+
+    def _mint_new_ott_id(self):
+        '''Checks out master branch as a side effect'''
+        # TODO: Drop this wrapper? There's nothing much left here.
+        with self._doc_counter_lock:
+            n = self._advance_new_ott_id()
+        return n
 
     def create_git_action_for_new_amendment(self, new_amendment_id=None):
         '''Checks out master branch as a side effect'''

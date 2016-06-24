@@ -118,6 +118,10 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
     def delete_amendment(self):
         return self.delete_doc
 
+    def _mint_new_ott_id(self):
+        '''Checks out master branch of the shard as a side effect'''
+        return self._growing_shard._mint_new_ott_id()
+
     def create_git_action_for_new_amendment(self, new_amendment_id=None):
         '''Checks out master branch of the shard as a side effect'''
         return self._growing_shard.create_git_action_for_new_amendment(new_amendment_id=new_amendment_id)
@@ -125,7 +129,6 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
     def add_new_amendment(self,
                           json_repr,
                           auth_info,
-                          amendment_id=None,
                           commit_msg=''):
         """Validate and save this JSON. Ensure (and return) a unique amendment id"""
         amendment = self._coerce_json_to_amendment(json_repr)
@@ -135,6 +138,13 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
         if not self._is_valid_amendment_json(amendment):
             msg = "JSON is not a valid amendment:\n{j}".format(j=json_repr)
             raise ValueError(msg)
+
+        # TODO: Mint any needed ottids, update the document accordingly, and
+        # prepare a response with
+        #  - per-taxon mapping of tag to ottid
+        #  - resulting id (or URL) to the stored amendment
+        # To ensure synchronization of ottids and amendments, this should be an
+        # atomic operation!
 
         # TODO: Modify for amendment id format '{subtype}-{first ottid}-{last-ottid}'
         if not amendment_id:

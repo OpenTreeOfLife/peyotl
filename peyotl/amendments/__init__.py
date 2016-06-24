@@ -8,6 +8,7 @@ def get_empty_amendment():
         "id": "",  # assigned when new ottids are minted
         "curator": {"login": "", "name": ""},
         "date_created": datetime.datetime.utcnow().date().isoformat(),
+        "user_agent": "",
         "study_id": "",
         "taxa": [ ],
     }

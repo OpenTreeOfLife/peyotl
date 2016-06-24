@@ -26,13 +26,13 @@ class AmendmentValidationAdaptor(object):
         self.required_toplevel_elements = {
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
-            'id': string_types,
             'curator': dict,
             'date_created': string_types,
             'taxa': list,
             'user_agent': string_types,
         }
         self.optional_toplevel_elements = {
+            'id': string_types,  # not present in initial request
             'study_id': string_types,
             'new_ottids_required': int,  # provided by some agents
         }

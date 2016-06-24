@@ -199,7 +199,6 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
             # pass the id and amendment JSON to a proper git action
             new_amendment_id = None
             r = None
-            # TODO: If commit fails, reverse the ott-id counter?
             try:
                 # assign the new id to a shard (important prep for commit_and_try_merge2master)
                 gd_id_pair = self.create_git_action_for_new_amendment(new_amendment_id=amendment_id)
@@ -232,7 +231,9 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
                 except:
                     raise KeyError('Amendment id unexpectedly changed from "{o}" to "{n}"!'.format(
                               o=amendment_id, n=new_amendment_id))
-
+                # Add the tag-to-ottid mapping to the response, so a caller
+                # (e.g. the curation webapp) can provisionally assign them
+                r['tag_to_ottid'] = tag_to_id
             except:
                 with self._index_lock:
                     if new_amendment_id in self._doc2shard_map:

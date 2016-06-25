@@ -128,6 +128,20 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
             cd['_next_ott_id'] = self._next_ott_id,
         return cd
 
+    def _determine_next_ott_id(self):
+        """Read an initial value (int) from our stored counter (file)
+
+        Checks out master branch as a side effect!
+        """
+        if self._doc_counter_lock is None:
+            self._doc_counter_lock = Lock()
+        with self._doc_counter_lock:
+            noi_contents = self._read_master_branch_resource(self._id_minting_file, is_json=True)
+            if noi_contents:
+                self._next_ott_id = noi_contents['next_ott_id']
+            else:
+                raise RuntimeError('Stored ottid minting file not found (or invalid)!')
+
     def _diagnose_prefixes(self):
         '''Returns a set of all of the prefixes seen in the main document dir
            (This is currently always empty, since we don't use a prefix for

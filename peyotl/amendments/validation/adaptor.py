@@ -129,6 +129,8 @@ class AmendmentValidationAdaptor(object):
             self.optional_toplevel_taxon_elements = {
                 'comment': string_types,
                 'rank': string_types,  # can be 'no rank'
+                'original_label': string_types,
+                'adjusted_label': string_types,
                 'parent': string_types,
                 'parent_tag': string_types,
                 'tag': object,  # can be anything (int, string, ...)

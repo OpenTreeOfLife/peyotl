@@ -10,7 +10,7 @@
     "taxa": [
         {
             "name": "",
-            "parent": "",
+            "parent": 1,
             "name": "",
             "name_derivation": "",
             "sources": [

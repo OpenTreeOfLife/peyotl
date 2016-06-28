@@ -131,7 +131,7 @@ class AmendmentValidationAdaptor(object):
                 'rank': string_types,  # can be 'no rank'
                 'original_label': string_types,
                 'adjusted_label': string_types,
-                'parent': string_types,
+                'parent': int,  # the parent taxon's OTT id
                 'parent_tag': string_types,
                 'tag': object,  # can be anything (int, string, ...)
                 'ott_id': int   # if already assigned

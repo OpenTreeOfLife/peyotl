@@ -1,4 +1,3 @@
 [
-  "Property 'id' not found!", 
-  "Property 'id' should be one of these: (<type 'str'>, <type 'unicode'>)"
+  "Taxon property 'parent' should be one of these: <type 'int'>"
 ]

@@ -432,12 +432,12 @@ class GitActionBase(object):
             msg = commit_msg
         if os.path.exists(doc_filepath):
             prev_file_sha = self.get_blob_sha_for_file(doc_filepath)
-            if self.doc_type == 'nexson':
+            if self.doc_type in ('nexson', 'illustration',):
                 # delete the parent directory entirely
                 doc_dir = os.path.split(doc_filepath)[0]
                 #_LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))
                 git(self.gitdir, self.gitwd, "rm", "-rf", doc_dir)
-            elif self.doc_type in ('collection', 'favorites', 'amendment'):
+            elif self.doc_type in ('collection', 'favorites', 'amendment',):
                 # delete just the target file
                 git(self.gitdir, self.gitwd, "rm", doc_filepath)
             else:

@@ -75,6 +75,7 @@ def get_test_repos():
             'mini_system': os.path.join(repo_parent_path, 'mini_system'),
             'mini_collections': os.path.join(repo_parent_path, 'mini_collections'),
             'mini_amendments': os.path.join(repo_parent_path, 'mini_amendments'),
+            'mini_illustrations': os.path.join(repo_parent_path, 'mini_illustrations'),
            }
 
 def get_test_phylesystem_mirror_parent():
@@ -220,4 +221,26 @@ def amendment_source_path(filename=None):
     if filename is None:
         filename = ""
     return os.path.join(TESTS_DATA_DIR, "amendments", filename)
+
+def illustration_obj(filename):
+    '''Returns a dict that is the deserialized illustration object
+    'filename' should be the fragment of the filepath below
+    the illustration test dir.
+    '''
+    with illustration_file_obj(filename) as fo:
+        fc = fo.read()
+        return anyjson.loads(fc)
+
+def illustration_file_obj(filename):
+    ''' Returns file object.
+    'filename' should be the fragment of the filepath below
+    the illustration test dir.
+    '''
+    fp = illustration_source_path(filename=filename)
+    return codecs.open(fp, mode='r', encoding='utf-8')
+
+def illustration_source_path(filename=None):
+    if filename is None:
+        filename = ""
+    return os.path.join(TESTS_DATA_DIR, "illustrations", filename)
 

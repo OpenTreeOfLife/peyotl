@@ -35,5 +35,11 @@ then
 else
     git clone https://github.com/jimallman/mini_amendments.git || exit
 fi
+if test -d mini_illustrations
+then
+    echo "mini_illustrations exists"
+else
+    git clone https://github.com/jimallman/mini_illustrations.git || exit
+fi
 cd .. || exit
 cp -r template_mini_par mini_par

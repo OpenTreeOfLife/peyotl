@@ -25,4 +25,5 @@ rm -f scratch/.1.*
 rm -f scratch/.3.*
 rm -f scratch/.obtained_*
 rm -f scratch/.expected_*
+rm -f scratch/zipped_downloads/*.zip
 cd - >/dev/null

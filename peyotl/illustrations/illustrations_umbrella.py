@@ -21,6 +21,8 @@ from peyotl.illustrations.git_actions import IllustrationsGitAction
 #                                             validate_and_convert_nexson
 #from peyotl.nexson_validation import ot_validate
 import re
+import os
+import shutil
 
 # TODO: An illustration id should be a unique string (a valid filename) built from...
 ILLUSTRATION_ID_PATTERN = re.compile(r'^TODO$')
@@ -203,6 +205,44 @@ class _IllustrationStore(TypeAwareDocStore):
         except:
             raise
         return r
+
+    def create_illustration_archive(self, illustration_id=None, commit_sha=None):
+        # create a ZIP archive of the specified illustration's folder (and return its complete path + filename)
+        if !(_is_valid_illustration_id(illustration_id)):
+            raise ValueError("Illustration id not provided (or invalid)")
+        if not self.has_doc(illustration_id):
+            msg = "Unexpected illustration id '{}' (expected an existing id!)".format(illustration_id)
+            raise ValueError(msg)
+        # find the path to this illustration's folder in local filesystem
+        matching_illustration_paths = [fp for doc_id, fp in self.iter_doc_filepaths() if doc_id == illustration_id]
+        if len(matching_illustration_paths) > 1:
+            msg = "Multiple illustrations found with id '{}' (expected just one!)".format(illustration_id)
+            raise ValueError(msg)
+        if len(matching_illustration_paths) == 0:
+            msg = "No illustration found with id '{}'!".format(illustration_id)
+            raise ValueError(msg)
+        local_path_to_illustration = matching_illustration_paths[0]
+        # compress the entire folder to a ZIP archive (in a stream if possible, vs. a file)
+        import peyotl
+        peyotl_path = os.path.abspath(peyotl.__file__)[0]
+        # use a prepared scratch directory
+        # TODO: or consider using python's tempfile module? see https://pymotw.com/2/tempfile/
+        scratch_dir = os.path.join(peyotl_path, '../scratch/zipped_docs/')
+        scratch_dir = os.path.normpath(scratch_dir)  # remove '../' for safety
+        try:
+            assert os.path.isdir(scratch_dir)
+        except:
+            raise ValueError('Expected scratch directory not found: {}'.format())
+        archive_path_and_name = os.path.join(scratch_dir, illustration_id)
+        # N.B. this should clobber any existing archive file by this name!
+        new_file = shutil.make_archive(archive_path_and_name, 'zip', root_dir=local_path_to_illustration, base_dir=local_path_to_illustration)
+        expected_file = archive_path_and_name +'.zip'
+        try:
+            assert new_file == expected_file
+        except:
+            raise ValueError('Expected file not created! Found: [{f}], Expected: [{e}]'.format(found=new_file, expected=expected_file))
+        # return the the path+filename
+        return new_file
 
     def _build_illustration_id(self, json_repr):
         """Parse the JSON, return a slug in the form '{subtype}-{first ottid}-{last-ottid}'."""

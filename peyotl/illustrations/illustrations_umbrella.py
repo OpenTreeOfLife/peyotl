@@ -206,33 +206,31 @@ class _IllustrationStore(TypeAwareDocStore):
             raise
         return r
 
+    def retrieve_illustration_subresource(self, illustration_id=None, subresource_path=None, commit_sha=None):
+        """Find the specified sub-resource (e.g. a font or image file) and return its filesystem path"""
+        # TODO: use commit_sha to retrieve an older version?
+        local_path_to_illustration = self._get_illustration_folder(illustration_id)
+        # look for the named resource in the illustration's folder
+        subresource_path = os.path.join(local_path_to_illustration, subresource_path)
+        if !(os.path.exists(subresource_path)):
+            raise ValueError('Expected subresource not found: {}'.format(subresource_path))
+        return subresource_path
+
     def create_illustration_archive(self, illustration_id=None, commit_sha=None):
-        # create a ZIP archive of the specified illustration's folder (and return its complete path + filename)
-        if !(_is_valid_illustration_id(illustration_id)):
-            raise ValueError("Illustration id not provided (or invalid)")
-        if not self.has_doc(illustration_id):
-            msg = "Unexpected illustration id '{}' (expected an existing id!)".format(illustration_id)
-            raise ValueError(msg)
-        # find the path to this illustration's folder in local filesystem
-        matching_illustration_paths = [fp for doc_id, fp in self.iter_doc_filepaths() if doc_id == illustration_id]
-        if len(matching_illustration_paths) > 1:
-            msg = "Multiple illustrations found with id '{}' (expected just one!)".format(illustration_id)
-            raise ValueError(msg)
-        if len(matching_illustration_paths) == 0:
-            msg = "No illustration found with id '{}'!".format(illustration_id)
-            raise ValueError(msg)
-        local_path_to_illustration = matching_illustration_paths[0]
+        """Create a ZIP archive of the specified illustration's folder. Return its complete path + filename."""
+        # TODO: use commit_sha to archive an older version?
+        local_path_to_illustration = self._get_illustration_folder(illustration_id)
         # compress the entire folder to a ZIP archive (in a stream if possible, vs. a file)
         import peyotl
         peyotl_path = os.path.abspath(peyotl.__file__)[0]
         # use a prepared scratch directory
-        # TODO: or consider using python's tempfile module? see https://pymotw.com/2/tempfile/
+        # TODO: Consider using python's tempfile module instead? see https://pymotw.com/2/tempfile/
         scratch_dir = os.path.join(peyotl_path, '../scratch/zipped_docs/')
         scratch_dir = os.path.normpath(scratch_dir)  # remove '../' for safety
         try:
             assert os.path.isdir(scratch_dir)
         except:
-            raise ValueError('Expected scratch directory not found: {}'.format())
+            raise ValueError('Expected scratch directory not found: {}'.format(scratch_dir))
         archive_path_and_name = os.path.join(scratch_dir, illustration_id)
         # N.B. this should clobber any existing archive file by this name!
         new_file = shutil.make_archive(archive_path_and_name, 'zip', root_dir=local_path_to_illustration, base_dir=local_path_to_illustration)
@@ -243,6 +241,22 @@ class _IllustrationStore(TypeAwareDocStore):
             raise ValueError('Expected file not created! Found: [{f}], Expected: [{e}]'.format(found=new_file, expected=expected_file))
         # return the the path+filename
         return new_file
+
+    def _get_illustration_folder(self, illustration_id):
+        """Find and return the path to this illustration's folder in local filesystem"""
+        if !(_is_valid_illustration_id(illustration_id)):
+            raise ValueError("Illustration id not provided (or invalid)")
+        if not self.has_doc(illustration_id):
+            msg = "Unexpected illustration id '{}' (expected an existing id!)".format(illustration_id)
+            raise ValueError(msg)
+        matching_illustration_paths = [fp for doc_id, fp in self.iter_doc_filepaths() if doc_id == illustration_id]
+        if len(matching_illustration_paths) > 1:
+            msg = "Multiple illustrations found with id '{}' (expected just one!)".format(illustration_id)
+            raise ValueError(msg)
+        if len(matching_illustration_paths) == 0:
+            msg = "No illustration found with id '{}'!".format(illustration_id)
+            raise ValueError(msg)
+        return matching_illustration_paths[0]
 
     def _build_illustration_id(self, json_repr):
         """Parse the JSON, return a slug in the form '{subtype}-{first ottid}-{last-ottid}'."""

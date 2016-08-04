@@ -6,4 +6,4 @@ requests>=2.2.1
 redis
 enum34
 argcomplete
-
+python-dateutil

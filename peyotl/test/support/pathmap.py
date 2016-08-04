@@ -74,6 +74,7 @@ def get_test_repos():
     return {'mini_phyl': os.path.join(repo_parent_path, 'mini_phyl'),
             'mini_system': os.path.join(repo_parent_path, 'mini_system'),
             'mini_collections': os.path.join(repo_parent_path, 'mini_collections'),
+            'mini_amendments': os.path.join(repo_parent_path, 'mini_amendments'),
            }
 
 def get_test_phylesystem_mirror_parent():
@@ -197,4 +198,26 @@ def collection_source_path(filename=None):
     if filename is None:
         filename = ""
     return os.path.join(TESTS_DATA_DIR, "collections", filename)
+
+def amendment_obj(filename):
+    '''Returns a dict that is the deserialized amendment object
+    'filename' should be the fragment of the filepath below
+    the amendment test dir.
+    '''
+    with amendment_file_obj(filename) as fo:
+        fc = fo.read()
+        return anyjson.loads(fc)
+
+def amendment_file_obj(filename):
+    ''' Returns file object.
+    'filename' should be the fragment of the filepath below
+    the amendment test dir.
+    '''
+    fp = amendment_source_path(filename=filename)
+    return codecs.open(fp, mode='r', encoding='utf-8')
+
+def amendment_source_path(filename=None):
+    if filename is None:
+        filename = ""
+    return os.path.join(TESTS_DATA_DIR, "amendments", filename)
 

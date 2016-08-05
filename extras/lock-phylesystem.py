@@ -8,7 +8,7 @@ try:
     git_dir = os.path.join(repo, '.git')
     assert os.path.isdir(git_dir)
 except:
-    sys.exit('''Expecting a phylesystem or collections shard as the only argument.
+    sys.exit('''Expecting a phylesystem shard (or one for collections, amendments, etc.) as the only argument.
 This script looks for the .git dir in the first argument, and locks that .git
   dir to prevent simultaneous operations by the phylesystem-api.
 

@@ -87,7 +87,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
         `with_caching` should be True for non-debugging uses.
-        `assumed_doc_version` is optional. If specified all TreeCollectionStoreShard repos are assumed to store
+        `assumed_doc_version` is optional. If specified all TreeCollectionsShard repos are assumed to store
             files of this version of nexson syntax.
         `git_ssh` is the path of an executable for git-ssh operations.
         `pkey` is the PKEY that has to be in the env for remote, authenticated operations to work

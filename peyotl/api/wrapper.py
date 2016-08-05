@@ -65,6 +65,7 @@ class APIDomains(object):
         self._phylografter = 'http://www.reelab.net/phylografter'
         self._phylesystem_api = kwargs.get('phylesystem')
         self._collections_api = kwargs.get('collections')
+        self._amendments_api = kwargs.get('amendments')
         self._taxomachine = kwargs.get('taxomachine')
         self._treemachine = kwargs.get('treemachine')
     @property
@@ -88,6 +89,13 @@ class APIDomains(object):
                                                                     'collections_api',
                                                                     'https://api.opentreeoflife.org')
         return self._collections_api
+    @property
+    def amendments_api(self):
+        if self._amendments_api is None:
+            self._amendments_api = self._config.get_config_setting('apis',
+                                                                    'amendments_api',
+                                                                    'https://api.opentreeoflife.org')
+        return self._amendments_api
     @property
     def phylografter(self):
         return self._phylografter
@@ -115,13 +123,15 @@ class APIWrapper(object):
     # deprecated service
     # see https://github.com/OpenTreeOfLife/treemachine/issues/170
     SUPPORTING_GET_SOURCE_TREE = False
-    def __init__(self, domains=None, phylesystem_api_kwargs=None, collections_api_kwargs=None, **kwargs):
+    def __init__(self, domains=None, phylesystem_api_kwargs=None, collections_api_kwargs=None, amendments_api_kwargs=None, **kwargs):
         if domains is None:
             domains = get_domains_obj(**kwargs)
         self.domains = domains
         self._phylografter = None
         self._phylesystem_api = None
         self._collections_api = None
+        self._amendments_api = None
+        self._amendments = None
         self._taxomachine = None
         self._treemachine = None
         self._oti = None
@@ -140,6 +150,10 @@ class APIWrapper(object):
             self._collections_api_kwargs = {}
         else:
             self._collections_api_kwargs = dict(collections_api_kwargs)
+        if amendments_api_kwargs is None:
+            self._amendments_api_kwargs = {}
+        else:
+            self._amendments_api_kwargs = dict(amendments_api_kwargs)
     @property
     def oti(self):
         from peyotl.api.oti import _OTIWrapper #pylint: disable=R0401
@@ -191,11 +205,18 @@ class APIWrapper(object):
         kwargs['config'] = self._config
         self._collections_api = _TreeCollectionsAPIWrapper(self.domains.collections_api, **kwargs)
         return self._collections_api
+    def wrap_amendments_api(self, **kwargs):
+        raise NotImplementedError("wrap_amendments_api not implemented yet!") 
     @property
     def collections_api(self):
         if self._collections_api is None:
             self.wrap_collections_api()
         return self._collections_api
+    @property
+    def amendments_api(self):
+        if self._amendments_api is None:
+            self.wrap_amendments_api()
+        return self._amendments_api
     @property
     def phylografter(self):
         from peyotl.api.phylografter import _PhylografterWrapper

@@ -29,7 +29,7 @@ def _populate_globals():
     taxomachine = api_wrapper.taxomachine
     phylesystem_api = api_wrapper.phylesystem_api
     collections_api = api_wrapper.collections_api
-    amendments_api = api_wrapper.amendments_api
+    #amendments_api = api_wrapper.amendments_api
     #global favorites_api
     #favorites_api = api_wrapper.favorites_api
     tnrs = api_wrapper.tnrs

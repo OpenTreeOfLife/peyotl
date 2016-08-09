@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 from peyotl.amendments.amendments_umbrella import TaxonomicAmendmentStore, TaxonomicAmendmentStoreProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
-from peyotl.collections import COLLECTION_ID_PATTERN
+from peyotl.amendments import AMENDMENT_ID_PATTERN
 from peyotl.utility import get_logger
 import anyjson
 import os
 _LOG = get_logger(__name__)
 
 _GET_LOCAL, _GET_EXTERNAL, _GET_API = range(3)
-_GET_FROM_VALUES = ('local',    # only from local copy of collections
+_GET_FROM_VALUES = ('local',    # only from local copy of amendments
                     'external', # *DEFAULT* from external URLs
-                    'api', )    # from the GET calls of the collections-api
+                    'api', )    # from the GET calls of the amendments-api
 
 ### TRANSFORM only relevant when get_from is "api"
 ##_TRANS_CLIENT, _TRANS_SERVER = range(2)
@@ -44,7 +44,7 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
     @domain.setter
     def domain(self, d):#pylint: disable=W0221
         self._domain = d
-        self._prefix = '{d}/v2'.format(d=d)
+        self._prefix = '{d}/v3'.format(d=d)
     @property
     def docstore_obj(self):
         if self._docstore_obj is None:
@@ -73,15 +73,15 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
                 # TODO: remove this fall-back to legacy configuration once deployed phylesystems are up to date
                 self._assumed_doc_version = self.store_config.get('repo_nexml2json')
         return self._assumed_doc_version
-    def get_external_url(self, collection_id):
+    def get_external_url(self, amendment_id):
         if self._src_code == _GET_API:
-            return self._remote_external_url(collection_id)['url']
-        return self.docstore_obj.get_external_url(collection_id)
+            return self._remote_external_url(amendment_id)['url']
+        return self.docstore_obj.get_external_url(amendment_id)
     @property
-    def collection_list(self):
+    def amendment_list(self):
         if self._src_code == _GET_API:
-            return self._remote_collection_list()
-        return self.docstore_obj.get_collection_ids()
+            return self._remote_amendment_list()
+        return self.docstore_obj.get_amendment_ids()
     @property
     def push_failure_state(self):
         '''Returns a tuple: the boolean for whether or not pushes succeed, and the
@@ -93,7 +93,7 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
             raise RuntimeError('push_failure_state only pertains to work with remote phyleysystem instances')
         r = self._remote_push_failure()
         return r['pushes_succeeding'], r
-    def get(self, collection_id, content=None, **kwargs):
+    def get(self, amendment_id, content=None, **kwargs):
         '''Syntactic sugar around to make it easier to get fine-grained access
         to the parts of a file without composing a PhyloSchema object.
         Possible invocations include:
@@ -103,24 +103,24 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
             w.get('pg_10', tree_id='tree3')
         see:
         '''
-        assert COLLECTION_ID_PATTERN.match(collection_id)
-        r = self.get_collection(collection_id)
+        assert AMENDMENT_ID_PATTERN.match(amendment_id)
+        r = self.get_amendment(amendment_id)
         if isinstance(r, dict) and ('data' in r):
             return r['data']
         return r
 
-    def get_collection(self, collection_id):
+    def get_amendment(self, amendment_id):
         if self._src_code == _GET_EXTERNAL:
-            url = self.get_external_url(collection_id)
-            nexson = self.json_http_get(url)
-            r = {'data': nexson}
+            url = self.get_external_url(amendment_id)
+            json = self.json_http_get(url)
+            r = {'data': json}
         elif self._src_code == _GET_LOCAL:
-            nexson, sha = self.docstore_obj.return_doc(collection_id) #pylint: disable=W0632
-            r = {'data': nexson,
+            json, sha = self.docstore_obj.return_doc(amendment_id) #pylint: disable=W0632
+            r = {'data': json,
                  'sha': sha}
         else:
             assert self._src_code == _GET_API
-            r = self._remote_get_collection(collection_id)
+            r = self._remote_get_amendment(amendment_id)
         return r
     @property
     def auth_token(self):
@@ -135,39 +135,39 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             self._github_oauth_token = auth_token
         _LOG.debug('auth_token first test: {}'.format(self._github_oauth_token))
         return self._github_oauth_token
-    def _remote_collection_list(self):
-        '''Returns a list of strings which are the collection IDs'''
-        uri = '{}/collections/collection_list'.format(self._prefix)
+    def _remote_amendment_list(self):
+        '''Returns a list of strings which are the amendment IDs'''
+        uri = '{}/amendments/amendment_list'.format(self._prefix)
         return self.json_http_get(uri)
     def _remote_push_failure(self):
-        '''Returns a list of strings which are the collection IDs'''
-        uri = '{}/collections/push_failure'.format(self._prefix)
+        '''Returns a list of strings which are the amendment IDs'''
+        uri = '{}/amendments/push_failure'.format(self._prefix)
         return self.json_http_get(uri)
     def unmerged_branches(self):
-        uri = '{}/collections/unmerged_branches'.format(self._prefix)
+        uri = '{}/amendments/unmerged_branches'.format(self._prefix)
         return self.json_http_get(uri)
-    def post_collection(self,
+    def post_amendment(self,
                         json,
-                        collection_id=None,
+                        amendment_id=None,
                         commit_msg=None):
         assert json is not None
-        if collection_id is None:
-            uri = '{d}/collection'.format(d=self._prefix)
+        if amendment_id is None:
+            uri = '{d}/amendment'.format(d=self._prefix)
         else:
-            uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
+            uri = '{d}/amendment/{i}'.format(d=self._prefix, i=amendment_id)
         params = {'auth_token': self.auth_token}
         if commit_msg:
             params['commit_msg'] = commit_msg
         return self.json_http_post(uri,
                                    params=params,
                                    data=anyjson.dumps({'json': json}))
-    def put_collection(self,
-                       collection_id,
+    def put_amendment(self,
+                       amendment_id,
                        json,
                        starting_commit_sha,
                        commit_msg=None):
         assert json is not None
-        uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
+        uri = '{d}/amendment/{i}'.format(d=self._prefix, i=amendment_id)
         params = {'starting_commit_SHA':starting_commit_sha,
                   'auth_token': self.auth_token}
         if commit_msg:
@@ -175,11 +175,11 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return self.json_http_put(uri,
                                   params=params,
                                   data=anyjson.dumps({'json': json}))
-    def delete_collection(self,
-                          collection_id,
+    def delete_amendment(self,
+                          amendment_id,
                           starting_commit_sha,
                           commit_msg=None):
-        uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
+        uri = '{d}/amendment/{i}'.format(d=self._prefix, i=amendment_id)
         params = {'starting_commit_SHA':starting_commit_sha,
                   'auth_token': self.auth_token}
         if commit_msg:
@@ -187,13 +187,13 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return self.json_http_delete(uri,
                                      params=params)
     def _remote_store_config(self):
-        uri = '{d}/collections/store_config'.format(d=self._prefix)
+        uri = '{d}/amendments/store_config'.format(d=self._prefix)
         return self.json_http_get(uri)
-    def _remote_external_url(self, collection_id):
-        uri = '{d}/collections/external_url/{i}'.format(d=self._prefix, i=collection_id)
+    def _remote_external_url(self, amendment_id):
+        uri = '{d}/amendments/external_url/{i}'.format(d=self._prefix, i=amendment_id)
         return self.json_http_get(uri)
-    def _remote_get_collection(self, collection_id):
-        uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
+    def _remote_get_amendment(self, amendment_id):
+        uri = '{d}/amendment/{i}'.format(d=self._prefix, i=amendment_id)
         return self.json_http_get(uri)  # , params=None, text=False)
 
 def TaxonomicAmendmentsAPI(domains=None, **kwargs):

@@ -39,11 +39,14 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
     def _do_sugar_tests(self, taa):
         try:
             a = taa.get('additions-5000000-5000003')
+            cn = a['study_id']
+            self.assertTrue(cn in [u'ot_234',])
         except:
-            # TODO: add alternate amendment (and study_id) for remote/proxied docstore?
-            a = taa.get('additions-0000000-0000000')
-        cn = a['study_id']
-        self.assertTrue(cn in [u'ot_234',])
+            # add alternate amendment (and study_id) for remote/proxied docstore?
+            # N.B. this is an amendment in the production repo!
+            a = taa.get('additions-5861452-5861452')
+            cn = a['study_id']
+            self.assertTrue(cn in [u'ot_520',])
     @unittest.skipIf(not HAS_LOCAL_AMENDMENTS_REPOS,
                      'only available if you are have a [phylesystem] section ' \
                      'with "parent" variable in your peyotl config')
@@ -54,7 +57,6 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
         self.assertTrue(len(al) > 0)
     def testPushFailureState(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
-        #import pdb; pdb.set_trace()
         sl = taa.push_failure_state
         if sl[0] is not True:
             pprint('\npush-failure (possibly a stale result? re-run to find out!):\n')
@@ -88,14 +90,14 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
         # drive RESTful API via wrapper
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
         try:
-            a = taa.get_amendment('additions-5000000-5000003')
+            a = taa.get_amendment('additions-5861452-5861452')
         except HTTPError as err:
             raise_HTTPError_with_more_detail(err)
         except Exception as err:
             raise err
         # N.B. we get the JSON "wrapper" with history, etc.
         sid = a['data']['study_id']
-        self.assertTrue(sid == u'ot_234')
+        self.assertTrue(sid == u'ot_520')
     @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
                      'only available if GITHUB_OAUTH_TOKEN is found in env ' \
                      ' (required to use docstore write methods)')

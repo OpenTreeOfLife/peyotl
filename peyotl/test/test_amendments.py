@@ -62,7 +62,9 @@ class TestTaxonomicAmendments(unittest.TestCase):
         c = _TaxonomicAmendmentStore(repos_dict=self.r)
         c.pull()  # get the full git history
         # this SHA only affected other files (not docs)
-        changed = c.get_changed_docs('1660edb50e2cf5e4e8a09225260cde52ee80ed45')
+        # REMINDER: This will list all changed files *since* the stated SHA; results
+        # will probably change if more work is done in the mini_amendments repo!
+        changed = c.get_changed_docs('030398f93b322b6acb4ce9f4fcea3a7e5b7ff919')
         self.assertEqual(set(), changed)
         # check for known changed amendments in this repo (ignoring other changed files)
         changed = c.get_changed_docs('59e6d2d2ea62aa1ce784d29bdd43e74aa80d07d4')

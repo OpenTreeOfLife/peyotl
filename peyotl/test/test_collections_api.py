@@ -54,7 +54,6 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         self.assertTrue(len(cl) > 0)
     def testPushFailureState(self):
         tca = TreeCollectionsAPI(self.domains, get_from='api')
-        #import pdb; pdb.set_trace()
         sl = tca.push_failure_state
         if sl[0] is not True:
             pprint('\npush-failure (possibly a stale result? re-run to find out!):\n')

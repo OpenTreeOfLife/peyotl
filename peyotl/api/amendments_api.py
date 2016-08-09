@@ -197,5 +197,5 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return self.json_http_get(uri)  # , params=None, text=False)
 
 def TaxonomicAmendmentsAPI(domains=None, **kwargs):
-    return APIWrapper(domains=domains, **kwargs).wrap_collections_api(**kwargs)
+    return APIWrapper(domains=domains, **kwargs).wrap_amendments_api(**kwargs)
 

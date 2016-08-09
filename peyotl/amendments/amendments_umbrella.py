@@ -42,9 +42,9 @@ def prefix_from_amendment_path(amendment_id):
     # amendments to a single shard.for grouping in shards. Let's try it and see...
     _LOG.debug('> prefix_from_amendment_path(), testing this id: {i}'.format(i=amendment_id))
     id_parts = amendment_id.split('-')
-    _LOG.debug('> prefix_from_amendment_path(), found {} parts'.format(len(path_parts)))
-    if len(path_parts) > 1:
-        subtype = path_parts[0]
+    _LOG.debug('> prefix_from_amendment_path(), found {} parts'.format(len(id_parts)))
+    if len(id_parts) > 1:
+        subtype = id_parts[0]
     else:
         subtype = 'unknown_subtype'   # or perhaps None?
     return subtype

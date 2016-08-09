@@ -27,19 +27,17 @@ class TestTaxonomicAmendments(unittest.TestCase):
         c = _TaxonomicAmendmentStore(repos_dict=self.r)
         k = list(c._doc2shard_map.keys())
         k.sort()
-        expected = ['TestUserB/fungal-trees', 'TestUserB/my-favorite-trees',
-                    'test-user-a/my-favorite-trees', 'test-user-a/trees-about-bees']
-        # TODO: populate with test data, use those ids here
+        expected = ['additions-5000000-5000003']
+        # TODO: populate with more test data?
         self.assertEqual(k, expected)
     def testURL(self):
         c = _TaxonomicAmendmentStore(repos_dict=self.r)
-        self.assertTrue(c.get_public_url('TestUserB/fungal-trees').endswith('ngal-trees.json'))  # TODO
+        self.assertTrue(c.get_public_url('additions-5000000-5000003').endswith('-5000003.json'))  # TODO
     def testAmendmentIds(self):
         c = _TaxonomicAmendmentStore(repos_dict=self.r)
         k = list(c.get_doc_ids())
         k.sort()
-        expected = ['TestUserB/fungal-trees', 'TestUserB/my-favorite-trees',
-                    'test-user-a/my-favorite-trees', 'test-user-a/trees-about-bees']  # TODO
+        expected = ['additions-5000000-5000003']  # TODO: add more docs, to test sorting?
         self.assertEqual(k, expected)
     ## Is there a safer way to test ottid-minting, without making "counterfeit" ids?
     # def testNextOTTId(self):
@@ -63,28 +61,22 @@ class TestTaxonomicAmendments(unittest.TestCase):
     def testChangedAmendments(self):
         c = _TaxonomicAmendmentStore(repos_dict=self.r)
         c.pull()  # get the full git history
-        # check for known changed amendments in this repo
-        changed = c.get_changed_docs('637bb5a35f861d84c115e5e6c11030d1ecec92e0')  # TODO
+        # this SHA only affected other files (not docs)
+        changed = c.get_changed_docs('1660edb50e2cf5e4e8a09225260cde52ee80ed45')
         self.assertEqual(set(), changed)
-        changed = c.get_changed_docs('d17e91ae85e829a4dcc0115d5d33bf0dca179247')  # TODO
-        self.assertEqual(set([u'TestUserB/fungal-trees.json']), changed)  # TODO
-        changed = c.get_changed_docs('af72fb2cc060936c9afce03495ec0ab662a783f6')  # TODO
-        expected = set([u'test-user-a/my-favorite-trees.json', u'TestUserB/fungal-trees.json'])  # TODO
-        self.assertEqual(expected, changed)
-        # check a doc that changed
-        changed = c.get_changed_docs('af72fb2cc060936c9afce03495ec0ab662a783f6',
-                                     [u'TestUserB/fungal-trees.json'])  # TODO
-        self.assertEqual(set([u'TestUserB/fungal-trees.json']), changed)  # TODO
-        # check a doc that didn't change
-        changed = c.get_changed_docs('d17e91ae85e829a4dcc0115d5d33bf0dca179247',
-                                     [u'test-user-a/my-favorite-trees.json'])  # TODO
-        self.assertEqual(set(), changed)
-        # check a bogus doc id should work, but find nothing
-        changed = c.get_changed_docs('d17e91ae85e829a4dcc0115d5d33bf0dca179247',
-                                     [u'bogus/fake-trees.json'])  # TODO
+        # check for known changed amendments in this repo (ignoring other changed files)
+        changed = c.get_changed_docs('59e6d2d2ea62aa1ce784d29bdd43e74aa80d07d4')
+        self.assertEqual(set([u'additions-5000000-5000003.json']), changed)
+        # check a doc that changed (against whitelist)
+        changed = c.get_changed_docs('59e6d2d2ea62aa1ce784d29bdd43e74aa80d07d4',
+                                     [u'additions-5000000-5000003.json'])
+        self.assertEqual(set([u'additions-5000000-5000003.json']), changed)
+        # checking a bogus doc id should work, but find nothing
+        changed = c.get_changed_docs('59e6d2d2ea62aa1ce784d29bdd43e74aa80d07d4',
+                                     [u'non-existing-amendment.json'])
         self.assertEqual(set(), changed)
         # passing a foreign (or nonsense) SHA should raise a ValueError
-        self.assertRaises(ValueError, c.get_changed_docs, 'bogus')  # TODO
+        self.assertRaises(ValueError, c.get_changed_docs, 'bogus-SHA')
 
 if __name__ == "__main__":
     unittest.main(verbosity=5)

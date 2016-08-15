@@ -36,7 +36,7 @@ def _create_sub_el(doc, parent, tag, attrib, data=None):
                 el.setAttribute(att_key, att_value)
     if parent:
         parent.appendChild(el)
-    if data:
+    if data is not None:
         if data is True:
             el.appendChild(doc.createTextNode('true'))
         elif data is False:

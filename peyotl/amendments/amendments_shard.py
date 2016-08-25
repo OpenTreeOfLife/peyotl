@@ -136,6 +136,7 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
         if self._doc_counter_lock is None:
             self._doc_counter_lock = Lock()
         with self._doc_counter_lock:
+            _LOG.debug('Reading "{}"'.format(self._id_minting_file))
             noi_contents = self._read_master_branch_resource(self._id_minting_file, is_json=True)
             if noi_contents:
                 self._next_ott_id = noi_contents['next_ott_id']

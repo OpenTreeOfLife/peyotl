@@ -96,8 +96,8 @@ class TestV2Facade(unittest.TestCase):
         self.assertRaises(HTTPError, self.ot.tree_of_life.subtree, tree_id, format='newick', node_id=node_id)
     def testPrunedTree(self):
         ott_ids = [515698, 515712, 149491, 876340, 505091, 840022, 692350, 451182, 301424, 876348, 515698, 1045579,
-                   267484, 128308, 380453, 678579, 883864, 863991, 3898562,
-                   23821, 673540, 122251, 106729, 1084532, 541659]
+                   267484, 128308, 380453, 678579, 883864, 3898562,
+                   673540, 122251, 1084532, 541659]
         r = self.ot.tree_of_life.induced_subtree(ott_ids=ott_ids)
         for key in ['ott_ids_not_in_tree', u'node_ids_not_in_tree']:
             self.assertEqual(r[key], [])

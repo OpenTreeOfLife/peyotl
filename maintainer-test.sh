@@ -29,13 +29,13 @@ else
 fi
 if test $k -eq 0
 then
-    echo "Passed all standalone_tests passed."
+    echo "Passed all standalone_tests."
 else
     echo "Failed at least one standalone_test."
 fi
 if test $t -eq 0
 then
-    echo "Passed all tutorial tests passed."
+    echo "Passed all tutorial tests."
 else
     echo "Failed at least one tutorial test"
 fi

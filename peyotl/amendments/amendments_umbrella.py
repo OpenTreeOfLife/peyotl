@@ -165,6 +165,11 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
             tag_to_id = {}
             first_new_id = self._growing_shard.next_ott_id
             last_new_id = first_new_id + num_taxa_eligible_for_ids - 1
+            if last_new_id < first_new_id:
+                # This can happen if ther are no eligible taxa! In this case,
+                # repeat and "burn" the next ottid (ie, it will be used to
+                # identify this amendment, but it won't be assigned)
+                last_new_id = first_new_id
             new_id = first_new_id
             for taxon in amendment.get("taxa"):
                 if not "ott_id" in taxon:
@@ -176,7 +181,8 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
                     if ptag != None:
                         taxon["parent"] = tag_to_id[ptag]
             try:
-                assert (new_id == (last_new_id + 1))
+                if num_taxa_eligible_for_ids > 0:
+                    assert (new_id == (last_new_id + 1))
             except:
                 applied = last_new_id - first_new_id + 1
                 raise ValueError('Number of OTT ids requested ({r}) does not match ids actually applied ({a})'.format(r=requested_ids, a=applied))

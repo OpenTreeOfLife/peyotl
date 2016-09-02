@@ -180,12 +180,12 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
                     ptag = taxon.get("parent_tag")
                     if ptag != None:
                         taxon["parent"] = tag_to_id[ptag]
-            try:
-                if num_taxa_eligible_for_ids > 0:
+            if num_taxa_eligible_for_ids > 0:
+                try:
                     assert (new_id == (last_new_id + 1))
-            except:
-                applied = last_new_id - first_new_id + 1
-                raise ValueError('Number of OTT ids requested ({r}) does not match ids actually applied ({a})'.format(r=requested_ids, a=applied))
+                except:
+                    applied = last_new_id - first_new_id + 1
+                    raise ValueError('Number of OTT ids requested ({r}) does not match ids actually applied ({a})'.format(r=requested_ids, a=applied))
 
             # Build a proper amendment id, in the format '{subtype}-{first ottid}-{last-ottid}'
             amendment_subtype = 'additions'
@@ -230,14 +230,18 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
 
                 # amendment is now in the repo, so we can safely reserve the ottids
                 first_minted_id, last_minted_id = self._growing_shard._mint_new_ott_ids(
-                    how_many=num_taxa_eligible_for_ids)
+                    how_many=min(num_taxa_eligible_for_ids,1))
                 # do a final check for errors!
                 try:
                     assert first_minted_id == first_new_id
+                except:
+                    raise ValueError('First minted ottid is "{m}", expected "{e}"!'.format(
+                        m=first_minted_id, e=first_new_id))
+                try:
                     assert last_minted_id == last_new_id
                 except:
-                    raise KeyError('Amendment id unexpectedly changed from "{o}" to "{n}"!'.format(
-                              o=amendment_id, n=new_amendment_id))
+                    raise ValueError('Last minted ottid is "{m}", expected "{e}"!'.format(
+                        m=last_minted_id, e=last_new_id))
                 # Add the tag-to-ottid mapping to the response, so a caller
                 # (e.g. the curation webapp) can provisionally assign them
                 r['tag_to_ottid'] = tag_to_id

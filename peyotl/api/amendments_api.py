@@ -147,14 +147,10 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         uri = '{}/amendments/unmerged_branches'.format(self._prefix)
         return self.json_http_get(uri)
     def post_amendment(self,
-                        json,
-                        amendment_id=None,
-                        commit_msg=None):
+                       json,
+                       commit_msg=None):
         assert json is not None
-        if amendment_id is None:
-            uri = '{d}/amendment'.format(d=self._prefix)
-        else:
-            uri = '{d}/amendment/{i}'.format(d=self._prefix, i=amendment_id)
+        uri = '{d}/amendment'.format(d=self._prefix)
         params = {'auth_token': self.auth_token}
         if commit_msg:
             params['commit_msg'] = commit_msg
@@ -162,10 +158,10 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                                    params=params,
                                    data=anyjson.dumps({'json': json}))
     def put_amendment(self,
-                       amendment_id,
-                       json,
-                       starting_commit_sha,
-                       commit_msg=None):
+                      amendment_id,
+                      json,
+                      starting_commit_sha,
+                      commit_msg=None):
         assert json is not None
         uri = '{d}/amendment/{i}'.format(d=self._prefix, i=amendment_id)
         params = {'starting_commit_SHA':starting_commit_sha,

@@ -33,9 +33,15 @@ class TestPhylesystemAPI(unittest.TestCase):
     @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
                      'only available if you are have a [phylesystem] section ' \
                      'with "parent" variable in your peyotl config')
-    def testStudyList(self):
+    def testLocalStudyList(self):
         pa = PhylesystemAPI(self.domains, get_from='local')
         sl = pa.study_list
+        # local repo should have just a few studies
+        self.assertTrue(len(sl) < 10)
+    def testRemoteStudyList(self):
+        pa = PhylesystemAPI(self.domains, get_from='api')
+        sl = pa.study_list
+        # dev/production repos should have hundreds of studies
         self.assertTrue(len(sl) > 100)
     def testPushFailureState(self):
         pa = PhylesystemAPI(self.domains, get_from='api')

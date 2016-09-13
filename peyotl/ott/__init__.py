@@ -224,14 +224,14 @@ if a node is the last child of its parent, next_sib will be None
 also in the map is 'root' -> root preorder number
 ''', ),
            'ottid2sources': ('ottIDsources', '''maps an ott ID to a dict. The value
-holds a mapping of a source taxonomy name to the ID of this ott ID in that 
+holds a mapping of a source taxonomy name to the ID of this ott ID in that
 taxonomy.''',),
            'ottid2flags': ('ottID2flags', '''maps an ott ID to an integer that can be looked up in the flag_set_id2flag_set
 dictionary. Absence of a ott ID means that there were no flags set.''',),
            'flagsetid2flagset': ('flagSetID2FlagSet',
                                  'maps an integer to set of flags. Used to compress the flags field'),
            'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
-           'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'), 
+           'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'),
            'forwardingtable': ('forward_table', 'maps a deprecated ID to its forwarded ID')}
 _SECOND_LEVEL_CACHES = set(['ncbi2ottid'])
 class CacheNotFoundError(RuntimeError):
@@ -284,7 +284,7 @@ class OTT(object):
         return flag_set_key in taboo._flag_set_keys
     def get_flag_set_key(self, ott_id):
         return self.ott_id_to_flags.get(ott_id)
-        
+
     def ncbi(self, ncbi_id):
         if self._ncbi_2_ott_id is None:
             try:
@@ -475,7 +475,7 @@ class OTT(object):
         uniq2id = {} # uniqname to UID
         id2flag = {} # UID to a key in flag_set_id2flag_set
         id2source = {} # UID to {rank: ... silva: ..., ncbi: ... gbif:..., irmng : , f}
-                     # where the value for f is 
+                     # where the value for f is
         flag_set_id2flag_set = {}
         flag_set2flag_set_id = {}
         sources = set()
@@ -598,7 +598,8 @@ class OTT(object):
         with codecs.open(synonyms_file, 'r', encoding='utf-8') as syn_fo:
             it = iter(syn_fo)
             first_line = next(it)
-            assert first_line == 'name\t|\tuid\t|\ttype\t|\tuniqname\t|\t\n'
+            # modified to allow for final 'source column'
+            assert first_line.startswith('name\t|\tuid\t|\ttype\t|\tuniqname')
             for rown in it:
                 ls = rown.split('\t|\t')
                 name, ott_id = ls[0], ls[1]
@@ -807,7 +808,7 @@ class OTT(object):
 
     def map_ott_ids(self, ott_id_list, to_prune_fsi_set, root_ott_id):
         '''returns:
-          - a list of recognized ott_ids. 
+          - a list of recognized ott_ids.
           - a list of unrecognized ott_ids
           - a list of ott_ids that forward to unrecognized ott_ids
           - a list of ott_ids that do not appear in the tree because they are flagged to be pruned.
@@ -968,4 +969,3 @@ if __name__ == '__main__':
     print(o.root_name)
     o.induced_tree([458721, 883864, 128315])
     '''
-

@@ -101,7 +101,9 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         # N.B. we get the JSON "wrapper" with history, etc.
         cn = c['data']['name']
         self.assertTrue(cn == u'My test collection')
-    @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
+    @unittest.skipIf((os.environ.get('USER', '') != 'jimallman')
+                     or 
+                     (not os.environ.get('GITHUB_OAUTH_TOKEN')),
                      'only available if GITHUB_OAUTH_TOKEN is found in env ' \
                      ' (required to use docstore write methods)')
     def testModifyCollectionRemote(self):

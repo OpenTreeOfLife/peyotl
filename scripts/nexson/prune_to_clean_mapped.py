@@ -424,9 +424,10 @@ if __name__ == '__main__':
     nonflagged_json_fn = args.ott_prune_nonflagged_json
     if nonflagged_json_fn is not None:
         nonflagged_blob = read_as_json(nonflagged_json_fn)
-        for reason, id_list in nonflagged_blob.items():
-            for ott_id in id_list:
-                to_prune_for_reasons[ott_id] = reason
+        if nonflagged_blob:
+            for reason, id_list in nonflagged_blob.items():
+                for ott_id in id_list:
+                    to_prune_for_reasons[ott_id] = reason
     flags_str = args.ott_prune_flags
     try:
         assert os.path.isdir(args.ott_dir)

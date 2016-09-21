@@ -93,8 +93,8 @@ class APIDomains(object):
     def amendments_api(self):
         if self._amendments_api is None:
             self._amendments_api = self._config.get_config_setting('apis',
-                                                                    'amendments_api',
-                                                                    'https://api.opentreeoflife.org')
+                                                                   'amendments_api',
+                                                                   'https://api.opentreeoflife.org')
         return self._amendments_api
     @property
     def phylografter(self):
@@ -206,7 +206,25 @@ class APIWrapper(object):
         self._collections_api = _TreeCollectionsAPIWrapper(self.domains.collections_api, **kwargs)
         return self._collections_api
     def wrap_amendments_api(self, **kwargs):
-        raise NotImplementedError("wrap_amendments_api not implemented yet!") 
+        from peyotl.api.amendments_api import _TaxonomicAmendmentsAPIWrapper
+        cfrom = self._config.get_config_setting('apis',
+                                                'amendments_get_from',
+                                                self._amendments_api_kwargs.get('get_from', 'external'))
+        ctrans = self._config.get_config_setting('apis',
+                                                 'amendments_transform',
+                                                 self._amendments_api_kwargs.get('transform', 'client'))
+        crefresh = self._config.get_config_setting('apis',
+                                                   'amendments_refresh',
+                                                   self._amendments_api_kwargs.get('refresh', 'never'))
+        if cfrom:
+            kwargs.setdefault('get_from', cfrom)
+        if ctrans:
+            kwargs.setdefault('transform', ctrans)
+        if crefresh:
+            kwargs.setdefault('refresh', crefresh)
+        kwargs['config'] = self._config
+        self._amendments_api = _TaxonomicAmendmentsAPIWrapper(self.domains.amendments_api, **kwargs)
+        return self._amendments_api
     @property
     def collections_api(self):
         if self._collections_api is None:

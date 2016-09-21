@@ -39,11 +39,20 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
     def _do_sugar_tests(self, taa):
         try:
             a = taa.get('additions-5000000-5000003')
+            cn = a['study_id']
+            self.assertTrue(cn in [u'ot_234',])
         except:
-            # TODO: add alternate amendment (and study_id) for remote/proxied docstore?
-            a = taa.get('additions-0000000-0000000')
-        cn = a['study_id']
-        self.assertTrue(cn in [u'ot_234',])
+            # try alternate amendments (and study_id) for remote/proxied docstores
+            try:
+                # this is an amendment in the production repo!
+                a = taa.get('additions-5861452-5861452')
+                cn = a['study_id']
+                self.assertTrue(cn in [u'ot_520',])
+            except:
+                # this is an amendment in the devapi repo (amendments-0)!
+                a = taa.get('additions-10000000-10000001')
+                cn = a['study_id']
+                self.assertTrue(cn in [u'pg_2606',])
     @unittest.skipIf(not HAS_LOCAL_AMENDMENTS_REPOS,
                      'only available if you are have a [phylesystem] section ' \
                      'with "parent" variable in your peyotl config')
@@ -54,114 +63,104 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
         self.assertTrue(len(al) > 0)
     def testPushFailureState(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
-        #import pdb; pdb.set_trace()
         sl = taa.push_failure_state
         if sl[0] is not True:
             pprint('\npush-failure (possibly a stale result? re-run to find out!):\n')
             pprint(sl)
         self.assertTrue(sl[0] is True)
-    @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
-                     'only available if GITHUB_OAUTH_TOKEN is found in env ' \
-                     ' (required to use docstore write methods)')
-    def testCreateAmendmentRemote(self):
-        # drive RESTful API via wrapper
-        taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
-        # remove any prior clones of our tests amendment? or let them pile up for now?
-        al = taa.amendment_list
-        test_amendment_study_id = 'ot_999999'
-        # TODO: fetch next ottid to mint, to determine the resulting amendment id?
-        expected_id = "TODO-1"
-        # generate a new amendment and set some properties
-        ajson = get_empty_amendment()
-        ajson['study_id'] = test_amendment_study_id
-        aid = "TODO-2"
-        commit_msg = 'Test of creating amendments via API wrapper'
-        result = taa.post_amendment(ajson,
-                                    aid,  # TODO: defer to POST method to set amendment ids?
-                                    commit_msg)
-        al = taa.amendment_list
-        self.assertEqual(result['error'], 0)
-        self.assertEqual(result['merge_needed'], False)
-        self.assertEqual(result['resource_id'], expected_id)
-        self.assertTrue(expected_id in al)
     def testFetchAmendmentRemote(self):
         # drive RESTful API via wrapper
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
         try:
-            a = taa.get_amendment('additions-5000000-5000003')
-        except HTTPError as err:
-            raise_HTTPError_with_more_detail(err)
-        except Exception as err:
-            raise err
-        # N.B. we get the JSON "wrapper" with history, etc.
-        sid = a['data']['study_id']
-        self.assertTrue(sid == u'ot_234')
-    @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
-                     'only available if GITHUB_OAUTH_TOKEN is found in env ' \
-                     ' (required to use docstore write methods)')
-    def testModifyAmendmentRemote(self):
-        # drive RESTful API via wrapper
-        taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
-        aid = 'additions-0000000-0000000'
-        try:
-            a = taa.get_amendment(aid)
-        except HTTPError as err:
-            raise_HTTPError_with_more_detail(err)
-        except Exception as err:
-            raise err
-        # N.B. we get the JSON "wrapper" with history, etc.
-        ac = a['data']['comment']
-        # let's treat this as a numeric value and increment it
-        try:
-            ac_number = int(ac)
+            # this is an amendment in the production repo!
+            a = taa.get_amendment('additions-5861452-5861452')
+            # N.B. we get the JSON "wrapper" with history, etc.
+            sid = a['data']['study_id']
+            self.assertTrue(sid == u'ot_520')
         except:
-            ac_number = 0
-        ac_number += 1
-        a['data']['comment'] = str(ac_number)
-        a = taa.put_amendment(aid,
-                              a['data'],
-                              a['sha'])  # TODO: add commit msg?
-        # retrieve the new version and see if it has the modified comment
-        try:
-            a = taa.get_amendment(aid)
-        except HTTPError as err:
-            raise_HTTPError_with_more_detail(err)
-        except Exception as err:
-            raise err
-        self.assertEqual(a['data']['comment'], str(ac_number))
-    @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
-                     'only available if GITHUB_OAUTH_TOKEN is found in env ' \
-                     ' (required to use docstore write methods)')
-    def testDeleteAmendmentRemote(self):
-        # drive RESTful API via wrapper
-        taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
-        # remove any prior clones of our tests amendment? or let them pile up for now?
-        al = taa.amendment_list
-        aid = 'additions-6666666-6666666'
-        if aid not in al:
-            # add our dummy amendment so just we can delete it
-            ajson = get_empty_amendment()
-            commit_msg = 'Creating temporary amendment via API wrapper'
-            result = taa.post_amendment(ajson,
-                                        aid,
-                                        commit_msg)
-            al = taa.amendment_list
-            self.assertEqual(result['error'], 0)
-            self.assertEqual(result['merge_needed'], False)
-            self.assertEqual(result['resource_id'], aid)
-            self.assertTrue(aid in al)
-        # now try to clobber it
-        try:
-            a = taa.get_amendment(aid)
-        except HTTPError as err:
-            raise_HTTPError_with_more_detail(err)
-        except Exception as err:
-            raise err
-        a = taa.delete_amendment(aid,
-                                 a['sha'])
-        # is it really gone?
-        al = taa.amendment_list
-        self.assertTrue(aid not in al)
+            # try alternate amendment (and study_id) in the devapi repo (amendments-0)!
+            a = taa.get_amendment('additions-10000000-10000001')
+            # N.B. we get the JSON "wrapper" with history, etc.
+            sid = a['data']['study_id']
+            self.assertTrue(sid == u'pg_2606')
+    #@unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
+    #                 'only available if GITHUB_OAUTH_TOKEN is found in env ' \
+    #                 ' (required to use docstore write methods)')
+    #def testCRUD1_CreateAmendmentRemote(self):
+    #    # drive RESTful API via wrapper
+    #    taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
+    #    # remove any prior clones of our tests amendment? or let them pile up for now?
+    #    al = taa.amendment_list
+    #    test_amendment_study_id = 'ot_999999'
+    #    # TODO: fetch next ottid to mint, to determine the resulting amendment id?
+    #    expected_id = "additions-9999999-9999999"
+    #    # generate a new amendment and set some properties
+    #    ajson = get_empty_amendment()
+    #    ajson['study_id'] = test_amendment_study_id
+    #    commit_msg = 'Test of creating amendments via API wrapper'
+    #    #import pdb; pdb.set_trace()
+    #    result = taa.post_amendment(ajson,
+    #                                commit_msg)
+    #    al = taa.amendment_list
+    #    self.assertEqual(result['error'], 0)
+    #    self.assertEqual(result['merge_needed'], False)
+    #    self.assertEqual(result['resource_id'], expected_id)
+    #    self.assertTrue(expected_id in al)
+    #@unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
+    #                 'only available if GITHUB_OAUTH_TOKEN is found in env ' \
+    #                 ' (required to use docstore write methods)')
+    #def testCRUD2_ModifyAmendmentRemote(self):
+    #    # drive RESTful API via wrapper
+    #    taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
+    #    aid = 'additions-0000000-0000000'
+    #    try:
+    #        a = taa.get_amendment(aid)
+    #    except HTTPError as err:
+    #        raise_HTTPError_with_more_detail(err)
+    #    except Exception as err:
+    #        raise err
+    #    # N.B. we get the JSON "wrapper" with history, etc.
+    #    ac = a['data']['comment']
+    #    # let's treat this as a numeric value and increment it
+    #    try:
+    #        ac_number = int(ac)
+    #    except:
+    #        ac_number = 0
+    #    ac_number += 1
+    #    a['data']['comment'] = str(ac_number)
+    #    a = taa.put_amendment(aid,
+    #                          a['data'],
+    #                          a['sha'])  # TODO: add commit msg?
+    #    # retrieve the new version and see if it has the modified comment
+    #    try:
+    #        a = taa.get_amendment(aid)
+    #    except HTTPError as err:
+    #        raise_HTTPError_with_more_detail(err)
+    #    except Exception as err:
+    #        raise err
+    #    self.assertEqual(a['data']['comment'], str(ac_number))
+    #@unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
+    #                 'only available if GITHUB_OAUTH_TOKEN is found in env ' \
+    #                 ' (required to use docstore write methods)')
+    #def testCRUD3_DeleteAmendmentRemote(self):
+    #    # drive RESTful API via wrapper
+    #    taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
+    #    # ASSUME that our amendment was created in CRUD1 test above
+    #    aid = 'additions-6666666-6666666'
+    #    al = taa.amendment_list
+    #    self.assertTrue(aid in al)
+    #    # now try to clobber it
+    #    try:
+    #        a = taa.get_amendment(aid)
+    #    except HTTPError as err:
+    #        raise_HTTPError_with_more_detail(err)
+    #    except Exception as err:
+    #        raise err
+    #    a = taa.delete_amendment(aid,
+    #                             a['sha'])
+    #    # is it really gone?
+    #    al = taa.amendment_list
+    #    self.assertTrue(aid not in al)
 
     def testRemoteSugar(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')

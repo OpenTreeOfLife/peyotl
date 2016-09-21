@@ -240,7 +240,7 @@ class ConfigWrapper(object):
     '''
     def __init__(self,
                  raw_config_obj=None,
-                 config_filename='<programmitcally configured>',
+                 config_filename='<programmatically configured>',
                  overrides=None,
                  dominant_defaults=None,
                  fallback_defaults=None):

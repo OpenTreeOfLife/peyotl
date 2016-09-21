@@ -30,7 +30,7 @@ The easiest way to get a framework for a config file is to copy the example `dot
 to the default location:
 
     $ mkdir ~/.peyotl
-    $ cp extras/dot_peyotl ~/.peyotl/config
+    $ cp extras/dot_peyotl/config ~/.peyotl/config
 
 and then edit `~/.peyotl/config` in your text editor to reflect the paths to 
 the parent directory of the phylesystem, then the peyotl library can find

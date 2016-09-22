@@ -423,7 +423,10 @@ if __name__ == '__main__':
     to_prune_for_reasons = {}
     nonflagged_json_fn = args.ott_prune_nonflagged_json
     if nonflagged_json_fn is not None:
-        nonflagged_blob = read_as_json(nonflagged_json_fn)
+        try:
+            nonflagged_blob = read_as_json(nonflagged_json_fn)
+        except:
+            nonflagged_blob = None
         if nonflagged_blob:
             for reason, id_list in nonflagged_blob.items():
                 for ott_id in id_list:

@@ -315,7 +315,8 @@ class NexsonTreeWrapper(object):
             if new_id in self.by_ott_id:
                 v = self.by_ott_id[new_id]
                 v.extend(old_node_list)
-                v.sort()
+                v.sort() # I think only the last step requires sorting (NEED to check that,
+                         # If so, we could move this sort to that point to avoid multiple sortings.
             else:
                 self.by_ott_id = old_node_list
             for sortable_el in old_node_list:

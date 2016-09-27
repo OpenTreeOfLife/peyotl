@@ -215,7 +215,7 @@ def create_overrides_from_config(config):
     returned dict is appropriate for use as the overrides arg for a ConfigWrapper.__init__() call.
     """
     from peyotl.utility.get_logger import read_logging_config
-    read_logging_config()
+    read_logging_config()  # triggers reading logging configuration. Probably unneeded. @TODO
     return _do_create_overrides_from_config(config)
 
 

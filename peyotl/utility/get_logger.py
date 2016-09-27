@@ -83,7 +83,8 @@ def read_logging_config():
     if _LOGGING_CONF is not None:
         return _LOGGING_CONF
     _LOGGING_CONF = {}
-    # These strings hold the names of env variables that control LOGGING. If one is defined, all must be!
+    # These strings hold the names of env variables that control LOGGING. If LEVEL is defined via the environment
+    #   the the
     _LOGGING_LEVEL_ENVAR = "PEYOTL_LOGGING_LEVEL"
     _LOGGING_FORMAT_ENVAR = "PEYOTL_LOGGING_FORMAT"
     _LOGGING_FILE_PATH_ENVAR = "PEYOTL_LOG_FILE_PATH"

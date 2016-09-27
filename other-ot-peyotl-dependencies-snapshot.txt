@@ -202,3 +202,13 @@ peyotl.__version__
 ott = OTT(ott_dir=args.ott_dir)
 # load up the OTT dictionary...
 d = ott.ott_id_to_names
+
+##########
+germinator
+##########
+from peyotl.sugar import taxomachine as TNRS
+PEYOTL_CONFIG_FILE
+PEYOTL_LOG_FILE_PATH
+PEYOTL_LOGGING_LEVEL
+from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
+from peyotl.nexson_syntax import extract_tree_nexson

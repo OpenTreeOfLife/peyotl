@@ -26,6 +26,13 @@ def _replace_default_config(cfg):
 
 
 def get_default_config_filename():
+    """Returns the configuration filepath.
+
+    If PEYOTL_CONFIG_FILE is in the env that is the preferred choice; otherwise ~/.peyotl/config is preferred.
+    If the preferred file does not exist, then the packaged peyotl/default.conf from the installation of peyotl is
+    used.
+    A RuntimeError is raised if that fails.
+    """
     global _CONFIG_FN
     if _CONFIG_FN is not None:
         return _CONFIG_FN
@@ -43,18 +50,17 @@ def get_default_config_filename():
                 msg = 'Filepath "{}" specified via PEYOTL_CONFIG_FILE={} was not found'.format(cfn, os.environ[
                     'PEYOTL_CONFIG_FILE'])
                 warn_from_util_logger(msg)
-
             from pkg_resources import Requirement, resource_filename
             pr = Requirement.parse('peyotl')
             cfn = resource_filename(pr, 'peyotl/default.conf')
-        assert os.path.exists(cfn)
+        if not os.path.isfile(cfn):
+            raise RuntimeError('The peyotl configuration file cascade failed looking for "{}"'.format(cfn))
         _CONFIG_FN = os.path.abspath(cfn)
     return _CONFIG_FN
 
 
 def get_raw_default_config_and_read_file_list():
-    """Returns a ConfigParser object and a list of filenames that were parsed to initialize it.
-    If `filepaths` is None"""
+    """Returns a ConfigParser object and a list of filenames that were parsed to initialize it"""
     global _CONFIG, _READ_DEFAULT_FILES
     if _CONFIG is not None:
         return _CONFIG, _READ_DEFAULT_FILES
@@ -68,7 +74,7 @@ def get_raw_default_config_and_read_file_list():
             # noinspection PyCompatibility,PyUnresolvedReferences
             from configparser import ConfigParser as SafeConfigParser  # pylint: disable=F0401
         cfg = SafeConfigParser()
-        read_files = _CONFIG.read(get_default_config_filename())
+        read_files = cfg.read(get_default_config_filename())
         _CONFIG, _READ_DEFAULT_FILES = cfg, read_files
         return _CONFIG, _READ_DEFAULT_FILES
 

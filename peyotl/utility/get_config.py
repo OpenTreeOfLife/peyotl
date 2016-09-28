@@ -83,16 +83,6 @@ def get_raw_default_config_and_read_file_list():
 read_config = get_raw_default_config_and_read_file_list
 
 
-def _get_config_or_none():
-    """Returns the config object using the standard cascade, or the None config object if there is an exception.
-    """
-    # noinspection PyBroadException
-    try:
-        return get_raw_default_config_and_read_file_list()[0]
-    except:
-        return None
-
-
 def _warn_missing_setting(section, param, config_filename, warn_on_none_level=logging.WARN):
     if warn_on_none_level is None:
         return
@@ -192,7 +182,7 @@ class ConfigWrapper(object):
 
     def _assure_raw(self):
         if self._raw is None:
-            self._raw = _get_config_or_none()
+            self._raw = get_config_object()
             self._config_filename = get_default_config_filename()
 
     def get_config_setting(self, section, param, default=None, warn_on_none_level=logging.WARN):

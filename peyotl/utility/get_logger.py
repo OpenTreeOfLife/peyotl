@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import threading
 import logging
 import os
 
 _LOG = None
 _LOGGING_CONF = None
+_LOGGING_ENV_CONF_OVERRIDES = None
+_LOGGING_CONF_LOCK = threading.Lock()
+_LOGGING_ENV_CONF_OVERRIDES_LOCK = threading.Lock()
 
 
 def _get_logging_level(s=None):
@@ -80,6 +84,26 @@ def _get_util_logger():
     return _LOG
 
 
+def _logging_env_conf_overrides():
+    global _LOGGING_ENV_CONF_OVERRIDES
+    if _LOGGING_ENV_CONF_OVERRIDES is not None:
+        return _LOGGING_ENV_CONF_OVERRIDES
+    with _LOGGING_ENV_CONF_OVERRIDES_LOCK:
+        if _LOGGING_ENV_CONF_OVERRIDES is not None:
+            return _LOGGING_ENV_CONF_OVERRIDES
+        level_from_env = os.environ.get("PEYOTL_LOGGING_LEVEL")
+        format_from_env = os.environ.get("PEYOTL_LOGGING_FORMAT")
+        log_file_path_from_env = os.environ.get("PEYOTL_LOG_FILE_PATH")
+        _LOGGING_ENV_CONF_OVERRIDES = {}
+        if level_from_env:
+            _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['level'] = level_from_env
+        if format_from_env:
+            _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['formatter'] = format_from_env
+        if log_file_path_from_env:
+            _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['filepath'] = log_file_path_from_env
+        return _LOGGING_ENV_CONF_OVERRIDES
+
+
 def _read_logging_config():
     """Returns a dictionary (should be treated as immutable) of settings needed to configure a logger.
     If PEYOTL_LOGGING_LEVEL, PEYOTL_LOGGING_FORMAT, and PEYOTL_LOG_FILE_PATH are all in the env, then
@@ -98,34 +122,37 @@ def _read_logging_config():
     from peyotl.utility.get_config import get_config_object
     if _LOGGING_CONF is not None:
         return _LOGGING_CONF
-    _LOGGING_CONF = {}
-    # These strings hold the names of env variables that control LOGGING. If LEVEL is defined via the environment
-    #   the the
-    level_from_env = os.environ.get("PEYOTL_LOGGING_LEVEL")
-    format_from_env = os.environ.get("PEYOTL_LOGGING_FORMAT")
-    log_file_path_from_env = os.environ.get("PEYOTL_LOG_FILE_PATH")
-    if not (level_from_env and format_from_env and log_file_path_from_env):
-        # If any aspect is missing from the env, then we need to check the config file
-        cfg = get_config_object(None)
-        level = cfg.get_config_setting('logging', 'level', 'WARNING', warn_on_none_level=None)
-        logging_format_name = cfg.get_config_setting('logging', 'formatter', 'NONE', warn_on_none_level=None)
-        logging_filepath = cfg.get_config_setting('logging', 'filepath', '', warn_on_none_level=None)
-        if logging_filepath == '':
-            logging_filepath = None
-        _LOGGING_CONF['level_name'] = level
-        _LOGGING_CONF['formatter_name'] = logging_format_name
-        _LOGGING_CONF['filepath'] = logging_filepath
-    # Override
-    if level_from_env:
-        _LOGGING_CONF['level_name'] = level_from_env
-    if format_from_env:
-        _LOGGING_CONF['formatter_name'] = format_from_env
-    if log_file_path_from_env:
-        _LOGGING_CONF['filepath'] = log_file_path_from_env
-    fp = _LOGGING_CONF['filepath']
-    if not fp:
-        _LOGGING_CONF['filepath'] = None
-    _LOGGING_CONF['log_dir'] = os.path.split(fp)[0] if fp else None
-    _LOGGING_CONF['level'] = _get_logging_level(_LOGGING_CONF['level_name'])
-    _LOGGING_CONF['formatter'] = _get_logging_formatter(_LOGGING_CONF['formatter_name'])
-    return _LOGGING_CONF
+    with _LOGGING_CONF_LOCK:
+        if _LOGGING_CONF is not None:
+            return _LOGGING_CONF
+        _LOGGING_CONF = {}
+        # These strings hold the names of env variables that control LOGGING. If LEVEL is defined via the environment
+        #   the the
+        level_from_env = os.environ.get("PEYOTL_LOGGING_LEVEL")
+        format_from_env = os.environ.get("PEYOTL_LOGGING_FORMAT")
+        log_file_path_from_env = os.environ.get("PEYOTL_LOG_FILE_PATH")
+        if not (level_from_env and format_from_env and log_file_path_from_env):
+            # If any aspect is missing from the env, then we need to check the config file
+            cfg = get_config_object(None)
+            level = cfg.get_config_setting('logging', 'level', 'WARNING', warn_on_none_level=None)
+            logging_format_name = cfg.get_config_setting('logging', 'formatter', 'NONE', warn_on_none_level=None)
+            logging_filepath = cfg.get_config_setting('logging', 'filepath', '', warn_on_none_level=None)
+            if logging_filepath == '':
+                logging_filepath = None
+            _LOGGING_CONF['level_name'] = level
+            _LOGGING_CONF['formatter_name'] = logging_format_name
+            _LOGGING_CONF['filepath'] = logging_filepath
+        # Override
+        if level_from_env:
+            _LOGGING_CONF['level_name'] = level_from_env
+        if format_from_env:
+            _LOGGING_CONF['formatter_name'] = format_from_env
+        if log_file_path_from_env:
+            _LOGGING_CONF['filepath'] = log_file_path_from_env
+        fp = _LOGGING_CONF['filepath']
+        if not fp:
+            _LOGGING_CONF['filepath'] = None
+        _LOGGING_CONF['log_dir'] = os.path.split(fp)[0] if fp else None
+        _LOGGING_CONF['level'] = _get_logging_level(_LOGGING_CONF['level_name'])
+        _LOGGING_CONF['formatter'] = _get_logging_formatter(_LOGGING_CONF['formatter_name'])
+        return _LOGGING_CONF

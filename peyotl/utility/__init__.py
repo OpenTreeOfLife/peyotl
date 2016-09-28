@@ -379,7 +379,10 @@ def doi2url(v):
         v = v[5:] # trim 'doi: '
     if v.startswith('doi:'):
         v = v[4:] # trim 'doi:'
-    return 'http://dx.doi.org/' + v
+    if v.startswith('10.'):  # it's a DOI!
+        return 'http://dx.doi.org/' + v
+    # convert anything else to URL and hope for the best
+    return 'http://' + v
 def get_unique_filepath(stem):
     '''NOT thread-safe!
     return stems or stem# where # is the smallest

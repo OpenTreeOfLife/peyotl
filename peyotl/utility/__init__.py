@@ -3,18 +3,12 @@
 """Simple utility functions that do not depend on any other part of
 peyotl.
 """
-from peyotl.utility.input_output import download, \
-    expand_path, \
-    open_for_group_write, \
-    parse_study_tree_list, \
-    write_to_filepath
+from peyotl.utility.input_output import (download, expand_path, open_for_group_write, parse_study_tree_list,
+                                         write_to_filepath)
 from peyotl.utility.str_util import is_str_type
 import peyotl.utility.get_logger
 from peyotl.utility.get_logger import get_logger
-from peyotl.utility.get_config import ConfigWrapper, \
-    get_config_setting_kwargs, \
-    get_config_object, \
-    read_config
+from peyotl.utility.get_config import (ConfigWrapper, get_config_setting_kwargs, get_config_object, read_config)
 import time
 import os
 
@@ -77,6 +71,6 @@ def propinquity_fn_to_study_tree(inp_fn, strip_extension=True):
         study_tree = inp_fn
     x = study_tree.split('@')
     if len(x) != 2:
-        raise ValueError(
-            'Currently we are expecting studyID@treeID.<file extension> format. Expected exactly 1 @ in the filename.')
+        msg = 'Currently we are expecting studyID@treeID.<file extension> format. Expected exactly 1 @ in the filename.'
+        raise ValueError(msg)
     return x

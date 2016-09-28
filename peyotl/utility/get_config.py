@@ -168,7 +168,7 @@ class ConfigWrapper(object):
         element in `sec_param_list` is a section, param pair suitable for
         a get_config_setting call.
 
-        Note that non-None values for overrides will cause
+        Note that non-None values for overrides for this ConfigWrapper instance will cause
             this call to only evaluate the first element in the cascade.
         """
         for section, param in sec_param_list:
@@ -182,8 +182,10 @@ class ConfigWrapper(object):
 
     def _assure_raw(self):
         if self._raw is None:
-            self._raw = get_config_object()
-            self._config_filename = get_default_config_filename()
+            cfg, fllist = get_raw_default_config_and_read_file_list()
+            self._raw = cfg
+            assert len(fllist) == 1
+            self._config_filename = fllist[0]
 
     def get_config_setting(self, section, param, default=None, warn_on_none_level=logging.WARN):
         if section in self._override:

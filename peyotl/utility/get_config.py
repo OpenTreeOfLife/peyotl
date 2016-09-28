@@ -1,13 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Functions for interacting with a runtime-configuration.
+Most code will interact with the default ConfigWrapper object returned by the get_config_object() call.
+The ConfigWrapper class allows client code to override settings in the configuration file.
+
+The default peyotl configuration is read from a file. The configuration filepath is either the value of
+    the PEYOTL_CONFIG_FILE environmental variable (if that variable is defined) or ~/.peyotl/config
+If that filepath does not exist, then the fallback is the config that is the `default.conf` file that is
+    packaged with peyotl.
+get_raw_default_config_and_read_file_list() is the accessor for the raw ConfigParser object and list of files
+    that were used to populate that file.
+
+This file has some odd acrobatics to deal with the fact that logging is (1) helpful for diagnosing configuration errors
+    and (2) itself dependent on configuration-based settings. So this file imports some private functions of the
+    peyotl.utility.get_logger file. Those acrobatics should not be needed for any other client of logger or config
+    functions in peyotl.
 """
+import threading
 import logging
 import os
-import threading
 
-# noinspection PyProtectedMember
-from peyotl.utility.get_logger import _logging_env_conf_overrides
 
 _CONFIG = None
 _CONFIG_FN = None
@@ -138,6 +150,8 @@ class ConfigWrapper(object):
         "dominant" and "fallback" refer to whether the rank higher or lower than the default
         value in a get.*setting.*() call
         """
+        # noinspection PyProtectedMember
+        from peyotl.utility.get_logger import _logging_env_conf_overrides
         self._config_filename = config_filename
         self._raw = raw_config_obj
         if overrides is None:
@@ -201,6 +215,8 @@ class ConfigWrapper(object):
                                    warn_on_none_level=warn_on_none_level)
 
     def report(self, out):
+        # noinspection PyProtectedMember
+        from peyotl.utility.get_logger import _logging_env_conf_overrides
         cfn = self.config_filename
         out.write('# Config read from "{f}"\n'.format(f=cfn))
         cfenv = os.environ.get('PEYOTL_CONFIG_FILE', '')

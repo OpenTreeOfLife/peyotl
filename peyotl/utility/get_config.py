@@ -3,11 +3,11 @@
 """Functions for interacting with a runtime-configuration.
 """
 # noinspection PyProtectedMember
-from peyotl.utility.get_logger import _logging_env_conf_overrides
-import threading
 import logging
-import sys
 import os
+import threading
+
+from peyotl.utility.get_logger import _logging_env_conf_overrides
 
 _CONFIG = None
 _CONFIG_FN = None
@@ -16,6 +16,7 @@ _DEFAULT_CONFIG_WRAPPER = None
 _DEFAULT_CONFIG_WRAPPER_LOCK = threading.Lock()
 _CONFIG_FN_LOCK = threading.Lock()
 _CONFIG_LOCK = threading.Lock()
+
 
 def _replace_default_config(cfg):
     """Only to be used internally for testing !
@@ -39,7 +40,8 @@ def get_default_config_filename():
             # noinspection PyProtectedMember
             if 'PEYOTL_CONFIG_FILE' in os.environ:
                 from peyotl.utility.get_logger import warn_from_util_logger
-                msg = 'Filepath "{}" specified via PEYOTL_CONFIG_FILE={} was not found'.format(cfn, os.environ['PEYOTL_CONFIG_FILE'])
+                msg = 'Filepath "{}" specified via PEYOTL_CONFIG_FILE={} was not found'.format(cfn, os.environ[
+                    'PEYOTL_CONFIG_FILE'])
                 warn_from_util_logger(msg)
 
             from pkg_resources import Requirement, resource_filename
@@ -53,7 +55,7 @@ def get_default_config_filename():
 def get_raw_default_config_and_read_file_list():
     """Returns a ConfigParser object and a list of filenames that were parsed to initialize it.
     If `filepaths` is None"""
-    global _CONFIG
+    global _CONFIG, _READ_DEFAULT_FILES
     if _CONFIG is not None:
         return _CONFIG, _READ_DEFAULT_FILES
     with _CONFIG_LOCK:
@@ -70,8 +72,10 @@ def get_raw_default_config_and_read_file_list():
         _CONFIG, _READ_DEFAULT_FILES = cfg, read_files
         return _CONFIG, _READ_DEFAULT_FILES
 
+
 # Alias the correct function name to our old alias @TODO Deprecate when phylesystem-api calls the right function
 read_config = get_raw_default_config_and_read_file_list
+
 
 def _get_config_or_none():
     """Returns the config object using the standard cascade, or the None config object if there is an exception.
@@ -81,7 +85,6 @@ def _get_config_or_none():
         return get_raw_default_config_and_read_file_list()[0]
     except:
         return None
-
 
 
 def _warn_missing_setting(section, param, config_filename, warn_on_none_level=logging.WARN):
@@ -101,21 +104,24 @@ def _warn_missing_setting(section, param, config_filename, warn_on_none_level=lo
     msg = mf.format(f=f, o=param, s=section)
     warn_from_util_logger(msg)
 
+
 def _raw_config_setting(config_obj, section, param, default=None, config_filename='', warn_on_none_level=logging.WARN):
-    '''Read (section, param) from `config_obj`. If not found, return `default`
+    """Read (section, param) from `config_obj`. If not found, return `default`
 
     If the setting is not found and `default` is None, then an warn-level message is logged.
     `config_filename` can be None, filepath or list of filepaths - it is only used for logging.
 
     If warn_on_none_level is None (or lower than the logging level) message for falling through to
         a `None` default will be suppressed.
-    '''
+    """
+    # noinspection PyBroadException
     try:
         return config_obj.get(section, param)
     except:
         if (default is None) and warn_on_none_level is not None:
             _warn_missing_setting(section, param, config_filename, warn_on_none_level)
         return default
+
 
 class ConfigWrapper(object):
     """Wrapper to provide a richer get_config_setting(section, param, d) behavior. That function will
@@ -190,16 +196,16 @@ class ConfigWrapper(object):
                 return so[param]
         self._assure_raw()
         return _raw_config_setting(self._raw,
-                                  section,
-                                  param,
-                                  default=default,
-                                  config_filename=self._config_filename,
-                                  warn_on_none_level=warn_on_none_level)
+                                   section,
+                                   param,
+                                   default=default,
+                                   config_filename=self._config_filename,
+                                   warn_on_none_level=warn_on_none_level)
 
     def report(self, out):
         cfn = self.config_filename
         out.write('# Config read from "{f}"\n'.format(f=cfn))
-        cfenv =  os.environ.get('PEYOTL_CONFIG_FILE', '')
+        cfenv = os.environ.get('PEYOTL_CONFIG_FILE', '')
         if cfenv:
             if os.path.abspath(cfenv) == cfn:
                 emsg = '#  config filepath obtained from $PEYOTL_CONFIG_FILE env var.\n'

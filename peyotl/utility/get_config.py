@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Functions for interacting with a runtime-configuration.
+"""
+# noinspection PyProtectedMember
+from peyotl.utility.get_logger import _logging_env_conf_overrides
 import logging
 import os
 
@@ -30,6 +34,8 @@ def get_default_config_filename():
 
 
 def read_config(filepaths=None):
+    """Returns a ConfigParser object and a list of filenames that were parsed to initialize it.
+    If `filepaths` is None"""
     global _CONFIG
     try:
         # noinspection PyCompatibility
@@ -108,18 +114,13 @@ class ConfigWrapper(object):
     """Wrapper to provide a richer get_config_setting(section, param, d) behavior. That function will
     return a value from the following cascade:
         1. override[section][param] if section and param are in the resp. dicts
-        2. the value in the config obj for section/param it that setting is in the config
-        3. dominant_defaults[section][param] if section and param are in the resp. dicts
-        4. the `default` arg of the get_config_setting call
-        5. fallback_defaults[section][param] if section and param are in the resp. dicts
+        2. the value in the config obj for section/param if that setting is in the config
     """
 
     def __init__(self,
                  raw_config_obj=None,
                  config_filename='<programmatically configured>',
-                 overrides=None,
-                 dominant_defaults=None,
-                 fallback_defaults=None):
+                 overrides=None):
         """If `raw_config_obj` is None, the default peyotl cascade for finding a configuration
         file will be used. overrides is a 2-level dictionary of section/param entries that will
         be used instead of the setting.
@@ -131,20 +132,35 @@ class ConfigWrapper(object):
         self._raw = raw_config_obj
         if overrides is None:
             overrides = {}
-        if dominant_defaults is None:
-            dominant_defaults = {}
-        if fallback_defaults is None:
-            fallback_defaults = {}
+        leco = _logging_env_conf_overrides()
+        if leco:
+            for k, v in leco['logging'].items():
+                if k in overrides.setdefault('logging', {}):
+                    # noinspection PyProtectedMember
+                    from peyotl.utility.get_logger import _get_util_logger
+                    ulog = _get_util_logger()
+                    if ulog is not None:
+                        m = 'Override keys ["logging"]["{}"] was overruled by an environmental variable'.format(k)
+                        ulog.warn(m)
+                overrides['logging'][k] = v
         self._override = overrides
-        self._dominant_defaults = dominant_defaults
-        self._fallback_defaults = fallback_defaults
+
+    @property
+    def config_filename(self):
+        self._assure_raw()
+        return self._config_filename
+
+    @property
+    def raw(self):
+        self._assure_raw()
+        return self._raw
 
     def get_from_config_setting_cascade(self, sec_param_list, default=None, warn_on_none_level=logging.WARN):
         """return the first non-None setting from a series where each
         element in `sec_param_list` is a section, param pair suitable for
         a get_config_setting call.
 
-        Note that non-None values for overrides or dominant_defaults will cause
+        Note that non-None values for overrides will cause
             this call to only evaluate the first element in the cascade.
         """
         for section, param in sec_param_list:
@@ -167,18 +183,6 @@ class ConfigWrapper(object):
             if param in so:
                 return so[param]
         self._assure_raw()
-        if section in self._dominant_defaults:
-            so = self._dominant_defaults[section]
-            if param in so:
-                return get_config_setting(self._raw,
-                                          section,
-                                          param,
-                                          default=so[param],
-                                          config_filename=self._config_filename,
-                                          warn_on_none_level=warn_on_none_level)
-        if default is None:
-            if section in self._fallback_defaults:
-                default = self._dominant_defaults[section].get(param)
         return get_config_setting(self._raw,
                                   section,
                                   param,
@@ -194,6 +198,8 @@ class ConfigWrapper(object):
         k.update(from_raw.keys())
         k = list(k)
         k.sort()
+        leco = _logging_env_conf_overrides()
+        lecologging = leco.get('logging', {})
         for key in k:
             ov_set = self._override.get(key, {})
             fr_set = from_raw.get(key, {})
@@ -204,7 +210,10 @@ class ConfigWrapper(object):
             out.write('[{s}]\n'.format(s=key))
             for param in v:
                 if param in ov_set:
-                    out.write('#{p} from override\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
+                    if key == 'logging' and param in lecologging:
+                        out.write('#{p} from environmental variable\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
+                    else:
+                        out.write('#{p} from override\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
                 else:
                     out.write('#{p} from {f}\n{p} = {s}\n'.format(p=param,
                                                                   s=str(fr_set[param]),

@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 """Functions for interacting with a runtime-configuration.
 """
-# noinspection PyProtectedMember
 import logging
 import os
 import threading
 
+# noinspection PyProtectedMember
 from peyotl.utility.get_logger import _logging_env_conf_overrides
 
 _CONFIG = None
@@ -96,7 +96,7 @@ def _warn_missing_setting(section, param, config_filename, warn_on_none_level=lo
             f = ' "{}" '.format(config_filename)
     else:
         f = ' '
-    mf = 'Config file{f}does not contain option "{o}"" in section "{s}"'
+    mf = 'Config file {f} does not contain option "{o}"" in section "{s}"'
     msg = mf.format(f=f, o=param, s=section)
     warn_from_util_logger(msg)
 
@@ -214,7 +214,7 @@ class ConfigWrapper(object):
             else:
                 emsg = '#  using packaged default. PEYOTL_CONFIG_FILE was not set and ~/.peyotl/config was not found.\n'
         out.write(emsg)
-        from_raw = _do_create_overrides_from_config(self._raw)
+        from_raw = _create_overrides_from_config(self._raw)
         k = set(self._override.keys())
         k.update(from_raw.keys())
         k = list(k)
@@ -241,18 +241,8 @@ class ConfigWrapper(object):
                                                                   f=self._config_filename))
 
 
-def create_overrides_from_config(config):
-    """Returns a dictionary of all of the settings in a config file. the
-    returned dict is appropriate for use as the overrides arg for a ConfigWrapper.__init__() call.
-    """
-    # noinspection PyProtectedMember
-    from peyotl.utility.get_logger import _read_logging_config
-    # can trigger the reading of the default config file. This is ugly, and probably unneeded. @TODO revisit this
-    _read_logging_config()
-    return _do_create_overrides_from_config(config)
-
-
-def _do_create_overrides_from_config(config):
+def _create_overrides_from_config(config):
+    """Creates a two-level dictionary of d[section][option] from a config parser object."""
     d = {}
     for s in config.sections():
         d[s] = {}
@@ -294,7 +284,7 @@ def get_test_config(overrides=None):
     _test_conf_fn = os.path.abspath('test.conf')
     _test_conf = SafeConfigParser()
     _test_conf.read(_test_conf_fn)
-    d = create_overrides_from_config(_test_conf)
+    d = _create_overrides_from_config(_test_conf)
     if overrides is not None:
         d.update(overrides)
     return ConfigWrapper(None, overrides=d)

@@ -11,7 +11,7 @@ import unittest
 _LOG = get_logger(__name__)
 do_test = False
 try:
-    ott_dir = get_config_setting_kwargs(None, section='ott', param='parent', default=False)
+    ott_dir = get_config_setting_kwargs(section='ott', param='parent', default=False)
     if ott_dir is False or not ott_dir.endswith('/aster'):
         _LOG.debug('ott_dir setting is "{}" this does not look like it is the Asterales system'.format(ott_dir))
     else:

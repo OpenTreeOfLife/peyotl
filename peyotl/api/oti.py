@@ -174,7 +174,9 @@ class _OTIWrapper(_WSWrapper):
         response = self.json_http_post(url, data=anyjson.dumps(data))
         return response
     def __init__(self, domain, **kwargs):
-        self._config = get_config_object(None, **kwargs)
+        self._config = kwargs.get('config')
+        if self._config is None:
+            self._config = get_config_object()
         self._api_vers = self._config.get_from_config_setting_cascade([('apis', 'oti_api_version'),
                                                                        ('apis', 'api_version')],
                                                                       "2")

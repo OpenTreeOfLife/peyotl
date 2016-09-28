@@ -21,7 +21,7 @@ def _get_phylesystem_parent_with_source(**kwargs):
         phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
     else:
         try:
-            phylesystem_parent = expand_path(get_config_setting_kwargs(None, 'phylesystem', 'parent', **kwargs))
+            phylesystem_parent = expand_path(get_config_setting_kwargs('phylesystem', 'parent'))
             src = 'configfile'
         except:
             raise ValueError('No [phylesystem] "parent" specified in config or environmental variables')

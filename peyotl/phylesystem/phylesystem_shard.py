@@ -113,7 +113,7 @@ class PhylesystemShard(TypeAwareGitShard):
                  new_study_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
-        self.max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None)
+        self.max_file_size = get_config_setting_kwargs('phylesystem', 'max_file_size', default=None)
         TypeAwareGitShard.__init__(self,
                                    name,
                                    path,

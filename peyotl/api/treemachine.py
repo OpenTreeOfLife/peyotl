@@ -165,7 +165,9 @@ class MRCAGoLNode(GoLNode):
 
 class _TreemachineAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
-        self._config = get_config_object(None, **kwargs)
+        self._config = kwargs.get('config')
+        if self._config is None:
+            self._config = get_config_object()
         self._current_synth_info = None
         self._current_synth_id = None
         self.prefix = None

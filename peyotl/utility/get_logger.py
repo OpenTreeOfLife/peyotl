@@ -12,6 +12,7 @@ _LOGGING_ENV_CONF_OVERRIDES_LOCK = threading.Lock()
 
 
 def _get_logging_level(s=None):
+    # Called from within locks, so this should not log or trigger reading of logging configuration!
     if s is None:
         return logging.NOTSET
     supper = s.upper()
@@ -33,6 +34,7 @@ def _get_logging_level(s=None):
 
 
 def _get_logging_formatter(s=None):
+    # Called from within locks, so this should not log or trigger reading of logging configuration!
     if s is None:
         s = 'NONE'
     else:
@@ -85,6 +87,12 @@ def _get_util_logger():
 
 
 def _logging_env_conf_overrides():
+    """Returns a dictionary that is empty or has a "logging" key that refers to
+    the (up to 3) key-value pairs that pertain to logging and are read from the env.
+    This is mainly a convenience function for ConfigWrapper so that it can accurately
+        report the source of the logging settings without
+    """
+    # This is called from a locked section of _read_logging_config, so don't call that function or you'll get deadlock
     global _LOGGING_ENV_CONF_OVERRIDES
     if _LOGGING_ENV_CONF_OVERRIDES is not None:
         return _LOGGING_ENV_CONF_OVERRIDES
@@ -125,15 +133,16 @@ def _read_logging_config():
     with _LOGGING_CONF_LOCK:
         if _LOGGING_CONF is not None:
             return _LOGGING_CONF
+        leco = _logging_env_conf_overrides().get('logging', {})
         _LOGGING_CONF = {}
         # These strings hold the names of env variables that control LOGGING. If LEVEL is defined via the environment
         #   the the
-        level_from_env = os.environ.get("PEYOTL_LOGGING_LEVEL")
-        format_from_env = os.environ.get("PEYOTL_LOGGING_FORMAT")
-        log_file_path_from_env = os.environ.get("PEYOTL_LOG_FILE_PATH")
+        level_from_env = leco.get("level")
+        format_from_env = leco.get("format")
+        log_file_path_from_env = leco.get("filepath")
         if not (level_from_env and format_from_env and log_file_path_from_env):
             # If any aspect is missing from the env, then we need to check the config file
-            cfg = get_config_object(None)
+            cfg = get_config_object()
             level = cfg.get_config_setting('logging', 'level', 'WARNING', warn_on_none_level=None)
             logging_format_name = cfg.get_config_setting('logging', 'formatter', 'NONE', warn_on_none_level=None)
             logging_filepath = cfg.get_config_setting('logging', 'filepath', '', warn_on_none_level=None)

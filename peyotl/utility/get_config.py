@@ -115,6 +115,7 @@ class ConfigWrapper(object):
     return a value from the following cascade:
         1. override[section][param] if section and param are in the resp. dicts
         2. the value in the config obj for section/param if that setting is in the config
+    Must be treated as immutable!
     """
 
     def __init__(self,
@@ -240,24 +241,19 @@ def _do_create_overrides_from_config(config):
     return d
 
 
-def get_config_setting_kwargs(config_obj, section, param, default=None, **kwargs):
+def get_config_setting_kwargs(section, param, default=None):
     """Used to provide a consistent kwargs behavior for classes/methods that need to be config-dependent.
 
     Currently: if config_obj is None, then kwargs['config'] is checked. If it is also None
         then a default ConfigWrapper object is created.
     """
-    cfg = get_config_object(config_obj, **kwargs)
+    cfg = get_config_object()
     return cfg.get_config_setting(section, param, default)
 
 
-def get_config_object(config_obj, **kwargs):
-    if config_obj is not None:
-        return config_obj
-    c = kwargs.get('config')
-    if c is None:
-        _c = ConfigWrapper()
-        return _c
-    return c
+def get_config_object():
+    _c = ConfigWrapper()
+    return _c
 
 
 def get_test_config(overrides=None):

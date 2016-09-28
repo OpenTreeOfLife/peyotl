@@ -8,7 +8,8 @@ from peyotl.utility.input_output import (download, expand_path, open_for_group_w
 from peyotl.utility.str_util import is_str_type
 import peyotl.utility.get_logger
 from peyotl.utility.get_logger import get_logger
-from peyotl.utility.get_config import (ConfigWrapper, get_config_setting_kwargs, get_config_object, read_config)
+from peyotl.utility.get_config import (ConfigWrapper, get_config_setting_kwargs, get_config_object, read_config,
+                                       get_raw_default_config_and_read_file_list)
 import time
 import os
 

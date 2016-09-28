@@ -11,10 +11,11 @@ import os
 
 _CONFIG = None
 _CONFIG_FN = None
+_READ_DEFAULT_FILES = None
 _DEFAULT_CONFIG_WRAPPER = None
 _DEFAULT_CONFIG_WRAPPER_LOCK = threading.Lock()
 _CONFIG_FN_LOCK = threading.Lock()
-
+_CONFIG_LOCK = threading.Lock()
 
 def _replace_default_config(cfg):
     """Only to be used internally for testing !
@@ -49,61 +50,38 @@ def get_default_config_filename():
     return _CONFIG_FN
 
 
-def read_config(filepaths=None):
+def get_raw_default_config_and_read_file_list():
     """Returns a ConfigParser object and a list of filenames that were parsed to initialize it.
     If `filepaths` is None"""
     global _CONFIG
-    try:
-        # noinspection PyCompatibility
-        from ConfigParser import SafeConfigParser
-    except ImportError:
-        # noinspection PyCompatibility,PyUnresolvedReferences
-        from configparser import ConfigParser as SafeConfigParser  # pylint: disable=F0401
-    if filepaths is None:
-        if _CONFIG is None:
-            _CONFIG = SafeConfigParser()
-            read_files = _CONFIG.read(get_default_config_filename())
-        else:
-            read_files = [get_default_config_filename()]
-        cfg = _CONFIG
-    else:
-        if isinstance(filepaths, list) and None in filepaths:
-            def_fn = get_default_config_filename()
-            f = []
-            for i in filepaths:
-                f.append(def_fn if i is None else i)
-            filepaths = f
+    if _CONFIG is not None:
+        return _CONFIG, _READ_DEFAULT_FILES
+    with _CONFIG_LOCK:
+        if _CONFIG is not None:
+            return _CONFIG, _READ_DEFAULT_FILES
+        try:
+            # noinspection PyCompatibility
+            from ConfigParser import SafeConfigParser
+        except ImportError:
+            # noinspection PyCompatibility,PyUnresolvedReferences
+            from configparser import ConfigParser as SafeConfigParser  # pylint: disable=F0401
         cfg = SafeConfigParser()
-        read_files = cfg.read(filepaths)
-    return cfg, read_files
+        read_files = _CONFIG.read(get_default_config_filename())
+        _CONFIG, _READ_DEFAULT_FILES = cfg, read_files
+        return _CONFIG, _READ_DEFAULT_FILES
 
+# Alias the correct function name to our old alias @TODO Deprecate when phylesystem-api calls the right function
+read_config = get_raw_default_config_and_read_file_list
 
 def _get_config_or_none():
     """Returns the config object using the standard cascade, or the None config object if there is an exception.
     """
     # noinspection PyBroadException
     try:
-        return read_config()[0]
+        return get_raw_default_config_and_read_file_list()[0]
     except:
         return None
 
-
-def get_config_setting(config_obj, section, param, default=None, config_filename='', warn_on_none_level=logging.WARN):
-    """Read (section, param) from `config_obj`. If not found, return `default`
-
-    If the setting is not found and `default` is None, then an warn-level message is logged.
-    `config_filename` can be None, filepath or list of filepaths - it is only used for logging.
-
-    If warn_on_none_level is None (or lower than the logging level) message for falling through to
-        a `None` default will be suppressed.
-    """
-    # noinspection PyBroadException
-    try:
-        return config_obj.get(section, param)
-    except:
-        if (default is None) and warn_on_none_level is not None:
-            _warn_missing_setting(section, param, config_filename, warn_on_none_level)
-        return default
 
 
 def _warn_missing_setting(section, param, config_filename, warn_on_none_level=logging.WARN):

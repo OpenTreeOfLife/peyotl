@@ -14,7 +14,7 @@ import sys
 from peyotl.test.support import pathmap
 _LOG = get_logger(__name__)
 
-config, cfg_filename = read_config()
+config, cfg_filename = get_raw_default_config_and_read_file_list()
 COMMITS_SHOULD_FAIL_ARG = 'tiny_max_file_size'
 COMMITS_SHOULD_FAIL = COMMITS_SHOULD_FAIL_ARG in sys.argv
 if COMMITS_SHOULD_FAIL:

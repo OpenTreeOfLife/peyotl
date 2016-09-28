@@ -63,7 +63,7 @@ from peyotl.nexson_syntax import write_as_json
 from peyotl.phylesystem import Phylesystem
 from peyotl.collections import TreeCollectionStore
 from peyotl.amendments import TaxonomicAmendmentStore
-from peyotl.utility import read_config as read_peyotl_config
+from peyotl.utility import read_config as read_peyotl_config NEED to change this to get_raw_default_config_and_read_file_list
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 write_as_json(obj, tmpfn, indent=2, sort_keys=True)
 _PHYLESYSTEM = Phylesystem(repos_par=repo_parent,

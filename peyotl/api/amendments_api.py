@@ -151,7 +151,12 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                                     json):
         # Convert source DOIs to their URL form (when fetching, saving, or
         # updating an amendment)
-        taxa = json.get('taxa')
+        if 'taxa' in json:
+            # simple amendment JSON
+            taxa = json.get('taxa')
+        else:
+            # JSON includes wrapper w/ history, etc.
+            taxa = json.get('data').get('taxa')
         if isinstance(taxa, list):
             for taxon in taxa:
                 sources = taxon.get('sources')
@@ -159,8 +164,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                     for src in sources:
                         if src.get('source_type') == "Link (DOI) to publication":
                             doi = src.get('source', "")
-                            src.set('source', doi2url(doi) )
-
+                            src['source'] = doi2url(doi)
     def post_amendment(self,
                        json,
                        commit_msg=None):

@@ -87,9 +87,10 @@ def get_config_setting(config_obj, section, param, default=None, config_filename
 def _warn_missing_setting(section, param, config_filename, warn_on_none_level=logging.WARN):
     if warn_on_none_level is None:
         return
-    from peyotl.utility.get_logger import get_util_logger
+    # noinspection PyProtectedMember
+    from peyotl.utility.get_logger import _get_util_logger
     from peyotl.utility.str_util import is_str_type
-    _ulog = get_util_logger()
+    _ulog = _get_util_logger()
     if (_ulog is not None) and _ulog.isEnabledFor(warn_on_none_level):
         if config_filename:
             if not is_str_type(config_filename):
@@ -214,8 +215,10 @@ def create_overrides_from_config(config):
     """Returns a dictionary of all of the settings in a config file. the
     returned dict is appropriate for use as the overrides arg for a ConfigWrapper.__init__() call.
     """
-    from peyotl.utility.get_logger import read_logging_config
-    read_logging_config()  # triggers reading logging configuration. Probably unneeded. @TODO
+    # noinspection PyProtectedMember
+    from peyotl.utility.get_logger import _read_logging_config
+    # can trigger the reading of the default config file. This is ugly, and probably unneeded. @TODO revisit this
+    _read_logging_config()
     return _do_create_overrides_from_config(config)
 
 

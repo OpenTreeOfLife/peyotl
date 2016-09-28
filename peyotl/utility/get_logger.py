@@ -47,12 +47,12 @@ def _get_logging_formatter(s=None):
 
 
 def get_logger(name="peyotl"):
-    """Returns a logger with name set as given, and configured
-    to the level given by the environment variable _LOGGING_LEVEL_ENVAR.
+    """Returns a logger with name set as given. See _read_logging_config for a description of the env var/config
+    file cascade that controls configuration of the logger.
     """
     logger = logging.getLogger(name)
     if len(logger.handlers) == 0:
-        lc = read_logging_config()
+        lc = _read_logging_config()
         logger.setLevel(lc['level'])
         if lc['filepath'] is not None:
             log_dir = lc['log_dir']
@@ -67,17 +67,33 @@ def get_logger(name="peyotl"):
     return logger
 
 
-def get_util_logger():
+def _get_util_logger():
+    """Only to be used in this file and peyotl.utility.get_config"""
     global _LOG
     if _LOG is not None:
         return _LOG
+    # This check is necessary to avoid infinite recursion when called from get_config, because
+    #   the _read_logging_conf can require reading a conf file.
     if _LOGGING_CONF is None:
         return None
     _LOG = get_logger("peyotl.utility")
     return _LOG
 
 
-def read_logging_config():
+def _read_logging_config():
+    """Returns a dictionary (should be treated as immutable) of settings needed to configure a logger.
+    If PEYOTL_LOGGING_LEVEL, PEYOTL_LOGGING_FORMAT, and PEYOTL_LOG_FILE_PATH are all in the env, then
+        no config file will be read.
+    Otherwise the config will be read, and any of those env vars that are present will then override
+        the settings from the config file.
+    Crucial keys-value pairs are:
+    'level' -> logging.level as returned by _get_logging_level from the string obtained from PEYOTL_LOGGING_LEVEL
+        or config.logging.level
+    'formatter' -> None or a logging.Formatter as returned by _get_logging_format from the string obtained from
+        PEYOTL_LOGGING_FORMAT or config.logging.formatter
+    'filepath' -> None (for StreamHandler) or a filepath
+    'log_dir' -> None or the parent of the 'filepath' key
+    """
     global _LOGGING_CONF
     from peyotl.utility.get_config import get_config_object
     if _LOGGING_CONF is not None:
@@ -107,6 +123,8 @@ def read_logging_config():
     if log_file_path_from_env:
         _LOGGING_CONF['filepath'] = log_file_path_from_env
     fp = _LOGGING_CONF['filepath']
+    if not fp:
+        _LOGGING_CONF['filepath'] = None
     _LOGGING_CONF['log_dir'] = os.path.split(fp)[0] if fp else None
     _LOGGING_CONF['level'] = _get_logging_level(_LOGGING_CONF['level_name'])
     _LOGGING_CONF['formatter'] = _get_logging_formatter(_LOGGING_CONF['formatter_name'])

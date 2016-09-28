@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import threading
 import logging
+import sys
 import os
 
 _LOG = None
@@ -73,17 +74,17 @@ def get_logger(name="peyotl"):
     return logger
 
 
-def _get_util_logger():
+def warn_from_util_logger(msg):
     """Only to be used in this file and peyotl.utility.get_config"""
     global _LOG
-    if _LOG is not None:
-        return _LOG
     # This check is necessary to avoid infinite recursion when called from get_config, because
     #   the _read_logging_conf can require reading a conf file.
-    if _LOGGING_CONF is None:
-        return None
-    _LOG = get_logger("peyotl.utility")
-    return _LOG
+    if _LOG is None and _LOGGING_CONF is None:
+        sys.stderr.write('WARNING: (from peyotl before logging is configured) {}\n'.format(msg))
+        return
+    if _LOG is None:
+        _LOG = get_logger("peyotl.utility")
+    _LOG.warn(msg)
 
 
 def _logging_env_conf_overrides():
@@ -130,38 +131,43 @@ def _read_logging_config():
     from peyotl.utility.get_config import get_config_object
     if _LOGGING_CONF is not None:
         return _LOGGING_CONF
-    with _LOGGING_CONF_LOCK:
-        if _LOGGING_CONF is not None:
+    try:
+        with _LOGGING_CONF_LOCK:
+            if _LOGGING_CONF is not None:
+                return _LOGGING_CONF
+            leco = _logging_env_conf_overrides().get('logging', {})
+            lc = {}
+            # These strings hold the names of env variables that control LOGGING. If LEVEL is defined via the environment
+            #   the the
+            level_from_env = leco.get("level")
+            format_from_env = leco.get("format")
+            log_file_path_from_env = leco.get("filepath")
+            if not (level_from_env and format_from_env and log_file_path_from_env):
+                # If any aspect is missing from the env, then we need to check the config file
+                cfg = get_config_object()
+                level = cfg.get_config_setting('logging', 'level', 'WARNING', warn_on_none_level=None)
+                logging_format_name = cfg.get_config_setting('logging', 'formatter', 'NONE', warn_on_none_level=None)
+                logging_filepath = cfg.get_config_setting('logging', 'filepath', '', warn_on_none_level=None)
+                if logging_filepath == '':
+                    logging_filepath = None
+                lc['level_name'] = level
+                lc['formatter_name'] = logging_format_name
+                lc['filepath'] = logging_filepath
+            # Override
+            if level_from_env:
+                lc['level_name'] = level_from_env
+            if format_from_env:
+                lc['formatter_name'] = format_from_env
+            if lc:
+                lc['filepath'] = log_file_path_from_env
+            fp = lc['filepath']
+            if not fp:
+                lc['filepath'] = None
+            lc['log_dir'] = os.path.split(fp)[0] if fp else None
+            lc['level'] = _get_logging_level(lc['level_name'])
+            lc['formatter'] = _get_logging_formatter(lc['formatter_name'])
+            _LOGGING_CONF = lc
             return _LOGGING_CONF
-        leco = _logging_env_conf_overrides().get('logging', {})
-        _LOGGING_CONF = {}
-        # These strings hold the names of env variables that control LOGGING. If LEVEL is defined via the environment
-        #   the the
-        level_from_env = leco.get("level")
-        format_from_env = leco.get("format")
-        log_file_path_from_env = leco.get("filepath")
-        if not (level_from_env and format_from_env and log_file_path_from_env):
-            # If any aspect is missing from the env, then we need to check the config file
-            cfg = get_config_object()
-            level = cfg.get_config_setting('logging', 'level', 'WARNING', warn_on_none_level=None)
-            logging_format_name = cfg.get_config_setting('logging', 'formatter', 'NONE', warn_on_none_level=None)
-            logging_filepath = cfg.get_config_setting('logging', 'filepath', '', warn_on_none_level=None)
-            if logging_filepath == '':
-                logging_filepath = None
-            _LOGGING_CONF['level_name'] = level
-            _LOGGING_CONF['formatter_name'] = logging_format_name
-            _LOGGING_CONF['filepath'] = logging_filepath
-        # Override
-        if level_from_env:
-            _LOGGING_CONF['level_name'] = level_from_env
-        if format_from_env:
-            _LOGGING_CONF['formatter_name'] = format_from_env
-        if log_file_path_from_env:
-            _LOGGING_CONF['filepath'] = log_file_path_from_env
-        fp = _LOGGING_CONF['filepath']
-        if not fp:
-            _LOGGING_CONF['filepath'] = None
-        _LOGGING_CONF['log_dir'] = os.path.split(fp)[0] if fp else None
-        _LOGGING_CONF['level'] = _get_logging_level(_LOGGING_CONF['level_name'])
-        _LOGGING_CONF['formatter'] = _get_logging_formatter(_LOGGING_CONF['formatter_name'])
-        return _LOGGING_CONF
+    except Exception as x:
+        sys.stderr.write('Exception in peyotl.utility.get_logger._read_logging_config: {}'.format(str(x)))
+        raise

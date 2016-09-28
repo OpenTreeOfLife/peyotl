@@ -4,11 +4,16 @@
 """
 # noinspection PyProtectedMember
 from peyotl.utility.get_logger import _logging_env_conf_overrides
+import threading
 import logging
+import sys
 import os
 
 _CONFIG = None
 _CONFIG_FN = None
+_DEFAULT_CONFIG_WRAPPER = None
+_DEFAULT_CONFIG_WRAPPER_LOCK = threading.Lock()
+_CONFIG_FN_LOCK = threading.Lock()
 
 
 def _replace_default_config(cfg):
@@ -20,16 +25,27 @@ def _replace_default_config(cfg):
 
 def get_default_config_filename():
     global _CONFIG_FN
-    if _CONFIG_FN is None:
+    if _CONFIG_FN is not None:
+        return _CONFIG_FN
+    with _CONFIG_FN_LOCK:
+        if _CONFIG_FN is not None:
+            return _CONFIG_FN
         if 'PEYOTL_CONFIG_FILE' in os.environ:
-            _CONFIG_FN = os.environ['PEYOTL_CONFIG_FILE']
+            cfn = os.path.abspath(os.environ['PEYOTL_CONFIG_FILE'])
         else:
-            _CONFIG_FN = os.path.expanduser("~/.peyotl/config")
-        if not os.path.exists(_CONFIG_FN):
+            cfn = os.path.expanduser("~/.peyotl/config")
+        if not os.path.isfile(cfn):
+            # noinspection PyProtectedMember
+            if 'PEYOTL_CONFIG_FILE' in os.environ:
+                from peyotl.utility.get_logger import warn_from_util_logger
+                msg = 'Filepath "{}" specified via PEYOTL_CONFIG_FILE={} was not found'.format(cfn, os.environ['PEYOTL_CONFIG_FILE'])
+                warn_from_util_logger(msg)
+
             from pkg_resources import Requirement, resource_filename
             pr = Requirement.parse('peyotl')
-            _CONFIG_FN = resource_filename(pr, 'peyotl/default.conf')
-        assert os.path.exists(_CONFIG_FN)
+            cfn = resource_filename(pr, 'peyotl/default.conf')
+        assert os.path.exists(cfn)
+        _CONFIG_FN = os.path.abspath(cfn)
     return _CONFIG_FN
 
 
@@ -94,20 +110,18 @@ def _warn_missing_setting(section, param, config_filename, warn_on_none_level=lo
     if warn_on_none_level is None:
         return
     # noinspection PyProtectedMember
-    from peyotl.utility.get_logger import _get_util_logger
+    from peyotl.utility.get_logger import warn_from_util_logger
     from peyotl.utility.str_util import is_str_type
-    _ulog = _get_util_logger()
-    if (_ulog is not None) and _ulog.isEnabledFor(warn_on_none_level):
-        if config_filename:
-            if not is_str_type(config_filename):
-                f = ' "{}" '.format('", "'.join(config_filename))
-            else:
-                f = ' "{}" '.format(config_filename)
+    if config_filename:
+        if not is_str_type(config_filename):
+            f = ' "{}" '.format('", "'.join(config_filename))
         else:
-            f = ' '
-        mf = 'Config file{f}does not contain option "{o}"" in section "{s}"'
-        msg = mf.format(f=f, o=param, s=section)
-        _ulog.warn(msg)
+            f = ' "{}" '.format(config_filename)
+    else:
+        f = ' '
+    mf = 'Config file{f}does not contain option "{o}"" in section "{s}"'
+    msg = mf.format(f=f, o=param, s=section)
+    warn_from_util_logger(msg)
 
 
 class ConfigWrapper(object):
@@ -138,11 +152,9 @@ class ConfigWrapper(object):
             for k, v in leco['logging'].items():
                 if k in overrides.setdefault('logging', {}):
                     # noinspection PyProtectedMember
-                    from peyotl.utility.get_logger import _get_util_logger
-                    ulog = _get_util_logger()
-                    if ulog is not None:
-                        m = 'Override keys ["logging"]["{}"] was overruled by an environmental variable'.format(k)
-                        ulog.warn(m)
+                    from peyotl.utility.get_logger import warn_from_util_logger
+                    m = 'Override keys ["logging"]["{}"] was overruled by an environmental variable'.format(k)
+                    warn_from_util_logger(m)
                 overrides['logging'][k] = v
         self._override = overrides
 
@@ -176,7 +188,7 @@ class ConfigWrapper(object):
     def _assure_raw(self):
         if self._raw is None:
             self._raw = _get_config_or_none()
-            self._config_filename = _CONFIG_FN
+            self._config_filename = get_default_config_filename()
 
     def get_config_setting(self, section, param, default=None, warn_on_none_level=logging.WARN):
         if section in self._override:
@@ -192,8 +204,21 @@ class ConfigWrapper(object):
                                   warn_on_none_level=warn_on_none_level)
 
     def report(self, out):
-        self._assure_raw()
-        out.write('Config read from "{f}"\n'.format(f=self._config_filename))
+        cfn = self.config_filename
+        out.write('# Config read from "{f}"\n'.format(f=cfn))
+        cfenv =  os.environ.get('PEYOTL_CONFIG_FILE', '')
+        if cfenv:
+            if os.path.abspath(cfenv) == cfn:
+                emsg = '#  config filepath obtained from $PEYOTL_CONFIG_FILE env var.\n'
+            else:
+                emsg = '#  using packaged default. The filepath from PEYOTL_CONFIG_FILE env. var. did not exist.\n'
+        else:
+            cfhome = os.path.expanduser("~/.peyotl/config")
+            if os.path.abspath(cfhome) == cfn:
+                emsg = "#  config filepath obtained via ~/.peyotl/config convention.\n"
+            else:
+                emsg = '#  using packaged default. PEYOTL_CONFIG_FILE was not set and ~/.peyotl/config was not found.\n'
+        out.write(emsg)
         from_raw = _do_create_overrides_from_config(self._raw)
         k = set(self._override.keys())
         k.update(from_raw.keys())
@@ -252,8 +277,15 @@ def get_config_setting_kwargs(section, param, default=None):
 
 
 def get_config_object():
-    _c = ConfigWrapper()
-    return _c
+    """Thread-safe accessor for the immutable default ConfigWrapper object"""
+    global _DEFAULT_CONFIG_WRAPPER
+    if _DEFAULT_CONFIG_WRAPPER is not None:
+        return _DEFAULT_CONFIG_WRAPPER
+    with _DEFAULT_CONFIG_WRAPPER_LOCK:
+        if _DEFAULT_CONFIG_WRAPPER is not None:
+            return _DEFAULT_CONFIG_WRAPPER
+        _DEFAULT_CONFIG_WRAPPER = ConfigWrapper()
+        return _DEFAULT_CONFIG_WRAPPER
 
 
 def get_test_config(overrides=None):

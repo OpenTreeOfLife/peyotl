@@ -7,7 +7,7 @@ repositories.
 # Some imports to help our py2 code behave like py3
 from __future__ import absolute_import, print_function, division
 __version__ = '0.1.4dev' # sync with setup.py
-from peyotl.utility import get_config_setting_kwargs, \
+from peyotl.utility import get_config_setting, \
                            get_config_object, \
                            expand_path, \
                            get_logger

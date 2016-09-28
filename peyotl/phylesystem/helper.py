@@ -1,4 +1,4 @@
-from peyotl.utility import expand_path, get_logger, get_config_setting_kwargs
+from peyotl.utility import expand_path, get_logger, get_config_setting
 import json
 try:
     import anyjson
@@ -21,7 +21,7 @@ def _get_phylesystem_parent_with_source(**kwargs):
         phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
     else:
         try:
-            phylesystem_parent = expand_path(get_config_setting_kwargs('phylesystem', 'parent'))
+            phylesystem_parent = expand_path(get_config_setting('phylesystem', 'parent'))
             src = 'configfile'
         except:
             raise ValueError('No [phylesystem] "parent" specified in config or environmental variables')

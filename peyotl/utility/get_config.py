@@ -101,6 +101,21 @@ def _warn_missing_setting(section, param, config_filename, warn_on_none_level=lo
     msg = mf.format(f=f, o=param, s=section)
     warn_from_util_logger(msg)
 
+def _raw_config_setting(config_obj, section, param, default=None, config_filename='', warn_on_none_level=logging.WARN):
+    '''Read (section, param) from `config_obj`. If not found, return `default`
+
+    If the setting is not found and `default` is None, then an warn-level message is logged.
+    `config_filename` can be None, filepath or list of filepaths - it is only used for logging.
+
+    If warn_on_none_level is None (or lower than the logging level) message for falling through to
+        a `None` default will be suppressed.
+    '''
+    try:
+        return config_obj.get(section, param)
+    except:
+        if (default is None) and warn_on_none_level is not None:
+            _warn_missing_setting(section, param, config_filename, warn_on_none_level)
+        return default
 
 class ConfigWrapper(object):
     """Wrapper to provide a richer get_config_setting(section, param, d) behavior. That function will
@@ -174,7 +189,7 @@ class ConfigWrapper(object):
             if param in so:
                 return so[param]
         self._assure_raw()
-        return get_config_setting(self._raw,
+        return _raw_config_setting(self._raw,
                                   section,
                                   param,
                                   default=default,
@@ -244,14 +259,11 @@ def _do_create_overrides_from_config(config):
     return d
 
 
-def get_config_setting_kwargs(section, param, default=None):
-    """Used to provide a consistent kwargs behavior for classes/methods that need to be config-dependent.
-
-    Currently: if config_obj is None, then kwargs['config'] is checked. If it is also None
-        then a default ConfigWrapper object is created.
+def get_config_setting(section, param, default=None):
+    """
     """
     cfg = get_config_object()
-    return cfg.get_config_setting(section, param, default)
+    return cfg.get_config_setting(section, param, default=default)
 
 
 def get_config_object():

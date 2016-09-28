@@ -230,7 +230,7 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
 
                 # amendment is now in the repo, so we can safely reserve the ottids
                 first_minted_id, last_minted_id = self._growing_shard._mint_new_ott_ids(
-                    how_many=min(num_taxa_eligible_for_ids,1))
+                    how_many=max(num_taxa_eligible_for_ids,1))
                 # do a final check for errors!
                 try:
                     assert first_minted_id == first_new_id

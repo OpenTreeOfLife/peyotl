@@ -375,8 +375,10 @@ get_config_var = get_config
 def doi2url(v):
     if v.startswith('http'):
         return v
+    if v.startswith('doi: '):
+        v = v[5:] # trim 'doi: '
     if v.startswith('doi:'):
-        v = v[4:] # trim doi:
+        v = v[4:] # trim 'doi:'
     return 'http://dx.doi.org/' + v
 def get_unique_filepath(stem):
     '''NOT thread-safe!

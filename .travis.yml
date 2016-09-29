@@ -6,7 +6,7 @@ python:
 install:
     - pip install -r requirements.txt ; python setup.py install
 script:
-    - source dev/travis.config ; export PYTHONPATH="$PYTHONPATH:$PWD" ; sh standalone-tests.sh
+    - source dev/travis.config ; export PYTHONPATH="$PYTHONPATH:$PWD" ; sh tests/standalone-tests.sh
     - source dev/travis.config ; export PYTHONPATH="$PYTHONPATH:$PWD" ; python setup.py test
 
 

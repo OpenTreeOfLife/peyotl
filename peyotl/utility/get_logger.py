@@ -108,7 +108,7 @@ def _logging_env_conf_overrides():
             _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['level'] = level_from_env
         if format_from_env:
             _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['formatter'] = format_from_env
-        if log_file_path_from_env:
+        if log_file_path_from_env is not None:
             _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['filepath'] = log_file_path_from_env
         return _LOGGING_ENV_CONF_OVERRIDES
 
@@ -117,6 +117,7 @@ def _read_logging_config():
     """Returns a dictionary (should be treated as immutable) of settings needed to configure a logger.
     If PEYOTL_LOGGING_LEVEL, PEYOTL_LOGGING_FORMAT, and PEYOTL_LOG_FILE_PATH are all in the env, then
         no config file will be read.
+    If PEYOTL_LOG_FILE_PATH is set to an empty string, then stderr will be used.
     Otherwise the config will be read, and any of those env vars that are present will then override
         the settings from the config file.
     Crucial keys-value pairs are:
@@ -158,7 +159,7 @@ def _read_logging_config():
                 lc['level_name'] = level_from_env
             if format_from_env:
                 lc['formatter_name'] = format_from_env
-            if lc:
+            if log_file_path_from_env is not None:
                 lc['filepath'] = log_file_path_from_env
             fp = lc['filepath']
             if not fp:

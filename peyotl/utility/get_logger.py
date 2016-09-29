@@ -43,7 +43,7 @@ def _get_logging_formatter(s=None):
     if s == "RICH":
         logging_formatter = logging.Formatter("[%(asctime)s] %(filename)s (%(lineno)d): %(levelname) 8s: %(message)s")
     elif s == "SIMPLE":
-        logging_formatter = logging.Formatter("%(levelname) 8s: %(message)s")
+        logging_formatter = logging.Formatter("%(levelname) 7s: %(message)s")
     elif s == "RAW":
         logging_formatter = logging.Formatter("%(message)s")
     else:

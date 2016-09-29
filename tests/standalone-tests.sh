@@ -23,25 +23,25 @@ stf=0
 #    stf=$(expr $stf + 1)
 #fi
 sh dev/refresh_for_git_tests.sh
-if ! python standalone_tests/test_study_del.py
+if ! python tests/standalone_tests/test_study_del.py
 then
     stf=$(expr $stf + 1)
 fi
 
 sh dev/refresh_for_git_tests.sh
-if ! python standalone_tests/test_git_workflows.py
+if ! python tests/standalone_tests/test_git_workflows.py
 then
     stf=$(expr $stf + 1)
 fi
 
 sh dev/refresh_for_git_tests.sh
-if ! python standalone_tests/test_git_workflows.py tiny_max_file_size
+if ! python tests/standalone_tests/test_git_workflows.py tiny_max_file_size
 then
     stf=$(expr $stf + 1)
 fi
 
 sh dev/refresh_for_git_tests.sh
-if ! python standalone_tests/test_phylesystem_mirror.py
+if ! python tests/standalone_tests/test_phylesystem_mirror.py
 then
     stf=$(expr $stf + 1)
 fi

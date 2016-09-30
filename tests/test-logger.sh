@@ -16,10 +16,13 @@ then
     echo "The $0 tests are being skipped because these tests are only runnable by developers who do not have a ~/.peyotl/config file. These tests write that file to test the configuration cascade."
     exit 0
 fi
-outdir=tests/output
-mid=logger_test_messages
-esuffix=${mid}_err.txt
-osuffix=${mid}_out.txt
+outdir=tests/output/logger_test
+if ! test -d ${outdir}
+then
+    mkdir -p ${outdir}
+fi
+esuffix=err.txt
+osuffix=out.txt
 
 prefixarray=(toslashtmp default debug critical fdefault cdefault richdebug rawdebug boguslevel bogusformat)
 for prefix in ${prefixarray[@]}

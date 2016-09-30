@@ -21,7 +21,7 @@ mid=logger_test_messages
 esuffix=${mid}_err.txt
 osuffix=${mid}_out.txt
 
-prefixarray=(toslashtmp default debug critical fdefault)
+prefixarray=(toslashtmp default debug critical fdefault cdefault)
 for prefix in ${prefixarray[@]}
 do
     for suffix in ${esuffix} ${osuffix}
@@ -117,10 +117,20 @@ PEYOTL_LOGGING_LEVEL=${prefix} python tests/logger_test_messages.py 2>${outdir}/
 demand_str_found "${outdir}/${prefix}_${esuffix}" critical
 demand_str_not_found "${outdir}/${prefix}_${esuffix}" debug info warning error exception
 
-
 prefix=fdefault
 export PEYOTL_LOG_FILE_PATH="${outdir}/${prefix}_${esuffix}"
 python tests/logger_test_messages.py 2>${outdir}/${prefix}_${esuffix} >${outdir}/${prefix}_${osuffix}
+files_are_identical ${outdir}/${prefix}_${esuffix} ${outdir}/default_${esuffix}
+
+prefix=cdefault
+cat >"${outdir}/logtest.conf" <<TESTLOGCONTENT
+[logging]
+filepath = $PWD/${outdir}/${prefix}_${esuffix}
+level = info
+formatter = simple
+TESTLOGCONTENT
+unset PEYOTL_LOG_FILE_PATH
+PEYOTL_CONFIG_FILE=$PWD/${outdir}/logtest.conf python tests/logger_test_messages.py >${outdir}/${prefix}_${osuffix}
 files_are_identical ${outdir}/${prefix}_${esuffix} ${outdir}/default_${esuffix}
 
 

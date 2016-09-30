@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from peyotl import get_logger
 _LOG = get_logger()
 _LOG.debug("a debug message")

@@ -21,7 +21,7 @@ mid=logger_test_messages
 esuffix=${mid}_err.txt
 osuffix=${mid}_out.txt
 
-prefixarray=(toslashtmp default debug critical fdefault cdefault)
+prefixarray=(toslashtmp default debug critical fdefault cdefault richdebug rawdebug)
 for prefix in ${prefixarray[@]}
 do
     for suffix in ${esuffix} ${osuffix}
@@ -29,7 +29,7 @@ do
         ff="${outdir}/${prefix}_${suffix}"
         if test -f "$ff"
         then
-            echo "  cleaning up ${ff}" ; rm "$ff" || exit
+            rm "$ff" || exit
         fi
      done
 done
@@ -88,7 +88,21 @@ function files_are_identical {
             num_fails=$(expr 1 + ${num_fails})
         fi
     done
+}
 
+
+function matches_formatter {
+    f=$1
+    shift
+    for s in $@
+    do
+        num_checks=$(expr 1 + ${num_checks})
+        if ! python tests/match_logger_output.py $f $s
+        then
+            echo "Format of messages in \"${s}\" was wrong"
+            num_fails=$(expr 1 + ${num_fails})
+        fi
+    done
 }
 
 # The default config comes from $PEYOTL_ROOT/peyotl.conf
@@ -97,41 +111,56 @@ function files_are_identical {
 #   formatter = simple
 
 # default run should write to /tmp/peyotl-log. We won't verify that in case tests are running multithreaded. Just check that stderr is empty.
-prefix=toslashtmp
-python tests/logger_test_messages.py 2>${outdir}/${prefix}_${esuffix} >${outdir}/${prefix}_${osuffix}
-demand_empty ${outdir}/${prefix}_${esuffix}
+prefix=toslashtmp ; elogf="${outdir}/${prefix}_${esuffix}"
+python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+demand_empty ${elogf}
 
 # an empty string PEYOTL_LOG_FILE_PATH causes writing to stderr
 export PEYOTL_LOG_FILE_PATH=''
-prefix=default
-python tests/logger_test_messages.py 2>${outdir}/${prefix}_${esuffix} >${outdir}/${prefix}_${osuffix}
-demand_str_found "${outdir}/${prefix}_${esuffix}" info warning error critical exception
-demand_str_not_found "${outdir}/${prefix}_${esuffix}" debug
+prefix=default ; elogf="${outdir}/${prefix}_${esuffix}"
+python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+demand_str_found ${elogf} info warning error critical exception
+demand_str_not_found "${elogf}" debug
+matches_formatter simple ${elogf}
 
-prefix=debug
-PEYOTL_LOGGING_LEVEL=${prefix} python tests/logger_test_messages.py 2>${outdir}/${prefix}_${esuffix} >${outdir}/${prefix}_${osuffix}
-demand_str_found "${outdir}/${prefix}_${esuffix}" debug info warning error critical exception
+prefix=debug ; elogf="${outdir}/${prefix}_${esuffix}"
+PEYOTL_LOGGING_LEVEL=${prefix} python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+demand_str_found "${elogf}" debug info warning error critical exception
+matches_formatter simple ${elogf}
 
-prefix=critical
-PEYOTL_LOGGING_LEVEL=${prefix} python tests/logger_test_messages.py 2>${outdir}/${prefix}_${esuffix} >${outdir}/${prefix}_${osuffix}
-demand_str_found "${outdir}/${prefix}_${esuffix}" critical
-demand_str_not_found "${outdir}/${prefix}_${esuffix}" debug info warning error exception
+prefix=richdebug ; elogf="${outdir}/${prefix}_${esuffix}"
+PEYOTL_LOGGING_LEVEL=debug  PEYOTL_LOGGING_FORMAT=rich python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+demand_str_found "${elogf}" debug info warning error critical exception
+matches_formatter rich ${elogf}
 
-prefix=fdefault
-export PEYOTL_LOG_FILE_PATH="${outdir}/${prefix}_${esuffix}"
-python tests/logger_test_messages.py 2>${outdir}/${prefix}_${esuffix} >${outdir}/${prefix}_${osuffix}
-files_are_identical ${outdir}/${prefix}_${esuffix} ${outdir}/default_${esuffix}
+prefix=rawdebug ; elogf="${outdir}/${prefix}_${esuffix}"
+PEYOTL_LOGGING_LEVEL=debug  PEYOTL_LOGGING_FORMAT=raw python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+demand_str_found "${elogf}" debug info warning error critical exception
+matches_formatter raw ${elogf}
 
-prefix=cdefault
+prefix=critical ; elogf="${outdir}/${prefix}_${esuffix}"
+PEYOTL_LOGGING_LEVEL=${prefix} python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+demand_str_found "${elogf}" critical
+demand_str_not_found "${elogf}" debug info warning error exception
+matches_formatter simple ${elogf}
+
+prefix=fdefault ; elogf="${outdir}/${prefix}_${esuffix}"
+export PEYOTL_LOG_FILE_PATH="${elogf}"
+python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+files_are_identical ${elogf} ${outdir}/default_${esuffix}
+matches_formatter simple ${elogf}
+
+prefix=cdefault ; elogf="${outdir}/${prefix}_${esuffix}"
 cat >"${outdir}/logtest.conf" <<TESTLOGCONTENT
 [logging]
-filepath = $PWD/${outdir}/${prefix}_${esuffix}
-level = info
-formatter = simple
+filepath = $PWD/${elogf}
+level = debug
+formatter = raw
 TESTLOGCONTENT
 unset PEYOTL_LOG_FILE_PATH
 PEYOTL_CONFIG_FILE=$PWD/${outdir}/logtest.conf python tests/logger_test_messages.py >${outdir}/${prefix}_${osuffix}
-files_are_identical ${outdir}/${prefix}_${esuffix} ${outdir}/default_${esuffix}
+files_are_identical ${elogf} ${outdir}/rawdebug_${esuffix}
+matches_formatter raw ${elogf}
 
 
 # all of the output stream should be empty

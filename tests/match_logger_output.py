@@ -1,24 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 "Checks the output from logger_test_messages.py for formatting. First arg is level: simple, raw, or rich "
+import codecs
 import sys
 import re
 LEVEL = ['raw', 'simple', 'rich'].index(sys.argv[1])
 
-
-'''expected exception
-Traceback (most recent call last):
-  File "tests/logger_test_messages.py", line 9, in <module>
-    raise RuntimeError("A testing runtime error")
-RuntimeError: A testing runtime error
-
-[03:07:00] logger_test_messages.py (3):    DEBUG: a debug message
-[03:07:00] logger_test_messages.py (4):     INFO: an info message
-[03:07:00] logger_test_messages.py (5):  WARNING: a warning message
-[03:07:00] logger_test_messages.py (6):    ERROR: an error message
-[03:07:00] logger_test_messages.py (7): CRITICAL: a critical message
-[03:07:00] logger_test_messages.py (11):    ERROR: expected exception
-'''
 level_message = r'\s*([A-Z]+):\s+(\S.*)$'
 simple_line_pat = re.compile('^' + level_message)
 rich_line_pat = re.compile(r'^\[[0-9:]+\]\s+logger_test_messages.py\s+\(\d+\):' + level_message)
@@ -26,6 +13,9 @@ raw_message_pat = re.compile(r'^a.*message\s*$')
 except_message_pat = re.compile(r'^\s*expected exception\s*$')
 def check_message(message):
     if raw_message_pat.match(message) or except_message_pat.match(message):
+        if 'umlaut' in message:
+            if u'ü' not in message:
+                raise RuntimeError('Line with umlaut word does not have the character - failure to utf-8 encode')
         return True
 
 line_pattern = rich_line_pat if LEVEL == 2 else simple_line_pat
@@ -38,7 +28,7 @@ def check_line(line):
             raise RuntimeError('Line "{}" does not match formatter.'.format(line[:-1]))
         mlevel = m.group(1)
         if mlevel not in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']:
-            raise RuntimeError('Line leve "{}" does not match formatter.'.format(mlevel))
+            raise RuntimeError('Line level "{}" does not match formatter.'.format(mlevel))
         message = m.group(2)
     if check_message(message):
         return
@@ -60,5 +50,5 @@ def check_file(inp):
         else:
             check_line(line)
 for f in sys.argv[2:]:
-    with open(f, 'rU') as inp:
+    with codecs.open(f, 'rU', encoding='utf-8') as inp:
         check_file(inp)

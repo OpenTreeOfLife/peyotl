@@ -237,7 +237,10 @@ class ConfigWrapper(object):
         k.update(from_raw.keys())
         k = list(k)
         k.sort()
-        leco = _logging_env_conf_overrides()
+        env_log_warnings = []
+        leco = _logging_env_conf_overrides(log_init_warnings=env_log_warnings)
+        for w in env_log_warnings:
+            out.write('# Log config warning: {}\n'.format(w))
         lecologging = leco.get('logging', {})
         for key in k:
             ov_set = self._override.get(key, {})
@@ -250,13 +253,13 @@ class ConfigWrapper(object):
             for param in v:
                 if param in ov_set:
                     if key == 'logging' and param in lecologging:
-                        out.write('#{p} from environmental variable\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
+                        out.write('# {p} from env. variable\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
                     else:
-                        out.write('#{p} from override\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
+                        out.write('# {p} from override\n{p} = {s}\n'.format(p=param, s=str(ov_set[param])))
                 else:
-                    out.write('#{p} from {f}\n{p} = {s}\n'.format(p=param,
-                                                                  s=str(fr_set[param]),
-                                                                  f=self._config_filename))
+                    out.write('# {p} from {f}\n{p} = {s}\n'.format(p=param,
+                                                                   s=str(fr_set[param]),
+                                                                   f=self._config_filename))
 
 
 def _create_overrides_from_config(config):

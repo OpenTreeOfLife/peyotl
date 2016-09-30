@@ -12,7 +12,7 @@ _LOGGING_CONF_LOCK = threading.Lock()
 _LOGGING_ENV_CONF_OVERRIDES_LOCK = threading.Lock()
 
 
-def _get_logging_level(s=None):
+def _get_logging_level(s=None, warning_message_list=None):
     # Called from within locks, so this should not log or trigger reading of logging configuration!
     if s is None:
         return logging.NOTSET
@@ -30,11 +30,13 @@ def _get_logging_level(s=None):
     elif supper == "CRITICAL":
         level = logging.CRITICAL
     else:
+        if warning_message_list is not None:
+            warning_message_list.append('"{}" is an invalid logging level'.format(s))
         level = logging.NOTSET
     return level
 
 
-def _get_logging_formatter(s=None):
+def _get_logging_formatter(s=None, warning_message_list=None):
     # Called from within locks, so this should not log or trigger reading of logging configuration!
     if s is None:
         s = 'NONE'
@@ -47,6 +49,8 @@ def _get_logging_formatter(s=None):
     elif s == "RAW":
         logging_formatter = logging.Formatter("%(message)s")
     else:
+        if warning_message_list is not None:
+            warning_message_list.append('"{}" is an invalid formatter name'.format(s))
         logging_formatter = None
     if logging_formatter is not None:
         logging_formatter.datefmt = '%H:%M:%S'
@@ -59,7 +63,8 @@ def get_logger(name="peyotl"):
     """
     logger = logging.getLogger(name)
     if len(logger.handlers) == 0:
-        lc = _read_logging_config()
+        log_init_warnings = []
+        lc = _read_logging_config(log_init_warnings)
         logger.setLevel(lc['level'])
         if lc['filepath'] is not None:
             log_dir = lc['log_dir']
@@ -71,6 +76,9 @@ def get_logger(name="peyotl"):
         ch.setLevel(lc['level'])
         ch.setFormatter(lc['formatter'])
         logger.addHandler(ch)
+        if log_init_warnings:
+            for w in log_init_warnings:
+                logger.warn(w)
     return logger
 
 
@@ -87,7 +95,7 @@ def warn_from_util_logger(msg):
     _LOG.warn(msg)
 
 
-def _logging_env_conf_overrides():
+def _logging_env_conf_overrides(log_init_warnings=None):
     """Returns a dictionary that is empty or has a "logging" key that refers to
     the (up to 3) key-value pairs that pertain to logging and are read from the env.
     This is mainly a convenience function for ConfigWrapper so that it can accurately
@@ -105,15 +113,29 @@ def _logging_env_conf_overrides():
         log_file_path_from_env = os.environ.get("PEYOTL_LOG_FILE_PATH")
         _LOGGING_ENV_CONF_OVERRIDES = {}
         if level_from_env:
-            _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['level'] = level_from_env
+            env_w_list = []
+            _get_logging_level(level_from_env, env_w_list)
+            if len(env_w_list) > 0:
+                if log_init_warnings is not None:
+                    log_init_warnings.extend(env_w_list)
+                    log_init_warnings.append('PEYOTL_LOGGING_LEVEL is invalid. Relying on setting from conf file.')
+            else:
+                _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['level'] = level_from_env
         if format_from_env:
-            _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['formatter'] = format_from_env
+            env_w_list = []
+            _get_logging_formatter(format_from_env, env_w_list)
+            if len(env_w_list) > 0:
+                if log_init_warnings is not None:
+                    log_init_warnings.extend(env_w_list)
+                    log_init_warnings.append('PEYOTL_LOGGING_FORMAT was invalid. Relying on setting from conf file.')
+            else:
+                _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['formatter'] = format_from_env
         if log_file_path_from_env is not None:
             _LOGGING_ENV_CONF_OVERRIDES.setdefault("logging", {})['filepath'] = log_file_path_from_env
         return _LOGGING_ENV_CONF_OVERRIDES
 
 
-def _read_logging_config():
+def _read_logging_config(log_init_warnings=None):
     """Returns a dictionary (should be treated as immutable) of settings needed to configure a logger.
     If PEYOTL_LOGGING_LEVEL, PEYOTL_LOGGING_FORMAT, and PEYOTL_LOG_FILE_PATH are all in the env, then
         no config file will be read.
@@ -127,6 +149,10 @@ def _read_logging_config():
         PEYOTL_LOGGING_FORMAT or config.logging.formatter
     'filepath' -> None (for StreamHandler) or a filepath
     'log_dir' -> None or the parent of the 'filepath' key
+
+    If log_init_warnings is a list, warnings pertaining reading the logging configuration will be appended to
+    the list.
+    This call is cached via a private global, so log_init_warnings is only used on the first call to the function.
     """
     global _LOGGING_CONF
     from peyotl.utility.get_config import get_config_object
@@ -136,13 +162,13 @@ def _read_logging_config():
         with _LOGGING_CONF_LOCK:
             if _LOGGING_CONF is not None:
                 return _LOGGING_CONF
-            leco = _logging_env_conf_overrides().get('logging', {})
+            leco = _logging_env_conf_overrides(log_init_warnings).get('logging', {})
             lc = {}
-            # These strings hold the names of env variables that control LOGGING. If LEVEL is defined via the environment
-            #   the the
             level_from_env = leco.get("level")
             format_from_env = leco.get("format")
             log_file_path_from_env = leco.get("filepath")
+            level_enum = None
+            formatter = None
             if not (level_from_env and format_from_env and log_file_path_from_env):
                 # If any aspect is missing from the env, then we need to check the config file
                 cfg = get_config_object()
@@ -152,21 +178,25 @@ def _read_logging_config():
                 if logging_filepath == '':
                     logging_filepath = None
                 lc['level_name'] = level
+                level_enum = _get_logging_level(level, log_init_warnings)
                 lc['formatter_name'] = logging_format_name
+                formatter = _get_logging_formatter(logging_format_name, log_init_warnings)
                 lc['filepath'] = logging_filepath
             # Override
             if level_from_env:
                 lc['level_name'] = level_from_env
+                level_enum = _get_logging_level(level_from_env)
             if format_from_env:
                 lc['formatter_name'] = format_from_env
+                formatter = _get_logging_formatter(format_from_env)
             if log_file_path_from_env is not None:
                 lc['filepath'] = log_file_path_from_env
             fp = lc['filepath']
             if not fp:
                 lc['filepath'] = None
             lc['log_dir'] = os.path.split(fp)[0] if fp else None
-            lc['level'] = _get_logging_level(lc['level_name'])
-            lc['formatter'] = _get_logging_formatter(lc['formatter_name'])
+            lc['level'] = level_enum
+            lc['formatter'] = formatter
             _LOGGING_CONF = lc
             return _LOGGING_CONF
     except Exception as x:

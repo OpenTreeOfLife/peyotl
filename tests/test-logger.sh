@@ -21,7 +21,7 @@ mid=logger_test_messages
 esuffix=${mid}_err.txt
 osuffix=${mid}_out.txt
 
-prefixarray=(toslashtmp default debug critical fdefault cdefault richdebug rawdebug)
+prefixarray=(toslashtmp default debug critical fdefault cdefault richdebug rawdebug boguslevel bogusformat)
 for prefix in ${prefixarray[@]}
 do
     for suffix in ${esuffix} ${osuffix}
@@ -150,6 +150,7 @@ python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
 files_are_identical ${elogf} ${outdir}/default_${esuffix}
 matches_formatter simple ${elogf}
 
+
 prefix=cdefault ; elogf="${outdir}/${prefix}_${esuffix}"
 cat >"${outdir}/logtest.conf" <<TESTLOGCONTENT
 [logging]
@@ -161,6 +162,18 @@ unset PEYOTL_LOG_FILE_PATH
 PEYOTL_CONFIG_FILE=$PWD/${outdir}/logtest.conf python tests/logger_test_messages.py >${outdir}/${prefix}_${osuffix}
 files_are_identical ${elogf} ${outdir}/rawdebug_${esuffix}
 matches_formatter raw ${elogf}
+
+# If we set an incorrect level, we should get a message
+prefix=boguslevel ; elogf="${outdir}/${prefix}_${esuffix}"
+export PEYOTL_LOG_FILE_PATH=''
+PEYOTL_LOGGING_LEVEL=bogus python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+demand_str_found ${elogf} invalid bogus
+
+# If we set an incorrect level, we should get a message
+prefix=bogusformat ; elogf="${outdir}/${prefix}_${esuffix}"
+export PEYOTL_LOG_FILE_PATH=''
+PEYOTL_LOGGING_FORMAT=BOGUS python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+demand_str_found ${elogf} invalid BOGUS
 
 
 # all of the output stream should be empty

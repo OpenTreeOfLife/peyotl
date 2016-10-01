@@ -17,14 +17,11 @@ _study_index_lock = Lock()
 
 def _get_phylesystem_parent_with_source(**kwargs):
     src = 'environment'
-    if 'PHYLESYSTEM_PARENT' in os.environ:
-        phylesystem_parent = os.environ.get('PHYLESYSTEM_PARENT')
-    else:
-        try:
-            phylesystem_parent = expand_path(get_config_setting('phylesystem', 'parent'))
-            src = 'configfile'
-        except:
-            raise ValueError('No [phylesystem] "parent" specified in config or environmental variables')
+    try:
+        phylesystem_parent = expand_path(get_config_setting('phylesystem', 'parent'))
+        src = 'configfile'
+    except:
+        raise ValueError('No [phylesystem] "parent" specified in config or environmental variables')
     x = phylesystem_parent.split(':') #TEMP hardcoded assumption that : does not occur in a path name
     return x, src
 

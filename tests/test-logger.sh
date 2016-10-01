@@ -24,7 +24,7 @@ fi
 esuffix=err.txt
 osuffix=out.txt
 
-prefixarray=(toslashtmp default debug critical fdefault cdefault richdebug rawdebug boguslevel bogusformat)
+prefixarray=(toslashtmp default debug critical fdefault cdefault richdebug rawdebug boguslevel bogusformat seconddefault homeoverride)
 for prefix in ${prefixarray[@]}
 do
     for suffix in ${esuffix} ${osuffix}
@@ -118,7 +118,7 @@ prefix=toslashtmp ; elogf="${outdir}/${prefix}_${esuffix}"
 python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
 demand_empty ${elogf}
 
-# an empty string PEYOTL_LOG_FILE_PATH causes writing to stderr
+# Check that empty string PEYOTL_LOG_FILE_PATH causes writing to stderr
 export PEYOTL_LOG_FILE_PATH=''
 prefix=default ; elogf="${outdir}/${prefix}_${esuffix}"
 python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
@@ -126,34 +126,39 @@ demand_str_found ${elogf} info warning error critical exception
 demand_str_not_found "${elogf}" debug
 matches_formatter simple ${elogf}
 
+# Check debug run level via env
 prefix=debug ; elogf="${outdir}/${prefix}_${esuffix}"
 PEYOTL_LOGGING_LEVEL=${prefix} python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
 demand_str_found "${elogf}" debug info warning error critical exception
 matches_formatter simple ${elogf}
 
+# Check rich message formatter via env
 prefix=richdebug ; elogf="${outdir}/${prefix}_${esuffix}"
 PEYOTL_LOGGING_LEVEL=debug  PEYOTL_LOGGING_FORMAT=rich python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
 demand_str_found "${elogf}" debug info warning error critical exception
 matches_formatter rich ${elogf}
 
+# raw and debug via env
 prefix=rawdebug ; elogf="${outdir}/${prefix}_${esuffix}"
 PEYOTL_LOGGING_LEVEL=debug  PEYOTL_LOGGING_FORMAT=raw python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
 demand_str_found "${elogf}" debug info warning error critical exception
 matches_formatter raw ${elogf}
 
+# critical logger level via env
 prefix=critical ; elogf="${outdir}/${prefix}_${esuffix}"
 PEYOTL_LOGGING_LEVEL=${prefix} python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
 demand_str_found "${elogf}" critical
 demand_str_not_found "${elogf}" debug info warning error exception
 matches_formatter simple ${elogf}
 
+# Log file path via env, rather than stderr redirection
 prefix=fdefault ; elogf="${outdir}/${prefix}_${esuffix}"
 export PEYOTL_LOG_FILE_PATH="${elogf}"
-python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+python tests/logger_test_messages.py >${outdir}/${prefix}_${osuffix}
 files_are_identical ${elogf} ${outdir}/default_${esuffix}
 matches_formatter simple ${elogf}
 
-
+# Write a config file and verify that PEYOTL_CONFIG_FILE env variable works
 prefix=cdefault ; elogf="${outdir}/${prefix}_${esuffix}"
 cat >"${outdir}/logtest.conf" <<TESTLOGCONTENT
 [logging]
@@ -164,7 +169,40 @@ TESTLOGCONTENT
 unset PEYOTL_LOG_FILE_PATH
 PEYOTL_CONFIG_FILE=$PWD/${outdir}/logtest.conf python tests/logger_test_messages.py >${outdir}/${prefix}_${osuffix}
 files_are_identical ${elogf} ${outdir}/rawdebug_${esuffix}
-matches_formatter raw ${elogf}
+
+
+# make sure that we get the same default log before we move to ~/.peyotl/config This is really a test that
+#   we haven't accidentally modified the env at this point in this test script
+prefix=seconddefault ; elogf="${outdir}/${prefix}_${esuffix}"
+export PEYOTL_LOG_FILE_PATH=''
+python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
+files_are_identical ${elogf} ${outdir}/default_${esuffix}
+
+# Now we test the default usage of ~/.peyotl/config
+if ! test -d ~/.peyotl
+then
+    mkdir ~/.peyotl || exit
+fi
+prefix=homeoverride ; elogf="${outdir}/${prefix}_${esuffix}"
+cat >"$HOME/.peyotl/config" <<TESTLOGCONTENT
+[logging]
+filepath = $PWD/${elogf}
+level = debug
+formatter = simple
+TESTLOGCONTENT
+unset PEYOTL_LOG_FILE_PATH
+python tests/logger_test_messages.py >${outdir}/${prefix}_${osuffix}
+files_are_identical ${elogf} ${outdir}/debug_${esuffix}
+
+# Make sure that PEYOTL_CONFIG_FILE env overrides the existence of ~/.peyotl/config
+prefix=cdefault ; elogf="${outdir}/${prefix}_${esuffix}"
+rm -f ${elogf} # we will regenerate this
+PEYOTL_CONFIG_FILE=$PWD/${outdir}/logtest.conf python tests/logger_test_messages.py >${outdir}/${prefix}_${osuffix}
+files_are_identical ${elogf} ${outdir}/rawdebug_${esuffix}
+
+# clean up the config file that we just wrote
+rm ~/.peyotl/config
+
 
 # If we set an incorrect level, we should get a message
 prefix=boguslevel ; elogf="${outdir}/${prefix}_${esuffix}"

@@ -187,5 +187,5 @@ done
 
 
 num_passes=$(expr ${num_checks} - ${num_fails})
-echo "Passed $num_passes out of $num_checks checks"
+echo "Passed $num_passes out of $num_checks checks in $0"
 test ${num_checks} = ${num_passes}

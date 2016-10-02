@@ -93,7 +93,6 @@ function files_are_identical {
     done
 }
 
-
 function matches_formatter {
     f=$1
     shift
@@ -108,6 +107,25 @@ function matches_formatter {
     done
 }
 
+function demand_equal {
+    num_checks=$(expr 1 + ${num_checks})
+    if ! test "$1" = "$2"
+    then
+        echo "strings \"$1\" and \"$2\" differed."
+        num_fails=$(expr 1 + ${num_fails})
+    fi
+}
+
+function demand_empty_str {
+    num_checks=$(expr 1 + ${num_checks})
+    if ! test -z "$1"
+    then
+        echo "strings \"$1\" was not empty."
+        num_fails=$(expr 1 + ${num_fails})
+    fi
+}
+
+
 # The default config comes from $PEYOTL_ROOT/peyotl.conf
 #   level = info
 #   filepath = /tmp/peyotl-log
@@ -117,6 +135,8 @@ function matches_formatter {
 prefix=toslashtmp ; elogf="${outdir}/${prefix}_${esuffix}"
 python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
 demand_empty ${elogf}
+demand_equal /tmp/peyotl-log $(python tests/write_config_setting.py logging filepath)
+demand_empty_str $(python tests/write_config_setting.py logging bogus)
 
 # Check that empty string PEYOTL_LOG_FILE_PATH causes writing to stderr
 export PEYOTL_LOG_FILE_PATH=''
@@ -125,6 +145,11 @@ python tests/logger_test_messages.py 2>${elogf} >${outdir}/${prefix}_${osuffix}
 demand_str_found ${elogf} info warning error critical exception
 demand_str_not_found "${elogf}" debug
 matches_formatter simple ${elogf}
+demand_empty_str $(python tests/write_config_setting.py logging filepath)
+rm -f ${elogf}notfound.txt
+demand_empty_str $(python tests/write_config_setting.py logging bogus 2>${elogf}notfound.txt)
+demand_str_found ${elogf}notfound.txt bogus
+
 
 # Check debug run level via env
 prefix=debug ; elogf="${outdir}/${prefix}_${esuffix}"
@@ -193,6 +218,13 @@ TESTLOGCONTENT
 unset PEYOTL_LOG_FILE_PATH
 python tests/logger_test_messages.py >${outdir}/${prefix}_${osuffix}
 files_are_identical ${elogf} ${outdir}/debug_${esuffix}
+
+demand_equal simple $(python tests/write_config_setting.py logging formatter)
+demand_equal raw $(PEYOTL_CONFIG_FILE=$PWD/${outdir}/logtest.conf python tests/write_config_setting.py logging formatter)
+demand_equal rich $(PEYOTL_CONFIG_FILE=$PWD/${outdir}/logtest.conf PEYOTL_LOGGING_FORMAT=rich python tests/write_config_setting.py logging formatter)
+demand_equal rich $(PEYOTL_LOGGING_FORMAT=rich python tests/write_config_setting.py logging formatter)
+
+
 
 # Make sure that PEYOTL_CONFIG_FILE env overrides the existence of ~/.peyotl/config
 prefix=cdefault ; elogf="${outdir}/${prefix}_${esuffix}"

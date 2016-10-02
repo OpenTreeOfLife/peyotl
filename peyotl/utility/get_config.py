@@ -1,9 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Functions for interacting with a runtime-configuration.
-Most code will interact with the default ConfigWrapper object returned by the get_config_object() call.
-The ConfigWrapper class allows client code to override settings in the configuration file.
+Typical usage:
+    setting = get_config_setting('phylesystem', 'parent', default=None)
+Or:
+    cfg = get_config_object()
+    setting = cfg.get_config_setting('phylesystem', 'parent', default=None)
+The latter is more efficient, if you have several settings to check. The former is just sugar for the latter.
 
+The returned `cfg` from get_config_object is a singleton, immutable ConfigWrapper instance. It is populated based
+on peyotl's system of finding configuration file locations (see below)
+Returned settings are always strings (no type coercion is supported)
+
+
+The ConfigWrapper class also has a
+    setting = cfg.get_from_config_setting_cascade([('apis', 'oti_raw_urls'), ('apis', 'raw_urls')], "FALSE")
+syntax to allow client code to check one section+param name after another
+
+
+It is possible to override settings by creating your own ConfigWrapper instance and using the overrides argument to the
+__init__ call, but that is mainly useful for Mock configurations used in testing.
+
+The function `read_config` is an alias for `get_raw_default_config_and_read_file_list` both should be treated as
+deprecated.
+
+# Peyotl config file finding/ Env variables.
 The default peyotl configuration is read from a file. The configuration filepath is either the value of
     the PEYOTL_CONFIG_FILE environmental variable (if that variable is defined) or ~/.peyotl/config
 If that filepath does not exist, then the fallback is the config that is the `default.conf` file that is
@@ -15,6 +36,10 @@ This file has some odd acrobatics to deal with the fact that logging is (1) help
     and (2) itself dependent on configuration-based settings. So this file imports some private functions of the
     peyotl.utility.get_logger file. Those acrobatics should not be needed for any other client of logger or config
     functions in peyotl.
+
+A few settings can also be set using environmental variables (mainly the logging settings discussed in
+peyotl.utility.get_logger). If the environmental variable is present it will override the setting from the configuration
+file.
 """
 import threading
 import logging

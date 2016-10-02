@@ -40,6 +40,14 @@ This file has some odd acrobatics to deal with the fact that logging is (1) help
 A few settings can also be set using environmental variables (mainly the logging settings discussed in
 peyotl.utility.get_logger). If the environmental variable is present it will override the setting from the configuration
 file.
+
+If you want to check your configuration, you can run:
+
+    python scripts/clipeyotl.py config -a list
+
+to see the union of all your settings along with comments describing where those settings come from (e.g. which
+are from your environment).
+
 """
 import threading
 import logging

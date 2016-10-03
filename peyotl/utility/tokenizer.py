@@ -69,6 +69,7 @@ class NewickTokenizer(object):
 
     def _raise_unexpected(self, m):
         if self.prev_token != NewickTokenType.NONE:
+            # noinspection PyUnresolvedReferences
             raise ValueError('Error: {m} at {f} after a/an {p} token'.format(m=m,
                                                                              f=self.file_pos(),
                                                                              p=self.prev_token.name))

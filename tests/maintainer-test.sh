@@ -31,23 +31,23 @@ then
     s=1
 fi
 
-if test $f -eq 0
+if test ${f} -eq 0
 then
     echo "Passed all shell script tests."
 else
     echo "Failed at least one shell script tests."
 fi
-if test $k -eq 0
+if test ${k} -eq 0
 then
     echo "Passed all standalone_tests."
 else
     echo "Failed at least one standalone_test."
 fi
-if test $t -eq 0
+if test ${t} -eq 0
 then
     echo "Passed all tutorial tests."
 else
     echo "Failed at least one tutorial test"
 fi
-exit $(expr $f + $k + $s + $t)
+exit $(expr ${f} + ${k} + ${s} + ${t})
 

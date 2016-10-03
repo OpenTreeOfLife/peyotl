@@ -99,7 +99,7 @@ function matches_formatter {
     for s in $@
     do
         num_checks=$(expr 1 + ${num_checks})
-        if ! python tests/match_logger_output.py $f $s
+        if ! python tests/match_logger_output.py ${f} ${s}
         then
             echo "Format of messages in \"${s}\" was wrong"
             num_fails=$(expr 1 + ${num_fails})

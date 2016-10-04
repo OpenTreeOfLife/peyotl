@@ -99,7 +99,7 @@ example_response = {
     u'unmatched_name_ids': [u'Homo sapien']}
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use '
                  'Open Tree of Life web services are disabled.')
 class TestTNRSResponse(unittest.TestCase):
     def testWrap(self):
@@ -118,7 +118,7 @@ class TestTNRSResponse(unittest.TestCase):
         self.assertFalse(bool(tr['Homo sapien']))
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use '
                  'Open Tree of Life web services are disabled.')
 class TestTaxomachine(unittest.TestCase):
     def setUp(self):

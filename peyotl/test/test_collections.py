@@ -15,8 +15,8 @@ mc = _repos['mini_collections']
 #_repos = {'mini_collections': mc}
 
 @unittest.skipIf(not os.path.isdir(mc),
-                 'Peyotl not configured for maintainer test of mini_collections.' \
-                 'Skipping this test is normal (for everyone other than maintainers).\n' \
+                 'Peyotl not configured for maintainer test of mini_collections.'
+                 'Skipping this test is normal (for everyone other than maintainers).\n'
                  'See http://opentreeoflife.github.io/peyotl/maintainer/')
 
 class TestTreeCollections(unittest.TestCase):

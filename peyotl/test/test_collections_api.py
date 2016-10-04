@@ -25,7 +25,7 @@ def raise_HTTPError_with_more_detail(err):
     raise ValueError("{e}, details: {m}".format(e=err, m=details))
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use '
                  'Open Tree of Life web services are disabled.')
 class TestTreeCollectionsAPI(unittest.TestCase):
     def setUp(self):
@@ -45,7 +45,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         cn = c['name']
         self.assertTrue(cn in [u'My favorite trees!', u'My test collection'])
     @unittest.skipIf(not HAS_LOCAL_COLLECTIONS_REPOS,
-                     'only available if you are have a [phylesystem] section ' \
+                     'only available if you are have a [phylesystem] section '
                      'with "parent" variable in your peyotl config')
     def testCollectionList(self):
         tca = TreeCollectionsAPI(self.domains, get_from='local')
@@ -60,7 +60,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
             pprint(sl)
         self.assertTrue(sl[0] is True)
     @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
-                     'only available if GITHUB_OAUTH_TOKEN is found in env ' \
+                     'only available if GITHUB_OAUTH_TOKEN is found in env '
                      ' (required to use docstore write methods)')
     def testCreateCollectionRemote(self):
         # drive RESTful API via wrapper
@@ -98,9 +98,10 @@ class TestTreeCollectionsAPI(unittest.TestCase):
             raise_HTTPError_with_more_detail(err)
         except Exception as err:
             raise err
-        # N.B. we get the JSON "wrapper" with history, etc.
-        cn = c['data']['name']
-        self.assertTrue(cn == u'My test collection')
+        else:
+            # N.B. we get the JSON "wrapper" with history, etc.
+            cn = c['data']['name']
+            self.assertTrue(cn == u'My test collection')
     #@unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
     #                 'only available if GITHUB_OAUTH_TOKEN is found in env ' \
     #                 ' (required to use docstore write methods)')
@@ -136,7 +137,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
             raise err
         self.assertEqual(c['data']['description'], str(cd_number))
     @unittest.skipIf(not os.environ.get('GITHUB_OAUTH_TOKEN'),
-                     'only available if GITHUB_OAUTH_TOKEN is found in env ' \
+                     'only available if GITHUB_OAUTH_TOKEN is found in env '
                      ' (required to use docstore write methods)')
     def testDeleteCollectionRemote(self):
         # drive RESTful API via wrapper
@@ -180,7 +181,7 @@ class TestTreeCollectionsAPI(unittest.TestCase):
         tca = TreeCollectionsAPI(self.domains, get_from='external')
         self._do_sugar_tests(tca)
     @unittest.skipIf(not HAS_LOCAL_COLLECTIONS_REPOS,
-                     'only available if you are have a [phylesystem]' \
+                     'only available if you are have a [phylesystem]'
                      ' section with "parent" variable in your peyotl config')
     def testLocalSugar(self):
         tca = TreeCollectionsAPI(self.domains, get_from='local')

@@ -152,6 +152,7 @@ def merge_otus_and_trees(nexson_blob):
     #   2. register the otu in retained_mapped2otu and retained_orig2otu
     # otu elements that have no label, originalLabel or ottId will not
     #   be registered, so they'll never be matched.
+    retained_ogi = None
     if len(otus_group_order) > 0:
         otus_group_by_id = nexson['otusById']
         retained_ogi = otus_group_order[0]
@@ -225,6 +226,7 @@ def merge_otus_and_trees(nexson_blob):
     # Move all of the tree elements to the first trees group.
     trees_group_order = nexson.get('^ot:treesElementOrder', [])
     if len(trees_group_order) > 0:
+        assert retained_ogi is not None # should not be able to get here with trees, but no OTUs
         trees_group_by_id = nexson['treesById']
         retained_tgi = trees_group_order[0]
         retained_tg = trees_group_by_id[retained_tgi]

@@ -24,7 +24,7 @@ def _test_tol_about(self, cdict):
     return tree_id, node_id
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use '
                  'Open Tree of Life web services are disabled.')
 class TestV2Facade(unittest.TestCase):
     def setUp(self):

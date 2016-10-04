@@ -206,6 +206,7 @@ class _Phylesystem(TypeAwareDocStore):
     def add_validation_annotation(self, doc_obj, sha):
         need_to_cache = False
         adaptor = None
+        annot_event = None
         if self._cache_region is not None:
             key = 'v' + sha
             annot_event = self._cache_region.get(key, ignore_expiration=True)

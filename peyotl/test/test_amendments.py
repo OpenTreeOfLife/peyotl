@@ -12,8 +12,8 @@ _repos = pathmap.get_test_repos()
 mc = _repos['mini_amendments']
 
 @unittest.skipIf(True or not os.path.isdir(mc),
-                 'Peyotl not configured for maintainer test of mini_amendments.' \
-                 'Skipping this test is normal (for everyone other than maintainers).\n' \
+                 'Peyotl not configured for maintainer test of mini_amendments.'
+                 'Skipping this test is normal (for everyone other than maintainers).\n'
                  'See http://opentreeoflife.github.io/peyotl/maintainer/')
 class TestTaxonomicAmendments(unittest.TestCase):
     def setUp(self):

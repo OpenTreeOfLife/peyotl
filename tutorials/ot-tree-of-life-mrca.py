@@ -81,6 +81,5 @@ if __name__ == '__main__':
     try:
         main(sys.argv[1:])
     except Exception as x:
-        raise
         sys.exit('{}\n'.format(str(x)))
 

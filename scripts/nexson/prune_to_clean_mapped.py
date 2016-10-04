@@ -429,7 +429,7 @@ if __name__ == '__main__':
         in_dir = os.path.expanduser(in_dir)
         inp_files = [os.path.join(in_dir, i) for i in inp_files]
     if flags_str is None:
-        flags = ott.TREEMACHINE_SUPPRESS_FLAGS
+        flags = OTT.TREEMACHINE_SUPPRESS_FLAGS
     else:
         flags = flags_str.split(',')
     ott = OTT(ott_dir=args.ott_dir)

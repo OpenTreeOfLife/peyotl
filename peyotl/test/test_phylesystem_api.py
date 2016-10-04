@@ -16,7 +16,7 @@ except:
 
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
-                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use '
                  'Open Tree of Life web services are disabled.')
 class TestPhylesystemAPI(unittest.TestCase):
     def setUp(self):
@@ -31,7 +31,7 @@ class TestPhylesystemAPI(unittest.TestCase):
         pa = PhylesystemAPI(self.domains, get_from='api', transform='server')
         self._do_sugar_tests(pa)
     @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
-                     'only available if you are have a [phylesystem] section ' \
+                     'only available if you are have a [phylesystem] section '
                      'with "parent" variable in your peyotl config')
     def testLocalStudyList(self):
         pa = PhylesystemAPI(self.domains, get_from='local')
@@ -63,7 +63,7 @@ class TestPhylesystemAPI(unittest.TestCase):
         pa = PhylesystemAPI(self.domains, get_from='external')
         self._do_sugar_tests(pa)
     @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
-                     'only available if you are have a [phylesystem]' \
+                     'only available if you are have a [phylesystem]'
                      ' section with "parent" variable in your peyotl config')
     def testLocalSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='local')

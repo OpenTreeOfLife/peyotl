@@ -332,24 +332,26 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
         try:
             # a little duck-punching
             vc = _ValidationContext(self, logger)
-            add_schema_attributes(vc, self._nexson_version)
-            assert self._nexson_version[:3] in ('0.0', '1.0', '1.2')
-            self._validate_nexml_obj(self._nexml, vc, obj)
-            if self._max_num_trees_per_study is not None:
-                nt = count_num_trees(self._raw)
-                if nt > self._max_num_trees_per_study:
-                    m = '{f:d} trees found, but a limit of {m:d} trees per nexson is being enforced'
-                    m = m.format(f=nt, m=self._max_num_trees_per_study)
-                    self._error_event(_NEXEL.TOP_LEVEL,
-                                      obj=obj,
-                                      err_type=gen_MaxSizeExceededWarning,
-                                      anc=_EMPTY_TUPLE,
-                                      obj_nex_id=None,
-                                      message=m)
-                    return ## EARLY EXIT!!
+            try:
+                add_schema_attributes(vc, self._nexson_version)
+                assert self._nexson_version[:3] in ('0.0', '1.0', '1.2')
+                self._validate_nexml_obj(self._nexml, vc, obj)
+                if self._max_num_trees_per_study is not None:
+                    nt = count_num_trees(self._raw)
+                    if nt > self._max_num_trees_per_study:
+                        m = '{f:d} trees found, but a limit of {m:d} trees per nexson is being enforced'
+                        m = m.format(f=nt, m=self._max_num_trees_per_study)
+                        self._error_event(_NEXEL.TOP_LEVEL,
+                                          obj=obj,
+                                          err_type=gen_MaxSizeExceededWarning,
+                                          anc=_EMPTY_TUPLE,
+                                          obj_nex_id=None,
+                                          message=m)
+                        return ## EARLY EXIT!!
+            finally:
+                vc.adaptor = None # delete circular ref to help gc
+                del vc
         finally:
-            vc.adaptor = None # delete circular ref to help gc
-            del vc
             del self._otu_group_by_id
             del self._otu_by_otug
 
@@ -746,7 +748,6 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
             return self._validate_id_obj_list_by_schema(leaf_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
-        return not self._logger.has_error()
     def _validate_internal_node_list(self, node_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.INTERNAL_NODE)
         try:
@@ -755,7 +756,6 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
             return self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
-        return not self._logger.has_error()
     def _validate_node_list(self, node_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.NODE)
         try:
@@ -764,7 +764,6 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
             return self._validate_id_obj_list_by_schema(node_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
-        return not self._logger.has_error()
     def _validate_edge_list(self, edge_id_obj_list, vc):
         vc.push_context_no_anc(_NEXEL.EDGE)
         try:
@@ -773,7 +772,6 @@ class NexsonValidationAdaptor(NexsonAnnotationAdder): #pylint: disable=R0921
             return self._validate_id_obj_list_by_schema(edge_id_obj_list, vc)
         finally:
             vc.pop_context_no_anc()
-        return not self._logger.has_error()
 
     def _validate_otu_list(self, otu_id_obj_list, vc):
         if not self._register_nexson_id_list(otu_id_obj_list, vc):

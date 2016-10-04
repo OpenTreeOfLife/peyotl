@@ -25,7 +25,7 @@ def raise_HTTPError_with_more_detail(err):
     raise ValueError("{e}, details: {m}".format(e=err, m=details))
 
 @unittest.skipIf(True or 'RUN_WEB_SERVICE_TESTS' not in os.environ,
-                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use ' \
+                 'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use '
                  'Open Tree of Life web services are disabled.')
 class TestTaxonomicAmendmentsAPI(unittest.TestCase):
     def setUp(self):
@@ -54,7 +54,7 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
                 cn = a['study_id']
                 self.assertTrue(cn in [u'pg_2606',])
     @unittest.skipIf(not HAS_LOCAL_AMENDMENTS_REPOS,
-                     'only available if you are have a [phylesystem] section ' \
+                     'only available if you are have a [phylesystem] section '
                      'with "parent" variable in your peyotl config')
     def testAmendmentList(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='local')
@@ -174,7 +174,7 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='external')
         self._do_sugar_tests(taa)
     @unittest.skipIf(not HAS_LOCAL_AMENDMENTS_REPOS,
-                     'only available if you are have a [phylesystem]' \
+                     'only available if you are have a [phylesystem]'
                      ' section with "parent" variable in your peyotl config')
     def testLocalSugar(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='local')

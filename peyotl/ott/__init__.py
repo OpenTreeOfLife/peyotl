@@ -229,7 +229,7 @@ class OTT(object):
         if ott_dir is None:
             ott_dir = self._config.get_config_setting('ott', 'parent')
         if ott_dir is None:
-            raise ValueError('Either the ott_dir arg must be used or "parent" must '\
+            raise ValueError('Either the ott_dir arg must be used or "parent" must '
                              'exist in the "[ott]" section of your config (~/.peyotl/config by default)')
         self.ott_dir = ott_dir
         if not os.path.isdir(self.ott_dir):

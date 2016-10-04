@@ -137,7 +137,7 @@ class PhylesystemShard(TypeAwareGitShard):
                     pre_content = f.read().strip()
                 valid_pat = re.compile('^[a-zA-Z0-9]+_$')
                 if len(pre_content) != 3 or not valid_pat.match(pre_content):
-                    raise FailedShardCreationError('Expecting prefix in new_study_prefix file to be two '\
+                    raise FailedShardCreationError('Expecting prefix in new_study_prefix file to be two '
                                                    'letters followed by an underscore')
                 self._new_study_prefix = pre_content
             else:
@@ -294,7 +294,7 @@ class PhylesystemShard(TypeAwareGitShard):
                 pre_content = f.read().strip()
             valid_pat = re.compile('^[a-zA-Z0-9]+_$')
             if len(pre_content) != 3 or not valid_pat.match(pre_content):
-                raise FailedShardCreationError('Expecting prefix in new_study_prefix file to be two '\
+                raise FailedShardCreationError('Expecting prefix in new_study_prefix file to be two '
                                                'letters followed by an underscore')
             self._new_study_prefix = pre_content
         else:

@@ -11,7 +11,7 @@ except:
 
 class TestCreate(unittest.TestCase):
     @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
-                     'only available if you are have a [phylesystem] section' \
+                     'only available if you are have a [phylesystem] section'
                      ' with "parent" variable in your peyotl config')
     def testConstructor(self):
         self.reponame = list(get_repos().keys())[0]

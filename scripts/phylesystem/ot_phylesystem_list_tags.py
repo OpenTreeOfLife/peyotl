@@ -18,7 +18,6 @@ for study_id, n in phy.iter_study_objs():
     nexml = get_nexml_el(n)
     t = nexml.get('^ot:tag')
     if t:
-        #print study_id, t
         if isinstance(t, list):
             for tag in t:
                 study_dict[tag] += 1
@@ -27,20 +26,19 @@ for study_id, n in phy.iter_study_objs():
     for trees_group_id, tree_id, tree in iter_trees(n):
         t = tree.get('^ot:tag')
         if t:
-            #print study_id, tree_id, t
             if isinstance(t, list):
                 for tag in t:
                     study_dict[tag] += 1
             else:
                 tree_dict[t] += 1
-print '\nStudy tag counts:'
+print('\nStudy tag counts:')
 if len(study_dict.items()) == 0:
-    print "No study tags found!"
+    print("No study tags found!")
 for k,v in study_dict.items():
-    print k,'\t',v
-print '\nTree tag counts:'
+    print(k, '\t', v)
+print('\nTree tag counts:')
 if len(tree_dict.items()) == 0:
-    print "No tree tags found!"
+    print("No tree tags found!")
 for k,v in tree_dict.items():
     print(k, '\t', v)
 

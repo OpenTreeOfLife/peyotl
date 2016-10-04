@@ -4,6 +4,8 @@ import unittest
 import codecs
 import json
 from peyotl.test.support import pathmap
+from peyotl import write_as_json
+import sys
 
 class TestPhylesystem(unittest.TestCase):
     def testCachedValidation(self):
@@ -21,7 +23,6 @@ class TestPhylesystem(unittest.TestCase):
             r1 = p.add_validation_annotation(nexson, sha)
             self.assertEqual(1 + cache_hits, p._cache_hits)
             self.assertEqual(r, r1)
-            import sys; from peyotl import write_as_json; 
             write_as_json(nexson, sys.stdout)
 if __name__ == "__main__":
     unittest.main()

@@ -44,16 +44,15 @@ def write_newick_ott(out,
     if `create_log_dict` is True, a dict will be returned that contains statistics
         about the pruning.
     '''
-    flags_to_prune_list = list(prune_flags) if prune_flags else []
+    # create to_prune_fsi_set a set of flag set indices to prune...
+    if prune_flags:
+        flags_to_prune_list = list(prune_flags)
+        to_prune_fsi_set = ott.convert_flag_string_set_to_union(flags_to_prune_list)
+    else:
+        flags_to_prune_list = []
+        to_prune_fsi_set = None
     flags_to_prune_set = frozenset(flags_to_prune_list)
     pfd = {}
-    # create to_prune_fsi_set a set of flag set indices to prune...
-    if flags_to_prune_list:
-        if not isinstance(prune_flags, OTTFlagUnion):
-            to_prune_fsi_set = ott.convert_flag_string_set_to_union(prune_flags)
-    else:
-        to_prune_fsi_set = None
-
     log_dict = None
     if create_log_dict:
         log_dict = {'version': ott.version, 'flags_to_prune': flags_to_prune_list}

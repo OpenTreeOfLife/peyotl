@@ -34,11 +34,9 @@ if __name__ == "__main__":
             print("Read {n} studies".format(n=counter))
         if (limit and counter>limit):
             break
-    # print study properites
     print("found {n} study properties".format(n=len(study_key_set)))
     for k in study_key_set:
         print(k)
-    # print tree properites
     print("found {n} tree properties".format(n=len(tree_key_set)))
     for k in tree_key_set:
         print(k)

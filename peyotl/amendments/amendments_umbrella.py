@@ -178,7 +178,7 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
                     tag_to_id[ttag] = new_id
                     new_id += 1
                     ptag = taxon.get("parent_tag")
-                    if ptag != None:
+                    if ptag is not None:
                         taxon["parent"] = tag_to_id[ptag]
             if num_taxa_eligible_for_ids > 0:
                 try:

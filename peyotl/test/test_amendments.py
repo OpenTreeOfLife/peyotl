@@ -67,11 +67,11 @@ class TestTaxonomicAmendments(unittest.TestCase):
         self.assertEqual(set(), changed)
         # check for known changed amendments in this repo (ignoring other changed files)
         changed = c.get_changed_docs('59e6d2d2ea62aa1ce784d29bdd43e74aa80d07d4')
-        self.assertEqual(set([u'additions-5000000-5000003.json']), changed)
+        self.assertEqual({u'additions-5000000-5000003.json'}, changed)
         # check a doc that changed (against whitelist)
         changed = c.get_changed_docs('59e6d2d2ea62aa1ce784d29bdd43e74aa80d07d4',
                                      [u'additions-5000000-5000003.json'])
-        self.assertEqual(set([u'additions-5000000-5000003.json']), changed)
+        self.assertEqual({u'additions-5000000-5000003.json'}, changed)
         # checking a bogus doc id should work, but find nothing
         changed = c.get_changed_docs('59e6d2d2ea62aa1ce784d29bdd43e74aa80d07d4',
                                      [u'non-existing-amendment.json'])

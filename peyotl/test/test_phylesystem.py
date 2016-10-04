@@ -53,7 +53,7 @@ class TestPhylesystem(unittest.TestCase):
         p = _Phylesystem(repos_dict=self.r)
         p.pull()  # get the full git history
         changed = p.get_changed_studies('5f50b669cb4867d39e9a85e7fd1e2aa8e9a3242b')
-        self.assertEqual(set(['xy_13', 'xy_10']), changed)
+        self.assertEqual({'xy_13', 'xy_10'}, changed)
         changed = p.get_changed_studies('5f50b669cb4867d39e9a85e7fd1e2aa8e9a3242b', ['zz_11'])
         self.assertEqual(set(), changed)
         changed = p.get_changed_studies('5f50b669cb4867d39e9a85e7fd1e2aa8e9a3242b', ['zz_112'])

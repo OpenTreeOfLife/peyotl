@@ -16,24 +16,10 @@ _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:
     from peyotl.utility.input_output import read_as_json, write_as_json
 
-_TREEMACHINE_PRUNE_FLAGS = set(['major_rank_conflict',
-                                'major_rank_conflict_direct',
-                                'major_rank_conflict_inherited',
-                                'environmental',
-                                'unclassified_inherited',
-                                'unclassified_direct',
-                                'viral',
-                                'nootu',
-                                'barren',
-                                'not_otu',
-                                'incertae_sedis',
-                                'incertae_sedis_direct',
-                                'incertae_sedis_inherited',
-                                'extinct_inherited',
-                                'extinct_direct',
-                                'hidden',
-                                'unclassified',
-                                'tattered'])
+_TREEMACHINE_PRUNE_FLAGS = {'major_rank_conflict', 'major_rank_conflict_direct', 'major_rank_conflict_inherited',
+                            'environmental', 'unclassified_inherited', 'unclassified_direct', 'viral', 'nootu',
+                            'barren', 'not_otu', 'incertae_sedis', 'incertae_sedis_direct', 'incertae_sedis_inherited',
+                            'extinct_inherited', 'extinct_direct', 'hidden', 'unclassified', 'tattered'}
 
 class OTTFlagUnion(object):
     def __init__(self, ott, flag_set):
@@ -70,9 +56,7 @@ def write_newick_ott(out,
 
     log_dict = None
     if create_log_dict:
-        log_dict = {}
-        log_dict['version'] = ott.version
-        log_dict['flags_to_prune'] = flags_to_prune_list
+        log_dict = {'version': ott.version, 'flags_to_prune': flags_to_prune_list}
         fsi_to_str_flag_set = {}
         for k, v in dict(ott.flag_set_id_to_flag_set).items():
             fsi_to_str_flag_set[k] = frozenset(list(v))
@@ -233,7 +217,7 @@ dictionary. Absence of a ott ID means that there were no flags set.''',),
            'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
            'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'),
            'forwardingtable': ('forward_table', 'maps a deprecated ID to its forwarded ID')}
-_SECOND_LEVEL_CACHES = set(['ncbi2ottid'])
+_SECOND_LEVEL_CACHES = {'ncbi2ottid'}
 class CacheNotFoundError(RuntimeError):
     def __init__(self, m):
         RuntimeError.__init__(self, 'Cache {} not found'.format(m))

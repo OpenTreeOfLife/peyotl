@@ -313,7 +313,7 @@ class _OTIWrapper(_WSWrapper):
             v = UNICODE(v)
         if k == 'ot:studyPublication':
             v = doi2url(v)
-        return (k, v)
+        return k, v
     def trigger_index(self, phylesystem_api, study_id):
         url = '{p}/indexNexsons'.format(p=self.indexing_prefix)
         nexson_url = phylesystem_api.url_for_api_get_study(study_id, schema=_OTI_NEXSON_SCHEMA)

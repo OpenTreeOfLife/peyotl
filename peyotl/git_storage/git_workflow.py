@@ -94,7 +94,6 @@ def delete_document(git_action,
                     commit_msg=None,
                     merged_sha=None,
                     doctype_display_name="document"): #pylint: disable=W0613
-    _LOG = get_logger(__name__)
     author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action,

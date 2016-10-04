@@ -16,10 +16,10 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     pruned_phylo, taxo_tree = create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott)
     if taxo_tree is None: # this can happen if no otus are mapped
         return None
-    has_taxo_groupings = any_early_exit(taxo_tree.root.child_iter(), lambda nd: not nd.is_leaf)
+    has_taxo_groupings = any_early_exit(taxo_tree.root.child_iter(), lambda node: not node.is_leaf)
     if not has_taxo_groupings:
         return None
-    has_phylo_groupings = any_early_exit(pruned_phylo.root.child_iter(), lambda nd: not nd.is_leaf)
+    has_phylo_groupings = any_early_exit(pruned_phylo.root.child_iter(), lambda node: not node.is_leaf)
     if not has_phylo_groupings:
         return None
     id2bit = pruned_phylo.add_bits4subtree_ids(None)

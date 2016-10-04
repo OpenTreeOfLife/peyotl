@@ -755,7 +755,7 @@ class OTT(object):
         return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list, create_monotypic_nodes=create_monotypic_nodes)
 
     def check_if_above_root(self, curr_id, known_below_root, known_above_root, root_ott_id):
-        if (root_ott_id is None):
+        if root_ott_id is None:
             return False
         if curr_id in known_below_root:
             return False
@@ -936,7 +936,7 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott, create_monotypic
 
 
 
-if __name__ == '__main__':
+def main():
     import sys
     cout = codecs.getwriter('utf-8')(sys.stdout)
     o = OTT()
@@ -955,3 +955,6 @@ if __name__ == '__main__':
     print(o.root_name)
     o.induced_tree([458721, 883864, 128315])
     '''
+
+if __name__ == '__main__':
+    main()

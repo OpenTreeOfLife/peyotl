@@ -121,7 +121,7 @@ def _get_content_id_from(content, **kwargs):
         subtree_id = kwargs.get('subtree_id')
         if subtree_id is None:
             subtree_id = kwargs.get('node_id')
-        return (kwargs.get('tree_id'), subtree_id)
+        return kwargs.get('tree_id'), subtree_id
     elif content == 'otus':
         return kwargs.get('otus_id')
     elif content == 'otu':

@@ -33,7 +33,7 @@ class TestPhyloTree(unittest.TestCase):
         li.sort()
         self.assertEqual(li, ['g', 'h'])
         tree.do_full_check_of_invariants(self, id2par=_bogus_id2par)
-class X:
+
     def testSingleton(self):
         tree = create_tree_from_id2par(_bogus_id2par, ['h'])
         self.assertEqual(tree.find_node('h')._id, 'h')

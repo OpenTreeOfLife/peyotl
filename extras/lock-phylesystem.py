@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from __future__ import print_function
 import locket
 import sys
 import os
@@ -24,10 +26,10 @@ An example usage would be:
 ''')
 lf = os.path.join(git_dir, "API_WRITE_LOCK")
 with locket.lock_file(lf, timeout=10):
-    print 'Lock acquired. Use Control-D to release'
+    print('Lock acquired. Use Control-D to release')
     try:
       x = sys.stdin.read()
     finally:
-      print 'Lock released'
+        print('Lock released')
     sys.exit(0)
 sys.exit('timeout waiting for lock\n')

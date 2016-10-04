@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+
 '''Simple command-line tool that wraps OTI to get trees for an argument which is a property value pair
    e.g. python ot-oti-find-tree.py '{"ot:ottTaxonName": "Bos"}'
     which is described at https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#find_trees
@@ -28,7 +30,7 @@ def print_matching_trees(arg_dict, tree_format, exact, verbose):
     from peyotl.sugar import phylesystem_api
     tree_list = ot_find_tree(arg_dict, exact=exact, verbose=verbose)
     for tree_ref in tree_list:
-        print tree_ref
+        print(tree_ref)
         print phylesystem_api.get(tree_ref, format=tree_format)
 
 def main(argv):
@@ -63,6 +65,6 @@ def main(argv):
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
-    except Exception, x:
+    except Exception as x:
         sys.exit('{}\n'.format(str(x)))
 

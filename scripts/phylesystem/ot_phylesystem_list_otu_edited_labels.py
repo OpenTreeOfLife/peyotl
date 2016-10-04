@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+
 '''Examines each otu in each study. Prints out any
 case in which the otu label is not the ot:originalLabel or
 the ot:ottTaxonName'''
@@ -14,7 +16,7 @@ phy = Phylesystem()
 
 out = codecs.getwriter('utf-8')(sys.stdout)
 for study_id, n in phy.iter_study_objs():
-    print study_id
+    print(study_id)
     otu_dict = gen_otu_dict(n)
     o_dict = {}
     for oid, o in otu_dict.items():

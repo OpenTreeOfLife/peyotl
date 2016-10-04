@@ -649,7 +649,7 @@ class OTT(object):
         name2id = _swap
         homonym2id = {}
         nonhomonym2id = {}
-        for name, ott_ids in name2id.iteritems():
+        for name, ott_ids in name2id.items():
             if isinstance(ott_ids, tuple) and len(ott_ids) > 1:
                 homonym2id[name] = ott_ids
             else:

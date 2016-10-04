@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-'''Examines the tags (ot:tag) study. Prints out a list 
+from __future__ import print_function
+
+'''Examines the tags (ot:tag) study. Prints out a list
 of each unique tag used in the studies '''
 from peyotl.manip import iter_trees
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
@@ -40,5 +42,5 @@ print '\nTree tag counts:'
 if len(tree_dict.items()) == 0:
     print "No tree tags found!"
 for k,v in tree_dict.items():
-    print k,'\t',v
+    print(k, '\t', v)
 

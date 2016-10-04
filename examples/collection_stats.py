@@ -4,6 +4,7 @@
 # Specifically, prints properties important for synthesis for trees in a
 # collection
 
+from __future__ import print_function
 from peyotl.api import PhylesystemAPI
 from peyotl import collection_to_included_trees, read_as_json
 from peyotl.nexson_syntax import get_nexml_el
@@ -35,7 +36,7 @@ if __name__ == '__main__':
 
     # looking for the tree properties: ot:unrootedTree, ot:inGroupClade
     # and the study property ot:candidateTreeForSynthesis
-    print "studyid,treeid,preferred,ingroup,unrooted"
+    print("studyid,treeid,preferred,ingroup,unrooted")
     for d in included:
         studyid = d['studyID']
         treeid = d['treeID']
@@ -61,7 +62,7 @@ if __name__ == '__main__':
             check = False
 
         if not check:
-            print ("{s},{t},{p},{i},{r}").format(
+            print("{s},{t},{p},{i},{r}").format(
                 s = studyid,
                 t = treeid,
                 p = preferredTree,

@@ -32,7 +32,6 @@ except ImportError as e:
                 'peyotl.nexson_validation',
                 'peyotl.ott',
                 'peyotl.phylesystem',
-                'peyotl.phylografter',
                 'peyotl.string',
                 'peyotl.sugar',
                 'peyotl.test',

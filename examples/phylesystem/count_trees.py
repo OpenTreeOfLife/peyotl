@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.nexson_syntax import extract_tree_nexson
 import sys
@@ -48,4 +49,4 @@ The tree-less studies are: {a}
            m=max_trees_per_study,
            b=biggest_study,
            a=studies_without_trees)
-print output
+print(output)

@@ -9,8 +9,10 @@ out = sys.stdout
 
 def parse_config_file(fp):
     try:
+        # noinspection PyCompatibility
         from ConfigParser import SafeConfigParser
     except ImportError:
+        # noinspection PyCompatibility
         from configparser import ConfigParser as SafeConfigParser
     if not os.path.exists(fp):
         raise RuntimeError('The config filepath "{fp}" does not exist.'.format(fp=fp))

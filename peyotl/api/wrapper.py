@@ -64,7 +64,6 @@ class APIDomains(object):
         if self._config is None:
             self._config = get_config_object()
         self._oti = kwargs.get('oti')
-        self._phylografter = 'http://www.reelab.net/phylografter'
         self._phylesystem_api = kwargs.get('phylesystem')
         self._collections_api = kwargs.get('collections')
         self._amendments_api = kwargs.get('amendments')
@@ -98,9 +97,6 @@ class APIDomains(object):
                                                                    'amendments_api',
                                                                    'https://api.opentreeoflife.org')
         return self._amendments_api
-    @property
-    def phylografter(self):
-        return self._phylografter
     @property
     def taxomachine(self):
         if self._taxomachine is None:
@@ -239,12 +235,6 @@ class APIWrapper(object):
         if self._amendments_api is None:
             self.wrap_amendments_api()
         return self._amendments_api
-    @property
-    def phylografter(self):
-        from peyotl.api.phylografter import _PhylografterWrapper
-        if self._phylografter is None:
-            self._phylografter = _PhylografterWrapper(self.domains.phylografter, config=self._config)
-        return self._phylografter
     @property
     def taxomachine(self):
         from peyotl.api.taxomachine import _TaxomachineAPIWrapper

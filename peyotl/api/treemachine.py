@@ -240,6 +240,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
     #                'study_id': study_id,
     #                'tree_id': tree_id}
     #        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+    # noinspection PyShadowingBuiltins
     def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, ott_id=None): #pylint: disable=W0622
         if self.use_v1:
             uri = '{p}/getSyntheticTree'.format(p=self.prefix)

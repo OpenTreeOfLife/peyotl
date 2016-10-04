@@ -880,15 +880,15 @@ def make_tree_from_taxonomy(id2par):
 
 def make_ott_to_children(id2par):
     ott2children = {}
-    emptyTuple = tuple()
+    empty_tuple = tuple()
     for ott_id, par_ott_id in id2par.items():
         pc = ott2children.get(par_ott_id)
-        if (pc is None) or (pc is emptyTuple):
+        if (pc is None) or (pc is empty_tuple):
             ott2children[par_ott_id] = [ott_id]
         else:
             pc.append(ott_id)
         if ott_id not in ott2children:
-            ott2children[ott_id] = emptyTuple
+            ott2children[ott_id] = empty_tuple
     return ott2children
 
 class TaxonomyDes2AncLineage(object):
@@ -913,7 +913,7 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott, create_monotypic
     # OTT IDs are integers, and the nodeIDs are strings - so we should not get clashes.
     #TODO consider prefix scheme
     ott_ids = []
-    ottId2OtuPar = {}
+    ott_id_2_otu_par = {}
     for node in tree_proxy:
         if node.is_leaf:
             ott_id = node.ott_id
@@ -921,16 +921,16 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott, create_monotypic
                 ott_ids.append(ott_id)
                 assert isinstance(ott_id, int)
                 parent_id = node.parent._id
-                ottId2OtuPar[ott_id] = parent_id
+                ott_id_2_otu_par[ott_id] = parent_id
         else:
             assert is_str_type(node._id)
             edge = node.edge
             if edge is not None:
                 parent_id = node.parent._id
-                ottId2OtuPar[node._id] = parent_id
+                ott_id_2_otu_par[node._id] = parent_id
             else:
-                ottId2OtuPar[node._id] = None
-    pruned_phylo = create_tree_from_id2par(ottId2OtuPar, ott_ids, create_monotypic_nodes=create_monotypic_nodes)
+                ott_id_2_otu_par[node._id] = None
+    pruned_phylo = create_tree_from_id2par(ott_id_2_otu_par, ott_ids, create_monotypic_nodes=create_monotypic_nodes)
     taxo_tree = ott.induced_tree(ott_ids)
     return pruned_phylo, taxo_tree
 

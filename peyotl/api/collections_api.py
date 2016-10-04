@@ -196,6 +196,8 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
         return self.json_http_get(uri)  # , params=None, text=False)
 
+
+# noinspection PyPep8Naming
 def TreeCollectionsAPI(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).wrap_collections_api(**kwargs)
 

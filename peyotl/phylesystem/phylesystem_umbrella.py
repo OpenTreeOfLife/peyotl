@@ -1,6 +1,7 @@
 from peyotl.utility import get_logger, \
     get_config_setting
 try:
+    # noinspection PyPackageRequirements
     from dogpile.cache.api import NO_VALUE
 except:
     pass #caching is optional

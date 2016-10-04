@@ -274,6 +274,9 @@ class _TreeCollectionStore(TypeAwareDocStore):
         return collection
 
 _THE_TREE_COLLECTION_STORE = None
+
+
+# noinspection PyPep8Naming
 def TreeCollectionStore(repos_dict=None,
                         repos_par=None,
                         with_caching=True,

@@ -57,7 +57,7 @@ if __name__ == '__main__':
         if tree['^ot:inGroupClade'] == "":
             ingroupSpecified = False
             check = False
-        if tree['^ot:unrootedTree'] == True:
+        if tree['^ot:unrootedTree']:
             unrootedTree = True
             check = False
 

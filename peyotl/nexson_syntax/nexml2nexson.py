@@ -92,7 +92,7 @@ class Nexml2Nexson(NexsonConverter):
                 node_list = _get_index_list_of_values(tree, 'node')
                 root_node_flagged = False
                 for node in node_list:
-                    if node.get('@root') == True:
+                    if node.get('@root'):
                         root_node_flagged = True
                         break
                 if not root_node_flagged:

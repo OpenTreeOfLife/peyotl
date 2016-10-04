@@ -299,13 +299,13 @@ class NexsonTreeWrapper(object):
             del self.by_ott_id[ott_id]
         for old_id, new_id in old2new.items():
             old_node_list = self.by_ott_id[old_id]
-            del self.by_ott_id[ott_id]
+            del self.by_ott_id[old_id]
             if new_id in self.by_ott_id:
                 v = self.by_ott_id[new_id]
                 v.extend(old_node_list)
                 v.sort()
             else:
-                self.by_ott_id = old_node_list
+                self.by_ott_id[new_id] = old_node_list
             for sortable_el in old_node_list:
                 otu = sortable_el[3]
                 assert otu['^ot:ottId'] == old_id

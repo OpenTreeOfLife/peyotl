@@ -20,6 +20,8 @@ class TreeRef(FrozenDictAttrWrapper):
     def __str__(self):
         return 'TreeRef(study_id={s}, tree_id={t})'.format(s=repr(self.study_id), t=repr(self.tree_id))
 
+
+# noinspection PyMissingConstructor
 class TreeRefList(list):
     def __init__(self, oti_response=None):
         # OTI returns a list of objects like:

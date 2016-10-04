@@ -8,6 +8,7 @@ from peyotl.test.support import pathmap
 class TestPhylesystem(unittest.TestCase):
     def testCachedValidation(self):
         try:
+            # noinspection PyPackageRequirements
             import dogpile.cache
         except:
             pass

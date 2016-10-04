@@ -20,11 +20,11 @@ except:
     anyjson.loads = json.loads
 from peyotl.git_storage import ShardedDocStore, \
                                TypeAwareDocStore
-from peyotl.collections.collections_shard import TreeCollectionsShardProxy, \
+from peyotl.collections_store.collections_shard import TreeCollectionsShardProxy, \
                                                  TreeCollectionsShard
 
-from peyotl.collections.validation import validate_collection
-from peyotl.collections.git_actions import TreeCollectionsGitAction
+from peyotl.collections_store.validation import validate_collection
+from peyotl.collections_store.git_actions import TreeCollectionsGitAction
 #from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
 #                                             delete_study, \
 #                                             validate_and_convert_nexson

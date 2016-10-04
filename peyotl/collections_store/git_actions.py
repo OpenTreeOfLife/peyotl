@@ -10,7 +10,7 @@ class MergeException(Exception):
     pass
 
 def get_filepath_for_id(repo_dir, collection_id):
-    from peyotl.collections import COLLECTION_ID_PATTERN
+    from peyotl.collections_store import COLLECTION_ID_PATTERN
     assert bool(COLLECTION_ID_PATTERN.match(collection_id))
     return '{r}/collections-by-owner/{s}.json'.format(r=repo_dir, s=collection_id)
 

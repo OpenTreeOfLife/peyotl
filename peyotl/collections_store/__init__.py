@@ -19,7 +19,7 @@ __all__ = ['git_actions',
            'validation',
            'collections_shard',
            'collections_umbrella']
-from peyotl.collections.collections_umbrella import TreeCollectionStore, \
+from peyotl.collections_store.collections_umbrella import TreeCollectionStore, \
                                                     TreeCollectionStoreProxy, \
                                                     OWNER_ID_PATTERN, \
                                                     COLLECTION_ID_PATTERN

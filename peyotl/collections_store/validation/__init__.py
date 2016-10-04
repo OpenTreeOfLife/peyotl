@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''Functions for validating collection JSON.
 '''
-from peyotl.collections.validation.adaptor import create_validation_adaptor
+from peyotl.collections_store.validation.adaptor import create_validation_adaptor
 
 def validate_collection(obj, retain_deprecated=True, **kwargs):
     '''Takes an `obj` that is a collection object.

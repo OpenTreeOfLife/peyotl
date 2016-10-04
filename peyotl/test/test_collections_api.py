@@ -4,7 +4,7 @@ from peyotl.api import TreeCollectionsAPI
 #from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_meta_first
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
-from peyotl.collections import get_empty_collection
+from peyotl.collections_store import get_empty_collection
 from peyotl.utility.str_util import slugify, \
                                     increment_slug
 from requests.exceptions import HTTPError
@@ -12,7 +12,7 @@ import unittest
 from pprint import pprint
 
 _LOG = get_logger(__name__)
-from peyotl.collections.helper import get_repos
+from peyotl.collections_store.helper import get_repos
 try:
     get_repos()
     HAS_LOCAL_COLLECTIONS_REPOS = True

@@ -120,7 +120,7 @@ class TreeCollectionsShard(TypeAwareGitShard):
     def _diagnose_prefixes(self):
         '''Returns a set of all of the prefixes seen in the main document dir
         '''
-        from peyotl.collections import COLLECTION_ID_PATTERN
+        from peyotl.collections_store import COLLECTION_ID_PATTERN
         p = set()
         for owner_dirname in os.listdir(self.doc_dir):
             example_collection_name = "{n}/xxxxx".format(n=owner_dirname)

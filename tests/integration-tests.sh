@@ -1,15 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 # Currently mis-named in that this script only tests nexson conversion. The intent was to add more small workflows
 # here that utilize multiple tools (as opposed to just unit-tests).
 #
-for d in peyotl extras scripts tutorials tests
-do 
-    if ! test -d "$d"
-    then
-        echo "$0 must be run from the PEYOTL_ROOT dir (the parent of the tests dir)."
-        exit 1
-    fi
-done
+source tests/bash-test-helpers.bash || exit
+demand_at_top_level || exit
+
 #set -x
 top_dir="$(pwd)"
 sn=$(basename "$0")

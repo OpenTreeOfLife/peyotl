@@ -1,14 +1,9 @@
 #!/bin/bash
 # A new version of the harness for running the full set of tests of peyotl including tests that are a pain to set up.
 # will become maintainer-test.sh when it is full working.
-for d in peyotl extras scripts tutorials tests
-do 
-    if ! test -d "$d"
-    then
-        echo "$0 must be run from the PEYOTL_ROOT dir (the parent of the tests dir)."
-        exit 1
-    fi
-done
+source tests/bash-test-helpers.bash || exit
+demand_at_top_level || exit
+
 num_fails=0
 num_checks=1
 if ! bash tests/test-logger.sh

@@ -1,11 +1,11 @@
 #! /usr/bin/env python
-from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
-import unittest
-import codecs
-import json
-from peyotl.test.support import pathmap
-from peyotl import write_as_json
 import sys
+import unittest
+
+from peyotl import write_as_json
+from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
+from peyotl.test.support import pathmap
+
 
 class TestPhylesystem(unittest.TestCase):
     def testCachedValidation(self):
@@ -24,5 +24,7 @@ class TestPhylesystem(unittest.TestCase):
             self.assertEqual(1 + cache_hits, p._cache_hits)
             self.assertEqual(r, r1)
             write_as_json(nexson, sys.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

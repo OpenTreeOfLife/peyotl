@@ -16,7 +16,7 @@ then
     f=1
 fi
 k=0
-if ! ./tests/standalone-tests.sh
+if ! ./tests/local-repo-tests.sh
 then
     k=1
 fi

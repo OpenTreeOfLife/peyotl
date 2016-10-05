@@ -13,8 +13,8 @@ lpstf="$?"
 stf=$(expr ${stf} + ${lpstf})
 if test ${stf} -gt 0
 then
-    echo "Failed at least one local-repo.sh test."
+    echo "Failed at least one $0 test."
     exit ${stf}
 else
-    echo "Passed all local-repo.sh tests passed."
+    echo "Passed all $0 tests passed."
 fi

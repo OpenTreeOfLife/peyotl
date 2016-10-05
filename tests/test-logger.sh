@@ -1,13 +1,8 @@
 #!/bin/bash
 # A test that the config-finding and logging parts of peyotl are working as advertised.
-for d in peyotl extras scripts tutorials tests
-do
-    if ! test -d "$d"
-    then
-        echo "$0 must be run from the PEYOTL_ROOT dir (the parent of the tests dir)."
-        exit 1
-    fi
-done
+source tests/bash-test-helpers.bash || exit
+demand_at_top_level || exit
+
 unset PEYOTL_CONFIG_FILE
 unset PEYOTL_LOGGING_LEVEL
 unset PEYOTL_LOG_FILE_PATH
@@ -40,91 +35,6 @@ done
 
 num_fails=0
 num_checks=0
-function demand_empty {
-    for f in $@
-    do
-        num_checks=$(expr 1 + ${num_checks})
-        if test -s ${f}
-        then
-            echo "File \"$f\" was not empty, but should have been!"
-            num_fails=$(expr 1 + ${num_fails})
-        fi
-    done
-}
-
-function demand_str_found {
-    f=$1
-    shift
-    for s in $@
-    do
-        num_checks=$(expr 1 + ${num_checks})
-        if ! grep "${s}" "${f}" >/dev/null
-        then
-            echo "File \"${f}\" should have (but did not) match \"${s}\""
-            num_fails=$(expr 1 + ${num_fails})
-        fi
-    done
-}
-
-function demand_str_not_found {
-    f=$1
-    shift
-    for s in $@
-    do
-        num_checks=$(expr 1 + ${num_checks})
-        if grep "${s}" "${f}" >/dev/null
-        then
-            echo "File \"${f}\" should matched \"${s}\" but should not have"
-            num_fails=$(expr 1 + ${num_fails})
-        fi
-    done
-}
-
-function files_are_identical {
-    f=$1
-    shift
-    for s in $@
-    do
-        num_checks=$(expr 1 + ${num_checks})
-        if ! diff "${s}" "${f}" >/dev/null
-        then
-            echo "File \"${f}\" and \"${s}\" differed"
-            num_fails=$(expr 1 + ${num_fails})
-        fi
-    done
-}
-
-function matches_formatter {
-    f=$1
-    shift
-    for s in $@
-    do
-        num_checks=$(expr 1 + ${num_checks})
-        if ! python tests/match_logger_output.py ${f} ${s}
-        then
-            echo "Format of messages in \"${s}\" was wrong"
-            num_fails=$(expr 1 + ${num_fails})
-        fi
-    done
-}
-
-function demand_equal {
-    num_checks=$(expr 1 + ${num_checks})
-    if ! test "$1" = "$2"
-    then
-        echo "strings \"$1\" and \"$2\" differed."
-        num_fails=$(expr 1 + ${num_fails})
-    fi
-}
-
-function demand_empty_str {
-    num_checks=$(expr 1 + ${num_checks})
-    if ! test -z "$1"
-    then
-        echo "strings \"$1\" was not empty."
-        num_fails=$(expr 1 + ${num_fails})
-    fi
-}
 
 
 # The default config comes from $PEYOTL_ROOT/peyotl.conf

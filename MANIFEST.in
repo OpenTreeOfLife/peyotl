@@ -5,6 +5,8 @@ recursive-include extras *
 include CONTRIBUTORS.txt
 include ez_setup.py
 include License.txt
+include peyotl/default.conf
+recursive-include peyotl/test/data *
 include README.md
 include README.rst
 include requirements.txt
@@ -20,8 +22,7 @@ include tests/standalone_tests/*.py
 include tests/ws_tests/*.py
 include TESTING.md
 include THANKS.txt
-recursive-include tutuorials *
-recursive-include peyotl/test/data *
+recursive-include tutorials *
 global-exclude .DS_Store
 global-exclude *.pyc
 global-exclude .gitignore

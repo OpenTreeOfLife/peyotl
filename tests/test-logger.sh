@@ -1,4 +1,5 @@
 #!/bin/bash
+# A test that the config-finding and logging parts of peyotl are working as advertised.
 for d in peyotl extras scripts tutorials tests
 do
     if ! test -d "$d"

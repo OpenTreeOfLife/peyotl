@@ -1,5 +1,5 @@
 #!/bin/sh
-#!/bin/sh
+# This is the harness for running the full set of tests of peyotl including tests that are a pain to set up.
 for d in peyotl extras scripts tutorials tests
 do 
     if ! test -d "$d"

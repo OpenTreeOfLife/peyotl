@@ -1,4 +1,7 @@
 #!/bin/sh
+# Currently mis-named in that this script only tests nexson conversion. The intent was to add more small workflows
+# here that utilize multiple tools (as opposed to just unit-tests).
+#
 for d in peyotl extras scripts tutorials tests
 do 
     if ! test -d "$d"

@@ -1,5 +1,6 @@
 #!/bin/bash
-#!/bin/sh
+# A new version of the harness for running the full set of tests of peyotl including tests that are a pain to set up.
+# will become maintainer-test.sh when it is full working.
 for d in peyotl extras scripts tutorials tests
 do 
     if ! test -d "$d"
@@ -14,9 +15,6 @@ if ! bash tests/test-logger.sh
 then
     num_fails=$(expr 1 + ${num_fails})
 fi
-
-
-
 
 
 num_passes=$(expr ${num_checks} - ${num_fails})

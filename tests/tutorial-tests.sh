@@ -1,4 +1,5 @@
 #!/bin/sh
+# Test of the tutorial scripts
 for d in peyotl extras scripts tutorials tests
 do 
     if ! test -d "$d"

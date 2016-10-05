@@ -1,20 +1,27 @@
-include README.rst
-include CONTRIBUTORS.txt
-include clean.sh
+recursive-include doc/source *
 include doc/Makefile
+recursive-include examples *
+recursive-include extras *
+include CONTRIBUTORS.txt
 include ez_setup.py
 include License.txt
 include README.md
+include README.rst
 include requirements.txt
+recursive-include scripts *
 include setup.cfg
 include setup.py
+include test.sh
+include tests/*.py
+include tests/*.sh
+include tests/local_repos_tests/*.py
+include tests/output/README.md
+include tests/standalone_tests/*.py
+include tests/ws_tests/*.py
+include TESTING.md
 include THANKS.txt
-recursive-include doc/source *
-recursive-include extras *
-recursive-include scripts *
+recursive-include tutuorials *
 recursive-include peyotl/test/data *
 global-exclude .DS_Store
 global-exclude *.pyc
 global-exclude .gitignore
-include test.sh
-include TESTING.md

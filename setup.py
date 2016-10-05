@@ -101,7 +101,8 @@ setup(
                       'requests>=2.2.1',
                       'redis',
                       'enum34',
-                      'argcomplete', ],
+                      'argcomplete',
+                      'python-dateutil', ],
     packages=PACKAGES,
     entry_points=ENTRY_POINTS,
     classifiers=[

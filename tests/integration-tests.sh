@@ -8,14 +8,10 @@ do
     fi
 done
 #set -x
+top_dir="$(pwd)"
 sn=$(basename "$0")
 r=0 # the number of tests
 p=0 # the number passed
-
-cwd="$(pwd)"
-top_dir="$(dirname $0)"
-cd "$top_dir"
-top_dir="$(pwd)"
 
 # run shell scripts in the peyotl test dir
 cd peyotl/test || exit

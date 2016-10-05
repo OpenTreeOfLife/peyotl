@@ -1,5 +1,5 @@
 #!/bin/sh
-set -x
+#set -x
 fn="$1"
 converter="$2"
 dir=$(dirname "$0")

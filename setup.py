@@ -47,7 +47,7 @@ else:
         test_suite="peyotl.test"
     )
 
-EXTRA_KWARGS["zip_safe"] = True
+EXTRA_KWARGS["zip_safe"] = False
 ENTRY_POINTS = {}
 EXTRA_KWARGS['scripts'] = ['scripts/nexson/validate_ot_nexson.py',
                            'scripts/nexson/nexson_newick.py',

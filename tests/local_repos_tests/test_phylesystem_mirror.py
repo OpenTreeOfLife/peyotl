@@ -6,6 +6,7 @@ import os
 import re
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
 
 PUSHABLE_PATTERN = re.compile(r'\s*url\s*[=]\s*git@')
@@ -17,6 +18,8 @@ _AUTH = {
     'email': 'test_email@example.org',
     'login': 'test_gh_login',
 }
+
+
 class TestPhylesystemMirror(unittest.TestCase):
     def testMirrorConfig(self):
         p = pathmap.get_test_phylesystem()
@@ -45,6 +48,7 @@ class TestPhylesystemMirror(unittest.TestCase):
                                             sha)
         self.assertFalse(v1b['merge_needed'])
         p.push_study_to_remote('GitHubRemote', _SID)
+
 
 if __name__ == "__main__":
     unittest.main()

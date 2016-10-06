@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''For every study that has the study-level property name 
+"""For every study that has the study-level property name
 which is passed in as a command line argument, the script prints out
 the study ID and the property value.
 
@@ -7,7 +7,7 @@ For example:
     ot_phylesystem_list_propery_values.py '^ot:studyPublication'
 
 prints out the study's URL for each study that has this property set.
-'''
+"""
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.nexson_syntax import get_nexml_el
 from peyotl.manip import iter_trees
@@ -16,12 +16,15 @@ import argparse
 import codecs
 import sys
 import os
+
 description = __doc__
 prog = os.path.split(sys.argv[0])[-1]
 parser = argparse.ArgumentParser(prog=prog, description=description)
 parser.add_argument('--set', action='store_true', default=False, required=False, help="report the set of values")
-parser.add_argument('--tree', action='store_true', default=False, required=False, help="search tree properties rather than study properties")
-parser.add_argument('--report-ids', action='store_true', default=False, required=False, help="report as value -> id list")
+parser.add_argument('--tree', action='store_true', default=False, required=False,
+                    help="search tree properties rather than study properties")
+parser.add_argument('--report-ids', action='store_true', default=False, required=False,
+                    help="report as value -> id list")
 parser.add_argument('property')
 args = parser.parse_args(sys.argv[1:])
 study_prop = args.property
@@ -35,6 +38,7 @@ if report_ids:
 else:
     v_dict = defaultdict(int)
 
+
 def process_val(v, id_str):
     if v is not None:
         if report_ids:
@@ -47,6 +51,7 @@ def process_val(v, id_str):
             v_dict[v] += 1
         else:
             out.write(u'{i}: {v}\n'.format(i=study_id, v=v))
+
 
 for study_id, n in phy.iter_study_objs():
     nexml = get_nexml_el(n)

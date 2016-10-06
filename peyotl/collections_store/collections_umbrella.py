@@ -8,27 +8,26 @@
 #               'jimallman/trees-about-bees-2'
 #
 from peyotl.utility import get_logger
-from peyotl.utility.str_util import slugify, \
-                                    increment_slug
+from peyotl.utility.str_util import slugify, increment_slug
 import json
+
 try:
     import anyjson
 except:
     class Wrapper(object):
         pass
+
+
     anyjson = Wrapper()
     anyjson.loads = json.loads
-from peyotl.git_storage import ShardedDocStore, \
-                               TypeAwareDocStore
-from peyotl.collections_store.collections_shard import TreeCollectionsShardProxy, \
-                                                 TreeCollectionsShard
-
+from peyotl.git_storage import ShardedDocStore, TypeAwareDocStore
+from peyotl.collections_store.collections_shard import TreeCollectionsShardProxy, TreeCollectionsShard
 from peyotl.collections_store.validation import validate_collection
 from peyotl.collections_store.git_actions import TreeCollectionsGitAction
-#from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
+# from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
 #                                             delete_study, \
 #                                             validate_and_convert_nexson
-#from peyotl.nexson_validation import ot_validate
+# from peyotl.nexson_validation import ot_validate
 import re
 
 OWNER_ID_PATTERN = re.compile(r'^[a-zA-Z0-9-]+$')
@@ -36,6 +35,7 @@ COLLECTION_ID_PATTERN = re.compile(r'^[a-zA-Z0-9-]+/[a-z0-9-]+$')
 # Allow simple slug-ified strings and slash separator (no whitespace!)
 
 _LOG = get_logger(__name__)
+
 
 def prefix_from_collection_path(collection_id):
     # The collection id is a sort of "path", e.g. '{owner_id}/{collection-name-as-slug}'
@@ -50,12 +50,14 @@ def prefix_from_collection_path(collection_id):
     elif path_parts[0] == '':
         owner_id = 'anonymous'
     else:
-        owner_id = 'anonymous'   # or perhaps None?
+        owner_id = 'anonymous'  # or perhaps None?
     return owner_id
 
+
 class TreeCollectionStoreProxy(ShardedDocStore):
-    '''Proxy for interacting with external resources if given the configuration of a remote TreeCollectionStore
-    '''
+    """Proxy for interacting with external resources if given the configuration of a remote TreeCollectionStore
+    """
+
     def __init__(self, config):
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_collection_path)
@@ -69,9 +71,11 @@ class TreeCollectionStoreProxy(ShardedDocStore):
                 d[k] = s
         self._doc2shard_map = d
 
+
 class _TreeCollectionStore(TypeAwareDocStore):
-    '''Wrapper around a set of sharded git repos.
-    '''
+    """Wrapper around a set of sharded git repos.
+    """
+
     def __init__(self,
                  repos_dict=None,
                  repos_par=None,
@@ -83,7 +87,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
                  mirror_info=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
-        '''
+        """
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
         `with_caching` should be True for non-debugging uses.
@@ -98,7 +102,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
             'parent_dir' - the parent directory of the mirrored repos
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
-        '''
+        """
         TypeAwareDocStore.__init__(self,
                                    prefix_from_doc_id=prefix_from_collection_path,
                                    repos_dict=repos_dict,
@@ -118,12 +122,13 @@ class _TreeCollectionStore(TypeAwareDocStore):
     @property
     def get_collection_ids(self):
         return self.get_doc_ids
+
     @property
     def delete_collection(self):
         return self.delete_doc
 
     def create_git_action_for_new_collection(self, new_collection_id=None):
-        '''Checks out master branch of the shard as a side effect'''
+        """Checks out master branch of the shard as a side effect"""
         return self._growing_shard.create_git_action_for_new_collection(new_collection_id=new_collection_id)
 
     def add_new_collection(self,
@@ -273,6 +278,7 @@ class _TreeCollectionStore(TypeAwareDocStore):
                 return None
         return collection
 
+
 _THE_TREE_COLLECTION_STORE = None
 
 
@@ -286,13 +292,13 @@ def TreeCollectionStore(repos_dict=None,
                         git_action_class=TreeCollectionsGitAction,
                         mirror_info=None,
                         infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>'):
-    '''Factory function for a _TreeCollectionStore object.
+    """Factory function for a _TreeCollectionStore object.
 
     A wrapper around the _TreeCollectionStore class instantiation for
     the most common use case: a singleton _TreeCollectionStore.
     If you need distinct _TreeCollectionStore objects, you'll need to
     call that class directly.
-    '''
+    """
     global _THE_TREE_COLLECTION_STORE
     if _THE_TREE_COLLECTION_STORE is None:
         _THE_TREE_COLLECTION_STORE = _TreeCollectionStore(repos_dict=repos_dict,
@@ -305,4 +311,3 @@ def TreeCollectionStore(repos_dict=None,
                                                           mirror_info=mirror_info,
                                                           infrastructure_commit_author=infrastructure_commit_author)
     return _THE_TREE_COLLECTION_STORE
-

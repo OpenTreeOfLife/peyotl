@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-'''Simple command-line tool for reporting information about the node in the synthetic tree of life
+"""Simple command-line tool for reporting information about the node in the synthetic tree of life
 that is the most recent common ancestor of a set of OTT IDs.
 
 This uses the API described at https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#mrca
-'''
+"""
 import sys
+
 
 def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output, errstream):
     from peyotl.sugar import tree_of_life
@@ -12,12 +13,13 @@ def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output, err
     assert tuple() == mrca_node.invalid_node_ids
     assert tuple() == mrca_node.node_ids_not_in_tree
     if mrca_node.invalid_ott_ids:
-        errstream.write('The following OTT IDs were not valid: {}\n'.format(' '.join([str(i) for i in mrca_node.invalid_ott_ids])))
+        errstream.write(
+            'The following OTT IDs were not valid: {}\n'.format(' '.join([str(i) for i in mrca_node.invalid_ott_ids])))
     if mrca_node.ott_ids_not_in_tree:
         f = 'The following OTT IDs are valid identifiers, but not recovered in the synthetic estimate of the tree of life: {}\n'
         errstream.write(f.format(' '.join([str(i) for i in mrca_node.ott_ids_not_in_tree])))
     DOMAIN = 'https://tree.opentreeoflife.org'
-    URL_PATH_FMT ='opentree/argus/otol.draft.22@{i:d}'
+    URL_PATH_FMT = 'opentree/argus/otol.draft.22@{i:d}'
     URL_FMT = DOMAIN + '/' + URL_PATH_FMT
     url = URL_FMT.format(i=mrca_node.node_id)
     errstream.write('The (unstable) UFL for seeing this node in the ToL is: {}\n'.format(url))
@@ -26,12 +28,14 @@ def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output, err
         errstream.write('The node in the Graph of Life corresponds to a taxon:\n')
         mrca_node.write_report(errstream)
     else:
-        errstream.write('The node in the Graph of Life does not correspond to a taxon.\nThe most recent ancestor which is also a named taxon in OTT is:\n')
+        errstream.write(
+            'The node in the Graph of Life does not correspond to a taxon.\nThe most recent ancestor which is also a named taxon in OTT is:\n')
         mrca_node.nearest_taxon.write_report(errstream)
 
     if details:
         # could call mrca_node.fetch_node_info()
-        errstream.write('Source(s) that support this node: {}\n'.format(' '.join([str(i) for i in mrca_node.synth_sources])))
+        errstream.write(
+            'Source(s) that support this node: {}\n'.format(' '.join([str(i) for i in mrca_node.synth_sources])))
         errstream.write('Is in the synthetic tree of life? {}\n'.format(mrca_node.in_synth_tree))
         errstream.write('Correspondences with other taxonomies: {}\n'.format(mrca_node.tax_source))
         errstream.write('Is in the graph of life? {}\n'.format(mrca_node.in_graph))
@@ -57,9 +61,9 @@ def fetch_and_write_mrca(id_list, details, subtree, induced_subtree, output, err
 
 
 def main(argv):
-    '''This function sets up a command-line option parser and then calls fetch_and_write_mrca
+    """This function sets up a command-line option parser and then calls fetch_and_write_mrca
     to do all of the real work.
-    '''
+    """
     import argparse
     description = 'Uses Open Tree of Life web services to the MRCA for a set of OTT IDs.'
     parser = argparse.ArgumentParser(prog='ot-tree-of-life-mrca', description=description)
@@ -76,10 +80,10 @@ def main(argv):
         sys.stderr.write('No OTT IDs provided. Running a dummy query with 770302 770315\n')
         id_list = [770302, 770315]
     fetch_and_write_mrca(id_list, args.details, args.subtree, args.induced_subtree, sys.stdout, sys.stderr)
-    
+
+
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
     except Exception as x:
         sys.exit('{}\n'.format(str(x)))
-

@@ -21,10 +21,10 @@ with open(inp_fn, 'rU') as inp:
 c = get_empty_collection()
 d = c['decisions']
 for pair in lines:
-    d.append({'SHA':'',
+    d.append({'SHA': '',
               'decision': 'INCLUDED',
               'name': '',
-              'studyID': pair[0], 
+              'studyID': pair[0],
               'treeID': pair[1]
               })
 

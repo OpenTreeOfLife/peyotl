@@ -7,8 +7,11 @@ import json
 import sys
 import os
 import re
+
 _ID_EXTRACTOR = re.compile(r'^.*[^0-9]([0-9]+)$')
 _ALL_DIGIT_ID_EXTRACTOR = re.compile(r'^([0-9]+)$')
+
+
 def ott_id_from_label(s):
     x = _ID_EXTRACTOR.match(s)
     if not x:
@@ -16,6 +19,8 @@ def ott_id_from_label(s):
         if not x:
             raise RuntimeError('Expecting each tip label to end in an integer. Found "{}"'.format(s))
     return int(x.group(1))
+
+
 def _main():
     import argparse
     _HELP_MESSAGE = '''Takes a filepath to Newick tree file with propinquity-style
@@ -25,7 +30,7 @@ Writes a NexSON representation of the tree to
 
     parser = argparse.ArgumentParser(description=_HELP_MESSAGE,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("-i", "--ids", 
+    parser.add_argument("-i", "--ids",
                         required=True,
                         help="comma separated list of tree IDs to be assigned to the trees in the newick file.")
     parser.add_argument('newick', help='filepath of the newick tree')
@@ -85,6 +90,7 @@ Writes a NexSON representation of the tree to
         assert root_node_id is not None
         ntree['^ot:rootNodeId'] = root_node_id
         write_as_json(nexson, out)
+
 
 if __name__ == '__main__':
     _main()

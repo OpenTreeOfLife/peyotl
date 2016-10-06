@@ -12,6 +12,7 @@ from peyotl.manip import iter_trees
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 import codecs
 import sys
+
 phy = Phylesystem()
 
 out = codecs.getwriter('utf-8')(sys.stdout)

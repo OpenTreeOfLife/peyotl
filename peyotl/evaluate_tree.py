@@ -2,9 +2,12 @@
 from peyotl.ott import create_pruned_and_taxonomy_for_tip_ott_ids
 from peyotl.phylo.compat import compare_bits_as_splits, SplitComparison
 from peyotl.utility import any_early_exit, get_logger
+
 _LOG = get_logger(__name__)
+
+
 def evaluate_tree_rooting(nexson, ott, tree_proxy):
-    '''
+    """
     Returns None if the taxanomy contributes no information to the rooting decision
         (e.g. all of the tips are within one genus in the taxonomy)
 
@@ -12,9 +15,9 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     do this in a non- O(nm) manner (where n and m are the # of non-trivial edges in the phylo and taxo tree)
     putting barrier notes on the phylo tree would work...
 
-    '''
+    """
     pruned_phylo, taxo_tree = create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott)
-    if taxo_tree is None: # this can happen if no otus are mapped
+    if taxo_tree is None:  # this can happen if no otus are mapped
         return None
     has_taxo_groupings = any_early_exit(taxo_tree.root.child_iter(), lambda node: not node.is_leaf)
     if not has_taxo_groupings:
@@ -27,13 +30,13 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     assert taxo_tree.root.bits4subtree_ids == pruned_phylo.root.bits4subtree_ids
     taxo_nontriv_splits = taxo_tree.bits2internal_node
     taxon_mask = taxo_tree.root.bits4subtree_ids
-    #_LOG.debug('taxo_nontriv_splits = {}'.format(taxo_nontriv_splits))
+    # _LOG.debug('taxo_nontriv_splits = {}'.format(taxo_nontriv_splits))
     # might want to copy this dict rather than modify in place..
-    del taxo_nontriv_splits[taxon_mask] # root bitmask is trivial
+    del taxo_nontriv_splits[taxon_mask]  # root bitmask is trivial
     _LOG.debug('taxon_mask = {} (which is {} bits)'.format(bin(taxon_mask)[2:], len(bin(taxon_mask)) - 2))
     num_ids = len(id2bit)
     _LOG.debug('id2bit has length = {}'.format(len(id2bit)))
-    #for checking tips of the phylogeny, it is nice to know which leaf OTUs attach
+    # for checking tips of the phylogeny, it is nice to know which leaf OTUs attach
     #   at the base of the taxonomy (no other grouping)
     basal_taxo = set()
     basal_bits = 0
@@ -63,7 +66,7 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
                     edge._inverted_displays = idisp
             else:
                 edge._not_inverted_incompat = _EMPTY_SET
-                #TODO would be more efficient to jump to tip and walk back...
+                # TODO would be more efficient to jump to tip and walk back...
                 b = id2bit[node._id]
                 ii = set()
                 for tb, tid in taxo_nontriv_splits.items():
@@ -74,7 +77,7 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
                 if disp is not None:
                     edge._displays = disp
         else:
-            #TODO this could be more efficient...
+            # TODO this could be more efficient...
             b = node.bits4subtree_ids
             nii = set()
             ii = set()
@@ -82,7 +85,7 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
             ie = set()
             displays = None
             inv_displays = None
-            #TODO: this loop does not take advantage of the fact that
+            # TODO: this loop does not take advantage of the fact that
             #   taxo_nontriv_splits are splits from a tree (hence compatible with each other)
             for tb, tid in taxo_nontriv_splits.items():
                 sp_result = compare_bits_as_splits(b, tb, taxon_mask)
@@ -190,6 +193,7 @@ def evaluate_tree_rooting(nexson, ott, tree_proxy):
     _LOG.debug('current score = {}'.format(pproot.rooting_here_score))
     _LOG.debug('any_root_incompat_set (size={}) = {}'.format(len(any_root_incompat_set), any_root_incompat_set))
 
+
 def _check_for_opt_score(entity, best, best_list):
     incompat = len(entity.rooting_here_incompat)
     ds = len(entity.rooting_here_displays)
@@ -207,7 +211,8 @@ def _check_for_opt_score(entity, best, best_list):
         elif incompat == low_incompat:
             best_list.append(entity)
     return best, best_list
+
+
 def _get_cached_set(s, dict_frozensets):
     fs = frozenset(s)
     return dict_frozensets.setdefault(fs, fs)
-

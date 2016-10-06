@@ -1,12 +1,15 @@
 #!/usr/bin/env python
-'''AmendmentValidationAdaptor class.
-'''
+"""AmendmentValidationAdaptor class.
+"""
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
 
 def create_validation_adaptor(obj, errors, **kwargs):
     # just one simple version for now, so one adapter class
     return AmendmentValidationAdaptor(obj, errors, **kwargs)
+
 
 # TODO: Define a simple adapter based on
 # nexson_validation._badgerfish_validation.BadgerFishValidationAdapter.
@@ -40,7 +43,7 @@ class AmendmentValidationAdaptor(object):
         uk = None
         for k in obj.keys():
             if (k not in self.required_toplevel_elements.keys() and
-                k not in self.optional_toplevel_elements.keys()):
+                        k not in self.optional_toplevel_elements.keys()):
                 if uk is None:
                     uk = []
                 uk.append(k)
@@ -80,7 +83,7 @@ class AmendmentValidationAdaptor(object):
         if isinstance(self._curator, dict):
             for k in self._curator.keys():
                 try:
-                    assert k in ['login', 'name', 'email',]
+                    assert k in ['login', 'name', 'email', ]
                 except:
                     errors.append("Unexpected key '{k}' found in curator".format(k=k))
             if 'login' in self._curator:
@@ -134,14 +137,14 @@ class AmendmentValidationAdaptor(object):
                 'parent': int,  # the parent taxon's OTT id
                 'parent_tag': string_types,
                 'tag': object,  # can be anything (int, string, ...)
-                'ott_id': int   # if already assigned
+                'ott_id': int  # if already assigned
             }
 
             # N.B. we should reject any unknown keys (not listed above)!
             uk = None
             for taxon in self._taxa:
                 for k in taxon.keys():
-                    if (k not in self.required_toplevel_taxon_elements.keys() and 
+                    if (k not in self.required_toplevel_taxon_elements.keys() and
                         k not in self.optional_toplevel_taxon_elements.keys()):
                         if uk is None:
                             uk = []
@@ -167,7 +170,8 @@ class AmendmentValidationAdaptor(object):
                         try:
                             assert isinstance(test_el, el_type)
                         except:
-                            errors.append("Taxon property '{p}' should be one of these: {t}".format(p=el_key, t=el_type))
+                            errors.append(
+                                "Taxon property '{p}' should be one of these: {t}".format(p=el_key, t=el_type))
 
                 # each taxon must have either 'parent' or 'parent_tag'!
                 try:

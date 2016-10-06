@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-'''Simple command-line tool that combines the actions 
+"""Simple command-line tool that combines the actions
 of the ot-tnrs-match-names.py, ot-taxon-info.py, and ot-taxon-subtree.py
 scripts
-'''
+"""
 import pprint
 import sys
+
 
 def ot_tnrs_match_names(name_list,
                         context_name=None,
@@ -12,14 +13,14 @@ def ot_tnrs_match_names(name_list,
                         include_dubious=False,
                         include_deprecated=True,
                         tnrs_wrapper=None):
-    '''Uses a peyotl wrapper around an Open Tree web service to get a list of OTT IDs matching
+    """Uses a peyotl wrapper around an Open Tree web service to get a list of OTT IDs matching
     the `name_list`.
     The tnrs_wrapper can be None (in which case the default wrapper from peyotl.sugar will be used.
     All other arguments correspond to the arguments of the web-service call.
     A ValueError will be raised if the `context_name` does not match one of the valid names for a
         taxonomic context.
     This uses the wrap_response option to create and return a TNRSRespose object around the response.
-    '''
+    """
     if tnrs_wrapper is None:
         from peyotl.sugar import tnrs
         tnrs_wrapper = tnrs
@@ -34,7 +35,7 @@ def ot_tnrs_match_names(name_list,
 
 def fetch_and_write_taxon_info(id_list, include_anc, list_tips, output):
     from peyotl.sugar import taxonomy
-    assert(list_tips == False) # args.list_tips once https://github.com/OpenTreeOfLife/taxomachine/issues/89 is fixed @TEMP
+    assert (list_tips == False)  # args.list_tips once https://github.com/OpenTreeOfLife/taxomachine/issues/89 is fixed @TEMP
     for ott_id in id_list:
         info = taxonomy.taxon(ott_id,
                               include_lineage=include_anc,
@@ -44,14 +45,14 @@ def fetch_and_write_taxon_info(id_list, include_anc, list_tips, output):
 
 
 def write_taxon_info(taxon, include_anc, output):
-    '''Writes out data from `taxon` to the `output` stream to demonstrate
-    the attributes of a taxon object. 
+    """Writes out data from `taxon` to the `output` stream to demonstrate
+    the attributes of a taxon object.
     (currently some lines are commented out until the web-services call returns more info. See:
         https://github.com/OpenTreeOfLife/taxomachine/issues/85
     ).
     If `include_anc` is True, then ancestor information was requested (so a None parent is only
         expected at the root of the tree)
-    '''
+    """
     output.write('Taxon info for OTT ID (ot:ottId) = {}\n'.format(taxon.ott_id))
     output.write('    name (ot:ottTaxonName) = "{}"\n'.format(taxon.name))
     if taxon.synonyms:
@@ -60,7 +61,8 @@ def write_taxon_info(taxon, include_anc, output):
         output.write('    known synonyms: \n')
     output.write('    OTT flags for this taxon: {}\n'.format(taxon.flags))
     output.write('    The taxonomic rank associated with this name is: {}\n'.format(taxon.rank))
-    output.write('    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(taxon.taxomachine_node_id))
+    output.write(
+        '    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(taxon.taxomachine_node_id))
     if include_anc:
         if taxon.parent is not None:
             output.write('Taxon {c} is a child of {p}.\n'.format(c=taxon.ott_id, p=taxon.parent.ott_id))
@@ -69,14 +71,15 @@ def write_taxon_info(taxon, include_anc, output):
             output.write('Taxon {c} is the root of the taxonomy.'.format(c=taxon.ott_id))
 
 
-def match_and_print(name_list, context_name, do_approximate_matching, include_dubious, include_deprecated, include_subtree, output):
-    '''Demonstrates how to read the response from a match_names query when peyotl's wrap_response option is
+def match_and_print(name_list, context_name, do_approximate_matching, include_dubious, include_deprecated,
+                    include_subtree, output):
+    """Demonstrates how to read the response from a match_names query when peyotl's wrap_response option is
     used.
 
     If the context_name is not recognized, the attempt to match_names will generate a ValueError exception.
     Here this is caught, and we call the tnrs/contexts web service to get the list of valid context_names
         to provide the user of the script with some hints.
-    '''
+    """
     from peyotl.sugar import tnrs
     try:
         # Perform the match_names, and return the peyotl wrapper around the response.
@@ -104,13 +107,15 @@ def match_and_print(name_list, context_name, do_approximate_matching, include_du
     output.write(' by {}\n'.format(result.taxonomy.author))
     output.write('Information for the taxonomy can be found at {}\n'.format(result.taxonomy.weburl))
     output.write('{} out of {} queried name(s) were matched\n'.format(len(result.matched_name_ids), len(name_list)))
-    output.write('{} out of {} queried name(s) were unambiguously matched\n'.format(len(result.unambiguous_name_ids), len(name_list)))
+    output.write('{} out of {} queried name(s) were unambiguously matched\n'.format(len(result.unambiguous_name_ids),
+                                                                                    len(name_list)))
     output.write('The context_name for the matched names was "{}"'.format(result.context))
     if result.context_inferred:
         output.write(' (this context was inferred based on the matches).\n')
     else:
         output.write(' (this context was supplied as an argument to speed up the name matching).\n')
-    output.write('The name matching result(s) used approximate/fuzzy string matching? {}\n'.format(result.includes_approximate_matches))
+    output.write('The name matching result(s) used approximate/fuzzy string matching? {}\n'.format(
+        result.includes_approximate_matches))
     output.write('The name matching result(s) included dubious names? {}\n'.format(result.includes_dubious_names))
     output.write('The name matching result(s) included deprecated taxa? {}\n'.format(result.includes_deprecated_taxa))
     for name in name_list:
@@ -120,7 +125,8 @@ def match_and_print(name_list, context_name, do_approximate_matching, include_du
             output.write('  Match #{}\n'.format(match_ind))
             output.write('    OTT ID (ot:ottId) = {}\n'.format(match.ott_id))
             output.write('    name (ot:ottTaxonName) = "{}"\n'.format(match.name))
-            output.write('    query was matched using fuzzy/approximate string matching? {}\n'.format(match.is_approximate_match))
+            output.write('    query was matched using fuzzy/approximate string matching? {}\n'.format(
+                match.is_approximate_match))
             output.write('    match score = {}\n'.format(match.score))
             output.write('    query name is a junior synonym of this match? {}\n'.format(match.is_synonym))
             output.write('    is deprecated from OTT? {}\n'.format(match.is_deprecated))
@@ -132,7 +138,8 @@ def match_and_print(name_list, context_name, do_approximate_matching, include_du
             output.write('    OTT flags for this taxon: {}\n'.format(match.flags))
             output.write('    The taxonomic rank associated with this name is: {}\n'.format(match.rank))
             output.write('    The nomenclatural code for this name is: {}\n'.format(match.nomenclature_code))
-            output.write('    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(match.taxomachine_node_id))
+            output.write('    The (unstable) node ID in the current taxomachine instance is: {}\n'.format(
+                match.taxomachine_node_id))
         if len(match_tuple) == 1:
             sys.stderr.write('\nOnly one match found, so we will request the info on the ancestors, too...\n')
             match = match_tuple[0]
@@ -146,17 +153,20 @@ def match_and_print(name_list, context_name, do_approximate_matching, include_du
                 output.write('\n')
         else:
             if include_subtree:
-                sys.stderr.write('\nMultiple matches found - ancestor info and subtreesuppressed.\nSee ot-taxon-info.py and ot-taxon-subtree.py which can be called with an OTT ID\n')
+                sys.stderr.write(
+                    '\nMultiple matches found - ancestor info and subtreesuppressed.\nSee ot-taxon-info.py and ot-taxon-subtree.py which can be called with an OTT ID\n')
             else:
-                sys.stderr.write('\nMultiple matches found - ancestor info suppressed.\nSee ot-taxon-info.py which can be called with an OTT ID\n')
+                sys.stderr.write(
+                    '\nMultiple matches found - ancestor info suppressed.\nSee ot-taxon-info.py which can be called with an OTT ID\n')
+
 
 def main(argv):
-    '''This function sets up a command-line option parser and then calls match_and_print
+    """This function sets up a command-line option parser and then calls match_and_print
     to do all of the real work.
-    '''
+    """
     import argparse
     description = 'Uses Open Tree of Life web services to try to find a taxon ID for each name supplied. ' \
-                  'Using a --context-name=NAME to provide a limited taxonomic context and using the '\
+                  'Using a --context-name=NAME to provide a limited taxonomic context and using the ' \
                   ' --prohibit-fuzzy-matching option can make the matching faster. If there is only' \
                   'one match finds, then it also calls the equivalent of the ot-taxon-info.py and ot-taxon-subtree.py scripts.'
     parser = argparse.ArgumentParser(prog='ot-tnrs-match-names', description=description)
@@ -194,6 +204,7 @@ def main(argv):
                     include_deprecated=args.include_deprecated,
                     include_subtree=args.subtree,
                     output=sys.stdout)
+
 
 if __name__ == '__main__':
     try:

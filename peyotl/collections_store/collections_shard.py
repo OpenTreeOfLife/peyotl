@@ -1,15 +1,15 @@
 import os
 import codecs
 from threading import Lock
-from peyotl.utility import get_logger, \
-    get_config_setting
-from peyotl.git_storage.git_shard import GitShard, \
-                                         TypeAwareGitShard, \
-                                         _invert_dict_list_val
+from peyotl.utility import (get_logger, get_config_setting)
+from peyotl.git_storage.git_shard import (GitShard,
+                                          TypeAwareGitShard,
+                                          _invert_dict_list_val)
 
 _LOG = get_logger(__name__)
 
 doc_holder_subpath = 'collections-by-owner'
+
 
 def filepath_for_collection_id(repo_dir, collection_id):
     # in this case, simply expand the id to a full path
@@ -18,9 +18,11 @@ def filepath_for_collection_id(repo_dir, collection_id):
     _LOG.warn(">>>> filepath_for_collection_id: full path is {}".format(full_path_to_file))
     return full_path_to_file
 
+
 class TreeCollectionsShardProxy(GitShard):
-    '''Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
-    '''
+    """Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
+    """
+
     def __init__(self, config):
         GitShard.__init__(self, config['name'])
         self.assumed_doc_version = config['assumed_doc_version']
@@ -34,11 +36,12 @@ class TreeCollectionsShardProxy(GitShard):
                 d[k] = (self.name, self.path, complete_path)
         self.doc_index = d
 
+
 def create_id2collection_info(path, tag):
-    '''Searchers for JSON files in this repo and returns
+    """Searchers for JSON files in this repo and returns
     a map of collection id ==> (`tag`, dir, collection filepath)
     where `tag` is typically the shard name
-    '''
+    """
     d = {}
     for triple in os.walk(path):
         root, files = triple[0], triple[2]
@@ -49,15 +52,17 @@ def create_id2collection_info(path, tag):
                 d[collection_id] = (tag, root, os.path.join(root, filename))
     return d
 
+
 def refresh_collection_index(shard, initializing=False):
     d = create_id2collection_info(shard.doc_dir, shard.name)
     shard.has_aliases = False
     shard._doc_index = d
 
+
 class TreeCollectionsShard(TypeAwareGitShard):
-    '''Wrapper around a git repo holding JSON tree collections
+    """Wrapper around a git repo holding JSON tree collections
     Raises a ValueError if the directory does not appear to be a TreeCollectionsShard.
-    Raises a RuntimeError for errors associated with misconfiguration.'''
+    Raises a RuntimeError for errors associated with misconfiguration."""
     from peyotl.phylesystem.git_actions import PhylesystemGitAction
     def __init__(self,
                  name,
@@ -67,7 +72,7 @@ class TreeCollectionsShard(TypeAwareGitShard):
                  pkey=None,
                  git_action_class=PhylesystemGitAction,
                  push_mirror_repo_path=None,
-                 new_doc_prefix=None, # IGNORED in this shard type
+                 new_doc_prefix=None,  # IGNORED in this shard type
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
         self.max_file_size = get_config_setting('phylesystem', 'max_file_size')
@@ -95,7 +100,6 @@ class TreeCollectionsShard(TypeAwareGitShard):
             self._known_prefixes = self._diagnose_prefixes()
         return self._known_prefixes
 
-
     # Type-specific configuration for backward compatibility
     # (config is visible to API consumers via /phylesystem_config)
     def write_configuration(self, out, secret_attrs=False):
@@ -109,6 +113,7 @@ class TreeCollectionsShard(TypeAwareGitShard):
         out.write('  collections in alias groups:\n')
         for o in cd['collections']:
             out.write('    {} ==> {}\n'.format(o['keys'], o['relpath']))
+
     def get_configuration_dict(self, secret_attrs=False):
         """Overrides superclass method and renames some properties"""
         cd = super(TreeCollectionsShard, self).get_configuration_dict(secret_attrs=secret_attrs)
@@ -118,8 +123,8 @@ class TreeCollectionsShard(TypeAwareGitShard):
         return cd
 
     def _diagnose_prefixes(self):
-        '''Returns a set of all of the prefixes seen in the main document dir
-        '''
+        """Returns a set of all of the prefixes seen in the main document dir
+        """
         from peyotl.collections_store import COLLECTION_ID_PATTERN
         p = set()
         for owner_dirname in os.listdir(self.doc_dir):
@@ -129,7 +134,7 @@ class TreeCollectionsShard(TypeAwareGitShard):
         return p
 
     def create_git_action_for_new_collection(self, new_collection_id=None):
-        '''Checks out master branch as a side effect'''
+        """Checks out master branch as a side effect"""
         ga = self.create_git_action()
         assert new_collection_id is not None
         # id should have been sorted out by the caller

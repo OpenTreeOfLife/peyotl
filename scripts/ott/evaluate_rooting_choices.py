@@ -3,18 +3,24 @@ from peyotl.nexson_proxy import NexsonTreeProxy
 from peyotl.ott import OTT
 from peyotl.evaluate_tree import evaluate_tree_rooting
 from enum import Enum
+
+
 class UnrootedConflictStatus(Enum):
     EQUIVALENT = 0
     INCOMPATIBLE = 1
-    RESOLVES = 2 # compatible with "other" tree, and split is not in that tree
-    TRIVIAL = 3 # will be compatible with any taxonomy
-    NOT_COMPARABLE = 4 # e.g. lacking an OTT ID in a comparison to taxonomy
+    RESOLVES = 2  # compatible with "other" tree, and split is not in that tree
+    TRIVIAL = 3  # will be compatible with any taxonomy
+    NOT_COMPARABLE = 4  # e.g. lacking an OTT ID in a comparison to taxonomy
+
+
 class CompatStatus(Enum):
     EQUIVALENT = 0
     CONFLICTS_WITH_ROOTED = 1
     CONFLICTS_WITH_UNROOTED = 2
     RESOLVES = 3
     RESOLVED_BY = 4
+
+
 UNROOTED_TAXO_STATUS_PROP = '^ot:rootingInvariantTaxoContrastStatus'
 CURRENT_ROOTING_COMPAT = '^ot:taxoCompatibleInCurrentRooting'
 UNROOTED_CONFLICTS = '^ot:taxoEdgeConflictsAnyRooting'
@@ -30,6 +36,7 @@ if __name__ == '__main__':
     import json
     import sys
     import os
+
     SCRIPT_NAME = os.path.split(os.path.abspath(sys.argv[0]))[-1]
     _LOG = get_logger(SCRIPT_NAME)
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
@@ -41,12 +48,12 @@ if __name__ == '__main__':
                         action='store_true',
                         default=False,
                         help='verbose output')
-    parser.add_argument("-t", "--tree-id", 
+    parser.add_argument("-t", "--tree-id",
                         metavar="TREEID",
                         required=False,
                         default=None,
                         help="The ID of the tree to be analyzed (if omitted, all trees will be used).")
-    parser.add_argument("-o", "--output", 
+    parser.add_argument("-o", "--output",
                         metavar="FILE",
                         required=False,
                         help="output filepath. Standard output is used if omitted.")
@@ -93,4 +100,3 @@ if __name__ == '__main__':
     for tree_id, tree, otus in trees:
         tree_proxy = NexsonTreeProxy(tree=tree, tree_id=tree_id, otus=otus)
         evaluate_tree_rooting(nexson, ott, tree_proxy)
-

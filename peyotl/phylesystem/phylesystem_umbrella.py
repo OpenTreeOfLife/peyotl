@@ -1,33 +1,35 @@
-from peyotl.utility import get_logger, \
-    get_config_setting
+from peyotl.utility import get_logger, get_config_setting
+
 try:
     # noinspection PyPackageRequirements
     from dogpile.cache.api import NO_VALUE
 except:
-    pass #caching is optional
+    pass  # caching is optional
 from peyotl.phylesystem.helper import _make_phylesystem_cache_region
 from peyotl.git_storage import ShardedDocStore, \
-                               TypeAwareDocStore
-from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, \
-                                                 PhylesystemShard
+    TypeAwareDocStore
+from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, PhylesystemShard
 from peyotl.phylesystem.git_actions import PhylesystemGitAction
 from peyotl.phylesystem.git_workflows import validate_and_convert_nexson
 from peyotl.nexson_validation import ot_validate
-from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, \
-                                                      replace_same_agent_annotation
+from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, replace_same_agent_annotation
 import re
+
 STUDY_ID_PATTERN = re.compile(r'[a-zA-Z][a-zA-Z]_[0-9]+')
 
 _LOG = get_logger(__name__)
+
 
 def prefix_from_study_id(study_id):
     # TODO: Use something smarter here, splitting on underscore?
     return study_id[:3]
 
+
 class PhylesystemProxy(ShardedDocStore):
-    '''Proxy for interacting with external resources if given the configuration of a remote Phylesystem.
+    """Proxy for interacting with external resources if given the configuration of a remote Phylesystem.
     N.B. that this has minimal functionality, and is mainly used to fetch studies and their ids.
-    '''
+    """
+
     def __init__(self, config):
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_study_id)
@@ -46,9 +48,11 @@ class PhylesystemProxy(ShardedDocStore):
                 d[k] = s
         self._doc2shard_map = d
 
+
 class _Phylesystem(TypeAwareDocStore):
-    '''Wrapper around a set of sharded git repos, with business rules specific to Nexson studies.
-    '''
+    """Wrapper around a set of sharded git repos, with business rules specific to Nexson studies.
+    """
+
     def __init__(self,
                  repos_dict=None,
                  repos_par=None,
@@ -61,7 +65,7 @@ class _Phylesystem(TypeAwareDocStore):
                  new_study_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
-        '''
+        """
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
         `with_caching` should be True for non-debugging uses.
@@ -76,7 +80,7 @@ class _Phylesystem(TypeAwareDocStore):
             'parent_dir' - the parent directory of the mirrored repos
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
-        '''
+        """
         self._new_study_prefix = None
         TypeAwareDocStore.__init__(self,
                                    prefix_from_doc_id=prefix_from_study_id,
@@ -110,15 +114,19 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def return_study(self):
         return self.return_doc
+
     @property
     def get_changed_studies(self):
         return self.get_changed_docs
+
     @property
     def push_study_to_remote(self):
         return self.push_doc_to_remote
+
     @property
     def iter_study_objs(self):
         return self.iter_doc_objs
+
     @property
     def iter_study_filepaths(self):
         return self.iter_doc_filepaths
@@ -126,6 +134,7 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def new_study_prefix(self):
         return self.new_doc_prefix
+
     @new_study_prefix.setter
     def new_study_prefix(self, val):
         self.new_doc_prefix = val
@@ -133,9 +142,11 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def get_blob_sha_for_study_id(self):
         return self.get_blob_sha_for_doc_id
+
     @property
     def get_version_history_for_study_id(self):
         return self.get_version_history_for_doc_id
+
     @property
     def delete_study(self):
         return self.delete_doc
@@ -143,16 +154,17 @@ class _Phylesystem(TypeAwareDocStore):
     @property
     def repo_nexml2json(self):
         return self.assumed_doc_version
+
     @repo_nexml2json.setter
     def repo_nexml2json(self, val):
         self.assumed_doc_version = val
 
     def _mint_new_study_id(self):
-        '''Checks out master branch of the shard as a side effect'''
+        """Checks out master branch of the shard as a side effect"""
         return self._growing_shard._mint_new_study_id()
 
     def create_git_action_for_new_study(self, new_study_id=None):
-        '''Checks out master branch of the shard as a side effect'''
+        """Checks out master branch of the shard as a side effect"""
         return self._growing_shard.create_git_action_for_new_study(new_study_id=new_study_id)
 
     def ingest_new_study(self,
@@ -221,8 +233,8 @@ class _Phylesystem(TypeAwareDocStore):
             bundle = ot_validate(doc_obj)
             annotation = bundle[0]
             annot_event = annotation['annotationEvent']
-            #del annot_event['@dateCreated'] #TEMP
-            #del annot_event['@id'] #TEMP
+            # del annot_event['@dateCreated'] #TEMP
+            # del annot_event['@id'] #TEMP
             adaptor = bundle[2]
         replace_same_agent_annotation(doc_obj, annot_event)
         if need_to_cache:
@@ -234,7 +246,7 @@ class _Phylesystem(TypeAwareDocStore):
         """Type-specific configuration for backward compatibility"""
         key_order = ['repo_nexml2json',
                      'number_of_shards',
-                     'initialization',]
+                     'initialization', ]
         cd = self.get_configuration_dict(secret_attrs=secret_attrs)
         for k in key_order:
             if k in cd:
@@ -242,18 +254,22 @@ class _Phylesystem(TypeAwareDocStore):
         for n, shard in enumerate(self._shards):
             out.write('Shard {}:\n'.format(n))
             shard.write_configuration(out)
+
     def get_configuration_dict(self, secret_attrs=False):
         """Type-specific configuration for backward compatibility"""
         cd = {'repo_nexml2json': self.repo_nexml2json,
               'number_of_shards': len(self._shards),
               'initialization': self._filepath_args,
               'shards': [],
-             }
+              }
         for i in self._shards:
             cd['shards'].append(i.get_configuration_dict(secret_attrs=secret_attrs))
         return cd
 
+
 _THE_PHYLESYSTEM = None
+
+
 def Phylesystem(repos_dict=None,
                 repos_par=None,
                 with_caching=True,
@@ -264,13 +280,13 @@ def Phylesystem(repos_dict=None,
                 mirror_info=None,
                 new_study_prefix=None,
                 infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>'):
-    '''Factory function for a _Phylesystem object.
+    """Factory function for a _Phylesystem object.
 
     A wrapper around the _Phylesystem class instantiation for
     the most common use case: a singleton _Phylesystem.
     If you need distinct _Phylesystem objects, you'll need to
     call that class directly.
-    '''
+    """
     if not repo_nexml2json:
         repo_nexml2json = get_config_setting('phylesystem', 'repo_nexml2json')
     global _THE_PHYLESYSTEM
@@ -286,4 +302,3 @@ def Phylesystem(repos_dict=None,
                                         new_study_prefix=new_study_prefix,
                                         infrastructure_commit_author=infrastructure_commit_author)
     return _THE_PHYLESYSTEM
-

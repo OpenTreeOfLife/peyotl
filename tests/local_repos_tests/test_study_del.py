@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 from peyotl.git_storage.git_workflow import acquire_lock_raise
-from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
-                                             GitWorkflowError
+from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, GitWorkflowError
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.utility.input_output import read_as_json
 import unittest
@@ -10,6 +9,7 @@ import json
 import copy
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
 
 phylesystem = Phylesystem(pathmap.get_test_repos())
@@ -21,6 +21,7 @@ _AUTH = {
     'email': 'test_email@example.org',
     'login': 'test_gh_login',
 }
+
 
 class TestPhylesystemDel(unittest.TestCase):
     def testDelStudy(self):
@@ -64,7 +65,7 @@ class TestPhylesystemDel(unittest.TestCase):
         self.assertEquals(acount_at_sha, curr['nexml'].get("^acount", 0))
         curr, naked_get_sha, wip_map = phylesystem.return_study(_SID, commit_sha=v1bsha, return_WIP_map=True)
         self.assertEquals(acount_at_v1bsha, curr['nexml']["^acount"])
-        ga = phylesystem.create_git_action(_SID) # assert no raise
+        ga = phylesystem.create_git_action(_SID)  # assert no raise
         sidl = phylesystem.get_study_ids()
         self.assertNotIn(_SID, sidl)
         ac += 1
@@ -88,7 +89,7 @@ class TestPhylesystemDel(unittest.TestCase):
         self.assertEquals(ac, curr['nexml']["^acount"])
         self.assertRaises(KeyError, phylesystem.return_study, _SID, commit_sha=v2bsha, return_WIP_map=True)
         self.assertRaises(KeyError, phylesystem.return_study, _SID, commit_sha=v3bsha, return_WIP_map=True)
-        
+
+
 if __name__ == "__main__":
     unittest.main()
-    

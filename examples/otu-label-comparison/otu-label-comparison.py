@@ -4,11 +4,12 @@ from peyotl.api import APIWrapper
 from peyotl.ott import OTT
 from peyotl import get_logger
 import sys
+
 _LOG = get_logger('otu-label-comparison')
 if len(sys.argv) != 2:
     sys.exit('expecting an output file path for the JSON mapping file')
 outfn = sys.argv[1]
-a = APIWrapper(phylesystem_api_kwargs={'get_from':'local'})
+a = APIWrapper(phylesystem_api_kwargs={'get_from': 'local'})
 ott = OTT()
 ott_id_to_names = ott.ott_id_to_names
 orig2ott_name = {}
@@ -25,7 +26,7 @@ for sid, blob in phylesys.iter_study_objs():
                 _LOG.debug('Apparently deprecated ott_id="{o}" in study="{s}"'.format(o=ott_id, s=sid))
             else:
                 if not isinstance(names, tuple):
-                    names = (names, )
+                    names = (names,)
                 maps.append((otu['^ot:originalLabel'], names))
     if maps:
         orig2ott_name[sid] = maps

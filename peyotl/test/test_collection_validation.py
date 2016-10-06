@@ -1,16 +1,17 @@
 #! /usr/bin/env python
-#from peyotl.nexson_syntax import detect_nexson_version, get_empty_nexson
+# from peyotl.nexson_syntax import detect_nexson_version, get_empty_nexson
 from peyotl.collections_store import get_empty_collection
 from peyotl.utility.str_util import UNICODE
 from peyotl.collections_store.validation import validate_collection
 from peyotl.test.support import pathmap
-from peyotl.test.support.helper import testing_write_json, \
-                                       testing_read_json
+from peyotl.test.support.helper import testing_write_json, testing_read_json
 from peyotl.utility import get_logger
 import unittest
 import sys
 import os
+
 _LOG = get_logger(__name__)
+
 
 class TestCollectionValidator(unittest.TestCase):
     def testValidFilesPass(self):
@@ -27,6 +28,7 @@ class TestCollectionValidator(unittest.TestCase):
             testing_write_json(errors, ofn)
             msg = "File failed to validate cleanly. See {o}".format(o=ofn)
         self.assertEqual(len(errors), 0, msg)
+
     def testInvalidFilesFail(self):
         # just one test file for now
         msg = ''
@@ -43,6 +45,7 @@ class TestCollectionValidator(unittest.TestCase):
                     self.assertTrue(False, msg)
         except:
             pass
+
     def testExpectedWarnings(self):
         msg = ''
         # compare test files (.input and .expected for each)
@@ -68,12 +71,13 @@ class TestCollectionValidator(unittest.TestCase):
                     self.assertEqual(exp, errors, msg)
                 else:
                     _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
+
     def testCreated(self):
         c = get_empty_collection()
         aa = validate_collection(c)
         errors = aa[0]
         self.assertTrue(len(errors) == 0)
 
+
 if __name__ == "__main__":
     unittest.main()
-

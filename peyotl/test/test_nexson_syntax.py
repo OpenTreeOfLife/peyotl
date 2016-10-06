@@ -1,22 +1,24 @@
 #! /usr/bin/env python
-from peyotl.nexson_syntax import can_convert_nexson_forms, \
-                                 convert_nexson_format, \
-                                 DIRECT_HONEY_BADGERFISH, \
-                                 BADGER_FISH_NEXSON_VERSION, \
-                                 BY_ID_HONEY_BADGERFISH, \
-                                 sort_meta_elements, \
-                                 sort_arbitrarily_ordered_nexson
+from peyotl.nexson_syntax import (can_convert_nexson_forms,
+                                  convert_nexson_format,
+                                  DIRECT_HONEY_BADGERFISH,
+                                  BADGER_FISH_NEXSON_VERSION,
+                                  BY_ID_HONEY_BADGERFISH,
+                                  sort_meta_elements,
+                                  sort_arbitrarily_ordered_nexson)
 from peyotl.test.support import equal_blob_check
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
 import os
+
 _LOG = get_logger(__name__)
-#pylint does not realize that serialize returns a string, so generates lots of
+# pylint does not realize that serialize returns a string, so generates lots of
 #   spurious errors
-#pylint: disable=E1103
+# pylint: disable=E1103
 # round trip filename tuples
 RT_DIRS = ['otu', '9', ]
+
 
 def _get_pair(par, f, s):
     bf = os.path.join(par, f)
@@ -100,6 +102,6 @@ class TestConvert(unittest.TestCase):
             b = convert_nexson_format(obj, BY_ID_HONEY_BADGERFISH)
             equal_blob_check(self, '', b, b_expect)
 
+
 if __name__ == "__main__":
     unittest.main()
-

@@ -4,8 +4,10 @@ from peyotl.ott import OTT
 import subprocess
 import sys
 import os
+
 _LOG = get_logger('clipeyotl')
 out = sys.stdout
+
 
 def parse_config_file(fp):
     try:
@@ -20,6 +22,7 @@ def parse_config_file(fp):
     config_obj.read(fp)
     return config_obj
 
+
 def config_command(args):
     if args.action.lower() == 'list':
         fp = args.filepath
@@ -30,9 +33,12 @@ def config_command(args):
         else:
             cw = ConfigWrapper()
         cw.report(out)
+
+
 def ott_clear_command(args):
     ott = OTT()
     ott.remove_caches()
+
 
 def ott_shell_command(args):
     ott = OTT()
@@ -53,7 +59,7 @@ def main():
     config_parser.set_defaults(func=config_command)
     # ott commands
     ott_parser = subparsers.add_parser('ott', help='commands that require a local version of ott')
-    #ott_parser.add_argument('--action', choices=['clear-cache'], default='', required=False)
+    # ott_parser.add_argument('--action', choices=['clear-cache'], default='', required=False)
     ott_subparsers = ott_parser.add_subparsers(help='ott actions')
     ott_clear_parser = ott_subparsers.add_parser('clear-cache',
                                                  help='remove the caches used to speed up actions on OTT')

@@ -1,26 +1,31 @@
 from peyotl.utility import get_logger
 import json
+
 try:
     import anyjson
 except:
     class Wrapper(object):
         pass
+
+
     anyjson = Wrapper()
     anyjson.loads = json.loads
 from peyotl.phylesystem.helper import _get_phylesystem_parent
 import os
 from threading import Lock
+
 _LOG = get_logger(__name__)
 _study_index_lock = Lock()
 
+
 def get_repos(par_list=None, **kwargs):
-    '''Returns a dictionary of name -> filepath
+    """Returns a dictionary of name -> filepath
     `name` is the repo name based on the dir name (not the get repo). It is not
         terribly useful, but it is nice to have so that any mirrored repo directory can
         use the same naming convention.
     `filepath` will be the full path to the repo directory (it will end in `name`)
-    '''
-    _repos = {} # key is repo name, value repo location
+    """
+    _repos = {}  # key is repo name, value repo location
     if par_list is None:
         par_list = _get_phylesystem_parent(**kwargs)
     elif not isinstance(par_list, list):
@@ -29,7 +34,7 @@ def get_repos(par_list=None, **kwargs):
         if not os.path.isdir(p):
             raise ValueError('Docstore parent "{p}" is not a directory'.format(p=p))
         for name in os.listdir(p):
-            #TODO: Add an option to filter just phylesystem repos (or any specified type?) here!
+            # TODO: Add an option to filter just phylesystem repos (or any specified type?) here!
             #  - add optional list arg `allowed_repo_names`?
             #  - let the FailedShardCreationError work harmlessly?
             #  - treat this function as truly for phylesystem only?
@@ -38,4 +43,3 @@ def get_repos(par_list=None, **kwargs):
     if len(_repos) == 0:
         raise ValueError('No git repos in {parent}'.format(parent=str(par_list)))
     return _repos
-

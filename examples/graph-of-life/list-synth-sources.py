@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-'''Calls the treemachine services to get the list 
+"""Calls the treemachine services to get the list
 of sources in the current synthetic tree
-'''
+"""
 from peyotl.sugar import treemachine
 import argparse
 import sys
 import os
+
 description = __doc__
 prog = os.path.split(sys.argv[0])[-1]
 parser = argparse.ArgumentParser(prog=prog, description=description)
@@ -22,7 +23,8 @@ parser.add_argument('--nexus',
 args = parser.parse_args(sys.argv[1:])
 download = args.fetch
 if download:
-    sys.exit('The fetch option is no longer supported because of https://github.com/OpenTreeOfLife/treemachine/issues/170\n')
+    sys.exit(
+        'The fetch option is no longer supported because of https://github.com/OpenTreeOfLife/treemachine/issues/170\n')
 nexus = args.nexus
 out = sys.stdout
 
@@ -46,8 +48,8 @@ for src in sources:
         try:
             if tree_id != 'taxonomy':
                 resp = treemachine.get_source_tree(study_id=study_id,
-                                                     tree_id=tree_id,
-                                                     git_sha=src['git_sha'])
+                                                   tree_id=tree_id,
+                                                   git_sha=src['git_sha'])
                 newick = resp['newick']
         except:
             sys.stderr.write('Download of {} failed.\n'.format(concat))

@@ -99,6 +99,6 @@ def propinquity_fn_to_study_tree(inp_fn, strip_extension=True):
     x = study_tree.split('@')
     if len(x) != 2:
         msg = 'Currently we are expecting studyID@treeID.<file extension> format. Expected exactly 1 @ in the filename. Got "{}"'
-        msg = msg.format(study_tree))
+        msg = msg.format(study_tree)
         raise ValueError(msg)
     return x

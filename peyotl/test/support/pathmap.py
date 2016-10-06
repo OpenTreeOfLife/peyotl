@@ -62,7 +62,11 @@ def get_test_ot_service_domains():
     from peyotl.api.wrapper import get_domains_obj
     return get_domains_obj() #We may need to point this at dev instances in some cases.
 
-def get_test_repos():
+def get_test_repos(requested=None):
+    """Returns a dict mapping a nicknam (mini_.*) to the full path to that
+    testing repository, if that testing repository is an existing directory.
+
+    Empty dict if peyotl is not set up for testing"""
     repo_parent_path = TEST_PHYLESYSTEM_PAR
     _LOG.warn("TESTING repo_parent_path:{}".format(repo_parent_path))
     # NOTE that we want absolute filesystem paths for repos, so that downstream git
@@ -71,11 +75,17 @@ def get_test_repos():
     if not os.path.isabs(repo_parent_path):
         repo_parent_path = os.path.abspath(repo_parent_path)
         _LOG.warn("ABSOLUTE repo_parent_path:{}".format(repo_parent_path))
-    return {'mini_phyl': os.path.join(repo_parent_path, 'mini_phyl'),
+    poss = {'mini_phyl': os.path.join(repo_parent_path, 'mini_phyl'),
             'mini_system': os.path.join(repo_parent_path, 'mini_system'),
             'mini_collections': os.path.join(repo_parent_path, 'mini_collections'),
             'mini_amendments': os.path.join(repo_parent_path, 'mini_amendments'),
            }
+    if requested is not None:
+        try:
+            poss = {k:poss[k] for k in requested}
+        except KeyError:
+            return {}
+    return {k:v for k, v in poss.items() if os.path.isdir(v)}
 
 def get_test_phylesystem_mirror_parent():
     return TEST_PHYLESYSTEM_MIRROR_PAR

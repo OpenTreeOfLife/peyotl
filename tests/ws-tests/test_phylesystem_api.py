@@ -2,7 +2,7 @@
 from peyotl.api import PhylesystemAPI
 from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_meta_first
 from peyotl.test.support.pathmap import get_test_ot_service_domains
-from peyotl.test.support import test_phylesystem_api_pg10
+from peyotl.test.support import test_phylesystem_api_for_study
 from peyotl.utility import get_logger
 import unittest
 import requests
@@ -25,19 +25,7 @@ class TestPhylesystemAPI(unittest.TestCase):
 
     def testRemoteTransSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='api', transform='server')
-        test_phylesystem_api_pg10(self, pa)
-    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
-                     'only available if you are have a [phylesystem] section '
-                     'with "parent" variable in your peyotl config')
-    def testLocalStudyList(self):
-        pa = PhylesystemAPI(self.domains, get_from='local')
-        sl = pa.study_list
-        # local repo should have just a few studies
-        #@TODO we need a better test, I changed it from 10 to 10000. 
-        # because I use my own fork of a large phylesystem in my tests
-        # I'm not sure what invariants we should check for, but 
-        # length of study list is probably not one.
-        self.assertTrue(len(sl) < 10000)
+        test_phylesystem_api_for_study(self, pa)
     def testRemoteStudyList(self):
         pa = PhylesystemAPI(self.domains, get_from='api')
         sl = pa.study_list
@@ -54,16 +42,10 @@ class TestPhylesystemAPI(unittest.TestCase):
         self.assertTrue(sid in ['10', 'pg_10'])
     def testRemoteSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='api')
-        test_phylesystem_api_pg10(self, pa)
+        test_phylesystem_api_for_study(self, pa)
     def testExternalSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='external')
-        test_phylesystem_api_pg10(self, pa)
-    @unittest.skipIf(not HAS_LOCAL_PHYLESYSTEM_REPOS,
-                     'only available if you are have a [phylesystem]'
-                     ' section with "parent" variable in your peyotl config')
-    def testLocalSugar(self):
-        pa = PhylesystemAPI(self.domains, get_from='local')
-        test_phylesystem_api_pg10(self, pa)
+        test_phylesystem_api_for_study(self, pa)
     def testConfig(self):
         pa = PhylesystemAPI(self.domains, get_from='api')
         x = pa.phylesystem_config

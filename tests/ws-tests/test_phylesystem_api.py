@@ -73,7 +73,6 @@ class TestPhylesystemAPI(unittest.TestCase):
         x = pa.phylesystem_config
         self.assertTrue(('repo_nexml2json' in x.keys()) or ('assumed_doc_version' in x.keys()))
         # TODO: remove 'assumed_doc_version' once the preset API domain has newer code
-    @unittest.skip('See https://github.com/OpenTreeOfLife/phylesystem-api/issues/116 ')
     def testExternalURL(self):
         # N.B. that the URL for this API call is an odd one, e.g.
         #    http://devapi.opentreeoflife.org/phylesystem/external_url/pg_10

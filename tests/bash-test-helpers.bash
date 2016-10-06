@@ -109,3 +109,12 @@ function refresh_and_test_local_git {
         stf=$(expr ${stf} + 1)
     fi
 }
+
+function echo_and_demand_succeeds {
+    echo $@
+    num_checks=$(expr 1 + ${num_checks})
+    if ! $($@)
+    then
+        num_fails=$(expr 1 + ${num_fails})
+    fi
+}

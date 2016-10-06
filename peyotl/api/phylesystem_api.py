@@ -7,21 +7,23 @@ from peyotl.utility import get_logger
 import anyjson
 import urllib
 import os
+
 _LOG = get_logger(__name__)
 
 _GET_LOCAL, _GET_EXTERNAL, _GET_API = range(3)
-_GET_FROM_VALUES = ('local',    # only from local copy of phylesystem
-                    'external', # *DEFAULT* from external URLs
-                    'api', )    # from the GET calls of the phylesystem-api
+_GET_FROM_VALUES = ('local',  # only from local copy of phylesystem
+                    'external',  # *DEFAULT* from external URLs
+                    'api',)  # from the GET calls of the phylesystem-api
 # TRANSFORM only relevant when get_from is "api"
 _TRANS_CLIENT, _TRANS_SERVER = range(2)
-_TRANSFORM_VALUES = ('client', # *DEFAULT* transform to the desired output format on the client side
-                     'server', ) # request data transformation take place on the server
+_TRANSFORM_VALUES = ('client',  # *DEFAULT* transform to the desired output format on the client side
+                     'server',)  # request data transformation take place on the server
 # REFRESH is only relevant when get_from is "local"
 _REFR_NEVER, _REFR_SESSION, _REFR_ALWAYS = range(3)
-_REFRESH_VALUES = ('never',    # *DEFAULT* never call "git pull"
+_REFRESH_VALUES = ('never',  # *DEFAULT* never call "git pull"
                    'session',  # call "git pull" before the first access
-                   'always', ) # do a "git pull" before each data access
+                   'always',)  # do a "git pull" before each data access
+
 
 class _PhylesystemAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
@@ -36,17 +38,20 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         self._trans_code = _TRANSFORM_VALUES.index(self._transform)
         self._refresh_code = _REFRESH_VALUES.index(self._refresh)
         self._repo_nexml2json = None
-        self._locals_repo_dict = kwargs.get('locals_repos_dict') # repos_dict arg to Phylesystem() if get_from is local
+        self._locals_repo_dict = kwargs.get('locals_repos_dict')  # repos_dict arg to Phylesystem() if get_from is local
         self._phylesystem_config = None
         self._phylesystem_obj = None
         self._use_raw = False
+
     @property
     def domain(self):
         return self._domain
+
     @domain.setter
-    def domain(self, d):#pylint: disable=W0221
+    def domain(self, d):  # pylint: disable=W0221
         self._domain = d
         self._prefix = '{d}/phylesystem/v1'.format(d=d)
+
     @property
     def phylesystem_obj(self):
         if self._phylesystem_obj is None:
@@ -61,6 +66,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             return self.phylesystem_obj.get_configuration_dict()
         else:
             return self._remote_phylesystem_config()
+
     @property
     def phylesystem_config(self):
         if self._phylesystem_config is None:
@@ -75,28 +81,32 @@ class _PhylesystemAPIWrapper(_WSWrapper):
                 # TODO: remove this fall-back to legacy configuration once deployed phylesystems are up to date
                 self._repo_nexml2json = self.phylesystem_config.get('repo_nexml2json')
         return self._repo_nexml2json
+
     def get_external_url(self, study_id):
         if self._src_code == _GET_API:
             return self._remote_external_url(study_id)['url']
         return self.phylesystem_obj.get_external_url(study_id)
+
     @property
     def study_list(self):
         if self._src_code == _GET_API:
             return self._remote_study_list()
         return self.phylesystem_obj.get_study_ids()
+
     @property
     def push_failure_state(self):
-        '''Returns a tuple: the boolean for whether or not pushes succeed, and the
+        """Returns a tuple: the boolean for whether or not pushes succeed, and the
         entire object returned by a call to push_failure on the phylesystem-api.
         This should only be called with wrappers around remote services (RuntimeError
         will be raised if you call this with a local wrapper.
-        '''
+        """
         if self._src_code == _GET_LOCAL:
             raise RuntimeError('push_failure_state only pertains to work with remote phyleysystem instances')
         r = self._remote_push_failure()
         return r['pushes_succeeding'], r
+
     def get(self, study_id, content=None, schema=None, **kwargs):
-        '''Syntactic sugar around to make it easier to get fine-grained access
+        """Syntactic sugar around to make it easier to get fine-grained access
         to the parts of a file without composing a PhyloSchema object.
         Possible invocations include:
             w.get('pg_10')
@@ -104,7 +114,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             w.get('pg_10', 'trees', format='nexus')
             w.get('pg_10', tree_id='tree3')
         see:
-        '''
+        """
         if isinstance(study_id, TreeRef):
             return self.get(study_id=study_id.study_id,
                             tree_id=study_id.tree_id,
@@ -128,7 +138,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
             nexson = self.json_http_get(url)
             r = {'data': nexson}
         elif self._src_code == _GET_LOCAL:
-            nexson, sha = self.phylesystem_obj.return_study(study_id) #pylint: disable=W0632
+            nexson, sha = self.phylesystem_obj.return_study(study_id)  # pylint: disable=W0632
             r = {'data': nexson,
                  'sha': sha}
         else:
@@ -140,6 +150,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         if (isinstance(r, dict) and 'data' in r) and (self._trans_code == _TRANS_CLIENT) and (schema is not None):
             r['data'] = schema.convert(r['data'])
         return r
+
     @property
     def auth_token(self):
         if self._github_oauth_token is None:
@@ -152,17 +163,21 @@ variable to obtain this token. If you need to obtain your key, see the instructi
 ''')
             self._github_oauth_token = auth_token
         return self._github_oauth_token
+
     def _remote_study_list(self):
-        '''Returns a list of strings which are the study IDs'''
+        """Returns a list of strings which are the study IDs"""
         uri = '{}/study_list'.format(self._prefix)
         return self.json_http_get(uri)
+
     def _remote_push_failure(self):
-        '''Returns a list of strings which are the study IDs'''
+        """Returns a list of strings which are the study IDs"""
         uri = '{}/push_failure'.format(self._prefix)
         return self.json_http_get(uri)
+
     def unmerged_branches(self):
         uri = '{}/unmerged_branches'.format(self._prefix)
         return self.json_http_get(uri)
+
     def post_study(self,
                    nexson,
                    study_id=None,
@@ -178,6 +193,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         return self.json_http_post(uri,
                                    params=params,
                                    data=anyjson.dumps({'nexson': nexson}))
+
     def put_study(self,
                   study_id,
                   nexson,
@@ -185,19 +201,22 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                   commit_msg=None):
         assert nexson is not None
         uri = '{d}/study/{i}'.format(d=self._prefix, i=study_id)
-        params = {'starting_commit_SHA':starting_commit_sha,
+        params = {'starting_commit_SHA': starting_commit_sha,
                   'auth_token': self.auth_token}
         if commit_msg:
             params['commit_msg'] = commit_msg
         return self.json_http_put(uri,
                                   params=params,
                                   data=anyjson.dumps({'nexson': nexson}))
+
     def _remote_phylesystem_config(self):
         uri = '{d}/phylesystem_config'.format(d=self._prefix)
         return self.json_http_get(uri)
+
     def _remote_external_url(self, study_id):
         uri = '{d}/external_url/{i}'.format(d=self._prefix, i=study_id)
         return self.json_http_get(uri)
+
     def url_for_api_get_study(self, study_id, schema):
         u, d = schema.phylesystem_api_url(self._prefix, study_id)
         if d:
@@ -218,6 +237,6 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             data = None
         return self.json_http_get(uri, params=data, text=not expect_json)
 
+
 def PhylesystemAPI(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).wrap_phylesystem_api(**kwargs)
-

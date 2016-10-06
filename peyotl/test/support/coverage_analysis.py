@@ -1,15 +1,15 @@
 #! /usr/bin/env python
 
 ##############################################################################
-##
-##  Adapted from: DendroPy Phylogenetic Computing Library.
-##
-##  Copyright 2010 Jeet Sukumaran and Mark T. Holder.
-##  All rights reserved.
-##
-##  Sukumaran, J. and M. T. Holder. 2010. DendroPy: a Python library
-##     for phylogenetic computing. Bioinformatics 26: 1569-1571.
-##
+#
+#  Adapted from: DendroPy Phylogenetic Computing Library.
+#
+#  Copyright 2010 Jeet Sukumaran and Mark T. Holder.
+#  All rights reserved.
+#
+#  Sukumaran, J. and M. T. Holder. 2010. DendroPy: a Python library
+#     for phylogenetic computing. Bioinformatics 26: 1569-1571.
+#
 ##############################################################################
 
 """

@@ -1,24 +1,30 @@
 #!/usr/bin/env python
-'Nexml2Nexson class'
-from peyotl.nexson_syntax.helper import NexsonConverter, \
-                                        get_nexml_el, \
-                                        _add_value_to_dict_bf, \
-                                        _coerce_literal_val_to_primitive, \
-                                        _cull_redundant_about, \
-                                        _get_index_list_of_values, \
-                                        _index_list_of_values, \
-                                        _is_badgerfish_version, \
-                                        _LITERAL_META_PAT, \
-                                        _RESOURCE_META_PAT
+"""Nexml2Nexson class"""
+from peyotl.nexson_syntax.helper import (NexsonConverter,
+                                         get_nexml_el,
+                                         _add_value_to_dict_bf,
+                                         _coerce_literal_val_to_primitive,
+                                         _cull_redundant_about,
+                                         _get_index_list_of_values,
+                                         _index_list_of_values,
+                                         _is_badgerfish_version,
+                                         _LITERAL_META_PAT,
+                                         _RESOURCE_META_PAT)
 
 from peyotl.utility import get_logger, is_str_type
 import xml.dom.minidom
+
 _LOG = get_logger(__name__)
+
 
 class ATT_TRANSFORM_CODE(object):
     PREVENT_TRANSFORMATION, IN_FULL_OBJECT, HANDLED, CULL, IN_XMLNS_OBJ = range(5)
+
+
 _SUBELEMENTS_OF_LITERAL_META_AS_ATT = frozenset(['content', 'datatype', 'property', 'xsi:type', 'id'])
 _HANDLED_SUBELEMENTS_OF_LITERAL_META_AS_ATT = frozenset(['content', 'datatype', 'property', 'xsi:type'])
+
+
 def _literal_meta_att_decision_fn(name):
     if name in _HANDLED_SUBELEMENTS_OF_LITERAL_META_AS_ATT:
         return ATT_TRANSFORM_CODE.HANDLED, None
@@ -29,9 +35,12 @@ def _literal_meta_att_decision_fn(name):
             return ATT_TRANSFORM_CODE.IN_XMLNS_OBJ, '$'
     return ATT_TRANSFORM_CODE.IN_FULL_OBJECT, '@' + name
 
+
 _SUBELEMENTS_OF_RESOURCE_META_AS_ATT = frozenset(['href', 'xsi:type', 'rel', 'id'])
 _HANDLED_SUBELEMENTS_OF_RESOURCE_META_AS_ATT = frozenset(['xsi:type', 'rel'])
 _OBJ_PROP_SUBELEMENTS_OF_RESOURCE_META_AS_ATT = frozenset(['href', 'id'])
+
+
 def _resource_meta_att_decision_fn(name):
     if name in _HANDLED_SUBELEMENTS_OF_RESOURCE_META_AS_ATT:
         return ATT_TRANSFORM_CODE.HANDLED, None
@@ -42,14 +51,15 @@ def _resource_meta_att_decision_fn(name):
             return ATT_TRANSFORM_CODE.IN_XMLNS_OBJ, '$'
     return ATT_TRANSFORM_CODE.IN_FULL_OBJECT, '@' + name
 
+
 def _extract_text_and_child_element_list(minidom_node):
-    '''Returns a pair of the "child" content of minidom_node:
+    """Returns a pair of the "child" content of minidom_node:
         the first element of the pair is a concatenation of the text content
         the second element is a list of non-text nodes.
 
     The string concatenation strips leading and trailing whitespace from each
     bit of text found and joins the fragments (with no separator between them).
-    '''
+    """
     tl = []
     ntl = []
     for c in minidom_node.childNodes:
@@ -64,11 +74,13 @@ def _extract_text_and_child_element_list(minidom_node):
         text_content = ''
     return text_content, ntl
 
+
 class Nexml2Nexson(NexsonConverter):
-    '''Conversion of the optimized (v 1.2) version of NexSON to
+    """Conversion of the optimized (v 1.2) version of NexSON to
     the more direct (v 1.0) port of NeXML
     This is a dict-to-minidom-doc conversion. No serialization is included.
-    '''
+    """
+
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
         self.output_format = conv_cfg.output_format
@@ -95,7 +107,7 @@ class Nexml2Nexson(NexsonConverter):
                     nr = node.get('@root')
                     if nr is None:
                         continue
-                    if nr == True:
+                    if isinstance(nr, bool) and nr:
                         root_node_flagged = True
                         break
                     if is_str_type(nr) and nr.lower() == 'True':
@@ -113,7 +125,7 @@ class Nexml2Nexson(NexsonConverter):
         return o
 
     def _gen_hbf_el(self, x):
-        '''
+        """
         Builds a dictionary from the DOM element x
         The function
         Uses as hacky splitting of attribute or tag names using {}
@@ -121,7 +133,7 @@ class Nexml2Nexson(NexsonConverter):
         returns a pair of: the tag of `x` and the honeybadgerfish
             representation of the subelements of x
         Indirect recursion through _hbf_handle_child_elements
-        '''
+        """
         obj = {}
         # grab the tag of x
         el_name = x.nodeName
@@ -138,7 +150,7 @@ class Nexml2Nexson(NexsonConverter):
                     if n == 'xmlns':
                         t = '$'
                     elif n.startswith('xmlns:'):
-                        t = n[6:] # strip off the xmlns:
+                        t = n[6:]  # strip off the xmlns:
                 if t is None:
                     obj['@' + n] = attr.value
                 else:
@@ -155,9 +167,9 @@ class Nexml2Nexson(NexsonConverter):
         return el_name, obj
 
     def _hbf_handle_child_elements(self, obj, ntl):
-        '''
+        """
         Indirect recursion through _gen_hbf_el
-        '''
+        """
         # accumulate a list of the children names in ko, and
         #   the a dictionary of tag to xml elements.
         # repetition of a tag means that it will map to a list of
@@ -266,14 +278,14 @@ class Nexml2Nexson(NexsonConverter):
         return rel, full_obj
 
     def _transform_meta_key_value(self, minidom_meta_element):
-        '''Checks if the minidom_meta_element can be represented as a
+        """Checks if the minidom_meta_element can be represented as a
             key/value pair in a object.
 
         Returns (key, value) ready for JSON serialization, OR
                 `None, None` if the element can not be treated as simple pair.
         If `None` is returned, then more literal translation of the
             object may be required.
-        '''
+        """
         xt = minidom_meta_element.getAttribute('xsi:type')
         if _LITERAL_META_PAT.match(xt):
             return self._literal_transform_meta_key_value(minidom_meta_element)
@@ -282,4 +294,3 @@ class Nexml2Nexson(NexsonConverter):
         else:
             _LOG.debug('xsi:type attribute "%s" not LiteralMeta or ResourceMeta', xt)
             return None, None
-

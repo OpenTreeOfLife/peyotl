@@ -7,8 +7,7 @@ from peyotl.collections_store import get_empty_collection
 from peyotl.test.support import raise_http_error_with_more_detail
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.utility import get_logger
-from peyotl.utility.str_util import slugify, \
-    increment_slug
+from peyotl.utility.str_util import slugify, increment_slug
 from requests.exceptions import HTTPError
 
 _LOG = get_logger(__name__)

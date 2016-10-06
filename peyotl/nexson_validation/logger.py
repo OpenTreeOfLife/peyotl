@@ -1,14 +1,16 @@
 #!/usr/bin/env python
-'''Classes for recording warnings and errors
-'''
+"""Classes for recording warnings and errors
+"""
 from peyotl.nexson_syntax.helper import _add_value_to_dict_bf
 from peyotl.nexson_validation.helper import SeverityCodes, VERSION
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from peyotl.utility import get_logger
 from functools import cmp_to_key
+
 _LOG = get_logger(__name__)
 import platform
 import sys
+
 
 def _err_warn_summary(w):
     d = {}
@@ -20,7 +22,8 @@ def _err_warn_summary(w):
         _add_value_to_dict_bf(d, key, r)
     return d
 
-def _create_message_list(key, w, severity): #pylint: disable=W0613
+
+def _create_message_list(key, w, severity):  # pylint: disable=W0613
     d = []
     for el in w:
         msg_adapt_inst = el[0]
@@ -29,14 +32,18 @@ def _create_message_list(key, w, severity): #pylint: disable=W0613
         d.append(r)
     return d
 
+
 _LIST_0 = [0]
 _LIST_1 = [0]
+
+
 def _msg_data_cmp(x, y):
     xl = x.get('data', _LIST_0)
     yl = y.get('data', _LIST_1)
     if xl == yl:
         return 0
     return -1 if xl < yl else 1
+
 
 def _msg_cmp(x, y):
     xr = x.get('refersTo')
@@ -50,7 +57,7 @@ def _msg_cmp(x, y):
         return -1
     xri = xr.get('@idref')
     yri = yr.get('@idref')
-    #_LOG.debug('xri = "{x}" yri = "{y}"'.format(x=xri, y=yri))
+    # _LOG.debug('xri = "{x}" yri = "{y}"'.format(x=xri, y=yri))
     if xri is None:
         if yri is None:
             xrk = list(xr.keys())
@@ -73,7 +80,9 @@ def _msg_cmp(x, y):
         return _msg_data_cmp(x, y)
     return -1 if xri < yri else 1
 
+
 _msg_key_func = cmp_to_key(_msg_cmp)
+
 
 class DefaultRichLogger(object):
     def __init__(self, store_messages=False):
@@ -86,17 +95,22 @@ class DefaultRichLogger(object):
         self.prefix = ''
         self.retain_deprecated = False
         self.codes_to_skip = set()
+
     def has_error(self):
         return bool(self._err_by_type)
+
     @property
     def errors(self):
         return self._err_by_type.values()
+
     @property
     def warnings(self):
         return self._warn_by_type.values()
+
     def is_logging_type(self, t):
-        #pylint: disable=W0613,R0201
+        # pylint: disable=W0613,R0201
         return True
+
     def register_new_messages(self, err_tup, severity):
         c = err_tup[0].code
         pyid = err_tup[1]
@@ -146,20 +160,19 @@ class DefaultRichLogger(object):
         em_list.extend(wm_list)
         return em_list
 
-
     def prepare_annotation(self,
                            author_name='',
                            invocation=tuple(),
                            author_version=VERSION,
                            url='https://github.com/OpenTreeOfLife/peyotl',
                            description=None,
-                           annotation_label=None #@TEMP arg for backward compat.
-                          ):
+                           annotation_label=None  # @TEMP arg for backward compat.
+                           ):
         if description is None:
-            description = "validator of NexSON constraints as well as constraints "\
-                          "that would allow a study to be imported into the Open Tree "\
+            description = "validator of NexSON constraints as well as constraints " \
+                          "that would allow a study to be imported into the Open Tree " \
                           "of Life's phylogenetic synthesis tools"
-        #@TEMP. the args are in flux between the branches of api.opentreeoflife.org.
+        # @TEMP. the args are in flux between the branches of api.opentreeoflife.org.
         #    which is bad. Hopefully we don't need annotation_label and
         #   can get rid of it.
         if annotation_label is not None:
@@ -178,20 +191,20 @@ class DefaultRichLogger(object):
             '@id': aevent_id,
             '@description': description,
             '@wasAssociatedWithAgentId': agent_id,
-            #'@dateCreated': datetime.datetime.utcnow().isoformat(),
+            # '@dateCreated': datetime.datetime.utcnow().isoformat(),
             '@passedChecks': not self.has_error(),
             '@preserve': False,
             'message': ml
         }
         invocation_obj = {
             'commandLine': [i for i in invocation if i.startswith('--')],
-            #'checksPerformed': checks_performed,
+            # 'checksPerformed': checks_performed,
             'otherProperty': [
                 {'name': 'pythonVersion',
                  'value': platform.python_version()},
                 {'name': 'pythonImplementation',
                  'value': platform.python_implementation(),
-                },
+                 },
             ]
         }
         agent = {
@@ -209,6 +222,7 @@ class ValidationLogger(DefaultRichLogger):
     def __init__(self, store_messages=False):
         DefaultRichLogger.__init__(self, store_messages=store_messages)
 
+
 class FilteringLogger(ValidationLogger):
     def __init__(self, codes_to_register=None, codes_to_skip=None, store_messages=False):
         ValidationLogger.__init__(self, store_messages=store_messages)
@@ -225,6 +239,6 @@ class FilteringLogger(ValidationLogger):
             for el in codes_to_skip:
                 self.codes_to_skip.add(el)
                 self.registered.remove(el)
+
     def is_logging_type(self, t):
         return (t not in self.codes_to_skip) and (t in self.registered)
-

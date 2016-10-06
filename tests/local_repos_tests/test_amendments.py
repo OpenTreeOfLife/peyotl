@@ -37,7 +37,7 @@ class TestTaxonomicAmendments(unittest.TestCase):
         expected = ['additions-5000000-5000003']  # TODO: add more docs, to test sorting?
         self.assertEqual(k, expected)
 
-    ## Is there a safer way to test ottid-minting, without making "counterfeit" ids?
+    # Is there a safer way to test ottid-minting, without making "counterfeit" ids?
     # def testNextOTTId(self):
     #     c = _TaxonomicAmendmentStore(repos_dict=self.r)
     #     mf = c._growing_shard._id_minting_file

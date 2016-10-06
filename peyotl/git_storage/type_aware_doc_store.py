@@ -2,23 +2,29 @@
 like PhylesystemProxy by introducing more business rules and differences between document types
 in the store (eg, Nexson studies in Phylesystem, tree collections in TreeCollectionStore)."""
 import os
+
 try:
     # noinspection PyCompatibility
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
 import json
+
 try:
     import anyjson
 except:
     class Wrapper(object):
         pass
+
+
     anyjson = Wrapper()
     anyjson.loads = json.loads
 from peyotl.git_storage import ShardedDocStore
 from peyotl.git_storage.git_shard import FailedShardCreationError
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
 
 class TypeAwareDocStore(ShardedDocStore):
     def __init__(self,
@@ -29,13 +35,13 @@ class TypeAwareDocStore(ShardedDocStore):
                  assumed_doc_version=None,
                  git_ssh=None,
                  pkey=None,
-                 git_action_class=None, # requires a *type-specific* GitActionBase subclass
-                 git_shard_class=None, # requires a *type-specific* GitShard subclass
+                 git_action_class=None,  # requires a *type-specific* GitActionBase subclass
+                 git_shard_class=None,  # requires a *type-specific* GitShard subclass
                  mirror_info=None,
                  new_doc_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
-        '''
+        """
         Repos can be found by passing in a `repos_par` (a directory that is the parent of the repos)
             or by trusting the `repos_dict` mapping of name to repo filepath.
         `prefix_from_doc_id` should be a type-specific method defined in the subclass
@@ -51,9 +57,8 @@ class TypeAwareDocStore(ShardedDocStore):
             'parent_dir' - the parent directory of the mirrored repos
             'remote_map' - a dictionary of remote name to prefix (the repo name + '.git' will be
                 appended to create the URL for pushing).
-        '''
-        from peyotl.phylesystem.helper import get_repos, \
-                                              _get_phylesystem_parent_with_source
+        """
+        from peyotl.phylesystem.helper import get_repos, _get_phylesystem_parent_with_source
         ShardedDocStore.__init__(self,
                                  prefix_from_doc_id=prefix_from_doc_id)
         self.assumed_doc_version = assumed_doc_version
@@ -126,7 +131,7 @@ class TypeAwareDocStore(ShardedDocStore):
                     GitActionBase.add_remote(expected_push_mirror_repo_path, remote_name, remote_url)
                 shard.push_mirror_repo_path = expected_push_mirror_repo_path
                 for remote_name in push_mirror_remote_map.keys():
-                    mga = shard._create_git_action_for_mirror() #pylint: disable=W0212
+                    mga = shard._create_git_action_for_mirror()  # pylint: disable=W0212
                     mga.fetch(remote_name)
             shards.append(shard)
 
@@ -134,7 +139,7 @@ class TypeAwareDocStore(ShardedDocStore):
         if len(shards) < 1:
             self._growing_shard = None
         else:
-            self._growing_shard = shards[-1] # generalize with config...
+            self._growing_shard = shards[-1]  # generalize with config...
         self._prefix2shard = {}
         for shard in shards:
             for prefix in shard.known_prefixes:
@@ -148,9 +153,10 @@ class TypeAwareDocStore(ShardedDocStore):
             if self._growing_shard:
                 self.assumed_doc_version = self._growing_shard.assumed_doc_version
         self.git_action_class = git_action_class
+
     def _locked_refresh_doc_ids(self):
-        '''Assumes that the caller has the _index_lock !
-        '''
+        """Assumes that the caller has the _index_lock !
+        """
         d = {}
         for s in self._shards:
             for k in s.doc_index.keys():
@@ -181,7 +187,7 @@ class TypeAwareDocStore(ShardedDocStore):
                    return_WIP_map=False):
         ga = self.create_git_action(doc_id)
         with ga.lock():
-            #_LOG.debug('pylesystem.return_doc({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
+            # _LOG.debug('pylesystem.return_doc({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
 
             blob = ga.return_document(doc_id,
                                       branch=branch,
@@ -206,15 +212,15 @@ class TypeAwareDocStore(ShardedDocStore):
         return ga.get_version_history_for_file(docpath)
 
     def push_doc_to_remote(self, remote_name, doc_id=None):
-        '''This will push the master branch to the remote named `remote_name`
+        """This will push the master branch to the remote named `remote_name`
         using the mirroring strategy to cut down on locking of the working repo.
 
         `doc_id` is used to determine which shard should be pushed.
         if `doc_id` is None, all shards are pushed.
-        '''
+        """
         if doc_id is None:
             ret = True
-            #@TODO should spawn a thread of each shard...
+            # @TODO should spawn a thread of each shard...
             for shard in self._shards:
                 if not shard.push_to_remote(remote_name):
                     ret = False
@@ -241,7 +247,8 @@ class TypeAwareDocStore(ShardedDocStore):
         if not resp['merge_needed']:
             self._doc_merged_hook(git_action, doc_id)
         return resp
-    def annotate_and_write(self, #pylint: disable=R0201
+
+    def annotate_and_write(self,  # pylint: disable=R0201
                            git_data,
                            nexson,
                            doc_id,
@@ -251,7 +258,7 @@ class TypeAwareDocStore(ShardedDocStore):
                            parent_sha,
                            commit_msg='',
                            master_file_blob_included=None):
-        '''
+        """
         This is the heart of the api's __finish_write_verb
         It was moved to phylesystem to make it easier to coordinate it
             with the caching decisions. We have been debating whether
@@ -260,7 +267,7 @@ class TypeAwareDocStore(ShardedDocStore):
             add_validation_annotation (above), it is easier to have
             that decision and the add_or_replace_annotation call in the
             same repo.
-        '''
+        """
         adaptor.add_or_replace_annotation(nexson,
                                           annotation['annotationEvent'],
                                           annotation['agent'],
@@ -271,6 +278,7 @@ class TypeAwareDocStore(ShardedDocStore):
                                                 parent_sha=parent_sha,
                                                 commit_msg=commit_msg,
                                                 merged_sha=master_file_blob_included)
+
     def delete_doc(self, doc_id, auth_info, parent_sha, **kwargs):
         git_action = self.create_git_action(doc_id)
         from peyotl.git_storage.git_workflow import delete_document
@@ -301,38 +309,43 @@ class TypeAwareDocStore(ShardedDocStore):
                         except KeyError:
                             pass
         return ret
+
     def iter_doc_objs(self, **kwargs):
-        '''Generator that iterates over all detected documents (eg, nexson studies)
+        """Generator that iterates over all detected documents (eg, nexson studies)
         and returns the doc object (deserialized from JSON) for each doc.
         Order is by shard, but arbitrary within shards.
         @TEMP not locked to prevent doc creation/deletion
-        '''
+        """
         for shard in self._shards:
             for doc_id, blob in shard.iter_doc_objs(**kwargs):
                 yield doc_id, blob
+
     def iter_doc_filepaths(self, **kwargs):
-        '''Generator that iterates over all detected documents.
+        """Generator that iterates over all detected documents.
         and returns the filesystem path to each doc.
         Order is by shard, but arbitrary within shards.
         @TEMP not locked to prevent doc creation/deletion
-        '''
+        """
         for shard in self._shards:
             for doc_id, blob in shard.iter_doc_filepaths(**kwargs):
                 yield doc_id, blob
+
     def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:
             for shard in self._shards:
                 shard.pull(remote=remote, branch_name=branch_name)
             self._locked_refresh_doc_ids()
+
     def report_configuration(self):
         out = StringIO()
         self.write_configuration(out)
         return out.getvalue()
+
     def write_configuration(self, out, secret_attrs=False):
         """Generic configuration, may be overridden by type-specific version"""
         key_order = ['assumed_doc_version',
                      'number_of_shards',
-                     'initialization',]
+                     'initialization', ]
         cd = self.get_configuration_dict(secret_attrs=secret_attrs)
         for k in key_order:
             if k in cd:
@@ -340,21 +353,24 @@ class TypeAwareDocStore(ShardedDocStore):
         for n, shard in enumerate(self._shards):
             out.write('Shard {}:\n'.format(n))
             shard.write_configuration(out)
+
     def get_configuration_dict(self, secret_attrs=False):
         """Generic configuration, may be overridden by type-specific version"""
         cd = {'assumed_doc_version': self.assumed_doc_version,
               'number_of_shards': len(self._shards),
               'initialization': self._filepath_args,
               'shards': [],
-             }
+              }
         for i in self._shards:
             cd['shards'].append(i.get_configuration_dict(secret_attrs=secret_attrs))
         return cd
+
     def get_branch_list(self):
         a = []
         for i in self._shards:
             a.extend(i.get_branch_list())
         return a
+
     def get_changed_docs(self, ancestral_commit_sha, doc_ids_to_check=None):
         ret = None
         for i in self._shards:
@@ -365,9 +381,9 @@ class TypeAwareDocStore(ShardedDocStore):
         if ret is not None:
             return ret
         raise ValueError('No docstore shard returned changed documents for the SHA')
+
     def get_doc_ids(self, include_aliases=False):
         k = []
         for shard in self._shards:
             k.extend(shard.get_doc_ids(include_aliases=include_aliases))
         return k
-

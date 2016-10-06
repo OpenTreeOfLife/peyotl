@@ -6,13 +6,17 @@ from peyotl.git_storage import GitActionBase
 # extract a collection id from a git repo path (as returned by git-tree)
 
 _LOG = get_logger(__name__)
+
+
 class MergeException(Exception):
     pass
+
 
 def get_filepath_for_id(repo_dir, collection_id):
     from peyotl.collections_store import COLLECTION_ID_PATTERN
     assert bool(COLLECTION_ID_PATTERN.match(collection_id))
     return '{r}/collections-by-owner/{s}.json'.format(r=repo_dir, s=collection_id)
+
 
 def collection_id_from_repo_path(path):
     doc_parent_dir = 'collections-by-owner/'
@@ -23,13 +27,14 @@ def collection_id_from_repo_path(path):
         except:
             return None
 
+
 class TreeCollectionsGitAction(GitActionBase):
     def __init__(self,
                  repo,
                  remote=None,
                  git_ssh=None,
                  pkey=None,
-                 cache=None, #pylint: disable=W0613
+                 cache=None,  # pylint: disable=W0613
                  path_for_doc_fn=None,
                  max_file_size=None):
         """GitActionBase subclass to interact with a Git repository
@@ -57,6 +62,7 @@ class TreeCollectionsGitAction(GitActionBase):
     @property
     def path_for_collection(self):
         return self.path_for_doc
+
     @property
     def return_collection(self):
         return self.return_document
@@ -123,4 +129,3 @@ class TreeCollectionsGitAction(GitActionBase):
                                            auth_info,
                                            commit_msg,
                                            doctype_display_name="collection")
-

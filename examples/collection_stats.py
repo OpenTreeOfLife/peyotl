@@ -15,6 +15,7 @@ if __name__ == '__main__':
     import codecs
     import sys
     import os
+
     description = 'Takes an collection JSON and prints out information from it'
     parser = argparse.ArgumentParser(prog='collection_stats.py', description=description)
     parser.add_argument('collection',
@@ -50,7 +51,7 @@ if __name__ == '__main__':
         nx = phy.get_study(studyid)['data']
         np = NexsonProxy(nexson=nx)
         candidateTreeList = np._nexml_el['^ot:candidateTreeForSynthesis']
-        if not treeid in candidateTreeList:
+        if treeid not in candidateTreeList:
             preferredTree = False
             check = False
         tree = np.get_tree(treeid)
@@ -63,9 +64,9 @@ if __name__ == '__main__':
 
         if not check:
             print("{s},{t},{p},{i},{r}").format(
-                s = studyid,
-                t = treeid,
-                p = preferredTree,
-                i = ingroupSpecified,
-                r = unrootedTree
-                )
+                s=studyid,
+                t=treeid,
+                p=preferredTree,
+                i=ingroupSpecified,
+                r=unrootedTree
+            )

@@ -4,15 +4,16 @@ import json
 import codecs
 from threading import Lock
 from peyotl.utility import get_config_setting
-from peyotl.git_storage.git_shard import GitShard, \
-                                         TypeAwareGitShard, \
-                                         FailedShardCreationError, \
-                                         _invert_dict_list_val
+from peyotl.git_storage.git_shard import (GitShard,
+                                          TypeAwareGitShard,
+                                          FailedShardCreationError,
+                                          _invert_dict_list_val)
 
-#_LOG = get_logger(__name__)
-#class PhylesystemShardBase(object):
+# _LOG = get_logger(__name__)
+# class PhylesystemShardBase(object):
 
 doc_holder_subpath = 'study'
+
 
 def _get_filtered_study_ids(shard, include_aliases=False):
     """Optionally filters out aliases from standard doc-id list"""
@@ -27,9 +28,11 @@ def _get_filtered_study_ids(shard, include_aliases=False):
                 x.append(i)
         return x
 
+
 class PhylesystemShardProxy(GitShard):
-    '''Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
-    '''
+    """Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
+    """
+
     def __init__(self, config):
         GitShard.__init__(self, config['name'])
         self.repo_nexml2json = config['repo_nexml2json']
@@ -46,6 +49,7 @@ class PhylesystemShardProxy(GitShard):
     @property
     def repo_nexml2json(self):
         return self.assumed_doc_version
+
     @repo_nexml2json.setter
     def repo_nexml2json(self, val):
         self.assumed_doc_version = val
@@ -53,6 +57,7 @@ class PhylesystemShardProxy(GitShard):
     @property
     def study_index(self):
         return self.doc_index
+
     @study_index.setter
     def study_index(self, val):
         self._doc_index = val
@@ -60,12 +65,14 @@ class PhylesystemShardProxy(GitShard):
     @property
     def new_study_prefix(self):
         return self.new_doc_prefix
+
     @new_study_prefix.setter
     def new_study_prefix(self, val):
         self.new_doc_prefix = val
 
     def get_study_ids(self, include_aliases=False):
         return _get_filtered_study_ids(self, include_aliases)
+
 
 def diagnose_repo_nexml2json(shard):
     """Optimistic test for Nexson version in a shard (tests first study found)"""
@@ -76,9 +83,10 @@ def diagnose_repo_nexml2json(shard):
         from peyotl.nexson_syntax import detect_nexson_version
         return detect_nexson_version(fj)
 
+
 def refresh_study_index(shard, initializing=False):
     from peyotl.phylesystem.helper import create_id2study_info, \
-                                          diagnose_repo_study_id_convention
+        diagnose_repo_study_id_convention
     d = create_id2study_info(shard.doc_dir, shard.name)
     rc_dict = diagnose_repo_study_id_convention(shard.path)
     shard.filepath_for_doc_id_fn = rc_dict['fp_fn']
@@ -97,10 +105,11 @@ def refresh_study_index(shard, initializing=False):
         shard.has_aliases = False
     shard.study_index = d
 
+
 class PhylesystemShard(TypeAwareGitShard):
-    '''Wrapper around a git repo holding nexson studies.
+    """Wrapper around a git repo holding nexson studies.
     Raises a ValueError if the directory does not appear to be a PhylesystemShard.
-    Raises a RuntimeError for errors associated with misconfiguration.'''
+    Raises a RuntimeError for errors associated with misconfiguration."""
     from peyotl.phylesystem.git_actions import PhylesystemGitAction
     def __init__(self,
                  name,
@@ -141,7 +150,7 @@ class PhylesystemShard(TypeAwareGitShard):
                                                    'letters followed by an underscore')
                 self._new_study_prefix = pre_content
             else:
-                self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
+                self._new_study_prefix = 'ot_'  # ot_ is the default if there is no file
         self._id_minting_file = os.path.join(path, 'next_study_id.json')
         self.filepath_for_global_resource_fn = lambda frag: os.path.join(path, frag)
 
@@ -149,20 +158,25 @@ class PhylesystemShard(TypeAwareGitShard):
     @property
     def next_study_id(self):
         return self._next_study_id
+
     @property
     def iter_study_objs(self):
         return self.iter_doc_objs
+
     @property
     def iter_study_filepaths(self):
         return self.iter_doc_filepaths
+
     @property
     def get_changed_studies(self):
         return self.get_changed_docs
+
     @property
     def known_prefixes(self):
         if self._known_prefixes is None:
             self._known_prefixes = self._diagnose_prefixes()
         return self._known_prefixes
+
     @property
     def new_study_prefix(self):
         return self._new_study_prefix
@@ -170,6 +184,7 @@ class PhylesystemShard(TypeAwareGitShard):
     @property
     def study_index(self):
         return self.doc_index
+
     @study_index.setter
     def study_index(self, val):
         self._doc_index = val
@@ -177,6 +192,7 @@ class PhylesystemShard(TypeAwareGitShard):
     @property
     def repo_nexml2json(self):
         return self.assumed_doc_version
+
     @repo_nexml2json.setter
     def repo_nexml2json(self, val):
         self.assumed_doc_version = val
@@ -198,6 +214,7 @@ class PhylesystemShard(TypeAwareGitShard):
         out.write('  studies in alias groups:\n')
         for o in cd['studies']:
             out.write('    {} ==> {}\n'.format(o['keys'], o['relpath']))
+
     def get_configuration_dict(self, secret_attrs=False):
         """Type-specific configuration for backward compatibility"""
         rd = {'name': self.name,
@@ -225,6 +242,7 @@ class PhylesystemShard(TypeAwareGitShard):
             m.append({'keys': v, 'relpath': rp})
         rd['studies'] = m
         return rd
+
     def _determine_next_study_id(self):
         """Return the numeric part of the newest study_id
 
@@ -258,14 +276,14 @@ class PhylesystemShard(TypeAwareGitShard):
             else:
                 # legacy support for repo with no next_study_id.json file
                 self._next_study_id = n
-                self._advance_new_study_id() # this will trigger the creation of the file
+                self._advance_new_study_id()  # this will trigger the creation of the file
 
     def _advance_new_study_id(self):
-        ''' ASSUMES the caller holds the _doc_counter_lock !
+        """ ASSUMES the caller holds the _doc_counter_lock !
         Returns the current numeric part of the next study ID, advances
         the counter to the next value, and stores that value in the
         file in case the server is restarted.
-        '''
+        """
         c = self._next_study_id
         self._next_study_id = 1 + c
         content = u'{"next_study_id": %d}\n' % self._next_study_id
@@ -278,8 +296,8 @@ class PhylesystemShard(TypeAwareGitShard):
         return c
 
     def _diagnose_prefixes(self):
-        '''Returns a set of all of the prefixes seen in the main document dir
-        '''
+        """Returns a set of all of the prefixes seen in the main document dir
+        """
         from peyotl.phylesystem import STUDY_ID_PATTERN
         p = set()
         for name in os.listdir(self.doc_dir):
@@ -298,21 +316,21 @@ class PhylesystemShard(TypeAwareGitShard):
                                                'letters followed by an underscore')
             self._new_study_prefix = pre_content
         else:
-            self._new_study_prefix = 'ot_' # ot_ is the default if there is no file
+            self._new_study_prefix = 'ot_'  # ot_ is the default if there is no file
 
     def _mint_new_study_id(self):
-        '''Checks out master branch as a side effect'''
+        """Checks out master branch as a side effect"""
         # studies created by the OpenTree API start with ot_,
         # so they don't conflict with new study id's from other sources
         with self._doc_counter_lock:
             c = self._advance_new_study_id()
-        #@TODO. This form of incrementing assumes that
+        # @TODO. This form of incrementing assumes that
         #   this codebase is the only service minting
         #   new study IDs!
         return "{p}{c:d}".format(p=self._new_study_prefix, c=c)
 
     def create_git_action_for_new_study(self, new_study_id=None):
-        '''Checks out master branch as a side effect'''
+        """Checks out master branch as a side effect"""
         ga = self.create_git_action()
         if new_study_id is None:
             new_study_id = self._mint_new_study_id()

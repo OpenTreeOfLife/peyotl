@@ -1,12 +1,15 @@
 #!/usr/bin/env python
-'''CollectionValidationAdaptor class.
-'''
+"""CollectionValidationAdaptor class.
+"""
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
 
 def create_validation_adaptor(obj, errors, **kwargs):
     # just one simple version for now, so one adapter class
     return CollectionValidationAdaptor(obj, errors, **kwargs)
+
 
 # TODO: Define a simple adapter based on
 # nexson_validation._badgerfish_validation.BadgerFishValidationAdapter.
@@ -35,7 +38,7 @@ class CollectionValidationAdaptor(object):
             'queries': list,
         }
         # currently all allowed elements are also required
-        #self.optional_toplevel_elements = {}
+        # self.optional_toplevel_elements = {}
         # track unknown keys in top-level object
         uk = None
         for k in obj.keys():

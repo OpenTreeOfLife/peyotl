@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-'''To save memory, error/warning data is stored as a tuple:
+"""To save memory, error/warning data is stored as a tuple:
     element 0: MessageTupleAdaptor instance (immutable, shared across all errors/
                     warnings of the same type)
     element 1: python memory address for the object or object reference
     element 2: rich object address (immutable and shared by all instances
                     of warnings for the same object)
     element 3: the "data" argument for the warning. must be hashable.
-'''
+"""
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from peyotl.utility import get_logger
+
 try:
     # noinspection PyCompatibility
     from cStringIO import StringIO
@@ -16,65 +17,80 @@ except ImportError:
     from io import StringIO
 import codecs
 import json
+
 # monkey patching of NexsonWarningCodes causes lots of warnings
-#pylint: disable=E1101
+# pylint: disable=E1101
 _LOG = get_logger(__name__)
 
+
 class MessageTupleAdaptor(object):
-    '''This base class provides the basic functionality of keeping
+    """This base class provides the basic functionality of keeping
     track of the "address" of the element that triggered the warning,
     the severity code, and methods for writing to free text stream or JSON.
-    '''
+    """
+
     def write(self, err_tuple, s, prefix):
         raise NotImplementedError('MessageTupleAdaptor.write')
+
     def __init__(self):
         self.code = None
+
     def __unicode__(self, err_tuple, prefix=''):
         b = StringIO()
         ci = codecs.lookup('utf8')
         s = codecs.StreamReaderWriter(b, ci.streamreader, ci.streamwriter)
         self.write(err_tuple, s, prefix)
         return s.getvalue()
+
     def getvalue(self, err_tuple, prefix=''):
         return self.__unicode__(err_tuple, prefix=prefix)
+
     def as_dict(self, err_tuple):
         addr = err_tuple[2]
         assert self.code is not None
-        return {'@code': NexsonWarningCodes.facets[self.code], #pylint: disable=E1126
-                #'comment': self.__unicode__(err_tuple),
+        return {'@code': NexsonWarningCodes.facets[self.code],  # pylint: disable=E1126
+                # 'comment': self.__unicode__(err_tuple),
                 'data': self.convert_data_for_json(err_tuple),
                 'refersTo': addr.path
-               }
-    def convert_data_for_json(self, err_tuple): #pylint: disable=R0201
+                }
+
+    def convert_data_for_json(self, err_tuple):  # pylint: disable=R0201
         return err_tuple[3]
-    def _write_message_suffix(self, err_tuple, out): #pylint: disable=R0201
+
+    def _write_message_suffix(self, err_tuple, out):  # pylint: disable=R0201
         addr = err_tuple[2]
         addr.write_path_suffix_str(out)
 
 
 # noinspection PyMissingConstructor
 class _StrListDataWarningType(MessageTupleAdaptor):
-    '''Adaptor for warning with data being a list of strings
-    '''
+    """Adaptor for warning with data being a list of strings
+    """
+
     def __init__(self):
         self.code = None
         self.format = '{p}'
+
     def write(self, err_tuple, outstream, prefix):
         data = err_tuple[3]
         ds = '", "'.join(data)
         outstream.write(self.format.format(p=prefix, d=ds))
         self._write_message_suffix(err_tuple, outstream)
 
+
 class _ArgumentlessWarningType(MessageTupleAdaptor):
-    '''Adaptor for warning with no data
-    '''
+    """Adaptor for warning with no data
+    """
+
     def write(self, err_tuple, outstream, prefix):
         outstream.write(self.format.format(p=prefix))
         self._write_message_suffix(err_tuple, outstream)
 
+
 class _StrArgumentWarningType(MessageTupleAdaptor):
-    '''Adaptor for warning with data being a string
-    '''
+    """Adaptor for warning with data being a string
+    """
+
     def write(self, err_tuple, outstream, prefix):
         ds = err_tuple[3]
         outstream.write(self.format.format(p=prefix, d=ds))
@@ -164,6 +180,7 @@ class RepeatedIDWarningType(_StrListDataWarningType):
         self.code = NexsonWarningCodes.REPEATED_ID
         self.format = '{p}Object identifier(s) repeated: "{d}"'
 
+
 class _ObjListDataWarningType(_StrListDataWarningType):
     def convert_data_for_json(self, err_tuple):
         return [json.loads(i) for i in err_tuple[3]]
@@ -189,27 +206,33 @@ class InvalidKeyWarningType(_StrListDataWarningType):
         self.code = NexsonWarningCodes.INVALID_PROPERTY_VALUE
         self.format = '{p}Invalid or inappropriate key: "{d}"'
 
-#pylint: disable=R0921
-class WrongValueTypeWarningType(MessageTupleAdaptor): #pylint: disable=W0613
+
+# pylint: disable=R0921
+class WrongValueTypeWarningType(MessageTupleAdaptor):  # pylint: disable=W0613
     def write(self, err_tuple, outstream, prefix):
         raise NotImplementedError('WrongValueTypeWarningType.write')
+
     def convert_data_for_json(self, err_tuple):
         rl = []
         for k, v, et in err_tuple[3]:
-            rl.append({'key':k, 'type':v, 'expected':et})
+            rl.append({'key': k, 'type': v, 'expected': et})
         return rl
+
     def __init__(self):
         MessageTupleAdaptor.__init__(self)
         self.code = NexsonWarningCodes.INCORRECT_VALUE_TYPE
         self.format = '{p}value for key not the expected type: "{d}"'
 
-class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor): #pylint: disable=R0921, W0613
+
+class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor):  # pylint: disable=R0921, W0613
     def __init__(self):
         MessageTupleAdaptor.__init__(self)
         self.code = NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID
         self.format = '{p}Multiple otus mapping to the same OTT ID used in the same tree: "{d}"'
+
     def write(self, err_tuple, outstream, prefix):
         raise NotImplementedError('MultipleTipsToSameOttIdWarningType.write')
+
     def convert_data_for_json(self, err_tuple):
         return [i for i in err_tuple[3]]
 
@@ -219,6 +242,7 @@ class MaxSizeExceededWarningType(_StrArgumentWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MAX_SIZE_EXCEEDED
         self.format = '{p}Maximum size exceeded: {d}'
+
 
 # A single, immutable, global instance of each warning type is created
 
@@ -241,23 +265,30 @@ UnrecognizedKeyWarning = UnrecognizedKeyWarningType()
 WrongValueTypeWarning = WrongValueTypeWarningType()
 MaxSizeExceededWarning = MaxSizeExceededWarningType()
 
+
 def gen_InvalidKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(InvalidKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
 
 def gen_MissingCrucialContentWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingCrucialContentWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+
 def gen_MissingExpectedListWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingExpectedListWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
 
 def gen_MissingMandatoryKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingMandatoryKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+
 def gen_MissingOptionalKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MissingOptionalKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+
 def gen_MultipleRootsWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(MultipleRootsWarning, kwargs['node_id_list'], addr, pyid, logger, severity)
+
 
 def gen_MultipleTipsToSameOttIdWarning(addr, pyid, logger, severity, **kwargs):
     k_list = kwargs['otu_sets']
@@ -266,40 +297,52 @@ def gen_MultipleTipsToSameOttIdWarning(addr, pyid, logger, severity, **kwargs):
     t = (MultipleTipsToSameOttIdWarning, pyid, addr, k_list)
     logger.register_new_messages(t, severity=severity)
 
+
 def gen_NodeWithMultipleParents(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(NodeWithMultipleParents, kwargs['node_id_list'], addr, pyid, logger, severity)
+
 
 def gen_TreeCycleWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(TreeCycleWarning, kwargs['node_id_list'], addr, pyid, logger, severity)
 
-def gen_NoRootWarning(addr, pyid, logger, severity, **kwargs): #pylint: disable=W0613
+
+def gen_NoRootWarning(addr, pyid, logger, severity, **kwargs):  # pylint: disable=W0613
     _argumentless_warning(NoRootWarning, addr, pyid, logger, severity)
+
 
 def gen_ReferencedIDNotFoundWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(ReferencedIDNotFoundWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+
 def gen_RepeatedIDWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(RepeatedIDWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
 
 def gen_RepeatedOTUWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(RepeatedOTUWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+
 def gen_UnparseableMetaWarning(addr, pyid, logger, severity, **kwargs):
     _obj_list_warning(UnparseableMetaWarning, kwargs['obj_list'], addr, pyid, logger, severity)
+
 
 def gen_UnreachableNodeWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(UnreachableNodeWarning, kwargs['key_list'], addr, pyid, logger, severity)
 
+
 def gen_UnrecognizedKeyWarning(addr, pyid, logger, severity, **kwargs):
     _key_list_warning(UnrecognizedKeyWarning, kwargs['key_list'], addr, pyid, logger, severity)
+
 
 def gen_WrongValueTypeWarning(addr, pyid, logger, severity, **kwargs):
     key_val_type_list = tuple([(k, type(v).__name__, t) for k, v, t in kwargs['key_val_type_list']])
     t = (WrongValueTypeWarning, pyid, addr, key_val_type_list)
     logger.register_new_messages(t, severity=severity)
 
+
 def gen_MaxSizeExceededWarning(addr, pyid, logger, severity, **kwargs):
     _str_argument_warning(MaxSizeExceededWarning, addr, pyid, logger, severity, kwargs['message'])
+
 
 # factory functions that call register_new_messages
 def _obj_list_warning(wt, k_list, addr, pyid, logger, severity):
@@ -307,16 +350,19 @@ def _obj_list_warning(wt, k_list, addr, pyid, logger, severity):
     t = (wt, pyid, addr, k_list)
     logger.register_new_messages(t, severity=severity)
 
+
 def _key_list_warning(wt, k_list, addr, pyid, logger, severity):
     k_list.sort()
     k_list = tuple(k_list)
     t = (wt, pyid, addr, k_list)
-    #_LOG.debug("t=" + str(t))
+    # _LOG.debug("t=" + str(t))
     logger.register_new_messages(t, severity=severity)
+
 
 def _argumentless_warning(wt, addr, pyid, logger, severity):
     t = (wt, pyid, addr, None)
     logger.register_new_messages(t, severity=severity)
+
 
 def _str_argument_warning(wt, addr, pyid, logger, severity, message):
     t = (wt, pyid, addr, message)
@@ -341,4 +387,4 @@ factory2code = {gen_MultipleTipsToSameOttIdWarning: NexsonWarningCodes.MULTIPLE_
                 gen_MultipleRootsWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
                 gen_InvalidKeyWarning: NexsonWarningCodes.INVALID_PROPERTY_VALUE,
                 gen_MaxSizeExceededWarning: NexsonWarningCodes.MAX_SIZE_EXCEEDED,
-               }
+                }

@@ -28,7 +28,7 @@ lf = os.path.join(git_dir, "API_WRITE_LOCK")
 with locket.lock_file(lf, timeout=10):
     print('Lock acquired. Use Control-D to release')
     try:
-      x = sys.stdin.read()
+        x = sys.stdin.read()
     finally:
         print('Lock released')
     sys.exit(0)

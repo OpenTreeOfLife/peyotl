@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax import create_content_spec, \
-                                 get_ot_study_info_from_nexml, \
-                                 PhyloSchema
+from peyotl.nexson_syntax import create_content_spec, get_ot_study_info_from_nexml, PhyloSchema
+
 
 def _main():
-    import sys, codecs, json
+    import sys
+    import codecs
+    import json
     import argparse
     _HELP_MESSAGE = '''NexSON (or NeXML) to newick converter'''
     _EPILOG = '''UTF-8 encoding is used (for input and output).
@@ -15,7 +16,7 @@ Environmental variables used:
 '''
     tip_label_list = PhyloSchema._otu_label_list
     for tl in tip_label_list:
-        assert(tl.startswith('ot:'))
+        assert (tl.startswith('ot:'))
     tip_labels_choices = [i[3:] for i in tip_label_list]
     parser = argparse.ArgumentParser(description=_HELP_MESSAGE,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -65,7 +66,7 @@ Environmental variables used:
             sys.exit('nexson_newick: Could not open output filepath "{fn}"\n'.format(fn=outfn))
     else:
         out = codecs.getwriter('utf-8')(sys.stdout)
-    
+
     if args.xml:
         src_schema = PhyloSchema('nexml')
         blob = get_ot_study_info_from_nexml(inp)
@@ -86,6 +87,7 @@ Environmental variables used:
                 schema.convert(src=blob, serialize=True, output_dest=out, src_schema=src_schema)
             else:
                 raise
+
 
 if __name__ == '__main__':
     _main()

@@ -27,8 +27,10 @@ import contextlib
 from distutils import log
 
 try:
+    # noinspection PyCompatibility
     from urllib.request import urlopen
 except ImportError:
+    # noinspection PyCompatibility
     from urllib2 import urlopen
 
 try:
@@ -38,6 +40,7 @@ except ImportError:
 
 DEFAULT_VERSION = "7.0"
 DEFAULT_URL = "https://pypi.python.org/packages/source/s/setuptools/"
+
 
 def _python_cmd(*args):
     """
@@ -130,7 +133,7 @@ def _do_download(version, download_base, to_dir, download_delay):
 
 
 def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
-        to_dir=os.curdir, download_delay=15):
+                   to_dir=os.curdir, download_delay=15):
     to_dir = os.path.abspath(to_dir)
     rep_modules = 'pkg_resources', 'setuptools'
     imported = set(sys.modules).intersection(rep_modules)
@@ -160,6 +163,7 @@ def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
         del pkg_resources, sys.modules['pkg_resources']
         return _do_download(version, download_base, to_dir, download_delay)
 
+
 def _clean_check(cmd, target):
     """
     Run the command to download target. If the command fails, clean up before
@@ -171,6 +175,7 @@ def _clean_check(cmd, target):
         if os.access(target, os.F_OK):
             os.unlink(target)
         raise
+
 
 def download_file_powershell(url, target):
     """
@@ -191,6 +196,7 @@ def download_file_powershell(url, target):
     ]
     _clean_check(cmd, target)
 
+
 def has_powershell():
     if platform.system() != 'Windows':
         return False
@@ -202,11 +208,14 @@ def has_powershell():
             return False
     return True
 
+
 download_file_powershell.viable = has_powershell
+
 
 def download_file_curl(url, target):
     cmd = ['curl', url, '--silent', '--output', target]
     _clean_check(cmd, target)
+
 
 def has_curl():
     cmd = ['curl', '--version']
@@ -217,11 +226,14 @@ def has_curl():
             return False
     return True
 
+
 download_file_curl.viable = has_curl
+
 
 def download_file_wget(url, target):
     cmd = ['wget', url, '--quiet', '--output-document', target]
     _clean_check(cmd, target)
+
 
 def has_wget():
     cmd = ['wget', '--version']
@@ -232,7 +244,9 @@ def has_wget():
             return False
     return True
 
+
 download_file_wget.viable = has_wget
+
 
 def download_file_insecure(url, target):
     """
@@ -250,7 +264,9 @@ def download_file_insecure(url, target):
     with open(target, "wb") as dst:
         dst.write(data)
 
+
 download_file_insecure.viable = lambda: True
+
 
 def get_best_downloader():
     downloaders = (
@@ -262,8 +278,9 @@ def get_best_downloader():
     viable_downloaders = (dl for dl in downloaders if dl.viable())
     return next(viable_downloaders, None)
 
+
 def download_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
-        to_dir=os.curdir, delay=15, downloader_factory=get_best_downloader):
+                        to_dir=os.curdir, delay=15, downloader_factory=get_best_downloader):
     """
     Download setuptools from a specified location and return its filename
 
@@ -287,11 +304,13 @@ def download_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
         downloader(url, saveto)
     return os.path.realpath(saveto)
 
+
 def _build_install_args(options):
     """
     Build the arguments to 'python setup.py install' on the setuptools package
     """
     return ['--user'] if options.user_install else []
+
 
 def _parse_args():
     """
@@ -318,6 +337,7 @@ def _parse_args():
     # positional arguments are ignored
     return options
 
+
 def main():
     """Install or upgrade setuptools and EasyInstall"""
     options = _parse_args()
@@ -327,6 +347,7 @@ def main():
         downloader_factory=options.downloader_factory,
     )
     return _install(archive, _build_install_args(options))
+
 
 if __name__ == '__main__':
     sys.exit(main())

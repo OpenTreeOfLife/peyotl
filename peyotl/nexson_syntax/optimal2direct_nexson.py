@@ -1,16 +1,20 @@
 #!/usr/bin/env python
-'Optimal2DirectNexson class'
-from peyotl.nexson_syntax.helper import NexsonConverter, \
-                                        get_nexml_el, \
-                                        DIRECT_HONEY_BADGERFISH, \
-                                        NexsonError
+"""Optimal2DirectNexson class"""
+from peyotl.nexson_syntax.helper import (NexsonConverter,
+                                         get_nexml_el,
+                                         DIRECT_HONEY_BADGERFISH,
+                                         NexsonError)
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
+
 class Optimal2DirectNexson(NexsonConverter):
-    '''Conversion of the optimized (v 1.2) version of NexSON to
+    """Conversion of the optimized (v 1.2) version of NexSON to
     the more direct (v 1.0) port of NeXML
     This is a dict-to-dict in-place conversion. No serialization is included.
-    '''
+    """
+
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
 
@@ -24,7 +28,7 @@ class Optimal2DirectNexson(NexsonConverter):
             otu_list = []
             otu_by_id = otu_group['otuById']
             otu_id_list = list(otu_by_id.keys())
-            otu_id_list.sort() # not necessary, but will give us a consistent order...
+            otu_id_list.sort()  # not necessary, but will give us a consistent order...
             for otu_id in otu_id_list:
                 otu = otu_by_id[otu_id]
                 otu['@id'] = otu_id
@@ -89,7 +93,7 @@ class Optimal2DirectNexson(NexsonConverter):
         tree_id_set = set()
         trees_id_set = set()
         for tgid in treesElementOrder:
-            #_LOG.debug('tgid = ' + tgid)
+            # _LOG.debug('tgid = ' + tgid)
             tree_group = treesById[tgid]
             if tgid in trees_id_set:
                 raise NexsonError('Repeated trees element id "{}"'.format(tgid))
@@ -103,9 +107,9 @@ class Optimal2DirectNexson(NexsonConverter):
                     raise NexsonError('Repeated tree element id "{}"'.format(tree_id))
                 tree_id_set.add(tree_id)
                 tree = tree_by_id[tree_id]
-                #_LOG.debug('pre-convert  tree(id={}).keys = {}'.format(tree_id, tree.keys()))
+                # _LOG.debug('pre-convert  tree(id={}).keys = {}'.format(tree_id, tree.keys()))
                 self.convert_tree(tree)
-                #_LOG.debug('post-convert tree(id={}).keys = {}'.format(tree_id, tree.keys()))
+                # _LOG.debug('post-convert tree(id={}).keys = {}'.format(tree_id, tree.keys()))
                 tree['@id'] = tree_id
                 tree_list.append(tree)
             tree_group['tree'] = tree_list
@@ -116,10 +120,10 @@ class Optimal2DirectNexson(NexsonConverter):
         return trees_group_list
 
     def convert(self, obj):
-        '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.2.* type and
+        """Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.2.* type and
         converts it to DIRECT_HONEY_BADGERFISH version. The object is modified in place
         and returned.
-        '''
+        """
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 

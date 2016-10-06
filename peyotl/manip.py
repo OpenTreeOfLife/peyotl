@@ -1,29 +1,32 @@
 #!/usr/bin/env python
-'''Simple manipulations of data structure in peyotl
-'''
+"""Simple manipulations of data structure in peyotl
+"""
 from __future__ import absolute_import, print_function, division
 from peyotl.nexson_syntax.helper import _add_uniq_value_to_dict_bf
-from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
-                                 convert_nexson_format, \
-                                 detect_nexson_version, \
-                                 get_nexml_el, \
-                                 _is_by_id_hbf
+from peyotl.nexson_syntax import (BY_ID_HONEY_BADGERFISH,
+                                  convert_nexson_format,
+                                  detect_nexson_version,
+                                  get_nexml_el,
+                                  _is_by_id_hbf)
 # For backwards-comp we import count_num_trees which used to be
 #   defined here
 from peyotl.nexson_syntax.inspect import count_num_trees
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
+
 def iter_otus(nexson, nexson_version=None):
-    '''generator over all otus in all otus group elements.
+    """generator over all otus in all otus group elements.
     yields a tuple of 3 items:
         otus group ID,
         otu ID,
         the otu obj
-    '''
+    """
     if nexson_version is None:
         nexson_version = detect_nexson_version(nexson)
     if not _is_by_id_hbf(nexson_version):
-        convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH) #TODO shouldn't modify...
+        convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)  # TODO shouldn't modify...
     nex = get_nexml_el(nexson)
     otus_group_by_id = nex['otusById']
     group_order = nex.get('^ot:otusElementOrder', [])
@@ -38,13 +41,14 @@ def iter_otus(nexson, nexson_version=None):
             otu = otu_by_id[otu_id]
             yield otus_group_id, otu_id, otu
 
+
 def iter_trees(nexson, nexson_version=None):
-    '''generator over all trees in all trees elements.
+    """generator over all trees in all trees elements.
     yields a tuple of 3 items:
         trees element ID,
         tree ID,
         the tree obj
-    '''
+    """
     if nexson_version is None:
         nexson_version = detect_nexson_version(nexson)
     nex = get_nexml_el(nexson)
@@ -71,12 +75,13 @@ def iter_trees(nexson, nexson_version=None):
                 tree_id = tree['@id']
                 yield trees_group_id, tree_id, tree
 
+
 def label_to_original_label_otu_by_id(otu_by_id):
-    '''Takes a v1.2 otuById dict and, for every otu,
+    """Takes a v1.2 otuById dict and, for every otu,
     checks if ot:originalLabel exists. If it does not,
     but @label does, then ot:originalLabel is set to
     @label and @label is deleted.
-    '''
+    """
     for val in otu_by_id.values():
         orig = val.get('^ot:originalLabel')
         if orig is None:
@@ -84,6 +89,7 @@ def label_to_original_label_otu_by_id(otu_by_id):
             if label:
                 del val['@label']
                 val['^ot:originalLabel'] = label
+
 
 def replace_entity_references_in_meta_and_annotations(d, id2id):
     if isinstance(d, list):
@@ -102,7 +108,10 @@ def replace_entity_references_in_meta_and_annotations(d, id2id):
         for v in d.values():
             replace_entity_references_in_meta_and_annotations(v, id2id)
 
+
 _special_otu_keys = frozenset(('@label', '^ot:originalLabel', '^ot:ottId', '^ot:ottTaxonName'))
+
+
 def _merge_otu_do_not_fix_references(src, dest):
     for k in _special_otu_keys:
         if k not in dest and k in src:
@@ -111,8 +120,9 @@ def _merge_otu_do_not_fix_references(src, dest):
         if k not in _special_otu_keys:
             _add_uniq_value_to_dict_bf(dest, k, v)
 
+
 def merge_otus_and_trees(nexson_blob):
-    '''Takes a nexson object:
+    """Takes a nexson object:
         1. merges trees elements 2 - # trees into the first trees element.,
         2. merges otus elements 2 - # otus into the first otus element.
         3. if there is no ot:originalLabel field for any otu,
@@ -137,7 +147,7 @@ def merge_otus_and_trees(nexson_blob):
     non-nexml tools, so matching is done based on names. This should mimic the behavior
     of the analysis tools that produced the trees (for most/all such tools unique names
     constitute unique OTUs).
-    '''
+    """
     id_to_replace_id = {}
     orig_version = detect_nexson_version(nexson_blob)
     convert_nexson_format(nexson_blob, BY_ID_HONEY_BADGERFISH)
@@ -152,6 +162,7 @@ def merge_otus_and_trees(nexson_blob):
     #   2. register the otu in retained_mapped2otu and retained_orig2otu
     # otu elements that have no label, originalLabel or ottId will not
     #   be registered, so they'll never be matched.
+    retained_ogi = None
     if len(otus_group_order) > 0:
         otus_group_by_id = nexson['otusById']
         retained_ogi = otus_group_order[0]
@@ -177,7 +188,7 @@ def merge_otus_and_trees(nexson_blob):
         #       case of the latter, we add to the
         #       replaced_otu dict (old oid as key, new otu as value)
         for ogi in otus_group_order[1:]:
-            #_LOG.debug('retained_mapped2otu = {r}'.format(r=retained_mapped2otu))
+            # _LOG.debug('retained_mapped2otu = {r}'.format(r=retained_mapped2otu))
             og = otus_group_by_id[ogi]
             del otus_group_by_id[ogi]
             otu_by_id = og.get('otuById', {})
@@ -199,10 +210,10 @@ def merge_otus_and_trees(nexson_blob):
                                 # _LOG.debug('Matching {k} to {m}'.format(k=repr(key), m=repr(m)))
                                 match_otu = m
                                 break
-                            #else:
-                            #    _LOG.debug('{k} already in {m}'.format(k=repr(m[0]), m=repr(used_matches)))
+                                # else:
+                                #    _LOG.debug('{k} already in {m}'.format(k=repr(m[0]), m=repr(used_matches)))
                     if match_otu is None:
-                        #_LOG.debug('New el: {k} mlist = {m}'.format(k=repr(key), m=repr(mlist)))
+                        # _LOG.debug('New el: {k} mlist = {m}'.format(k=repr(key), m=repr(mlist)))
                         mlist = retained_orig2otu.get(orig, [])
                         for m in mlist:
                             if m[0] not in used_matches:
@@ -225,6 +236,7 @@ def merge_otus_and_trees(nexson_blob):
     # Move all of the tree elements to the first trees group.
     trees_group_order = nexson.get('^ot:treesElementOrder', [])
     if len(trees_group_order) > 0:
+        assert retained_ogi is not None  # should not be able to get here with trees, but no OTUs
         trees_group_by_id = nexson['treesById']
         retained_tgi = trees_group_order[0]
         retained_tg = trees_group_by_id[retained_tgi]
@@ -249,5 +261,3 @@ def merge_otus_and_trees(nexson_blob):
     replace_entity_references_in_meta_and_annotations(nexson, id_to_replace_id)
     convert_nexson_format(nexson_blob, orig_version)
     return nexson_blob
-
-

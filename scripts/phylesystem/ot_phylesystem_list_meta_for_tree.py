@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Takes meta properties for a tree requested'''
+"""Takes meta properties for a tree requested"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 from peyotl.api import PhylesystemAPI
 from peyotl.utility import propinquity_fn_to_study_tree

@@ -4,16 +4,18 @@ import os
 import codecs
 import anyjson
 from threading import Lock
-from peyotl.utility import get_logger, \
-                           write_to_filepath
+from peyotl.utility import get_logger, write_to_filepath
 from peyotl.utility.input_output import read_as_json, write_as_json
+
 
 class FailedShardCreationError(ValueError):
     def __init__(self, message):
         ValueError.__init__(self, message)
 
+
 class GitShard(object):
     """Bare-bones functionality needed by both normal and proxy shards."""
+
     def __init__(self, name):
         self._index_lock = Lock()
         self._doc_index = {}
@@ -21,19 +23,22 @@ class GitShard(object):
         self.path = ' '
         # ' ' mimics place of the abspath of repo in path -> relpath mapping
         self.has_aliases = False
-    #pylint: disable=E1101
+
+    # pylint: disable=E1101
     def get_rel_path_fragment(self, doc_id):
-        '''For `doc_id` returns the path from the
+        """For `doc_id` returns the path from the
         repo to the doc file. This is useful because
         (if you know the remote), it lets you construct the full path.
-        '''
+        """
         with self._index_lock:
             r = self._doc_index[doc_id]
         fp = r[-1]
-        return fp[(len(self.path) + 1):] # "+ 1" to remove the /
+        return fp[(len(self.path) + 1):]  # "+ 1" to remove the /
+
     @property
     def doc_index(self):
         return self._doc_index
+
     @doc_index.setter
     def doc_index(self, val):
         self._doc_index = val
@@ -43,9 +48,11 @@ class GitShard(object):
             k = self._doc_index.keys()
         return list(k)
 
+
 class TypeAwareGitShard(GitShard):
     """Adds hooks for type-specific behavior in subclasses.
     """
+
     def __init__(self,
                  name,
                  path,
@@ -60,7 +67,7 @@ class TypeAwareGitShard(GitShard):
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
         GitShard.__init__(self, name)
-        self.filepath_for_doc_id_fn = None # overwritten in refresh_doc_index_fn
+        self.filepath_for_doc_id_fn = None  # overwritten in refresh_doc_index_fn
         self.id_alias_list_fn = None  # overwritten in refresh_doc_index_fn
         self._infrastructure_commit_author = infrastructure_commit_author
         self._locked_refresh_doc_index = refresh_doc_index_fn
@@ -114,7 +121,7 @@ class TypeAwareGitShard(GitShard):
     def delete_doc_from_index(self, doc_id):
         try:
             # some types use aliases, e.g. '123', 'pg_123'
-            alias_list = self.id_alias_list_fn(doc_id)  #pylint: disable=E1102
+            alias_list = self.id_alias_list_fn(doc_id)  # pylint: disable=E1102
         except:
             # simpler types don't use aliases
             alias_list = [doc_id]
@@ -131,16 +138,19 @@ class TypeAwareGitShard(GitShard):
                               pkey=self.pkey,
                               path_for_doc_fn=self.filepath_for_doc_id_fn,
                               max_file_size=self.max_file_size)
+
     def pull(self, remote='origin', branch_name='master'):
         with self._index_lock:
             ga = self.create_git_action()
             from peyotl.git_storage.git_workflow import _pull_gh
             _pull_gh(ga, remote, branch_name)
             self._locked_refresh_doc_index(self)
+
     def register_doc_id(self, ga, doc_id):
         fp = ga.path_for_doc(doc_id)
         with self._index_lock:
             self._doc_index[doc_id] = (self.name, self.doc_dir, fp)
+
     def _create_git_action_for_mirror(self):
         # If a document makes it into the working dir, we don't want to reject it from the mirror, so
         #   we use max_file_size= None
@@ -150,6 +160,7 @@ class TypeAwareGitShard(GitShard):
                                    path_for_doc_fn=self.filepath_for_doc_id_fn,
                                    max_file_size=None)
         return mirror_ga
+
     def push_to_remote(self, remote_name):
         if self.push_mirror_repo_path is None:
             raise RuntimeError('This {} has no push mirror, so it cannot push to a remote.'.format(type(self)))
@@ -162,10 +173,11 @@ class TypeAwareGitShard(GitShard):
             mirror_ga.push(branch='master',
                            remote=remote_name)
         return True
+
     def _is_alias(self, doc_id):
         try:
             # some types use aliases, e.g. '123', 'pg_123'
-            alias_list = self.id_alias_list_fn(doc_id)  #pylint: disable=E1102
+            alias_list = self.id_alias_list_fn(doc_id)  # pylint: disable=E1102
         except:
             # simpler types don't use aliases
             return False
@@ -175,27 +187,28 @@ class TypeAwareGitShard(GitShard):
             if ml > len(doc_id):
                 return True
         return False
-    def iter_doc_filepaths(self, **kwargs): #pylint: disable=W0613
-        '''Returns a pair: (doc_id, absolute filepath of document file)
+
+    def iter_doc_filepaths(self, **kwargs):  # pylint: disable=W0613
+        """Returns a pair: (doc_id, absolute filepath of document file)
         for each document in this repository.
         Order is arbitrary.
-        '''
+        """
         with self._index_lock:
             for doc_id, info in self._doc_index.items():
                 if not self._is_alias(doc_id):
                     yield doc_id, info[-1]
 
-    #TODO:type-specific? Where and how is this used?
+    # TODO:type-specific? Where and how is this used?
     def iter_doc_objs(self, **kwargs):
-        '''Returns a pair: (doc_id, nexson_blob)
+        """Returns a pair: (doc_id, nexson_blob)
         for each document in this repository.
         Order is arbitrary.
-        '''
+        """
         _LOG = get_logger('TypeAwareGitShard')
         try:
             for doc_id, fp in self.iter_doc_filepaths(**kwargs):
                 if not self._is_alias(doc_id):
-                    #TODO:hook for type-specific parser?
+                    # TODO:hook for type-specific parser?
                     with codecs.open(fp, 'r', 'utf-8') as fo:
                         try:
                             nex_obj = anyjson.loads(fo.read())
@@ -218,6 +231,7 @@ class TypeAwareGitShard(GitShard):
         out.write('  documents in alias groups:\n')
         for o in cd['documents']:
             out.write('    {} ==> {}\n'.format(o['keys'], o['relpath']))
+
     def get_configuration_dict(self, secret_attrs=False):
         """Generic configuration, may be overridden by type-specific version"""
         rd = {'name': self.name,
@@ -247,16 +261,19 @@ class TypeAwareGitShard(GitShard):
     def get_branch_list(self):
         ga = self.create_git_action()
         return ga.get_branch_list()
+
     def get_changed_docs(self, ancestral_commit_sha, doc_ids_to_check=None):
         ga = self.create_git_action()
         return ga.get_changed_docs(ancestral_commit_sha, doc_ids_to_check=doc_ids_to_check)
-        #TODO:git-action-edits
+        # TODO:git-action-edits
 
     def _create_git_action_for_global_resource(self):
         """This should be implemented by all subclasses"""
-        raise NotImplementedError('Type-specific shard class should have "_create_git_action_for_global_resource" method')
+        raise NotImplementedError(
+            'Type-specific shard class should have "_create_git_action_for_global_resource" method')
+
     def _read_master_branch_resource(self, fn, is_json=False):
-        '''This will force the current branch to master! '''
+        """This will force the current branch to master! """
         with self._master_branch_repo_lock:
             ga = self._create_git_action_for_global_resource()
             with ga.lock():
@@ -268,9 +285,10 @@ class TypeAwareGitShard(GitShard):
                         ret = f.read()
                     return ret
                 return None
+
     def _write_master_branch_resource(self, content, fn, commit_msg, is_json=False):
-        '''This will force the current branch to master! '''
-        #TODO: we might want this to push, but currently it is only called in contexts in which
+        """This will force the current branch to master! """
+        # TODO: we might want this to push, but currently it is only called in contexts in which
         # we are about to push anyway (document creation)
         with self._master_branch_repo_lock:
             ga = self._create_git_action_for_global_resource()
@@ -281,9 +299,11 @@ class TypeAwareGitShard(GitShard):
                 else:
                     write_to_filepath(content, fn)
                 ga._add_and_commit(fn, self._infrastructure_commit_author, commit_msg)
+
     def get_doc_filepath(self, doc_id):
         ga = self.create_git_action()
         return ga.path_for_doc(doc_id)
+
 
 def _invert_dict_list_val(d):
     o = {}

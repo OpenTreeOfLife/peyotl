@@ -1,18 +1,24 @@
 #!/usr/bin/env
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
 
 def errorReturn(msg):
     _LOG.debug(msg)
     return False
 
+
 VERSION = '0.0.4a'
+
+
 class SeverityCodes(object):
-    '''An enum of Warning/Error severity
-    '''
+    """An enum of Warning/Error severity
+    """
     ERROR, WARNING = range(2)
     facets = ['ERROR', 'WARNING']
     numeric_codes_registered = set(range(len(facets)))
+
 
 class _NEXEL(object):
     TOP_LEVEL = 0
@@ -30,6 +36,7 @@ class _NEXEL(object):
     CODE_TO_PAR_CODE = {}
     CODE_TO_OTHER_ID_KEY = {}
     CODE_TO_TOP_ENTITY_NAME = {}
+
 
 _NEXEL.CODE_TO_STR = {
     _NEXEL.TOP_LEVEL: 'top-level',

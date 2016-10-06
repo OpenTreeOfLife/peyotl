@@ -5,15 +5,20 @@ from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import weakref
 import anyjson
+
 _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
+
+
 class TaxonomyInfoWrapper(FrozenDictAttrWrapper):
     pass
 
+
 class TNRSMatch(TaxonHolder):
-    '''Delegates to an TaxonWrapper object and adds score and is_approximate_match properties.
+    """Delegates to an TaxonWrapper object and adds score and is_approximate_match properties.
     part of a "wrapped" TNRS (or match_names) response.
-    '''
+    """
+
     def __init__(self, prop_dict, taxomachine_wrapper=None, taxonomy=None, taxon=None):
         if taxon is None:
             taxon = TaxonWrapper(taxomachine_wrapper=taxomachine_wrapper,
@@ -22,24 +27,29 @@ class TNRSMatch(TaxonHolder):
         TaxonHolder.__init__(self, taxon)
         self._score = prop_dict.get('score')
         self._is_approximate_match = prop_dict.get('is_approximate_match')
+
     @property
     def ott_taxon_name(self):
         return self._taxon.ott_taxon_name
+
     @property
     def score(self):
         return self._score
+
     @property
     def is_approximate_match(self):
         return self._is_approximate_match
 
+
 class TNRSResponse(FrozenDictWrapper):
-    '''The class for return value of of TNRS and match_names calls if wrap_response is True
+    """The class for return value of of TNRS and match_names calls if wrap_response is True
     This provides . access to the top-level properties returned by the TNRS, but also
     adds dict-like behavior where the searched names are the keys, to make it easier
         to access the tuple of matched names for each searched name. The elements in each
         tuple will be TNRSMatch objects. Unmatched names will map to an empty tuple.
     the `taxonomy` field will be a TaxonomyInfoWrapper object
-    '''
+    """
+
     def __init__(self, taxomachine_wrapper, response, query_data):
         tw = taxomachine_wrapper
         m = {}
@@ -63,18 +73,22 @@ class TNRSResponse(FrozenDictWrapper):
         object.__setattr__(self, 'includes_deprecated_taxa', response['includes_deprecated_taxa'])
         object.__setattr__(self, 'includes_dubious_names', response['includes_dubious_names'])
         object.__setattr__(self, 'includes_approximate_matches', response['includes_approximate_matches'])
+
     @property
     def raw_response(self):
-        return self._raw_response #pylint: disable=E1101
+        return self._raw_response  # pylint: disable=E1101
+
     @property
     def context_inferred(self):
-        return self._query_data.get('context_name') is None #pylint: disable=E1101
+        return self._query_data.get('context_name') is None  # pylint: disable=E1101
+
     @property
     def matched_names(self):
-        return [k for k, v in self._raw_dict.items() if v is not _EMPTY_TUPLE] #pylint: disable=E1101
+        return [k for k, v in self._raw_dict.items() if v is not _EMPTY_TUPLE]  # pylint: disable=E1101
+
 
 class _TaxomachineAPIWrapper(_WSWrapper):
-    '''Wrapper around interactions with the taxomachine TNRS.
+    """Wrapper around interactions with the taxomachine TNRS.
     The primary service is TNRS (for taxonomic name resolution service)
         which takes a name matches it to OTT
     In this wrapper implementation, he naming contexts are cached in:
@@ -128,7 +142,8 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         synonym finder ?
         parent taxon ?
         homonym finder ?
-    '''
+    """
+
     def TNRS(self,
              names,
              context_name=None,
@@ -138,7 +153,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
              include_dubious=False,
              do_approximate_matching=None,
              wrap_response=None):
-        '''Takes a name and optional contextName returns a list of matches.
+        """Takes a name and optional contextName returns a list of matches.
         `wrap_response` can be True to return a TNRSResponse object, None to return
             the "raw" response dict, or a function/class that takes (response, query_data=dict)
             as its arguments.
@@ -149,8 +164,8 @@ class _TaxomachineAPIWrapper(_WSWrapper):
            'ottId' int
            'name'  name (or uniqname???) for the taxon in OTT
            'nodeId' int ID of not in the taxomachine db. probably not of use to anyone...
-        '''
-        #if context_name is None:
+        """
+        # if context_name is None:
         #    context_name = 'All life'
         if do_approximate_matching is not None:
             fuzzy_matching = do_approximate_matching
@@ -188,14 +203,14 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         return wrap_response(resp, query_data=data)
 
     def autocomplete(self, name, context_name=None, include_dubious=False):
-        '''Takes a name and optional context_name returns a list of matches.
+        """Takes a name and optional context_name returns a list of matches.
         Each match is a dict with:
            'higher' boolean DEF???
            'exact' boolean for exact match
            'ottId' int
            'name'  name (or uniqname???) for the taxon in OTT
            'nodeId' int ID of not in the taxomachine db. probably not of use to anyone...
-        '''
+        """
         if context_name and context_name not in self.valid_contexts:
             raise ValueError('"{}" is not a valid context name'.format(context_name))
         if self.use_v1:
@@ -211,14 +226,18 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             if include_dubious:
                 data['include_dubious'] = True
         return self.json_http_post(uri, data=anyjson.dumps(data))
+
     def infer_context(self, names):
         if self.use_v1:
             raise NotImplementedError("infer_context not wrapped in v1")
         uri = '{p}/infer_context'.format(p=self.prefix)
         data = {'names': names}
         return self.json_http_post(uri, data=anyjson.dumps(data))
+
     def __init__(self, domain, **kwargs):
-        self._config = get_config_object(None, **kwargs)
+        self._config = kwargs.get('config')
+        if self._config is None:
+            self._config = get_config_object()
         self._api_vers = self._config.get_from_config_setting_cascade([('apis', 'taxomachine_api_version'),
                                                                        ('apis', 'api_version')],
                                                                       "2")
@@ -241,11 +260,13 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         _WSWrapper.__init__(self, domain, **kwargs)
         self.domain = domain
         self._wr = weakref.proxy(self)
+
     @property
     def domain(self):
         return self._domain
+
     @domain.setter
-    def domain(self, d):#pylint: disable=W0221
+    def domain(self, d):  # pylint: disable=W0221
         self._contexts = None
         self._valid_contexts = None
         self._domain = d
@@ -256,12 +277,15 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         else:
             self.prefix = '{d}/v2/tnrs'.format(d=d)
             self.taxonomy_prefix = '{d}/v2/taxonomy'.format(d=d)
+
     def info(self):
         if self.use_v1:
             raise NotImplementedError('"about" method not implemented')
         uri = '{p}/about'.format(p=self.taxonomy_prefix)
         return self.json_http_post(uri)
+
     about = info
+
     def taxon(self, ott_id, include_lineage=False, list_terminal_descendants=False, wrap_response=None):
         if self.use_v1:
             raise NotImplementedError('"taxon" method not implemented')
@@ -273,16 +297,18 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         if 'error' in r:
             raise ValueError(r['error'])
         if wrap_response:
-            #TODO we should fetch info about the taxanomy, so that we can
+            # TODO we should fetch info about the taxanomy, so that we can
             #   provide a taxonomy kwarg to TaxonWrapper...
             return TaxonWrapper(taxomachine_wrapper=self._wr, prop_dict=r)
         return r
+
     def subtree(self, ott_id):
         if self.use_v1:
             raise NotImplementedError('"subtree" method not implemented')
         data = {'ott_id': int(ott_id), }
         uri = '{p}/subtree'.format(p=self.taxonomy_prefix)
         return self.json_http_post(uri, data=anyjson.dumps(data))
+
     def lica(self, ott_ids, include_lineage=False):
         if self.use_v1:
             raise NotImplementedError('"lica" method not implemented')
@@ -290,17 +316,20 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 'include_lineage': bool(include_lineage)}
         uri = '{p}/lica'.format(p=self.taxonomy_prefix)
         return self.json_http_post(uri, data=anyjson.dumps(data))
+
     def contexts(self):
         # Taxonomic name contexts. These are cached in _contexts
         if self._contexts is None:
             self._contexts = self._do_contexts_call()
         return self._contexts
+
     def _do_contexts_call(self):
         if self.use_v1:
             uri = '{p}/getContextsJSON'.format(p=self.prefix)
         else:
             uri = '{p}/contexts'.format(p=self.prefix)
         return self.json_http_post(uri)
+
     @property
     def valid_contexts(self):
         if self._valid_contexts is None:
@@ -312,12 +341,12 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         return self._valid_contexts
 
     def names_to_ott_ids_perfect(self, names, **kwargs):
-        '''delegates a call to TNRS (same arguments as that function).
+        """delegates a call to TNRS (same arguments as that function).
 
         Returns a list of (non-dubious) OTT IDs in the same order as the original names.
         Raises a ValueError if each name does not have exactly one perfect, non-dubious
         (score = 1.0) match in the TNRS results.
-        '''
+        """
         results = self.TNRS(names, **kwargs)['results']
         d = {}
         for blob in results:
@@ -340,12 +369,13 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 raise ValueError('No matches for "{q}"'.format(q=query_name))
             ret.append(ni)
         return ret
+
     def get_cached_parent_for_taxon(self, child_taxon):
-        '''If the taxa are being cached, this call will create a the lineage "spike" for taxon child_taxon
+        """If the taxa are being cached, this call will create a the lineage "spike" for taxon child_taxon
 
         Expecting child_taxon to have a non-empty _taxonomic_lineage with response dicts that can create
             an ancestral TaxonWrapper.
-        '''
+        """
         if self._ott_id2taxon is None:
             resp = child_taxon._taxonomic_lineage[0]
             tl = child_taxon._taxonomic_lineage[1:]
@@ -353,7 +383,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             resp['taxonomic_lineage'] = tl
             return TaxonWrapper(taxonomy=child_taxon.taxonomy,
                                 taxomachine_wrapper=self._wr,
-                                prop_dict=resp) #TODO recursive (indirectly)
+                                prop_dict=resp)  # TODO recursive (indirectly)
         else:
             anc = []
             prev = None
@@ -374,7 +404,6 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 anc.insert(0, curr)
             return prev
 
-
     def get_tnrs_match_from_response(self, resp, taxonomy):
         if self._ott_id2taxon is None:
             return TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr)
@@ -385,5 +414,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             self._ott_id2taxon[ott_id] = tnrsm._taxon
             return tnrsm
         return TNRSMatch(resp, taxonomy=taxonomy, taxomachine_wrapper=self._wr, taxon=taxon)
+
+
 def Taxomachine(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).taxomachine

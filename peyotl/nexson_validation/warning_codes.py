@@ -1,15 +1,17 @@
 #!/usr/bin/env python
-'''Classes for different forms of Warnings and Errors.
-'''
+"""Classes for different forms of Warnings and Errors.
+"""
+
+
 # An enum of WARNING_CODES
 class NexsonWarningCodes(object):
-    '''Enumeration of Warning/Error types. For internal use.
+    """Enumeration of Warning/Error types. For internal use.
 
     NexsonWarningCodes.facets maps int -> warning name.
     Each of these names will also be an attribute of NexsonWarningCodes.
     NexsonWarningCodes.numeric_codes_registered is (after some mild monkey-patching)
         a set of the integers registered.
-    '''
+    """
     facets = ('MISSING_MANDATORY_KEY',
               'MISSING_OPTIONAL_KEY',
               'UNRECOGNIZED_KEY',
@@ -42,8 +44,10 @@ class NexsonWarningCodes(object):
               'INCORRECT_VALUE_TYPE',
               'MISSING_CRUCIAL_CONTENT',
               'MAX_SIZE_EXCEEDED',
-             )
+              )
     numeric_codes_registered = []
+
+
 # monkey-patching NexsonWarningCodes...
 for _n, _f in enumerate(NexsonWarningCodes.facets):
     setattr(NexsonWarningCodes, _f, _n)

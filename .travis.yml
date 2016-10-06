@@ -3,10 +3,10 @@ python:
     - "2.7"
     - "3.3"
     - "3.4"
+    - "3.5"
 install:
     - pip install -r requirements.txt ; python setup.py install
 script:
-    - source dev/travis.config ; export PYTHONPATH="$PYTHONPATH:$PWD" ; sh standalone-tests.sh
-    - source dev/travis.config ; export PYTHONPATH="$PYTHONPATH:$PWD" ; python setup.py test
+    - export PEYOTL_CONFIG_FILE="${PWD}/dev/travis.config" ; export PYTHONPATH="$PYTHONPATH:$PWD" ; bash tests/travis-tests.sh
 
 

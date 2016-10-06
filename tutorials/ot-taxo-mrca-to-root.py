@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-'''Takes a series of at least 2 OTT ids and reports the OTT of their
+"""Takes a series of at least 2 OTT ids and reports the OTT of their
 least inclusive taxonomic ancestor and that taxon's ancestors.
-'''
+"""
 
 import sys
+
 
 def get_taxonomic_ancestor_ids(ott_id):
     from peyotl.sugar import taxonomy
@@ -20,9 +21,9 @@ def get_taxonomic_ancestor_ids(ott_id):
 
 
 def main(argv):
-    '''This function sets up a command-line option parser and then calls 
+    """This function sets up a command-line option parser and then calls
     to do all of the real work.
-    '''
+    """
     import argparse
     import codecs
     # have to be ready to deal with utf-8 names
@@ -44,9 +45,9 @@ def main(argv):
         if anc_id in common_anc:
             out.write('{}\n'.format(anc_id))
 
+
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
-    except Exception, x:
+    except Exception as x:
         sys.exit('{}\n'.format(str(x)))
-

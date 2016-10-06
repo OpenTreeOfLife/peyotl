@@ -18,7 +18,7 @@ RT_DIRS = ['otu', '9', ]
                  'Open Tree of Life web services are disabled.')
 class TestPhyloSchema(unittest.TestCase):
     def testUrlGen(self):
-        _prefix = 'http://devapi.opentreeoflife.org/v2'
+        _prefix = 'https://devapi.opentreeoflife.org/v2'
         url, params = PhyloSchema('nexson', version='1.0.0').phylesystem_api_url(_prefix, 'pg_719')
         self.assertEqual('{}/study/pg_719'.format(_prefix), url)
         self.assertEqual({'output_nexml2json': '1.0.0'}, params)

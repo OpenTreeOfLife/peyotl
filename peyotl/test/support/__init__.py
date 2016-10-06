@@ -64,3 +64,19 @@ def raise_http_error_with_more_detail(err):
     # show more useful information (JSON payload) from the server
     details = err.response.text
     raise ValueError("{e}, details: {m}".format(e=err, m=details))
+
+
+def test_tol_about(self, cdict):
+    for key in [u'date',
+                u'num_source_studies',
+                u'root_taxon_name',
+                u'study_list',
+                u'root_ott_id',
+                u'root_node_id',
+                u'tree_id',
+                u'taxonomy_version',
+                u'num_tips']:
+        self.assertTrue(key in cdict)
+    tree_id = cdict['tree_id']
+    node_id = str(cdict['root_node_id']) # Odd that this is a string
+    return tree_id, node_id

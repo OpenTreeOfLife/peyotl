@@ -13,7 +13,13 @@ num_checks=0
 num_fails=0
 echo_and_demand_succeeds python tests/ws_tests/read_only/test_phylesystem_api.py
 echo_and_demand_succeeds python tests/ws_tests/read_only/test_amendments_api.py
-echo_and_demand_succeeds python tests/ws_tests/read_only/test_collections.py
+echo_and_demand_succeeds python tests/ws_tests/read_only/test_collections_api.py
+echo_and_demand_succeeds python tests/ws_tests/read_only/test_oti.py
+echo_and_demand_succeeds python tests/ws_tests/read_only/test_shared_api_tests.py
+echo_and_demand_succeeds python tests/ws_tests/read_only/test_taxomachine.py
+echo_and_demand_succeeds python tests/ws_tests/read_only/test_treebase_import.py
+echo_and_demand_succeeds python tests/ws_tests/read_only/test_treemachine.py
+echo_and_demand_succeeds python tests/ws_tests/read_only/test_v2facade.py
 stf=0
 if test ${num_fails} -gt 0
 then

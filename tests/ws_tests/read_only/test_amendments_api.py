@@ -11,6 +11,7 @@ from requests.exceptions import HTTPError
 
 _LOG = get_logger(__name__)
 
+
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
                  'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use '
                  'Open Tree of Life web services are disabled.')
@@ -25,6 +26,7 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
             pprint('\npush-failure (possibly a stale result? re-run to find out!):\n')
             pprint(sl)
         self.assertTrue(sl[0] is True)
+
     def testFetchAmendmentRemote(self):
         # drive RESTful API via wrapper
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
@@ -40,6 +42,7 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
             # N.B. we get the JSON "wrapper" with history, etc.
             sid = a['data']['study_id']
             self.assertTrue(sid == u'pg_2606')
+
     def testRemoteSugar(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
         try:
@@ -48,18 +51,21 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
             raise_http_error_with_more_detail(err)
         except Exception as err:
             raise err
+
     def testExternalSugar(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='external')
         test_amendments_api(self, taa)
+
     def testLocalSugar(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='local')
         test_amendments_api(self, taa)
+
     def testConfig(self):
         taa = TaxonomicAmendmentsAPI(self.domains, get_from='api')
         x = taa.store_config
         self.assertTrue('assumed_doc_version' in x.keys())
-    #TODO: add testExternalURL and support for this call in amendments API?
+        # TODO: add testExternalURL and support for this call in amendments API?
+
 
 if __name__ == "__main__":
     unittest.main()
-

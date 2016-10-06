@@ -8,57 +8,8 @@ permalink: /testing/
 
     $ python setup.py test
 
-will invoke python unittest, and running:
+will invoke python unittests.
 
-    $ sh maintainer-test.sh
-
-will run these test and some shell-based tests of interest to some developers. 
-
-You will seem some tests skipped because of lack of mini_system or mini_phyl. This
-is normal. Mark and Emily Jane have some unittests of git interactions that require
-privileged access to a particular testing repository. Tests involving this repo
-will be skipped. You don't need to be a maintainer of peyotl to run these, of course. You just have to 
-run some bootstrapping code to be able to run these tests.
-The preparations for these tests are described on [this page](../maintainer).
-
-Running
-
-    $ sh check.sh
-
-runs the `test.sh` script and runs pylint with MTH's preferred configuration (in `dev/pylintrc`)
-
-### Roundtrip tests
-
-A test of the available format conversions (without NeXML validation) can be run with:
-
-    $ sh peyotl/test/check_nexson_nexml_clique.sh peyotl/test/data/nexson/otu.json scripts/nexson/nexson_nexml.py
-
-If you alias your nexml validation tool to the name "validate-nexml" then you can 
-run the check_nexml_roundrip.sh and check_nexson_roundrip.sh
-
-Other dependencies for these test scripts are xmllint and saxon-xslt. Note
-that these are *not* dependencies for normal usage of 
-
-*Caveat*: check_nexml_roundrip.sh will fail if the attribute order differs from the order used by nexson_nexml.py
-
-## validate-nexml command.
-MTH's validate-nexml is shell script:
-
-    #!/bin/sh
-    java -jar "${NEXML_PARENT}/xml-validator/target/xml-validator-1.0-SNAPSHOT-jar-with-dependencies.jar" -s "${NEXML_PARENT}/nexml/xsd/nexml.xsd" $@
-
-where xml-validator is a compiled clone of <a href="https://github.com/wiztools/xml-validator">https://github.com/wiztools/xml-validator</a> (you have to run <tt>mvn package</tt> to build)
-and nexml is a clone of https://github.com/nexml/nexml
-
-You can tweak this by deciding on your NEXML_PARENT dir and running:
-
-    $ cd "${NEXML_PARENT}"
-    $ svn checkout http://xml-validator.googlecode.com/svn/trunk/ xml-validator-read-only
-    $ git clone https://github.com/nexml/nexml.git
-    $ cd xml-validator-read-only
-    $ mvn package
-
-## Maintainer tests
-
-There are notes for more extensive tests at the [maintainer](../maintainer) page.
+If you are a maintainer of `peyotl`, check out the [maintainer page](../maintainer)
+which describes how to set up your machine for more thorough tests.
 

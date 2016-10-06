@@ -193,6 +193,8 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         uri = '{d}/amendment/{i}'.format(d=self._prefix, i=amendment_id)
         return self.json_http_get(uri)  # , params=None, text=False)
 
+
+# noinspection PyPep8Naming
 def TaxonomicAmendmentsAPI(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).wrap_amendments_api(**kwargs)
 

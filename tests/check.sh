@@ -19,5 +19,5 @@ if ! python setup.py test
 then
     f=1
 fi
-exit $f
+exit ${f}
 

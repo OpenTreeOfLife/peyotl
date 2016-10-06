@@ -80,7 +80,6 @@ def main(argv):
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
-    except Exception, x:
-        raise
+    except Exception as x:
         sys.exit('{}\n'.format(str(x)))
 

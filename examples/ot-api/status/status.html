@@ -63,7 +63,7 @@ var addWSCheckOnClick = function (targetpar,
       error: function (json, textStatus, jqXHR) {
           target.css('background-color', 'red');
           target.text('FAILING !');
-      }, 
+      }
     });
   });
   target.css('background-color', 'lightblue');
@@ -100,7 +100,7 @@ addWSCheckOnClick($("#pg_719"),
                   "GET");
 
 $.ajax({
-    url: jurl,
+    url: jurl
 }).done(function (data) {
     if (typeof data == 'string') {
       data = JSON.parse(data);

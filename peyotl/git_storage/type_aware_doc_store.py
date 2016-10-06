@@ -3,6 +3,7 @@ like PhylesystemProxy by introducing more business rules and differences between
 in the store (eg, Nexson studies in Phylesystem, tree collections in TreeCollectionStore)."""
 import os
 try:
+    # noinspection PyCompatibility
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
@@ -343,8 +344,9 @@ class TypeAwareDocStore(ShardedDocStore):
         """Generic configuration, may be overridden by type-specific version"""
         cd = {'assumed_doc_version': self.assumed_doc_version,
               'number_of_shards': len(self._shards),
-              'initialization': self._filepath_args}
-        cd['shards'] = []
+              'initialization': self._filepath_args,
+              'shards': [],
+             }
         for i in self._shards:
             cd['shards'].append(i.get_configuration_dict(secret_attrs=secret_attrs))
         return cd

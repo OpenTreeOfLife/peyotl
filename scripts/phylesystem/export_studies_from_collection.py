@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.collections import get_empty_collection
+from peyotl.collections_store import get_empty_collection
 from peyotl import collection_to_included_trees, \
                    read_as_json, \
                    write_as_json

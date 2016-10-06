@@ -27,8 +27,10 @@ import contextlib
 from distutils import log
 
 try:
+    # noinspection PyCompatibility
     from urllib.request import urlopen
 except ImportError:
+    # noinspection PyCompatibility
     from urllib2 import urlopen
 
 try:

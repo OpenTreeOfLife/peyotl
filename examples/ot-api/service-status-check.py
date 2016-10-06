@@ -34,8 +34,8 @@ def report_error(tag, duration, err):
 
 
 def _ot_call(tag, expected_fn, func, *valist, **kwargs):
+    start_t = time.time()
     try:
-        start_t = time.time()
         result = func(*valist, **kwargs)
         end_t = time.time()
         return report_results(tag, end_t - start_t, expected_fn, result)

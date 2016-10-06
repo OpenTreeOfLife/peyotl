@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"Checks the output from logger_test_messages.py for formatting. First arg is level: simple, raw, or rich "
+"""Helper script for making sure that the configuration of the logger works. Called by test-logger.sh
+Checks the output from logger_test_messages.py for formatting. First arg is level: simple, raw, or rich
+"""
+
 import codecs
 import sys
 import re

@@ -1,6 +1,7 @@
 from peyotl.utility import get_logger, \
     get_config_setting
 try:
+    # noinspection PyPackageRequirements
     from dogpile.cache.api import NO_VALUE
 except:
     pass #caching is optional
@@ -205,6 +206,7 @@ class _Phylesystem(TypeAwareDocStore):
     def add_validation_annotation(self, doc_obj, sha):
         need_to_cache = False
         adaptor = None
+        annot_event = None
         if self._cache_region is not None:
             key = 'v' + sha
             annot_event = self._cache_region.get(key, ignore_expiration=True)
@@ -244,8 +246,9 @@ class _Phylesystem(TypeAwareDocStore):
         """Type-specific configuration for backward compatibility"""
         cd = {'repo_nexml2json': self.repo_nexml2json,
               'number_of_shards': len(self._shards),
-              'initialization': self._filepath_args}
-        cd['shards'] = []
+              'initialization': self._filepath_args,
+              'shards': [],
+             }
         for i in self._shards:
             cd['shards'].append(i.get_configuration_dict(secret_attrs=secret_attrs))
         return cd

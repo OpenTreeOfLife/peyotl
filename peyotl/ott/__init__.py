@@ -16,24 +16,10 @@ _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:
     from peyotl.utility.input_output import read_as_json, write_as_json
 
-_TREEMACHINE_PRUNE_FLAGS = set(['major_rank_conflict',
-                                'major_rank_conflict_direct',
-                                'major_rank_conflict_inherited',
-                                'environmental',
-                                'unclassified_inherited',
-                                'unclassified_direct',
-                                'viral',
-                                'nootu',
-                                'barren',
-                                'not_otu',
-                                'incertae_sedis',
-                                'incertae_sedis_direct',
-                                'incertae_sedis_inherited',
-                                'extinct_inherited',
-                                'extinct_direct',
-                                'hidden',
-                                'unclassified',
-                                'tattered'])
+_TREEMACHINE_PRUNE_FLAGS = {'major_rank_conflict', 'major_rank_conflict_direct', 'major_rank_conflict_inherited',
+                            'environmental', 'unclassified_inherited', 'unclassified_direct', 'viral', 'nootu',
+                            'barren', 'not_otu', 'incertae_sedis', 'incertae_sedis_direct', 'incertae_sedis_inherited',
+                            'extinct_inherited', 'extinct_direct', 'hidden', 'unclassified', 'tattered'}
 
 class OTTFlagUnion(object):
     def __init__(self, ott, flag_set):
@@ -58,21 +44,18 @@ def write_newick_ott(out,
     if `create_log_dict` is True, a dict will be returned that contains statistics
         about the pruning.
     '''
-    flags_to_prune_list = list(prune_flags) if prune_flags else []
+    # create to_prune_fsi_set a set of flag set indices to prune...
+    if prune_flags:
+        flags_to_prune_list = list(prune_flags)
+        to_prune_fsi_set = ott.convert_flag_string_set_to_union(flags_to_prune_list)
+    else:
+        flags_to_prune_list = []
+        to_prune_fsi_set = None
     flags_to_prune_set = frozenset(flags_to_prune_list)
     pfd = {}
-    # create to_prune_fsi_set a set of flag set indices to prune...
-    if flags_to_prune_list:
-        if not isinstance(prune_flags, OTTFlagUnion):
-            to_prune_fsi_set = ott.convert_flag_string_set_to_union(prune_flags)
-    else:
-        to_prune_fsi_set = None
-
     log_dict = None
     if create_log_dict:
-        log_dict = {}
-        log_dict['version'] = ott.version
-        log_dict['flags_to_prune'] = flags_to_prune_list
+        log_dict = {'version': ott.version, 'flags_to_prune': flags_to_prune_list}
         fsi_to_str_flag_set = {}
         for k, v in dict(ott.flag_set_id_to_flag_set).items():
             fsi_to_str_flag_set[k] = frozenset(list(v))
@@ -233,7 +216,7 @@ dictionary. Absence of a ott ID means that there were no flags set.''',),
            'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
            'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'),
            'forwardingtable': ('forward_table', 'maps a deprecated ID to its forwarded ID')}
-_SECOND_LEVEL_CACHES = set(['ncbi2ottid'])
+_SECOND_LEVEL_CACHES = {'ncbi2ottid'}
 class CacheNotFoundError(RuntimeError):
     def __init__(self, m):
         RuntimeError.__init__(self, 'Cache {} not found'.format(m))
@@ -246,7 +229,7 @@ class OTT(object):
         if ott_dir is None:
             ott_dir = self._config.get_config_setting('ott', 'parent')
         if ott_dir is None:
-            raise ValueError('Either the ott_dir arg must be used or "parent" must '\
+            raise ValueError('Either the ott_dir arg must be used or "parent" must '
                              'exist in the "[ott]" section of your config (~/.peyotl/config by default)')
         self.ott_dir = ott_dir
         if not os.path.isdir(self.ott_dir):
@@ -649,7 +632,7 @@ class OTT(object):
         name2id = _swap
         homonym2id = {}
         nonhomonym2id = {}
-        for name, ott_ids in name2id.iteritems():
+        for name, ott_ids in name2id.items():
             if isinstance(ott_ids, tuple) and len(ott_ids) > 1:
                 homonym2id[name] = ott_ids
             else:
@@ -771,7 +754,7 @@ class OTT(object):
         return create_tree_from_id2par(self.ott_id2par_ott_id, ott_id_list, create_monotypic_nodes=create_monotypic_nodes)
 
     def check_if_above_root(self, curr_id, known_below_root, known_above_root, root_ott_id):
-        if (root_ott_id is None):
+        if root_ott_id is None:
             return False
         if curr_id in known_below_root:
             return False
@@ -896,15 +879,15 @@ def make_tree_from_taxonomy(id2par):
 
 def make_ott_to_children(id2par):
     ott2children = {}
-    emptyTuple = tuple()
+    empty_tuple = tuple()
     for ott_id, par_ott_id in id2par.items():
         pc = ott2children.get(par_ott_id)
-        if (pc is None) or (pc is emptyTuple):
+        if (pc is None) or (pc is empty_tuple):
             ott2children[par_ott_id] = [ott_id]
         else:
             pc.append(ott_id)
         if ott_id not in ott2children:
-            ott2children[ott_id] = emptyTuple
+            ott2children[ott_id] = empty_tuple
     return ott2children
 
 class TaxonomyDes2AncLineage(object):
@@ -929,7 +912,7 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott, create_monotypic
     # OTT IDs are integers, and the nodeIDs are strings - so we should not get clashes.
     #TODO consider prefix scheme
     ott_ids = []
-    ottId2OtuPar = {}
+    ott_id_2_otu_par = {}
     for node in tree_proxy:
         if node.is_leaf:
             ott_id = node.ott_id
@@ -937,22 +920,22 @@ def create_pruned_and_taxonomy_for_tip_ott_ids(tree_proxy, ott, create_monotypic
                 ott_ids.append(ott_id)
                 assert isinstance(ott_id, int)
                 parent_id = node.parent._id
-                ottId2OtuPar[ott_id] = parent_id
+                ott_id_2_otu_par[ott_id] = parent_id
         else:
             assert is_str_type(node._id)
             edge = node.edge
             if edge is not None:
                 parent_id = node.parent._id
-                ottId2OtuPar[node._id] = parent_id
+                ott_id_2_otu_par[node._id] = parent_id
             else:
-                ottId2OtuPar[node._id] = None
-    pruned_phylo = create_tree_from_id2par(ottId2OtuPar, ott_ids, create_monotypic_nodes=create_monotypic_nodes)
+                ott_id_2_otu_par[node._id] = None
+    pruned_phylo = create_tree_from_id2par(ott_id_2_otu_par, ott_ids, create_monotypic_nodes=create_monotypic_nodes)
     taxo_tree = ott.induced_tree(ott_ids)
     return pruned_phylo, taxo_tree
 
 
 
-if __name__ == '__main__':
+def main():
     import sys
     cout = codecs.getwriter('utf-8')(sys.stdout)
     o = OTT()
@@ -971,3 +954,6 @@ if __name__ == '__main__':
     print(o.root_name)
     o.induced_tree([458721, 883864, 128315])
     '''
+
+if __name__ == '__main__':
+    main()

@@ -304,7 +304,7 @@ def create_anc_lineage_from_id2par(id2par_id, ott_id):
     if n is None:
         raise KeyError('The OTT ID {} was not found'.format(ott_id))
     lineage = [curr]
-    while n is not None and n != None:
+    while n is not None:
         lineage.append(n)
         n = id2par_id.get(n)
     return lineage
@@ -330,8 +330,8 @@ def create_tree_from_id2par(id2par,
     root_nd = anc_spike[-1]
     for n, child in enumerate(anc_spike[:-1]):
         par = anc_spike[n + 1]
-        realized_to_children[par] = set([child])
-    id_set = set([f])
+        realized_to_children[par] = {child}
+    id_set = {f}
     for ott_id in id_list:
         id_set.add(ott_id)
         if ott_id in realized_to_children:
@@ -344,7 +344,7 @@ def create_tree_from_id2par(id2par,
                 raise ValueError('Id "{}" not found in id to parent mapping'.format(ott_id))
             par_realized_children = realized_to_children.get(par)
             if par_realized_children is None:
-                realized_to_children[par] = set([ott_id])
+                realized_to_children[par] = {ott_id}
             else:
                 if ott_id not in par_realized_children:
                     par_realized_children.add(ott_id)
@@ -503,8 +503,8 @@ def parse_id2par_dict(id2par=None,
     if id_list is None:
         if id_list_stream is None:
             if id_list_filepath is None:
-                ancs = set(id2par.itervalues())
-                all_keys = set(id2par.iterkeys())
+                ancs = set(id2par.values())
+                all_keys = set(id2par.keys())
                 id_list = list(all_keys - ancs)
             else:
                 with open(id_list_filepath, 'rb') as fo:

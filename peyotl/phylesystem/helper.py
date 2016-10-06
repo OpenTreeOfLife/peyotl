@@ -116,6 +116,7 @@ def _make_phylesystem_cache_region(**kwargs):
         return _REGION
     _CACHE_REGION_CONFIGURED = True
     try:
+        # noinspection PyPackageRequirements
         from dogpile.cache import make_region
     except:
         _LOG.debug('dogpile.cache not available')

@@ -10,6 +10,7 @@
 from peyotl.nexson_validation.warning_codes import NexsonWarningCodes
 from peyotl.utility import get_logger
 try:
+    # noinspection PyCompatibility
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
@@ -50,6 +51,8 @@ class MessageTupleAdaptor(object):
         addr = err_tuple[2]
         addr.write_path_suffix_str(out)
 
+
+# noinspection PyMissingConstructor
 class _StrListDataWarningType(MessageTupleAdaptor):
     '''Adaptor for warning with data being a list of strings
     '''
@@ -77,61 +80,85 @@ class _StrArgumentWarningType(MessageTupleAdaptor):
         outstream.write(self.format.format(p=prefix, d=ds))
         self._write_message_suffix(err_tuple, outstream)
 
+
+# noinspection PyMissingConstructor
 class RepeatedOTUWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.REPEATED_OTU
         self.format = '{p}OTU id found in mutliple nodes. id(s): "{d}"'
 
+
+# noinspection PyMissingConstructor
 class UnrecognizedKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.UNRECOGNIZED_KEY
         self.format = '{p}Unrecognized key(s): "{d}"'
 
+
+# noinspection PyMissingConstructor
 class MissingMandatoryKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_MANDATORY_KEY
         self.format = '{p}Missing required key(s): "{d}"'
 
+
+# noinspection PyMissingConstructor
 class MissingOptionalKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_OPTIONAL_KEY
         self.format = '{p}Missing optional key(s): "{d}"'
 
+
+# noinspection PyMissingConstructor
 class MissingExpectedListWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_LIST_EXPECTED
         self.format = '{p}Expected a list for key(s): "{d}"'
 
+
+# noinspection PyMissingConstructor
 class MissingCrucialContentWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MISSING_CRUCIAL_CONTENT
         self.format = '{p}Further validation amd acceptance requires more content; specifically keys(s): "{d}"'
 
+
+# noinspection PyMissingConstructor
 class MultipleRootsWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MULTIPLE_ROOT_NODES
         self.format = '{p}Multiple nodes flagged as the root: "{d}"'
 
+
+# noinspection PyMissingConstructor
 class NoRootWarningType(_ArgumentlessWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MULTIPLE_ROOT_NODES
         self.format = '{p}Multiple nodes flagged as the root:'
 
+
+# noinspection PyMissingConstructor
 class NodeWithMultipleParentsType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MULTIPLE_EDGES_FOR_NODES
         self.format = '{p} node ID is the target of multiple edges. Node ID(s): "{d}"'
 
+
+# noinspection PyMissingConstructor
 class TreeCycleWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.CYCLE_DETECTED
         self.format = '{p} node ID involved in a cycle in the tree. Node ID(s): "{d}"'
 
+
+# noinspection PyMissingConstructor
 class ReferencedIDNotFoundWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.REFERENCED_ID_NOT_FOUND
         self.format = '{p}An ID reference(s) did not match a previous ID: "{d}"'
 
+
+# noinspection PyMissingConstructor
 class RepeatedIDWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.REPEATED_ID
@@ -141,15 +168,22 @@ class _ObjListDataWarningType(_StrListDataWarningType):
     def convert_data_for_json(self, err_tuple):
         return [json.loads(i) for i in err_tuple[3]]
 
+
+# noinspection PyMissingConstructor
 class UnparseableMetaWarningType(_ObjListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.UNPARSEABLE_META
         self.format = '{p}meta(s) with out @property or @rel: "{d}"'
 
+
+# noinspection PyMissingConstructor
 class UnreachableNodeWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.UNREACHABLE_NODE
         self.format = '{p}Nodes not connected to the root of the tree: "{d}"'
+
+
+# noinspection PyMissingConstructor
 class InvalidKeyWarningType(_StrListDataWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.INVALID_PROPERTY_VALUE
@@ -179,6 +213,8 @@ class MultipleTipsToSameOttIdWarningType(MessageTupleAdaptor): #pylint: disable=
     def convert_data_for_json(self, err_tuple):
         return [i for i in err_tuple[3]]
 
+
+# noinspection PyMissingConstructor
 class MaxSizeExceededWarningType(_StrArgumentWarningType):
     def __init__(self):
         self.code = NexsonWarningCodes.MAX_SIZE_EXCEEDED
@@ -288,23 +324,6 @@ def _str_argument_warning(wt, addr, pyid, logger, severity, message):
 
 
 factory2code = {gen_MultipleTipsToSameOttIdWarning: NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID,
-                gen_NoRootWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
-                gen_UnrecognizedKeyWarning: NexsonWarningCodes.UNRECOGNIZED_KEY,
-                gen_MissingOptionalKeyWarning: NexsonWarningCodes.MISSING_OPTIONAL_KEY,
-                gen_MissingExpectedListWarning: NexsonWarningCodes.MISSING_LIST_EXPECTED,
-                gen_UnparseableMetaWarning: NexsonWarningCodes.UNPARSEABLE_META,
-                gen_ReferencedIDNotFoundWarning: NexsonWarningCodes.REFERENCED_ID_NOT_FOUND,
-                gen_TreeCycleWarning: NexsonWarningCodes.CYCLE_DETECTED,
-                gen_RepeatedIDWarning: NexsonWarningCodes.REPEATED_ID,
-                gen_MissingCrucialContentWarning: NexsonWarningCodes.MISSING_CRUCIAL_CONTENT,
-                gen_UnreachableNodeWarning: NexsonWarningCodes.UNREACHABLE_NODE,
-                gen_RepeatedOTUWarning: NexsonWarningCodes.REPEATED_OTU,
-                gen_NodeWithMultipleParents: NexsonWarningCodes.MULTIPLE_EDGES_FOR_NODES,
-                gen_WrongValueTypeWarning: NexsonWarningCodes.INCORRECT_VALUE_TYPE,
-                gen_MissingMandatoryKeyWarning: NexsonWarningCodes.MISSING_MANDATORY_KEY,
-                gen_MultipleRootsWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
-                gen_InvalidKeyWarning: NexsonWarningCodes.INVALID_PROPERTY_VALUE,
-                gen_MultipleTipsToSameOttIdWarning: NexsonWarningCodes.MULTIPLE_TIPS_MAPPED_TO_OTT_ID,
                 gen_NoRootWarning: NexsonWarningCodes.MULTIPLE_ROOT_NODES,
                 gen_UnrecognizedKeyWarning: NexsonWarningCodes.UNRECOGNIZED_KEY,
                 gen_MissingOptionalKeyWarning: NexsonWarningCodes.MISSING_OPTIONAL_KEY,

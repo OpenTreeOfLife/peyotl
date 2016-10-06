@@ -116,10 +116,7 @@ class Nexson2Nexml(NexsonConverter):
                 else:
                     s = k[1:]
                     if isinstance(v, bool):
-                        if v == True:
-                            v = u'true'
-                        else:
-                            v = u'false'
+                        v = u'true' if v else u'false'
                     ak[s] = UNICODE(v)
             elif k == '$':
                 tk = v

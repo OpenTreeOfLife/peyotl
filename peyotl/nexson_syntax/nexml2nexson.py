@@ -11,7 +11,7 @@ from peyotl.nexson_syntax.helper import NexsonConverter, \
                                         _LITERAL_META_PAT, \
                                         _RESOURCE_META_PAT
 
-from peyotl.utility import get_logger
+from peyotl.utility import get_logger, is_str_type
 import xml.dom.minidom
 _LOG = get_logger(__name__)
 
@@ -92,7 +92,14 @@ class Nexml2Nexson(NexsonConverter):
                 node_list = _get_index_list_of_values(tree, 'node')
                 root_node_flagged = False
                 for node in node_list:
-                    if node.get('@root') == True:
+                    nr = node.get('@root')
+                    if nr is None:
+                        continue
+                    if nr == True:
+                        root_node_flagged = True
+                        break
+                    if is_str_type(nr) and nr.lower() == 'True':
+                        node['@root'] = True
                         root_node_flagged = True
                         break
                 if not root_node_flagged:

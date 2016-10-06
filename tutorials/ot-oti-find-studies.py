@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+
 '''Simple command-line tool that wraps OTI to get studies for an argument which is a property value pair
    e.g. python ot-oti-find-studies.py '{"ot:studyId": "ot_308"}'
     which is described at https://github.com/OpenTreeOfLife/opentree/wiki/Open-Tree-of-Life-APIs#find_studies
@@ -26,7 +28,7 @@ def print_matching_studies(arg_dict, exact, verbose):
     from peyotl.sugar import phylesystem_api
     study_list = ot_find_studies(arg_dict, exact=exact, verbose=verbose)
     for study in study_list:
-        print study
+        print(study)
 
 def main(argv):
     '''This function sets up a command-line option parser and then calls print_matching_trees
@@ -55,6 +57,6 @@ def main(argv):
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
-    except Exception, x:
+    except Exception as x:
         sys.exit('{}\n'.format(str(x)))
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from peyotl.collections.collections_umbrella import TreeCollectionStore, TreeCollectionStoreProxy
+from peyotl.collections_store.collections_umbrella import TreeCollectionStore, TreeCollectionStoreProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
-from peyotl.collections import COLLECTION_ID_PATTERN
+from peyotl.collections_store import COLLECTION_ID_PATTERN
 from peyotl.utility import get_logger
 import anyjson
 import os
@@ -196,6 +196,8 @@ variable to obtain this token. If you need to obtain your key, see the instructi
         uri = '{d}/collection/{i}'.format(d=self._prefix, i=collection_id)
         return self.json_http_get(uri)  # , params=None, text=False)
 
+
+# noinspection PyPep8Naming
 def TreeCollectionsAPI(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).wrap_collections_api(**kwargs)
 

@@ -15,8 +15,6 @@ import sys
 out = codecs.getwriter('utf-8')(sys.stdout)
 
 phy = Phylesystem()
-#################################################
-# locals-punching
 # Start all of the properties for the report at 0
 report_properties = ['reported_study_count',
                      'study_count',
@@ -28,10 +26,18 @@ report_properties = ['reported_study_count',
                      'nominated_study_unique_OTU_count',
                      'nominated_study_unmapped_OTU_count',
                      'run_time']
-for prop in report_properties:
-    locals()[prop] = 0
-# end locals-punching
-#################################################
+reported_study_count = 0
+study_count = 0
+OTU_count = 0
+unmapped_OTU_count = 0
+unique_OTU_count = 0
+nominated_study_count = 0
+nominated_study_OTU_count = 0
+nominated_study_unique_OTU_count = 0
+nominated_study_unmapped_OTU_count = 0
+run_time = 0
+
+
 
 ott_id_set = set()
 nominated_ott_id_set = set()

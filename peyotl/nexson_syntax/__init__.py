@@ -121,7 +121,7 @@ def _get_content_id_from(content, **kwargs):
         subtree_id = kwargs.get('subtree_id')
         if subtree_id is None:
             subtree_id = kwargs.get('node_id')
-        return (kwargs.get('tree_id'), subtree_id)
+        return kwargs.get('tree_id'), subtree_id
     elif content == 'otus':
         return kwargs.get('otus_id')
     elif content == 'otu':
@@ -210,10 +210,10 @@ class PhyloSchema(object):
                        'ot:otttaxonname': '^ot:ottTaxonName', }
     _otu_label_list = _otu_label2prop.keys()
     _NEWICK_PROP_VALS = _otu_label2prop.values()
-    _no_content_id_types = set(['study', 'meta', 'treelist'])
-    _tup_content_id_types = set(['subtree'])
-    _str_content_id_types = set(['tree', 'otus', 'otu', 'otumap', 'file'])
-    _content_types = set(['file', 'study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree', 'treelist'])
+    _no_content_id_types = {'study', 'meta', 'treelist'}
+    _tup_content_id_types = {'subtree'}
+    _str_content_id_types = {'tree', 'otus', 'otu', 'otumap', 'file'}
+    _content_types = {'file', 'study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree', 'treelist'}
     def __init__(self, schema=None, **kwargs):
         '''Checks:
             'schema',
@@ -323,7 +323,7 @@ class PhyloSchema(object):
             return self.content != 'subtree'
         if self.content == 'study':
             return True
-        if self.content in set(['tree', 'subtree']):
+        if self.content in {'tree', 'subtree'}:
             return self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS]
         return False
     def is_json(self):

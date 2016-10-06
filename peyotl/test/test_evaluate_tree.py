@@ -4,14 +4,14 @@ NOT IMPLEMENTED - test expected to fail, so removed...
 
 from peyotl.evaluate_tree import evaluate_tree_rooting
 from peyotl.ott import OTT
-from peyotl.utility import get_config_setting_kwargs, get_logger
+from peyotl.utility import get_config_setting, get_logger
 from peyotl.nexson_proxy import NexsonProxy
 from peyotl.test.support import pathmap
 import unittest
 _LOG = get_logger(__name__)
 do_test = False
 try:
-    ott_dir = get_config_setting_kwargs(None, section='ott', param='parent', default=False)
+    ott_dir = get_config_setting(section='ott', param='parent', default=False)
     if ott_dir is False or not ott_dir.endswith('/aster'):
         _LOG.debug('ott_dir setting is "{}" this does not look like it is the Asterales system'.format(ott_dir))
     else:

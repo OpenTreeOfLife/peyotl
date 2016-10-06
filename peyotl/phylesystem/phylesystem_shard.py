@@ -3,7 +3,7 @@ import re
 import json
 import codecs
 from threading import Lock
-from peyotl.utility import get_config_setting_kwargs
+from peyotl.utility import get_config_setting
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard, \
                                          FailedShardCreationError, \
@@ -113,7 +113,7 @@ class PhylesystemShard(TypeAwareGitShard):
                  new_study_prefix=None,
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
-        self.max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None)
+        self.max_file_size = get_config_setting('phylesystem', 'max_file_size')
         TypeAwareGitShard.__init__(self,
                                    name,
                                    path,

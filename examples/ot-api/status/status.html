@@ -27,17 +27,17 @@
       <th>Call</th>
       <th></th>
     </tr>
-    <tr id="getSyntheticTree"/>
-    <tr id="getDraftTreeSubtreeForNodes" />
-    <tr id="getSynthesisSourceList" />
-    <tr id="autocompleteBoxQuery" />
-    <tr id="study_list" />
-    <tr id="pg_719" />
+    <tr id="getSyntheticTree"></tr>
+    <tr id="getDraftTreeSubtreeForNodes" ></tr>
+    <tr id="getSynthesisSourceList" ></tr>
+    <tr id="autocompleteBoxQuery" ></tr>
+    <tr id="study_list" ></tr>
+    <tr id="pg_719" ></tr>
 </table>
 <script>
 var u = document.URL;
 u = u.replace(/\.[^/.]+$/, "");
-var jurl = u + '.json'
+var jurl = u + '.json';
 var apidomain = 'api.opentreeoflife.org'; //'api.opentreeoflife.org';
 var apisd = 'http://' + apidomain;
 var addWSCheckOnClick = function (targetpar,
@@ -49,7 +49,7 @@ var addWSCheckOnClick = function (targetpar,
   var target = targetpar.find('.triggerEl');
   target.on("click", function() {
     target.css('background-color', 'white');
-    target.text('checking...')
+    target.text('checking...');
     $.ajax({
       url: url,
       data: data,

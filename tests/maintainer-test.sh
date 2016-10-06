@@ -1,17 +1,27 @@
 #!/bin/sh
+#!/bin/sh
+for d in peyotl extras scripts tutorials tests
+do 
+    if ! test -d "$d"
+    then
+        echo "$0 must be run from the PEYOTL_ROOT dir (the parent of the tests dir)."
+        exit 1
+    fi
+done
+
 #set -x
 f=0 # the number of tests
-if ! ./integration-tests.sh
+if ! ./tests/integration-tests.sh
 then
     f=1
 fi
 k=0
-if ! ./standalone-tests.sh
+if ! ./tests/standalone-tests.sh
 then
     k=1
 fi
 t=0
-if ! ./tutorial-tests.sh
+if ! ./tests/tutorial-tests.sh
 then
     t=1
 fi

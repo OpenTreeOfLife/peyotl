@@ -240,7 +240,9 @@ class CacheNotFoundError(RuntimeError):
 class OTT(object):
     TREEMACHINE_SUPPRESS_FLAGS = _TREEMACHINE_PRUNE_FLAGS
     def __init__(self, ott_dir=None, **kwargs):
-        self._config = get_config_object(None, **kwargs)
+        self._config = kwargs.get('config')
+        if self._config is None:
+            self._config = get_config_object()
         if ott_dir is None:
             ott_dir = self._config.get_config_setting('ott', 'parent')
         if ott_dir is None:

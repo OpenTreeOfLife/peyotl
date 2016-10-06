@@ -5,7 +5,8 @@ from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, \
                                              GitWorkflowError
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.utility.input_output import read_as_json
-from peyotl.utility import get_logger, read_config, _replace_default_config
+from peyotl.utility import get_logger, get_raw_default_config_and_read_file_list
+from peyotl.utility.get_config import _replace_default_config
 import unittest
 import codecs
 import json
@@ -14,7 +15,7 @@ import sys
 from peyotl.test.support import pathmap
 _LOG = get_logger(__name__)
 
-config, cfg_filename = read_config()
+config, cfg_filename = get_raw_default_config_and_read_file_list()
 COMMITS_SHOULD_FAIL_ARG = 'tiny_max_file_size'
 COMMITS_SHOULD_FAIL = COMMITS_SHOULD_FAIL_ARG in sys.argv
 if COMMITS_SHOULD_FAIL:

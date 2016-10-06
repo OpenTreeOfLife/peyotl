@@ -1,4 +1,12 @@
 #!/bin/sh
+for d in peyotl extras scripts tutorials tests
+do 
+    if ! test -d "$d"
+    then
+        echo "$0 must be run from the PEYOTL_ROOT dir (the parent of the tests dir)."
+        exit 1
+    fi
+done
 set -x
 ttf=0
 if ! python tutorials/ot-tnrs-match-names.py Hominidae >tutorials/tutorial-test-output 2>tutorials/tutorial-test-err-output

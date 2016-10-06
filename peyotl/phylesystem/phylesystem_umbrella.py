@@ -1,5 +1,5 @@
 from peyotl.utility import get_logger, \
-                           get_config_setting_kwargs
+    get_config_setting
 try:
     from dogpile.cache.api import NO_VALUE
 except:
@@ -269,7 +269,7 @@ def Phylesystem(repos_dict=None,
     call that class directly.
     '''
     if not repo_nexml2json:
-        repo_nexml2json = get_config_setting_kwargs(None, 'phylesystem', 'repo_nexml2json')
+        repo_nexml2json = get_config_setting('phylesystem', 'repo_nexml2json')
     global _THE_PHYLESYSTEM
     if _THE_PHYLESYSTEM is None:
         _THE_PHYLESYSTEM = _Phylesystem(repos_dict=repos_dict,

@@ -2,7 +2,7 @@
 from peyotl.amendments.amendments_umbrella import TaxonomicAmendmentStore, TaxonomicAmendmentStoreProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.amendments import AMENDMENT_ID_PATTERN
-from peyotl.utility import get_logger
+from peyotl.utility import get_logger, coerce_amendment_dois_to_urls
 import anyjson
 import os
 _LOG = get_logger(__name__)
@@ -116,6 +116,7 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
             r = {'data': json}
         elif self._src_code == _GET_LOCAL:
             json, sha = self.docstore_obj.return_doc(amendment_id) #pylint: disable=W0632
+            coerce_amendment_dois_to_urls(json)  # normally done via API
             r = {'data': json,
                  'sha': sha}
         else:

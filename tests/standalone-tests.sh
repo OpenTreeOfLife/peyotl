@@ -1,4 +1,12 @@
 #!/bin/sh
+for d in peyotl extras scripts tutorials tests
+do 
+    if ! test -d "$d"
+    then
+        echo "$0 must be run from the PEYOTL_ROOT dir (the parent of the tests dir)."
+        exit 1
+    fi
+done
 if ! test -d peyotl/test/data/mini_par/mini_phyl
 then
     echo "skipping mini_phyl tests (this is normal unless you are MTH or EJBM)"
@@ -15,25 +23,25 @@ stf=0
 #    stf=$(expr $stf + 1)
 #fi
 sh dev/refresh_for_git_tests.sh
-if ! python standalone_tests/test_study_del.py
+if ! python tests/standalone_tests/test_study_del.py
 then
     stf=$(expr $stf + 1)
 fi
 
 sh dev/refresh_for_git_tests.sh
-if ! python standalone_tests/test_git_workflows.py
+if ! python tests/standalone_tests/test_git_workflows.py
 then
     stf=$(expr $stf + 1)
 fi
 
 sh dev/refresh_for_git_tests.sh
-if ! python standalone_tests/test_git_workflows.py tiny_max_file_size
+if ! python tests/standalone_tests/test_git_workflows.py tiny_max_file_size
 then
     stf=$(expr $stf + 1)
 fi
 
 sh dev/refresh_for_git_tests.sh
-if ! python standalone_tests/test_phylesystem_mirror.py
+if ! python tests/standalone_tests/test_phylesystem_mirror.py
 then
     stf=$(expr $stf + 1)
 fi

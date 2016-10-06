@@ -60,7 +60,9 @@ def log_request_as_curl(curl_log, url, verb, headers, params, data):
 
 class APIDomains(object):
     def __init__(self, **kwargs):
-        self._config = get_config_object(None, **kwargs)
+        self._config = kwargs.get('config')
+        if self._config is None:
+            self._config = get_config_object()
         self._oti = kwargs.get('oti')
         self._phylografter = 'http://www.reelab.net/phylografter'
         self._phylesystem_api = kwargs.get('phylesystem')
@@ -141,7 +143,9 @@ class APIWrapper(object):
         self._tnrs_wrapper = None
         self._studies_wrapper = None
         self._study_wrapper = None
-        self._config = get_config_object(None, **kwargs)
+        self._config = kwargs.get('config')
+        if self._config is None:
+            self._config = get_config_object()
         if phylesystem_api_kwargs is None:
             self._phylesystem_api_kwargs = {}
         else:

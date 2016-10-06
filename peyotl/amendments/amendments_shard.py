@@ -2,7 +2,7 @@ import os
 import codecs
 from threading import Lock
 from peyotl.utility import get_logger, \
-                           get_config_setting_kwargs
+    get_config_setting
 from peyotl.git_storage.git_shard import GitShard, \
                                          TypeAwareGitShard, \
                                          _invert_dict_list_val
@@ -70,7 +70,7 @@ class TaxonomicAmendmentsShard(TypeAwareGitShard):
                  new_doc_prefix=None, # IGNORED in this shard type
                  infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                  **kwargs):
-        self.max_file_size = get_config_setting_kwargs(None, 'phylesystem', 'max_file_size', default=None)
+        self.max_file_size = get_config_setting('phylesystem', 'max_file_size')
         TypeAwareGitShard.__init__(self,
                                    name,
                                    path,

@@ -218,7 +218,9 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         data = {'names': names}
         return self.json_http_post(uri, data=anyjson.dumps(data))
     def __init__(self, domain, **kwargs):
-        self._config = get_config_object(None, **kwargs)
+        self._config = kwargs.get('config')
+        if self._config is None:
+            self._config = get_config_object()
         self._api_vers = self._config.get_from_config_setting_cascade([('apis', 'taxomachine_api_version'),
                                                                        ('apis', 'api_version')],
                                                                       "2")

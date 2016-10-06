@@ -21,6 +21,7 @@ refresh_and_test_local_git tests/local_repos_tests/test_caching.py
 refresh_and_test_local_git tests/local_repos_tests/test_git_workflows.py
 refresh_and_test_local_git tests/local_repos_tests/test_study_del.py
 refresh_and_test_local_git tests/local_repos_tests/test_git_workflows.py tiny_max_file_size
+refresh_and_test_local_git tests/local_repos_tests/test_phylesystem_api.py
 refresh_and_test_local_git tests/local_repos_tests/test_phylesystem_mirror.py
 
 # This resets the head on the remote. A dangerous operation, but this is just a testing repo.

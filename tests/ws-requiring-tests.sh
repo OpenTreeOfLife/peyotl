@@ -12,6 +12,7 @@ fi
 num_checks=0
 num_fails=0
 echo_and_demand_succeeds python tests/ws-tests/readonly/test_phylesystem_api.py
+echo_and_demand_succeeds python tests/ws-tests/readonly/test_amendments_api.py
 stf=0
 if test ${num_fails} -gt 0
 then

@@ -35,6 +35,7 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
         self._src_code = _GET_FROM_VALUES.index(self._get_from)
         self._refresh_code = _REFRESH_VALUES.index(self._refresh)
         self._assumed_doc_version = None
+        self._locals_repo_dict = kwargs.get('locals_repos_dict')  # repos_dict arg to Phylesystem() if get_from is local
         self._store_config = None
         self._docstore_obj = None
         self._use_raw = False
@@ -49,7 +50,7 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
     def docstore_obj(self):
         if self._docstore_obj is None:
             if self._src_code == _GET_LOCAL:
-                self._docstore_obj = TaxonomicAmendmentStore()
+                self._docstore_obj = TaxonomicAmendmentStore(repos_dict=self._locals_repo_dict)
             else:
                 self._docstore_obj = TaxonomicAmendmentStoreProxy(self.store_config)
         return self._docstore_obj

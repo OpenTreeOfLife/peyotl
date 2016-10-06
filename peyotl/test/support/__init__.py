@@ -30,3 +30,22 @@ def test_phylesystem_api_for_study(test_case_instance, phylesystem_wrapper, stud
     test_case_instance.assertTrue(sid in [study_id])
     y = phylesystem_wrapper.get(study_id, tree_id='tree3', format='newick')
     test_case_instance.assertTrue(y.startswith('('))
+
+
+def test_amendments_api(test_case_instance, amendments_wrapper):
+    try:
+        a = amendments_wrapper.get('additions-5000000-5000003')
+        cn = a['study_id']
+        test_case_instance.assertTrue(cn in [u'ot_234', ])
+    except:
+        # try alternate amendments (and study_id) for remote/proxied docstores
+        try:
+            # this is an amendment in the production repo!
+            a = amendments_wrapper.get('additions-5861452-5861452')
+            cn = a['study_id']
+            test_case_instance.assertTrue(cn in [u'ot_520', ])
+        except:
+            # this is an amendment in the devapi repo (amendments-0)!
+            a = amendments_wrapper.get('additions-10000000-10000001')
+            cn = a['study_id']
+            test_case_instance.assertTrue(cn in [u'pg_2606', ])

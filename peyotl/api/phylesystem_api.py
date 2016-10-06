@@ -36,6 +36,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
         self._trans_code = _TRANSFORM_VALUES.index(self._transform)
         self._refresh_code = _REFRESH_VALUES.index(self._refresh)
         self._repo_nexml2json = None
+        self._locals_repo_dict = kwargs.get('locals_repos_dict') # repos_dict arg to Phylesystem() if get_from is local
         self._phylesystem_config = None
         self._phylesystem_obj = None
         self._use_raw = False
@@ -50,7 +51,7 @@ class _PhylesystemAPIWrapper(_WSWrapper):
     def phylesystem_obj(self):
         if self._phylesystem_obj is None:
             if self._src_code == _GET_LOCAL:
-                self._phylesystem_obj = Phylesystem()
+                self._phylesystem_obj = Phylesystem(repos_dict=self._locals_repo_dict)
             else:
                 self._phylesystem_obj = PhylesystemProxy(self.phylesystem_config)
         return self._phylesystem_obj

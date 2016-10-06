@@ -11,4 +11,5 @@ echo "Running tests of the local (mini) amendments system"
 num_fails=0
 num_checks=0
 refresh_and_test_local_git tests/local_repos_tests/test_amendments.py
+refresh_and_test_local_git tests/local_repos_tests/test_amendments_api.py
 exit ${num_fails}

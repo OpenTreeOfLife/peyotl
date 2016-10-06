@@ -35,11 +35,6 @@ class TestPhylesystemAPI(unittest.TestCase):
         pa = PhylesystemAPI(self.domains, get_from='api')
         sl = pa.push_failure_state
         self.assertTrue(sl[0] is True)
-    def testFetchStudyRemote(self):
-        pa = PhylesystemAPI(self.domains, get_from='api')
-        x = pa.get_study('pg_10')['data']
-        sid = find_val_literal_meta_first(x['nexml'], 'ot:studyId', detect_nexson_version(x))
-        self.assertTrue(sid in ['10', 'pg_10'])
     def testRemoteSugar(self):
         pa = PhylesystemAPI(self.domains, get_from='api')
         test_phylesystem_api_for_study(self, pa)

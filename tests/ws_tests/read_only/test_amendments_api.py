@@ -1,29 +1,15 @@
 #! /usr/bin/env python
 import os
-from peyotl.api import TaxonomicAmendmentsAPI
-#from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_meta_first
-from peyotl.test.support.pathmap import get_test_ot_service_domains
-from peyotl.test.support import test_amendments_api
-from peyotl.utility import get_logger
-from peyotl.amendments import get_empty_amendment
-from peyotl.utility.str_util import slugify, \
-                                    increment_slug
-from requests.exceptions import HTTPError
 import unittest
 from pprint import pprint
 
-_LOG = get_logger(__name__)
-from peyotl.amendments.helper import get_repos
-try:
-    get_repos()
-    HAS_LOCAL_AMENDMENTS_REPOS = True
-except:
-    HAS_LOCAL_AMENDMENTS_REPOS = False
+from peyotl.api import TaxonomicAmendmentsAPI
+from peyotl.test.support import test_amendments_api, raise_http_error_with_more_detail
+from peyotl.test.support.pathmap import get_test_ot_service_domains
+from peyotl.utility import get_logger
+from requests.exceptions import HTTPError
 
-def raise_HTTPError_with_more_detail(err):
-    # show more useful information (JSON payload) from the server
-    details = err.response.text
-    raise ValueError("{e}, details: {m}".format(e=err, m=details))
+_LOG = get_logger(__name__)
 
 @unittest.skipIf('RUN_WEB_SERVICE_TESTS' not in os.environ,
                  'RUN_WEB_SERVICE_TESTS is not in your environment, so tests that use '
@@ -59,7 +45,7 @@ class TestTaxonomicAmendmentsAPI(unittest.TestCase):
         try:
             test_amendments_api(self, taa)
         except HTTPError as err:
-            raise_HTTPError_with_more_detail(err)
+            raise_http_error_with_more_detail(err)
         except Exception as err:
             raise err
     def testExternalSugar(self):

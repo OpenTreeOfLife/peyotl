@@ -49,3 +49,18 @@ def test_amendments_api(test_case_instance, amendments_wrapper):
             a = amendments_wrapper.get('additions-10000000-10000001')
             cn = a['study_id']
             test_case_instance.assertTrue(cn in [u'pg_2606', ])
+
+
+def test_collections_api(test_case_instance, collections_wrapper):
+    try:
+        c = collections_wrapper.get('TestUserB/my-favorite-trees')
+    except:
+        # alternate collection for remote/proxied docstore
+        c = collections_wrapper.get('jimallman/my-test-collection')
+    cn = c['name']
+    test_case_instance.assertTrue(cn in [u'My favorite trees!', u'My test collection'])
+
+def raise_http_error_with_more_detail(err):
+    # show more useful information (JSON payload) from the server
+    details = err.response.text
+    raise ValueError("{e}, details: {m}".format(e=err, m=details))

@@ -32,7 +32,7 @@ class GoLNode(TaxonHolder):
         self._treemachine_wrapper = treemachine_wrapper
         self._graph_of_life = graph_of_life
         if node_id is None:
-            self._node_id = prop_dict['mrca_node_id'] #If this fails often due
+            self._node_id = prop_dict['mrca_node_id']
         else:
             self._node_id = node_id
         if taxon is None:

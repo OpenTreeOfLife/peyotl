@@ -12,7 +12,6 @@ from peyotl.utility import (get_config_setting,
                             get_config_object,
                             expand_path,
                             get_logger)
-
 from peyotl.utility.input_output import pretty_dict_str
 
 from peyotl.collections_store import collection_to_included_trees, concatenate_collections

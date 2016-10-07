@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-'''Basic functions and classes which are used by nexson_syntax subpackage,
+"""Basic functions and classes which are used by nexson_syntax subpackage,
 but do not depend on other parts of peyotl.nexson_syntax
-'''
+"""
 import re
 from peyotl.utility import get_logger
 from peyotl.utility.str_util import is_int_type
+
 _LOG = get_logger(__name__)
 # DIRECT_HONEY_BADGERFISH is the closest to BadgerFish
 DIRECT_HONEY_BADGERFISH = '1.0.0'
@@ -27,17 +28,21 @@ SUPPORTED_NEXSON_VERSIONS_AND_ALIASES = frozenset([BADGER_FISH_NEXSON_VERSION,
 _LITERAL_META_PAT = re.compile(r'.*[:]?LiteralMeta$')
 _RESOURCE_META_PAT = re.compile(r'.*[:]?ResourceMeta$')
 
+
 class NexsonError(Exception):
     def __init__(self, v):
         self.value = v
+
     def __str__(self):
         return repr(self.value)
 
+
 def detect_nexson_version(blob):
-    '''Returns the nexml2json attribute or the default code for badgerfish'''
+    """Returns the nexml2json attribute or the default code for badgerfish"""
     n = get_nexml_el(blob)
     assert isinstance(n, dict)
     return n.get('@nexml2json', BADGER_FISH_NEXSON_VERSION)
+
 
 def get_nexml_el(blob):
     v = blob.get('nexml')
@@ -45,11 +50,14 @@ def get_nexml_el(blob):
         return v
     return blob['nex:nexml']
 
+
 class NexmlTypeError(Exception):
     def __init__(self, m):
         self.msg = m
+
     def __str__(self):
         return self.msg
+
 
 class ConversionConfig(object):
     def __init__(self, output_format, **kwargs):
@@ -58,13 +66,17 @@ class ConversionConfig(object):
         for k, v in kwargs.items():
             self.__dict__[k] = v
             self._keys.append(k)
+
     def items(self):
         for k in self._keys:
             yield (k, getattr(self, k))
+
     def keys(self):
         return list(self._keys)
+
     def get(self, k, default):
         return getattr(self, k, default)
+
 
 class NexsonConverter(object):
     def __init__(self, conv_cfg):
@@ -74,17 +86,19 @@ class NexsonConverter(object):
         self.remove_old_structs = conv_cfg.get('remove_old_structs', True)
         self.pristine_if_invalid = conv_cfg.get('pristine_if_invalid', False)
 
+
 def _index_list_of_values(d, k):
-    '''Returns d[k] or [d[k]] if the value is not a list'''
+    """Returns d[k] or [d[k]] if the value is not a list"""
     v = d[k]
     if isinstance(v, list):
         return v
     return [v]
 
+
 def _get_index_list_of_values(d, k, def_value=None):
-    '''Like _index_list_of_values, but uses get to access and
+    """Like _index_list_of_values, but uses get to access and
     returns an empty list if the key is absent.
-    Returns d[k] or [d[k]] if the value is not a list'''
+    Returns d[k] or [d[k]] if the value is not a list"""
     v = d.get(k, def_value)
     if v is None:
         return []
@@ -92,15 +106,16 @@ def _get_index_list_of_values(d, k, def_value=None):
         return v
     return [v]
 
+
 def _add_value_to_dict_bf(d, k, v):
-    '''Adds the `k`->`v` mapping to `d`, but if a previous element exists it changes
+    """Adds the `k`->`v` mapping to `d`, but if a previous element exists it changes
     the value of for the key to list.
 
     This is used in the BadgerFish mapping convention.
 
     This is a simple multi-dict that is only suitable when you know that you'll never
     store a list or `None` as a value in the dict.
-    '''
+    """
     prev = d.get(k)
     if prev is None:
         d[k] = v
@@ -116,10 +131,12 @@ def _add_value_to_dict_bf(d, k, v):
             d[k] = x
         else:
             d[k] = [prev, v]
+
+
 def _add_uniq_value_to_dict_bf(d, k, v):
-    '''Like _add_value_to_dict_bf but will not add v if another
+    """Like _add_value_to_dict_bf but will not add v if another
     element in under key `k` has the same value.
-    '''
+    """
     prev = d.get(k)
     if prev is None:
         d[k] = v
@@ -149,13 +166,16 @@ def _add_uniq_value_to_dict_bf(d, k, v):
                 d[k] = prev
         elif prev != v:
             d[k] = [prev, v]
+
+
 _is_badgerfish_version = lambda x: x.startswith('0.')
 _is_direct_hbf = lambda x: x.startswith('1.0.')
 _is_by_id_hbf = lambda x: x.startswith('1.2')
 _is_supported_nexson_vers = lambda x: x in SUPPORTED_NEXSON_VERSIONS_AND_ALIASES
 
+
 def _debug_dump_dom(el):
-    '''Debugging helper. Prints out `el` contents.'''
+    """Debugging helper. Prints out `el` contents."""
     import xml.dom.minidom
     s = [el.nodeName]
     att_container = el.attributes
@@ -169,20 +189,23 @@ def _debug_dump_dom(el):
             s.append('  {a} child'.format(a=c.nodeName))
     return '\n'.join(s)
 
+
 def _cull_redundant_about(obj):
-    '''Removes the @about key from the `obj` dict if that value refers to the
+    """Removes the @about key from the `obj` dict if that value refers to the
     dict's '@id'
-    '''
+    """
     about_val = obj.get('@about')
     if about_val:
         id_val = obj.get('@id')
         if id_val and (('#' + id_val) == about_val):
             del obj['@about']
 
+
 def _add_redundant_about(obj):
     id_val = obj.get('@id')
     if id_val and ('@about' not in obj):
         obj['@about'] = ('#' + id_val)
+
 
 def _coerce_literal_val_to_primitive(datatype, str_val):
     _TYPE_ERROR_MSG_FORMAT = 'Expected meta property to have type {t}, but found "{v}"'
@@ -207,12 +230,13 @@ def _coerce_literal_val_to_primitive(datatype, str_val):
             raise NexmlTypeError(_TYPE_ERROR_MSG_FORMAT.format(t=datatype, v=str_val))
     else:
         _LOG.debug('unknown xsi:type "%s"', datatype)
-        return None # We'll fall through to here when we encounter types we do not recognize
+        return None  # We'll fall through to here when we encounter types we do not recognize
+
 
 def _python_instance_to_nexml_meta_datatype(v):
-    '''Returns 'xsd:string' or a more specific type for a <meta datatype="XYZ"...
+    """Returns 'xsd:string' or a more specific type for a <meta datatype="XYZ"...
     syntax using introspection.
-    '''
+    """
     if isinstance(v, bool):
         return 'xsd:boolean'
     if is_int_type(v):
@@ -221,9 +245,10 @@ def _python_instance_to_nexml_meta_datatype(v):
         return 'xsd:float'
     return 'xsd:string'
 
+
 def _convert_hbf_meta_val_for_xml(key, val):
-    '''Convert to a BadgerFish-style dict for addition to a dict suitable for
-    addition to XML tree or for v1.0 to v0.0 conversion.'''
+    """Convert to a BadgerFish-style dict for addition to a dict suitable for
+    addition to XML tree or for v1.0 to v0.0 conversion."""
     if isinstance(val, list):
         return [_convert_hbf_meta_val_for_xml(key, i) for i in val]
     is_literal = True
@@ -251,6 +276,7 @@ def _convert_hbf_meta_val_for_xml(key, val):
         ret.setdefault('@rel', key)
     return ret
 
+
 def get_bf_meta_value(d):
     v = d.get('$')
     if v is not None:
@@ -260,11 +286,13 @@ def get_bf_meta_value(d):
         return v
     return d.get('@href')
 
+
 def _contains_hbf_meta_keys(d):
     for k in d.keys():
         if k.startswith('^'):
             return True
     return False
+
 
 def extract_meta(x):
     try:
@@ -272,10 +300,11 @@ def extract_meta(x):
     except:
         return None
 
+
 def find_val_for_first_bf_l_meta(d, prop_name):
-    '''Returns the $ value of the first meta element with
+    """Returns the $ value of the first meta element with
     the @property that matches @prop_name (or None).
-    '''
+    """
     m_list = d.get('meta')
     if not m_list:
         return None
@@ -286,10 +315,11 @@ def find_val_for_first_bf_l_meta(d, prop_name):
             return extract_meta(m_el)
     return None
 
+
 def find_val_for_first_bf_r_meta(d, prop_name):
-    '''Returns the $ value of the first meta element with
+    """Returns the $ value of the first meta element with
     the @rel that matches @prop_name (or None).
-    '''
+    """
     m_list = d.get('meta')
     if not m_list:
         return None
@@ -300,9 +330,11 @@ def find_val_for_first_bf_r_meta(d, prop_name):
             return extract_meta(m_el)
     return None
 
+
 def find_val_for_first_hbf_l_meta(d, prop_name):
     p = '^' + prop_name
     return d.get(p)
+
 
 def find_val_literal_meta_first(d, prop_name, version):
     if _is_badgerfish_version(version):
@@ -310,10 +342,11 @@ def find_val_literal_meta_first(d, prop_name, version):
     p = '^' + prop_name
     return d.get(p)
 
+
 def find_nested_meta_first_bf(d, prop_name):
-    '''Returns the $ value of the first meta element with
+    """Returns the $ value of the first meta element with
     the @property that matches @prop_name (or None).
-    '''
+    """
     m_list = d.get('meta')
     if not m_list:
         return None
@@ -326,17 +359,19 @@ def find_nested_meta_first_bf(d, prop_name):
 
 
 def find_nested_meta_first(d, prop_name, version):
-    '''Returns obj. for badgerfish and val for hbf. Appropriate for nested literals'''
+    """Returns obj. for badgerfish and val for hbf. Appropriate for nested literals"""
     if _is_badgerfish_version(version):
         return find_nested_meta_first_bf(d, prop_name)
     p = '^' + prop_name
     return d.get(p)
+
 
 def find_val_resource_meta_first(d, prop_name, version):
     if _is_badgerfish_version(version):
         return find_val_for_first_bf_r_meta(d, prop_name)
     p = '^' + prop_name
     return d.get(p)
+
 
 def add_literal_meta(obj, prop_name, value, version):
     if _is_badgerfish_version(version):
@@ -353,6 +388,7 @@ def add_literal_meta(obj, prop_name, value, version):
         k = '^' + prop_name
         _add_value_to_dict_bf(obj, k, value)
         return value
+
 
 def delete_first_literal_meta(obj, prop_name, version):
     if _is_badgerfish_version(version):
@@ -374,6 +410,7 @@ def delete_first_literal_meta(obj, prop_name, version):
         if k in obj:
             del obj[k]
 
+
 def _simplify_object_by_id_del(o):
     if isinstance(o, list):
         return [_simplify_object_by_id_del(i) for i in o]
@@ -389,6 +426,7 @@ def _simplify_object_by_id_del(o):
             if '@href' in o:
                 del o['@id']
     return o
+
 
 def _simplify_all_meta_by_id_del(el):
     to_del = []

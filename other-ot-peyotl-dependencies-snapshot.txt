@@ -1,0 +1,214 @@
+###############
+phylesystem-api
+###############
+controllers/default.py
+======================
+from peyotl import convert_nexson_format
+from peyotl.utility.str_util import slugify
+from peyotl.phylesystem.git_workflows import GitWorkflowError, \
+                                             validate_and_convert_nexson
+from peyotl.collections import OWNER_ID_PATTERN, \
+                               COLLECTION_ID_PATTERN
+from peyotl.collections.validation import validate_collection
+from peyotl.amendments import AMENDMENT_ID_PATTERN
+from peyotl.amendments.validation import validate_amendment
+from peyotl.nexson_syntax import get_empty_nexson, \
+                                 extract_supporting_file_messages, \
+                                 extract_tree, \
+                                 PhyloSchema, \
+                                 read_as_json, \
+                                 BY_ID_HONEY_BADGERFISH
+from peyotl.external import import_nexson_from_treebase
++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+convert_nexson_format(nexson, dest_format, current_format=current_format)
+GitWorkflowError instance has msg str
+validate_and_convert_nexson(nexson, repo_nexml2json, allow_invalid=False, max_num_trees_per_study=max_num_trees)
+OWNER_ID_PATTERN COLLECTION_ID_PATTERN, AMENDMENT_ID_PATTERN are regex
+errors, collection_adaptor = validate_collection(collection_obj)
+errors, amendment_adaptor = validate_amendment(amendment_obj)
+new_study_nexson = get_empty_nexson(BY_ID_HONEY_BADGERFISH, include_cc0=cc0_agreement)
+m_list = extract_supporting_file_messages(study_nexson)
+
+schema = PhyloSchema(schema=kwargs.get('format'), type_ext=type_ext, content=resource, content_id=content_id, repo_nexml2json=repo_nexml2json, **kwargs)
+where  kwargs['output_nexml2json'] string like '0.0.0'
+       kwargs['bracket_ingroup'] bool
+       kwargs from GET optional args
+       kwargs.get('subtree_id')
+src_schema = PhyloSchema('nexson', version=repo_nexml2json)
+blob = read_as_json(fail_file_filename)
+
+new_study_nexson = import_nexson_from_treebase(treebase_id, nexson_syntax_version=BY_ID_HONEY_BADGERFISH)
+
+====================
+controllers/merge.py
+====================
+from peyotl.phylesystem.git_workflows import GitWorkflowError, \
+                                             merge_from_master
+auth_info = api_utils.authenticate(**kwargs)
+gd = phylesystem.create_git_action(resource_id)
+try:
+    return merge_from_master(gd, resource_id, auth_info, starting_commit_SHA)
+
+======================
+controllers/studies.py
+======================
+from peyotl.api import OTI
+++++++++++++++++++++++++++
+OTI(oti=api_utils.get_oti_domain(request))
+
+====================
+modules/api_utils.py
+====================
+from peyotl.nexson_syntax import write_as_json
+from peyotl.phylesystem import Phylesystem
+from peyotl.collections import TreeCollectionStore
+from peyotl.amendments import TaxonomicAmendmentStore
+from peyotl.utility import read_config as read_peyotl_config NEED to change this to get_raw_default_config_and_read_file_list
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+write_as_json(obj, tmpfn, indent=2, sort_keys=True)
+_PHYLESYSTEM = Phylesystem(repos_par=repo_parent,
+                               git_ssh=git_ssh,
+                               pkey=pkey,
+                               git_action_class=GitData,
+                               mirror_info={'push':{'parent_dir': push_mirror,
+                                                    'remote_map': {'GitHubRemote': git_hub_remote,},
+                                                   }
+                                           },
+                               new_study_prefix=STR_FROM_CONFIG})
+_TREE_COLLECTION_STORE = TreeCollectionStore(repos_par=repo_parent,
+                                                 git_ssh=git_ssh,
+                                                 pkey=pkey,
+                                                 git_action_class=GitData, #TODO?
+                                                 mirror_info=mirror_info)
+_TAXONOMIC_AMENDMENT_STORE = TaxonomicAmendmentStore(repos_par=repo_parent,
+                                                 git_ssh=git_ssh,
+                                                 pkey=pkey,
+                                                 git_action_class=GitData, #TODO?
+                                                 mirror_info=mirror_info)
+peyotl_config, cfg_filename = read_peyotl_config()
+====================
+modules/gitdata.py
+====================
+from peyotl.phylesystem.git_actions import PhylesystemGitAction
+class GitData(PhylesystemGitAction):
+    def __init__(self, repo, **kwargs):
+        PhylesystemGitAction.__init__(self, repo, **kwargs)
+    def delete_remote_branch(self, remote, branch, env={}):
+
+======================================
+ws-tests/test_sutdy_get_multiformat.py
+ws-tests/test_sutdy_put_multiformat.py
+======================================
+from peyotl import convert_nexson_format
+blob =  convert_nexson_format(badger, '1.0.0', current_format='0.0.0')
+n = convert_nexson_format(n, '1.2')
+
+
+################
+opentree/curator
+################
+from peyotl.manip import merge_otus_and_trees, iter_trees
+from peyotl.nexson_syntax import can_convert_nexson_forms, \
+                                     get_ot_study_info_from_nexml, \
+                                     add_resource_meta, \
+                                     convert_nexson_format, \
+                                     BADGER_FISH_NEXSON_VERSION
+    from peyotl.manip import count_num_trees
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+o = merge_otus_and_trees(nexson)
+tree_ids = [tree_id for (tree_group_id, tree_id, imported_tree) in iter_trees(nex)]
+
+can_convert_nexson_forms('nexml', NEXSON_VERSION_STR)
+get_ot_study_info_from_nexml(NEXML_FILEPATH, nexson_syntax_version=NEXSON_VERSION_STR)
+add_resource_meta(n, "ot:dataDeposit", dd, NEXSON_VERSION)
+num_trees = count_num_trees(nex, NEXSON_VERSION_STR)
+
+
+#######
+otindex
+#######
+=================================
+dev_scripts/add_update_studies.py
+=================================
+from peyotl.nexson_proxy import NexsonProxy
++++++++++++++++++++++++++++++++++++++++++++
+studyobj = NexsonProxy(nexson=nexson_blob)
+nexml = studyobj._nexml_el
+study_id = nexml['^ot:studyId']
+nexml['treesById']
+
+=======
+various
+=======
+from peyotl.api.phylesystem_api import PhylesystemAPI
+from peyotl import gen_otu_dict, iter_node
+from peyotl.manip import iter_trees
+import peyotl.ott as ott
+++++++++++++++++++++++++++++++++++++++++++
+PhylesystemAPI(get_from='local') and PhylesystemAPI()
+for node_id, node in iter_node(tree)
+for study_id, n in phy.iter_study_objs():
+    otu_dict = gen_otu_dict(n)
+for trees_group_id, tree_id, tree in iter_trees(studyobj):
+from peyotl.nexson_syntax import get_nexml_el
+nexml = get_nexml_el(studyobj)
+taxonomy = ott.OTT(ott_loc)
+taxonomy.ott_id_to_names
+ott_parents = taxonomy.ott_id2par_ott_id
+
+###########
+propinquity
+###########
+$(PEYOTL_ROOT)/scripts/ott/suppress_by_flag.py \
+      --ott-dir=$(OTT_DIR) \
+      --output=$(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaned_ott_with_hiddenbarren.tre \
+      --log=$(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaned_ott_1.json \
+      --flags="$(shell cat $(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaning_flags.txt)" \
+      --root="$(shell cat $(PROPINQUITY_OUT_DIR)/cleaned_ott/root_ott_id.txt)"
+$(PEYOTL_ROOT)/scripts/nexson/prune_to_clean_mapped.py \
+    --ott-dir=$(OTT_DIR) \
+    --input-files-list=$(PROPINQUITY_OUT_DIR)/cleaned_phylo/needs_updating.txt \
+    --out-dir=$(PROPINQUITY_OUT_DIR)/cleaned_phylo \
+    --ott-prune-flags="$(shell cat $(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaning_flags.txt)" \
+    --ott-prune-nonflagged-json=$(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaned_ott_pruned_nonflagged.json \
+    --root="$(shell cat $(PROPINQUITY_OUT_DIR)/cleaned_ott/root_ott_id.txt)"
+"${PEYOTL_ROOT}"/scripts/nexson/prune_to_clean_mapped.py \
+  --ott-dir="${OTT_DIR}" \
+  --out-dir=cleaned_phylo \
+  --ott-prune-flags=major_rank_conflict,major_rank_conflict_direct,major_rank_conflict_inherited,environmental,viral,nootu,barren,not_otu,extinct_inherited,extinct_direct,hidden,tattered \
+  phylo_snapshot/${study_tree}.json && \
+$(PEYOTL_ROOT)/scripts/collection_export.py \
+    --export=studyID_treeID \
+    $(PROPINQUITY_OUT_DIR)/phylo_snapshot/concrete_rank_collection.json \
+    >$(PROPINQUITY_OUT_DIR)/phylo_input/study_tree_pairs.txt
+$(PEYOTL_ROOT)/scripts/phylesystem/export_studies_from_collection.py \
+    --phylesystem-par=$(PHYLESYSTEM_ROOT)/shards \
+    --output-dir=$(PROPINQUITY_OUT_DIR)/phylo_snapshot \
+    $(PROPINQUITY_OUT_DIR)/phylo_input/rank_collection.json \
+    -v 2>&1 | tee $(PROPINQUITY_OUT_DIR)/phylo_snapshot/stdouterr.txt
+"${PEYOTL_ROOT}/scripts/nexson/propinquity_newick_to_nexson.py" \
+    "--ids=${tree_id}" \
+    "${filename}" > "$PROPINQUITY_OUT_DIR/phylo_snapshot/${stem}.json"
+$PEYOTL_ROOT/scripts/concatenate_collections.py $COLLECTIONS --output="${outp}"
+===============================
+from peyotl import read_as_json, write_as_json
+from peyotl.ott import OTT
+
+from peyotl.nexson_syntax import quote_newick_name
+from peyotl.utility import propinquity_fn_to_study_tree
+peyotl.__version__
++++++++++++++++++++++++++++++++
+
+ott = OTT(ott_dir=args.ott_dir)
+# load up the OTT dictionary...
+d = ott.ott_id_to_names
+
+##########
+germinator
+##########
+from peyotl.sugar import taxomachine as TNRS
+PEYOTL_CONFIG_FILE
+PEYOTL_LOG_FILE_PATH
+PEYOTL_LOGGING_LEVEL
+from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
+from peyotl.nexson_syntax import extract_tree_nexson

@@ -42,7 +42,7 @@ python -c "import json, codecs, sys; o=codecs.open(sys.argv[2], 'w', encoding='u
 # 4. Verify that the input is valid NeXML
 if ! diff .2.json .1.json
 then
-    echo "Did not roundtrip"
+    echo "\"${PWD}/${inpnexson}\" did not roundtrip"
     exit 1
 fi
 

@@ -1,29 +1,32 @@
 #!/usr/bin/env python
-'Direct2BadgerfishNexson class'
-from peyotl.nexson_syntax.helper import NexsonConverter, \
-                                        get_nexml_el, \
-                                        _add_redundant_about, \
-                                        _convert_hbf_meta_val_for_xml, \
-                                        BADGER_FISH_NEXSON_VERSION
+"""Direct2BadgerfishNexson class"""
+from peyotl.nexson_syntax.helper import (NexsonConverter,
+                                         get_nexml_el,
+                                         _add_redundant_about,
+                                         _convert_hbf_meta_val_for_xml,
+                                         BADGER_FISH_NEXSON_VERSION)
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
 
+
 class Direct2BadgerfishNexson(NexsonConverter):
-    '''Conversion of the direct form of honeybadgerfish
+    """Conversion of the direct form of honeybadgerfish
     HoneyBadgerFish (v 1.0) to "raw" Badgerfish + phylografter tweaks
     This is a dict-to-dict in-place conversion. No serialization is included.
-    '''
+    """
+
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
         self.remove_old_structs = getattr(conv_cfg, 'remove_old_structs', True)
+
     def _recursive_convert_list(self, obj):
         for el in obj:
             if isinstance(el, dict):
                 self._recursive_convert_dict(el)
 
-
     def _recursive_convert_dict(self, obj):
-        _add_redundant_about(obj) # rule 10...
+        _add_redundant_about(obj)  # rule 10...
         meta_list = []
         to_del = set()
         for k, v in obj.items():
@@ -67,10 +70,10 @@ class Direct2BadgerfishNexson(NexsonConverter):
                     self._single_el_list_to_dicts(sub, tag=child_tag, child_tag=grand_child_tag)
 
     def convert(self, obj):
-        '''Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.0.* type and
+        """Takes a dict corresponding to the honeybadgerfish JSON blob of the 1.0.* type and
         converts it to BY_ID_HONEY_BADGERFISH version. The object is modified in place
         and returned.
-        '''
+        """
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax import extract_tree_nexson, \
-                                 get_nexml_el, \
-                                 nexson_frag_write_newick
+from peyotl.nexson_syntax import (extract_tree_nexson,
+                                  get_nexml_el,
+                                  nexson_frag_write_newick)
 from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json, read_as_json
 from peyotl.ott import OTT
@@ -11,12 +11,17 @@ from peyotl import get_logger
 from collections import defaultdict
 import sys
 import os
+
 _SCRIPT_NAME = os.path.split(sys.argv[0])[-1]
 _LOG = get_logger(__name__)
 _VERBOSE = True
+
+
 def debug(msg):
     if _VERBOSE:
         sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
+
+
 def error(msg):
     sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
 
@@ -24,22 +29,25 @@ def error(msg):
 def find_tree_and_otus_in_nexson(nexson, tree_id):
     tl = extract_tree_nexson(nexson, tree_id)
     if (len(tl) != 1):
-#        sys.stderr.write('{}: len(tl) = {}\n'.format(tree_id,len(tl)))
+        #        sys.stderr.write('{}: len(tl) = {}\n'.format(tree_id,len(tl)))
         return None, None
     tree_id, tree, otus = tl[0]
     return tree, otus
 
+
 class EmptyTreeError(Exception):
     pass
 
+
 def _check_rev_dict(tree, ebt):
-    '''Verifyies that `ebt` is the inverse of the `edgeBySourceId` data member of `tree`'''
+    """Verifyies that `ebt` is the inverse of the `edgeBySourceId` data member of `tree`"""
     ebs = defaultdict(dict)
     for edge in ebt.values():
         source_id = edge['@source']
         edge_id = edge['@id']
         ebs[source_id][edge_id] = edge
     assert ebs == tree['edgeBySourceId']
+
 
 class NexsonTreeWrapper(object):
     def __init__(self, nexson, tree_id, log_obj=None):
@@ -59,8 +67,10 @@ class NexsonTreeWrapper(object):
         self.nodes_deleted, self.edges_deleted = [], []
         self._by_ott_id = None
         self.is_empty = False
+
     def get_root_node_id(self):
         return self._root_node_id
+
     def set_root_node_id(self, r):
         try:
             assert r
@@ -70,10 +80,12 @@ class NexsonTreeWrapper(object):
             error('Illegal root node "{}"'.format(r))
             raise
         self._root_node_id = r
+
     root_node_id = property(get_root_node_id, set_root_node_id)
+
     def _create_edge_by_target(self):
-        '''creates a edge_by_target dict with the same edge objects as the edge_by_source.
-        Also adds an '@id' field to each edge.'''
+        """creates a edge_by_target dict with the same edge objects as the edge_by_source.
+        Also adds an '@id' field to each edge."""
         ebt = {}
         for edge_dict in self._edge_by_source.values():
             for edge_id, edge in edge_dict.items():
@@ -81,17 +93,20 @@ class NexsonTreeWrapper(object):
                 edge['@id'] = edge_id
                 assert target_id not in ebt
                 ebt[target_id] = edge
-        #_check_rev_dict(self._tree, ebt)
+        # _check_rev_dict(self._tree, ebt)
         return ebt
+
     def _clear_del_log(self):
         self.nodes_deleted = []
         self.edges_deleted = []
+
     def _log_deletions(self, key):
         if log_obj is not None:
-            o = log_obj.setdefault(key, {'nodes':[], 'edges':[]})
+            o = log_obj.setdefault(key, {'nodes': [], 'edges': []})
             o['nodes'].extend(self.nodes_deleted)
             o['edges'].extend(self.edges_deleted)
         self._clear_del_log()
+
     def _do_prune_to_ingroup(self):
         edge_to_del = self._edge_by_target.get(self._ingroup_node_id)
         if edge_to_del is None:
@@ -100,8 +115,9 @@ class NexsonTreeWrapper(object):
             self.prune_edge_and_rootward(edge_to_del)
         finally:
             self._log_deletions('outgroup')
+
     def prune_to_ingroup(self):
-        '''Remove nodes and edges from tree if they are not the ingroup or a descendant of it.'''
+        """Remove nodes and edges from tree if they are not the ingroup or a descendant of it."""
         # Prune to just the ingroup
         if not self._ingroup_node_id:
             _LOG.debug('No ingroup node was specified.')
@@ -112,22 +128,25 @@ class NexsonTreeWrapper(object):
         else:
             _LOG.debug('Ingroup node is root.')
         return self.root_node_id
+
     def prune_edge_and_rootward(self, edge_to_del):
         while edge_to_del is not None:
             source_id, target_id = self._del_edge(edge_to_del)
             ebsd = self._edge_by_source.get(source_id)
             if ebsd:
-                to_prune = list(ebsd.values()) # will modify ebsd in loop below, so shallow copy
+                to_prune = list(ebsd.values())  # will modify ebsd in loop below, so shallow copy
                 for edge in to_prune:
                     self.prune_edge_and_tipward(edge)
                 assert source_id not in self._edge_by_source
             edge_to_del = self._edge_by_target.get(source_id)
+
     def prune_edge_and_tipward(self, edge):
         source_id, target_id = self._del_edge(edge)
         self.prune_clade(target_id)
+
     def prune_clade(self, node_id):
-        '''Prune `node_id` and the edges and nodes that are tipward of it.
-        Caller must delete the edge to node_id.'''
+        """Prune `node_id` and the edges and nodes that are tipward of it.
+        Caller must delete the edge to node_id."""
         to_del_nodes = [node_id]
         while bool(to_del_nodes):
             node_id = to_del_nodes.pop(0)
@@ -136,11 +155,12 @@ class NexsonTreeWrapper(object):
             if ebsd is not None:
                 child_edges = list(ebsd.values())
                 to_del_nodes.extend([i['@target'] for i in child_edges])
-                del self._edge_by_source[node_id] # deletes all of the edges out of this node (still held in edge_by_target til children are encountered)
+                del self._edge_by_source[
+                    node_id]  # deletes all of the edges out of this node (still held in edge_by_target til children are encountered)
 
     def _flag_node_as_del_and_del_in_by_target(self, node_id):
-        '''Flags a node as deleted, and removes it from the _edge_by_target (and parent's edge_by_source), if it is still found there.
-        Does NOT remove the node's entries from self._edge_by_source.'''
+        """Flags a node as deleted, and removes it from the _edge_by_target (and parent's edge_by_source), if it is still found there.
+        Does NOT remove the node's entries from self._edge_by_source."""
         self.nodes_deleted.append(node_id)
         etp = self._edge_by_target.get(node_id)
         if etp is not None:
@@ -159,7 +179,7 @@ class NexsonTreeWrapper(object):
         return source_id, target_id
 
     def _del_tip(self, node_id):
-        '''Assumes that there is no entry in edge_by_source[node_id] to clean up.'''
+        """Assumes that there is no entry in edge_by_source[node_id] to clean up."""
         self.nodes_deleted.append(node_id)
         etp = self._edge_by_target.get(node_id)
         assert etp is not None
@@ -167,9 +187,8 @@ class NexsonTreeWrapper(object):
         assert target_id == node_id
         return source_id
 
-
     def group_and_sort_leaves_by_ott_id(self):
-        '''returns a dict mapping ott_id to list of elements referring to leafs mapped
+        """returns a dict mapping ott_id to list of elements referring to leafs mapped
         to that ott_id. They keys will be ott_ids and None (for unmapped tips). The values
         are lists of tuples. Each tuple represents a different leaf and contains:
             (integer_for_of_is_examplar: -1 if the node is flagged by ^ot:isTaxonExemplar. 0 otherwise
@@ -177,7 +196,7 @@ class NexsonTreeWrapper(object):
             the node object
             the otu object for the node
             )
-        '''
+        """
         ott_id_to_sortable_list = defaultdict(list)
         for node_id in self._edge_by_target.keys():
             node_obj = self._node_by_id[node_id]
@@ -189,23 +208,25 @@ class NexsonTreeWrapper(object):
             is_exemplar = node_obj.get('^ot:isTaxonExemplar', False)
             int_is_exemplar = 0
             if is_exemplar:
-                int_is_exemplar = -1 # to sort to the front of the list
+                int_is_exemplar = -1  # to sort to the front of the list
             sortable_el = (int_is_exemplar, node_id, node_obj, otu_obj)
             ott_id_to_sortable_list[ott_id].append(sortable_el)
         for v in ott_id_to_sortable_list.values():
             v.sort()
         return ott_id_to_sortable_list
+
     @property
     def by_ott_id(self):
         if self._by_ott_id is None:
             self._by_ott_id = self.group_and_sort_leaves_by_ott_id()
         return self._by_ott_id
-    
+
     def prune_unmapped_leaves(self):
         # Leaf nodes with no OTT ID at all...
         if None in self.by_ott_id:
             self.prune_tip_in_sortable_list(self.by_ott_id[None], 'unmapped_otu')
             del self.by_ott_id[None]
+
     def prune_tip_in_sortable_list(self, sortable_list, reason):
         try:
             par_to_check = set()
@@ -255,7 +276,7 @@ class NexsonTreeWrapper(object):
             self._log_deletions('became_trivial')
 
     def suppress_deg_one_node(self, to_par_edge, nd_id, to_child_edge):
-        '''Deletes to_par_edge and nd_id. To be used when nd_id is an out-degree= 1 node'''
+        """Deletes to_par_edge and nd_id. To be used when nd_id is an out-degree= 1 node"""
         # circumvent the node with nd_id
         to_child_edge_id = to_child_edge['@id']
         par = to_par_edge['@source']
@@ -265,6 +286,7 @@ class NexsonTreeWrapper(object):
         del self._edge_by_source[nd_id]
         # delete it
         self._del_tip(nd_id)
+
     def prune_deg_one_root(self, new_root):
         while True:
             ebs_el = self._edge_by_source.get(new_root)
@@ -278,13 +300,14 @@ class NexsonTreeWrapper(object):
             self._del_tip(new_root)
 
     def prune_tree_for_supertree(self, ott, to_prune_fsi_set, root_ott_id, taxonomy_treefile=None):
-        '''
+        """
         `to_prune_fsi_set` is a set of flag indices to be pruned.
-        '''
+        """
         self.prune_to_ingroup()
         self.prune_unmapped_leaves()
         # Check the stored OTT Ids against the current version of OTT
-        mapped, unrecog, forward2unrecog, pruned, above_root, old2new = ott.map_ott_ids(self.by_ott_id.keys(), to_prune_fsi_set, root_ott_id)
+        mapped, unrecog, forward2unrecog, pruned, above_root, old2new = ott.map_ott_ids(self.by_ott_id.keys(),
+                                                                                        to_prune_fsi_set, root_ott_id)
         for ott_id in unrecog:
             self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'unrecognized_ott_id')
             del self.by_ott_id[ott_id]
@@ -299,13 +322,13 @@ class NexsonTreeWrapper(object):
             del self.by_ott_id[ott_id]
         for old_id, new_id in old2new.items():
             old_node_list = self.by_ott_id[old_id]
-            del self.by_ott_id[ott_id]
+            del self.by_ott_id[old_id]
             if new_id in self.by_ott_id:
                 v = self.by_ott_id[new_id]
                 v.extend(old_node_list)
                 v.sort()
             else:
-                self.by_ott_id = old_node_list
+                self.by_ott_id[new_id] = old_node_list
             for sortable_el in old_node_list:
                 otu = sortable_el[3]
                 assert otu['^ot:ottId'] == old_id
@@ -356,11 +379,13 @@ class NexsonTreeWrapper(object):
                 self.by_ott_id[ott_id] = [el]
         return self
 
+
 if __name__ == '__main__':
     import argparse
     import codecs
     import sys
     import os
+
     description = ''
     parser = argparse.ArgumentParser(prog='to_clean_ott_id_mapped_leaves.py', description=description)
     parser.add_argument('nexson',
@@ -420,7 +445,8 @@ if __name__ == '__main__':
             with open(os.path.expanduser(args.input_files_list), 'rU') as tf:
                 inp_files = [i.strip() for i in tf if i.strip()]
         else:
-            error('nexson file must be specified as a positional argument or via the --nexson-file-tags or --input-files-list argument.')
+            error(
+                'nexson file must be specified as a positional argument or via the --nexson-file-tags or --input-files-list argument.')
             sys.exit(1)
     if not inp_files:
         error('No input files specified.')
@@ -429,7 +455,7 @@ if __name__ == '__main__':
         in_dir = os.path.expanduser(in_dir)
         inp_files = [os.path.join(in_dir, i) for i in inp_files]
     if flags_str is None:
-        flags = ott.TREEMACHINE_SUPPRESS_FLAGS
+        flags = OTT.TREEMACHINE_SUPPRESS_FLAGS
     else:
         flags = flags_str.split(',')
     ott = OTT(ott_dir=args.ott_dir)
@@ -438,14 +464,14 @@ if __name__ == '__main__':
         _LOG.debug('{}'.format(inp))
         log_obj = {}
         inp_fn = os.path.split(inp)[-1]
-        study_tree = '.'.join(inp_fn.split('.')[:-1]) # strip extension
+        study_tree = '.'.join(inp_fn.split('.')[:-1])  # strip extension
         study_id, tree_id = propinquity_fn_to_study_tree(inp_fn)
         nexson_blob = read_as_json(inp)
         ntw = NexsonTreeWrapper(nexson_blob, tree_id, log_obj=log_obj)
         assert ntw.root_node_id
         taxonomy_treefile = os.path.join(args.out_dir, study_tree + '-taxonomy.tre')
         try:
-            ntw.prune_tree_for_supertree(ott=ott, 
+            ntw.prune_tree_for_supertree(ott=ott,
                                          to_prune_fsi_set=to_prune_fsi_set,
                                          root_ott_id=root,
                                          taxonomy_treefile=taxonomy_treefile)
@@ -454,12 +480,16 @@ if __name__ == '__main__':
         out_log = os.path.join(args.out_dir, study_tree + '.json')
         write_as_json(log_obj, out_log)
         newick_fp = os.path.join(args.out_dir, study_tree + '.tre')
+
+
         def compose_label(node, otu):
             try:
                 return '_'.join([otu['^ot:ottTaxonName'], str(node['@id']), 'ott' + str(otu['^ot:ottId'])])
             except:
                 # internal nodes may lack otu's but we still want the node Ids
                 return '_{}_'.format(str(node['@id']))
+
+
         with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:
             if not ntw.is_empty:
                 nexson_frag_write_newick(outp,

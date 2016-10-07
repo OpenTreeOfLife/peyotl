@@ -4,8 +4,11 @@ from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import StudyRef
 from peyotl.api.taxon import TaxonWrapper, TaxonHolder
 import anyjson
+
 _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
+
+
 def _treemachine_tax_source2dict(tax_source):
     d = {}
     tax_source = tax_source.strip()
@@ -16,6 +19,7 @@ def _treemachine_tax_source2dict(tax_source):
         k, v = el.split(':')
         d[k] = v
     return d
+
 
 class GoLNode(TaxonHolder):
     def __init__(self,
@@ -41,8 +45,8 @@ class GoLNode(TaxonHolder):
                               'ot:ottTaxonName': prop_dict.get('mrca_name'),
                               'unique_name': prop_dict.get('mrca_unique_name'),
                               'treemachine_node_id': self.node_id
-                             }
-                #TODO should write wrappers for getting the taxomachine wrapper from treemachine wrapper...
+                              }
+                # TODO should write wrappers for getting the taxomachine wrapper from treemachine wrapper...
                 taxon = TaxonWrapper(prop_dict=taxon_dict)
             if nearest_taxon is None:
                 taxon_dict = {'ot:ottId': prop_dict['nearest_taxon_mrca_ott_id'],
@@ -50,9 +54,9 @@ class GoLNode(TaxonHolder):
                               'ot:ottTaxonName': prop_dict.get('nearest_taxon_mrca_name'),
                               'unique_name': prop_dict.get('nearest_taxon_mrca_unique_name'),
                               'treemachine_node_id': prop_dict.get('nearest_taxon_mrca_node_id')
-                             }
+                              }
                 assert prop_dict['nearest_taxon_mrca_ott_id'] != 'null'
-                #TODO should write wrappers for getting the taxomachine wrapper from treemachine wrapper...
+                # TODO should write wrappers for getting the taxomachine wrapper from treemachine wrapper...
                 self._nearest_taxon = TaxonWrapper(prop_dict=taxon_dict)
             else:
                 self._nearest_taxon = nearest_taxon
@@ -68,9 +72,11 @@ class GoLNode(TaxonHolder):
         self._in_graph = prop_dict.get('in_graph')
         self._num_tips = prop_dict.get('num_tips')
         self._num_synth_children = prop_dict.get('num_synth_children')
+
     @property
     def node_info_fetched(self):
-        return not self._in_graph is None
+        return self._in_graph is not None
+
     def fetch_node_info(self):
         prop_dict = self._treemachine_wrapper.node_info(node_id=self.node_id)
         self._synth_sources = [StudyRef(i) for i in prop_dict.get('synth_sources', [])]
@@ -84,31 +90,37 @@ class GoLNode(TaxonHolder):
             assert prop_dict['ott_id'] == self.ott_id
             assert prop_dict['rank'] == self.rank
         assert prop_dict['node_id'] == self.node_id
+
     @property
     def synth_sources(self):
         if not self.node_info_fetched:
             self.fetch_node_info()
         return self._synth_sources
+
     @property
     def in_synth_tree(self):
         if not self.node_info_fetched:
             self.fetch_node_info()
         return self._in_synth_tree
+
     @property
     def tax_source(self):
         if not self.node_info_fetched:
             self.fetch_node_info()
         return self._tax_source
+
     @property
     def in_graph(self):
         if not self.node_info_fetched:
             self.fetch_node_info()
         return self._in_graph
+
     @property
     def num_tips(self):
         if not self.node_info_fetched:
             self.fetch_node_info()
         return self._num_tips
+
     @property
     def num_synth_children(self):
         if not self.node_info_fetched:
@@ -123,20 +135,26 @@ class GoLNode(TaxonHolder):
                 assert r['tree_id'] == self._graph_of_life['tree_id']
             self._subtree_newick = r['newick']
         return self._subtree_newick
+
     @property
     def node_id(self):
         return self._node_id
+
     @property
     def nearest_taxon(self):
         return self._nearest_taxon
+
     def write_report(self, output):
         self._taxon.write_report(output)
+
     @property
     def is_taxon(self):
         return self._taxon is not None
+
     @property
     def treemachine_node_id(self):
         return self._node_id
+
 
 class MRCAGoLNode(GoLNode):
     def __init__(self, prop_dict, treemachine_wrapper=None, graph_of_life=None):
@@ -149,15 +167,19 @@ class MRCAGoLNode(GoLNode):
         self._node_ids_not_in_tree = tuple(x) if x else _EMPTY_TUPLE
         x = prop_dict.get('ott_ids_not_in_tree')
         self._ott_ids_not_in_tree = tuple(x) if x else _EMPTY_TUPLE
+
     @property
     def invalid_node_ids(self):
         return self._invalid_node_ids
+
     @property
     def invalid_ott_ids(self):
         return self._invalid_ott_ids
+
     @property
     def node_ids_not_in_tree(self):
         return self._node_ids_not_in_tree
+
     @property
     def ott_ids_not_in_tree(self):
         return self._ott_ids_not_in_tree
@@ -165,7 +187,9 @@ class MRCAGoLNode(GoLNode):
 
 class _TreemachineAPIWrapper(_WSWrapper):
     def __init__(self, domain, **kwargs):
-        self._config = get_config_object(None, **kwargs)
+        self._config = kwargs.get('config')
+        if self._config is None:
+            self._config = get_config_object()
         self._current_synth_info = None
         self._current_synth_id = None
         self.prefix = None
@@ -179,11 +203,13 @@ class _TreemachineAPIWrapper(_WSWrapper):
         self.use_v1 = (self._api_vers == "1")
         _WSWrapper.__init__(self, domain, **kwargs)
         self.domain = domain
+
     @property
     def domain(self):
         return self._domain
+
     @domain.setter
-    def domain(self, d): #pylint: disable=W0221
+    def domain(self, d):  # pylint: disable=W0221
         self._current_synth_info = None
         self._current_synth_id = None
         self._domain = d
@@ -194,6 +220,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
         else:
             self.prefix = '{d}/v2/tree_of_life'.format(d=d)
             self.graph_prefix = '{d}/v2/graph'.format(d=d)
+
     @property
     def current_synth_tree_id(self):
         if self._current_synth_info is None:
@@ -203,6 +230,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
             else:
                 self._current_synth_id = self._current_synth_info['tree_id']
         return self._current_synth_id
+
     @property
     def synthetic_tree_info(self):
         if self.use_v1:
@@ -210,6 +238,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
         else:
             uri = '{p}/about'.format(p=self.prefix)
         return self.json_http_post_raise(uri)
+
     @property
     def synthetic_tree_id_list(self):
         if self.use_v1:
@@ -218,14 +247,16 @@ class _TreemachineAPIWrapper(_WSWrapper):
         r = self.synthetic_tree_info
         raw_study_list = r['study_list']
         return raw_study_list
+
     @property
     def synthetic_source_list(self):
         uri = '{p}/getSynthesisSourceList'.format(p=self.prefix)
         return self.json_http_post_raise(uri)
+
     # deprecated due to https://github.com/OpenTreeOfLife/treemachine/issues/170
     # format is redefined to match API
-    #pylint: disable=W0622
-    #def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, **kwargs):
+    # pylint: disable=W0622
+    # def get_source_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, **kwargs):
     #    if self.use_v1:
     #        uri = '{p}/getSourceTree'.format(p=self.prefix)
     #        return self._get_tree(uri, tree_id, format=format, node_id=node_id, max_depth=max_depth)
@@ -238,7 +269,9 @@ class _TreemachineAPIWrapper(_WSWrapper):
     #                'study_id': study_id,
     #                'tree_id': tree_id}
     #        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
-    def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None, ott_id=None): #pylint: disable=W0622
+    # noinspection PyShadowingBuiltins
+    def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None,
+                           ott_id=None):  # pylint: disable=W0622
         if self.use_v1:
             uri = '{p}/getSyntheticTree'.format(p=self.prefix)
         else:
@@ -249,6 +282,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
                               node_id=node_id,
                               max_depth=max_depth,
                               ott_id=ott_id)
+
     def node_info(self, node_id=None, ott_id=None, include_lineage=False):
         if self.use_v1:
             raise NotImplementedError('node_info was added in v2 of the API')
@@ -269,11 +303,12 @@ class _TreemachineAPIWrapper(_WSWrapper):
             raise ValueError('ott_ids or node_ids must be specified')
         assert not self.use_v1
         uri = '{p}/mrca'.format(p=self.prefix)
-        data = {'ott_ids':ott_ids, 'node_ids': node_ids}
+        data = {'ott_ids': ott_ids, 'node_ids': node_ids}
         resp = self.json_http_post_raise(uri, data=anyjson.dumps(data))
         if wrap_response:
             return MRCAGoLNode(resp, treemachine_wrapper=self)
         return resp
+
     def get_synth_tree_pruned(self, tree_id=None, node_ids=None, ott_ids=None):
         if (tree_id is not None) and (tree_id != self.current_synth_tree_id):
             raise NotImplementedError("Treemachine's getDraftTreeSubtreeForNodes does not take a tree ID yet")
@@ -296,8 +331,11 @@ class _TreemachineAPIWrapper(_WSWrapper):
         else:
             uri = '{p}/induced_subtree'.format(p=self.prefix)
         return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+
     induced_subtree = get_synth_tree_pruned
-    def _get_tree(self, uri, tree_id, format='newick', node_id=None, max_depth=None, ott_id=None): #pylint: disable=W0622
+
+    def _get_tree(self, uri, tree_id, format='newick', node_id=None, max_depth=None,
+                  ott_id=None):  # pylint: disable=W0622
         if tree_id is None:
             tree_id = self.current_synth_tree_id
         if node_id is None and ott_id is None:
@@ -313,7 +351,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
             if max_depth is not None:
                 data['maxDepth'] = max_depth
         else:
-            data = {'tree_id': tree_id,}
+            data = {'tree_id': tree_id, }
             if node_id is not None:
                 data['node_id'] = str(node_id)
             else:
@@ -321,10 +359,12 @@ class _TreemachineAPIWrapper(_WSWrapper):
                     return ValueError('ott_id or node_id must be specified')
                 data['ott_id'] = ott_id
         return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+
     def get_node_id_for_ott_id(self, ott_id):
         uri = '{p}/getNodeIDForottId'.format(p=self.prefix)
         data = {'ottId': str(ott_id)}
         return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+
 
 def Treemachine(domains=None, **kwargs):
     return APIWrapper(domains=domains, **kwargs).treemachine

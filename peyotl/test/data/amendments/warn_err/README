@@ -1,0 +1,3 @@
+Add files here for more detailed testing of expected-vs-actual validation
+output. See test/data/collections/warn_err for examples, and
+test_amendment_validation.py for the test runner.

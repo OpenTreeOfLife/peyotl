@@ -3,13 +3,14 @@ from peyotl.nexson_syntax import extract_tree, PhyloSchema
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
+
 _LOG = get_logger(__name__)
 
 # round trip filename tuples
 RT_DIRS = ['otu', '9', ]
 
-class TestExtract(unittest.TestCase):
 
+class TestExtract(unittest.TestCase):
     def testNewickExport(self):
         n = pathmap.nexson_obj('10/pg_10.json')
         newick = extract_tree(n, 'tree3', PhyloSchema('newick', tip_label='ot:ottTaxonName', bracket_ingroup=True))
@@ -35,6 +36,7 @@ class TestExtract(unittest.TestCase):
         n = pathmap.nexson_obj('10/pg_10.json')
         newick = extract_tree(n, 'tree3', PhyloSchema('nexus', tip_label='ot:ottTaxonName'))
         self.assertTrue(newick.startswith('#'))
+
     def testMimicPhylesystemExport(self):
         study_nexson = pathmap.nexson_obj('10/pg_10.json')
         src_schema = PhyloSchema('nexson', version='1.2.1')
@@ -44,5 +46,7 @@ class TestExtract(unittest.TestCase):
         out_schema = PhyloSchema(schema='nexus', content='tree', content_id='bogusID here')
         result_data = out_schema.convert(study_nexson, serialize=True, src_schema=src_schema)
         self.assertFalse(bool(result_data))
+
+
 if __name__ == "__main__":
     unittest.main()

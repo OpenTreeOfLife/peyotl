@@ -7,8 +7,11 @@ from peyotl.git_storage import GitActionBase
 # extract a study id from a git repo path (as returned by git-tree)
 
 _LOG = get_logger(__name__)
+
+
 class MergeException(Exception):
     pass
+
 
 def get_filepath_for_namespaced_id(repo_dir, study_id):
     if len(study_id) < 4:
@@ -27,8 +30,10 @@ def get_filepath_for_namespaced_id(repo_dir, study_id):
     dest_file = dest_subdir + '.json'
     return os.path.join(repo_dir, 'study', dest_topdir, dest_subdir, dest_file)
 
+
 def get_filepath_for_simple_id(repo_dir, study_id):
     return '{r}/study/{s}/{s}.json'.format(r=repo_dir, s=study_id)
+
 
 def study_id_from_repo_path(path):
     if path.startswith('study/'):
@@ -38,13 +43,14 @@ def study_id_from_repo_path(path):
         except:
             return None
 
+
 class PhylesystemGitAction(GitActionBase):
     def __init__(self,
                  repo,
                  remote=None,
                  git_ssh=None,
                  pkey=None,
-                 cache=None, #pylint: disable=W0613
+                 cache=None,  # pylint: disable=W0613
                  path_for_doc_fn=None,
                  max_file_size=None):
         """Create a GitAction object to interact with a Git repository
@@ -72,6 +78,7 @@ class PhylesystemGitAction(GitActionBase):
     @property
     def path_for_study(self):
         return self.path_for_doc
+
     @property
     def return_study(self):
         return self.return_document
@@ -139,4 +146,3 @@ class PhylesystemGitAction(GitActionBase):
                                            auth_info,
                                            commit_msg,
                                            doctype_display_name="study")
-

@@ -3,13 +3,14 @@ from peyotl.amendments import get_empty_amendment
 from peyotl.utility.str_util import UNICODE
 from peyotl.amendments.validation import validate_amendment
 from peyotl.test.support import pathmap
-from peyotl.test.support.helper import testing_write_json, \
-                                       testing_read_json
+from peyotl.test.support.helper import testing_write_json, testing_read_json
 from peyotl.utility import get_logger
 import unittest
 import sys
 import os
+
 _LOG = get_logger(__name__)
+
 
 class TestAmendmentValidator(unittest.TestCase):
     def testValidFilesPass(self):
@@ -26,6 +27,7 @@ class TestAmendmentValidator(unittest.TestCase):
             testing_write_json(errors, ofn)
             msg = "File failed to validate cleanly. See {o}".format(o=ofn)
         self.assertEqual(len(errors), 0, msg)
+
     def testInvalidFilesFail(self):
         # just one test file for now
         msg = ''
@@ -42,6 +44,7 @@ class TestAmendmentValidator(unittest.TestCase):
                     self.assertTrue(False, msg)
         except:
             pass
+
     def testExpectedWarnings(self):
         msg = ''
         # compare test files (.input and .expected for each)
@@ -68,12 +71,13 @@ class TestAmendmentValidator(unittest.TestCase):
                     self.assertEqual(exp, errors, msg)
                 else:
                     _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
+
     def testCreated(self):
         a = get_empty_amendment()
         aa = validate_amendment(a)
         errors = aa[0]
         self.assertTrue(len(errors) == 0)
 
+
 if __name__ == "__main__":
     unittest.main()
-

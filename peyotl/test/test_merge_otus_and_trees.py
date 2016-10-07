@@ -5,7 +5,9 @@ from peyotl.test.support import pathmap
 from peyotl.test.support import equal_blob_check
 from peyotl.utility import get_logger
 import unittest
+
 _LOG = get_logger(__name__)
+
 
 class TestMerge(unittest.TestCase):
     def testCanConvert(self):
@@ -16,6 +18,7 @@ class TestMerge(unittest.TestCase):
         self.assertNotEqual(inp, expected)
         merge_otus_and_trees(inp)
         equal_blob_check(self, '', inp, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

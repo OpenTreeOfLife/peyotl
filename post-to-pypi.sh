@@ -5,19 +5,19 @@ then
     exit 1
 fi
 version=$(grep version setup.py | sed -E "s/.*version='(.*)'.*/\\1/")
-if test -z $version
+if test -z ${version}
 then
     echo grepping out the version failed
     exit 1
 fi
 
-echo posting version $version
+echo posting version ${version}
 
 set -x
 python setup.py register -r pypi || exit
 python setup.py sdist upload -r pypi || exit
 git commit -m "bump of version to $version" setup.py || exit
-git tag $version
+git tag ${version}
 git push origin
 
 set +x

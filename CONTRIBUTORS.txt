@@ -10,40 +10,45 @@
     encoded in UTF-8.
 
     The primary authors and maintainers of peyotl are:
-    Emily Jane McTavish,
-    Mark T. Holder, and 
     Jim Allman
+    Karen Cranston,
+    Mark T. Holder, and
+    Emily Jane McTavish
 
     Jonathan "Duke" Leto wrote parts of peyotl.phylesystem.git_actions 
     and the tests as a part of his work on the Open Tree of Life
     api.opentreeoflife.org repository.
 
-    The gcmdr functionality in peyotl is a direct port of the gcmdr
-    from https://github.com/OpenTreeOfLife/gcmdr with lots of code
-    copyied over. That code was written by Stephen A. Smith 
-    and Joseph W. Brown
+    Joseph Brown and Stephen Smith wrote a Java program gcmdr that was
+    the basis for a former subpackage of peyotl.
 
 ----------
-
-N: Emily Jane McTavish
-S: Lawrence, KS
 
 N: Jim Allman
 E: jim@ibang.com
 W: http://ibang.com/
 
-N: Jonathan "Duke" Leto
-E: duke@leto.net
-W: http://duke.leto.net
-S: Portland, OR
+N: Joseph W. Brown
+S: Ann Arbor, MI
+
+N: Karen A. Cranston
+S: Durham, NC
 
 N: Mark T. Holder
 E: mtholder@gmail.com
 S: Lawrence, KS
 U: mtholder
 
-N: Joseph W. Brown
-S: Ann Arbor, MI
+N: Jonathan "Duke" Leto
+E: duke@leto.net
+W: http://duke.leto.net
+S: Portland, OR
+
+N: Emily Jane McTavish
+S: Lawrence, KS
+
+N: Jonathan A. Rees
+S: Boston, MA
 
 N: Stephen A. Smith
 S: Ann Arbor, MI

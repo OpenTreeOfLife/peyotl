@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Provides high level wrappers around a Nexson data model blob to
+"""Provides high level wrappers around a Nexson data model blob to
 let it be treated as if it were a list of OTUs and a list of trees
 
 Accessors return either references to part of the NexSON or wrappers around
@@ -9,24 +9,27 @@ Weakrefs are used, so the more inclusive containers must be kept in scope
 while you are accessing constituents.
 
 Currently converts any NexSON blob to HBF v1.2 data model!
-'''
-from peyotl.nexson_syntax import BY_ID_HONEY_BADGERFISH, \
-                                 convert_nexson_format, \
-                                 detect_nexson_version, \
-                                 get_nexml_el, \
-                                 read_as_json
+"""
+from peyotl.nexson_syntax import (BY_ID_HONEY_BADGERFISH,
+                                  convert_nexson_format,
+                                  detect_nexson_version,
+                                  get_nexml_el,
+                                  read_as_json)
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 import weakref
+
 _LOG = get_logger(__name__)
+
+
 def otu_iter_nexson_proxy(nexson_proxy, otu_sort=None):
-    '''otu_sort can be None (not sorted or stable), True (sorted by ID lexigraphically)
+    """otu_sort can be None (not sorted or stable), True (sorted by ID lexigraphically)
     or a key function for a sort function on list of otuIDs
 
     Note that if there are multiple OTU groups, the NexSON specifies the order of sorting
         of the groups (so the sort argument here only refers to the sorting of OTUs within
         a group)
-    '''
+    """
     nexml_el = nexson_proxy._nexml_el
     og_order = nexml_el['^ot:otusElementOrder']
     ogd = nexml_el['otusById']
@@ -45,8 +48,9 @@ def otu_iter_nexson_proxy(nexson_proxy, otu_sort=None):
                 v = og[k]
                 yield nexson_proxy._create_otu_proxy(k, v)
 
+
 def tree_iter_nexson_proxy(nexson_proxy):
-    '''Iterates over NexsonTreeProxy objects in order determined by the nexson blob'''
+    """Iterates over NexsonTreeProxy objects in order determined by the nexson blob"""
     nexml_el = nexson_proxy._nexml_el
     tg_order = nexml_el['^ot:treesElementOrder']
     tgd = nexml_el['treesById']
@@ -59,6 +63,7 @@ def tree_iter_nexson_proxy(nexson_proxy):
             v = tbid[k]
             yield nexson_proxy._create_tree_proxy(tree_id=k, tree=v, otus=otus)
 
+
 def reverse_edge_by_source_dict(ebs, root_id):
     d = {}
     for edge_by_id in ebs.values():
@@ -70,29 +75,39 @@ def reverse_edge_by_source_dict(ebs, root_id):
     assert root_id not in d
     d[root_id] = (None, None)
     return d
+
+
 class NexsonProxy(object):
     class NexsonOTUProxy(object):
         def __init__(self, nexson_proxy, otu_id, otu):
             self._nexson_proxy = nexson_proxy
             self._otu_id = otu_id
             self._otu = otu
+
         def __getitem__(self, key):
             return self.otu[key]
+
         def __setitem__(self, key, value):
             self.otu[key] = value
+
         @property
         def ott_id(self):
             return self._otu.get('^ot:ottId')
+
         @property
         def otu(self):
             return self._otu
+
         @property
         def _id(self):
             return self._otu_id
+
         def get(self, key, default=None):
             return self._otu.get(key, default)
+
         def keys(self, key, default=None):
             return self._otu.get(key, default)
+
     def __init__(self, filepath='', nexson=None):
         self.filepath = filepath
         if nexson is None:
@@ -109,10 +124,13 @@ class NexsonProxy(object):
         self._otu_cache = {}
         self._tree_cache = {}
         self._wr = None
+
     def otu_iter(self):
         return iter(otu_iter_nexson_proxy(self))
+
     def tree_iter(self):
         return iter(tree_iter_nexson_proxy(self))
+
     def _create_otu_proxy(self, otu_id, otu):
         np = self._otu_cache.get(otu_id)
         if np is None:
@@ -121,6 +139,7 @@ class NexsonProxy(object):
             np = NexsonProxy.NexsonOTUProxy(self._wr, otu_id, otu)
             self._otu_cache[otu_id] = np
         return np
+
     def _create_tree_proxy(self, tree_id, tree, otus):
         np = self._tree_cache.get(tree_id)
         if np is None:
@@ -129,6 +148,7 @@ class NexsonProxy(object):
             np = NexsonTreeProxy(tree_id=tree_id, tree=tree, otus=otus, nexson_proxy=self._wr)
             self._tree_cache[tree_id] = np
         return np
+
     def get_tree(self, tree_id):
         np = self._tree_cache.get(tree_id)
         if np is not None:
@@ -141,6 +161,7 @@ class NexsonProxy(object):
                 tree = tbid[tree_id]
                 return self._create_tree_proxy(tree_id=tree_id, tree=tree, otus=otus)
         return None
+
     def get_otu(self, otu_id):
         np = self._otu_cache.get(otu_id)
         if np is not None:
@@ -152,8 +173,10 @@ class NexsonProxy(object):
                 return self._create_otu_proxy(otu_id=otu_id, otu=o)
         return None
 
+
 class NexsonTreeProxy(object):
-    '''Provide more natural operations by wrapping a NexSON 1.2 tree blob and its otus'''
+    """Provide more natural operations by wrapping a NexSON 1.2 tree blob and its otus"""
+
     class NexsonNodeProxy(object):
         def __init__(self, tree, edge_id, edge, node_id=None, node=None):
             self._tree = tree
@@ -162,31 +185,42 @@ class NexsonTreeProxy(object):
             self._edge_id = edge_id
             self._edge = edge
             self._otu = None
+
         def get(self, key, default=None):
             return self.node.get(key, default)
+
         def __getitem__(self, key):
             return self.node[key]
+
         def __setitem__(self, key, value):
             self.node[key] = value
+
         def keys(self):
             return self.node.keys()
+
         @property
         def is_leaf(self):
             return self._tree.is_leaf(self.node_id)
+
         def child_iter(self):
             return self._tree.child_iter(self.node_id)
+
         @property
         def ott_id(self):
             return self._tree.get_ott_id(self.node)
+
         @property
         def edge_id(self):
             return self._edge_id
+
         @property
         def edge(self):
             return self._edge
+
         @property
         def _id(self):
             return self.node_id
+
         @property
         def parent(self):
             if self._edge_id is None:
@@ -194,30 +228,36 @@ class NexsonTreeProxy(object):
             par_node_id = self.edge['@source']
             par_edge_id, par_edge = self._tree._find_edge_from_child(par_node_id)
             return self._tree._create_node_proxy_from_edge(edge_id=par_edge_id, edge=par_edge, node_id=par_node_id)
+
         @property
         def node_id(self):
             if self._node_id is None:
                 self._node_id = self._edge['@target']
             return self._node_id
+
         @property
         def otu(self):
             if self._otu is None:
                 otu_id, otu = self._tree._raw_otu_for_node(self.node)
                 self._otu = self._tree._nexson_proxy._create_otu_proxy(otu_id=otu_id, otu=otu)
             return self._otu
+
         @property
         def node(self):
             if self._node is None:
                 self._node = self._tree.get_nexson_node(self.node_id)
             return self._node
+
         def __iter__(self):
             return iter(nexson_tree_preorder_iter(self._tree,
                                                   node=self.node,
                                                   node_id=self.node_id,
                                                   edge_id=self.edge_id,
                                                   edge=self.edge))
+
         def preorder_iter(self):
             return iter(nexson_tree_preorder_iter(self))
+
     def __init__(self, tree, tree_id=None, otus=None, nexson_proxy=None):
         self._nexson_proxy = nexson_proxy
         self._nexson_tree = tree
@@ -233,8 +273,10 @@ class NexsonTreeProxy(object):
         self._edge_by_target = None
         self._wr = None
         self._node_cache = {}
+
     def get_nexson_node(self, node_id):
         return self._node_by_source_id[node_id]
+
     def get_node(self, node_id):
         np = self._node_cache.get(node_id)
         if np is not None:
@@ -242,24 +284,28 @@ class NexsonTreeProxy(object):
         edge_id, edge = self._find_edge_from_child(node_id)
         node = self._node_by_source_id[node_id]
         return self._create_node_proxy_from_edge(edge_id, edge, node_id, node)
+
     def get(self, key, default=None):
         return self._nexson_tree.get(key, default)
+
     def __getitem__(self, key):
         return self._nexson_tree[key]
+
     def __setitem__(self, key, value):
         self._nexson_tree[key] = value
 
     @property
     def edge_by_target(self):
-        '''Returns a reference to the dict of target node id to (edge_id, edge)'''
+        """Returns a reference to the dict of target node id to (edge_id, edge)"""
         if self._edge_by_target is None:
             self._edge_by_target = reverse_edge_by_source_dict(self._edge_by_source_id,
                                                                self._nexson_tree['^ot:rootNodeId'])
         return self._edge_by_target
 
     def _find_edge_from_child(self, node_id):
-        '''Returns (edge_id, edge)'''
+        """Returns (edge_id, edge)"""
         return self.edge_by_target[node_id]
+
     def _create_node_proxy_from_edge(self, edge_id, edge, node_id=None, node=None):
         np = self._node_cache.get(edge_id)
         if np is None:
@@ -270,34 +316,45 @@ class NexsonTreeProxy(object):
             if node_id is not None:
                 self._node_cache[node_id] = np
         return np
+
     def child_iter(self, node_id):
         return nexson_child_iter(self._edge_by_source_id.get(node_id, {}), self)
+
     def is_leaf(self, node_id):
         return node_id not in self._edge_by_source_id
+
     def get_ott_id(self, node):
         return self._raw_otu_for_node(node)[1].get('^ot:ottId')
+
     def _raw_otu_for_node(self, node):
         otu_id = node['@otu']
-        #_LOG.debug('otu_id = {}'.format(otu_id))
+        # _LOG.debug('otu_id = {}'.format(otu_id))
         return otu_id, self._otus[otu_id]
+
     def annotate(self, obj, key, value):
         obj[key] = value
+
     def __iter__(self):
         return iter(nexson_tree_preorder_iter(self))
+
     def preorder_iter(self):
         return iter(nexson_tree_preorder_iter(self))
+
     def nodes(self):
         return [i for i in iter(self)]
+
+
 def nexson_child_iter(edict, nexson_tree_proxy):
     for edge_id, edge in edict.items():
         yield nexson_tree_proxy._create_node_proxy_from_edge(edge_id, edge)
 
+
 def nexson_tree_preorder_iter(tree_proxy, node_id=None, node=None, edge_id=None, edge=None):
-    '''Takes a tree in "By ID" NexSON (v1.2).  provides and iterator over:
+    """Takes a tree in "By ID" NexSON (v1.2).  provides and iterator over:
         NexsonNodeProxy object
     where the edge of the object is the edge connectin the node to the parent.
     The first node will be the root and will have None as it's edge
-    '''
+    """
     tree = tree_proxy._nexson_tree
     ebsid = tree['edgeBySourceId']
     nbid = tree['nodeById']
@@ -335,4 +392,3 @@ def nexson_tree_preorder_iter(tree_proxy, node_id=None, node=None, edge_id=None,
         if daughter_edges is not None:
             new_stack = [(i['@target'], edge_id, i) for edge_id, i in daughter_edges.items()]
             stack.extend(new_stack)
-

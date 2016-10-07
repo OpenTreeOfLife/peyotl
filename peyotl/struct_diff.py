@@ -1,25 +1,31 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function, division
+
+
 class DictDiff(object):
     def __init__(self):
         self._additions = []
         self._deletions = []
         self._modifications = []
+
     def finish(self):
         self._additions.sort()
         self._deletions.sort()
         self._modifications.sort()
+
     def edits_expr(self, par=''):
         r = self.additions_expr(par=par)
         r.extend(self.deletions_expr(par=par))
         r.extend(self.modification_expr(par=par))
         return r
+
     def additions_expr(self, par=''):
         r = []
         for k, v in self._additions:
             s = '{p}[{k}] = {v}'.format(p=par, k=repr(k), v=repr(v))
             r.append(s)
         return r
+
     def modification_expr(self, par=''):
         r = []
         for k, v in self._modifications:
@@ -31,6 +37,7 @@ class DictDiff(object):
                 s = '{pk} = {v}'.format(pk=pk, v=repr(v))
                 r.append(s)
         return r
+
     def deletions_expr(self, par=''):
         r = []
         for deletion in self._deletions:
@@ -38,12 +45,16 @@ class DictDiff(object):
             s = 'del {p}[{k}]'.format(p=par, k=repr(k))
             r.append(s)
         return r
+
     def add_addition(self, k, v):
         self._additions.append((k, v))
+
     def add_deletion(self, k, v):
         self._deletions.append((k, v))
+
     def add_modification(self, k, v):
         self._modifications.append((k, v))
+
     def patch(self, src):
         for k, v in self._deletions:
             del src[k]
@@ -54,9 +65,10 @@ class DictDiff(object):
                 v.patch(src[k])
             else:
                 src[k] = v
+
     @staticmethod
     def create(src, dest, **kwargs):
-        '''Inefficient comparison of src and dest dicts.
+        """Inefficient comparison of src and dest dicts.
         Recurses through dict and lists.
         returns None if there is no difference and a
         DictDiffObject of there are differences
@@ -68,7 +80,7 @@ class DictDiff(object):
                 is helpful given the BadgerFish convention of
                 emitting single elements as a dict, but >1 elements
                 as a list of dicts:
-        '''
+        """
         if src == dest:
             return None
         ddo = DictDiff()
@@ -101,14 +113,16 @@ class DictDiff(object):
         ddo.finish()
         return ddo
 
+
 class ListDiff(object):
     def __init__(self):
         self._additions = []
         self._modifications = []
         self._deletions = []
+
     @staticmethod
     def create(src, dest, **kwargs):
-        '''Inefficient comparison of src and dest dicts.
+        """Inefficient comparison of src and dest dicts.
         Recurses through dict and lists.
         returns (is_identical, modifications, additions, deletions)
         where each
@@ -120,7 +134,7 @@ class ListDiff(object):
             attributes in src but not in dest
 
         Returned dicts may alias objects in src, and dest
-        '''
+        """
         if src == dest:
             return None
         trivial_order = [(i, i) for i in range(min(len(src), len(dest)))]
@@ -167,11 +181,13 @@ class ListDiff(object):
             add_offset += 1
         diffs.finish()
         return diffs
+
     def edits_expr(self, par=''):
         r = self.modification_expr(par=par)
         r.extend(self.deletions_expr(par=par))
         r.extend(self.additions_expr(par=par))
         return r
+
     def additions_expr(self, par=''):
         r = []
         for k, ld in self._additions:
@@ -180,6 +196,7 @@ class ListDiff(object):
             s = '{p}.insert({k:d}, {v})'.format(p=par, k=post_del_ind, v=repr(v))
             r.append(s)
         return r
+
     def modification_expr(self, par=''):
         r = []
         for k, le in self._modifications:
@@ -192,6 +209,7 @@ class ListDiff(object):
                 s = '{pk} = {v}'.format(pk=pk, v=repr(v[1]))
                 r.append(s)
         return r
+
     def deletions_expr(self, par=''):
         # _deletions are reverse sorted
         r = []
@@ -200,6 +218,7 @@ class ListDiff(object):
             s = '{p}.pop({k:d})'.format(p=par, k=k)
             r.append(s)
         return r
+
     def patch(self, src):
         for k, lem in self._modifications:
             v = lem.obj
@@ -214,48 +233,62 @@ class ListDiff(object):
             post_del_ind = k[0] + k[1]
             v = ld.obj
             src.insert(post_del_ind, v)
+
     def add_deletion(self, ind, obj):
         tup = (ind, ListDeletion(ind, obj))
         self._deletions.append(tup)
+
     def add_insertion(self, ind, add_offset, obj):
         sortable_key = (ind, add_offset)
         tup = (sortable_key, ListAddition(ind, add_offset, obj))
         self._additions.append(tup)
+
     def add_modificaton(self, ind, obj):
         tup = (ind, ListElModification(ind, obj))
         self._modifications.append(tup)
+
     def finish(self):
         self._modifications.sort()
         self._deletions.sort(reverse=True)
         self._additions.sort()
+
+
 class ListEdit(object):
     def __init__(self, src_ind, obj):
         self.src_index = src_ind
         self.obj = obj
 
+
 class ListDeletion(ListEdit):
     def __init__(self, src_ind, obj):
         ListEdit.__init__(self, src_ind, obj)
+
     def __repr__(self):
         return 'ListDeletion({s}, {o})'.format(s=self.src_index, o=repr(self.obj))
+
     def __str__(self):
         return repr(self)
+
 
 class ListAddition(ListEdit):
     def __init__(self, src_ind, add_offset, obj):
         ListEdit.__init__(self, src_ind, obj)
         self.add_offset = add_offset
+
     def __repr__(self):
         return 'ListAddition({s}, {o})'.format(s=self.src_index, o=repr(self.obj))
+
     def __str__(self):
         return repr(self)
+
 
 class ListElModification(ListEdit):
     def __init__(self, src_ind, obj):
         ListEdit.__init__(self, src_ind, obj)
+
     def __repr__(self):
         return 'ListElModification({s}, {o})'.format(s=self.src_index,
                                                      o=repr(self.obj))
+
     def __str__(self):
         return repr(self)
-

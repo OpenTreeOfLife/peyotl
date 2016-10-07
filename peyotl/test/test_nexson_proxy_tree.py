@@ -3,11 +3,15 @@ from peyotl.nexson_proxy import NexsonProxy
 from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
+
 _LOG = get_logger(__name__)
+
+
 class TestProxy(unittest.TestCase):
     def setUp(self):
         blob = pathmap.nexson_obj('9/v1.2.json')
         self.np = NexsonProxy(nexson=blob)
+
     def testGetters(self):
         self.assertIs(self.np.get_tree('bogus'), None)
         self.assertIsNot(self.np.get_tree('tree1'), None)
@@ -15,6 +19,7 @@ class TestProxy(unittest.TestCase):
         self.assertIs(self.np.get_otu('bogus'), None)
         self.assertIs(self.np.get_otu('tree1'), None)
         self.assertIsNot(self.np.get_otu('otu123'), None)
+
     def testCaching(self):
         f = self.np.get_tree('tree1')
         s = self.np.get_tree('tree1')
@@ -25,6 +30,7 @@ class TestProxy(unittest.TestCase):
         fo = self.np.get_otu('otu123')
         so = sn.otu
         self.assertIs(fo, so)
+
     def testTreeIter(self):
         ntp = self.np.get_tree('tree1')
         nbi = ntp['nodeById']
@@ -44,5 +50,7 @@ class TestProxy(unittest.TestCase):
                 self.assertIs(node.edge, ed[node.edge_id])
         self.assertEqual(ntp['^ot:rootNodeId'], edge_less)
         self.assertEqual(ks, its)
+
+
 if __name__ == "__main__":
     unittest.main()

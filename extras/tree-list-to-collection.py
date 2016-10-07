@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from peyotl.collections import get_empty_collection
-from peyotl.collections.validation import validate_collection
+from peyotl.collections_store import get_empty_collection
+from peyotl.collections_store.validation import validate_collection
 from peyotl import write_as_json
 import sys
 
@@ -21,10 +21,10 @@ with open(inp_fn, 'rU') as inp:
 c = get_empty_collection()
 d = c['decisions']
 for pair in lines:
-    d.append({'SHA':'',
+    d.append({'SHA': '',
               'decision': 'INCLUDED',
               'name': '',
-              'studyID': pair[0], 
+              'studyID': pair[0],
               'treeID': pair[1]
               })
 

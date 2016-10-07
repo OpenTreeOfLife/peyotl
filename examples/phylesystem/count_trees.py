@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.nexson_syntax import extract_tree_nexson
 import sys
@@ -6,8 +7,8 @@ try:
     phylsys = Phylesystem()
 except Exception as e:
     sys.stderr.write('count_trees.py: Exception: {}\n'.format(e.message))
-    sys.exit('count_trees.py: There was a problem creating a wrapper around your phylesystem ' \
-             'instance. Double check your configuration (see ' \
+    sys.exit('count_trees.py: There was a problem creating a wrapper around your phylesystem '
+             'instance. Double check your configuration (see '
              'http://opentreeoflife.github.io/peyotl/configuration/ for info).')
 try:
     print_freq = 500
@@ -48,4 +49,4 @@ The tree-less studies are: {a}
            m=max_trees_per_study,
            b=biggest_study,
            a=studies_without_trees)
-print output
+print(output)

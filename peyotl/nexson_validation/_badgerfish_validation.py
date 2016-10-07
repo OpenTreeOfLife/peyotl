@@ -1,22 +1,25 @@
 #!/usr/bin/env python
 from peyotl.nexson_validation.helper import _NEXEL, errorReturn
-from peyotl.nexson_validation.err_generator import gen_InvalidKeyWarning, \
-                                                   gen_MissingCrucialContentWarning, \
-                                                   gen_MissingMandatoryKeyWarning, \
-                                                   gen_MultipleRootsWarning, \
-                                                   gen_NodeWithMultipleParents, \
-                                                   gen_NoRootWarning, \
-                                                   gen_ReferencedIDNotFoundWarning, \
-                                                   gen_RepeatedOTUWarning, \
-                                                   gen_TreeCycleWarning, \
-                                                   gen_WrongValueTypeWarning
+from peyotl.nexson_validation.err_generator import (gen_InvalidKeyWarning,
+                                                    gen_MissingCrucialContentWarning,
+                                                    gen_MissingMandatoryKeyWarning,
+                                                    gen_MultipleRootsWarning,
+                                                    gen_NodeWithMultipleParents,
+                                                    gen_NoRootWarning,
+                                                    gen_ReferencedIDNotFoundWarning,
+                                                    gen_RepeatedOTUWarning,
+                                                    gen_TreeCycleWarning,
+                                                    gen_WrongValueTypeWarning)
 from peyotl.nexson_syntax.helper import add_literal_meta, \
-                                        BADGER_FISH_NEXSON_VERSION, \
-                                        delete_first_literal_meta, \
-                                        find_val_for_first_bf_l_meta
+    BADGER_FISH_NEXSON_VERSION, \
+    delete_first_literal_meta, \
+    find_val_for_first_bf_l_meta
 from peyotl.nexson_validation._validation_base import NexsonValidationAdaptor
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
+
 class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger, **kwargs):
         if not hasattr(self, '_syntax_version'):
@@ -100,8 +103,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 vc.pop_context()
         return True
 
-
-    #pylint: disable=R0915
+    # pylint: disable=R0915
     def _post_key_check_validate_tree(self,
                                       tree_nex_id,
                                       tree_obj,
@@ -116,7 +118,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                               err_type=gen_MissingCrucialContentWarning,
                               anc=vc.anc_list,
                               obj_nex_id=tree_nex_id,
-                              key_list=['node',])
+                              key_list=['node', ])
             return errorReturn('no "node" in "trees"')
         edge_list = tree_obj.get('edge')
         if isinstance(edge_list, dict):
@@ -127,7 +129,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                               err_type=gen_MissingCrucialContentWarning,
                               anc=vc.anc_list,
                               obj_nex_id=tree_nex_id,
-                              key_list=['edge',])
+                              key_list=['edge', ])
             return errorReturn('no "edge" in tree')
         edge_id_list = [(i.get('@id'), i) for i in edge_list]
         vc.push_context(_NEXEL.EDGE, (tree_obj, tree_nex_id))
@@ -190,7 +192,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                 multi_parent_node.append(t)
             else:
                 edge_by_target[t] = e
-            #_LOG.debug('e=' + str(e))
+            # _LOG.debug('e=' + str(e))
             sid = e['@source']
             edge_by_source.setdefault(sid, []).append(e)
         if multi_parent_node:
@@ -232,7 +234,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
                                           err_type=gen_MissingCrucialContentWarning,
                                           anc=vc.anc_list,
                                           obj_nex_id=nid,
-                                          key_list=['@otu',])
+                                          key_list=['@otu', ])
                         return errorReturn('"@otu" in leaf')
                     finally:
                         vc.pop_context()
@@ -265,7 +267,7 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
         if unflagged_leaves:
             vc.push_context(_NEXEL.NODE, (tree_obj, tree_nex_id))
             try:
-                #_LOG.debug('unflagged_leaves="{f}"'.format(f=unflagged_leaves))
+                # _LOG.debug('unflagged_leaves="{f}"'.format(f=unflagged_leaves))
                 self._error_event(_NEXEL.NODE,
                                   obj=tree_obj,
                                   err_type=gen_MissingMandatoryKeyWarning,
@@ -418,12 +420,13 @@ class BadgerFishValidationAdaptor(NexsonValidationAdaptor):
             self._generate_ott_warnings(ogid2og, tree_list, (nex_obj, obj_nex_id), vc)
         return True
 
+
 def construct_path_to_root(node, encountered_nodes, edge_by_target):
     nid = node.get('@id')
     p = []
     s = set()
     while nid:
-        #_LOG.debug('node = "{node}"   n="{n}"'.format(node=str(node), n=str(n)))
+        # _LOG.debug('node = "{node}"   n="{n}"'.format(node=str(node), n=str(n)))
         if nid in s:
             return nid, p
         if nid in encountered_nodes:
@@ -440,4 +443,3 @@ def construct_path_to_root(node, encountered_nodes, edge_by_target):
         else:
             break
     return None, p
-

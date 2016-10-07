@@ -1,14 +1,14 @@
 #! /usr/bin/env python
 
 ##############################################################################
-##  Adapted from: DendroPy Phylogenetic Computing Library.
-##
-##  Copyright 2010 Jeet Sukumaran and Mark T. Holder.
-##  All rights reserved.
-##
-##  Sukumaran, J. and M. T. Holder. 2010. DendroPy: a Python library
-##     for phylogenetic computing. Bioinformatics 26: 1569-1571.
-##
+#  Adapted from: DendroPy Phylogenetic Computing Library.
+#
+#  Copyright 2010 Jeet Sukumaran and Mark T. Holder.
+#  All rights reserved.
+#
+#  Sukumaran, J. and M. T. Holder. 2010. DendroPy: a Python library
+#     for phylogenetic computing. Bioinformatics 26: 1569-1571.
+#
 ##############################################################################
 
 """
@@ -19,6 +19,7 @@ import unittest
 import re
 import os
 
+
 def get_test_file_names():
     """Get list of test file names."""
     path = os.path.dirname(__file__)
@@ -27,9 +28,10 @@ def get_test_file_names():
     pat = re.compile(r'^test.*\.py$')
     for f in files:
         if pat.match(f):
-            rp = 'peyotl.test.' + f[:-3] # [:-3] to strip ".py"
+            rp = 'peyotl.test.' + f[:-3]  # [:-3] to strip ".py"
             t.append(rp)
     return t
+
 
 def get_test_suite(test_file_names=None):
     """
@@ -44,10 +46,12 @@ def get_test_suite(test_file_names=None):
     tests = unittest.defaultTestLoader.loadTestsFromNames(test_file_names)
     return unittest.TestSuite(tests)
 
+
 def run():
-    "Runs all of the unittests"
+    """Runs all of the unittests"""
     runner = unittest.TextTestRunner()
     runner.run(get_test_suite())
+
 
 if __name__ == "__main__":
     run()

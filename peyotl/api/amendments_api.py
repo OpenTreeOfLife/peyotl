@@ -2,7 +2,7 @@
 from peyotl.amendments.amendments_umbrella import TaxonomicAmendmentStore, TaxonomicAmendmentStoreProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.amendments import AMENDMENT_ID_PATTERN
-from peyotl.utility import get_logger, coerce_amendment_dois_to_urls
+from peyotl.utility import get_logger, doi2url
 import anyjson
 import os
 
@@ -126,13 +126,13 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
             json = self.json_http_get(url)
             r = {'data': json}
         elif self._src_code == _GET_LOCAL:
-            json, sha = self.docstore_obj.return_doc(amendment_id)  # pylint: disable=W0632
-            coerce_amendment_dois_to_urls(json)  # normally done via API
+            json, sha = self.docstore_obj.return_doc(amendment_id) #pylint: disable=W0632
             r = {'data': json,
                  'sha': sha}
         else:
             assert self._src_code == _GET_API
             r = self._remote_get_amendment(amendment_id)
+        self._coerce_source_dois_to_urls(r.get('data'))
         return r
 
     @property
@@ -162,11 +162,29 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     def unmerged_branches(self):
         uri = '{}/amendments/unmerged_branches'.format(self._prefix)
         return self.json_http_get(uri)
-
+    def _coerce_source_dois_to_urls(self,
+                                    json):
+        # Convert source DOIs to their URL form (when fetching, saving, or
+        # updating an amendment)
+        if 'taxa' in json:
+            # simple amendment JSON
+            taxa = json.get('taxa')
+        else:
+            # JSON includes wrapper w/ history, etc.
+            taxa = json.get('data').get('taxa')
+        if isinstance(taxa, list):
+            for taxon in taxa:
+                sources = taxon.get('sources')
+                if isinstance(sources, list):
+                    for src in sources:
+                        if src.get('source_type') == "Link (DOI) to publication":
+                            doi = src.get('source', "")
+                            src['source'] = doi2url(doi)
     def post_amendment(self,
                        json,
                        commit_msg=None):
         assert json is not None
+        self._coerce_source_dois_to_urls(json)
         uri = '{d}/amendment'.format(d=self._prefix)
         params = {'auth_token': self.auth_token}
         if commit_msg:
@@ -181,6 +199,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                       starting_commit_sha,
                       commit_msg=None):
         assert json is not None
+        self._coerce_source_dois_to_urls(json)
         uri = '{d}/amendment/{i}'.format(d=self._prefix, i=amendment_id)
         params = {'starting_commit_SHA': starting_commit_sha,
                   'auth_token': self.auth_token}

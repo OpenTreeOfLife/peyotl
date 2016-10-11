@@ -126,7 +126,7 @@ class _TaxonomicAmendmentsAPIWrapper(_WSWrapper):
             json = self.json_http_get(url)
             r = {'data': json}
         elif self._src_code == _GET_LOCAL:
-            json, sha = self.docstore_obj.return_doc(amendment_id) #pylint: disable=W0632
+            json, sha = self.docstore_obj.return_doc(amendment_id)  #pylint: disable=W0632
             r = {'data': json,
                  'sha': sha}
         else:
@@ -161,6 +161,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     def unmerged_branches(self):
         uri = '{}/amendments/unmerged_branches'.format(self._prefix)
         return self.json_http_get(uri)
+
     def post_amendment(self,
                        json,
                        commit_msg=None):

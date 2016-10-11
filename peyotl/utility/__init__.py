@@ -46,26 +46,6 @@ def doi2url(v):
     return 'http://' + v
 
 
-def coerce_amendment_dois_to_urls(json):
-    # Convert source DOIs in a taxonomic amendment to URL form (when fetching,
-    # saving, or updating an amendment).
-    # N.B. `json` is actually a dict (parsed from amendment JSON)!
-    if 'taxa' in json:
-        # simple amendment JSON
-        taxa = json.get('taxa')
-    else:
-        # JSON includes wrapper w/ history, etc.
-        taxa = json.get('data').get('taxa')
-    if isinstance(taxa, list):
-        for taxon in taxa:
-            sources = taxon.get('sources')
-            if isinstance(sources, list):
-                for src in sources:
-                    if src.get('source_type') == "Link (DOI) to publication":
-                        # noinspection PyTypeChecker
-                        src['source'] = doi2url(src.get('source', ""))
-
-
 def get_unique_filepath(stem):
     """NOT thread-safe!
     return stems or stem# where # is the smallest

@@ -33,17 +33,30 @@ class TestAmendmentValidator(unittest.TestCase):
         msg = ''
         frag = 'amendment-incomplete.json'
         inp = pathmap.amendment_obj(frag)
-        try:
-            aa = validate_amendment(inp)
-            if len(aa) > 0:
-                errors = aa[0]
-                if len(errors) == 0:
-                    ofn = pathmap.amendment_source_path(frag + '.output')
-                    testing_write_json(errors, ofn)
-                    msg = "Failed to reject file. See {o}".format(o=str(msg))
-                    self.assertTrue(False, msg)
-        except:
-            pass
+        aa = validate_amendment(inp)
+        if len(aa) > 0:
+            errors = aa[0]
+            if len(errors) == 0:
+                ofn = pathmap.amendment_source_path(frag + '.output')
+                testing_write_json(errors, ofn)
+                msg = "Failed to reject invalid file (no errors found)"
+                self.assertTrue(False, msg)
+
+    def testInvalidDOIsFail(self):
+        # all DOIs should be in URL form
+        msg = ''
+        frag = 'amendment-bad-dois.json'
+        inp = pathmap.amendment_obj(frag)
+        aa = validate_amendment(inp)
+        if len(aa) > 0:
+            errors = aa[0]
+            ofn = pathmap.amendment_source_path(frag + '.output')
+            testing_write_json(errors, ofn)
+            if len(errors) == 0:
+                msg = "Failed to reject bare DOI (no errors found)"
+                self.assertTrue(False, msg)
+            else:
+                self.assertTrue('should be a URL' in errors[0])
 
     def testExpectedWarnings(self):
         msg = ''

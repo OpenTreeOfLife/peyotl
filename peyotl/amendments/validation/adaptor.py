@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """AmendmentValidationAdaptor class.
 """
-from peyotl.utility import get_logger
+from peyotl.utility import get_logger, doi2url
 
 _LOG = get_logger(__name__)
 
@@ -188,6 +188,10 @@ class AmendmentValidationAdaptor(object):
                 self.source_types_not_requiring_value = [
                     'The taxon is described in this study',
                 ]
+                self.source_types_requiring_URL = [
+                    'Link to online taxonomy',
+                    'Link (DOI) to publication',
+                ]
                 valid_source_found = False
                 if len(taxon.get('sources')) > 0:
                     for s in taxon.get('sources'):
@@ -204,6 +208,13 @@ class AmendmentValidationAdaptor(object):
                                     errors.append("Missing value for taxon source of type '{t}'!".format(t=s_type))
                             else:
                                 valid_source_found = True
+                            if s_type in self.source_types_requiring_URL:
+                                try:
+                                    # its value should contain a URL (ie, conversion does nothing)
+                                    s_val = s.get('source')
+                                    assert s_val == doi2url(s_val)
+                                except:
+                                    errors.append("Source '{s}' (of type '{t}') should be a URL!".format(s=s_val, t=s_type))
                         except:
                             errors.append("Unknown taxon source type '{t}'!".format(t=s_type))
 

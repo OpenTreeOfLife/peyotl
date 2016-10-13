@@ -212,3 +212,165 @@ PEYOTL_LOG_FILE_PATH
 PEYOTL_LOGGING_LEVEL
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.nexson_syntax import extract_tree_nexson
+
+
+##
+Phylesystem-api
+###############
+amendments and collections
+==========
+docstore = api_utils.get_taxonomic_amendment_store(request)
+
+for id, props in docstore.iter_doc_objs():
+    latest_commit = docstore.get_version_history_for_doc_id(id)[0]
+    latest_commit.get('author_name'),
+    latest_commit.get('relative_date'),
+    latest_commit.get('date'),
+    latest_commit.get('date_ISO_8601'),
+    latest_commit.get('id')  # this is the commit hash
+
+docstore.get_amendment_ids()
+
+docstore.get_configuration_dict()
+
+
+amendment_obj = __extract_json_from_http_call(request, data_field_name='json', **kwargs)
+
+__extract_and_validate_amendment
+    errors, amendment_adaptor = validate_amendment(amendment_obj)
+        return amendment_obj, errors, amendment_adaptor
+
+
+AMENDMENT_ID_PATTERN.match(amendment_id):
+
+amendment_obj, amendment_errors, amendment_adapter = __extract_and_validate_amendment(request,
+                                                                                              kwargs)
+
+docstore = api_utils.get_taxonomic_amendment_store(request)
+r = docstore.return_doc(amendment_id, commit_sha=parent_sha, return_WIP_map=True)
+amendment_json, head_sha, wip_map = r
+version_history = docstore.get_version_history_for_doc_id(amendment_id)
+external_url = amendments.get_public_url(amendment_id)
+
+
+r = docstore.update_existing_amendment(amendment_id,
+                                           amendment_obj,
+                                           auth_info,
+                                           parent_sha,
+                                           merged_sha,
+                                           commit_msg=commit_msg)
+mn = r.get('merge_needed')
+if (mn is not None) and (not mn):
+    __deferred_push_to_gh_call(request, amendment_id, doc_type='amendment', **kwargs)
+return r
+
+
+r = docstore.add_new_amendment(amendment_obj,
+                                           auth_info,
+                                           commit_msg=commit_msg)
+new_amendment_id, commit_return = r
+commit_return['error'] != 0:
+__deferred_push_to_gh_call(request, new_amendment_id, doc_type='amendment', **kwargs)
+
+x = docstore.delete_amendment(amendment_id,
+                                          auth_info,
+                                          parent_sha,
+                                          commit_msg=commit_msg)
+if x.get('error') == 0:
+
+
+
+url = collection_obj.get('url', None)
+collection_id = url.split('/collection/')[1]
+assert collection_id.split('/')[0] == owner_id
+
+
+
+phylesystem = api_utils.get_phylesystem(request)
+shard_name, path_frag = phylesystem.get_repo_and_path_fragment(study_id)
+
+repo_parent, repo_remote, git_ssh, pkey, git_hub_remote, max_filesize, max_num_trees = api_utils.read_phylesystem_config(request)
+repo_nexml2json = phylesystem.repo_nexml2json
+
+def __validate_output_nexml2json(kwargs, resource, type_ext, content_id=None, subID, or (subID, subID)):
+    kwargs['output_nexml2json'] = 'x.x.x'
+    kwargs['bracket_ingroup'] = bool
+    schema = PhyloSchema(schema=kwargs.get('format'),
+                         type_ext=type_ext,
+                         content=resource,
+                         content_id=content_id,
+                         repo_nexml2json=repo_nexml2json,
+                         **kwargs)
+    schema.can_convert_from(resource):
+
+def __finish_write_verb(phylesystem, git_data, nexson, resource_id, auth_info, adaptor, annotation, parent_sha, commit_msg='', master_file_blob_included=None):
+    a = phylesystem.annotate_and_write(git_data,
+                                       nexson,
+                                       resource_id,
+                                       auth_info,
+                                       adaptor,
+                                       annotation,
+                                       parent_sha,
+                                       commit_msg,
+                                       master_file_blob_included)
+    a['error'] != 0:
+
+valid_subresources = ('tree', 'meta', 'otus', 'otu', 'otumap')
+returning_full_study = False
+returning_tree = False
+content_id = None
+version_history = None
+comment_html = None
+type_ext = None or phylo-suffix
+out_schema = __validate_output_nexml2json(kwargs,
+                                          return_type,
+                                          type_ext,
+                                          content_id=content_id)
+parent_sha = kwargs.get('starting_commit_SHA')
+phylesystem = api_utils.get_phylesystem(request)
+r = phylesystem.return_study(resource_id, commit_sha=parent_sha, return_WIP_map=True)
+study_nexson, head_sha, wip_map = r
+blob_sha = phylesystem.get_blob_sha_for_study_id(resource_id, head_sha)
+phylesystem.add_validation_annotation(study_nexson, blob_sha)
+version_history = phylesystem.get_version_history_for_study_id(resource_id)
+
+
+bundle = __extract_and_validate_nexson(request,
+                                               repo_nexml2json,
+                                               kwargs)
+        new_study_nexson = bundle[0]
+
+r = phylesystem.ingest_new_study(new_study_nexson,
+                                         repo_nexml2json,
+                                         auth_info,
+                                         new_study_id)
+new_resource_id, commit_return = r
+
+def __extract_and_validate_nexson(request, repo_nexml2json, kwargs):
+    nexson = __extract_nexson_from_http_call(request, **kwargs)
+    bundle = validate_and_convert_nexson(nexson, repo_nexml2json, allow_invalid=False, max_num_trees_per_study=max_num_trees)
+    nexson, annotation, validation_log, nexson_adaptor = bundle
+    return nexson, annotation, nexson_adaptor
+
+
+auth_info = api_utils.authenticate(**kwargs)
+bundle = __extract_and_validate_nexson(request, repo_nexml2json, kwargs)
+nexson, annotation, nexson_adaptor = bundle
+
+gd = phylesystem.create_git_action(resource_id)
+blob = __finish_write_verb(phylesystem, gd, nexson=nexson, resource_id=resource_id, auth_info=auth_info, adaptor=nexson_adaptor, annotation=annotation, parent_sha=parent_sha, commit_msg=commit_msg, master_file_blob_included=master_file_blob_included)
+mn = blob.get('merge_needed')
+
+
+x = phylesystem.delete_study(resource_id, auth_info, parent_sha, commit_msg=commit_msg)
+if x.get('error') == 0:
+
+
+
+
+merge_from_master
+
+docstore = api_utils.get_taxonomic_amendment_store(request)
+docstore.push_doc_to_remote('GitHubRemote', resource_id)
+ga = docstore.create_git_action(resource_id)
+master_sha = ga.get_master_sha()

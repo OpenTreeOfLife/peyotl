@@ -298,35 +298,48 @@ class NexsonTreeWrapper(object):
             edge = ebs_el.values()[0]
             new_root = edge['@target']
             self._del_tip(new_root)
+    def prune_ott_problem_leaves_by_id(self, ott_id, reason):
+        self.prune_ott_problem_leaves(self.by_ott_id[ott_id], reason)
+        del self.by_ott_id[ott_id]
 
-    def prune_tree_for_supertree(self, ott, to_prune_fsi_set, root_ott_id, taxonomy_treefile=None):
+    def prune_tree_for_supertree(self,
+                                 ott,
+                                 to_prune_fsi_set,
+                                 root_ott_id,
+                                 taxonomy_treefile=None,
+                                 id_to_other_prune_reason=None):
         """
         `to_prune_fsi_set` is a set of flag indices to be pruned.
         """
+        if id_to_other_prune_reason is None:
+            id_to_other_prune_reason = {}
         self.prune_to_ingroup()
         self.prune_unmapped_leaves()
+        other_pruned = set()
+        if id_to_other_prune_reason:
+            id2p = set(id_to_other_prune_reason.keys()).intersection(set(self.by_ott_id.keys()))
+            for ott_id in id2p:
+                reason = id_to_other_prune_reason[ott_id]
+                self.prune_ott_problem_leaves_by_id(ott_id, reason)
         # Check the stored OTT Ids against the current version of OTT
         mapped, unrecog, forward2unrecog, pruned, above_root, old2new = ott.map_ott_ids(self.by_ott_id.keys(),
                                                                                         to_prune_fsi_set, root_ott_id)
         for ott_id in unrecog:
-            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'unrecognized_ott_id')
-            del self.by_ott_id[ott_id]
+            self.prune_ott_problem_leaves_by_id(ott_id, 'unrecognized_ott_id')
         for ott_id in forward2unrecog:
-            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'forwarded_to_unrecognized_ott_id')
-            del self.by_ott_id[ott_id]
+            self.prune_ott_problem_leaves_by_id(ott_id, 'forwarded_to_unrecognized_ott_id')
         for ott_id in pruned:
-            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'flagged')
-            del self.by_ott_id[ott_id]
+            self.prune_ott_problem_leaves_by_id(ott_id, 'flagged')
         for ott_id in above_root:
-            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'above_root')
-            del self.by_ott_id[ott_id]
+            self.prune_ott_problem_leaves_by_id(ott_id, 'above_root')
         for old_id, new_id in old2new.items():
             old_node_list = self.by_ott_id[old_id]
             del self.by_ott_id[old_id]
             if new_id in self.by_ott_id:
                 v = self.by_ott_id[new_id]
                 v.extend(old_node_list)
-                v.sort()
+                v.sort() # I think only the last step requires sorting (NEED to check that,
+                         # If so, we could move this sort to that point to avoid multiple sortings.
             else:
                 self.by_ott_id[new_id] = old_node_list
             for sortable_el in old_node_list:
@@ -338,6 +351,7 @@ class NexsonTreeWrapper(object):
         lost_tips = set(unrecog)
         lost_tips.update(forward2unrecog)
         lost_tips.update(pruned)
+        lost_tips.update(other_pruned)
         # Get the induced tree...
         assert self.root_node_id
         try:
@@ -368,15 +382,14 @@ class NexsonTreeWrapper(object):
                 to_retain.append(ott_id)
 
         for ott_id in taxon_contains_other_ott_ids:
-            self.prune_ott_problem_leaves(self.by_ott_id[ott_id], 'mapped_to_taxon_containing_other_mapped_tips')
+            self.prune_ott_problem_leaves_by_id(ott_id, 'mapped_to_taxon_containing_other_mapped_tips')
         # finally, we walk through any ott_id's mapped to multiple nodes
         for ott_id in to_retain:
             nm = self.by_ott_id[ott_id]
             if len(nm) > 1:
                 el = nm.pop(0)
                 reason = 'replaced_by_exemplar_node' if (el[0] == -1) else 'replaced_by_arbitrary_node'
-                self.prune_ott_problem_leaves(self.by_ott_id[ott_id], reason)
-                self.by_ott_id[ott_id] = [el]
+                self.prune_ott_problem_leaves_by_id(ott_id, reason)
         return self
 
 
@@ -387,7 +400,7 @@ if __name__ == '__main__':
     import os
 
     description = ''
-    parser = argparse.ArgumentParser(prog='to_clean_ott_id_mapped_leaves.py', description=description)
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument('nexson',
                         nargs='*',
                         type=str,
@@ -417,6 +430,10 @@ if __name__ == '__main__':
                         type=str,
                         required=False,
                         help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
+    parser.add_argument('--ott-prune-nonflagged-json',
+                        default=None,
+                        type=str,
+                        help='Optional JSON file that encodes and object that maps a string describing a reason to prune to a list of OTT Ids to prune')
     parser.add_argument('--root',
                         default=None,
                         type=int,
@@ -429,6 +446,17 @@ if __name__ == '__main__':
                         help='A list of input NexSON filenames.')
     args = parser.parse_args(sys.argv[1:])
     ott_dir, out_dir, root = args.ott_dir, args.out_dir, args.root
+    to_prune_for_reasons = {}
+    nonflagged_json_fn = args.ott_prune_nonflagged_json
+    if nonflagged_json_fn is not None:
+        try:
+            nonflagged_blob = read_as_json(nonflagged_json_fn)
+        except:
+            nonflagged_blob = None
+        if nonflagged_blob:
+            for reason, id_list in nonflagged_blob.items():
+                for ott_id in id_list:
+                    to_prune_for_reasons[ott_id] = reason
     flags_str = args.ott_prune_flags
     try:
         assert os.path.isdir(args.ott_dir)
@@ -474,7 +502,8 @@ if __name__ == '__main__':
             ntw.prune_tree_for_supertree(ott=ott,
                                          to_prune_fsi_set=to_prune_fsi_set,
                                          root_ott_id=root,
-                                         taxonomy_treefile=taxonomy_treefile)
+                                         taxonomy_treefile=taxonomy_treefile,
+                                         id_to_other_prune_reason=to_prune_for_reasons)
         except EmptyTreeError:
             log_obj['EMPTY_TREE'] = True
         out_log = os.path.join(args.out_dir, study_tree + '.json')

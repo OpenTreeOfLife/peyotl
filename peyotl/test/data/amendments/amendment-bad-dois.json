@@ -1,0 +1,24 @@
+{
+    "user_agent": "opentree-reference-taxonomy",
+    "id": "additions-1234567-12345678",
+    "curator": {
+        "login": "jimallman", 
+        "name": "Jim Allman"
+    },
+    "date_created": "2015-09-23T15:27:43.298Z",
+    "study_id": "ot_234",
+    "taxa": [
+        {
+            "name": "",
+            "parent": 1,
+            "name": "",
+            "name_derivation": "",
+            "sources": [
+                {
+                    "source_type": "Link (DOI) to publication",
+                    "source": "10.123"
+                }
+            ]
+        }
+    ]
+}

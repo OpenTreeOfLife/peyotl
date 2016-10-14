@@ -6,13 +6,17 @@ from peyotl.git_storage import GitActionBase
 # extract an amendment id from a git repo path (as returned by git-tree)
 
 _LOG = get_logger(__name__)
+
+
 class MergeException(Exception):
     pass
+
 
 def get_filepath_for_id(repo_dir, amendment_id):
     from peyotl.amendments import AMENDMENT_ID_PATTERN
     assert bool(AMENDMENT_ID_PATTERN.match(amendment_id))
     return '{r}/amendments/{s}.json'.format(r=repo_dir, s=amendment_id)
+
 
 def amendment_id_from_repo_path(path):
     doc_parent_dir = 'amendments/'
@@ -23,13 +27,14 @@ def amendment_id_from_repo_path(path):
         except:
             return None
 
+
 class TaxonomicAmendmentsGitAction(GitActionBase):
     def __init__(self,
                  repo,
                  remote=None,
                  git_ssh=None,
                  pkey=None,
-                 cache=None, #pylint: disable=W0613
+                 cache=None,  # pylint: disable=W0613
                  path_for_doc_fn=None,
                  max_file_size=None):
         """GitActionBase subclass to interact with a Git repository
@@ -57,6 +62,7 @@ class TaxonomicAmendmentsGitAction(GitActionBase):
     @property
     def path_for_amendment(self):
         return self.path_for_doc
+
     @property
     def return_amendment(self):
         return self.return_document
@@ -123,4 +129,3 @@ class TaxonomicAmendmentsGitAction(GitActionBase):
                                            auth_info,
                                            commit_msg,
                                            doctype_display_name="amendment")
-

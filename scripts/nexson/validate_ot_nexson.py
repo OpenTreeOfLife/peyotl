@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 if __name__ == '__main__':
     from peyotl.nexson_syntax import write_as_json
-    from peyotl.nexson_validation import NexsonError, \
-                                         NexsonWarningCodes, \
-                                         validate_nexson
+    from peyotl.nexson_validation import NexsonError, NexsonWarningCodes, validate_nexson
     from peyotl import get_logger
     import argparse
     import codecs
     import json
     import sys
     import os
+
     SCRIPT_NAME = os.path.split(os.path.abspath(sys.argv[0]))[-1]
     _LOG = get_logger(SCRIPT_NAME)
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
@@ -25,21 +24,22 @@ if __name__ == '__main__':
                         dest='add_agent_only',
                         action='store_true',
                         default=False,
-                        help='If --embed and this argument are both used, only the agent info will be embedded in the annotation')
-    out_syntax_choices = ["json",]
+                        help='If --embed and this argument are both used, '
+                             'only the agent info will be embedded in the annotation')
+    out_syntax_choices = ["json", ]
     out_syntax_choices.sort()
     s_help = 'Syntax of output. Valid choices are: "{c}"'.format(c='", "'.join(out_syntax_choices))
-    parser.add_argument("-s", "--syntax", 
+    parser.add_argument("-s", "--syntax",
                         metavar="FMT",
                         required=False,
                         choices=out_syntax_choices,
                         default="json",
                         help=s_help)
-    parser.add_argument("-o", "--output", 
+    parser.add_argument("-o", "--output",
                         metavar="FILE",
                         required=False,
                         help="output filepath. Standard output is used if omitted.")
-    parser.add_argument("-e", "--err-stream", 
+    parser.add_argument("-e", "--err-stream",
                         metavar="FILE",
                         required=False,
                         dest='err_fn',

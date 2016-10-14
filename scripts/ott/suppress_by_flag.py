@@ -2,11 +2,13 @@
 from peyotl import OTULabelStyleEnum
 from peyotl import write_as_json
 from peyotl.ott import OTT
+
 if __name__ == '__main__':
     import argparse
     import codecs
     import sys
     import os
+
     description = 'Takes a ott directory, and output filename. Produces a newick representation of OTT with ' \
                   '"dubious" taxa pruned. Writes that newick to the specified file location.'
     parser = argparse.ArgumentParser(prog='suppress_by_flag.py', description=description)
@@ -29,7 +31,8 @@ if __name__ == '__main__':
                         default=None,
                         type=str,
                         required=False,
-                        help='Optional comma-separated list of flags to prune. If omitted, the treemachine flags are used.')
+                        help='Optional comma-separated list of flags to prune. '
+                             'If omitted, the treemachine flags are used.')
     parser.add_argument('--root',
                         default=None,
                         type=int,

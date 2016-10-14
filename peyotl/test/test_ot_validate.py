@@ -5,10 +5,12 @@ from peyotl.utility import get_logger
 from peyotl.phylesystem.git_workflows import validate_and_convert_nexson
 import unittest
 import os
+
 _LOG = get_logger(__name__)
 
 # round trip filename tuples
 VALID_NEXSON_DIRS = ['9', 'otu', ]
+
 
 class TestConvert(unittest.TestCase):
     def testValidFilesPass(self):
@@ -31,6 +33,6 @@ class TestConvert(unittest.TestCase):
                 annotation = bundle[1]
                 self.assertFalse(annotation['annotationEvent']['@passedChecks'])
 
+
 if __name__ == "__main__":
     unittest.main()
-

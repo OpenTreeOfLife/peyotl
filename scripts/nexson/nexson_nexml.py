@@ -1,18 +1,23 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax import convert_nexson_format, \
-                                 get_ot_study_info_from_nexml, \
-                                 get_nexml_el, \
-                                 sort_arbitrarily_ordered_nexson, \
-                                 write_as_json, \
-                                 write_obj_as_nexml, \
-                                 BADGER_FISH_NEXSON_VERSION, \
-                                 DEFAULT_NEXSON_VERSION, \
-                                 DIRECT_HONEY_BADGERFISH, \
-                                 BY_ID_HONEY_BADGERFISH
-#secret#hacky#cut#paste*nexson_nexml.py##################################
+from peyotl.nexson_syntax import (convert_nexson_format,
+                                  get_ot_study_info_from_nexml,
+                                  get_nexml_el,
+                                  sort_arbitrarily_ordered_nexson,
+                                  write_as_json,
+                                  write_obj_as_nexml,
+                                  BADGER_FISH_NEXSON_VERSION,
+                                  DEFAULT_NEXSON_VERSION,
+                                  DIRECT_HONEY_BADGERFISH,
+                                  BY_ID_HONEY_BADGERFISH)
+
+
+# secret#hacky#cut#paste*nexson_nexml.py##################################
 
 def _main():
-    import sys, codecs, json, os
+    import sys
+    import codecs
+    import json
+    import os
     import argparse
     _HELP_MESSAGE = '''NeXML/NexSON converter'''
     _EPILOG = '''UTF-8 encoding is used (for input and output).
@@ -27,11 +32,11 @@ Environmental variables used:
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=_EPILOG)
     parser.add_argument("input", help="filepath to input")
-    parser.add_argument("-o", "--output", 
+    parser.add_argument("-o", "--output",
                         metavar="FILE",
                         required=False,
                         help="output filepath. Standard output is used if omitted.")
-    parser.add_argument("-s", "--sort", 
+    parser.add_argument("-s", "--sort",
                         action="store_true",
                         default=False,
                         help="If specified, the arbitrarily ordered items will be sorted.")
@@ -51,13 +56,13 @@ With "0.0" and "badgerfish" as aliases for "0.0.0", and \
 version that uses the honeybadgefish syntax for meta elements, \
 but maintained the direct object-mapping from NeXML of the \
 badgerfish form of NexSON'.format(c='", "'.join(e_choices))
-    parser.add_argument("-e", "--export", 
+    parser.add_argument("-e", "--export",
                         metavar="FMT",
                         required=False,
                         choices=e_choices,
                         help=e_help)
     codes = 'xjb'
-    parser.add_argument("-m", "--mode", 
+    parser.add_argument("-m", "--mode",
                         metavar="MODE",
                         required=False,
                         choices=[i + j for i in codes for j in codes],
@@ -75,15 +80,17 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
     if export_format:
         if export_format.lower() in ["badgerfish", "0.0"]:
             export_format = str(BADGER_FISH_NEXSON_VERSION)
-        elif export_format.lower() ==  "1.0":
+        elif export_format.lower() == "1.0":
             export_format = str(DIRECT_HONEY_BADGERFISH)
-        elif export_format.lower() ==  "1.2":
+        elif export_format.lower() == "1.2":
             export_format = str(BY_ID_HONEY_BADGERFISH)
     if export_format is not None and mode is not None:
         if (mode.endswith('b') and (export_format != str(BADGER_FISH_NEXSON_VERSION))) \
-           or (mode.endswith('x') and (export_format.lower() != "nexml")) \
-           or (mode.endswith('x') and (export_format.lower() not in [str(DIRECT_HONEY_BADGERFISH)])):
-            sys.exit('export format {e} clashes with mode {m}. The mode option is not neeeded if the export option is used.'.format(e=export_format, m=mode))
+                or (mode.endswith('x') and (export_format.lower() != "nexml")) \
+                or (mode.endswith('x') and (export_format.lower() not in [str(DIRECT_HONEY_BADGERFISH)])):
+            sys.exit('export format {e} clashes with mode {m}. '
+                    'The mode option is not neeeded if the export option is used.'.format(
+                    e=export_format, m=mode))
     try:
         inp = codecs.open(inpfn, mode='rU', encoding='utf-8')
     except:
@@ -101,7 +108,8 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
                 elif first_graph_char:
                     raise ValueError('Expecting input to start with <, {, or [')
         except:
-            sys.exit('nexson_nexml: First character of "{fn}" was not <, {, or [\nInput does not appear to be NeXML or NexSON\n'.format(fn=inpfn))
+            sys.exit('nexson_nexml: First character of "{fn}" was not <, {, or ['
+                     '\nInput does not appear to be NeXML or NexSON\n'.format(fn=inpfn))
         if export_format is None:
             if mode.endswith('*'):
                 export_format = str(DIRECT_HONEY_BADGERFISH)
@@ -121,7 +129,7 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
         indentation = int(os.environ.get('NEXML_INDENTATION_SETTING', 0))
     else:
         indentation = int(os.environ.get('NEXSON_INDENTATION_SETTING', 0))
-    
+
     if outfn is not None:
         try:
             out = codecs.open(outfn, mode='w', encoding='utf-8')
@@ -141,14 +149,15 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
             except:
                 n = None
             if not n or (not isinstance(n, dict)):
-                sys.exit('No top level "nex:nexml" element found. Document does not appear to be a JSON version of NeXML\n')
+                sys.exit(
+                    'No top level "nex:nexml" element found. Document does not appear to be a JSON version of NeXML\n')
             if n:
                 mode = 'j' + mode[1]
     if args.sort:
         sort_arbitrarily_ordered_nexson(blob)
     if export_format == "nexml":
         if indentation > 0:
-            indent = ' '*indentation
+            indent = ' ' * indentation
         else:
             indent = ''
         newline = '\n'
@@ -160,6 +169,7 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
         if not mode.startswith('x'):
             blob = convert_nexson_format(blob, export_format, sort_arbitrary=True)
         write_as_json(blob, out, indent=indentation)
-        
+
+
 if __name__ == '__main__':
     _main()

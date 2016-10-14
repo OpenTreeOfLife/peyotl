@@ -4,6 +4,7 @@ from peyotl.nexson_syntax import extract_supporting_file_messages
 import codecs
 import json
 import sys
+
 only_with_url = '-u' in sys.argv
 out = codecs.getwriter('utf-8')(sys.stdout)
 for fn in sys.argv[1:]:

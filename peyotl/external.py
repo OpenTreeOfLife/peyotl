@@ -1,15 +1,18 @@
 #!/usr/bin/env python
-'''Functions that interact with external tools/services
-'''
+"""Functions that interact with external tools/services
+"""
 from __future__ import absolute_import, print_function, division
-from peyotl.nexson_syntax import get_ot_study_info_from_nexml, \
-                                 DEFAULT_NEXSON_VERSION, \
-                                 BY_ID_HONEY_BADGERFISH, \
-                                 convert_nexson_format, \
-                                 sort_arbitrarily_ordered_nexson
+from peyotl.nexson_syntax import (get_ot_study_info_from_nexml,
+                                  DEFAULT_NEXSON_VERSION,
+                                  BY_ID_HONEY_BADGERFISH,
+                                  convert_nexson_format,
+                                  sort_arbitrarily_ordered_nexson)
 from peyotl.nexson_syntax.helper import _simplify_all_meta_by_id_del
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
+
 def _get_treebase_url(treebase_id):
     # Use TreeBASE API to fetch NeXML, then pass it as a string
     # to _import_nexson_from_nexml()
@@ -32,7 +35,7 @@ def get_ot_study_info_from_treebase_nexml(src=None,
                                           nexson_syntax_version=DEFAULT_NEXSON_VERSION,
                                           merge_blocks=True,
                                           sort_arbitrary=False):
-    '''Normalize treebase-specific metadata into the locations where
+    """Normalize treebase-specific metadata into the locations where
     open tree of life software that expects it.
 
     See get_ot_study_info_from_nexml for the explanation of the src,
@@ -47,8 +50,8 @@ def get_ot_study_info_from_treebase_nexml(src=None,
             fields to ^ot:taxonLink
         5. remove "@xml:base"
         6. coerce edge lengths to native types
-    '''
-    #pylint: disable=R0915
+    """
+    # pylint: disable=R0915
     raw = get_ot_study_info_from_nexml(src=src,
                                        nexml_content=nexml_content,
                                        encoding=encoding,
@@ -108,7 +111,7 @@ def get_ot_study_info_from_treebase_nexml(src=None,
                 del otu[SKOS_ALT_LABEL]
             tl = {}
             scm = otu.get(SKOS_CLOSE_MATCH)
-            #_LOG.debug('scm = ' + str(scm))
+            # _LOG.debug('scm = ' + str(scm))
             if scm:
                 if isinstance(scm, dict):
                     h = scm.get('@href')
@@ -147,7 +150,7 @@ def get_ot_study_info_from_treebase_nexml(src=None,
                             otu[SKOS_CLOSE_MATCH] = nm[0]
                         else:
                             del otu[SKOS_CLOSE_MATCH]
-            #_LOG.debug('tl =' + str(tl))
+            # _LOG.debug('tl =' + str(tl))
             for k, t in moveable2taxon_link.items():
                 al = otu.get(k)
                 if al:

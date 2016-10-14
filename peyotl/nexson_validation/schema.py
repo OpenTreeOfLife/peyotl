@@ -1,19 +1,22 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax.helper import extract_meta, \
-                                        _is_badgerfish_version, \
-                                        _is_by_id_hbf, \
-                                        _is_direct_hbf
+from peyotl.nexson_syntax.helper import (extract_meta,
+                                         _is_badgerfish_version,
+                                         _is_by_id_hbf,
+                                         _is_direct_hbf)
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
-#pylint: disable=W0613,W0212
+
+
+# pylint: disable=W0613,W0212
 def add_schema_attributes(container, nexson_version):
-    '''Adds several attributes to `container`:
+    """Adds several attributes to `container`:
     _using_hbf_meta  - boolean. True for HoneyBadgerFish v1-style meta elements ('^prop': value
                 rather than 'meta': {'$':value})
     and the following _SchemaFragment instances:
     _NexmlEl_Schema
-    '''
+    """
     if _is_by_id_hbf(nexson_version):
         _add_by_id_nexson_schema_attributes(container)
     elif _is_badgerfish_version(nexson_version):
@@ -22,6 +25,7 @@ def add_schema_attributes(container, nexson_version):
         _add_direct_nexson_schema_attributes(container)
     else:
         raise NotImplementedError('unrecognized nexson variant {}'.format(nexson_version))
+
 
 class _SchemaFragment(object):
     def __init__(self,
@@ -32,7 +36,7 @@ class _SchemaFragment(object):
                  expected_meta,
                  type_checked_meta,
                  using_hbf_meta):
-        '''
+        """
         `required` dict of key to _VT type code. Error is not present.
         `expected` dict of key to _VT type code. Warnings is not present.
         `allowed` dict of None ignored elements #@TODO could be a set.
@@ -40,7 +44,7 @@ class _SchemaFragment(object):
         `expected_meta` dict of meta key to _VT type code. Warnings is not present.
         `type_checked_meta` dict of meta key to _VT type code. Error if wrong type, no warning if absent.
         `using_hbf_meta` True for >=1.0.0, False for badgerfish.
-        '''
+        """
         self.K2VT = {}
         for k, v in required.items():
             self.K2VT[k] = _VT.m2RawCheck[v]
@@ -82,7 +86,7 @@ class _SchemaFragment(object):
             self.ALLOWED_META_KEY_SET = frozenset(targ)
             self.REQUIRED_KEY_SET = frozenset(required_keys)
             self.EXPECETED_KEY_SET = frozenset(expected_keys)
-            self.ALLOWED_KEY_SET = frozenset(('meta', )
+            self.ALLOWED_KEY_SET = frozenset(('meta',)
                                              + tuple(self.REQUIRED_KEY_SET)
                                              + tuple(self.EXPECETED_KEY_SET)
                                              + allowed_keys)
@@ -126,25 +130,38 @@ def _check_id(x, obj, k, vc):
     if nid is not None:
         vc.adaptor._check_meta_id(nid, x, k, obj, vc)
 
+
 def check_raw_bool(x, obj, k, vc):
     return __TRUE_VAL if (x is False or x is True) else __FALSE_BOOL
+
+
 def check_obj_meta_bool(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
     return check_raw_bool(mo, obj, k, vc)
+
+
 def check_hbf_meta_bool(x, obj, k, vc):
     if isinstance(x, dict):
         return check_obj_meta_bool(x, obj, k, vc)
     return __TRUE_VAL if (x is False or x is True) else __FALSE_BOOL
+
+
 def check_raw_dict(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, dict)) else __FALSE_DICT
+
+
 def check_obj_meta_dict(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
     return check_raw_dict(mo, obj, k, vc)
+
+
 def check_hbf_meta_dict(x, obj, k, vc):
     if isinstance(x, dict):
         return __TRUE_VAL
+
+
 def check_href(x, obj, k, vc):
     try:
         _check_id(x, obj, k, vc)
@@ -154,48 +171,76 @@ def check_href(x, obj, k, vc):
     except:
         pass
     return __FALSE_HREF
+
+
 def check_raw_int(x, obj, k, vc):
-    return  __TRUE_VAL if (isinstance(x, int)) else __FALSE_INT
+    return __TRUE_VAL if (isinstance(x, int)) else __FALSE_INT
+
+
 def check_obj_meta_int(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
     return check_raw_int(mo, obj, k, vc)
+
+
 def check_hbf_meta_int(x, obj, k, vc):
     if isinstance(x, dict):
         return check_obj_meta_int(x, obj, k, vc)
     return check_raw_int(x, obj, k, vc)
+
+
 def check_raw_float(x, obj, k, vc):
-    return  __TRUE_VAL if (isinstance(x, float) or isinstance(x, int)) else __FALSE_FLOAT
+    return __TRUE_VAL if (isinstance(x, float) or isinstance(x, int)) else __FALSE_FLOAT
+
+
 def check_obj_meta_float(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
     return check_raw_float(mo, obj, k, vc)
+
+
 def check_hbf_meta_float(x, obj, k, vc):
     if isinstance(x, dict):
         return check_obj_meta_float(x, obj, k, vc)
     return check_raw_float(x, obj, k, vc)
+
+
 def check_raw_list(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, list)) else __FALSE_LIST
+
+
 def check_obj_meta_list(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
     return check_raw_list(mo, obj, k, vc)
+
+
 def check_hbf_meta_list(x, obj, k, vc):
     if isinstance(x, dict):
         return check_obj_meta_list(x, obj, k, vc)
     return check_raw_list(x, obj, k, vc)
+
+
 def check_list_or_dict(x, obj, k, vc):
     return __TRUE_VAL if (isinstance(x, list) or isinstance(x, dict)) else __FALSE_DICT_LIST
+
+
 def check_raw_str(x, obj, k, vc):
     return __TRUE_VAL if is_str_type(x) else __FALSE_STR
+
+
 def check_obj_meta_str(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
     return check_raw_str(mo, obj, k, vc)
+
+
 def check_hbf_meta_str(x, obj, k, vc):
     if isinstance(x, dict):
         return check_obj_meta_str(x, obj, k, vc)
     return check_raw_str(x, obj, k, vc)
+
+
 def check_raw_str_list(x, obj, k, vc):
     if not isinstance(x, list):
         return __FALSE_STR_LIST
@@ -203,14 +248,20 @@ def check_raw_str_list(x, obj, k, vc):
         if not is_str_type(i):
             return __FALSE_STR_LIST
     return __TRUE_VAL
+
+
 def check_obj_meta_str_list(x, obj, k, vc):
     mo = extract_meta(x)
     _check_id(x, obj, k, vc)
     return check_raw_str_list(mo, obj, k, vc)
+
+
 def check_hbf_meta_str_list(x, obj, k, vc):
     if isinstance(x, dict):
         return check_obj_meta_str_list(x, obj, k, vc)
     return check_raw_str_list(x, obj, k, vc)
+
+
 def check_raw_str_repeatable(x, obj, k, vc):
     if is_str_type(x):
         return __TRUE_VAL
@@ -220,6 +271,8 @@ def check_raw_str_repeatable(x, obj, k, vc):
         if not is_str_type(i):
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
+
+
 def check_obj_meta_str_repeatable(x, obj, k, vc):
     if not isinstance(x, list):
         x = [x]
@@ -228,6 +281,8 @@ def check_obj_meta_str_repeatable(x, obj, k, vc):
         if r is not __TRUE_VAL:
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
+
+
 def check_hbf_meta_str_repeatable(x, obj, k, vc):
     if not isinstance(x, list):
         x = [x]
@@ -237,8 +292,9 @@ def check_hbf_meta_str_repeatable(x, obj, k, vc):
             return __FALSE_STR_REPEATABLE_EL
     return __TRUE_VAL
 
+
 class _VT(object):
-    '''Value type enum'''
+    """Value type enum"""
     BOOL = 0
     DICT = 1
     HREF = 2
@@ -288,6 +344,7 @@ class _VT(object):
         STR_REPEATABLE_EL: check_obj_meta_str_repeatable,
     }
 
+
 _SchemaFragment._VT = _VT
 
 # In the "schema definitions" below, the names are concatenations:
@@ -312,27 +369,27 @@ _EMPTY_DICT = {}
 ####################################################################
 # nexml element schema
 _Req_NexmlEl_All = {'@id': _VT.STR,
-                   }
+                    }
 _Exp_NexmlEl_Dir = {'otus': _VT.LIST_OR_DICT,
                     'trees': _VT.LIST_OR_DICT,
-                   }
+                    }
 _Exp_NexmlEl_ByI = {'otusById': _VT.DICT,
                     'treesById': _VT.DICT,
                     '^ot:otusElementOrder': _VT.STR_LIST,
                     '^ot:treesElementOrder': _VT.STR_LIST,
-                   }
+                    }
 _All_NexmlEl_All = {'@about': _VT.STR,
                     '@generator': _VT.STR,
                     '@nexmljson': _VT.STR,
                     '@version': _VT.STR,
                     '@xmlns': _VT.DICT,
                     '@nexml2json': _VT.STR,
-                   }
+                    }
 _ExpMNexmlEl_All = {'ot:dataDeposit': _VT.HREF,
                     'ot:studyPublication': _VT.HREF,
                     'ot:studyPublicationReference': _VT.STR,
                     'ot:studyYear': _VT.INT,
-                   }
+                    }
 _TypMNexmlEl_All = {'ot:annotationEvents': _VT.DICT,
                     'ot:agents': _VT.DICT,
                     'ot:curatorName': _VT.STR_REPEATABLE_EL,
@@ -346,7 +403,7 @@ _TypMNexmlEl_All = {'ot:annotationEvents': _VT.DICT,
                     'ot:taxonLinkPrefixes': _VT.DICT,
                     'ot:candidateTreeForSynthesis': _VT.STR_REPEATABLE_EL,
                     'xhtml:license': _VT.HREF,
-                   }
+                    }
 
 _v1_2_nexml = _SchemaFragment(required=_Req_NexmlEl_All,
                               expected=_Exp_NexmlEl_ByI,
@@ -376,12 +433,12 @@ _v0_0_nexml = _SchemaFragment(required=_Req_NexmlEl_All,
 ####################################################################
 # otus element schema
 _Req_OtusEl_ByI = {'otuById': _VT.DICT,
-                  }
+                   }
 _Req_OtusEl_Dir = {'@id': _VT.STR,
                    'otu': _VT.LIST,
-                  }
+                   }
 _All_OtusEl_Dir = {'@about': _VT.STR,
-                  }
+                   }
 
 _v1_2_Otus = _SchemaFragment(required=_Req_OtusEl_ByI,
                              expected=_EMPTY_DICT,
@@ -411,22 +468,22 @@ _v0_0_Otus = _SchemaFragment(required=_Req_OtusEl_Dir,
 # otu element schema
 _Req_OtuEl_ByI = _EMPTY_DICT
 _Req_OtuEl_Dir = {'@id': _VT.STR,
-                 }
+                  }
 _All_OtuEl_ByI = {'@label': _VT.STR,
-                 }
+                  }
 _All_OtuEl_Dir = {'@about': _VT.STR,
                   '@label': _VT.STR,
-                 }
+                  }
 _ReqMOtuEl_All = {'ot:originalLabel': _VT.STR,
-                 }
+                  }
 _ExpMOtuEl_All = {'ot:ottId': _VT.INT,
-                 }
+                  }
 _TypMOtuEl_All = {'ot:treebaseOTUId': _VT.STR,
                   'ot:ottTaxonName': _VT.STR,
                   'ot:altLabel': _VT.STR,
                   'ot:taxonLink': _VT.DICT,
                   "skos:altLabel": _VT.LIST_OR_DICT,
-                 }
+                  }
 _v1_2_Otu = _SchemaFragment(required=_Req_OtuEl_ByI,
                             expected=_EMPTY_DICT,
                             allowed=_All_OtuEl_ByI,
@@ -456,13 +513,13 @@ _v0_0_Otu = _SchemaFragment(required=_Req_OtuEl_Dir,
 _Req_TreesEl_ByI = {'@otus': _VT.STR,
                     'treeById': _VT.DICT,
                     '^ot:treeElementOrder': _VT.STR_LIST,
-                   }
+                    }
 _Req_TreesEl_Dir = {'@id': _VT.STR,
                     '@otus': _VT.STR,
                     'tree': _VT.LIST_OR_DICT,
-                   }
+                    }
 _All_TreesEl_Dir = {'@about': _VT.STR,
-                   }
+                    }
 
 _v1_2_Trees = _SchemaFragment(required=_Req_TreesEl_ByI,
                               expected=_EMPTY_DICT,
@@ -493,20 +550,20 @@ _v0_0_Trees = _SchemaFragment(required=_Req_TreesEl_Dir,
 # tree element schema
 _Req_TreeEl_ByI = {'edgeBySourceId': _VT.DICT,
                    'nodeById': _VT.DICT,
-                  }
+                   }
 _Req_TreeEl_Dir = {'edge': _VT.LIST,
                    'node': _VT.LIST,
                    '@id': _VT.STR,
-                  }
-_Exp_TreeEl_All = {'@xsi:type': _VT.STR, # could be a choice...
-                  }
+                   }
+_Exp_TreeEl_All = {'@xsi:type': _VT.STR,  # could be a choice...
+                   }
 _All_TreeEl_ByI = {'@label': _VT.STR,
-                  }
+                   }
 _All_TreeEl_Dir = {'@about': _VT.STR,
                    '@label': _VT.STR,
-                  }
+                   }
 _ReqMTreeEl_ByI = {'ot:rootNodeId': _VT.STR,
-                  }
+                   }
 _ReqMTreeEl_Dir = _EMPTY_DICT
 _ExpMTreeEl_All = {'ot:branchLengthDescription': _VT.STR,
                    'ot:branchLengthTimeUnit': _VT.STR,
@@ -514,11 +571,11 @@ _ExpMTreeEl_All = {'ot:branchLengthDescription': _VT.STR,
                    'ot:curatedType': _VT.STR,
                    'ot:inGroupClade': _VT.STR,
                    'ot:outGroupEdge': _VT.STR,
-                  }
+                   }
 _TypMTreeEl_All = {'ot:specifiedRoot': _VT.STR,
                    'ot:tag': _VT.STR_REPEATABLE_EL,
                    'ot:unrootedTree': _VT.BOOL,
-                  }
+                   }
 _v1_2_Tree = _SchemaFragment(required=_Req_TreeEl_ByI,
                              expected=_Exp_TreeEl_All,
                              allowed=_All_TreeEl_ByI,
@@ -546,14 +603,14 @@ _v0_0_Tree = _SchemaFragment(required=_Req_TreeEl_Dir,
 ####################################################################
 # leaf node element schema
 _Req_LeafEl_ByI = {'@otu': _VT.STR,
-                  }
+                   }
 _Req_LeafEl_Dir = {'@id': _VT.STR,
-                   '@otu': _VT.STR, # could be a choice...
-                  }
+                   '@otu': _VT.STR,  # could be a choice...
+                   }
 _All_LeafEl_Dir = {'@about': _VT.STR,
-                  }
+                   }
 _ReqMLeafEl_Dir = {'ot:isLeaf': _VT.BOOL,
-                  }
+                   }
 _v1_2_Leaf = _SchemaFragment(required=_Req_LeafEl_ByI,
                              expected=_EMPTY_DICT,
                              allowed=_EMPTY_DICT,
@@ -581,17 +638,17 @@ _v0_0_Leaf = _SchemaFragment(required=_Req_LeafEl_Dir,
 # internal node element schema
 _Req_IntNEl_ByI = _EMPTY_DICT
 _Req_IntNEl_Dir = {'@id': _VT.STR,
-                  }
+                   }
 _All_IntNEl_ByI = {'@root': _VT.BOOL,
                    '@otu': _VT.STR
-                  }
+                   }
 _All_IntNEl_Dir = {'@about': _VT.STR,
                    '@root': _VT.BOOL,
                    '@otu': _VT.STR
-                  }
+                   }
 
 _TypMIntNEl_Dir = {'ot:isLeaf': _VT.BOOL,
-                  }
+                   }
 _v1_2_IntN = _SchemaFragment(required=_Req_IntNEl_ByI,
                              expected=_EMPTY_DICT,
                              allowed=_All_IntNEl_ByI,
@@ -619,16 +676,16 @@ _v0_0_IntN = _SchemaFragment(required=_Req_IntNEl_Dir,
 # node element schema
 _Req_NodeEl_ByI = _EMPTY_DICT
 _Req_NodeEl_Dir = {'@id': _VT.STR,
-                  }
+                   }
 _All_NodeEl_ByI = {'@otu': _VT.STR,
                    '@root': _VT.BOOL,
-                  }
+                   }
 _All_NodeEl_Dir = {'@about': _VT.STR,
                    '@otu': _VT.STR,
                    '@root': _VT.BOOL,
-                  }
+                   }
 _TypMNodeEl_Dir = {'ot:isLeaf': _VT.BOOL,
-                  }
+                   }
 _v1_2_Node = _SchemaFragment(required=_Req_NodeEl_ByI,
                              expected=_EMPTY_DICT,
                              allowed=_All_NodeEl_ByI,
@@ -656,16 +713,16 @@ _v0_0_Node = _SchemaFragment(required=_Req_NodeEl_Dir,
 # edge element schema
 _Req_EdgeEl_ByI = {'@target': _VT.STR,
                    '@source': _VT.STR,
-                  }
+                   }
 _Req_EdgeEl_Dir = {'@target': _VT.STR,
                    '@id': _VT.STR,
                    '@source': _VT.STR,
-                  }
+                   }
 _All_EdgeEl_ByI = {'@length': _VT.FLOAT,
-                  }
+                   }
 _All_EdgeEl_Dir = {'@about': _VT.STR,
                    '@length': _VT.FLOAT,
-                  }
+                   }
 _v1_2_Edge = _SchemaFragment(required=_Req_EdgeEl_ByI,
                              expected=_EMPTY_DICT,
                              allowed=_All_EdgeEl_ByI,
@@ -687,6 +744,8 @@ _v0_0_Edge = _SchemaFragment(required=_Req_EdgeEl_Dir,
                              expected_meta=_EMPTY_DICT,
                              type_checked_meta=_EMPTY_DICT,
                              using_hbf_meta=False)
+
+
 #####################################################################
 
 def _add_by_id_nexson_schema_attributes(container):
@@ -700,6 +759,7 @@ def _add_by_id_nexson_schema_attributes(container):
     container._IntNEl_Schema = _v1_2_IntN
     container._EdgeEl_Schema = _v1_2_Edge
 
+
 def _add_direct_nexson_schema_attributes(container):
     container._using_hbf_meta = True
     container._NexmlEl_Schema = _v1_0_nexml
@@ -712,6 +772,7 @@ def _add_direct_nexson_schema_attributes(container):
     container._NodeEl_Schema = _v1_0_Node
     container._EdgeEl_Schema = _v1_0_Edge
 
+
 def _add_badgerfish_nexson_schema_attributes(container):
     container._using_hbf_meta = False
     container._NexmlEl_Schema = _v0_0_nexml
@@ -723,4 +784,3 @@ def _add_badgerfish_nexson_schema_attributes(container):
     container._IntNEl_Schema = _v0_0_IntN
     container._EdgeEl_Schema = _v0_0_Edge
     container._NodeEl_Schema = _v0_0_Node
-

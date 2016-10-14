@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
+
 # setup.py largely based on
 #   http://hynek.me/articles/sharing-your-labor-of-love-pypi-quick-and-dirty/
 # Also see Jeet Sukumaran's DendroPy
@@ -9,15 +10,17 @@ import os
 # setuptools/distutils/etc. import and configuration
 try:
     import ez_setup
+
     try:
         ez_setup_path = " ('" + os.path.abspath(ez_setup.__file__) + "')"
     except OSError:
         ez_setup_path = ""
-    sys.stderr.write("using ez_setup%s\n" %  ez_setup_path)
+    sys.stderr.write("using ez_setup%s\n" % ez_setup_path)
     ez_setup.use_setuptools()
     import setuptools
+
     try:
-        setuptools_path = " ('" +  os.path.abspath(setuptools.__file__) + "')"
+        setuptools_path = " ('" + os.path.abspath(setuptools.__file__) + "')"
     except OSError:
         setuptools_path = ""
     sys.stderr.write("using setuptools%s\n" % setuptools_path)
@@ -25,6 +28,7 @@ try:
 except ImportError as e:
     sys.stderr.write("using distutils\n")
     from distutils.core import setup
+
     sys.stderr.write("using canned package list\n")
     PACKAGES = ['peyotl',
                 'peyotl.api',
@@ -32,13 +36,12 @@ except ImportError as e:
                 'peyotl.nexson_validation',
                 'peyotl.ott',
                 'peyotl.phylesystem',
-                'peyotl.phylografter',
                 'peyotl.string',
                 'peyotl.sugar',
                 'peyotl.test',
                 'peyotl.test.support',
                 'peyotl.utility',
-               ]
+                ]
     EXTRA_KWARGS = {}
 else:
     sys.stderr.write("searching for packages\n")
@@ -48,7 +51,7 @@ else:
         test_suite="peyotl.test"
     )
 
-EXTRA_KWARGS["zip_safe"] = True
+EXTRA_KWARGS["zip_safe"] = False
 ENTRY_POINTS = {}
 EXTRA_KWARGS['scripts'] = ['scripts/nexson/validate_ot_nexson.py',
                            'scripts/nexson/nexson_newick.py',
@@ -58,7 +61,7 @@ EXTRA_KWARGS['scripts'] = ['scripts/nexson/validate_ot_nexson.py',
                            'scripts/phylesystem/ot_phylesystem_list_otu_edited_labels.py',
                            'scripts/ot_taxon_report',
                            'scripts/clipeyotl.py',
-                          ]
+                           ]
 
 ###############################################################################
 # setuptools/distuils command extensions
@@ -77,6 +80,7 @@ else:
     # coverage
     try:
         from peyotl.test.support import coverage_analysis
+
         if coverage_analysis.PEYOTL_COVERAGE_ANALYSIS_AVAILABLE:
             sys.stderr.write("coverage analysis available ('python setup.py coverage')\n")
             ENTRY_POINTS[command_hook].append("coverage = peyotl.test.support.coverage_analysis:CoverageAnalysis")
@@ -87,7 +91,7 @@ else:
 
 setup(
     name='peyotl',
-    version='0.1.4dev', # sync with __version__ in peyotl/__init__.py 
+    version='0.1.4dev',  # sync with __version__ in peyotl/__init__.py
     description='Library for interacting with Open Tree of Life resources',
     long_description=(open('README.rst').read()),
     url='https://github.com/OpenTreeOfLife/peyotl',
@@ -102,7 +106,8 @@ setup(
                       'requests>=2.2.1',
                       'redis',
                       'enum34',
-                      'argcomplete', ],
+                      'argcomplete',
+                      'python-dateutil', ],
     packages=PACKAGES,
     entry_points=ENTRY_POINTS,
     classifiers=[

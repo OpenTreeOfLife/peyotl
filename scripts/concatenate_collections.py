@@ -14,7 +14,7 @@ if __name__ == '__main__':
     parser.add_argument('collection',
                         default=None,
                         type=str,
-                        nargs="+",
+                        nargs="*",
                         help='filepath for the collections JSON')
     args = parser.parse_args(sys.argv[1:])
     inp = [read_as_json(i) for i in args.collection]

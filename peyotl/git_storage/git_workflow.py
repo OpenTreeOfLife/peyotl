@@ -1,24 +1,22 @@
-'''Generic workflows (combinations of git actions) used as opentree git porcelain
-'''
-from sh import git  #pylint: disable=E0611
+"""Generic workflows (combinations of git actions) used as opentree git porcelain
+"""
+from sh import git  # pylint: disable=E0611
 from locket import LockError
 import tempfile
 from peyotl.utility.str_util import is_str_type
 from peyotl.utility import get_logger
 import os
-from peyotl.git_storage.git_action import MergeException, \
-                                          get_user_author, \
-                                          GitWorkflowError
+from peyotl.git_storage.git_action import MergeException, get_user_author, GitWorkflowError
 from peyotl.nexson_syntax import write_as_json
-
 
 _LOG = get_logger(__name__)
 
 TRACE_FILES = False
 
+
 def acquire_lock_raise(git_action, fail_msg=''):
-    '''Adapts LockError to HTTP. If an exception is not thrown, the git_action has the lock (and must release it!)
-    '''
+    """Adapts LockError to HTTP. If an exception is not thrown, the git_action has the lock (and must release it!)
+    """
     try:
         git_action.acquire_lock()
     except LockError as e:
@@ -26,11 +24,13 @@ def acquire_lock_raise(git_action, fail_msg=''):
         _LOG.debug(msg)
         raise GitWorkflowError(msg)
 
+
 class GitWorkflowBase(object):
     def __init__(self):
         pass
 
-def _pull_gh(git_action, remote, branch_name):#
+
+def _pull_gh(git_action, remote, branch_name):  #
     try:
         git_env = git_action.env()
         # TIMING = api_utils.log_time_diff(_LOG, 'lock acquisition', TIMING)
@@ -43,7 +43,7 @@ def _pull_gh(git_action, remote, branch_name):#
     except Exception as e:
         # We can ignore this if the branch doesn't exist yet on the remote,
         # otherwise raise a 400
-#            raise #@EJM what was this doing?
+        #            raise #@EJM what was this doing?
         if "not something we can merge" not in e.message:
             # Attempt to abort a merge, in case of conflicts
             try:
@@ -54,6 +54,7 @@ def _pull_gh(git_action, remote, branch_name):#
             msg = msg_f % (branch_name, git_action.repo_remote, e.message)
             _LOG.debug(msg)
             raise GitWorkflowError(msg)
+
 
 def _do_merge2master_commit(git_action,
                             new_sha,
@@ -87,14 +88,14 @@ def _do_merge2master_commit(git_action,
         merge_needed = True
     return new_sha, branch_name, merge_needed
 
+
 def delete_document(git_action,
                     doc_id,
                     auth_info,
                     parent_sha,
                     commit_msg=None,
                     merged_sha=None,
-                    doctype_display_name="document"): #pylint: disable=W0613
-    _LOG = get_logger(__name__)
+                    doctype_display_name="document"):  # pylint: disable=W0613
     author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action,
@@ -120,9 +121,10 @@ def delete_document(git_action,
         "error": 0,
         "branch_name": branch_name,
         "description": "Deleted %s #%s" % (doctype_display_name, doc_id),
-        "sha":  new_sha,
+        "sha": new_sha,
         "merge_needed": merge_needed,
     }
+
 
 def merge_from_master(git_action, doc_id, auth_info, parent_sha, doctype_display_name="document"):
     """merge from master into the WIP for this document/author
@@ -149,9 +151,10 @@ def merge_from_master(git_action, doc_id, auth_info, parent_sha, doctype_display
         "resource_id": doc_id,
         "branch_name": branch,
         "description": "Updated %s #%s" % (doctype_display_name, doc_id),
-        "sha":  new_sha,
+        "sha": new_sha,
         "merged_sha": master_file_blob_sha,
     }
+
 
 def generic_commit_and_try_merge2master_wf(git_action,
                                            file_content,
@@ -163,7 +166,7 @@ def generic_commit_and_try_merge2master_wf(git_action,
                                            doctype_display_name="document"):
     """Actually make a local Git commit and push it to our remote
     """
-    #_LOG.debug('generic_commit_and_try_merge2master_wf: doc_id="{s}" \
+    # _LOG.debug('generic_commit_and_try_merge2master_wf: doc_id="{s}" \
     #            parent_sha="{p}" merged_sha="{m}"'.format(
     #            s=doc_id, p=parent_sha, m=merged_sha))
     merge_needed = False
@@ -224,9 +227,8 @@ def generic_commit_and_try_merge2master_wf(git_action,
         "resource_id": doc_id,
         "branch_name": branch_name,
         "description": "Updated %s #%s" % (doctype_display_name, doc_id),
-        "sha":  new_sha,
+        "sha": new_sha,
         "merge_needed": merge_needed,
     }
     _LOG.debug('returning {r}'.format(r=str(r)))
     return r
-

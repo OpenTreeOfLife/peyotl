@@ -1,5 +1,5 @@
- #!/usr/bin/env python
-'''Functions for converting between the different representations
+# !/usr/bin/env python
+"""Functions for converting between the different representations
 of NexSON and the NeXML representation.
 See https://github.com/OpenTreeOfLife/api.opentreeoflife.org/wiki/NexSON
 
@@ -7,29 +7,29 @@ Most notable functions are:
     write_obj_as_nexml,
     get_ot_study_info_from_nexml,
 
-'''
-from peyotl.nexson_syntax.helper import ConversionConfig, \
-                                        NexsonConverter, \
-                                        detect_nexson_version, \
-                                        get_nexml_el, \
-                                        _add_value_to_dict_bf, \
-                                        _get_index_list_of_values, \
-                                        _index_list_of_values, \
-                                        _is_badgerfish_version, \
-                                        _is_by_id_hbf, \
-                                        _is_direct_hbf, \
-                                        _is_supported_nexson_vers, \
-                                        BADGER_FISH_NEXSON_VERSION, \
-                                        DEFAULT_NEXSON_VERSION, \
-                                        DIRECT_HONEY_BADGERFISH, \
-                                        NEXML_NEXSON_VERSION, \
-                                        BY_ID_HONEY_BADGERFISH, \
-                                        SUPPORTED_NEXSON_VERSIONS
+"""
+from peyotl.nexson_syntax.helper import (ConversionConfig,
+                                         NexsonConverter,
+                                         detect_nexson_version,
+                                         get_nexml_el,
+                                         _add_value_to_dict_bf,
+                                         _get_index_list_of_values,
+                                         _index_list_of_values,
+                                         _is_badgerfish_version,
+                                         _is_by_id_hbf,
+                                         _is_direct_hbf,
+                                         _is_supported_nexson_vers,
+                                         BADGER_FISH_NEXSON_VERSION,
+                                         DEFAULT_NEXSON_VERSION,
+                                         DIRECT_HONEY_BADGERFISH,
+                                         NEXML_NEXSON_VERSION,
+                                         BY_ID_HONEY_BADGERFISH,
+                                         SUPPORTED_NEXSON_VERSIONS)
 from peyotl.utility.input_output import read_as_json, write_as_json
-from peyotl.utility.str_util import flush_utf_8_writer, \
-                                    UNICODE, \
-                                    is_str_type, \
-                                    get_utf_8_string_io_writer
+from peyotl.utility.str_util import (flush_utf_8_writer,
+                                     UNICODE,
+                                     is_str_type,
+                                     get_utf_8_string_io_writer)
 from peyotl.nexson_syntax.optimal2direct_nexson import Optimal2DirectNexson
 from peyotl.nexson_syntax.direct2optimal_nexson import Direct2OptimalNexson
 from peyotl.nexson_syntax.badgerfish2direct_nexson import Badgerfish2DirectNexson
@@ -51,6 +51,7 @@ _CONVERTIBLE_FORMATS = frozenset([NEXML_NEXSON_VERSION,
                                   '1.2', ])
 _LOG = get_logger(__name__)
 
+
 def iter_otu(nexson, nexson_version=None):
     if nexson_version is None:
         nexson_version = detect_nexson_version(nexson)
@@ -60,6 +61,7 @@ def iter_otu(nexson, nexson_version=None):
     for og in nexml.get('otusById', {}).values():
         for otu_id, otu in og.get('otuById', {}).items():
             yield otu_id, otu
+
 
 def strip_to_meta_only(blob, nexson_version):
     if nexson_version is None:
@@ -91,6 +93,7 @@ def strip_to_meta_only(blob, nexson_version):
             t = [{'id': i.get('@id')} for i in tree_list]
             trees_group['tree'] = t
 
+
 def _otu_dict_to_otumap(otu_dict):
     d = {}
     for v in otu_dict.values():
@@ -112,8 +115,9 @@ def _otu_dict_to_otumap(otu_dict):
                 mv[mk] = mvv
     return d
 
+
 def _get_content_id_from(content, **kwargs):
-    if content in PhyloSchema._no_content_id_types:  #pylint: disable=W0212
+    if content in PhyloSchema._no_content_id_types:  # pylint: disable=W0212
         return None
     elif content == 'tree':
         return kwargs.get('tree_id')
@@ -121,13 +125,14 @@ def _get_content_id_from(content, **kwargs):
         subtree_id = kwargs.get('subtree_id')
         if subtree_id is None:
             subtree_id = kwargs.get('node_id')
-        return (kwargs.get('tree_id'), subtree_id)
+        return kwargs.get('tree_id'), subtree_id
     elif content == 'otus':
         return kwargs.get('otus_id')
     elif content == 'otu':
         return kwargs.get('otu_id')
     elif content == ('otus', 'otumap'):
         return kwargs.get('otus_id')
+
 
 def _sniff_content_from_kwargs(**kwargs):
     c_id = kwargs.get('tree_id')
@@ -146,15 +151,17 @@ def _sniff_content_from_kwargs(**kwargs):
         return 'otu', c_id
     return 'study', None
 
+
 def get_git_sha(blob):
     return blob['sha']
 
+
 def create_content_spec(**kwargs):
-    '''Sugar. factory for a PhyloSchema object.
+    """Sugar. factory for a PhyloSchema object.
 
     Repackages the kwargs to kwargs for PhyloSchema so that our
     PhyloSchema.__init__ does not have to be soo rich
-    '''
+    """
     format_str = kwargs.get('format', 'nexson')
     nexson_version = kwargs.get('nexson_version', 'native')
     otu_label = kwargs.get('otu_label')
@@ -178,8 +185,9 @@ def create_content_spec(**kwargs):
                        bracket_ingroup=bool(kwargs.get('bracket_ingroup', False)),
                        cull_nonmatching=kwargs.get('cull_nonmatching'))
 
+
 class PhyloSchema(object):
-    '''Simple container for holding the set of variables needed to
+    """Simple container for holding the set of variables needed to
     convert from one format to another (with error checking).
 
     The primary motivation for this class is to:
@@ -195,11 +203,11 @@ class PhyloSchema(object):
     `bracket_ingroup` is currently only used in newick string export. If True, then
         [pre-ingroup-marker] and [post-ingroup-marker] comments will surround the ingroup
         definition in the tree.
-    '''
+    """
     _format_list = ('newick', 'nexson', 'nexml', 'nexus')
     NEWICK, NEXSON, NEXML, NEXUS = range(4)
     _extension2format = {
-        '.nexson' : 'nexson',
+        '.nexson': 'nexson',
         '.nexml': 'nexml',
         '.nex': 'nexus',
         '.tre': 'newick',
@@ -210,12 +218,13 @@ class PhyloSchema(object):
                        'ot:otttaxonname': '^ot:ottTaxonName', }
     _otu_label_list = _otu_label2prop.keys()
     _NEWICK_PROP_VALS = _otu_label2prop.values()
-    _no_content_id_types = set(['study', 'meta', 'treelist'])
-    _tup_content_id_types = set(['subtree'])
-    _str_content_id_types = set(['tree', 'otus', 'otu', 'otumap', 'file'])
-    _content_types = set(['file', 'study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree', 'treelist'])
+    _no_content_id_types = {'study', 'meta', 'treelist'}
+    _tup_content_id_types = {'subtree'}
+    _str_content_id_types = {'tree', 'otus', 'otu', 'otumap', 'file'}
+    _content_types = {'file', 'study', 'tree', 'meta', 'otus', 'otu', 'otumap', 'subtree', 'treelist'}
+
     def __init__(self, schema=None, **kwargs):
-        '''Checks:
+        """Checks:
             'schema',
             'type_ext', then
             'output_nexml2json' (implicitly NexSON)
@@ -223,13 +232,13 @@ class PhyloSchema(object):
                 `tip_label`are checked) to determine how to label the tips
                 'ot:originallabel', 'ot:ottid', and 'ot:otttaxonname'
                 are supported values
-        '''
+        """
         self.content = kwargs.get('content', 'study')
         self.bracket_ingroup = bool(kwargs.get('bracket_ingroup', False))
         self.content_id = kwargs.get('content_id')
         self.cull_nonmatching = kwargs.get('cull_nonmatching')
         err_msg = 'expected cull_nonmatching to be "true" or "false" or the boolean versions of those values. found {}'
-        #pylint: disable=E1103
+        # pylint: disable=E1103
         if is_str_type(self.cull_nonmatching):
             if self.cull_nonmatching.lower() in ['true', '1']:
                 self.cull_nonmatching = True
@@ -253,28 +262,28 @@ class PhyloSchema(object):
             if (self.content_id is None) or (not is_list) or len(self.content_id) != 2:
                 raise ValueError('Expecting 2 content_ids for the "subtree" content')
         if schema is not None:
-            #_LOG.debug('schema from schema arg')
+            # _LOG.debug('schema from schema arg')
             self.format_str = schema.lower()
         elif kwargs.get('type_ext') is not None:
-            #_LOG.debug('schema from type_ext arg')
+            # _LOG.debug('schema from type_ext arg')
             ext = kwargs['type_ext'].lower()
             try:
                 self.format_str = PhyloSchema._extension2format[ext]
             except:
                 raise ValueError('file extension "{}" not recognized'.format(kwargs['type_ext']))
         elif kwargs.get('output_nexml2json') is not None:
-            #_LOG.debug('schema from output_nexml2json arg')
+            # _LOG.debug('schema from output_nexml2json arg')
             self.format_str = 'nexson'
             self.version = kwargs['output_nexml2json']
         else:
-            #_LOG.debug('schema from format_str arg')
+            # _LOG.debug('schema from format_str arg')
             self.format_str = kwargs.get('format_str')
         if self.format_str is None:
             raise ValueError('Expecting "format_str", "schema", or "type_ext" argument')
         try:
-            #_LOG.debug('self.format_str = {}'.format(self.format_str))
+            # _LOG.debug('self.format_str = {}'.format(self.format_str))
             self.format_code = PhyloSchema._format_list.index(self.format_str)
-            #_LOG.debug('self.format_code = {}'.format(str(self.format_code)))
+            # _LOG.debug('self.format_code = {}'.format(str(self.format_code)))
         except:
             raise ValueError('format "{}" not recognized'.format(self.format_str))
         if self.format_code == PhyloSchema.NEXSON:
@@ -308,6 +317,7 @@ class PhyloSchema(object):
                     m = m.format('", "'.join(PhyloSchema._otu_label_list))
                     raise ValueError(m)
             self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
+
     @property
     def description(self):
         if self.format_code == PhyloSchema.NEXSON:
@@ -318,20 +328,25 @@ class PhyloSchema(object):
             return 'NEXUS'
         elif self.format_code == PhyloSchema.NEWICK:
             return 'Newick'
-    def can_convert_from(self, src_schema=None): #pylint: disable=W0613
+
+    def can_convert_from(self, src_schema=None):  # pylint: disable=W0613
         if self.format_code == PhyloSchema.NEXSON:
             return self.content != 'subtree'
         if self.content == 'study':
             return True
-        if self.content in set(['tree', 'subtree']):
+        if self.content in {'tree', 'subtree'}:
             return self.format_code in [PhyloSchema.NEWICK, PhyloSchema.NEXUS]
         return False
+
     def is_json(self):
         return self.format_code == PhyloSchema.NEXSON
+
     def is_xml(self):
         return self.format_code == PhyloSchema.NEXML
+
     def is_text(self):
         return self.format_code in (PhyloSchema.NEXUS, PhyloSchema.NEWICK)
+
     def _phylesystem_api_params(self):
         d = {}
         if self.format_code == PhyloSchema.NEXSON:
@@ -343,6 +358,7 @@ class PhyloSchema(object):
             if self.cull_nonmatching:
                 d['cull_nonmatching'] = 'true'
         return d
+
     def _phylesystem_api_ext(self):
         if self.format_code == PhyloSchema.NEXSON:
             return ''
@@ -354,9 +370,10 @@ class PhyloSchema(object):
             return '.nexml'
         else:
             assert False
+
     def phylesystem_api_url(self, base_url, study_id):
-        '''Returns URL and param dict for a GET call to phylesystem_api
-        '''
+        """Returns URL and param dict for a GET call to phylesystem_api
+        """
         p = self._phylesystem_api_params()
         e = self._phylesystem_api_ext()
         if self.content == 'study':
@@ -387,6 +404,7 @@ class PhyloSchema(object):
 
     def serialize(self, src, output_dest=None, src_schema=None):
         return self.convert(src, serialize=True, output_dest=output_dest, src_schema=src_schema)
+
     def convert(self, src, serialize=None, output_dest=None, src_schema=None):
         if src_schema is None:
             src_format = PhyloSchema.NEXSON
@@ -490,12 +508,11 @@ class PhyloSchema(object):
         assert False
 
 
-
 def get_ot_study_info_from_nexml(src=None,
                                  nexml_content=None,
                                  encoding=u'utf8',
                                  nexson_syntax_version=DEFAULT_NEXSON_VERSION):
-    '''Converts an XML doc to JSON using the honeybadgerfish convention (see to_honeybadgerfish_dict)
+    """Converts an XML doc to JSON using the honeybadgerfish convention (see to_honeybadgerfish_dict)
     and then prunes elements not used by open tree of life study curartion.
 
     If nexml_content is provided, it is interpreted as the contents
@@ -513,7 +530,7 @@ def get_ot_study_info_from_nexml(src=None,
     Currently:
         removes nexml/characters @TODO: should replace it with a URI for
             where the removed character data can be found.
-    '''
+    """
     if _is_by_id_hbf(nexson_syntax_version):
         nsv = DIRECT_HONEY_BADGERFISH
     else:
@@ -543,11 +560,13 @@ def get_ot_study_info_from_nexml(src=None,
         o['nexml'] = n
     return o
 
+
 def _nexson_directly_translatable_to_nexml(vers):
-    'TEMP: until we refactor nexml writing code to be more general...'
+    """TEMP: until we refactor nexml writing code to be more general..."""
     return (_is_badgerfish_version(vers)
             or _is_direct_hbf(vers)
             or vers == 'nexml')
+
 
 def write_obj_as_nexml(obj_dict,
                        file_obj,
@@ -567,6 +586,7 @@ def write_obj_as_nexml(obj_dict,
     doc = converter.convert(obj_dict)
     doc.writexml(file_obj, addindent=addindent, newl=newl, encoding='utf-8')
 
+
 def convert_to_nexml(obj_dict, addindent='', newl='', use_default_root_atts=True, otu_label='ot:originalLabel'):
     f, wrapper = get_utf_8_string_io_writer()
     write_obj_as_nexml(obj_dict,
@@ -577,6 +597,7 @@ def convert_to_nexml(obj_dict, addindent='', newl='', use_default_root_atts=True
                        otu_label=otu_label)
     flush_utf_8_writer(wrapper)
     return f.getvalue()
+
 
 def resolve_nexson_format(v):
     if len(v) == 3:
@@ -590,8 +611,11 @@ def resolve_nexson_format(v):
         if v in SUPPORTED_NEXSON_VERSIONS:
             return v
     raise NotImplementedError('NexSON version "{v}" not supported.'.format(v=v))
+
+
 def can_convert_nexson_forms(src_format, dest_format):
     return (dest_format in _CONVERTIBLE_FORMATS) and (src_format in _CONVERTIBLE_FORMATS)
+
 
 def convert_nexson_format(blob,
                           out_nexson_format,
@@ -599,7 +623,7 @@ def convert_nexson_format(blob,
                           remove_old_structs=True,
                           pristine_if_invalid=False,
                           sort_arbitrary=False):
-    '''Take a dict form of NexSON and converts its datastructures to
+    """Take a dict form of NexSON and converts its datastructures to
     those needed to serialize as out_nexson_format.
     If current_format is not specified, it will be inferred.
     If `remove_old_structs` is False and different honeybadgerfish varieties
@@ -609,7 +633,7 @@ def convert_nexson_format(blob,
         is an invalid nexson struct. Setting this to False can result in
         faster translation, but if an exception is raised the object may
         be polluted with partially constructed fields for the out_nexson_format.
-    '''
+    """
     if not current_format:
         current_format = detect_nexson_version(blob)
     out_nexson_format = resolve_nexson_format(out_nexson_format)
@@ -627,8 +651,8 @@ def convert_nexson_format(blob,
                                      remove_old_structs=remove_old_structs,
                                      pristine_if_invalid=pristine_if_invalid)
         current_format = DIRECT_HONEY_BADGERFISH
-    ccdict = {'output_format':out_nexson_format,
-              'input_format':current_format,
+    ccdict = {'output_format': out_nexson_format,
+              'input_format': current_format,
               'remove_old_structs': remove_old_structs,
               'pristine_if_invalid': pristine_if_invalid}
     ccfg = ConversionConfig(ccdict)
@@ -648,8 +672,9 @@ def convert_nexson_format(blob,
         sort_arbitrarily_ordered_nexson(blob)
     return blob
 
+
 def _recursive_sort_meta(blob, k):
-    #_LOG.debug('k=' + k)
+    # _LOG.debug('k=' + k)
     if isinstance(blob, list):
         for i in blob:
             if isinstance(i, list) or isinstance(i, dict):
@@ -665,26 +690,28 @@ def _recursive_sort_meta(blob, k):
                     incd[sk] = 1 + count
                     sl.append((sk, count, el))
                 sl.sort()
-                del v[:] # clear out the value in place
-                v.extend([i[2] for i in sl]) # replace it with the item from the sorted list
+                del v[:]  # clear out the value in place
+                v.extend([i[2] for i in sl])  # replace it with the item from the sorted list
             if isinstance(v, list) or isinstance(v, dict):
                 _recursive_sort_meta(v, inner_k)
 
+
 def sort_meta_elements(blob):
-    '''For v0.0 (which has meta values in a list), this
+    """For v0.0 (which has meta values in a list), this
     function recursively walks through the object
     and sorts each meta by @property or @rel values.
-    '''
+    """
     v = detect_nexson_version(blob)
     if _is_badgerfish_version(v):
         _recursive_sort_meta(blob, '')
     return blob
 
+
 def _inplace_sort_by_id(unsorted_list):
-    '''Takes a list of dicts each of which has an '@id' key,
+    """Takes a list of dicts each of which has an '@id' key,
     sorts the elements in the list by the value of the @id key.
     Assumes that @id is unique or the dicts have a meaningul < operator
-    '''
+    """
     if not isinstance(unsorted_list, list):
         return
     sorted_list = [(i.get('@id'), i) for i in unsorted_list]
@@ -692,10 +719,11 @@ def _inplace_sort_by_id(unsorted_list):
     del unsorted_list[:]
     unsorted_list.extend([i[1] for i in sorted_list])
 
+
 def sort_arbitrarily_ordered_nexson(blob):
-    '''Primarily used for testing (getting nice diffs). Calls
+    """Primarily used for testing (getting nice diffs). Calls
     sort_meta_elements and then sorts otu, node and edge list by id
-    '''
+    """
     # otu, node and edge elements have no necessary orger in v0.0 or v1.0
     v = detect_nexson_version(blob)
     nex = get_nexml_el(blob)
@@ -710,13 +738,14 @@ def sort_arbitrarily_ordered_nexson(blob):
             _inplace_sort_by_id(tree.get('edge', []))
     return blob
 
+
 def add_resource_meta(obj, rel, href, version):
     if _is_badgerfish_version(version):
         m = obj.setdefault('meta', [])
         if not isinstance(m, list):
             m = [m]
             obj['meta'] = m
-        m.append({'@href':href,
+        m.append({'@href': href,
                   '@rel': rel,
                   '@xsi:type': 'nex:ResourceMeta'})
     else:
@@ -747,7 +776,7 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
             ],
             'otusById': {
                 'otus1': {
-                    'otuById':{},
+                    'otuById': {},
                 },
             },
             '^ot:treesElementOrder': [
@@ -756,7 +785,7 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
             'treesById': {
                 'trees1': {
                     '@otus': 'otus1',
-                    '^ot:treeElementOrder':[],
+                    '^ot:treeElementOrder': [],
                     'treeById': {},
                 },
             },
@@ -767,9 +796,11 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
         nexson['nexml']['^xhtml:license'] = {'@href': 'http://creativecommons.org/publicdomain/zero/1.0/'}
     return nexson
 
+
 _EMPTY_TUPLE = tuple
 NEWICK_NEEDING_QUOTING = re.compile(r'(\s|[\[\]():,;])')
 NEXUS_NEEDING_QUOTING = re.compile(r'(\s|[-()\[\]{}/\,;:=*"`+<>])')
+
 
 def quote_newick_name(s, needs_quotes_pattern=NEWICK_NEEDING_QUOTING):
     s = UNICODE(s)
@@ -779,13 +810,14 @@ def quote_newick_name(s, needs_quotes_pattern=NEWICK_NEEDING_QUOTING):
         return u"'{}'".format(s)
     return s
 
+
 def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
-    '''
+    """
     `label_key` is a string (a key in the otu object) or a callable that takes two arguments: the node, and the otu
     If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
         hold the order encountered,
         and the dict will map name to index in the list
-    '''
+    """
     otu_id = node['@otu']
     otu = otu_group[otu_id]
     if is_str_type(label_key):
@@ -806,13 +838,14 @@ def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlab
     out.write(label)
     return unlabeled_counter
 
+
 def _write_newick_internal_label(out, node, otu_group, label_key, needs_quotes_pattern):
-    '''`label_key` is a string (a key in the otu object) or a callable that takes two arguments: 
+    """`label_key` is a string (a key in the otu object) or a callable that takes two arguments:
         the node, and the otu (which may be None for an internal node)
     If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
         hold the order encountered,
         and the dict will map name to index in the list
-    '''
+    """
     otu_id = node.get('@otu')
     if is_str_type(label_key):
         if otu_id is None:
@@ -825,12 +858,14 @@ def _write_newick_internal_label(out, node, otu_group, label_key, needs_quotes_p
         label = quote_newick_name(label, needs_quotes_pattern)
         out.write(label)
 
+
 def _write_newick_edge_len(out, edge):
     if edge is None:
         return
     e_len = edge.get('@length')
     if e_len is not None:
         out.write(':{e}'.format(e=e_len))
+
 
 def convert_tree_to_newick(tree,
                            otu_group,
@@ -839,18 +874,18 @@ def convert_tree_to_newick(tree,
                            needs_quotes_pattern=NEWICK_NEEDING_QUOTING,
                            subtree_id=None,
                            bracket_ingroup=False):
-    '''`label_key` is a string (a key in the otu object) or a callable that takes two arguments: 
+    """`label_key` is a string (a key in the otu object) or a callable that takes two arguments:
         the node, and the otu (which may be None for an internal node)
     If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
         hold the order encountered,
         and the dict will map name to index in the list
-    '''
-    assert (not is_str_type(label_key)) or (label_key in PhyloSchema._NEWICK_PROP_VALS) #pylint: disable=W0212
+    """
+    assert (not is_str_type(label_key)) or (label_key in PhyloSchema._NEWICK_PROP_VALS)  # pylint: disable=W0212
     ingroup_node_id = tree.get('^ot:inGroupClade')
     if subtree_id:
         if subtree_id == 'ingroup':
             root_id = ingroup_node_id
-            ingroup_node_id = None # turns of the comment pre-ingroup-marker
+            ingroup_node_id = None  # turns of the comment pre-ingroup-marker
         else:
             root_id = subtree_id
     else:
@@ -873,6 +908,7 @@ def convert_tree_to_newick(tree,
     flush_utf_8_writer(out)
     return sio.getvalue()
 
+
 def nexson_frag_write_newick(out,
                              edges,
                              nodes,
@@ -884,12 +920,12 @@ def nexson_frag_write_newick(out,
                              ingroup_id=None,
                              bracket_ingroup=False,
                              with_edge_lengths=True):
-    '''`label_key` is a string (a key in the otu object) or a callable that takes two arguments: 
+    """`label_key` is a string (a key in the otu object) or a callable that takes two arguments:
         the node, and the otu (which may be None for an internal node)
     If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
         hold the order encountered,
         and the dict will map name to index in the list
-    '''
+    """
     unlabeled_counter = 0
     curr_node_id = root_id
     assert curr_node_id
@@ -916,7 +952,7 @@ def nexson_frag_write_newick(out,
                 going_tipward = False
             else:
                 te = [(i, e) for i, e in outgoing_edges.items()]
-                te.sort() # produce a consistent rotation... Necessary?
+                te.sort()  # produce a consistent rotation... Necessary?
                 if bracket_ingroup and (ingroup_id == curr_node_id):
                     out.write('[pre-ingroup-marker]')
                 out.write('(')
@@ -953,6 +989,7 @@ def nexson_frag_write_newick(out,
             going_tipward = True
     out.write(';')
 
+
 def _write_nexus_format(quoted_leaf_labels, tree_name_newick_list):
     if not tree_name_newick_list:
         return ''
@@ -972,6 +1009,7 @@ BEGIN TREES;
     wrapper.write('\nEND;\n')
     flush_utf_8_writer(wrapper)
     return f.getvalue()
+
 
 def convert_tree(tree_id, tree, otu_group, schema, subtree_id=None):
     label_key = schema.otu_label_prop
@@ -995,6 +1033,7 @@ def convert_tree(tree_id, tree, otu_group, schema, subtree_id=None):
     else:
         return newick
 
+
 def convert_trees(tid_tree_otus_list, schema, subtree_id=None):
     label_key = schema.otu_label_prop
     if schema.format_str == 'nexus':
@@ -1015,12 +1054,15 @@ def convert_trees(tid_tree_otus_list, schema, subtree_id=None):
         return _write_nexus_format(leaf_labels[0], conv_tree_list)
     else:
         raise NotImplementedError('convert_tree for {}'.format(schema.format_str))
+
+
 def nexml_el_of_by_id(nexson, curr_version=None):
     if curr_version is None:
         curr_version = detect_nexson_version(nexson)
     if not _is_by_id_hbf(curr_version):
         nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
     return get_nexml_el(nexson)
+
 
 def extract_otus_nexson(nexson, otus_id, curr_version):
     nexml_el = nexml_el_of_by_id(nexson, curr_version)
@@ -1031,6 +1073,7 @@ def extract_otus_nexson(nexson, otus_id, curr_version):
     if n is None:
         return None
     return {otus_id: n}
+
 
 def extract_otu_nexson(nexson, otu_id, curr_version):
     nexml_el = nexml_el_of_by_id(nexson, curr_version)
@@ -1047,14 +1090,15 @@ def extract_otu_nexson(nexson, otu_id, curr_version):
                 return {otu_id: go[otu_id]}
     return None
 
+
 def cull_nonmatching_trees(nexson, tree_id, curr_version=None):
-    '''Modifies `nexson` and returns it in version 1.2.1
+    """Modifies `nexson` and returns it in version 1.2.1
     with any tree that does not match the ID removed.
 
     Note that this does not search through the NexSON for
     every node, edge, tree that was deleted. So the resulting
     NexSON may have broken references !
-    '''
+    """
     if curr_version is None:
         curr_version = detect_nexson_version(nexson)
     if not _is_by_id_hbf(curr_version):
@@ -1079,9 +1123,9 @@ def cull_nonmatching_trees(nexson, tree_id, curr_version=None):
 
 
 def extract_tree_nexson(nexson, tree_id, curr_version=None):
-    '''Returns a list of (id, tree, otus_group) tuples for the
+    """Returns a list of (id, tree, otus_group) tuples for the
     specified tree_id (all trees if tree_id is None)
-    '''
+    """
     if curr_version is None:
         curr_version = detect_nexson_version(nexson)
     if not _is_by_id_hbf(curr_version):
@@ -1105,6 +1149,7 @@ def extract_tree_nexson(nexson, tree_id, curr_version=None):
                     return tree_obj_otus_group_list
     return tree_obj_otus_group_list
 
+
 def extract_tree(nexson, tree_id, schema, subtree_id=None):
     try:
         assert schema.format_str in ['newick', 'nexus']
@@ -1119,13 +1164,17 @@ def extract_tree(nexson, tree_id, schema, subtree_id=None):
         return '\n'.join(tree_str_list)
     return convert_trees(i_t_o_list, schema, subtree_id=subtree_id)
 
+
 _DEF_MESSAGES_OBJ = {"message": tuple()}
+
+
 def _get_supporting_file_messages_for_this_obj(o):
     m = []
     for i in o.get('^ot:messages', _DEF_MESSAGES_OBJ).get("message", []):
         if i.get("@code") == "SUPPORTING_FILE_INFO":
             m.append(i)
     return m
+
 
 def extract_supporting_file_messages(nexson):
     curr_version = detect_nexson_version(nexson)
@@ -1143,4 +1192,3 @@ def extract_supporting_file_messages(nexson):
         for tree in tree_group.get('treeById', {}).values():
             m_list.extend(_get_supporting_file_messages_for_this_obj(tree))
     return m_list
-

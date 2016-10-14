@@ -3,29 +3,32 @@ from peyotl.utility.str_util import is_str_type
 from peyotl.nexson_syntax import write_as_json
 from peyotl.utility import get_logger
 import os
-from sh import git  #pylint: disable=E0611
+# noinspection PyUnresolvedReferences
+from sh import git  # pylint: disable=E0611
 import shutil
 import sh
 import locket
 import codecs
-import tempfile #@TEMPORARY for deprecated write_study
+import tempfile  # @TEMPORARY for deprecated write_study
 
 _LOG = get_logger(__name__)
 
+
 def get_HEAD_SHA1(git_dir):
-    '''Not locked!
-    '''
+    """Not locked!
+    """
     head_file = os.path.join(git_dir, 'HEAD')
     with open(head_file, 'r') as hf:
         head_contents = hf.read().strip()
     assert head_contents.startswith('ref: ')
-    ref_filename = head_contents[5:] #strip off "ref: "
+    ref_filename = head_contents[5:]  # strip off "ref: "
     real_ref = os.path.join(git_dir, ref_filename)
     with open(real_ref, 'r') as rf:
         return rf.read().strip()
 
+
 def get_user_author(auth_info):
-    '''Return commit author info from a dict. Returns username and author string.
+    """Return commit author info from a dict. Returns username and author string.
 
     auth_info should have 3 strings:
         `login` (a github log in)
@@ -33,25 +36,32 @@ def get_user_author(auth_info):
         `email`
     username will be in the `login` value. It is used for WIP branch naming.
     the author string will be the name and email joined. This is used in commit messages.
-    '''
+    """
     return auth_info['login'], ("%s <%s>" % (auth_info['name'], auth_info['email']))
+
 
 class MergeException(Exception):
     pass
 
+
 class GitWorkflowError(Exception):
     def __init__(self, msg):
         self.msg = msg
+
     def __str__(self):
         return self.msg
+
 
 class RepoLock(object):
     def __init__(self, lock):
         self._lock = lock
+
     def __enter__(self):
         self._lock.acquire()
+
     def __exit__(self, _type, value, traceb):
         self._lock.release()
+
 
 class GitActionBase(object):
     @staticmethod
@@ -76,7 +86,7 @@ class GitActionBase(object):
                  remote=None,
                  git_ssh=None,
                  pkey=None,
-                 cache=None, #pylint: disable=W0613
+                 cache=None,  # pylint: disable=W0613
                  path_for_doc_fn=None,
                  max_file_size=None,
                  path_for_doc_id_fn=None):
@@ -95,20 +105,21 @@ class GitActionBase(object):
         if os.path.isdir("{}/.git".format(self.repo)):
             self.gitdir = "--git-dir={}/.git".format(self.repo)
             self.gitwd = "--work-tree={}".format(self.repo)
-        else: #EJM needs a test?
+        else:  # EJM needs a test?
             raise ValueError('Repo "{repo}" is not a git repo'.format(repo=self.repo))
 
     # some methods are required, but particular to each subclass
-    def find_WIP_branches(self, some_id): #pylint: disable=W0613
+    def find_WIP_branches(self, some_id):  # pylint: disable=W0613
         raise NotImplementedError("Subclass must implement find_WIP_branches!")
+
     def create_or_checkout_branch(self,
                                   gh_user,
                                   some_id,
                                   parent_sha,
-                                  force_branch_name=False): #pylint: disable=W0613
+                                  force_branch_name=False):  # pylint: disable=W0613
         raise NotImplementedError("Subclass must implement create_or_checkout_branch!")
 
-    def env(self): #@TEMP could be ref to a const singleton.
+    def env(self):  # @TEMP could be ref to a const singleton.
         d = dict(os.environ)
         if self.git_ssh:
             d['GIT_SSH'] = self.git_ssh
@@ -117,12 +128,12 @@ class GitActionBase(object):
         return d
 
     def acquire_lock(self):
-        "Acquire a lock on the git repository"
+        """Acquire a lock on the git repository"""
         _LOG.debug('Acquiring lock')
         self._lock.acquire()
 
     def release_lock(self):
-        "Release a lock on the git repository"
+        """Release a lock on the git repository"""
         _LOG.debug('Releasing lock')
         try:
             self._lock.release()
@@ -130,18 +141,18 @@ class GitActionBase(object):
             _LOG.debug('Exception releasing lock suppressed.')
 
     def path_for_doc(self, doc_id):
-        '''Returns doc_dir and doc_filepath for doc_id.
-        '''
+        """Returns doc_dir and doc_filepath for doc_id.
+        """
         full_path = self.path_for_doc_fn(self.repo, doc_id)
-        #_LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc_fn: {}'.format(self.path_for_doc_fn))
-        #_LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc returning: [{}]'.format(full_path))
+        # _LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc_fn: {}'.format(self.path_for_doc_fn))
+        # _LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc returning: [{}]'.format(full_path))
         return full_path
 
     def lock(self):
-        ''' for syntax:
+        """ for syntax:
         with git_action.lock():
             git_action.checkout()
-        '''
+        """
         return RepoLock(self._lock)
 
     def get_branch_list(self):
@@ -156,7 +167,7 @@ class GitActionBase(object):
         return b
 
     def current_branch(self):
-        "Return the current branch name"
+        """Return the current branch name"""
         branch_name = git(self.gitdir, self.gitwd, "symbolic-ref", "HEAD")
         return branch_name.replace('refs/heads/', '').strip()
 
@@ -174,10 +185,10 @@ class GitActionBase(object):
     def _find_head_sha(self, frag, parent_sha):
         head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
         for lin in head_shas.split('\n'):
-            #_LOG.debug("lin = '{l}'".format(l=lin))
+            # _LOG.debug("lin = '{l}'".format(l=lin))
             if lin.startswith(parent_sha):
                 local_branch_split = lin.split(' refs/heads/')
-                #_LOG.debug("local_branch_split = '{l}'".format(l=local_branch_split))
+                # _LOG.debug("local_branch_split = '{l}'".format(l=local_branch_split))
                 if len(local_branch_split) == 2:
                     branch = local_branch_split[1].rstrip()
                     if branch.startswith(frag):
@@ -191,7 +202,7 @@ class GitActionBase(object):
         git(self.gitdir, self.gitwd, "checkout", "master")
 
     def fetch(self, remote='origin'):
-        '''fetch from a remote'''
+        """fetch from a remote"""
         git(self.gitdir, "fetch", remote, _env=self.env())
 
     def push(self, branch, remote):
@@ -210,10 +221,10 @@ class GitActionBase(object):
     def get_blob_sha_for_file(self, filepath, branch='HEAD'):
         try:
             r = git(self.gitdir, self.gitwd, 'ls-tree', branch, filepath)
-            #_LOG.debug('ls-tree said "{}"'.format(r))
+            # _LOG.debug('ls-tree said "{}"'.format(r))
             line = r.strip()
             ls = line.split()
-            #_LOG.debug('ls is "{}"'.format(str(ls)))
+            # _LOG.debug('ls is "{}"'.format(str(ls)))
             assert len(ls) == 4
             assert ls[1] == 'blob'
             return ls[2]
@@ -248,11 +259,11 @@ class GitActionBase(object):
                       '--no-pager',
                       'log',
                       '--format=%s' % GIT_LOG_FORMAT,
-                      '--follow',               # Track file's history when moved/renamed...
-                      '--find-renames=100%',    # ... but only if the contents are identical!
+                      '--follow',  # Track file's history when moved/renamed...
+                      '--find-renames=100%',  # ... but only if the contents are identical!
                       '--',
                       filepath)
-            #_LOG.debug('log said "{}"'.format(log))
+            # _LOG.debug('log said "{}"'.format(log))
             log = log.strip('\n\x1e').split("\x1e")
             log = [row.strip().split("\x1f") for row in log]
             log = [dict(zip(GIT_COMMIT_FIELDS, row)) for row in log]
@@ -262,14 +273,14 @@ class GitActionBase(object):
         return log
 
     def _add_and_commit(self, doc_filepath, author, commit_msg):
-        '''Low level function used internally when you have an absolute filepath to add and commit'''
+        """Low level function used internally when you have an absolute filepath to add and commit"""
         try:
             git(self.gitdir, self.gitwd, "add", doc_filepath)
             git(self.gitdir, self.gitwd, "commit", author=author, message=commit_msg)
         except Exception as e:
             # We can ignore this if no changes are new,
             # otherwise raise a 400
-            if "nothing to commit" in e.message:#@EJM is this dangerous?
+            if "nothing to commit" in e.message:  # @EJM is this dangerous?
                 _LOG.debug('"nothing to commit" found in error response')
             else:
                 _LOG.exception('"git commit" failed')
@@ -311,7 +322,7 @@ class GitActionBase(object):
         If `commit_sha` is provided, that will be checked out and returned.
             otherwise the branch will be checked out.
         """
-        #_LOG.debug('return_document({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
+        # _LOG.debug('return_document({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
         if commit_sha is None:
             self.checkout(branch)
             head_sha = get_HEAD_SHA1(self.git_dir)
@@ -333,14 +344,14 @@ class GitActionBase(object):
                           ancestral_commit_sha,
                           doc_id_from_repo_path,
                           doc_ids_to_check=None):
-        '''Returns the set of documents that have changed on the master since
+        """Returns the set of documents that have changed on the master since
         commit `ancestral_commit_sha` or `False` (on an error)
 
         'doc_id_from_repo_path' is a required function
 
         if `doc_ids_to_check` is passed in, it should be an iterable list of
             IDs. Only IDs in this list will be returned.
-        '''
+        """
         try:
             x = git(self.gitdir,
                     self.gitwd,
@@ -366,7 +377,7 @@ class GitActionBase(object):
     def _find_WIP_branches(self, doc_id, branch_pattern):
         head_shas = git(self.gitdir, self.gitwd, "show-ref", "--heads")
         ret = {}
-        #_LOG.debug('find_WIP_branches head_shas = "{}"'.format(head_shas.split('\n')))
+        # _LOG.debug('find_WIP_branches head_shas = "{}"'.format(head_shas.split('\n')))
         for lin in head_shas.split('\n'):
             try:
                 local_branch_split = lin.split(' refs/heads/')
@@ -385,7 +396,7 @@ class GitActionBase(object):
                                    branch_name_template='{ghu}_doc_{rid}',
                                    force_branch_name=False):
         if force_branch_name:
-            #@TEMP deprecated
+            # @TEMP deprecated
             branch = branch_name_template.format(ghu=gh_user, rid=doc_id)
             if not self.branch_exists(branch):
                 try:
@@ -420,9 +431,9 @@ class GitActionBase(object):
         Remove a document on the given branch and attribute the commit to author.
         Returns the SHA of the commit on branch.
         """
-        #_LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_id={}".format(doc_id))
+        # _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_id={}".format(doc_id))
         doc_filepath = self.path_for_doc(doc_id)
-        #_LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_filepath={}".format(doc_filepath))
+        # _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_filepath={}".format(doc_filepath))
 
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)
         prev_file_sha = None
@@ -435,7 +446,7 @@ class GitActionBase(object):
             if self.doc_type in ('nexson', 'illustration',):
                 # delete the parent directory entirely
                 doc_dir = os.path.split(doc_filepath)[0]
-                #_LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))
+                # _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))
                 git(self.gitdir, self.gitwd, "rm", "-rf", doc_dir)
             elif self.doc_type in ('collection', 'favorites', 'amendment',):
                 # delete just the target file
@@ -451,7 +462,7 @@ class GitActionBase(object):
         return {'commit_sha': new_sha,
                 'branch': branch,
                 'prev_file_sha': prev_file_sha,
-               }
+                }
 
     def write_document(self, gh_user, doc_id, file_content, branch, author, commit_msg=None):
         """Given a document id, temporary filename of content, branch and auth_info
@@ -490,7 +501,7 @@ class GitActionBase(object):
             except Exception as e:
                 # We can ignore this if no changes are new,
                 # otherwise raise a 400
-                if "nothing to commit" in e.message:#@EJM is this dangerous?
+                if "nothing to commit" in e.message:  # @EJM is this dangerous?
                     pass
                 else:
                     _LOG.exception('"git commit" failed')
@@ -545,4 +556,4 @@ class GitActionBase(object):
         return {'commit_sha': new_sha.strip(),
                 'branch': branch,
                 'prev_file_sha': prev_file_sha,
-               }
+                }

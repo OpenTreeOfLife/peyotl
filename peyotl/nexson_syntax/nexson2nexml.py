@@ -1,17 +1,19 @@
 #!/usr/bin/env python
-'Nexson2Nexml class'
-from peyotl.nexson_syntax.helper import NexsonConverter, \
-                                        _add_value_to_dict_bf, \
-                                        _convert_hbf_meta_val_for_xml, \
-                                        _index_list_of_values, \
-                                        _is_badgerfish_version
+"""Nexson2Nexml class"""
+from peyotl.nexson_syntax.helper import (NexsonConverter,
+                                         _add_value_to_dict_bf,
+                                         _convert_hbf_meta_val_for_xml,
+                                         _index_list_of_values,
+                                         _is_badgerfish_version)
 from peyotl.utility.str_util import UNICODE
 from peyotl.utility import get_logger
 import xml.dom.minidom
+
 _LOG = get_logger(__name__)
 
+
 def _create_sub_el(doc, parent, tag, attrib, data=None):
-    '''Creates and xml element for the `doc` with the given `parent`
+    """Creates and xml element for the `doc` with the given `parent`
     and `tag` as the tagName.
     `attrib` should be a dictionary of string keys to primitives or dicts
         if the value is a dict, then the keys of the dict are joined with
@@ -21,7 +23,7 @@ def _create_sub_el(doc, parent, tag, attrib, data=None):
         the xml true false will be writtten. Otherwise it will be
         converted to python unicode string, stripped and written.
     Returns the element created
-    '''
+    """
     el = doc.createElement(tag)
     if attrib:
         if ('id' in attrib) and ('about' not in attrib):
@@ -36,7 +38,7 @@ def _create_sub_el(doc, parent, tag, attrib, data=None):
                 el.setAttribute(att_key, att_value)
     if parent:
         parent.appendChild(el)
-    if data:
+    if data is not None:
         if data is True:
             el.appendChild(doc.createTextNode('true'))
         elif data is False:
@@ -46,6 +48,7 @@ def _create_sub_el(doc, parent, tag, attrib, data=None):
             if u:
                 el.appendChild(doc.createTextNode(u))
     return el
+
 
 def _convert_bf_meta_val_for_xml(blob):
     if not isinstance(blob, list):
@@ -61,11 +64,13 @@ def _convert_bf_meta_val_for_xml(blob):
     except:
         return "", blob
 
+
 class Nexson2Nexml(NexsonConverter):
-    '''Conversion of the optimized (v 1.2) version of NexSON to
+    """Conversion of the optimized (v 1.2) version of NexSON to
     the more direct (v 1.0) port of NeXML
     This is a dict-to-minidom-doc conversion. No serialization is included.
-    '''
+    """
+
     def __init__(self, conv_cfg):
         NexsonConverter.__init__(self, conv_cfg)
         self.input_format = conv_cfg.input_format
@@ -94,17 +99,17 @@ class Nexson2Nexml(NexsonConverter):
         return doc
 
     def _partition_keys_for_xml(self, o):
-        '''Breaks o into four content type by key syntax:
+        """Breaks o into four content type by key syntax:
             attrib keys (start with '@'),
             text (value associated with the '$' or None),
             child element keys (all others)
             meta element
-        '''
+        """
         ak = {}
         tk = None
         ck = {}
         mc = {}
-        #_LOG.debug('o = {o}'.format(o=o))
+        # _LOG.debug('o = {o}'.format(o=o))
         for k, v in o.items():
             if k.startswith('@'):
                 if k == '@xmlns':
@@ -116,10 +121,7 @@ class Nexson2Nexml(NexsonConverter):
                 else:
                     s = k[1:]
                     if isinstance(v, bool):
-                        if v == True:
-                            v = u'true'
-                        else:
-                            v = u'false'
+                        v = u'true' if v else u'false'
                     ak[s] = UNICODE(v)
             elif k == '$':
                 tk = v
@@ -161,7 +163,7 @@ class Nexson2Nexml(NexsonConverter):
         atts, data, children, meta_children = self._partition_keys_for_xml(root_obj)
         if 'generator' not in atts:
             atts['generator'] = 'org.opentreeoflife.api.nexsonvalidator.nexson_nexml'
-        if not 'version' in atts:
+        if 'version' not in atts:
             atts['version'] = '0.9'
         if root_atts:
             for k, v in root_atts.items():
@@ -175,32 +177,32 @@ class Nexson2Nexml(NexsonConverter):
         nexml_key_order = (('meta', None),
                            ('otus', (('meta', None),
                                      ('otu', None)
-                                    )
-                           ),
+                                     )
+                            ),
                            ('characters', (('meta', None),
                                            ('format', (('meta', None),
                                                        ('states', (('state', None),
                                                                    ('uncertain_state_set', None),
-                                                                  )
-                                                       ),
+                                                                   )
+                                                        ),
                                                        ('char', None)
-                                                      ),
-                                           ),
+                                                       ),
+                                            ),
                                            ('matrix', (('meta', None),
                                                        ('row', None),
-                                                      )
+                                                       )
+                                            ),
                                            ),
-                                          ),
-                           ),
+                            ),
                            ('trees', (('meta', None),
                                       ('tree', (('meta', None),
                                                 ('node', None),
                                                 ('edge', None)
-                                               )
+                                                )
+                                       )
                                       )
-                                     )
+                            )
                            )
-                          )
         self._add_dict_of_subtree_to_xml_doc(doc, r, children, nexml_key_order)
 
     def _add_subtree_list_to_xml_doc(self, doc, par, ch_list, key, key_order):
@@ -266,8 +268,8 @@ class Nexson2Nexml(NexsonConverter):
             if (key == 'tree') and (parent.tagName == 'trees') and ('xsi:type' not in ca):
                 ca['xsi:type'] = 'nex:FloatTree'
         if self._creating_otu_label and (key == 'otu') and (parent.tagName == 'otus'):
-            key_to_promote = self.otu_label # need to verify that we are converting from 1.0 not 0.0..
-            #_LOG.debug(str((key_to_promote, mc.keys())))
+            key_to_promote = self.otu_label  # need to verify that we are converting from 1.0 not 0.0..
+            # _LOG.debug(str((key_to_promote, mc.keys())))
             if key_to_promote in mc:
                 val = mc[key_to_promote]
                 if isinstance(val, dict):
@@ -281,11 +283,11 @@ class Nexson2Nexml(NexsonConverter):
         return cel
 
     def _add_meta_dict_to_xml(self, doc, parent, meta_dict):
-        '''
+        """
         Values in the meta element dict are converted to a BadgerFish-style
             encoding (see _convert_hbf_meta_val_for_xml), so regardless of input_format,
             we treat them as if they were BadgerFish.
-        '''
+        """
         if not meta_dict:
             return
         key_list = list(meta_dict.keys())
@@ -296,14 +298,12 @@ class Nexson2Nexml(NexsonConverter):
                 self._add_meta_value_to_xml_doc(doc, parent, el)
 
     def _add_meta_value_to_xml_doc(self, doc, parent, obj):
-        '''Values in the meta element dict are converted to a BadgerFish-style
+        """Values in the meta element dict are converted to a BadgerFish-style
             encoding (see _convert_hbf_meta_val_for_xml), so regardless of input_format,
             we treat them as if they were BadgerFish.
-        '''
+        """
         return self._add_subtree_to_xml_doc(doc,
                                             parent,
                                             subtree=obj,
                                             key='meta',
                                             key_order=None)
-
-

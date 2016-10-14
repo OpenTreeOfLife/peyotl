@@ -3,19 +3,19 @@ from peyotl.nexson_syntax import detect_nexson_version, get_empty_nexson
 from peyotl.utility.str_util import UNICODE
 from peyotl.nexson_validation import validate_nexson
 from peyotl.test.support import pathmap
-from peyotl.test.support.helper import testing_write_json, \
-                                       testing_read_json, \
-                                       testing_through_json, \
-                                       testing_dict_eq, \
-                                       testing_conv_key_unicode_literal
+from peyotl.test.support.helper import (testing_write_json,
+                                        testing_read_json,
+                                        testing_through_json,
+                                        testing_dict_eq,
+                                        testing_conv_key_unicode_literal)
 from peyotl.utility import get_logger
 import unittest
 import os
+
 _LOG = get_logger(__name__)
 
 # round trip filename tuples
 VALID_NEXSON_DIRS = ['9', 'otu', ]
-
 
 
 class TestConvert(unittest.TestCase):
@@ -41,6 +41,7 @@ class TestConvert(unittest.TestCase):
                     testing_write_json(ew_dict, ofn)
                     msg = "File failed to validate cleanly. See {o}".format(o=ofn)
                 self.assertEqual(len(annot.errors), 0, msg)
+
     def testInvalidFilesFail(self):
         msg = ''
         for fn in pathmap.all_files(os.path.join('nexson', 'invalid')):
@@ -58,6 +59,7 @@ class TestConvert(unittest.TestCase):
                     testing_write_json(ew_dict, ofn)
                     msg = "Failed to reject file. See {o}".format(o=str(msg))
                     self.assertTrue(False, msg)
+
     def testExpectedWarnings(self):
         msg = ''
         for fn in pathmap.all_files(os.path.join('nexson', 'warn_err')):
@@ -78,6 +80,7 @@ class TestConvert(unittest.TestCase):
                     self.assertDictEqual(exp, ew_dict, msg)
                 else:
                     _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
+
     def testOldExpectedWarnings(self):
         msg = ''
         for fn in pathmap.all_files(os.path.join('nexson', 'old-tests')):
@@ -98,6 +101,7 @@ class TestConvert(unittest.TestCase):
                     self.assertDictEqual(exp, ew_dict, msg)
                 else:
                     _LOG.warn('Expected output file "{f}" not found'.format(f=efn))
+
     def testCreated(self):
         b = get_empty_nexson()
         aa = validate_nexson(b)
@@ -108,6 +112,6 @@ class TestConvert(unittest.TestCase):
         annot = aa[0]
         self.assertFalse(annot.has_error())
 
+
 if __name__ == "__main__":
     unittest.main()
-

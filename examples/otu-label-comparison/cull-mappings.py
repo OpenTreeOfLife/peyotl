@@ -4,9 +4,11 @@ from peyotl import get_logger
 
 import sys
 import re
+
 _LOG = get_logger('evaluate-auto-mapping')
 if len(sys.argv) != 4:
-    sys.exit('expecting an input file path for the JSON mapping file and 2 output file for the plausible and implausible unmapped')
+    sys.exit('expecting an input file path for the JSON mapping file and '
+             '2 output file for the plausible and implausible unmapped')
 inf = sys.argv[1]
 poutf = sys.argv[2]
 ioutf = sys.argv[3]

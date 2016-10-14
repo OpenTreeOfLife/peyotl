@@ -51,7 +51,7 @@ then
     if ! validate-nexml scratch/.2.xml >/dev/null 2>&1
     then
         echo "XML written to .2.xml was not valid NeXML"
-        if test $inpwasvalid -eq 1
+        if test ${inpwasvalid} -eq 1
         then
             exit 1
         fi

@@ -2,6 +2,7 @@
 # exports information from a collection
 # called by propinquity when building synthetic tree
 
+from __future__ import print_function
 from peyotl import collection_to_included_trees, read_as_json
 
 if __name__ == '__main__':
@@ -31,7 +32,7 @@ if __name__ == '__main__':
         raise
     for d in included:
         if export == 'studyID_treeID':
-            print '@'.join([d['studyID'], d['treeID']])
+            print('@'.join([d['studyID'], d['treeID']]))
         else:
             assert export == 'studyID'
-            print d['studyID']
+            print(d['studyID'])

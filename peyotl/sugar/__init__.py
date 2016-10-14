@@ -1,17 +1,17 @@
 #!/usr/bin/env python
-'''This subpackage provide shortcuts for doing things the explicit way.
+"""This subpackage provide shortcuts for doing things the explicit way.
 importing this package will create the following wrappers around the web services:
 
     tnrs - (an peyotl.api.wrapper._TNRSServicesWrapper instance) for taxonomic
         name matching services. This service tries to find an OTT ID for a name.
-'''
+"""
 treemachine = None
 taxomachine = None
 phylesystem_api = None
 collections_api = None
 amendments_api = None
-illustrations_api = None
-#favorites_api = None
+# illustrations_api = None
+# favorites_api = None
 oti = None
 tnrs = None
 taxonomy = None
@@ -30,15 +30,15 @@ def _populate_globals():
     taxomachine = api_wrapper.taxomachine
     phylesystem_api = api_wrapper.phylesystem_api
     collections_api = api_wrapper.collections_api
-    amendments_api = api_wrapper.amendments_api
-    illustrations_api = api_wrapper.illustrations_api
-    #global favorites_api
-    #favorites_api = api_wrapper.favorites_api
+    # amendments_api = api_wrapper.amendments_api
+    # illustrations_api = api_wrapper.amendments_api
+    # global favorites_api
+    # favorites_api = api_wrapper.favorites_api
     tnrs = api_wrapper.tnrs
     taxonomy = api_wrapper.taxonomy
     tree_of_life = api_wrapper.tree_of_life
     graph_of_life = api_wrapper.graph
     studies = api_wrapper.studies
 
-_populate_globals()
 
+_populate_globals()

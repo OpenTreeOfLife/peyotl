@@ -27,17 +27,17 @@
       <th>Call</th>
       <th></th>
     </tr>
-    <tr id="getSyntheticTree"/>
-    <tr id="getDraftTreeSubtreeForNodes" />
-    <tr id="getSynthesisSourceList" />
-    <tr id="autocompleteBoxQuery" />
-    <tr id="study_list" />
-    <tr id="pg_719" />
+    <tr id="getSyntheticTree"></tr>
+    <tr id="getDraftTreeSubtreeForNodes" ></tr>
+    <tr id="getSynthesisSourceList" ></tr>
+    <tr id="autocompleteBoxQuery" ></tr>
+    <tr id="study_list" ></tr>
+    <tr id="pg_719" ></tr>
 </table>
 <script>
 var u = document.URL;
 u = u.replace(/\.[^/.]+$/, "");
-var jurl = u + '.json'
+var jurl = u + '.json';
 var apidomain = 'api.opentreeoflife.org'; //'api.opentreeoflife.org';
 var apisd = 'http://' + apidomain;
 var addWSCheckOnClick = function (targetpar,
@@ -49,7 +49,7 @@ var addWSCheckOnClick = function (targetpar,
   var target = targetpar.find('.triggerEl');
   target.on("click", function() {
     target.css('background-color', 'white');
-    target.text('checking...')
+    target.text('checking...');
     $.ajax({
       url: url,
       data: data,
@@ -63,7 +63,7 @@ var addWSCheckOnClick = function (targetpar,
       error: function (json, textStatus, jqXHR) {
           target.css('background-color', 'red');
           target.text('FAILING !');
-      }, 
+      }
     });
   });
   target.css('background-color', 'lightblue');
@@ -100,7 +100,7 @@ addWSCheckOnClick($("#pg_719"),
                   "GET");
 
 $.ajax({
-    url: jurl,
+    url: jurl
 }).done(function (data) {
     if (typeof data == 'string') {
       data = JSON.parse(data);

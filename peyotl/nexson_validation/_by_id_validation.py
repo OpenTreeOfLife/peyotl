@@ -1,25 +1,28 @@
 #!/usr/bin/env python
 from peyotl.nexson_validation.helper import _NEXEL, errorReturn
 from peyotl.nexson_validation.schema import check_raw_dict
-from peyotl.nexson_validation.err_generator import gen_MissingCrucialContentWarning, \
-                                                   gen_MultipleRootsWarning, \
-                                                   gen_NodeWithMultipleParents, \
-                                                   gen_NoRootWarning, \
-                                                   gen_ReferencedIDNotFoundWarning, \
-                                                   gen_RepeatedIDWarning, \
-                                                   gen_RepeatedOTUWarning, \
-                                                   gen_UnreachableNodeWarning, \
-                                                   gen_WrongValueTypeWarning
+from peyotl.nexson_validation.err_generator import (gen_MissingCrucialContentWarning,
+                                                    gen_MultipleRootsWarning,
+                                                    gen_NodeWithMultipleParents,
+                                                    gen_NoRootWarning,
+                                                    gen_ReferencedIDNotFoundWarning,
+                                                    gen_RepeatedIDWarning,
+                                                    gen_RepeatedOTUWarning,
+                                                    gen_UnreachableNodeWarning,
+                                                    gen_WrongValueTypeWarning)
 from peyotl.utility.str_util import is_str_type
 from peyotl.nexson_validation._validation_base import NexsonValidationAdaptor
 from peyotl.nexson_syntax.helper import BY_ID_HONEY_BADGERFISH
 from peyotl.utility import get_logger
+
 _LOG = get_logger(__name__)
+
 
 class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
     def __init__(self, obj, logger, **kwargs):
         self._syntax_version = BY_ID_HONEY_BADGERFISH
         NexsonValidationAdaptor.__init__(self, obj, logger, **kwargs)
+
     def _post_key_check_validate_otus_obj(self, og_nex_id, otus_group, vc):
         otu_obj = otus_group.get('otuById', {})
         if not isinstance(otu_obj, dict):
@@ -64,7 +67,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         tree_id_order = tree_group_obj.get('^ot:treeElementOrder', [])
         tree_by_id = tree_group_obj.get('treeById', {})
         if (not isinstance(tree_by_id, dict)) \
-            or (not isinstance(tree_id_order, list)):
+                or (not isinstance(tree_id_order, list)):
             self._error_event(_NEXEL.TREES,
                               obj=tree_group_obj,
                               err_type=gen_WrongValueTypeWarning,
@@ -103,7 +106,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                                       tree_obj,
                                       vc,
                                       otus_group_id=None):
-        #pylint: disable=R0914
+        # pylint: disable=R0914
         node_by_id = tree_obj.get('nodeById')
         edge_by_source = tree_obj.get('edgeBySourceId')
         root_node_id = tree_obj.get('^ot:rootNodeId')
@@ -113,7 +116,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                               err_type=gen_MissingCrucialContentWarning,
                               anc=vc.anc_list,
                               obj_nex_id=tree_nex_id,
-                              key_list=['nodeById',])
+                              key_list=['nodeById', ])
             return errorReturn('no "nodeById" in tree')
         if (not edge_by_source) or (not isinstance(edge_by_source, dict)):
             self._error_event(_NEXEL.TREE,
@@ -121,7 +124,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                               err_type=gen_MissingCrucialContentWarning,
                               anc=vc.anc_list,
                               obj_nex_id=tree_nex_id,
-                              key_list=['edgeBySourceId',])
+                              key_list=['edgeBySourceId', ])
             return errorReturn('no "edgeBySourceId" in tree')
         if not is_str_type(root_node_id):
             self._error_event(_NEXEL.TREE,
@@ -129,7 +132,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                               err_type=gen_MissingCrucialContentWarning,
                               anc=vc.anc_list,
                               obj_nex_id=tree_nex_id,
-                              key_list=['^ot:rootNodeId',])
+                              key_list=['^ot:rootNodeId', ])
             return errorReturn('no "^ot:rootNodeId" in tree')
         edge_dict = {}
         edge_by_target = {}
@@ -419,4 +422,3 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
                     tree_list.extend(tbi.keys())
             self._generate_ott_warnings(otus, tree_list, (nex_obj, obj_nex_id), vc)
         return True
-

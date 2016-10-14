@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from peyotl.collections import get_empty_collection
-from peyotl import collection_to_included_trees, \
-                   read_as_json, \
-                   write_as_json
+from peyotl.collections_store import get_empty_collection
+from peyotl import (collection_to_included_trees,
+                    read_as_json,
+                    write_as_json)
 from peyotl.phylesystem import Phylesystem
 from collections import defaultdict
 import filecmp
@@ -14,11 +14,17 @@ import os
 
 _VERBOSE = False
 _SCRIPT_NAME = 'export_studies_from_collection.py'
+
+
 def debug(msg):
     if _VERBOSE:
-         sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
+        sys.stderr.write('{}: {}\n'.format(_SCRIPT_NAME, msg))
+
+
 def error(msg):
     sys.stderr.write('{}: Error: {}\n'.format(_SCRIPT_NAME, msg))
+
+
 def copy_phylesystem_file_if_differing(git_action,
                                        sha,
                                        coll_decision,
@@ -45,9 +51,9 @@ def copy_phylesystem_file_if_differing(git_action,
     return False
 
 
-
 if __name__ == '__main__':
     import argparse
+
     description = 'Takes an collection JSON and prints out information from it'
     parser = argparse.ArgumentParser(prog=_SCRIPT_NAME, description=description)
     parser.add_argument('--phylesystem-par',
@@ -68,7 +74,8 @@ if __name__ == '__main__':
                         default=None,
                         type=str,
                         required=False,
-                        help='filepath of the nexson to be produced. If this is passed in, then only that study will be exported')
+                        help='filepath of the nexson to be produced. If this is passed in, '
+                             'then only that study will be exported')
     parser.add_argument('-v', '--verbose',
                         default=False,
                         action='store_true',
@@ -101,7 +108,8 @@ if __name__ == '__main__':
         try:
             ps = Phylesystem()
         except:
-            sys.stderr.write('Error: You need to use the --phylesystem-par argument, or a have a peyotl configuration that includes local phylesystem information.')
+            sys.stderr.write('Error: You need to use the --phylesystem-par argument, or '
+                             'a have a peyotl configuration that includes local phylesystem information.')
             raise
     # Get the list of included trees
     if not os.path.isfile(args.collection):
@@ -121,7 +129,8 @@ if __name__ == '__main__':
     num_moved = 0
     selected_study_found = False
     if selected_study is not None:
-        use_latest_trees = [i for i in use_latest_trees if (i['studyID'] == selected_study and i['treeID'] == selected_tree)]
+        use_latest_trees = [i for i in use_latest_trees if
+                            (i['studyID'] == selected_study and i['treeID'] == selected_tree)]
     if use_latest_trees:
         selected_study_found = True
         sha_to_inc = defaultdict(list)

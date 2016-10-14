@@ -1,6 +1,6 @@
 #! /bin/sh
 d=$(dirname "$0")
-if ! test -d $d
+if ! test -d ${d}
 then
     echo "$d is not a directory"
     exit 1

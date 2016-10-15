@@ -258,7 +258,25 @@ class APIWrapper(object):
         return self._amendments_api
 
     def wrap_illustrations_api(self, **kwargs):
-        raise NotImplementedError("wrap_illustrations_api not implemented yet!") 
+        from peyotl.api.illustrations_api import _IllustrationsAPIWrapper
+        cfrom = self._config.get_config_setting('apis',
+                                                'illustrations_get_from',
+                                                self._illustrations_api_kwargs.get('get_from', 'external'))
+        ctrans = self._config.get_config_setting('apis',
+                                                 'illustrations_transform',
+                                                 self._illustrations_api_kwargs.get('transform', 'client'))
+        crefresh = self._config.get_config_setting('apis',
+                                                   'illustrations_refresh',
+                                                   self._illustrations_api_kwargs.get('refresh', 'never'))
+        if cfrom:
+            kwargs.setdefault('get_from', cfrom)
+        if ctrans:
+            kwargs.setdefault('transform', ctrans)
+        if crefresh:
+            kwargs.setdefault('refresh', crefresh)
+        kwargs['config'] = self._config
+        self._illustrations_api = _IllustrationsAPIWrapper(self.domains.illustrations_api, **kwargs)
+        return self._illustrations_api
 
     @property
     def collections_api(self):

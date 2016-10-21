@@ -212,7 +212,7 @@ class _IllustrationStore(TypeAwareDocStore):
         local_path_to_illustration = self._get_illustration_folder(illustration_id)
         # look for the named resource in the illustration's folder
         subresource_path = os.path.join(local_path_to_illustration, subresource_path)
-        if !(os.path.exists(subresource_path)):
+        if not os.path.exists(subresource_path):
             raise ValueError('Expected subresource not found: {}'.format(subresource_path))
         return subresource_path
 
@@ -244,7 +244,7 @@ class _IllustrationStore(TypeAwareDocStore):
 
     def _get_illustration_folder(self, illustration_id):
         """Find and return the path to this illustration's folder in local filesystem"""
-        if !(_is_valid_illustration_id(illustration_id)):
+        if not _is_valid_illustration_id(illustration_id):
             raise ValueError("Illustration id not provided (or invalid)")
         if not self.has_doc(illustration_id):
             msg = "Unexpected illustration id '{}' (expected an existing id!)".format(illustration_id)

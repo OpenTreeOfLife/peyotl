@@ -94,7 +94,7 @@ class _IllustrationStore(TypeAwareDocStore):
                                    new_doc_prefix=None,
                                    infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                                    **kwargs)
-        self._growing_shard._determine_next_ott_id()
+        # add initialization steps here
 
     # rename some generic members in the base class, for clarity and backward compatibility
     @property

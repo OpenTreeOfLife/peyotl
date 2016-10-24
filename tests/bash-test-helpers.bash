@@ -106,7 +106,7 @@ function refresh_and_test_local_git {
     num_checks=$(expr 1 + ${num_checks})
     if ! python $@
     then
-        stf=$(expr ${stf} + 1)
+        num_fails=$(expr ${num_fails} + 1)
     fi
 }
 

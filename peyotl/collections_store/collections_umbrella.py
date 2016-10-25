@@ -42,9 +42,7 @@ def prefix_from_collection_path(collection_id):
     #   EXAMPLES: 'jimallman/trees-about-bees', 'kcranston/interesting-trees-2'
     # Assume that the owner_id will work as a prefix, esp. by assigning all of a
     # user's collections to a single shard.for grouping in shards
-    _LOG.debug('> prefix_from_collection_path(), testing this id: {i}'.format(i=collection_id))
     path_parts = collection_id.split('/')
-    _LOG.debug('> prefix_from_collection_path(), found {} path parts'.format(len(path_parts)))
     if len(path_parts) > 1:
         owner_id = path_parts[0]
     elif path_parts[0] == '':

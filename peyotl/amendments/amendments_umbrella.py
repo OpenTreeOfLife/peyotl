@@ -36,11 +36,9 @@ _LOG = get_logger(__name__)
 def prefix_from_amendment_path(amendment_id):
     # The amendment id is in the form '{subtype}-{first ottid}-{last-ottid}'
     #   EXAMPLE: 'additions-0000000-0000005'
-    # TODO: Perhaps subtype could work as a prefix? Implies that we'd assign all matching
+    # Perhaps subtype could work as a prefix? Implies that we'd assign all matching
     # amendments to a single shard.for grouping in shards. Let's try it and see...
-    _LOG.debug('> prefix_from_amendment_path(), testing this id: {i}'.format(i=amendment_id))
     id_parts = amendment_id.split('-')
-    _LOG.debug('> prefix_from_amendment_path(), found {} parts'.format(len(id_parts)))
     if len(id_parts) > 1:
         subtype = id_parts[0]
     else:

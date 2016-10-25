@@ -1,3 +1,9 @@
+# An illustration id should be a unique "path" string composed
+#     of '{owner_id}/{slugified-illustration-name}'
+#     EXAMPLES: 'jimallman/trees-about-bees'
+#               'jimallman/apis-trees-butterfly-layout'
+#               'kcranston/trees-about-bees'
+#               'jimallman/trees-about-bees-2'
 from peyotl.utility import get_logger
 from peyotl.utility.str_util import slugify, \
                                     increment_slug
@@ -30,9 +36,19 @@ ILLUSTRATION_ID_PATTERN = re.compile(r'^TODO$')
 _LOG = get_logger(__name__)
 
 def prefix_from_illustration_path(illustration_id):
-    # TODO: Determine the format/pattern for illustration ids!
+    # The illustration id is a sort of "path", e.g. '{owner_id}/{illustration-name-as-slug}'
+    #   EXAMPLES: 'jimallman/trees-about-bees', 'kcranston/interesting-trees-2'
+    # Assume that the owner_id will work as a prefix, esp. by assigning all of a
+    # user's illustrations to a single shard.for grouping in shards
     _LOG.debug('> prefix_from_illustration_path(), testing this id: {i}'.format(i=illustration_id))
-    return ''
+    path_parts = illustration_id.split('/')
+    if len(path_parts) > 1:
+        owner_id = path_parts[0]
+    elif path_parts[0] == '':
+        owner_id = 'anonymous'
+    else:
+        owner_id = 'anonymous'  # or perhaps None?
+    return owner_id
 
 class IllustrationStoreProxy(ShardedDocStore):
     '''Proxy for interacting with external resources if given the configuration of a remote IllustrationStore

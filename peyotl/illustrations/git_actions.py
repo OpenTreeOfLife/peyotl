@@ -12,10 +12,10 @@ class MergeException(Exception):
 def get_filepath_for_id(repo_dir, illustration_id):
     from peyotl.illustrations import ILLUSTRATION_ID_PATTERN
     assert bool(ILLUSTRATION_ID_PATTERN.match(illustration_id))
-    return '{r}/illustrations/{s}'.format(r=repo_dir, s=illustration_id)
+    return '{r}/illustrations-by-owner/{s}'.format(r=repo_dir, s=illustration_id)
 
 def illustration_id_from_repo_path(path):
-    doc_parent_dir = 'illustrations/'
+    doc_parent_dir = 'illustrations-by-owner/'
     if path.startswith(doc_parent_dir):
         try:
             illustration_id = path.split(doc_parent_dir)[1]

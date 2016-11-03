@@ -86,7 +86,7 @@ class TestTreeCollections(unittest.TestCase):
         c.pull()  # get the full git history
         # check for known changed collections in this repo
         changed = c.get_changed_docs('637bb5a35f861d84c115e5e6c11030d1ecec92e0')
-        self.assertEqual(set(), changed)
+        self.assertEqual({u'TestUserB/fungal-trees.json'}, changed)
         changed = c.get_changed_docs('d17e91ae85e829a4dcc0115d5d33bf0dca179247')
         self.assertEqual({u'TestUserB/fungal-trees.json'}, changed)
         changed = c.get_changed_docs('af72fb2cc060936c9afce03495ec0ab662a783f6')

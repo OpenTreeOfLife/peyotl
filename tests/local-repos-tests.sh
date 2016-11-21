@@ -11,10 +11,13 @@ stf=$(expr ${stf} + ${latf})
 bash tests/local-collections-tests.sh
 lctf="$?"
 stf=$(expr ${stf} + ${lctf})
+bash tests/local-illustrations-tests.sh
+litf="$?"
+stf=$(expr ${stf} + ${litf})
 if test ${stf} -gt 0
 then
     echo "Failed at least one $0 test."
     exit ${stf}
 else
-    echo "Passed all $0 tests passed."
+    echo "Passed all $0 tests."
 fi

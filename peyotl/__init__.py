@@ -14,7 +14,9 @@ from peyotl.utility import (get_config_setting,
                             get_logger)
 from peyotl.utility.input_output import pretty_dict_str
 
-from peyotl.collections_store import collection_to_included_trees, concatenate_collections
+from peyotl.collections_store import (collection_to_included_trees,
+                                      concatenate_collections,
+                                      tree_is_in_collection)
 from peyotl.nexson_syntax import (can_convert_nexson_forms,
                                   convert_nexson_format,
                                   detect_nexson_version,

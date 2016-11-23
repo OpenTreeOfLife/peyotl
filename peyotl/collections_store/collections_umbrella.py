@@ -201,7 +201,6 @@ class _TreeCollectionStore(TypeAwareDocStore):
         if collection is None:
             msg = "File failed to parse as JSON:\n{j}".format(j=json_repr)
             raise ValueError(msg)
-        _LOG.exception('BEFORE validation')
         if not self._is_valid_collection_json(collection):
             msg = "JSON is not a valid collection:\n{j}".format(j=json_repr)
             raise ValueError(msg)
@@ -255,18 +254,14 @@ class _TreeCollectionStore(TypeAwareDocStore):
 
     def _is_valid_collection_json(self, json_repr):
         """Call the primary validator for a quick test"""
-        _LOG.exception('BEFORE coercion')
         collection = self._coerce_json_to_collection(json_repr)
-        _LOG.exception('AFTER coercion')
-        _LOG.exception(collection)
         if collection is None:
             # invalid JSON, definitely broken
             return False
         aa = validate_collection(collection)
         errors = aa[0]
         for e in errors:
-            #_LOG.debug('> invalid JSON: {m}'.format(m=e.encode('utf-8')))
-            _LOG.exception('> invalid JSON: {m}'.format(m=e.encode('utf-8')))
+            _LOG.debug('> invalid JSON: {m}'.format(m=e.encode('utf-8')))
         if len(errors) > 0:
             return False
         return True

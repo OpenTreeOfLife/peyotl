@@ -213,7 +213,8 @@ class _TreeCollectionStore(TypeAwareDocStore):
         r = None
         try:
             # remove any 'url' field before saving; it will be restored when the doc is fetched (via API)
-            del collection['url']
+            if 'url' in collection:
+                del collection['url']
             # keep it simple (collection is already validated! no annotations needed!)
             r = self.commit_and_try_merge2master(file_content=collection,
                                                  doc_id=collection_id,

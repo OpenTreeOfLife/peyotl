@@ -42,6 +42,17 @@ def collection_to_included_trees(collection):
             inc.append(d)
     return inc
 
+def tree_is_in_collection(collection, study_id=None, tree_id=None):
+    """Takes a collection object (or a filepath to collection object), returns
+    True if it includes a decision to include the specified tree
+    """
+    included = collection_to_included_trees(collection)
+    study_id = study_id.strip()
+    tree_id = tree_id.strip()
+    for decision in included:
+        if decision['studyID'] == study_id and decision['treeID'] == tree_id:
+            return True
+    return False
 
 def concatenate_collections(collection_list):
     r = get_empty_collection()

@@ -523,51 +523,7 @@ class OTT(object):
             it = iter(tax_fo)
             first_line = next(it)
             assert first_line == 'uid\t|\tparent_uid\t|\tname\t|\trank\t|\tsourceinfo\t|\tuniqname\t|\tflags\t|\t\n'
-            life_line = next(it)
-            root_split = life_line.split('\t|\t')
-            uid = int(root_split[0])
-            root_ott_id = uid
-            assert root_split[1] == ''
-            name = root_split[2]
-            rank,sourceinfo, uniqname, flags = root_split[3:7]
-            self._root_name = name
-            assert root_split[7] == '\n'
-            assert uid not in id2par
-            id2par[uid] = NONE_PAR
-            id2name[uid] = name
-            if rank:
-                id2rank[uid] = rank
-            if uniqname:
-                id2uniq[uid] = uniqname
-                assert uniqname not in uniq2id
-                uniq2id[uniqname] = uid
-            if sourceinfo:
-                s_list = sourceinfo.split(',')
-                for x in s_list:
-                    src, sid = x.split(':')
-                    try:
-                        sid = int(sid)
-                    except:
-                        pass
-                    sources.add(src)
-                    source[src] = sid
-            if flags:
-                f_list = flags.split(',')
-                if len(f_list) > 1:
-                    f_list.sort()
-                f_set = frozenset(f_list)
-                for x in f_list:
-                    flag_set.add(x)
-                fsi = flag_set2flag_set_id.get(f_set)
-                if fsi is None:
-                    fsi = f_set_id
-                    f_set_id += 1
-                    flag_set_id2flag_set[fsi] = f_set
-                    flag_set2flag_set_id[f_set] = fsi
-                id2flag[uid] = fsi
-            if source:
-                id2source[uid] = source
-                source = {}
+            # now parse the rest of the taxonomy file
             for rown in it:
                 ls = rown.split('\t|\t')
                 uid, par, name = ls[:3]
@@ -580,11 +536,19 @@ class OTT(object):
                 if skip:
                     continue
                 uid = int(uid)
-                par = int(par)
+                if par == '':
+                    # parse the root node (name = life; no parent)
+                    par = NONE_PAR
+                    root_ott_id = uid
+                    assert name == 'life'
+                    self._root_name = name
+                else:
+                    # this is not the root node
+                    par = int(par)
+                    if par not in id2par:
+                        raise ValueError('parent {} not found in OTT parsing'.format(par))
                 assert ls[7] == '\n'
                 assert uid not in id2par
-                if par not in id2par:
-                    raise ValueError('parent {} not found in OTT parsing'.format(par))
                 id2par[uid] = par
                 id2name[uid] = name
                 if rank:

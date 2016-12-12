@@ -29,7 +29,6 @@ class CollectionValidationAdaptor(object):
         self.required_toplevel_elements = {
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
-            'url': string_types,
             'name': string_types,
             'description': string_types,
             'creator': dict,
@@ -37,23 +36,21 @@ class CollectionValidationAdaptor(object):
             'decisions': list,
             'queries': list,
         }
-        # currently all allowed elements are also required
-        # self.optional_toplevel_elements = {}
+        self.optional_toplevel_elements = {
+            'url': string_types,
+            # N.B. 'url' is stripped in storage, restored for API consumers
+        }
         # track unknown keys in top-level object
         uk = None
         for k in obj.keys():
-            if k not in self.required_toplevel_elements.keys():
+            if (k not in self.required_toplevel_elements.keys() and
+                        k not in self.optional_toplevel_elements.keys()):
                 if uk is None:
                     uk = []
                 uk.append(k)
         if uk:
             uk.sort()
-            # self._warn_event(_NEXEL.TOP_LEVEL,
-            #                  obj=obj,
-            #                  err_type=gen_UnrecognizedKeyWarning,
-            #                  anc=_EMPTY_TUPLE,
-            #                  obj_nex_id=None,
-            #                  key_list=uk)
+            errors.append("Found these unexpected taxon properties: {k}".format(k=uk))
 
         # test for existence and types of all required elements
         for el_key, el_type in self.required_toplevel_elements.items():

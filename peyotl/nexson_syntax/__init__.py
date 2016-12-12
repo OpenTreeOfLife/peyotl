@@ -908,6 +908,41 @@ def convert_tree_to_newick(tree,
     flush_utf_8_writer(out)
     return sio.getvalue()
 
+def get_subtree_otus(nexson, tree_id, subtree_id=None, return_format='otu_id'):
+    assert(return_format in ['otu_id', 'ottid'])
+    tree = extract_tree_nexson(nexson, tree_id)[0][1]
+    ingroup_node_id = tree.get('^ot:inGroupClade')
+    edges = tree['edgeBySourceId']
+    nodes = tree['nodeById']
+    if subtree_id:
+        if subtree_id == 'ingroup':
+            root_id = ingroup_node_id
+        else:
+            root_id = subtree_id
+    else:
+        root_id = tree['^ot:rootNodeId']
+    if root_id not in edges:
+        return None
+    otuset = set()
+    todo = set()
+    todo.add(root_id)
+    while todo:
+        curr_node_id = todo.pop()
+        outgoing_edges = edges.get(curr_node_id)
+        if outgoing_edges is None:
+            otu = nodes.get(curr_node_id).get('@otu')
+            assert(otu)
+            if return_format == 'otu_id':
+                otuset.add(otu)
+            if return_format == 'ottid':
+                d = extract_otu_nexson(nexson, otu, detect_nexson_version(nexson))
+                ottid = d[otu].get('^ot:ottId')
+                otuset.add(ottid)
+        else:
+            for edge, info in outgoing_edges.items():
+                todo.add(info.get('@target'))
+    return(otuset)
+
 
 def nexson_frag_write_newick(out,
                              edges,
@@ -1063,8 +1098,7 @@ def nexml_el_of_by_id(nexson, curr_version=None):
         nexson = convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
     return get_nexml_el(nexson)
 
-
-def extract_otus_nexson(nexson, otus_id, curr_version):
+def extract_otus_nexson(nexson, otus_id, curr_version=None):
     nexml_el = nexml_el_of_by_id(nexson, curr_version)
     o = nexml_el['otusById']
     if otus_id is None:
@@ -1075,7 +1109,7 @@ def extract_otus_nexson(nexson, otus_id, curr_version):
     return {otus_id: n}
 
 
-def extract_otu_nexson(nexson, otu_id, curr_version):
+def extract_otu_nexson(nexson, otu_id, curr_version=None):
     nexml_el = nexml_el_of_by_id(nexson, curr_version)
     o = nexml_el['otusById']
     if otu_id is None:
@@ -1120,7 +1154,6 @@ def cull_nonmatching_trees(nexson, tree_id, curr_version=None):
         nexml_el['^ot:treesElementOrder'].remove(tgid)
         del tree_groups[tgid]
     return nexson
-
 
 def extract_tree_nexson(nexson, tree_id, curr_version=None):
     """Returns a list of (id, tree, otus_group) tuples for the

@@ -207,6 +207,10 @@ class TypeAwareGitShard(GitShard):
         _LOG = get_logger('TypeAwareGitShard')
         try:
             for doc_id, fp in self.iter_doc_filepaths(**kwargs):
+                _LOG.warn('>>>')
+                _LOG.warn(doc_id)
+                _LOG.warn(fp)
+                _LOG.warn('<<<')
                 if not self._is_alias(doc_id):
                     # TODO:hook for type-specific parser?
                     with codecs.open(fp, 'r', 'utf-8') as fo:

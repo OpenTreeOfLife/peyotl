@@ -9,7 +9,7 @@ from peyotl.git_storage.git_shard import GitShard, \
 
 _LOG = get_logger(__name__)
 
-doc_holder_subpath = 'illustrations-by-owner'
+doc_holder_subpath = 'docs-by-owner'
 
 def filepath_for_illustration_id(repo_dir, illustration_id):
     # in this case, simply expand the id to a full path

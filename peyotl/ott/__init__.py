@@ -198,34 +198,34 @@ class _TransitionalNode(object):
         elif self.ott_id is not None:
             leaves.add(self.ott_id)
 
-
-_CACHES = {'ottid2parentottid': ('ottID2parentOttId', 'ott ID-> parent\'s ott ID. root maps to -1',),
-           'ottid2preorder': ('ottID2preorder', 'ott ID -> preorder #',),
-           'preorder2ottid': ('preorder2ottID', 'preorder # -> ott ID',),
-           'ottid2uniq': ('ottID2uniq', 'ott ID -> uniqname for those IDs that have a uniqname field',),
-           'uniq2ottid': ('uniq2ottID', 'uniqname -> ott ID for those IDs that have a uniqname',),
-           'name2ottid': ('name2ottID', 'maps a taxon name -> ott ID ',),
-           'homonym2ottid': ('homonym2ottID', 'maps a taxon name -> tuple of OTT IDs ',),
-           'nonhomonym2ottid': ('nonhomonym2ottID', 'maps a taxon name -> single OTT ID ',),
-           'ottid2names': ('ottID2names', 'ottID to a name or list/tuple of names',),
-           'root': ('root', 'name and ott_id of the root of the taxonomy',),
-           'preorder2tuple': ('preorder2tuple', '''preorder # to a node definition
-Each node definition is a tuple of preorder numbers:
+_CACHES = {
+    'flagsetid2flagset': ('flagSetID2FlagSet', 'maps an integer to set of flags. Used to compress the flags field'),
+    'forwardingtable': ('forward_table', 'maps a deprecated ID to its forwarded ID'),
+    'homonym2ottid': ('homonym2ottID', 'maps a taxon name -> tuple of OTT IDs ',),
+    'name2ottid': ('name2ottID', 'maps a taxon name -> ott ID ',),
+    'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'),
+    'nonhomonym2ottid': ('nonhomonym2ottID', 'maps a taxon name -> single OTT ID ',),
+    'ottid2flags': ('ottID2flags', '''maps an ott ID to an integer that can be looked up in the flag_set_id2flag_set dictionary. Absence of a ott ID means that there were no flags set.''',),
+    'ottid2names': ('ottID2names', 'ottID to a name or list/tuple of names',),
+    'ottid2parentottid': ('ottID2parentOttId', 'ott ID-> parent\'s ott ID. root maps to -1',),
+    'ottid2preorder': ('ottID2preorder', 'ott ID -> preorder #',),
+    'ottid2ranks': ('ottID2ranks','ottID -> rank',),
+    'ottid2sources': ('ottIDsources', '''maps an ott ID to a dict. The value
+    holds a mapping of a source taxonomy name to the ID of this ott ID in that
+    taxonomy.''',),
+    'ottid2uniq': ('ottID2uniq', 'ott ID -> uniqname for those IDs that have a uniqname field',),
+    'preorder2ottid': ('preorder2ottID', 'preorder # -> ott ID',),
+    'preorder2tuple': ('preorder2tuple', '''preorder # to a node definition
+    Each node definition is a tuple of preorder numbers:
     leaves will be: (parent, next_sib)
     internals will be: (parent, next_sib, first_child, last_child)
-if a node is the last child of its parent, next_sib will be None
-also in the map is 'root' -> root preorder number
-''',),
-           'ottid2sources': ('ottIDsources', '''maps an ott ID to a dict. The value
-holds a mapping of a source taxonomy name to the ID of this ott ID in that
-taxonomy.''',),
-           'ottid2flags': ('ottID2flags', '''maps an ott ID to an integer that can be looked up in the flag_set_id2flag_set
-dictionary. Absence of a ott ID means that there were no flags set.''',),
-           'flagsetid2flagset': ('flagSetID2FlagSet',
-                                 'maps an integer to set of flags. Used to compress the flags field'),
-           'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
-           'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'),
-           'forwardingtable': ('forward_table', 'maps a deprecated ID to its forwarded ID')}
+    if a node is the last child of its parent, next_sib will be None
+    also in the map is 'root' -> root preorder number
+    ''',),
+    'root': ('root', 'name and ott_id of the root of the taxonomy',),
+    'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
+    'uniq2ottid': ('uniq2ottID', 'uniqname -> ott ID for those IDs that have a uniqname',)
+   }
 _SECOND_LEVEL_CACHES = {'ncbi2ottid'}
 
 
@@ -259,6 +259,7 @@ class OTT(object):
         self._name2ott_ids = None
         self._ott_id_to_flags = None
         self._ott_id_to_sources = None
+        self._ott_id_to_ranks = None
         self._flag_set_id2flag_set = None
         self._taxonomic_sources = None
         self._ncbi_2_ott_id = None
@@ -427,6 +428,12 @@ class OTT(object):
             self._ott_id_to_names = self._load_pickled('ottID2names')
         return self._ott_id_to_names
 
+    @property
+    def ott_id_to_ranks(self):
+        if self._ott_id_to_ranks is None:
+            self._ott_id_to_ranks = self._load_pickled('ottID2ranks')
+        return self._ott_id_to_ranks
+
     def get_label(self, ott_id, name2label):
         n = self.get_name(ott_id)
         if name2label == OTULabelStyleEnum.CURRENT_LABEL_OTT_ID:
@@ -486,6 +493,7 @@ class OTT(object):
         'uniq2ottID'
         'name2ottID'
         'ottID2names'
+        'ottID2ranks'
         'ottID2parentOttId'
         'preorder2tuple'
         """
@@ -498,6 +506,7 @@ class OTT(object):
         _LOG.debug('Reading "{f}"...'.format(f=taxonomy_file))
         id2par = {}  # UID to parent UID
         id2name = {}  # UID to 'name' field
+        id2rank = {}  # UID to 'rank' field
         id2uniq = {}  # UID to 'uniqname' field
         uniq2id = {}  # uniqname to UID
         id2flag = {}  # UID to a key in flag_set_id2flag_set
@@ -514,53 +523,11 @@ class OTT(object):
             it = iter(tax_fo)
             first_line = next(it)
             assert first_line == 'uid\t|\tparent_uid\t|\tname\t|\trank\t|\tsourceinfo\t|\tuniqname\t|\tflags\t|\t\n'
-            life_line = next(it)
-            root_split = life_line.split('\t|\t')
-            uid = int(root_split[0])
-            root_ott_id = uid
-            assert root_split[1] == ''
-            name = root_split[2]
-            sourceinfo, uniqname, flags = root_split[4:7]
-            self._root_name = name
-            assert root_split[7] == '\n'
-            assert uid not in id2par
-            id2par[uid] = NONE_PAR
-            id2name[uid] = name
-            if uniqname:
-                id2uniq[uid] = uniqname
-                assert uniqname not in uniq2id
-                uniq2id[uniqname] = uid
-            if sourceinfo:
-                s_list = sourceinfo.split(',')
-                for x in s_list:
-                    src, sid = x.split(':')
-                    try:
-                        sid = int(sid)
-                    except:
-                        pass
-                    sources.add(src)
-                    source[src] = sid
-            if flags:
-                f_list = flags.split(',')
-                if len(f_list) > 1:
-                    f_list.sort()
-                f_set = frozenset(f_list)
-                for x in f_list:
-                    flag_set.add(x)
-                fsi = flag_set2flag_set_id.get(f_set)
-                if fsi is None:
-                    fsi = f_set_id
-                    f_set_id += 1
-                    flag_set_id2flag_set[fsi] = f_set
-                    flag_set2flag_set_id[f_set] = fsi
-                id2flag[uid] = fsi
-            if source:
-                id2source[uid] = source
-                source = {}
+            # now parse the rest of the taxonomy file
             for rown in it:
                 ls = rown.split('\t|\t')
                 uid, par, name = ls[:3]
-                sourceinfo, uniqname, flags = ls[4:7]
+                rank,sourceinfo, uniqname, flags = ls[3:7]
                 skip = False
                 for p in self.skip_prefixes:
                     if uniqname.startswith(p):
@@ -569,13 +536,23 @@ class OTT(object):
                 if skip:
                     continue
                 uid = int(uid)
-                par = int(par)
+                if par == '':
+                    # parse the root node (name = life; no parent)
+                    par = NONE_PAR
+                    root_ott_id = uid
+                    assert name == 'life'
+                    self._root_name = name
+                else:
+                    # this is not the root node
+                    par = int(par)
+                    if par not in id2par:
+                        raise ValueError('parent {} not found in OTT parsing'.format(par))
                 assert ls[7] == '\n'
                 assert uid not in id2par
-                if par not in id2par:
-                    raise ValueError('parent {} not found in OTT parsing'.format(par))
                 id2par[uid] = par
                 id2name[uid] = name
+                if rank:
+                    id2rank[uid] = rank
                 if uniqname:
                     id2uniq[uid] = uniqname
                     if uniqname in uniq2id:
@@ -705,6 +682,7 @@ class OTT(object):
         _write_pickle(out_dir, 'nonhomonym2ottID', nonhomonym2id)
         _write_pickle(out_dir, 'ottID2names', id2name)
         _write_pickle(out_dir, 'ottID2sources', id2source)
+        _write_pickle(out_dir, 'ottID2ranks', id2rank)
         _write_pickle(out_dir, 'ottID2flags', id2flag)
         _write_pickle(out_dir, 'flagSetID2FlagSet', flag_set_id2flag_set)
         _write_pickle(out_dir, 'taxonomicSources', sources)

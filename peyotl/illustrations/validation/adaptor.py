@@ -31,7 +31,6 @@ class IllustrationValidationAdaptor(object):
         self.required_toplevel_elements = {
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
-            'date_created': string_types,
             'metadata': dict,
             'elements': list,
             'styleGuide': dict,
@@ -87,10 +86,10 @@ class IllustrationValidationAdaptor(object):
         #  - etc.
 
         # test for a valid date_created (should be valid ISO 8601)
-        self._date_created = obj.get('date_created')
+        self._date_created = obj.get('metadata').get('date_created')
         import dateutil.parser
         try:
             dateutil.parser.parse(self._date_created)
         except:
-            errors.append("Property 'date_created' is not a valid ISO date")
+            errors.append("Property 'metadata.date_created' is not a valid ISO date")
 

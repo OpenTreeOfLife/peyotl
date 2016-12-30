@@ -30,8 +30,11 @@ import re
 import os
 import shutil
 
-# TODO: An illustration id should be a unique string (a valid filename) built from...
-ILLUSTRATION_ID_PATTERN = re.compile(r'^TODO$')
+# An illustration id should be a unique string composed of a GitHub userid, a
+# slash separator, and a web slug (a web-safe alphanumeric string).
+OWNER_ID_PATTERN = re.compile(r'^[a-zA-Z0-9-]+$')
+ILLUSTRATION_ID_PATTERN = re.compile(r'^[a-zA-Z0-9-]+/[a-z0-9-]+$')
+# Allow simple slug-ified strings and slash separator (no whitespace!)
 
 _LOG = get_logger(__name__)
 

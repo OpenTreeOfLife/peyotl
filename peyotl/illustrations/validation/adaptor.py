@@ -23,13 +23,25 @@ class IllustrationValidationAdaptor(object):
         except NameError:
             # Python 3
             string_types = (str,)
+
+        # TODO: Test this item's subtype (e.g. illustration, template, style
+        # guide) to determine how to validate it. Do we expect all subtypes to
+        # have a JSON "core"?
+
         self.required_toplevel_elements = {
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
             'date_created': string_types,
+            'metadata': dict,
+            'elements': list,
+            'styleGuide': dict,
+            'style': dict,
+            'vegaSpec': dict,
         }
         self.optional_toplevel_elements = {
             'id': string_types,  # not present in initial request
+            'url': string_types,
+            # N.B. 'url' is stripped in storage, restored for API consumers
         }
         # track unknown keys in top-level object
         uk = None

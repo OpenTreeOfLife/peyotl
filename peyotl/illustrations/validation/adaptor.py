@@ -38,9 +38,6 @@ class IllustrationValidationAdaptor(object):
             'vegaSpec': dict,
         }
         self.optional_toplevel_elements = {
-            'id': string_types,  # not present in initial request
-            'url': string_types,
-            # N.B. 'url' is stripped in storage, restored for API consumers
         }
         # track unknown keys in top-level object
         uk = None

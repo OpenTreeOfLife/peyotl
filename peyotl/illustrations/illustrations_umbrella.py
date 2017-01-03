@@ -128,9 +128,11 @@ class _IllustrationStore(TypeAwareDocStore):
         return self._growing_shard.create_git_action_for_new_illustration(new_illustration_id=new_illustration_id)
 
     def add_new_illustration(self,
-                          json_repr,
-                          auth_info,
-                          commit_msg=''):
+                             owner_id,
+                             json_repr,
+                             auth_info,
+                             illustration_id=None,
+                             commit_msg=''):
         """Validate and save this JSON. Ensure (and return) a unique illustration id"""
         illustration = self._coerce_json_to_illustration(json_repr)
         if illustration is None:
@@ -139,53 +141,47 @@ class _IllustrationStore(TypeAwareDocStore):
         if not self._is_valid_illustration_json(illustration):
             msg = "JSON is not a valid illustration:\n{j}".format(j=json_repr)
             raise ValueError(msg)
-
-        with self._growing_shard._doc_counter_lock:
-            # mint any needed ids?
-            illustration_id = 'TODO'
-
-            # Check the proposed id for uniqueness (just to be safe), then
-            # "reserve" it using a placeholder value.
-            with self._index_lock:
-                if illustration_id in self._doc2shard_map:
-                    # this should never happen!
-                    raise KeyError('Illustration "{i}" already exists!'.format(i=illustration_id))
-                self._doc2shard_map[illustration_id] = None
-
-            # Set the illustration's top-level "id" property to match
-            illustration["id"] = illustration_id
-
-            # pass the id and illustration JSON to a proper git action
-            new_illustration_id = None
-            r = None
+        if illustration_id:
+            # try to use this id
+            found_owner_id, slug = illustration_id.split('/')
+            assert found_owner_id == owner_id
+        else:
+            # extract a working title and "slugify" it
+            slug = self._slugify_internal_illustration_name(json_repr)
+            illustration_id = '{i}/{s}'.format(i=owner_id, s=slug)
+        # Check the proposed id for uniqueness in any case. Increment until
+        # we have a new id, then "reserve" it using a placeholder value.
+        with self._index_lock:
+            while illustration_id in self._doc2shard_map:
+                illustration_id = increment_slug(illustration_id)
+            self._doc2shard_map[illustration_id] = None
+        # pass the id and collection JSON to a proper git action
+        new_illustration_id = None
+        r = None
+        try:
+            # assign the new id to a shard (important prep for commit_and_try_merge2master)
+            gd_id_pair = self.create_git_action_for_new_illustration(new_illustration_id=illustration_id)
+            new_illustration_id = gd_id_pair[1]
             try:
-                # assign the new id to a shard (important prep for commit_and_try_merge2master)
-                gd_id_pair = self.create_git_action_for_new_illustration(new_illustration_id=illustration_id)
-                new_illustration_id = gd_id_pair[1]
-                # For illustrations, the id should not have changed!
-                try:
-                    assert new_illustration_id == illustration_id
-                except:
-                    raise KeyError('Illustration id unexpectedly changed from "{o}" to "{n}"!'.format(
-                              o=illustration_id, n=new_illustration_id))
-                try:
-                    # it's already been validated, so keep it simple
-                    r = self.commit_and_try_merge2master(file_content=illustration,
-                                                         doc_id=new_illustration_id,
-                                                         auth_info=auth_info,
-                                                         parent_sha=None,
-                                                         commit_msg=commit_msg,
-                                                         merged_sha=None)
-                except:
-                    self._growing_shard.delete_doc_from_index(new_illustration_id)
-                    raise
-
+                # let's remove the 'url' field; it will be restored when the doc is fetched (via API)
+                if 'metadata' in illustration and 'url' in illustration['metadata']:
+                    del illustration['metadata']['url']
+                # it's already been validated, so keep it simple
+                r = self.commit_and_try_merge2master(file_content=illustration,
+                                                     doc_id=new_illustration_id,
+                                                     auth_info=auth_info,
+                                                     parent_sha=None,
+                                                     commit_msg=commit_msg,
+                                                     merged_sha=None)
             except:
-                with self._index_lock:
-                    if new_illustration_id in self._doc2shard_map:
-                        del self._doc2shard_map[new_illustration_id]
+                self._growing_shard.delete_doc_from_index(new_illustration_id)
                 raise
 
+        except:
+            with self._index_lock:
+                if new_illustration_id in self._doc2shard_map:
+                    del self._doc2shard_map[new_illustration_id]
+            raise
         with self._index_lock:
             self._doc2shard_map[new_illustration_id] = self._growing_shard
         return new_illustration_id, r
@@ -213,6 +209,9 @@ class _IllustrationStore(TypeAwareDocStore):
         # pass the id and illustration JSON to a proper git action
         r = None
         try:
+            # remove any 'url' field before saving; it will be restored when the doc is fetched (via API)
+            if 'metadata' in illustration and 'url' in illustration['metadata']:
+                del illustration['metadata']['url']
             # it's already been validated, so keep it simple
             r = self.commit_and_try_merge2master(file_content=illustration,
                                                  doc_id=illustration_id,
@@ -283,6 +282,14 @@ class _IllustrationStore(TypeAwareDocStore):
         if illustration is None:
             return None
         return slugify('TODO')
+
+    def _slugify_internal_illustration_name(self, json_repr):
+        """Parse the JSON, find its name, return a slug of its name"""
+        illustration = self._coerce_json_to_illustration(json_repr)
+        if illustration is None:
+            return None
+        internal_name = illustration['metadata']['name']
+        return slugify(internal_name)
 
     def _is_valid_illustration_id(self, test_id):
         """Test for the expected format '{TODO}-{TODO}', return T/F

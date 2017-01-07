@@ -421,7 +421,7 @@ class GitActionBase(object):
                 git(self.gitdir, self.gitwd, "branch", branch, parent_sha)
                 _LOG.debug('Created branch "{b}" with parent "{a}"'.format(b=branch, a=parent_sha))
             except:
-                raise ValueError('parent sha not in git repo')
+                raise ValueError('parent sha "{a}" not in git repo!'.format(a=parent_sha))
         self.checkout(branch)
         _LOG.debug('Checked out branch "{b}"'.format(b=branch))
         return branch

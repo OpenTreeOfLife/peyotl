@@ -44,8 +44,8 @@ def create_id2illustration_info(path, tag):
         root, files = triple[0], triple[2]
         for filename in files:
             if filename.endswith('.json'):
-                # trim its file extension 
-                illustration_id = n=filename[:-5]
+                # trim file extension and prepend owner_id (from path)
+                illustration_id = "{u}/{n}".format(u=root.split('/')[-1], n=filename[:-5])
                 d[illustration_id] = (tag, root, os.path.join(root, filename))
     return d
 

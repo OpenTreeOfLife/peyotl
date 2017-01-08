@@ -13,8 +13,8 @@ doc_holder_subpath = 'docs-by-owner'
 
 def filepath_for_illustration_id(repo_dir, illustration_id):
     # in this case, simply expand the id to a full path
-    illustration_filename = '{i}.json'.format(i=illustration_id)
-    full_path_to_file = os.path.join(repo_dir, doc_holder_subpath, illustration_filename)
+    illustration_foldername = illustration_id
+    full_path_to_file = os.path.join(repo_dir, doc_holder_subpath, illustration_foldername, 'main.json')
     _LOG.warn(">>>> filepath_for_illustration_id: full path is {}".format(full_path_to_file))
     return full_path_to_file
 
@@ -42,11 +42,11 @@ def create_id2illustration_info(path, tag):
     d = {}
     for triple in os.walk(path):
         root, files = triple[0], triple[2]
-        for filename in files:
-            if filename.endswith('.json'):
-                # trim file extension and prepend owner_id (from path)
-                illustration_id = "{u}/{n}".format(u=root.split('/')[-1], n=filename[:-5])
-                d[illustration_id] = (tag, root, os.path.join(root, filename))
+        if 'main.json' in files:
+            # build ID (from path) using owner-id and illustration folder name
+            illustration_id = "/".join( root.split('/')[-2:] )
+            # point directly to each doc's "manifest" file
+            d[illustration_id] = (tag, root, os.path.join(root, 'main.json'))
     return d
 
 def refresh_illustration_index(shard, initializing=False):

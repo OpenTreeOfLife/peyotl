@@ -30,7 +30,7 @@ class IllustrationsGitAction(GitActionBase):
                  git_ssh=None,
                  pkey=None,
                  cache=None, #pylint: disable=W0613
-                 path_for_doc_fn=lambda frag: os.path.join(path, frag, 'main.json')
+                 path_for_doc_fn=lambda frag: os.path.join(path, frag, 'main.json'),
                  max_file_size=None):
         """GitActionBase subclass to interact with a Git repository
 

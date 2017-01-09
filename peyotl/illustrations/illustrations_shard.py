@@ -11,11 +11,11 @@ _LOG = get_logger(__name__)
 
 doc_holder_subpath = 'docs-by-owner'
 
-def filepath_for_illustration_id(repo_dir, illustration_id):
+def folderpath_for_illustration_id(repo_dir, illustration_id):
     # in this case, simply expand the id to a full path
     illustration_foldername = illustration_id
-    full_path_to_file = os.path.join(repo_dir, doc_holder_subpath, illustration_foldername, 'main.json')
-    _LOG.warn(">>>> filepath_for_illustration_id: full path is {}".format(full_path_to_file))
+    full_path_to_file = os.path.join(repo_dir, doc_holder_subpath, illustration_foldername)
+    _LOG.warn(">>>> folderpath_for_illustration_id: full path is {}".format(full_path_to_file))
     return full_path_to_file
 
 class IllustrationsShardProxy(GitShard):
@@ -46,7 +46,7 @@ def create_id2illustration_info(path, tag):
             # build ID (from path) using owner-id and illustration folder name
             illustration_id = "/".join( root.split('/')[-2:] )
             # point directly to each doc's "manifest" file
-            d[illustration_id] = (tag, root, os.path.join(root, 'main.json'))
+            d[illustration_id] = (tag, root, os.path.join(root))
     return d
 
 def refresh_illustration_index(shard, initializing=False):
@@ -84,7 +84,7 @@ class IllustrationsShard(TypeAwareGitShard):
                                    push_mirror_repo_path,
                                    infrastructure_commit_author,
                                    **kwargs)
-        self.filepath_for_doc_id_fn = filepath_for_illustration_id
+        self.filepath_for_doc_id_fn = folderpath_for_illustration_id
         self._doc_counter_lock = Lock()
         self._next_ott_id = None
         self._id_minting_file = os.path.join(path, 'next_ott_id.json')

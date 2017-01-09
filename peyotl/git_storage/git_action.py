@@ -322,7 +322,7 @@ class GitActionBase(object):
         If `commit_sha` is provided, that will be checked out and returned.
             otherwise the branch will be checked out.
         """
-        _LOG.debug('GitActionBase.return_document({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
+        _LOG.warn('GitActionBase.return_document({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
         if commit_sha is None:
             self.checkout(branch)
             head_sha = get_HEAD_SHA1(self.git_dir)
@@ -330,7 +330,7 @@ class GitActionBase(object):
             self.checkout(commit_sha)
             head_sha = commit_sha
         doc_filepath = self.path_for_doc(doc_id)
-        _LOG.debug('GitActionBase.return_document ... doc_filepath: {p}'.format(p=doc_filepath))
+        _LOG.warn('GitActionBase.return_document ... doc_filepath: {p}'.format(p=doc_filepath))
         try:
             with codecs.open(doc_filepath, mode='r', encoding='utf-8') as f:
                 content = f.read()

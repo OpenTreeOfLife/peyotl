@@ -187,7 +187,7 @@ class TypeAwareDocStore(ShardedDocStore):
                    return_WIP_map=False):
         ga = self.create_git_action(doc_id)
         with ga.lock():
-            _LOG.debug('TypeAwareDocStore.return_doc({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
+            _LOG.warn('TypeAwareDocStore.return_doc({s}, {b}, {c}...)'.format(s=doc_id, b=branch, c=commit_sha))
             blob = ga.return_document(doc_id,
                                       branch=branch,
                                       commit_sha=commit_sha,

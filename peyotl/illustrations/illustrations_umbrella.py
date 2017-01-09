@@ -262,7 +262,7 @@ class _IllustrationStore(TypeAwareDocStore):
 
     def _get_illustration_folder(self, illustration_id):
         """Find and return the path to this illustration's folder in local filesystem"""
-        if not _is_valid_illustration_id(illustration_id):
+        if not self._is_valid_illustration_id(illustration_id):
             raise ValueError("Illustration id not provided (or invalid)")
         if not self.has_doc(illustration_id):
             msg = "Unexpected illustration id '{}' (expected an existing id!)".format(illustration_id)

@@ -226,6 +226,9 @@ class _IllustrationStore(TypeAwareDocStore):
 
     def retrieve_illustration_subresource(self, illustration_id=None, subresource_path=None, commit_sha=None):
         """Find the specified sub-resource (e.g. a font or image file) and return its filesystem path"""
+        if subresource_path.startswith('/'):
+            # trim any initial slash, or os.path.join will be confused
+            subresource_path = subresource_path[1:]
         # TODO: use commit_sha to retrieve an older version?
         local_path_to_illustration = self._get_illustration_folder(illustration_id)
         _LOG.warn('local_path_to_illustration: [{}]'.format(local_path_to_illustration))

@@ -228,8 +228,10 @@ class _IllustrationStore(TypeAwareDocStore):
         """Find the specified sub-resource (e.g. a font or image file) and return its filesystem path"""
         # TODO: use commit_sha to retrieve an older version?
         local_path_to_illustration = self._get_illustration_folder(illustration_id)
+        _LOG.warn('local_path_to_illustration: [{}]'.format(local_path_to_illustration))
         # look for the named resource in the illustration's folder
         subresource_path = os.path.join(local_path_to_illustration, subresource_path)
+        _LOG.warn('FULL LOCAL subresource_path: [{}]'.format(subresource_path))
         if not os.path.exists(subresource_path):
             raise ValueError('Expected subresource not found: {}'.format(subresource_path))
         return subresource_path

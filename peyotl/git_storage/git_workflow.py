@@ -102,6 +102,8 @@ def delete_document(git_action,
     acquire_lock_raise(git_action,
                        fail_msg="Could not acquire lock to delete %s #%s %s" % (doctype_display_name, doc_id, subresource_path))
     try:
+        _LOG.warn(">>>> doc_id: {}".format(doc_id))
+        _LOG.warn(">>>> subresource_path: {}".format(subresource_path))
         doc_fp = git_action.path_for_doc(doc_id)
         _LOG.warn(">>>> doc_fp (path to delete): {}".format(doc_fp))
         rs_resp = git_action._remove_document(gh_user,

@@ -14,8 +14,14 @@ doc_holder_subpath = 'docs-by-owner'
 def folderpath_for_illustration_id(repo_dir, illustration_id):
     # expand the id to a full path, then point to the core JSON file
     illustration_foldername = illustration_id
-    full_path_to_file = os.path.join(repo_dir, doc_holder_subpath, illustration_foldername, 'main.json')
-    _LOG.warn(">>>> folderpath_for_illustration_id: full path is {}".format(full_path_to_file))
+    full_path_to_folder = os.path.join(repo_dir, doc_holder_subpath, illustration_foldername)
+    _LOG.debug(">>>> folderpath_for_illustration_id: full path is {}".format(full_path_to_folder))
+    return full_path_to_folder
+
+def main_filepath_for_illustration_id(repo_dir, illustration_id):
+    main_folder_path = folderpath_for_illustration_id(repo_dir, illustration_id)
+    full_path_to_file = os.path.join(main_folder_path, 'main.json')
+    _LOG.warn(">>>> main_filepath_for_illustration_id: full path is {}".format(full_path_to_file))
     return full_path_to_file
 
 class IllustrationsShardProxy(GitShard):
@@ -84,7 +90,8 @@ class IllustrationsShard(TypeAwareGitShard):
                                    push_mirror_repo_path,
                                    infrastructure_commit_author,
                                    **kwargs)
-        self.filepath_for_doc_id_fn = folderpath_for_illustration_id
+        self.filepath_for_doc_id_fn = main_filepath_for_illustration_id
+        self.folderpath_for_doc_id_fn = folderpath_for_illustration_id
         self._doc_counter_lock = Lock()
         self._next_ott_id = None
         self._id_minting_file = os.path.join(path, 'next_ott_id.json')

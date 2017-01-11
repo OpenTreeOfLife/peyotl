@@ -436,7 +436,9 @@ class GitActionBase(object):
         doc_filepath = self.path_for_doc(doc_id)
         _LOG.warn("@@@@@@@@ GitActionBase._remove_document, doc_filepath={}".format(doc_filepath))
         if subresource_path:
-            doc_filepath = '{d}/{s}'.format(d=doc_filepath, s=subresource_path)
+            # ignore the main file, build on the doc's main folder
+            doc_folderpath = os.path.dirname(doc_filepath)
+            doc_filepath = '{d}/{s}'.format(d=doc_folderpath, s=subresource_path)
             _LOG.warn("@@@@@@@@ GitActionBase._remove_document, full path to subresource = {}".format(doc_filepath))
 
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)

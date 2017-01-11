@@ -95,15 +95,21 @@ def delete_document(git_action,
                     parent_sha,
                     commit_msg=None,
                     merged_sha=None,
+                    subresource_path='',
                     doctype_display_name="document"):  # pylint: disable=W0613
     author = "{} <{}>".format(auth_info['name'], auth_info['email'])
     gh_user = auth_info['login']
     acquire_lock_raise(git_action,
-                       fail_msg="Could not acquire lock to delete %s #%s" % (doctype_display_name, doc_id))
+                       fail_msg="Could not acquire lock to delete %s #%s %s" % (doctype_display_name, doc_id, subresource_path))
     try:
         doc_fp = git_action.path_for_doc(doc_id)
         _LOG.warn(">>>> doc_fp (path to delete): {}".format(doc_fp))
-        rs_resp = git_action._remove_document(gh_user, doc_id, parent_sha, author, commit_msg=commit_msg)
+        rs_resp = git_action._remove_document(gh_user,
+                                              doc_id,
+                                              parent_sha,
+                                              author,
+                                              commit_msg=commit_msg,
+                                              subresource_path=subresource_path)
         new_sha = rs_resp['commit_sha']
         branch_name = rs_resp['branch']
         m_resp = _do_merge2master_commit(git_action,
@@ -114,13 +120,13 @@ def delete_document(git_action,
                                          prev_file_sha=rs_resp.get('prev_file_sha'))
         new_sha, branch_name, merge_needed = m_resp
     except Exception as e:
-        raise GitWorkflowError("Could not remove %s #%s! Details: %s" % (doctype_display_name, doc_id, e.message))
+        raise GitWorkflowError("Could not remove %s #%s %s! Details: %s" % (doctype_display_name, doc_id, subresource_path, e.message))
     finally:
         git_action.release_lock()
     return {
         "error": 0,
         "branch_name": branch_name,
-        "description": "Deleted %s #%s" % (doctype_display_name, doc_id),
+        "description": "Deleted %s #%s %s" % (doctype_display_name, doc_id, subresource_path),
         "sha": new_sha,
         "merge_needed": merge_needed,
     }

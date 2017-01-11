@@ -281,32 +281,37 @@ class TypeAwareDocStore(ShardedDocStore):
     def delete_doc(self, doc_id, auth_info, parent_sha, **kwargs):
         git_action = self.create_git_action(doc_id)
         from peyotl.git_storage.git_workflow import delete_document
+        # N.B. if a sub-path is specified, we'll only remove the specified file
+        subresource_path = kwargs.get('subresource_path', None)
         doctype_display_name = kwargs.get('doctype_display_name', None)
         ret = delete_document(git_action,
                               doc_id,
                               auth_info,
                               parent_sha,
+                              subresource_path=subresource_path,
                               doctype_display_name=doctype_display_name,
                               **kwargs)
-        if not ret['merge_needed']:
-            with self._index_lock:
-                try:
-                    _shard = self._doc2shard_map[doc_id]
-                except KeyError:
-                    pass
-                else:
-                    _shard.delete_doc_from_index(doc_id)
+        if not subresource_path:
+            # remove the main document from its index
+            if not ret['merge_needed']:
+                with self._index_lock:
                     try:
-                        # complex types use aliases (clean these up)
-                        alias_list = _shard.id_alias_list_fn(doc_id)
-                    except:
-                        # it's a simple type, with no alias list
-                        alias_list = [doc_id]
-                    for alias in alias_list:
+                        _shard = self._doc2shard_map[doc_id]
+                    except KeyError:
+                        pass
+                    else:
+                        _shard.delete_doc_from_index(doc_id)
                         try:
-                            del self._doc2shard_map[alias]
-                        except KeyError:
-                            pass
+                            # complex types use aliases (clean these up)
+                            alias_list = _shard.id_alias_list_fn(doc_id)
+                        except:
+                            # it's a simple type, with no alias list
+                            alias_list = [doc_id]
+                        for alias in alias_list:
+                            try:
+                                del self._doc2shard_map[alias]
+                            except KeyError:
+                                pass
         return ret
 
     def iter_doc_objs(self, **kwargs):

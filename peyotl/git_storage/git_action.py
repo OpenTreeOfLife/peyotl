@@ -427,30 +427,37 @@ class GitActionBase(object):
         _LOG.debug('Checked out branch "{b}"'.format(b=branch))
         return branch
 
-    def _remove_document(self, gh_user, doc_id, parent_sha, author, commit_msg=None):
+    def _remove_document(self, gh_user, doc_id, parent_sha, author, commit_msg=None, subresource_path=None):
         """Remove a document
         Remove a document on the given branch and attribute the commit to author.
         Returns the SHA of the commit on branch.
         """
-        # _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_id={}".format(doc_id))
+        _LOG.warn("@@@@@@@@ GitActionBase._remove_document, doc_id={}".format(doc_id))
         doc_filepath = self.path_for_doc(doc_id)
-        # _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_filepath={}".format(doc_filepath))
+        _LOG.warn("@@@@@@@@ GitActionBase._remove_document, doc_filepath={}".format(doc_filepath))
+        if subresource_path:
+            doc_filepath = '{d}/{s}'.format(d=doc_filepath, s=subresource_path)
+            _LOG.warn("@@@@@@@@ GitActionBase._remove_document, full path to subresource = {}".format(doc_filepath))
 
         branch = self.create_or_checkout_branch(gh_user, doc_id, parent_sha)
         prev_file_sha = None
         if commit_msg is None:
-            msg = "Delete document '%s' via OpenTree API" % doc_id
+            if subresource_path:
+                msg = "Delete subresource '{s}' of document '{i}' via OpenTree API".format(s=subresource_path, i=doc_id)
+            else:
+                msg = "Delete document '%s' via OpenTree API" % doc_id
         else:
             msg = commit_msg
         if os.path.exists(doc_filepath):
             prev_file_sha = self.get_blob_sha_for_file(doc_filepath)
-            if self.doc_type in ('nexson', 'illustration',):
+            if self.doc_type in ('nexson', 'illustration',) and not subresource_path::
                 # delete the parent directory entirely
                 doc_dir = os.path.split(doc_filepath)[0]
-                # _LOG.debug("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))
+                _LOG.warn("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))
                 git(self.gitdir, self.gitwd, "rm", "-rf", doc_dir)
-            elif self.doc_type in ('collection', 'favorites', 'amendment',):
+            elif subresource_path or self.doc_type in ('collection', 'favorites', 'amendment',):
                 # delete just the target file
+                _LOG.warn("@@@@@@@@ GitActionBase._remove_document, doc_filepath={}".format(doc_filepath))
                 git(self.gitdir, self.gitwd, "rm", doc_filepath)
             else:
                 raise NotImplementedError("No deletion rules for doc_type '{}'".format(self.doc_type))

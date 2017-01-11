@@ -190,10 +190,23 @@ variable to obtain this token. If you need to obtain your key, see the instructi
                                   data=anyjson.dumps({'json': json}))
 
     def delete_illustration(self,
-                         illustration_id,
-                         starting_commit_sha,
-                         commit_msg=None):
+                            illustration_id,
+                            starting_commit_sha,
+                            commit_msg=None):
         uri = '{d}/illustration/{i}'.format(d=self._prefix, i=illustration_id)
+        params = {'starting_commit_SHA': starting_commit_sha,
+                  'auth_token': self.auth_token}
+        if commit_msg:
+            params['commit_msg'] = commit_msg
+        return self.json_http_delete(uri,
+                                     params=params)
+
+    def delete_illustration_subresource(self,
+                                        illustration_id,
+                                        subresource_path,
+                                        starting_commit_sha,
+                                        commit_msg=None):
+        uri = '{d}/illustration/{i}/{p}'.format(d=self._prefix, i=illustration_id, p=subresource_path)
         params = {'starting_commit_SHA': starting_commit_sha,
                   'auth_token': self.auth_token}
         if commit_msg:

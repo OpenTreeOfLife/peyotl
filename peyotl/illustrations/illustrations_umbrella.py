@@ -122,6 +122,10 @@ class _IllustrationStore(TypeAwareDocStore):
     @property
     def delete_illustration(self):
         return self.delete_doc
+    def delete_illustration_subresource(self, subresource_path=None, *args, **kwargs):
+        if not subresource_path:  # '' or None
+            raise ValueError("Sub-resource path not provided (or empty)")
+        return self.delete_doc(subresource_path, *args, **kwargs)
 
     def create_git_action_for_new_illustration(self, new_illustration_id=None):
         '''Checks out master branch of the shard as a side effect'''

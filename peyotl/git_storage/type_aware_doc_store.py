@@ -278,12 +278,10 @@ class TypeAwareDocStore(ShardedDocStore):
                                                 commit_msg=commit_msg,
                                                 merged_sha=master_file_blob_included)
 
-    def delete_doc(self, doc_id, auth_info, parent_sha, *args, **kwargs):
+    def delete_doc(self, doc_id, auth_info, parent_sha, *args, subresource_path=None, doctype_display_name=None, **kwargs):
         git_action = self.create_git_action(doc_id)
         from peyotl.git_storage.git_workflow import delete_document
         # N.B. if a sub-path is specified, we'll only remove the specified file
-        subresource_path = kwargs.get('subresource_path', None)
-        doctype_display_name = kwargs.get('doctype_display_name', None)
         ret = delete_document(git_action,
                               doc_id,
                               auth_info,

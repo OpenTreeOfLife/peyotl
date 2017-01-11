@@ -450,7 +450,7 @@ class GitActionBase(object):
             msg = commit_msg
         if os.path.exists(doc_filepath):
             prev_file_sha = self.get_blob_sha_for_file(doc_filepath)
-            if self.doc_type in ('nexson', 'illustration',) and not subresource_path::
+            if self.doc_type in ('nexson', 'illustration',) and not subresource_path:
                 # delete the parent directory entirely
                 doc_dir = os.path.split(doc_filepath)[0]
                 _LOG.warn("@@@@@@@@ GitActionBase._remove_document, doc_dir={}".format(doc_dir))

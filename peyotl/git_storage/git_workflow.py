@@ -107,6 +107,11 @@ def delete_document(git_action,
         _LOG.warn(">>>> parent_sha: {}".format(parent_sha))
         _LOG.warn(">>>> merged_sha: {}".format(merged_sha))
         doc_fp = git_action.path_for_doc(doc_id)
+        if subresource_path:
+            # point to this file instead of the main document, to capture the
+            # right prev_file_SHA below (required for an easy merge)
+            doc_folderpath = os.path.dirname(doc_fp)
+            doc_fp = '{d}/{s}'.format(d=doc_folderpath, s=subresource_path)
         _LOG.warn(">>>> doc_fp (path to delete): {}".format(doc_fp))
         rs_resp = git_action._remove_document(gh_user,
                                               doc_id,

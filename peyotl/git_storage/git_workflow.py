@@ -104,6 +104,8 @@ def delete_document(git_action,
     try:
         _LOG.warn(">>>> doc_id: {}".format(doc_id))
         _LOG.warn(">>>> subresource_path: {}".format(subresource_path))
+        _LOG.warn(">>>> parent_sha: {}".format(parent_sha))
+        _LOG.warn(">>>> merged_sha: {}".format(merged_sha))
         doc_fp = git_action.path_for_doc(doc_id)
         _LOG.warn(">>>> doc_fp (path to delete): {}".format(doc_fp))
         rs_resp = git_action._remove_document(gh_user,
@@ -114,6 +116,9 @@ def delete_document(git_action,
                                               subresource_path=subresource_path)
         new_sha = rs_resp['commit_sha']
         branch_name = rs_resp['branch']
+        _LOG.warn("<<<< new_sha: {}".format(new_sha))
+        _LOG.warn("<<<< branch_name: {}".format(branch_name))
+        _LOG.warn("<<<< prev_file_sha: {}".format(rs_resp.get('prev_file_sha')))
         m_resp = _do_merge2master_commit(git_action,
                                          new_sha,
                                          branch_name,
@@ -121,6 +126,9 @@ def delete_document(git_action,
                                          merged_sha=merged_sha,
                                          prev_file_sha=rs_resp.get('prev_file_sha'))
         new_sha, branch_name, merge_needed = m_resp
+        _LOG.warn("!!!! new_sha: {}".format(new_sha))
+        _LOG.warn("!!!! branch_name: {}".format(branch_name))
+        _LOG.warn("!!!! merge_needed: {}".format(merge_needed))
     except Exception as e:
         raise GitWorkflowError("Could not remove %s #%s %s! Details: %s" % (doctype_display_name, doc_id, subresource_path, e.message))
     finally:

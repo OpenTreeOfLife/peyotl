@@ -52,7 +52,7 @@ def create_id2illustration_info(path, tag):
             # build ID (from path) using owner-id and illustration folder name
             illustration_id = "/".join( root.split('/')[-2:] )
             # point directly to each doc's "manifest" file
-            d[illustration_id] = (tag, root, os.path.join(root))
+            d[illustration_id] = (tag, root, os.path.join(root, 'main.js'))
     return d
 
 def refresh_illustration_index(shard, initializing=False):

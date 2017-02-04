@@ -766,7 +766,7 @@ def get_empty_nexson(vers='1.2.1', include_cc0=False):
             '@xmlns': {
                 '$': 'http://www.nexml.org/2009',
                 'nex': 'http://www.nexml.org/2009',
-                'ot': 'http://purl.org/opentree-terms#',
+                'ot': 'http://purl.org/opentree/nexson',
                 'xsd': 'http://www.w3.org/2001/XMLSchema#',
                 'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
                 'xhtml': 'http://www.w3.org/1999/xhtml/vocab#'

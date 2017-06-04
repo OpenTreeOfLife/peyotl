@@ -2,7 +2,7 @@
 from peyotl.external import get_ot_study_info_from_treebase_nexml
 from peyotl.test.support import equal_blob_check
 from peyotl.test.support import pathmap
-from peyotl.utility import get_logger
+from peyotl.utility import get_logger, doi2url
 
 _LOG = get_logger(__name__)
 import unittest
@@ -18,6 +18,11 @@ class TestConvert(unittest.TestCase):
         n = get_ot_study_info_from_treebase_nexml(src=fp,
                                                   merge_blocks=True,
                                                   sort_arbitrary=True)
+        # did we successfully coerce its DOI to the required URL form?
+        self.assertTrue('@href' in n['nexml']['^ot:studyPublication'])
+        test_doi = n['nexml']['^ot:studyPublication']['@href']
+        self.assertTrue(test_doi == doi2url(test_doi))
+        # furthermore, the output should exactly match our test file
         expected = pathmap.nexson_obj('S15515.json')
         equal_blob_check(self, 'S15515', n, expected)
         self.assertTrue(expected == n)

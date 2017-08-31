@@ -8,7 +8,7 @@ from peyotl.nexson_syntax import (get_ot_study_info_from_nexml,
                                   convert_nexson_format,
                                   sort_arbitrarily_ordered_nexson)
 from peyotl.nexson_syntax.helper import _simplify_all_meta_by_id_del
-from peyotl.utility import get_logger
+from peyotl.utility import get_logger, doi2url
 
 _LOG = get_logger(__name__)
 
@@ -82,6 +82,7 @@ def get_ot_study_info_from_treebase_nexml(src=None,
         nexml['^ot:studyPublicationReference'] = bd
     doi = nexml.get('^prism:doi')
     if doi:
+        doi = doi2url(doi)
         nexml['^ot:studyPublication'] = {'@href': doi}
     year = nexml.get('^prism:publicationDate')
     if year:

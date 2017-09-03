@@ -65,6 +65,17 @@ def test_collections_api(test_case_instance, collections_wrapper):
     test_case_instance.assertTrue(cn in [u'My favorite trees!', u'My test collection'])
 
 
+def test_illustrations_api(test_case_instance, illustrations_wrapper):
+    try:
+        c = illustrations_wrapper.get('jimallman/my-test-illustration')
+    except:
+        # alternate illustration for remote/proxied docstore
+        c = illustrations_wrapper.get('jimallman/simple-cup')
+    test_case_instance.assertTrue('name' in c, "Name property not found! Invalid illustration JSON?")
+    cn = c['name']
+    test_case_instance.assertTrue(cn in [u'My test illustration', u'simple cup'])
+
+
 def raise_http_error_with_more_detail(err):
     # show more useful information (JSON payload) from the server
     details = err.response.text

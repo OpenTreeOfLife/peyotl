@@ -96,12 +96,18 @@ class TypeAwareGitShard(GitShard):
             try:
                 # pass this shard to a type-specific test
                 assumed_doc_version = detect_doc_version_fn(self)
-            except IndexError as x:
+            except IndexError:
                 # no documents in this shard!
                 _LOG.warn('No documents in this shard! Auto-detection of assumed_doc_version failed.')
+            except TypeError:
+                # no version-detector was defined for this shard type (use a boring/default version)
+                f = 'No version-detector found for {}! Using default assumed_doc_version=None.'
+                f = f.format(type(self).__name__)
+                _LOG.debug(f)
+                assumed_doc_version = None
             except Exception as x:
-                f = 'Auto-detection of assumed_doc_version FAILED with this error:\n{}'
-                f = f.format(str(x))
+                f = 'Auto-detection of assumed_doc_version FAILED with this error:\n{}\n{}'
+                f = f.format(type(x).__name__, str(x))
                 _LOG.warn(f)
             except:
                 pass

@@ -229,7 +229,7 @@ class _IllustrationStore(TypeAwareDocStore):
             raise
         return r
 
-    def get_subresource_list_for_illustration_id(illustration_id):
+    def get_subresource_list_for_illustration_id(self, illustration_id):
         """Return a list of any files found in this illustration's folder, *except* for the main JSON file"""
         local_path_to_illustration = self._get_illustration_folder(illustration_id)
         # TODO: Return a more comprehensive dict, with paths as keys? if so, rename 

@@ -232,6 +232,7 @@ class _IllustrationStore(TypeAwareDocStore):
     def get_subresource_list_for_illustration_id(self, illustration_id):
         """Return a list of any files found in this illustration's folder, *except* for the main JSON file"""
         local_path_to_illustration = self._get_illustration_folder(illustration_id)
+        _LOG.warn('get_subresource_list_for_illustration_id( {} ): local_path_to_illustration: [{}]'.format(illustration_id, local_path_to_illustration))
         # TODO: Return a more comprehensive dict, with paths as keys? if so, rename 
         # to `get_subresource_info_for_illustration_id`
         return [os.path.join(path, file)

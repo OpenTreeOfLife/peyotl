@@ -229,6 +229,15 @@ class _IllustrationStore(TypeAwareDocStore):
             raise
         return r
 
+    def get_subresource_list_for_illustration_id(illustration_id):
+        """Return a list of any files found in this illustration's folder, *except* for the main JSON file"""
+        local_path_to_illustration = self._get_illustration_folder(illustration_id)
+        # TODO: Return a more comprehensive dict, with paths as keys? if so, rename 
+        # to `get_subresource_info_for_illustration_id`
+        return [os.path.join(path, file)
+                for (path, dirs, files) in os.walk(local_path_to_illustration)
+                for file in files]
+
     def retrieve_illustration_subresource(self, illustration_id=None, subresource_path=None, commit_sha=None):
         """Find the specified sub-resource (e.g. a font or image file) and return its filesystem path"""
         if subresource_path.startswith('/'):

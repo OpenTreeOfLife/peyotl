@@ -206,17 +206,17 @@ class TypeAwareGitShard(GitShard):
 
     # TODO:type-specific? Where and how is this used?
     def iter_doc_objs(self, **kwargs):
-        """Returns a pair: (doc_id, nexson_blob)
-        for each document in this repository.
+        """Returns a pair: (doc_id, nexson_blob) for each document in this
+        repository.
         Order is arbitrary.
+
+        N.B. that we assume the "core" document object is a JSON file!
+        A "folderish" document type (like Illustration) will need to include
+        this file and point to it directly in the doc filepath.
         """
         _LOG = get_logger('TypeAwareGitShard')
         try:
             for doc_id, fp in self.iter_doc_filepaths(**kwargs):
-                _LOG.warn('>>>')
-                _LOG.warn(doc_id)
-                _LOG.warn(fp)
-                _LOG.warn('<<<')
                 if not self._is_alias(doc_id):
                     # TODO:hook for type-specific parser?
                     with codecs.open(fp, 'r', 'utf-8') as fo:
@@ -226,7 +226,7 @@ class TypeAwareGitShard(GitShard):
                         except Exception:
                             pass
         except Exception as x:
-            f = 'iter_doc_filepaths FAILED with this error:\n{}'
+            f = 'iter_doc_objs FAILED with this error:\n{}'
             f = f.format(str(x))
             _LOG.warn(f)
 

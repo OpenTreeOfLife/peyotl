@@ -287,14 +287,17 @@ class _IllustrationStore(TypeAwareDocStore):
         if not self.has_doc(illustration_id):
             msg = "Unexpected illustration id '{}' (expected an existing id!)".format(illustration_id)
             raise ValueError(msg)
-        matching_illustration_paths = [fp for doc_id, fp in self.iter_doc_filepaths() if doc_id == illustration_id]
-        if len(matching_illustration_paths) > 1:
+        matching_doc_filepaths = [fp for doc_id, fp in self.iter_doc_filepaths() if doc_id == illustration_id]
+        if len(matching_doc_filepaths) > 1:
             msg = "Multiple illustrations found with id '{}' (expected just one!)".format(illustration_id)
             raise ValueError(msg)
-        if len(matching_illustration_paths) == 0:
+        if len(matching_doc_filepaths) == 0:
             msg = "No illustration found with id '{}'!".format(illustration_id)
             raise ValueError(msg)
-        return matching_illustration_paths[0]
+        filepath = matching_doc_filepaths[0]
+        # trim its main JSON file to yield the main folder path
+        folderpath = os.path.split(filepath)[0]
+        return folderpath
 
     def _build_illustration_id(self, json_repr):
         """Parse the JSON, return a slug in the form '{subtype}-{first ottid}-{last-ottid}'."""

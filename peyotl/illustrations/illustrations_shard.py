@@ -12,13 +12,14 @@ _LOG = get_logger(__name__)
 doc_holder_subpath = 'docs-by-owner'
 
 def folderpath_for_illustration_id(repo_dir, illustration_id):
-    # expand the id to a full path, then point to the core JSON file
+    # expand the id to a full path, then point to the illustration folder
     illustration_foldername = illustration_id
     full_path_to_folder = os.path.join(repo_dir, doc_holder_subpath, illustration_foldername)
     _LOG.debug(">>>> folderpath_for_illustration_id: full path is {}".format(full_path_to_folder))
     return full_path_to_folder
 
 def main_filepath_for_illustration_id(repo_dir, illustration_id):
+    # expand the id to a full path, then point to the core JSON file
     main_folder_path = folderpath_for_illustration_id(repo_dir, illustration_id)
     full_path_to_file = os.path.join(main_folder_path, 'main.json')
     _LOG.warn(">>>> main_filepath_for_illustration_id: full path is {}".format(full_path_to_file))

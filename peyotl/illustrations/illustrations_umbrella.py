@@ -235,7 +235,7 @@ class _IllustrationStore(TypeAwareDocStore):
         _LOG.warn('get_subresource_list_for_illustration_id( {} ): local_path_to_illustration: [{}]'.format(illustration_id, local_path_to_illustration))
         # TODO: Return a more comprehensive dict, with paths as keys? if so, rename 
         # to `get_subresource_info_for_illustration_id`
-        return [os.path.join(path, file)
+        return [os.path.join(path, file).replace(local_path_to_illustration + os.path.sep, '')
                 for (path, dirs, files) in os.walk(local_path_to_illustration)
                 for file in files]
 

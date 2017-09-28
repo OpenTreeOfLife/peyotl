@@ -296,8 +296,7 @@ class _IllustrationStore(TypeAwareDocStore):
             raise ValueError(msg)
         filepath = matching_doc_filepaths[0]
         # trim its main JSON file to yield the main folder path
-        folderpath = os.path.split(filepath)[0]
-        return folderpath
+        return os.path.dirname(filepath)
 
     def _build_illustration_id(self, json_repr):
         """Parse the JSON, return a slug in the form '{subtype}-{first ottid}-{last-ottid}'."""

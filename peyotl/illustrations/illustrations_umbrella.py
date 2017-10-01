@@ -262,6 +262,8 @@ class _IllustrationStore(TypeAwareDocStore):
         # compress the entire folder to a ZIP archive (in a stream if possible, vs. a file)
         import peyotl
         peyotl_path = os.path.abspath(peyotl.__file__)[0]
+        _LOG.warn('> peyotl_path[ZERO]: {}'.format(peyotl_path))
+        peyotl_path = os.path.abspath(peyotl.__file__)
         _LOG.warn('> peyotl_path: {}'.format(peyotl_path))
         # use a prepared scratch directory
         # TODO: Consider using python's tempfile module instead? see https://pymotw.com/2/tempfile/

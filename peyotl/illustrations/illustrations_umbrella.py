@@ -258,17 +258,17 @@ class _IllustrationStore(TypeAwareDocStore):
         """Create a ZIP archive of the specified illustration's folder. Return its complete path + filename."""
         # TODO: use commit_sha to archive an older version?
         local_path_to_illustration = self._get_illustration_folder(illustration_id)
-        _LOG.debug('> local_path_to_illustration: {}'.format(local_path_to_illustration))
+        _LOG.warn('> local_path_to_illustration: {}'.format(local_path_to_illustration))
         # compress the entire folder to a ZIP archive (in a stream if possible, vs. a file)
         import peyotl
         peyotl_path = os.path.abspath(peyotl.__file__)[0]
-        _LOG.debug('> peyotl_path: {}'.format(peyotl_path))
+        _LOG.warn('> peyotl_path: {}'.format(peyotl_path))
         # use a prepared scratch directory
         # TODO: Consider using python's tempfile module instead? see https://pymotw.com/2/tempfile/
         scratch_dir = os.path.join(peyotl_path, '../scratch/zipped_docs/')
-        _LOG.debug('> scratch_dir: {}'.format(scratch_dir))
+        _LOG.warn('> scratch_dir: {}'.format(scratch_dir))
         scratch_dir = os.path.normpath(scratch_dir)  # remove '../' for safety
-        _LOG.debug('> NORMPATH scratch_dir: {}'.format(scratch_dir))
+        _LOG.warn('> NORMPATH scratch_dir: {}'.format(scratch_dir))
         try:
             assert os.path.isdir(scratch_dir)
         except:

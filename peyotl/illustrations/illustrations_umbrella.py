@@ -258,24 +258,22 @@ class _IllustrationStore(TypeAwareDocStore):
         """Create a ZIP archive of the specified illustration's folder. Return its complete path + filename."""
         # TODO: use commit_sha to archive an older version?
         local_path_to_illustration = self._get_illustration_folder(illustration_id)
-        _LOG.warn('> local_path_to_illustration: {}'.format(local_path_to_illustration))
+        ##_LOG.warn('> local_path_to_illustration: {}'.format(local_path_to_illustration))
         # compress the entire folder to a ZIP archive (in a stream if possible, vs. a file)
         import peyotl
         peyotl_path = os.path.dirname(os.path.abspath(peyotl.__file__))
-        _LOG.warn('> peyotl_path: {}'.format(peyotl_path))
         # use a prepared scratch directory
         # TODO: Consider using python's tempfile module instead? see https://pymotw.com/2/tempfile/
         scratch_dir = os.path.join(peyotl_path, '../scratch/zipped_docs/')
-        _LOG.warn('> scratch_dir: {}'.format(scratch_dir))
         scratch_dir = os.path.normpath(scratch_dir)  # remove '../' for safety
-        _LOG.warn('> NORMPATH scratch_dir: {}'.format(scratch_dir))
+        ##_LOG.warn('> scratch_dir: {}'.format(scratch_dir))
         try:
             assert os.path.isdir(scratch_dir)
         except:
             raise ValueError('Expected scratch directory not found: {}'.format(scratch_dir))
         archive_path_and_name = os.path.join(scratch_dir, illustration_id)
         # N.B. this should clobber any existing archive file by this name!
-        new_file = shutil.make_archive(archive_path_and_name, 'zip', root_dir=local_path_to_illustration, base_dir=local_path_to_illustration)
+        new_file = shutil.make_archive(archive_path_and_name, 'zip', root_dir=local_path_to_illustration)
         expected_file = archive_path_and_name +'.zip'
         try:
             assert new_file == expected_file

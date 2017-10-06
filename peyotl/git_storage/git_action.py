@@ -9,6 +9,7 @@ import shutil
 import sh
 import locket
 import codecs
+import zipfile
 import tempfile  # @TEMPORARY for deprecated write_study
 
 _LOG = get_logger(__name__)
@@ -531,8 +532,15 @@ class GitActionBase(object):
                                parent_sha,
                                auth_info,
                                commit_msg='',
-                               doctype_display_name="document"):
+                               doctype_display_name="document",
+                               archive=None):
         """Given a doc_id, temporary filename of content, branch and auth_info
+
+        If an archive is provided, the doc is a folderish type with multiple
+        files and folders beyond our assumed JSON core file `tmpfi`. In this
+        case, we assume that `tmpfi` may have been altered on receipt, e.g.
+        updates to its storage metadata, so `tmpfi` should overwrite the
+        corresponding file in the archive, if any.
         """
         gh_user, author = get_user_author(auth_info)
         doc_filepath = self.path_for_doc(doc_id)
@@ -557,6 +565,22 @@ class GitActionBase(object):
             prev_file_sha = self.get_blob_sha_for_file(doc_filepath)
         else:
             prev_file_sha = None
+        if archive:
+            # unzip all files and folders into the doc-folder, stage for final commit
+            # empty the doc folder completely
+            git(self.gitdir, self.gitwd, "rm", "-rf", "'{}/*'".format(doc_dir))
+            # extract all archived files into the doc's dir
+            try:
+                with ZipFile(archive, 'r') as zipped:
+                    _LOG.debug('Unpacking ZIP archive for this update...')
+                    _LOG.debug(zipped.namelist())
+                    zipped.extractall(doc_dir)
+            except:
+                msg="Failed to extract ZIP archive! it's a <{}>".format(type(archive))
+                _LOG.exception(msg)
+                raise ValueError(msg)
+            # re-add doc's folder to recapture all files for _add_and_commit below
+            git(self.gitdir, self.gitwd, "add", doc_dir)
         shutil.copy(tmpfi.name, doc_filepath)
         self._add_and_commit(doc_filepath, author, commit_msg)
         new_sha = git(self.gitdir, self.gitwd, "rev-parse", "HEAD")

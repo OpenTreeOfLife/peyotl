@@ -137,7 +137,8 @@ class _IllustrationStore(TypeAwareDocStore):
                              json_repr,
                              auth_info,
                              illustration_id=None,
-                             commit_msg=''):
+                             commit_msg='',
+                             archive=None):
         """Validate and save this JSON. Ensure (and return) a unique illustration id"""
         illustration = self._coerce_json_to_illustration(json_repr)
         if illustration is None:
@@ -177,7 +178,8 @@ class _IllustrationStore(TypeAwareDocStore):
                                                      auth_info=auth_info,
                                                      parent_sha=None,
                                                      commit_msg=commit_msg,
-                                                     merged_sha=None)
+                                                     merged_sha=None,
+                                                     archive=archive)
             except:
                 self._growing_shard.delete_doc_from_index(new_illustration_id)
                 raise
@@ -197,7 +199,8 @@ class _IllustrationStore(TypeAwareDocStore):
                                      auth_info=None,
                                      parent_sha=None,
                                      merged_sha=None,
-                                     commit_msg=''):
+                                     commit_msg='',
+                                     archive=None):
         """Validate and save this JSON. Ensure (and return) a unique illustration id"""
         illustration = self._coerce_json_to_illustration(json_repr)
         if illustration is None:
@@ -223,7 +226,8 @@ class _IllustrationStore(TypeAwareDocStore):
                                                  auth_info=auth_info,
                                                  parent_sha=parent_sha,
                                                  commit_msg=commit_msg,
-                                                 merged_sha=merged_sha)
+                                                 merged_sha=merged_sha,
+                                                 archive=archive)
             # identify shard for this id!?
         except:
             raise

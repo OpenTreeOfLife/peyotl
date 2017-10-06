@@ -184,7 +184,8 @@ def generic_commit_and_try_merge2master_wf(git_action,
                                            parent_sha,
                                            commit_msg='',
                                            merged_sha=None,
-                                           doctype_display_name="document"):
+                                           doctype_display_name="document",
+                                           archive=None):
     """Actually make a local Git commit and push it to our remote
     """
     # _LOG.debug('generic_commit_and_try_merge2master_wf: doc_id="{s}" \
@@ -205,6 +206,7 @@ def generic_commit_and_try_merge2master_wf(git_action,
             max_file_size = None
         if max_file_size is not None:
             file_size = os.stat(fc.name).st_size
+            # TODO: test our max against any archive, or its extracted contents?
             if file_size > max_file_size:
                 m = 'Commit of {t} "{i}" had a file size ({a} bytes) which ' \
                     'exceeds the maximum size allowed ({b} bytes).'
@@ -214,12 +216,14 @@ def generic_commit_and_try_merge2master_wf(git_action,
         acquire_lock_raise(git_action, fail_msg=f)
         try:
             try:
+                # N.B. we pass any archive, to be extracted into a folderish doc
                 commit_resp = git_action.write_doc_from_tmpfile(doc_id,
                                                                 fc,
                                                                 parent_sha,
                                                                 auth_info,
                                                                 commit_msg,
-                                                                doctype_display_name)
+                                                                doctype_display_name,
+                                                                archive=archive)
             except Exception as e:
                 _LOG.exception('write_doc_from_tmpfile exception')
                 raise GitWorkflowError("Could not write to %s #%s ! Details: \n%s" %

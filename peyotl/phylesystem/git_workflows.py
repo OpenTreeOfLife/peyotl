@@ -60,7 +60,8 @@ def commit_and_try_merge2master(git_action,
                                 auth_info,
                                 parent_sha,
                                 commit_msg='',
-                                merged_sha=None):
+                                merged_sha=None,
+                                archive=None):
     """Actually make a local Git commit and push it to our remote
     """
     return generic_commit_and_try_merge2master_wf(git_action,
@@ -70,7 +71,8 @@ def commit_and_try_merge2master(git_action,
                                                   parent_sha=parent_sha,
                                                   commit_msg=commit_msg,
                                                   merged_sha=merged_sha,
-                                                  doctype_display_name="study")
+                                                  doctype_display_name="study",
+                                                  archive=archive)
 
 
 def delete_study(git_action,

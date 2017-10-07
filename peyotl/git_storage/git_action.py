@@ -543,8 +543,11 @@ class GitActionBase(object):
         corresponding file in the archive, if any.
         """
         gh_user, author = get_user_author(auth_info)
+        _LOG.warn('>>>>> doc_id: [{}]'.format(doc_id))
         doc_filepath = self.path_for_doc(doc_id)
+        _LOG.warn('>>>>> doc_filepath: [{}]'.format(doc_filepath))
         doc_dir = os.path.split(doc_filepath)[0]
+        _LOG.warn('>>>>> INITIAL doc_dir: [{}]'.format(doc_dir))
         if parent_sha is None:
             self.checkout_master()
             parent_sha = self.get_master_sha()
@@ -558,8 +561,11 @@ class GitActionBase(object):
             commit_msg = default_commit_msg
 
         # create a doc directory if this is a new document  EJM- what if it isn't?
+        _LOG.warn('>>>>> ACTIVE doc_dir: [{}]'.format(doc_dir))
         if not os.path.isdir(doc_dir):
+            _LOG.warn('>>>>> NO SUCH DIR, creating it now')
             os.makedirs(doc_dir)
+        _LOG.warn('>>>>> SUCCESS? {}'.format(os.path.isdir(doc_dir)))
 
         if os.path.exists(doc_filepath):
             prev_file_sha = self.get_blob_sha_for_file(doc_filepath)
@@ -572,8 +578,8 @@ class GitActionBase(object):
             # extract all archived files into the doc's dir
             try:
                 with ZipFile(archive, 'r') as zipped:
-                    _LOG.debug('Unpacking ZIP archive for this update...')
-                    _LOG.debug(zipped.namelist())
+                    _LOG.warn('Unpacking ZIP archive for this update...')
+                    _LOG.warn(zipped.namelist())
                     zipped.extractall(doc_dir)
             except:
                 msg="Failed to extract ZIP archive! it's a <{}>".format(type(archive))

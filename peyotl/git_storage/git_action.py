@@ -574,7 +574,7 @@ class GitActionBase(object):
         if archive:
             # unzip all files and folders into the doc-folder, stage for final commit
             # empty the doc folder completely
-            git(self.gitdir, self.gitwd, "rm", "-rf", "'{}/*'".format(doc_dir))
+            git(self.gitdir, self.gitwd, "rm", "-rf", "--ignore-unmatch", "'{}/*'".format(doc_dir))
             # extract all archived files into the doc's dir
             try:
                 with ZipFile(archive, 'r') as zipped:

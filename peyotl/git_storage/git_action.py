@@ -577,7 +577,7 @@ class GitActionBase(object):
             git(self.gitdir, self.gitwd, "rm", "-rf", "--ignore-unmatch", "'{}/*'".format(doc_dir))
             # extract all archived files into the doc's dir
             try:
-                with ZipFile(archive, 'r') as zipped:
+                with zipfile.ZipFile(archive, 'r') as zipped:
                     _LOG.warn('Unpacking ZIP archive for this update...')
                     _LOG.warn(zipped.namelist())
                     zipped.extractall(doc_dir)

@@ -830,7 +830,7 @@ def _write_newick_leaf_label(out, node_id, node, otu_group, label_key, leaf_labe
         else:
             label = quote_newick_name(label, needs_quotes_pattern)
     else:
-        label = quote_newick_name(label_key(node, otu), needs_quotes_pattern)
+        label = quote_newick_name(label_key(node_id, node, otu), needs_quotes_pattern)
     if leaf_labels is not None:
         if label not in leaf_labels[1]:
             leaf_labels[1][label] = len(leaf_labels[0])
@@ -853,7 +853,7 @@ def _write_newick_internal_label(out, node_id, node, otu_group, label_key, needs
         otu = otu_group[otu_id]
         label = otu.get(label_key)
     else:
-        label = label_key(node, None)
+        label = label_key(node_id, node, None)
     if label is not None:
         label = quote_newick_name(label, needs_quotes_pattern)
         out.write(label)

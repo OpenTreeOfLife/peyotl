@@ -811,7 +811,7 @@ def quote_newick_name(s, needs_quotes_pattern=NEWICK_NEEDING_QUOTING):
     return s
 
 
-def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
+def _write_newick_leaf_label(out, node_id, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
     """
     `label_key` is a string (a key in the otu object) or a callable that takes two arguments: the node, and the otu
     If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
@@ -839,7 +839,7 @@ def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlab
     return unlabeled_counter
 
 
-def _write_newick_internal_label(out, node, otu_group, label_key, needs_quotes_pattern):
+def _write_newick_internal_label(out, node_id, node, otu_group, label_key, needs_quotes_pattern):
     """`label_key` is a string (a key in the otu object) or a callable that takes two arguments:
         the node, and the otu (which may be None for an internal node)
     If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
@@ -976,6 +976,7 @@ def nexson_frag_write_newick(out,
                 assert curr_node_id is not None
                 assert curr_node_id is not None
                 unlabeled_counter = _write_newick_leaf_label(out,
+                                                             curr_node_id,
                                                              curr_node,
                                                              otu_group,
                                                              label_key,
@@ -1007,6 +1008,7 @@ def nexson_frag_write_newick(out,
                     curr_node = nodes[curr_node_id]
                     out.write(')')
                     _write_newick_internal_label(out,
+                                                 curr_node_id,
                                                  curr_node,
                                                  otu_group,
                                                  label_key,

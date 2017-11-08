@@ -225,7 +225,7 @@ class PhyloSchema(object):
     _otu_label2prop = {'ot:originallabel': '^ot:originalLabel',
                        'ot:ottid': '^ot:ottId',
                        'ot:otttaxonname': '^ot:ottTaxonName', }
-    _otu_label_list = _otu_label2prop.keys()
+    _otu_label_list = _otu_label2prop.keys()+['nodeid_ottid']
     _NEWICK_PROP_VALS = _otu_label2prop.values()
     _no_content_id_types = {'study', 'meta', 'treelist'}
     _tup_content_id_types = {'subtree'}
@@ -325,7 +325,10 @@ class PhyloSchema(object):
                     m = '"otu_label" or "tip_label" must be one of "{}"'
                     m = m.format('", "'.join(PhyloSchema._otu_label_list))
                     raise ValueError(m)
-            self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
+            if self.otu_label == "nodeid_ottid":
+                self.otu_label_prop = nodeid_ottid_labeller
+            else:
+                self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
 
     @property
     def description(self):

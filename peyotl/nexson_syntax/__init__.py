@@ -156,6 +156,15 @@ def get_git_sha(blob):
     return blob['sha']
 
 
+def nodeid_ottid_labeller(nodeid, node, otu):
+    print(otu)
+    if otu is not None and '^ot:ottId' in otu.keys():
+        ottid = otu['^ot:ottId']
+        return "{}_ott{}".format(nodeid,ottid)
+    else:
+        return nodeid
+
+
 def create_content_spec(**kwargs):
     """Sugar. factory for a PhyloSchema object.
 

@@ -228,7 +228,7 @@ class PhyloSchema(object):
     _otu_label2prop = {'ot:originallabel': '^ot:originalLabel',
                        'ot:ottid': '^ot:ottId',
                        'ot:otttaxonname': '^ot:ottTaxonName', }
-    _otu_label_list = _otu_label2prop.keys()+['nodeid_ottid','nodeid']
+    _otu_label_list = list(_otu_label2prop.keys())+['nodeid_ottid','nodeid']
     _NEWICK_PROP_VALS = _otu_label2prop.values()
     _no_content_id_types = {'study', 'meta', 'treelist'}
     _tup_content_id_types = {'subtree'}

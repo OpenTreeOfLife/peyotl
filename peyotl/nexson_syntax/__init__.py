@@ -157,7 +157,6 @@ def get_git_sha(blob):
 
 
 def nodeid_ottid_labeller(nodeid, node, otu):
-    print(otu)
     if otu is not None and '^ot:ottId' in otu.keys():
         ottid = otu['^ot:ottId']
         return "{}_ott{}".format(nodeid,ottid)

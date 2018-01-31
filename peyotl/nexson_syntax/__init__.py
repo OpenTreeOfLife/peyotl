@@ -156,6 +156,18 @@ def get_git_sha(blob):
     return blob['sha']
 
 
+def nodeid_labeller(nodeid, node, otu):
+    return nodeid
+
+
+def nodeid_ottid_labeller(nodeid, node, otu):
+    if otu is not None and '^ot:ottId' in otu.keys():
+        ottid = otu['^ot:ottId']
+        return "{}_ott{}".format(nodeid,ottid)
+    else:
+        return nodeid
+
+
 def create_content_spec(**kwargs):
     """Sugar. factory for a PhyloSchema object.
 
@@ -216,7 +228,7 @@ class PhyloSchema(object):
     _otu_label2prop = {'ot:originallabel': '^ot:originalLabel',
                        'ot:ottid': '^ot:ottId',
                        'ot:otttaxonname': '^ot:ottTaxonName', }
-    _otu_label_list = _otu_label2prop.keys()
+    _otu_label_list = list(_otu_label2prop.keys())+['nodeid_ottid','nodeid']
     _NEWICK_PROP_VALS = _otu_label2prop.values()
     _no_content_id_types = {'study', 'meta', 'treelist'}
     _tup_content_id_types = {'subtree'}
@@ -316,7 +328,12 @@ class PhyloSchema(object):
                     m = '"otu_label" or "tip_label" must be one of "{}"'
                     m = m.format('", "'.join(PhyloSchema._otu_label_list))
                     raise ValueError(m)
-            self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
+            if self.otu_label == "nodeid_ottid":
+                self.otu_label_prop = nodeid_ottid_labeller
+            elif self.otu_label == "nodeid":
+                self.otu_label_prop = nodeid_labeller
+            else:
+                self.otu_label_prop = PhyloSchema._otu_label2prop[self.otu_label]
 
     @property
     def description(self):
@@ -811,7 +828,7 @@ def quote_newick_name(s, needs_quotes_pattern=NEWICK_NEEDING_QUOTING):
     return s
 
 
-def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
+def _write_newick_leaf_label(out, node_id, node, otu_group, label_key, leaf_labels, unlabeled_counter, needs_quotes_pattern):
     """
     `label_key` is a string (a key in the otu object) or a callable that takes two arguments: the node, and the otu
     If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
@@ -830,7 +847,7 @@ def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlab
         else:
             label = quote_newick_name(label, needs_quotes_pattern)
     else:
-        label = quote_newick_name(label_key(node, otu), needs_quotes_pattern)
+        label = quote_newick_name(label_key(node_id, node, otu), needs_quotes_pattern)
     if leaf_labels is not None:
         if label not in leaf_labels[1]:
             leaf_labels[1][label] = len(leaf_labels[0])
@@ -839,7 +856,7 @@ def _write_newick_leaf_label(out, node, otu_group, label_key, leaf_labels, unlab
     return unlabeled_counter
 
 
-def _write_newick_internal_label(out, node, otu_group, label_key, needs_quotes_pattern):
+def _write_newick_internal_label(out, node_id, node, otu_group, label_key, needs_quotes_pattern):
     """`label_key` is a string (a key in the otu object) or a callable that takes two arguments:
         the node, and the otu (which may be None for an internal node)
     If `leaf_labels` is not None, it shoulr be a (list, dict) pair which will be filled. The list will
@@ -853,7 +870,7 @@ def _write_newick_internal_label(out, node, otu_group, label_key, needs_quotes_p
         otu = otu_group[otu_id]
         label = otu.get(label_key)
     else:
-        label = label_key(node, None)
+        label = label_key(node_id, node, None)
     if label is not None:
         label = quote_newick_name(label, needs_quotes_pattern)
         out.write(label)
@@ -976,6 +993,7 @@ def nexson_frag_write_newick(out,
                 assert curr_node_id is not None
                 assert curr_node_id is not None
                 unlabeled_counter = _write_newick_leaf_label(out,
+                                                             curr_node_id,
                                                              curr_node,
                                                              otu_group,
                                                              label_key,
@@ -1007,6 +1025,7 @@ def nexson_frag_write_newick(out,
                     curr_node = nodes[curr_node_id]
                     out.write(')')
                     _write_newick_internal_label(out,
+                                                 curr_node_id,
                                                  curr_node,
                                                  otu_group,
                                                  label_key,

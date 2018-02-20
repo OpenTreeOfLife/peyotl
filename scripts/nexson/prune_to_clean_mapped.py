@@ -511,7 +511,7 @@ if __name__ == '__main__':
         newick_fp = os.path.join(args.out_dir, study_tree + '.tre')
 
 
-        def compose_label(node, otu):
+        def compose_label(nodeid, node, otu):
             try:
                 return '_'.join([otu['^ot:ottTaxonName'], str(node['@id']), 'ott' + str(otu['^ot:ottId'])])
             except:

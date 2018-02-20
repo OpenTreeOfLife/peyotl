@@ -120,6 +120,22 @@ if __name__ == '__main__':
     except:
         sys.stderr.write('Error: JSON parse error when reading collection "{}".\n'.format(args.collection))
         raise
+
+    # Remove included trees for studies that have been removed from phylesystem
+    included_and_exists = []
+#    with ga.lock():
+#        ga.checkout_master()
+    for inc in included:
+        study_id = inc['studyID']
+        ga = ps.create_git_action(study_id)
+        fp = ga.path_for_doc(study_id)
+        if not os.path.isfile(fp):
+            debug(fp + ' does not exist: removing from collection on the assumption that the study has been deleted.')
+        else:
+            included_and_exists.append(inc)
+    included = included_and_exists
+
+    # do other things
     included_by_sha = defaultdict(list)
     for inc in included:
         included_by_sha[inc['SHA']].append(inc)

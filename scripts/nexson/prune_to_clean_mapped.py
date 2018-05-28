@@ -398,7 +398,7 @@ if __name__ == '__main__':
     import codecs
     import sys
     import os
-
+    # _LOG.debug('invocation: {}'.format(' '.join([repr(i) for i in sys.argv])))
     description = ''
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('nexson',
@@ -511,12 +511,12 @@ if __name__ == '__main__':
         newick_fp = os.path.join(args.out_dir, study_tree + '.tre')
 
 
-        def compose_label(node, otu):
+        def compose_label(node_id, node, otu):
             try:
-                return '_'.join([otu['^ot:ottTaxonName'], str(node['@id']), 'ott' + str(otu['^ot:ottId'])])
+                return '_'.join([otu['^ot:ottTaxonName'], str(node_id), 'ott' + str(otu['^ot:ottId'])])
             except:
                 # internal nodes may lack otu's but we still want the node Ids
-                return '_{}_'.format(str(node['@id']))
+                return '_{}_'.format(str(node_id))
 
 
         with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:

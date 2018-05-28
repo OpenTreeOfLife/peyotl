@@ -33,11 +33,14 @@ def copy_phylesystem_file_if_differing(git_action,
     study_id = coll_decision['studyID']
     tree_id = coll_decision['treeID']
     fp = git_action.path_for_doc(study_id)
-    if not os.path.isfile(fp):
-        debug(fp + ' does not exist')
-        assert os.path.isfile(fp)
     new_name = '{}@{}.json'.format(study_id, tree_id)
     np = os.path.join(out_dir, new_name)
+    if not os.path.isfile(fp):
+        debug(fp + ' does not exist')
+        error('Study file "{}" does not exist. Assuming that this study has been deleted'.format(fp))
+        if os.path.isfile(np):
+            os.remove(np)
+        return False
     # create a new "decision" entry that is bound to this SHA
     concrete_coll_decision = copy.deepcopy(coll_decision)
     concrete_coll_decision['SHA'] = sha
@@ -126,7 +129,7 @@ if __name__ == '__main__':
     # map id of input included tree to concrete form
     generic2concrete = {}
     use_latest_trees = included_by_sha['']
-    num_moved = 0
+    num_moved, num_deleted = 0, 0
     selected_study_found = False
     if selected_study is not None:
         use_latest_trees = [i for i in use_latest_trees if
@@ -151,6 +154,8 @@ if __name__ == '__main__':
                                                       out_dir,
                                                       generic2concrete):
                     num_moved += 1
+                else:
+                    num_deleted += 1
             for inc in from_this_sha_inc:
                 ga = ps.create_git_action(study_id)
                 with ga.lock():
@@ -160,6 +165,8 @@ if __name__ == '__main__':
                                                           out_dir,
                                                           generic2concrete):
                         num_moved += 1
+                    else:
+                        num_deleted += 1
 
     for sha, from_this_sha_inc in included_by_sha.items():
         if sha == '':
@@ -180,9 +187,12 @@ if __name__ == '__main__':
                                                       out_dir,
                                                       generic2concrete):
                     num_moved += 1
+                else:
+                    num_deleted += 1
                 ga.checkout_master()
-    debug('{} total trees'.format(len(included)))
+    debug('{} total trees'.format(len(included) - num_deleted))
     debug('{} JSON files copied'.format(num_moved))
+    debug('{} trees in collections, but with missing studies'.format(num_deleted))
     if selected_study is not None:
         if selected_study_found:
             sys.exit(0)
@@ -194,7 +204,10 @@ if __name__ == '__main__':
     concrete_collection['description'] = 'Concrete form of collection "{}"'.format(coll_name)
     cd_list = concrete_collection['decisions']
     for inc in included:
-        concrete = generic2concrete[id(inc)]
-        cd_list.append(concrete)
+        try:
+            concrete = generic2concrete[id(inc)]
+            cd_list.append(concrete)
+        except KeyError:
+            pass
     concrete_fn = os.path.join(out_dir, 'concrete_' + coll_name)
     write_as_json(concrete_collection, concrete_fn)

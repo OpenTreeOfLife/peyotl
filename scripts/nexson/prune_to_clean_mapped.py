@@ -257,7 +257,7 @@ class NexsonTreeWrapper(object):
                             par = to_par['@source']
                             next_ind_nd_id_list.add(par)
                             if out_degree == 1:
-                                out_edge = out_edges.values()[0]
+                                out_edge = list(out_edges.values())[0]
                                 self.suppress_deg_one_node(to_par, nd_id, out_edge)
                             else:
                                 self._del_tip(nd_id)
@@ -295,7 +295,7 @@ class NexsonTreeWrapper(object):
                 raise EmptyTreeError()
             if len(ebs_el) > 1:
                 return new_root
-            edge = ebs_el.values()[0]
+            edge = list(ebs_el.values())[0]
             new_root = edge['@target']
             self._del_tip(new_root)
     def prune_ott_problem_leaves_by_id(self, ott_id, reason):
@@ -398,7 +398,7 @@ if __name__ == '__main__':
     import codecs
     import sys
     import os
-
+    # _LOG.debug('invocation: {}'.format(' '.join([repr(i) for i in sys.argv])))
     description = ''
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('nexson',
@@ -511,12 +511,13 @@ if __name__ == '__main__':
         newick_fp = os.path.join(args.out_dir, study_tree + '.tre')
 
 
-        def compose_label(nodeid, node, otu):
+
+        def compose_label(node_id, node, otu):
             try:
-                return '_'.join([otu['^ot:ottTaxonName'], str(node['@id']), 'ott' + str(otu['^ot:ottId'])])
+                return '_'.join([otu['^ot:ottTaxonName'], str(node_id), 'ott' + str(otu['^ot:ottId'])])
             except:
                 # internal nodes may lack otu's but we still want the node Ids
-                return '_{}_'.format(str(node['@id']))
+                return '_{}_'.format(str(node_id))
 
 
         with codecs.open(newick_fp, 'w', encoding='utf-8') as outp:

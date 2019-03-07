@@ -54,11 +54,15 @@ def write_newick_ott(out,
     else:
         flags_to_prune_list = []
         to_prune_fsi_set = None
+    extinct_fsi_set = ott.convert_flag_string_set_to_union(['extinct', 'extinct_inherited', 'extinct_direct'])
+    extinct_unpruned_ids = set()
     flags_to_prune_set = frozenset(flags_to_prune_list)
     pfd = {}
     log_dict = None
     if create_log_dict:
-        log_dict = {'version': ott.version, 'flags_to_prune': flags_to_prune_list}
+        log_dict = {'version': ott.version,
+                    'flags_to_prune': flags_to_prune_list,
+                   }
         fsi_to_str_flag_set = {}
         for k, v in dict(ott.flag_set_id_to_flag_set).items():
             fsi_to_str_flag_set[k] = frozenset(list(v))
@@ -106,6 +110,8 @@ def write_newick_ott(out,
                                     fd['anc_ott_id_pruned'].append(child_id)
                             num_pruned_anc_nodes += 1
                         else:
+                            if ott.has_flag_set_key_intersection(child_id, extinct_fsi_set):
+                                extinct_unpruned_ids.add(child_id)
                             c.append(child_id)
                     children = c
                     nc = len(children)
@@ -114,6 +120,8 @@ def write_newick_ott(out,
                             num_monotypic_nodes += 1
                         else:
                             num_tips += 1
+                if ott.has_flag_set_key_intersection(ott_id, extinct_fsi_set):
+                    extinct_unpruned_ids.add(ott_id)
                 if ott_id not in first_children:
                     out.write(',')
                 else:
@@ -146,6 +154,9 @@ def write_newick_ott(out,
         log_dict['num_non_leaf_nodes'] = num_nodes - num_tips
         log_dict['num_non_leaf_nodes_with_multiple_children'] = num_nodes - num_tips - num_monotypic_nodes
         log_dict['num_monotypic_nodes'] = num_monotypic_nodes
+        extinct_unpruned_id_list = list(extinct_unpruned_ids)
+        extinct_unpruned_id_list.sort()
+        log_dict['extinct_unpruned_ids'] = extinct_unpruned_id_list
     return log_dict
 
 

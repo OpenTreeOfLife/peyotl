@@ -38,7 +38,7 @@ if __name__ == '__main__':
                         type=int,
                         required=False,
                         help='Optional taxonomy root argument.')
-    parser.add_argument('--extinct-taxa-out',
+    parser.add_argument('--flagged-taxa-out',
                         default=None,
                         type=str,
                         required=False,
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         assert os.path.isdir(args.ott_dir)
     except:
         sys.exit('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
-    extinct_out_fp = args.extinct_taxa_out
+    extinct_out_fp = args.flagged_taxa_out
     ott = OTT(ott_dir=args.ott_dir)
     if flags_str is None:
         flags = ott.TREEMACHINE_SUPPRESS_FLAGS
@@ -65,7 +65,10 @@ if __name__ == '__main__':
                                create_log_dict=create_log)
         outp.write('\n')
     if extinct_out_fp is not None:
-        write_as_json(log['extinct_unpruned_ids'], extinct_out_fp)
+        d = {'extinct': log.get('extinct_unpruned_ids',[]),
+             'incertae_sedis': log.get('incertae_sedis_unpruned_ids', [])
+            }
+        write_as_json(d, extinct_out_fp)
     if create_log:
         if 'extinct_unpruned_ids' in log:
             del log['extinct_unpruned_ids']

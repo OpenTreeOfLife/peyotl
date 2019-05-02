@@ -56,6 +56,8 @@ def write_newick_ott(out,
         to_prune_fsi_set = None
     extinct_fsi_set = ott.convert_flag_string_set_to_union(['extinct', 'extinct_inherited', 'extinct_direct'])
     extinct_unpruned_ids = set()
+    inc_sed_fsi_set = ott.convert_flag_string_set_to_union(['incertae_sedis', 'incertae_sedis_direct', 'incertae_sedis_inherited'])
+    inc_sed_unpruned_ids = set()
     flags_to_prune_set = frozenset(flags_to_prune_list)
     pfd = {}
     log_dict = None
@@ -112,6 +114,8 @@ def write_newick_ott(out,
                         else:
                             if ott.has_flag_set_key_intersection(child_id, extinct_fsi_set):
                                 extinct_unpruned_ids.add(child_id)
+                            if ott.has_flag_set_key_intersection(child_id, inc_sed_fsi_set):
+                                inc_sed_unpruned_ids.add(child_id)
                             c.append(child_id)
                     children = c
                     nc = len(children)
@@ -122,6 +126,8 @@ def write_newick_ott(out,
                             num_tips += 1
                 if ott.has_flag_set_key_intersection(ott_id, extinct_fsi_set):
                     extinct_unpruned_ids.add(ott_id)
+                if ott.has_flag_set_key_intersection(ott_id, inc_sed_fsi_set):
+                    inc_sed_unpruned_ids.add(ott_id)
                 if ott_id not in first_children:
                     out.write(',')
                 else:
@@ -156,7 +162,10 @@ def write_newick_ott(out,
         log_dict['num_monotypic_nodes'] = num_monotypic_nodes
         extinct_unpruned_id_list = list(extinct_unpruned_ids)
         extinct_unpruned_id_list.sort()
+        inc_sed_unpruned_id_list = list(inc_sed_unpruned_ids)
+        inc_sed_unpruned_id_list.sort()
         log_dict['extinct_unpruned_ids'] = extinct_unpruned_id_list
+        log_dict['incertae_sedis_unpruned_ids'] = inc_sed_unpruned_id_list
     return log_dict
 
 

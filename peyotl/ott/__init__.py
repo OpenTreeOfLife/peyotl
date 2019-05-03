@@ -254,9 +254,19 @@ class CacheNotFoundError(RuntimeError):
         RuntimeError.__init__(self, 'Cache {} not found'.format(m))
 
 
+
 class OTT(object):
     TREEMACHINE_SUPPRESS_FLAGS = _TREEMACHINE_PRUNE_FLAGS
-
+    FILENAMES = ('about.json',
+                 'conflicts.tsv',
+                 'deprecated.tsv',
+                 'forwards.tsv',
+                 'log.tsv',
+                 'otu_differences.tsv',
+                 'synonyms.tsv',
+                 'taxonomy.tsv',
+                 'version.txt',
+                )
     def __init__(self, ott_dir=None, **kwargs):
         self._config = kwargs.get('config')
         if self._config is None:

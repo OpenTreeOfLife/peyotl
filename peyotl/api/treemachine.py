@@ -316,7 +316,8 @@ class _TreemachineAPIWrapper(_WSWrapper):
             #Not working with v3?
         return resp
 
-    def get_synth_tree_pruned(self, tree_id=None, node_ids=None, ott_ids=None):
+    def get_synth_tree_pruned(self, tree_id=None, node_ids=None, ott_ids=None, label_format="name_and_id"):
+        assert label_format in ["name", "id","name_and_id"]
         if (tree_id is not None) and (tree_id != self.current_synth_tree_id):
             raise NotImplementedError("Treemachine's getDraftTreeSubtreeForNodes does not take a tree ID yet")
         data = {}
@@ -330,7 +331,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
                 data['node_ids'] = node_ids
             if ott_ids:
                 data['ott_ids'] = ott_ids
-
+        data['label_format'] = label_format
         if not data:
             raise ValueError('Either "node_ids" or "ott_ids" must be supplied')
         if self.use_v1:

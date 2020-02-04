@@ -185,6 +185,10 @@ if __name__ == '__main__':
                 tree_path = os.path.join(args.script_managed_trees,tree_path)
                 sm_tree_paths.append(tree_path)
 
+    for sm_tree_path in sm_tree_paths:
+        with open(sm_tree_path) as sm_tree_file:
+            nexson = newick_to_nexson(sm_tree_file, ott_id_from_label, "tree1")
+
     # Create a Phylesystem wrapper
     if args.phylesystem_par is not None:
         if not os.path.isdir(args.phylesystem_par):

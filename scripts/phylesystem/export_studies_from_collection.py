@@ -107,6 +107,17 @@ if __name__ == '__main__':
     out_dir = '.' if args.output_dir is None else args.output_dir
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
+
+    # Look up script-managed trees.
+    sm_tree_paths = list()
+    if args.script_managed_trees:
+        trees_index_filename = os.path.join(args.script_managed_trees,'index_of_newicks.txt')
+        with open(trees_index_filename) as trees_index_file:
+            for line in trees_index_file:
+                (order,tree_path) = line.rstrip().split('\t')
+                tree_path = os.path.join(args.script_managed_trees,tree_path)
+                sm_tree_paths.append(tree_path)
+
     # Create a Phylesystem wrapper
     if args.phylesystem_par is not None:
         if not os.path.isdir(args.phylesystem_par):

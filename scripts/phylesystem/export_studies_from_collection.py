@@ -12,6 +12,11 @@ import copy
 import sys
 import os
 
+# for newick_to_nexson
+from peyotl.phylo.tree import parse_newick
+from peyotl.nexson_syntax import get_empty_nexson
+import re
+
 _VERBOSE = False
 _SCRIPT_NAME = 'export_studies_from_collection.py'
 
@@ -53,6 +58,68 @@ def copy_phylesystem_file_if_differing(git_action,
     debug('"{}" and "{}" are identical'.format(fp, np))
     return False
 
+
+
+_ID_EXTRACTOR = re.compile(r'^.*[^0-9]([0-9]+)$')
+_ALL_DIGIT_ID_EXTRACTOR = re.compile(r'^([0-9]+)$')
+
+
+def ott_id_from_label(s):
+    x = _ID_EXTRACTOR.match(s)
+    if not x:
+        x = _ALL_DIGIT_ID_EXTRACTOR.match(s)
+        if not x:
+            raise RuntimeError('Expecting each tip label to end in an integer. Found "{}"'.format(s))
+    return int(x.group(1))
+
+
+def newick_to_nexson(inp, tree_id, ottid_from_label):
+        pyid2int = {}
+        curr_nd_counter = 1
+        tree = parse_newick(stream=inp)
+        nexson = get_empty_nexson()
+        body = nexson['nexml']
+        all_otus_groups = body['otusById'].values()
+        assert len(all_otus_groups) == 1
+        first_otus_group = all_otus_groups[0]
+        all_trees_groups = body['treesById'].values()
+        assert len(all_trees_groups) == 1
+        first_trees_group = all_trees_groups[0]
+        first_trees_group['^ot:treeElementOrder'].append(tree_id)
+        otus = first_otus_group['otuById']
+        all_trees_dict = first_trees_group['treeById']
+        ntree = all_trees_dict.setdefault(tree_id, {})
+        ebsi, nbi = {}, {}
+        ntree['edgeBySourceId'] = ebsi
+        ntree['nodeById'] = nbi
+        root_node_id = None
+        for node in tree._root.preorder_iter():
+            nid = id(node)
+            i = pyid2int.get(nid)
+            if i is None:
+                i = curr_nd_counter
+                curr_nd_counter += 1
+                pyid2int[nid] = i
+            node_id_s = 'node{}'.format(i)
+            otu_id_s = 'otu{}'.format(i)
+            n_obj = nbi.setdefault(node_id_s, {})
+            if node is tree._root:
+                n_obj['@root'] = True
+                root_node_id = node_id_s
+            else:
+                edge_id_s = 'edge{}'.format(i)
+                pid = id(node.parent)
+                pni = 'node{}'.format(pyid2int[pid])
+                ed = ebsi.setdefault(pni, {})
+                ed[edge_id_s] = {'@source': pni, '@target': node_id_s}
+            if not node.children:
+                n_obj['@otu'] = otu_id_s
+                orig = node._id
+                ott_id = ott_id_from_label(orig)
+                otus[otu_id_s] = {"^ot:originalLabel": orig, "^ot:ottId": ott_id, "^ot:ottTaxonName": orig}
+        assert root_node_id is not None
+        ntree['^ot:rootNodeId'] = root_node_id
+        return nexson
 
 if __name__ == '__main__':
     import argparse

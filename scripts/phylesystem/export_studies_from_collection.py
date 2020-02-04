@@ -79,6 +79,11 @@ if __name__ == '__main__':
                         required=False,
                         help='filepath of the nexson to be produced. If this is passed in, '
                              'then only that study will be exported')
+    parser.add_argument('--script-managed-trees',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='path to the script-managed-trees repo')
     parser.add_argument('-v', '--verbose',
                         default=False,
                         action='store_true',

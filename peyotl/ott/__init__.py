@@ -577,7 +577,6 @@ class OTT(object):
                     # parse the root node (name = life; no parent)
                     par = NONE_PAR
                     root_ott_id = uid
-                    assert name == 'life'
                     self._root_name = name
                 else:
                     # this is not the root node

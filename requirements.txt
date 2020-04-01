@@ -8,3 +8,5 @@ enum34
 argcomplete
 python-dateutil
 setuptools
+nexson>=0.0.1
+

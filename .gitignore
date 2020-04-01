@@ -14,3 +14,4 @@ requests-*egg
 .eggs
 dev/external_deps.txt
 is-oti-up.sh
+peyotl/test/data/amendments/amendment-bad-dois.json.output

@@ -8,7 +8,7 @@
 #               'jimallman/trees-about-bees-2'
 #
 from peyotl.utility import get_logger
-from peyotl.utility.str_util import slugify, increment_slug
+from peyutil import slugify, increment_slug
 import json
 
 try:

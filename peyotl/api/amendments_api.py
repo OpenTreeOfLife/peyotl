@@ -14,8 +14,8 @@ _GET_FROM_VALUES = ('local',  # only from local copy of amendments
                     'api',)  # from the GET calls of the amendments-api
 
 # TRANSFORM only relevant when get_from is "api"
-#_TRANS_CLIENT, _TRANS_SERVER = range(2)
-#_TRANSFORM_VALUES = ('client', # *DEFAULT* transform to the desired output format on the client side
+# _TRANS_CLIENT, _TRANS_SERVER = range(2)
+# _TRANSFORM_VALUES = ('client', # *DEFAULT* transform to the desired output format on the client side
 #                     'server', ) # request data transformation take place on the server
 
 # REFRESH is only relevant when get_from is "local"

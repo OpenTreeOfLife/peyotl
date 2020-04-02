@@ -40,6 +40,8 @@ else:
         from peyotl.test import get_test_suite
         from peyotl.test.support import pathmap
 
+
+        # noinspection PyAttributeOutsideInit
         class CoverageAnalysis(Command):
             """
             Code coverage analysis command.

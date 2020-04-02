@@ -49,6 +49,7 @@ class PhylesystemProxy(ShardedDocStore):
         self._doc2shard_map = d
 
 
+# noinspection PyAttributeOutsideInit
 class _Phylesystem(TypeAwareDocStore):
     """Wrapper around a set of sharded git repos, with business rules specific to Nexson studies.
     """

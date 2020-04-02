@@ -2,7 +2,7 @@
 from peyotl.git_storage.git_workflow import acquire_lock_raise
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, GitWorkflowError
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
-from peyotl.utility.input_output import read_as_json
+from peyutil import read_as_json
 import unittest
 import codecs
 import json

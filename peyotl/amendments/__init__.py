@@ -21,6 +21,8 @@ __all__ = ['git_actions',
            'validation',
            'amendments_shard',
            'amendments_umbrella']
+
+# noinspection PyPep8
 from peyotl.amendments.amendments_umbrella import (TaxonomicAmendmentStore,
                                                    TaxonomicAmendmentStoreProxy,
                                                    AMENDMENT_ID_PATTERN)

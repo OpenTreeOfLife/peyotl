@@ -3,7 +3,7 @@
 # put tests here that use local phylesystem
 # see http://opentreeoflife.github.io/peyotl/maintainer/ for setup
 
-from peyotl.utility.input_output import read_as_json
+from peyutil import read_as_json
 from peyotl.phylesystem.phylesystem_umbrella import _Phylesystem
 import unittest
 from peyotl.test.support import pathmap

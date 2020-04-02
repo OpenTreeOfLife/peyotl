@@ -5,7 +5,7 @@
 #               'additions-9998974-10000005'
 # N.B. We will somebay bump to 8 digits, so sorting logic should manage this.
 from peyotl.utility import get_logger
-from peyotl.utility.str_util import (slugify, increment_slug)
+from peyutil import (slugify, increment_slug)
 import json
 
 try:

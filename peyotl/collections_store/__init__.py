@@ -21,12 +21,13 @@ __all__ = ['git_actions',
            'validation',
            'collections_shard',
            'collections_umbrella']
+
+# noinspection PyPep8
 from peyotl.collections_store.collections_umbrella import (TreeCollectionStore,
                                                            TreeCollectionStoreProxy,
                                                            OWNER_ID_PATTERN,
                                                            COLLECTION_ID_PATTERN)
-from peyotl.utility.input_output import read_as_json
-from peyotl.utility.str_util import is_str_type
+from peyutil import read_as_json, is_str_type
 import copy
 
 
@@ -42,6 +43,7 @@ def collection_to_included_trees(collection):
             inc.append(d)
     return inc
 
+
 def tree_is_in_collection(collection, study_id=None, tree_id=None):
     """Takes a collection object (or a filepath to collection object), returns
     True if it includes a decision to include the specified tree
@@ -53,6 +55,7 @@ def tree_is_in_collection(collection, study_id=None, tree_id=None):
         if decision['studyID'] == study_id and decision['treeID'] == tree_id:
             return True
     return False
+
 
 def concatenate_collections(collection_list):
     r = get_empty_collection()

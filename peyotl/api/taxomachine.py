@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility.dict_wrapper import FrozenDictAttrWrapper, FrozenDictWrapper
+from peyutil import FrozenDictAttrWrapper, FrozenDictWrapper
 from peyotl.api.taxon import TaxonWrapper, TaxonHolder
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
@@ -50,6 +50,7 @@ class TNRSResponse(FrozenDictWrapper):
     the `taxonomy` field will be a TaxonomyInfoWrapper object
     """
 
+    # noinspection PyCallByClass
     def __init__(self, taxomachine_wrapper, response, query_data):
         tw = taxomachine_wrapper
         m = {}

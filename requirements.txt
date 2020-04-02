@@ -9,4 +9,5 @@ argcomplete
 python-dateutil
 setuptools
 nexson>=0.0.1
+peyutil>=0.0.1
 

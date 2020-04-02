@@ -25,7 +25,7 @@ class TestTreeCollections(unittest.TestCase):
         self.r = dict(_repos)
 
     def testSlugify(self):
-        from peyotl.utility.str_util import slugify
+        from peyutil import slugify
         self.assertEqual('simple-test', slugify('Simple Test'))
         self.assertEqual('no-punctuation-allowed', slugify('No punctuation allowed!?'))
         self.assertEqual('no-extra-spaces-', slugify('No \t extra   spaces   '))

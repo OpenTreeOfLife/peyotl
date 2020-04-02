@@ -1,6 +1,6 @@
 #! /usr/bin/env python
-from peyotl.utility.tokenizer import NewickTokenizer, NewickEvents, NewickEventFactory
-from peyotl.utility.str_util import StringIO
+from peyutil.tokenizer import NewickTokenizer, NewickEvents, NewickEventFactory
+from peyutil.str_util import StringIO
 from peyotl.utility import get_logger
 import unittest
 from copy import deepcopy

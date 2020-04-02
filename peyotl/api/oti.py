@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-from peyotl.utility.str_util import UNICODE, is_str_type, underscored2camel_case
+from peyotl.utility import get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import TreeRefList
 from peyotl.nexson_syntax import create_content_spec
-from peyotl.utility import doi2url, get_config_object, get_logger
+from peyutil import doi2url, get_config_object, UNICODE, is_str_type, underscored2camel_case
 import anyjson
 
 _LOG = get_logger(__name__)

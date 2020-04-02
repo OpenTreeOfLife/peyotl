@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility.input_output import read_as_json
+from peyutil import read_as_json
 from peyotl.nexson_syntax import extract_supporting_file_messages
 import codecs
 import json

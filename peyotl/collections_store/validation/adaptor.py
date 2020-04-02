@@ -44,7 +44,7 @@ class CollectionValidationAdaptor(object):
         uk = None
         for k in obj.keys():
             if (k not in self.required_toplevel_elements.keys() and
-                        k not in self.optional_toplevel_elements.keys()):
+                    k not in self.optional_toplevel_elements.keys()):
                 if uk is None:
                     uk = []
                 uk.append(k)

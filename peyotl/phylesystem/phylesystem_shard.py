@@ -29,6 +29,7 @@ def _get_filtered_study_ids(shard, include_aliases=False):
         return x
 
 
+# noinspection PyAttributeOutsideInit
 class PhylesystemShardProxy(GitShard):
     """Proxy for shard when interacting with external resources if given the configuration of a remote Phylesystem
     """

@@ -28,7 +28,7 @@ CURRENT_ROOTING_CONFLICTS = '^ot:taxoEdgeConflictsCurrentRooting'
 ROOT_HERE_CONFLICTS = '^ot:taxoEdgeConflictsIfRootedHere'
 ROOT_HERE_AGREES = '^ot:taxoEdgeCompatibleIfRootedHere'
 if __name__ == '__main__':
-    from peyotl.utility.input_output import read_as_json
+    from peyutil import read_as_json
     from peyotl.nexson_syntax import convert_nexson_format, BY_ID_HONEY_BADGERFISH, extract_tree_nexson
     from peyotl import get_logger
     import argparse

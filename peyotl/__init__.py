@@ -8,11 +8,9 @@ repositories.
 from __future__ import absolute_import, print_function, division
 
 __version__ = '0.1.4dev'  # sync with setup.py
-from peyotl.utility import (get_config_setting,
-                            get_config_object,
-                            expand_path,
-                            get_logger)
-from peyotl.utility.input_output import pretty_dict_str
+
+from peyutil import expand_path
+from peyotl.utility import get_logger, get_config_setting, get_config_object
 
 from peyotl.collections_store import (collection_to_included_trees,
                                       concatenate_collections,
@@ -26,7 +24,7 @@ from peyotl.nexson_syntax import (can_convert_nexson_forms,
                                   write_obj_as_nexml,
                                   _is_by_id_hbf)
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
-from peyotl.utility.str_util import UNICODE, is_str_type
+from peyutil import UNICODE, is_str_type
 from peyotl.phylo.entities import OTULabelStyleEnum
 
 

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 from peyotl.nexson_syntax import detect_nexson_version, get_empty_nexson
-from peyotl.utility.str_util import UNICODE
+from peyutil import UNICODE
 from peyotl.nexson_validation import validate_nexson
 from peyotl.test.support import pathmap
 from peyotl.test.support.helper import (testing_write_json,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility.str_util import UNICODE, is_str_type
+from peyutil import UNICODE, is_str_type
 from peyotl.utility import get_config_object, get_logger
 import requests
 import warnings
@@ -481,7 +481,8 @@ class _WSWrapper(object):
         return self.domain
 
     # pylint: disable=W0102
-    def json_http_get(self, url, headers=_JSON_HEADERS, params=None, text=False):  # pylint: disable=W0102
+    def json_http_get(self, url, headers=None, params=None, text=False):  # pylint: disable=W0102
+        headers = _JSON_HEADERS if headers is None else headers
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
         with warnings.catch_warnings():
             try:
@@ -490,7 +491,8 @@ class _WSWrapper(object):
                 pass  # on py2.7 we don't have ResourceWarning, but we don't need to filter...
             return self._do_http(url, 'GET', headers=headers, params=params, data=None, text=text)
 
-    def json_http_put(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):  # pylint: disable=W0102
+    def json_http_put(self, url, headers=None, params=None, data=None, text=False):  # pylint: disable=W0102
+        headers = _JSON_HEADERS if headers is None else headers
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
         with warnings.catch_warnings():
             try:
@@ -499,7 +501,8 @@ class _WSWrapper(object):
                 pass  # on py2.7 we don't have ResourceWarning, but we don't need to filter...
             return self._do_http(url, 'PUT', headers=headers, params=params, data=data, text=text)
 
-    def json_http_post(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):  # pylint: disable=W0102
+    def json_http_post(self, url, headers=None, params=None, data=None, text=False):  # pylint: disable=W0102
+        headers = _JSON_HEADERS if headers is None else headers
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
         with warnings.catch_warnings():
             try:
@@ -508,15 +511,17 @@ class _WSWrapper(object):
                 pass  # on py2.7 we don't have ResourceWarning, but we don't need to filter...
             return self._do_http(url, 'POST', headers=headers, params=params, data=data, text=text)
 
-    def json_http_post_raise(self, url, headers=_JSON_HEADERS, params=None, data=None,
+    def json_http_post_raise(self, url, headers=None, params=None, data=None,
                              text=False):  # pylint: disable=W0102
+        headers = _JSON_HEADERS if headers is None else headers
         r = self.json_http_post(url, headers=headers, params=params, data=data, text=text)
         if 'error' in r:
             raise ValueError(r['error'])
         return r
 
-    def json_http_delete(self, url, headers=_JSON_HEADERS, params=None, data=None, text=False):  # pylint: disable=W0102
+    def json_http_delete(self, url, headers=None, params=None, data=None, text=False):  # pylint: disable=W0102
         # See https://github.com/kennethreitz/requests/issues/1882 for discussion of warning suppression
+        headers = _JSON_HEADERS if headers is None else headers
         with warnings.catch_warnings():
             try:
                 warnings.simplefilter("ignore", ResourceWarning)  # pylint: disable=E0602

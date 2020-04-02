@@ -1,5 +1,5 @@
 """Base class git action manager (subclasses will accommodate each type)"""
-from peyotl.utility.str_util import is_str_type
+from peyutil import is_str_type
 from peyotl.nexson_syntax import write_as_json
 from peyotl.utility import get_logger
 import os
@@ -63,6 +63,7 @@ class RepoLock(object):
         self._lock.release()
 
 
+# noinspection PyPep8Naming
 class GitActionBase(object):
     @staticmethod
     def clone_repo(par_dir, repo_local_name, remote):

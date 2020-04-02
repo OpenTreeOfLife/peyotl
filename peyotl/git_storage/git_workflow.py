@@ -3,7 +3,7 @@
 from sh import git  # pylint: disable=E0611
 from locket import LockError
 import tempfile
-from peyotl.utility.str_util import is_str_type
+from peyutil import is_str_type
 from peyotl.utility import get_logger
 import os
 from peyotl.git_storage.git_action import MergeException, get_user_author, GitWorkflowError

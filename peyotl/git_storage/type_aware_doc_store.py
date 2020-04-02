@@ -26,6 +26,7 @@ from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 
+# noinspection PyPep8Naming
 class TypeAwareDocStore(ShardedDocStore):
     def __init__(self,
                  prefix_from_doc_id,

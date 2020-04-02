@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility.str_util import is_str_type
+from peyutil import is_str_type
 import codecs
 import json
 

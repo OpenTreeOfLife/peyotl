@@ -15,7 +15,7 @@ from peyotl.nexson_syntax import (BY_ID_HONEY_BADGERFISH,
                                   detect_nexson_version,
                                   get_nexml_el,
                                   read_as_json)
-from peyotl.utility.str_util import is_str_type
+from peyutil import is_str_type
 from peyotl.utility import get_logger
 import weakref
 

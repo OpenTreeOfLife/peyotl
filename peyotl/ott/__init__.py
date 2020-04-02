@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, division
 from peyotl.phylo.entities import OTULabelStyleEnum
 from peyotl.nexson_syntax import quote_newick_name
 from peyotl.phylo.tree import create_tree_from_id2par, create_anc_lineage_from_id2par
-from peyotl.utility.str_util import is_str_type
+from peyutil import is_str_type
 from peyotl.utility import get_config_object, get_logger
 from collections import defaultdict
 import pickle
@@ -15,7 +15,7 @@ NONE_PAR = None
 
 _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:
-    from peyotl.utility.input_output import read_as_json, write_as_json
+    from peyutil import read_as_json, write_as_json
 
 _TREEMACHINE_PRUNE_FLAGS = {'major_rank_conflict', 'major_rank_conflict_direct', 'major_rank_conflict_inherited',
                             'environmental', 'unclassified_inherited', 'unclassified_direct', 'viral', 'nootu',
@@ -198,6 +198,7 @@ class _TransitionalNode(object):
         elif self.ott_id is not None:
             leaves.add(self.ott_id)
 
+
 _CACHES = {
     'flagsetid2flagset': ('flagSetID2FlagSet', 'maps an integer to set of flags. Used to compress the flags field'),
     'forwardingtable': ('forward_table', 'maps a deprecated ID to its forwarded ID'),
@@ -205,11 +206,12 @@ _CACHES = {
     'name2ottid': ('name2ottID', 'maps a taxon name -> ott ID ',),
     'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'),
     'nonhomonym2ottid': ('nonhomonym2ottID', 'maps a taxon name -> single OTT ID ',),
-    'ottid2flags': ('ottID2flags', '''maps an ott ID to an integer that can be looked up in the flag_set_id2flag_set dictionary. Absence of a ott ID means that there were no flags set.''',),
+    'ottid2flags': ('ottID2flags',
+                    '''maps an ott ID to an integer that can be looked up in the flag_set_id2flag_set dictionary. Absence of a ott ID means that there were no flags set.''',),
     'ottid2names': ('ottID2names', 'ottID to a name or list/tuple of names',),
     'ottid2parentottid': ('ottID2parentOttId', 'ott ID-> parent\'s ott ID. root maps to -1',),
     'ottid2preorder': ('ottID2preorder', 'ott ID -> preorder #',),
-    'ottid2ranks': ('ottID2ranks','ottID -> rank',),
+    'ottid2ranks': ('ottID2ranks', 'ottID -> rank',),
     'ottid2sources': ('ottIDsources', '''maps an ott ID to a dict. The value
     holds a mapping of a source taxonomy name to the ID of this ott ID in that
     taxonomy.''',),
@@ -225,7 +227,7 @@ _CACHES = {
     'root': ('root', 'name and ott_id of the root of the taxonomy',),
     'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
     'uniq2ottid': ('uniq2ottID', 'uniqname -> ott ID for those IDs that have a uniqname',)
-   }
+}
 _SECOND_LEVEL_CACHES = {'ncbi2ottid'}
 
 
@@ -534,7 +536,7 @@ class OTT(object):
             for rown in it:
                 ls = rown.split('\t|\t')
                 uid, par, name = ls[:3]
-                rank,sourceinfo, uniqname, flags = ls[3:7]
+                rank, sourceinfo, uniqname, flags = ls[3:7]
                 skip = False
                 for p in self.skip_prefixes:
                     if uniqname.startswith(p):
@@ -775,8 +777,7 @@ class OTT(object):
         asl = []
         for a in al:
             asl.append(' -> '.join(['{:<8}'.format(i) for i in a]))
-        l = [len(i) for i in asl]
-        m = max(l)
+        m = max([len(i) for i in asl])
         fmt = "{:<8} : {:>%d}" % m
         for n, o in enumerate(ott_id_list):
             _LOG.debug(fmt.format(o, asl[n]))

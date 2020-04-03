@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-from peyotl.phylo.tree import parse_newick
-from peyotl.nexson_syntax import get_empty_nexson
-from peyotl import write_as_json
 import codecs
-import json
-import sys
 import os
 import re
+import sys
+
+from peyotl import write_as_json
+from peyotl.nexson_syntax import get_empty_nexson
+from peyotl.phylo.tree import parse_newick
 
 _ID_EXTRACTOR = re.compile(r'^.*[^0-9]([0-9]+)$')
 _ALL_DIGIT_ID_EXTRACTOR = re.compile(r'^([0-9]+)$')
@@ -46,7 +46,7 @@ Writes a NexSON representation of the tree to
     curr_nd_counter = 1
     with codecs.open(args.newick, 'r', encoding='utf8') as inp:
         tree = parse_newick(stream=inp)
-        tree_id = tree_id_it.next()
+        tree_id = next(tree_id_it)
         nexson = get_empty_nexson()
         body = nexson['nexml']
         all_otus_groups = body['otusById'].values()

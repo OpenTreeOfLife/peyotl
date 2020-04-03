@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 if __name__ == '__main__':
-    from peyotl.nexson_syntax import write_as_json
-    from peyotl.nexson_validation import NexsonError, NexsonWarningCodes, validate_nexson
+    from peyutil import UNICODE, write_as_json
+    from peyotl.nexson_validation import (NexsonError,
+                                          NexsonWarningCodes,
+                                          validate_nexson)
     from peyotl import get_logger
     import argparse
     import codecs
@@ -56,7 +58,7 @@ if __name__ == '__main__':
                         help='Writes warnings/errors into the NexSON content')
     parser.add_argument('input',
                         metavar='filepath',
-                        type=unicode,
+                        type=UNICODE,
                         nargs=1,
                         help='filename')
     err_stream = sys.stderr

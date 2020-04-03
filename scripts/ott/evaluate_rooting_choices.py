@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from peyutil import UNICODE
 from peyotl.nexson_proxy import NexsonTreeProxy
 from peyotl.ott import OTT
 from peyotl.evaluate_tree import evaluate_tree_rooting
@@ -59,7 +60,7 @@ if __name__ == '__main__':
                         help="output filepath. Standard output is used if omitted.")
     parser.add_argument('input',
                         metavar='filepath',
-                        type=unicode,
+                        type=UNICODE,
                         nargs=1,
                         help='filename')
     err_stream = sys.stderr
@@ -85,7 +86,7 @@ if __name__ == '__main__':
         else:
             sys.exit(1)
     except Exception as nx:
-        _LOG.error(nx.value)
+        _LOG.exception(nx)
         sys.exit(1)
     convert_nexson_format(nexson, BY_ID_HONEY_BADGERFISH)
     trees = extract_tree_nexson(nexson, tree_id=args.tree_id)

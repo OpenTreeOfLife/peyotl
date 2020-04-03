@@ -38,7 +38,9 @@ else:
         PEYOTL_COVERAGE_ANALYSIS_AVAILABLE = True
 
         from peyotl.test import get_test_suite
-        from peyotl.test.support import pathmap
+        from peyotl.test.support import get_test_path_mapper
+
+        pathmap = get_test_path_mapper()
 
 
         # noinspection PyAttributeOutsideInit

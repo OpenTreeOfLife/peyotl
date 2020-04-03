@@ -9,23 +9,16 @@ from __future__ import absolute_import, print_function, division
 
 __version__ = '0.1.4dev'  # sync with setup.py
 
-from peyutil import expand_path
-from peyotl.utility import get_logger, get_config_setting, get_config_object
-
+from peyutil import (read_as_json,
+                     write_as_json)
 from peyotl.collections_store import (collection_to_included_trees,
                                       concatenate_collections,
                                       tree_is_in_collection)
-from peyotl.nexson_syntax import (can_convert_nexson_forms,
-                                  convert_nexson_format,
-                                  detect_nexson_version,
-                                  get_ot_study_info_from_nexml,
-                                  read_as_json,
-                                  write_as_json,
-                                  write_obj_as_nexml,
+from peyotl.nexson_syntax import (detect_nexson_version,
                                   _is_by_id_hbf)
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
-from peyutil import UNICODE, is_str_type
 from peyotl.phylo.entities import OTULabelStyleEnum
+from peyotl.utility import get_logger, get_config_setting, get_config_object
 
 
 def gen_otu_dict(nex_obj, nexson_version=None):
@@ -71,7 +64,6 @@ __all__ = ['utility',
            'nexson_validation',
            'ott',
            'phylesystem',
-           'string',
            'sugar',
            'test',
            'utility',

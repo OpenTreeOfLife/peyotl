@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyutil.tokenizer import NewickEvents
+from peyutil import NewickEvents
 from peyotl.utility import get_logger
 import sys
 
@@ -532,7 +532,7 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
 
 
 def parse_newick(newick=None, stream=None, filepath=None, _class=TreeWithPathsInEdges):
-    from peyutil.tokenizer import NewickEventFactory, NewickTokenizer
+    from peyutil import NewickEventFactory, NewickTokenizer
     nt = NewickTokenizer(stream=stream, newick=newick, filepath=filepath)
     nef = NewickEventFactory(tokenizer=nt)
     return _class(newick_events=nef)

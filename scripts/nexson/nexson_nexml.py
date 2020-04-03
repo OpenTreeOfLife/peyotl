@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-from peyotl.nexson_syntax import (convert_nexson_format,
-                                  get_ot_study_info_from_nexml,
-                                  get_nexml_el,
-                                  sort_arbitrarily_ordered_nexson,
-                                  write_as_json,
-                                  write_obj_as_nexml,
-                                  BADGER_FISH_NEXSON_VERSION,
-                                  DEFAULT_NEXSON_VERSION,
-                                  DIRECT_HONEY_BADGERFISH,
-                                  BY_ID_HONEY_BADGERFISH)
+from nexson.syntax import (convert_nexson_format,
+                           get_ot_study_info_from_nexml,
+                           get_nexml_el,
+                           sort_arbitrarily_ordered_nexson,
+                           write_as_json,
+                           write_obj_as_nexml,
+                           BADGER_FISH_NEXSON_VERSION,
+                           DIRECT_HONEY_BADGERFISH,
+                           BY_ID_HONEY_BADGERFISH)
 
 
 # secret#hacky#cut#paste*nexson_nexml.py##################################
@@ -88,9 +87,8 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
         if (mode.endswith('b') and (export_format != str(BADGER_FISH_NEXSON_VERSION))) \
                 or (mode.endswith('x') and (export_format.lower() != "nexml")) \
                 or (mode.endswith('x') and (export_format.lower() not in [str(DIRECT_HONEY_BADGERFISH)])):
-            sys.exit('export format {e} clashes with mode {m}. '
-                    'The mode option is not neeeded if the export option is used.'.format(
-                    e=export_format, m=mode))
+            errm = 'export format {e} clashes with mode {m}. The mode option is not neeeded if the export option is used.'
+            sys.exit(errm.format(e=export_format, m=mode))
     try:
         inp = codecs.open(inpfn, mode='rU', encoding='utf-8')
     except:
@@ -156,15 +154,8 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
     if args.sort:
         sort_arbitrarily_ordered_nexson(blob)
     if export_format == "nexml":
-        if indentation > 0:
-            indent = ' ' * indentation
-        else:
-            indent = ''
-        newline = '\n'
-        write_obj_as_nexml(blob,
-                           out,
-                           addindent=indent,
-                           newl=newline)
+        indent = ' ' * indentation if indentation > 0 else ''
+        write_obj_as_nexml(blob, out, addindent=indent, newl='\n')
     else:
         if not mode.startswith('x'):
             blob = convert_nexson_format(blob, export_format, sort_arbitrary=True)

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """AmendmentValidationAdaptor class.
 """
-from peyotl.utility import get_logger, doi2url
+from peyutil import primitive_string_types, doi2url
+from peyotl.utility import get_logger
 
 _LOG = get_logger(__name__)
 
@@ -20,23 +21,17 @@ class AmendmentValidationAdaptor(object):
     def __init__(self, obj, errors=None, **kwargs):
         if errors is None:
             errors = []
-        try:
-            # Python 2.x
-            string_types = (str, unicode)
-        except NameError:
-            # Python 3
-            string_types = (str,)
         self.required_toplevel_elements = {
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
             'curator': dict,
-            'date_created': string_types,
+            'date_created': primitive_string_types,
             'taxa': list,
-            'user_agent': string_types,
+            'user_agent': primitive_string_types,
         }
         self.optional_toplevel_elements = {
-            'id': string_types,  # not present in initial request
-            'study_id': string_types,
+            'id': primitive_string_types,  # not present in initial request
+            'study_id': primitive_string_types,
             'new_ottids_required': int,  # provided by some agents
         }
         # track unknown keys in top-level object
@@ -71,7 +66,7 @@ class AmendmentValidationAdaptor(object):
 
         # test a non-empty id against our expected pattern
         self._id = obj.get('id')
-        if self._id and isinstance(self._id, string_types):
+        if self._id and isinstance(self._id, primitive_string_types):
             try:
                 from peyotl.amendments import AMENDMENT_ID_PATTERN
                 assert bool(AMENDMENT_ID_PATTERN.match(self._id))
@@ -88,17 +83,17 @@ class AmendmentValidationAdaptor(object):
                     errors.append("Unexpected key '{k}' found in curator".format(k=k))
             if 'login' in self._curator:
                 try:
-                    assert isinstance(self._curator.get('name'), string_types)
+                    assert isinstance(self._curator.get('name'), primitive_string_types)
                 except:
                     errors.append("Curator 'name' should be a string")
             if 'name' in self._curator:
                 try:
-                    assert isinstance(self._curator.get('login'), string_types)
+                    assert isinstance(self._curator.get('login'), primitive_string_types)
                 except:
                     errors.append("Curator 'login' should be a string")
             if 'email' in self._curator:
                 try:
-                    assert isinstance(self._curator.get('email'), string_types)
+                    assert isinstance(self._curator.get('email'), primitive_string_types)
                 except:
                     # TODO: Attempt to validate as an email address?
                     errors.append("Curator 'email' should be a string (a valid email address)")
@@ -113,7 +108,7 @@ class AmendmentValidationAdaptor(object):
 
         # test for a valid study_id (if it's not an empty string)
         self._study_id = obj.get('study_id')
-        if self._study_id and isinstance(self._study_id, string_types):
+        if self._study_id and isinstance(self._study_id, primitive_string_types):
             from peyotl.phylesystem import STUDY_ID_PATTERN
             try:
                 assert bool(STUDY_ID_PATTERN.match(self._study_id))
@@ -125,17 +120,17 @@ class AmendmentValidationAdaptor(object):
         if isinstance(self._taxa, list):
             # N.B. required property cannot be empty!
             self.required_toplevel_taxon_elements = {
-                'name': string_types,
-                'name_derivation': string_types,  # from controlled vocabulary
+                'name': primitive_string_types,
+                'name_derivation': primitive_string_types,  # from controlled vocabulary
                 'sources': list,
             }
             self.optional_toplevel_taxon_elements = {
-                'comment': string_types,
-                'rank': string_types,  # can be 'no rank'
-                'original_label': string_types,
-                'adjusted_label': string_types,
+                'comment': primitive_string_types,
+                'rank': primitive_string_types,  # can be 'no rank'
+                'original_label': primitive_string_types,
+                'adjusted_label': primitive_string_types,
                 'parent': int,  # the parent taxon's OTT id
-                'parent_tag': string_types,
+                'parent_tag': primitive_string_types,
                 'tag': object,  # can be anything (int, string, ...)
                 'ott_id': int  # if already assigned
             }

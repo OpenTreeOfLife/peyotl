@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 from peyotl.nexson_syntax import sort_arbitrarily_ordered_nexson
 from peyotl.manip import merge_otus_and_trees
-from peyotl.test.support import pathmap
-from peyotl.test.support import equal_blob_check
 from peyotl.utility import get_logger
 import unittest
+from nexson.test.support.pathmap import get_test_path_mapper
+
+pathmap = get_test_path_mapper()
 
 _LOG = get_logger(__name__)
 
@@ -17,7 +18,7 @@ class TestMerge(unittest.TestCase):
         inp = sort_arbitrarily_ordered_nexson(inp)
         self.assertNotEqual(inp, expected)
         merge_otus_and_trees(inp)
-        equal_blob_check(self, '', inp, expected)
+        pathmap.equal_blob_check(self, '', inp, expected)
 
 
 if __name__ == "__main__":

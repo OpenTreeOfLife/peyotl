@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function, division
-from peyotl.phylo.entities import OTULabelStyleEnum
-from peyotl.nexson_syntax import quote_newick_name
-from peyotl.phylo.tree import create_tree_from_id2par, create_anc_lineage_from_id2par
-from peyutil import is_str_type
-from peyotl.utility import get_config_object, get_logger
-from collections import defaultdict
-import pickle
+
 import codecs
 import os
+import pickle
+
+from peyotl.nexson_syntax import quote_newick_name
+from peyotl.phylo.entities import OTULabelStyleEnum
+from peyotl.phylo.tree import create_tree_from_id2par, create_anc_lineage_from_id2par
+from peyotl.utility import get_config_object, get_logger
+from peyutil import is_str_type
 
 _LOG = get_logger(__name__)
 NONE_PAR = None
@@ -149,6 +150,7 @@ def write_newick_ott(out,
     return log_dict
 
 
+# noinspection PyUnresolvedReferences
 class _TransitionalNode(object):
     def __init__(self, ott_id=None, par=None):
         self.par = par

@@ -11,8 +11,7 @@ from peyotl.git_storage import ShardedDocStore, \
 from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, PhylesystemShard
 from peyotl.phylesystem.git_actions import PhylesystemGitAction
 from peyotl.phylesystem.git_workflows import validate_and_convert_nexson
-from peyotl.nexson_validation import ot_validate
-from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, replace_same_agent_annotation
+from peyotl.nexson_validation import ot_validate, NexsonAnnotationAdder, replace_same_agent_annotation
 import re
 
 STUDY_ID_PATTERN = re.compile(r'[a-zA-Z][a-zA-Z]_[0-9]+')

@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 from peyotl.external import get_ot_study_info_from_treebase_nexml
-from peyotl.test.support import equal_blob_check
-from peyotl.test.support import pathmap
 from peyotl.utility import get_logger, doi2url
+from peyotl.test.support import get_test_path_mapper
 
+pathmap = get_test_path_mapper()
 _LOG = get_logger(__name__)
 import unittest
 
@@ -24,7 +24,7 @@ class TestConvert(unittest.TestCase):
         self.assertTrue(test_doi == doi2url(test_doi))
         # furthermore, the output should exactly match our test file
         expected = pathmap.nexson_obj('S15515.json')
-        equal_blob_check(self, 'S15515', n, expected)
+        pathmap.equal_blob_check(self, 'S15515', n, expected)
         self.assertTrue(expected == n)
 
 

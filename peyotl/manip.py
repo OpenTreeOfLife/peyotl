@@ -2,15 +2,15 @@
 """Simple manipulations of data structure in peyotl
 """
 from __future__ import absolute_import, print_function, division
-from peyotl.nexson_syntax.helper import _add_uniq_value_to_dict_bf
-from peyotl.nexson_syntax import (BY_ID_HONEY_BADGERFISH,
+from peyotl.nexson_syntax import (_add_uniq_value_to_dict_bf,
+                                  BY_ID_HONEY_BADGERFISH,
                                   convert_nexson_format,
+                                  count_num_trees,
                                   detect_nexson_version,
                                   get_nexml_el,
                                   _is_by_id_hbf)
 # For backwards-comp we import count_num_trees which used to be
 #   defined here
-from peyotl.nexson_syntax.inspect import count_num_trees
 from peyotl.utility import get_logger
 
 _LOG = get_logger(__name__)

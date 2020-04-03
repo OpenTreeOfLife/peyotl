@@ -4,7 +4,9 @@ import unittest
 
 from peyotl import write_as_json
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
-from peyotl.test.support import pathmap
+from peyotl.test.support import get_test_path_mapper
+
+pathmap = get_test_path_mapper()
 
 
 class TestPhylesystem(unittest.TestCase):

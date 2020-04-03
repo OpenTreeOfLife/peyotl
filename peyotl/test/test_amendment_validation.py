@@ -2,12 +2,14 @@
 from peyotl.amendments import get_empty_amendment
 from peyutil import UNICODE
 from peyotl.amendments.validation import validate_amendment
-from peyotl.test.support import pathmap
 from peyotl.test.support.helper import testing_write_json, testing_read_json
 from peyotl.utility import get_logger
 import unittest
 import sys
 import os
+from peyotl.test.support import get_test_path_mapper
+
+pathmap = get_test_path_mapper()
 
 _LOG = get_logger(__name__)
 

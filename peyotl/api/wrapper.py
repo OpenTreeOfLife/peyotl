@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyutil import UNICODE, is_str_type
+from peyutil import UNICODE, is_str_type, urlencode
 from peyotl.utility import get_config_object, get_logger
 import requests
 import warnings
@@ -43,16 +43,13 @@ def log_request_as_curl(curl_log, url, verb, headers, params, data):
             hargs = ' '.join(['-H {}:{}'.format(escape_dq(k), escape_dq(v)) for k, v in headers.items()])
         else:
             hargs = ''
-        if params and not data:
-            import urllib
-            url = url + '?' + urllib.urlencode(params)
-            dargs = ''
+        dargs = ''
         if data:
             if is_str_type(data):
                 data = anyjson.loads(data)
             dargs = "'" + anyjson.dumps(data) + "'"
-        else:
-            dargs = ''
+        elif params:
+            url = url + '?' + urlencode(params)
         data_arg = ''
         if dargs:
             data_arg = ' --data {d}'.format(d=dargs)

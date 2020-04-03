@@ -2,9 +2,10 @@
 from peyotl.phylesystem.git_actions import PhylesystemGitAction
 import unittest
 from peyutil import read_as_json
-from peyotl.test.support import pathmap
 from peyotl.phylesystem.helper import get_repos
+from peyotl.test.support import get_test_path_mapper
 
+pathmap = get_test_path_mapper()
 try:
     r = get_repos()
     HAS_LOCAL_PHYLESYSTEM_REPOS = True

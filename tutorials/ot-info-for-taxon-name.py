@@ -35,7 +35,8 @@ def ot_tnrs_match_names(name_list,
 
 def fetch_and_write_taxon_info(id_list, include_anc, list_tips, output):
     from peyotl.sugar import taxonomy
-    assert (list_tips == False)  # args.list_tips once https://github.com/OpenTreeOfLife/taxomachine/issues/89 is fixed @TEMP
+    assert (
+                list_tips == False)  # args.list_tips once https://github.com/OpenTreeOfLife/taxomachine/issues/89 is fixed @TEMP
     for ott_id in id_list:
         info = taxonomy.taxon(ott_id,
                               include_lineage=include_anc,

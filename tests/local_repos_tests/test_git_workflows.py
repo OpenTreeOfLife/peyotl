@@ -2,15 +2,15 @@
 from peyotl.git_storage.git_workflow import acquire_lock_raise, merge_from_master
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, GitWorkflowError
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
-from peyutil import read_as_json
 from peyotl.utility import get_logger, get_raw_default_config_and_read_file_list
 from peyotl.utility.get_config import _replace_default_config
 import unittest
-import codecs
 import json
 import copy
 import sys
-from peyotl.test.support import pathmap
+from peyotl.test.support import get_test_path_mapper
+
+pathmap = get_test_path_mapper()
 
 _LOG = get_logger(__name__)
 

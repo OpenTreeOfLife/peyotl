@@ -5,6 +5,14 @@ import codecs
 import json
 import sys
 
+msg_template = u'''  Internal-id = {i}
+  Broken URL = http://tree.opentreeoflife.org{u}
+  Filename = "{f}"
+  Publication = {p}
+  Curator link = http://tree.opentreeoflife.org/curator/study/view/{s}
+
+'''
+
 only_with_url = '-u' in sys.argv
 out = codecs.getwriter('utf-8')(sys.stdout)
 for fn in sys.argv[1:]:
@@ -18,17 +26,11 @@ for fn in sys.argv[1:]:
                 files = m.get('data', {}).get('files', {}).get('file', [])
                 for f in files:
                     if '@url' in f:
-                        msg = u'''  Internal-id = {i}
-  Broken URL = http://tree.opentreeoflife.org{u}
-  Filename = "{f}"
-  Publication = {p}
-  Curator link = http://tree.opentreeoflife.org/curator/study/view/{s}
-
-'''.format(i=m.get('@id', '-'),
-           u=f['@url'].replace('uploadid=', 'uploadId='),
-           f=f.get('@filename', ''),
-           p=obj['nexml']['^ot:studyPublicationReference'],
-           s=obj['nexml']['^ot:studyId'])
+                        msg = msg_template.format(i=m.get('@id', '-'),
+                                                  u=f['@url'].replace('uploadid=', 'uploadId='),
+                                                  f=f.get('@filename', ''),
+                                                  p=obj['nexml']['^ot:studyPublicationReference'],
+                                                  s=obj['nexml']['^ot:studyId'])
                         out.write(msg)
         else:
             json.dump(m_list, out, indent=2, sort_keys=True)

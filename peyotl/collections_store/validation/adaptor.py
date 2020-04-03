@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """CollectionValidationAdaptor class.
 """
+from peyutil import primitive_string_types
 from peyotl.utility import get_logger
 
 _LOG = get_logger(__name__)
@@ -20,24 +21,18 @@ class CollectionValidationAdaptor(object):
     def __init__(self, obj, errors=None, **kwargs):
         if errors is None:
             errors = []
-        try:
-            # Python 2.x
-            string_types = (str, unicode)
-        except NameError:
-            # Python 3
-            string_types = (str,)
         self.required_toplevel_elements = {
             # N.B. anyjson might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
-            'name': string_types,
-            'description': string_types,
+            'name': primitive_string_types,
+            'description': primitive_string_types,
             'creator': dict,
             'contributors': list,
             'decisions': list,
             'queries': list,
         }
         self.optional_toplevel_elements = {
-            'url': string_types,
+            'url': primitive_string_types,
             # N.B. 'url' is stripped in storage, restored for API consumers
         }
         # track unknown keys in top-level object
@@ -73,12 +68,12 @@ class CollectionValidationAdaptor(object):
                     errors.append("Unexpected key '{k}' found in creator".format(k=k))
             if 'login' in self._creator:
                 try:
-                    assert isinstance(self._creator.get('name'), string_types)
+                    assert isinstance(self._creator.get('name'), primitive_string_types)
                 except:
                     errors.append("Creator 'name' should be a string")
             if 'name' in self._creator:
                 try:
-                    assert isinstance(self._creator.get('login'), string_types)
+                    assert isinstance(self._creator.get('login'), primitive_string_types)
                 except:
                     errors.append("Creator 'login' should be a string")
         # test any contributors for expected 'login' and 'name' fields
@@ -93,12 +88,12 @@ class CollectionValidationAdaptor(object):
                             errors.append("Unexpected key '{k}' found in contributor".format(k=k))
                     if 'login' in c:
                         try:
-                            assert isinstance(c.get('name'), string_types)
+                            assert isinstance(c.get('name'), primitive_string_types)
                         except:
                             errors.append("Contributor 'name' should be a string")
                     if 'name' in c:
                         try:
-                            assert isinstance(c.get('login'), string_types)
+                            assert isinstance(c.get('login'), primitive_string_types)
                         except:
                             errors.append("Contributor 'login' should be a string")
                 else:
@@ -117,8 +112,8 @@ class CollectionValidationAdaptor(object):
                     errors.append("Each 'decision' should be one of {dl}".format(dl=decision_values))
                 for p in text_props:
                     try:
-                        assert isinstance(d.get(p), string_types)
+                        assert isinstance(d.get(p), primitive_string_types)
                     except:
-                        errors.append("Decision property '{p}' should be one of {t}".format(p=p, t=string_types))
+                        errors.append("Decision property '{p}' should be one of {t}".format(p=p, t=primitive_string_types))
         # TODO: test queries (currently unused) for valid properties
         self._queries = obj.get('queries')

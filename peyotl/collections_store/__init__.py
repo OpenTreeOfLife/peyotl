@@ -68,10 +68,10 @@ def concatenate_collections(collection_list):
     for n, coll in enumerate(collection_list):
         r_queries.extend(coll['queries'])
         for contrib in coll['contributors']:
-            l = contrib['login']
-            if l not in contrib_set:
+            login = contrib['login']
+            if login not in contrib_set:
                 r_contributors.append(contrib)
-                contrib_set.add(l)
+                contrib_set.add(login)
         for d in coll['decisions']:
             key = '{}_{}'.format(d['studyID'], d['treeID'])
             inc_d = d['decision'].upper() == 'INCLUDED'

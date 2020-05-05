@@ -747,11 +747,12 @@ class OTT(object):
                         except:
                             if line.strip():
                                 raise RuntimeError('error parsing line in "{}":\n{}'.format(fp, line))
-                        if old_id in r:
-                            _LOG.warn(
-                                'fp: "{}" {} -> {} but {} -> {} already.'.format(fp, old_id, new_id, old_id, r[old_id]))
-                            assert old_id not in r
-                        r[old_id] = new_id
+                        else:
+                            if old_id in r:
+                                _LOG.warn(
+                                    'fp: "{}" {} -> {} but {} -> {} already.'.format(fp, old_id, new_id, old_id, r[old_id]))
+                                assert old_id not in r
+                            r[old_id] = new_id
         while True:
             reforward = [(k, v) for k, v in r.items() if v in r]
             if not reforward:

@@ -291,23 +291,25 @@ class NewickEventFactory(object):
             self._comments.extend(self._tokenizer.comments)
         if self._tokenizer.prev_token == NewickTokenType.OPEN:
             self._prev_type = NewickEvents.OPEN_SUBTREE
-            return {'type': NewickEvents.OPEN_SUBTREE,
+            r = {'type': NewickEvents.OPEN_SUBTREE,
                     'comments': self._comments}
         elif self._tokenizer.prev_token == NewickTokenType.LABEL:
             # when reading a tip, be greedy about grabbing surrounding comments
-            return self._greedy_token_seq(tok, NewickEvents.TIP)
+            r = self._greedy_token_seq(tok, NewickEvents.TIP)
         elif self._tokenizer.prev_token == NewickTokenType.CLOSE:
             # when reading a tip, be greedy about grabbing trailing comments
-            return self._greedy_token_seq(tok, NewickEvents.CLOSE_SUBTREE)
+            r = self._greedy_token_seq(tok, NewickEvents.CLOSE_SUBTREE)
         elif self._tokenizer.prev_token == NewickTokenType.COMMA:
             self._comments.extend(self._tokenizer.comments)
-            return next(self)
+            r = next(self)
         elif self._tokenizer.prev_token == NewickTokenType.SEMICOLON:
             raise StopIteration
-        assert False
+        # print('r={}'.format(r))
+        return r
 
     def _greedy_token_seq(self, label, t):
         tok = next(self._base_it)
+        # print('tok={}'.format(tok))
         self._comments.extend(self._tokenizer.comments)
         if t == NewickEvents.CLOSE_SUBTREE and self._tokenizer.prev_token == NewickTokenType.LABEL:
             label = tok
@@ -317,7 +319,6 @@ class NewickEventFactory(object):
         if tok == ':':
             tok = next(self._base_it)
             self._comments.extend(self._tokenizer.comments)
-            assert self._prev_type == NewickTokenType.EDGE_INFO
             edge_info = tok
             tok = next(self._base_it)
             self._comments.extend(self._tokenizer.comments)

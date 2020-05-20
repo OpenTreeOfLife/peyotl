@@ -528,6 +528,12 @@ class _WSWrapper(object):
         if CURL_LOGGER is not None:
             log_request_as_curl(CURL_LOGGER, url, verb, headers, params, data)
         func = _VERB_TO_METHOD_DICT[verb]
+        # move auth token from query-string (deprecated) to an auth header
+        if params.get("auth_token", None):
+            old_headers = headers
+            headers = {"Authorization": "token %s" % params.get("auth_token")}
+            headers.update(old_headers)  # don't mess with the standard JSON or other headers
+            delete params["auth_token"]  # remove token from query string
         try:
             resp = func(url, params=params, headers=headers, data=data)
         except requests.exceptions.ConnectionError:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from peyotl.nexson_validation.helper import _NEXEL, errorReturn
 from peyotl.nexson_validation.schema import check_raw_dict
-from peyotl.nexson_validation.err_generator import (gen_MissingCrucialContentWarning,
+from peyotl.nexson_validation.err_generator import (gen_MissingCrucialContentWarning, gen_MissingMandatoryKeyWarning,
                                                     gen_MultipleRootsWarning,
                                                     gen_NodeWithMultipleParents,
                                                     gen_NoRootWarning,
@@ -110,6 +110,9 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         node_by_id = tree_obj.get('nodeById')
         edge_by_source = tree_obj.get('edgeBySourceId')
         root_node_id = tree_obj.get('^ot:rootNodeId')
+        has_external_data = '^ot:external_data' in tree_obj
+        if has_external_data:
+          return True # no other checks done
         if (not node_by_id) or (not isinstance(node_by_id, dict)):
             self._error_event(_NEXEL.TREE,
                               obj=tree_obj,
@@ -312,7 +315,7 @@ class ByIdHBFValidationAdaptor(NexsonValidationAdaptor):
         if (not isinstance(otus_order_list, list)) or ((not otus_order_list) and otus):
             self._error_event(_NEXEL.NEXML,
                               obj=nex_obj,
-                              err_type=gen_WrongValueTypeWarning,
+                              err_type=gen_MissingMandatoryKeyWarning,
                               anc=vc.anc_list,
                               obj_nex_id=obj_nex_id,
                               key_list=['^ot:otusElementOrder'])

@@ -549,21 +549,23 @@ _v0_0_Trees = _SchemaFragment(required=_Req_TreesEl_Dir,
 
 ####################################################################
 # tree element schema
-_Req_TreeEl_ByI = {'edgeBySourceId': _VT.DICT,
-                   'nodeById': _VT.DICT,
-                   }
+_Req_TreeEl_ByI = {}
 _Req_TreeEl_Dir = {'edge': _VT.LIST,
                    'node': _VT.LIST,
                    '@id': _VT.STR,
                    }
 _Exp_TreeEl_All = {'@xsi:type': _VT.STR,  # could be a choice...
                    }
-_All_TreeEl_ByI = {'@label': _VT.STR,
+_All_TreeEl_ByI = {'edgeBySourceId': _VT.DICT,
+                   'nodeById': _VT.DICT,
+                   '@label': _VT.STR,
+                   "^ot:external_data": _VT.DICT,
                    }
 _All_TreeEl_Dir = {'@about': _VT.STR,
                    '@label': _VT.STR,
                    }
-_ReqMTreeEl_ByI = {'ot:rootNodeId': _VT.STR,
+_ReqMTreeEl_ByI = {}
+_ExpMTreeEl_ByI = {'ot:rootNodeId': _VT.STR,
                    }
 _ReqMTreeEl_Dir = _EMPTY_DICT
 _ExpMTreeEl_All = {'ot:branchLengthDescription': _VT.STR,

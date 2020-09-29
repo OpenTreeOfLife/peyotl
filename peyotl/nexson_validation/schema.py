@@ -384,6 +384,7 @@ _All_NexmlEl_All = {'@about': _VT.STR,
                     '@version': _VT.STR,
                     '@xmlns': _VT.DICT,
                     '@nexml2json': _VT.STR,
+                    'externalTrees': _VT.LIST,
                     }
 _ExpMNexmlEl_All = {'ot:dataDeposit': _VT.HREF,
                     'ot:studyPublication': _VT.HREF,

@@ -42,7 +42,14 @@ class Optimal2DirectNexson(NexsonConverter):
     def convert_tree(self, tree):
         if self.pristine_if_invalid:
             raise NotImplementedError('pristine_if_invalid option is not supported yet')
-        nodeById = tree['nodeById']
+        try:
+            nodeById = tree['nodeById']
+        except KeyError:
+            import sys
+            ed = tree.get('^ot:external_data')
+            if ed:
+                return tree
+            raise
         edgeBySourceId = tree['edgeBySourceId']
         root_node_id = tree['^ot:rootNodeId']
         node_list = []

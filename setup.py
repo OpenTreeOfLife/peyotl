@@ -105,7 +105,6 @@ setup(
                       'locket>=0.1.1',
                       'requests>=2.2.1',
                       'redis',
-                      'enum34',
                       'argcomplete',
                       'python-dateutil', ],
     packages=PACKAGES,

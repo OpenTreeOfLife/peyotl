@@ -51,7 +51,7 @@ if __name__ == '__main__':
     except:
         sys.exit('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
     extinct_out_fp = args.flagged_taxa_out
-    ott = OTT(ott_dir=args.ott_dir)
+    ott = OTT(ott_dir=args.ott_dir, support_subtree_of_taxonomy=True)
     if flags_str is None:
         flags = ott.TREEMACHINE_SUPPRESS_FLAGS
     else:

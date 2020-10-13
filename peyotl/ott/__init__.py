@@ -295,6 +295,7 @@ class OTT(object):
         self._taxonomic_sources = None
         self._ncbi_2_ott_id = None
         self._forward_table = None
+        self.support_subtree_of_taxonomy = kwargs.get('support_subtree_of_taxonomy', False)
 
     def create_ncbi_to_ott(self):
         ncbi2ott = {}
@@ -582,7 +583,13 @@ class OTT(object):
                     # this is not the root node
                     par = int(par)
                     if par not in id2par:
-                        raise ValueError('parent {} not found in OTT parsing'.format(par))
+                        if not self.support_subtree_of_taxonomy:
+                            raise ValueError('parent {} not found in OTT parsing'.format(par))
+                        else:
+                            _LOG.warning('parent {} not found in OTT parsing, setting to None'.format(par))
+                            par = NONE_PAR
+                            root_ott_id = uid
+                            self._root_name = name
                 assert ls[7] == '\n'
                 assert uid not in id2par
                 id2par[uid] = par
@@ -651,9 +658,12 @@ class OTT(object):
                     else:
                         id2name[ott_id] = [n, name]
                 else:
-                    _f = u'synonym "{n}" maps to an ott_id ({u}) that was not in the taxonomy!'
-                    _m = _f.format(n=name, u=ott_id)
-                    _LOG.debug(_m)
+                    if self.support_subtree_of_taxonomy:
+                        pass
+                    else:
+                        _f = u'synonym "{n}" maps to an ott_id ({u}) that was not in the taxonomy!'
+                        _m = _f.format(n=name, u=ott_id)
+                        _LOG.debug(_m)
                 num_lines += 1
                 if num_lines % 100000 == 0:
                     _LOG.debug('read {n:d} lines...'.format(n=num_lines))
@@ -884,14 +894,21 @@ class OTT(object):
                 if new_id is None:
                     unrecog.append(old_id)
                 else:
-                    if new_id in oi2poi:
-                        if (to_prune_fsi_set is not None) and \
-                                self.check_if_in_pruned_subtree(new_id, known_unpruned, known_pruned, to_prune_fsi_set):
-                            pruned.append(old_id)  # could be in a forward2pruned
+                    new_was_found = False
+                    while not new_was_found:
+                        if new_id in oi2poi:
+                            new_was_found = True
+                            if (to_prune_fsi_set is not None) and \
+                                    self.check_if_in_pruned_subtree(new_id, known_unpruned, known_pruned, to_prune_fsi_set):
+                                pruned.append(old_id)  # could be in a forward2pruned
+                            else:
+                                old2new[old_id] = new_id
+                                mapped.append(new_id)
                         else:
-                            old2new[old_id] = new_id
-                            mapped.append(new_id)
-                    else:
+                            new_id = ft.get(new_id)
+                            if new_id is None:
+                                break
+                    if not new_was_found:
                         forward2unrecog.append(old_id)
         return mapped, unrecog, forward2unrecog, pruned, above_root, old2new
 

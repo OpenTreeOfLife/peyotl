@@ -27,7 +27,7 @@ _replace_default_config(config)
 phylesystem = Phylesystem(pathmap.get_test_repos(),
                           )
 
-_MINI_PHYL_SHA1 = '2d59ab892ddb3d09d4b18c91470b8c1c4cca86dc'
+_MINI_PHYL_SHA1 = 'c281fb7e1cdf9cfdb29bb151ac7e1ad9d1d7036e'
 _SID = 'xy_10'
 _AUTH = {
     'name': 'test_name',
@@ -36,7 +36,19 @@ _AUTH = {
 }
 
 
+def aco_log(obj, tag):
+    nex = obj['nexml']
+    _LOG.debug('{}[acount]={} +[zcount]={}'.format(tag, nex.get('^acount'), nex.get('^zcount')))
+
 class TestPhylesystem(unittest.TestCase):
+    def xtestObjectSHA(self):
+        ga = phylesystem.create_git_action(_SID)
+        ga.acquire_lock()
+        try:
+            obj_sha = ga.object_SHA(_SID)
+        finally:
+            ga.release_lock()
+
     def testSimple(self):
         ga = phylesystem.create_git_action(_SID)
         ga.acquire_lock()
@@ -62,13 +74,15 @@ class TestPhylesystem(unittest.TestCase):
         finally:
             ga.release_lock()
         _LOG.debug('test sha = "{}"'.format(sha))
-        self.assertEquals(wip_map.keys(), ['master'])
+        self.assertEqual(list(wip_map.keys()), ['master'])
         acurr_obj = json.loads(curr)
+        # aco_log(acurr_obj, '1. acurr_obj')
         zcurr_obj = copy.deepcopy(acurr_obj)
         ac = acurr_obj['nexml'].get("^acount", 0)
         # add a second commit that should merge to master
         ac += 1
         acurr_obj['nexml']["^acount"] = ac
+        # aco_log(acurr_obj, '2. acurr_obj')
         try:
             v1b = commit_and_try_merge2master(ga, acurr_obj, _SID, _AUTH, sha)
         except GitWorkflowError:
@@ -81,6 +95,7 @@ class TestPhylesystem(unittest.TestCase):
         zc = zcurr_obj['nexml'].get("^zcount", 0)
         zc += 1
         zcurr_obj['nexml']["^zcount"] = zc
+        # aco_log(zcurr_obj, '2b. zcurr_obj')
         v2b = commit_and_try_merge2master(ga, zcurr_obj, _SID, _AUTH, sha)
 
         self.assertNotEqual(v1b['branch_name'], v2b['branch_name'])
@@ -95,27 +110,29 @@ class TestPhylesystem(unittest.TestCase):
             t, ts, wip_map = ga.return_study(_SID, return_WIP_map=True)
         finally:
             ga.release_lock()
-        self.assertEquals(wip_map['master'], v1b['sha'])
-        self.assertEquals(wip_map['test_gh_login_study_{}_0'.format(_SID)], v2b['sha'])
+        self.assertEqual(wip_map['master'], v1b['sha'])
+        self.assertEqual(wip_map['test_gh_login_study_{}_0'.format(_SID)], v2b['sha'])
 
         # but not for other studies...
         ga.acquire_lock()
         try:
-            t, ts, wip_map = ga.return_study('10', return_WIP_map=True)
+            t, ts, wip_map = ga.return_study('xy_13', return_WIP_map=True)
         finally:
             ga.release_lock()
-        self.assertEquals(wip_map['master'], v1b['sha'])
-        self.assertEquals(wip_map.keys(), ['master'])
+        self.assertEqual(wip_map['master'], v1b['sha'])
+        self.assertEqual(list(wip_map.keys()), ['master'])
 
         # add a fourth commit onto commit 2. This should merge to master
         ac += 1
         acurr_obj['nexml']["^acount"] = ac
+        # aco_log(acurr_obj, '3b. acurr_obj')
         v3b = commit_and_try_merge2master(ga, acurr_obj, _SID, _AUTH, v1b['sha'])
         self.assertFalse(v3b['merge_needed'])
 
         # add a fifth commit onto commit 3. This should still NOT merge to master
         zc += 1
         zcurr_obj['nexml']["^zcount"] = zc
+        # aco_log(zcurr_obj, '4b. zcurr_obj')
         v4b = commit_and_try_merge2master(ga, zcurr_obj, _SID, _AUTH, v2b['sha'])
 
         self.assertNotEqual(v3b['branch_name'], v4b['branch_name'])
@@ -132,6 +149,7 @@ class TestPhylesystem(unittest.TestCase):
         # add a 7th commit onto commit 6. This should NOT merge to master because we don't give it the secret arg.
         zc += 1
         zcurr_obj['nexml']["^zcount"] = zc
+        # aco_log(zcurr_obj, '5b. zcurr_obj')
         v5b = commit_and_try_merge2master(ga, zcurr_obj, _SID, _AUTH, mblob['sha'])
         self.assertNotEqual(v3b['sha'], v5b['sha'])
         self.assertTrue(v5b['merge_needed'])
@@ -151,7 +169,7 @@ class TestPhylesystem(unittest.TestCase):
             t, ts, wip_map = ga.return_study(_SID, return_WIP_map=True)
         finally:
             ga.release_lock()
-        self.assertEquals(wip_map.keys(), ['master'])
+        self.assertEqual(list(wip_map.keys()), ['master'])
 
 
 if __name__ == "__main__":

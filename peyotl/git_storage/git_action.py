@@ -148,6 +148,12 @@ class GitActionBase(object):
         # _LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc returning: [{}]'.format(full_path))
         return full_path
 
+    def object_SHA(self, doc_id):
+        sha = self.get_master_sha()
+        full_path = self.path_for_doc_fn(self.repo, doc_id)
+        import sys
+        sys.exit('sha={sha} full_path="{fp}"\n'.format(sha=sha, fp=full_path))
+
     def lock(self):
         """ for syntax:
         with git_action.lock():
@@ -471,7 +477,7 @@ class GitActionBase(object):
 
         """
         parent_sha = None
-        fc = tempfile.NamedTemporaryFile()
+        fc = tempfile.NamedTemporaryFile("w")
         # N.B. we currently assume file_content is text/JSON, or should be serialized from a dict
         if is_str_type(file_content):
             fc.write(file_content)

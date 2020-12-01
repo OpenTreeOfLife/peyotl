@@ -148,11 +148,10 @@ class GitActionBase(object):
         # _LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc returning: [{}]'.format(full_path))
         return full_path
 
-    def object_SHA(self, doc_id):
-        sha = self.get_master_sha()
+    def object_SHA(self, doc_id, commit_sha='HEAD'):
         full_path = self.path_for_doc_fn(self.repo, doc_id)
-        import sys
-        sys.exit('sha={sha} full_path="{fp}"\n'.format(sha=sha, fp=full_path))
+        return self.get_blob_sha_for_file(full_path, branch=commit_sha)
+
 
     def lock(self):
         """ for syntax:

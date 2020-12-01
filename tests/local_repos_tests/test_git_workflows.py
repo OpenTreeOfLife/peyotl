@@ -24,8 +24,7 @@ if COMMITS_SHOULD_FAIL:
     config.set('phylesystem', 'max_file_size', '10')  # ten bytes is not large
 _replace_default_config(config)
 
-phylesystem = Phylesystem(pathmap.get_test_repos(),
-                          )
+phylesystem = Phylesystem(pathmap.get_test_repos())
 
 _MINI_PHYL_SHA1 = 'c281fb7e1cdf9cfdb29bb151ac7e1ad9d1d7036e'
 _SID = 'xy_10'
@@ -41,13 +40,14 @@ def aco_log(obj, tag):
     _LOG.debug('{}[acount]={} +[zcount]={}'.format(tag, nex.get('^acount'), nex.get('^zcount')))
 
 class TestPhylesystem(unittest.TestCase):
-    def xtestObjectSHA(self):
+    def testObjectSHA(self):
         ga = phylesystem.create_git_action(_SID)
         ga.acquire_lock()
         try:
-            obj_sha = ga.object_SHA(_SID)
+            obj_sha = ga.object_SHA(_SID, commit_sha=_MINI_PHYL_SHA1)
         finally:
             ga.release_lock()
+        self.assertEqual(obj_sha, 'eacda27eae0ea2947ecb97b0b646e2dc5707e70c')
 
     def testSimple(self):
         ga = phylesystem.create_git_action(_SID)

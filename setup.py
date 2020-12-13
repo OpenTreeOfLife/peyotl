@@ -91,7 +91,7 @@ else:
 
 setup(
     name='peyotl',
-    version='0.1.4dev',  # sync with __version__ in peyotl/__init__.py
+    version='1.0.0dev',  # sync with __version__ in peyotl/__init__.py
     description='Library for interacting with Open Tree of Life resources',
     long_description=(open('README.rst').read()),
     url='https://github.com/OpenTreeOfLife/peyotl',

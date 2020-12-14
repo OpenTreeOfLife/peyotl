@@ -271,8 +271,8 @@ class PhylesystemShard(TypeAwareGitShard):
             if nsi_contents:
                 self._next_study_id = nsi_contents['next_study_id']
                 if self._next_study_id <= n:
-                    m = 'next_study_id in {} is set lower than the ID of an existing study!'
-                    m = m.format(self._id_minting_file)
+                    m = 'next_study_id ({}) in {} is set lower than the ID of an existing study ({})!'
+                    m = m.format(self._next_study_id, self._id_minting_file, n)
                     raise RuntimeError(m)
             else:
                 # legacy support for repo with no next_study_id.json file

@@ -165,27 +165,10 @@ $(PEYOTL_ROOT)/scripts/ott/suppress_by_flag.py \
       --log=$(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaned_ott_1.json \
       --flags="$(shell cat $(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaning_flags.txt)" \
       --root="$(shell cat $(PROPINQUITY_OUT_DIR)/cleaned_ott/root_ott_id.txt)"
-$(PEYOTL_ROOT)/scripts/nexson/prune_to_clean_mapped.py \
-    --ott-dir=$(OTT_DIR) \
-    --input-files-list=$(PROPINQUITY_OUT_DIR)/cleaned_phylo/needs_updating.txt \
-    --out-dir=$(PROPINQUITY_OUT_DIR)/cleaned_phylo \
-    --ott-prune-flags="$(shell cat $(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaning_flags.txt)" \
-    --ott-prune-nonflagged-json=$(PROPINQUITY_OUT_DIR)/cleaned_ott/cleaned_ott_pruned_nonflagged.json \
-    --root="$(shell cat $(PROPINQUITY_OUT_DIR)/cleaned_ott/root_ott_id.txt)"
-"${PEYOTL_ROOT}"/scripts/nexson/prune_to_clean_mapped.py \
-  --ott-dir="${OTT_DIR}" \
-  --out-dir=cleaned_phylo \
-  --ott-prune-flags=major_rank_conflict,major_rank_conflict_direct,major_rank_conflict_inherited,environmental,viral,nootu,barren,not_otu,extinct_inherited,extinct_direct,hidden,tattered \
-  phylo_snapshot/${study_tree}.json && \
 $(PEYOTL_ROOT)/scripts/collection_export.py \
     --export=studyID_treeID \
     $(PROPINQUITY_OUT_DIR)/phylo_snapshot/concrete_rank_collection.json \
     >$(PROPINQUITY_OUT_DIR)/phylo_input/study_tree_pairs.txt
-$(PEYOTL_ROOT)/scripts/phylesystem/export_studies_from_collection.py \
-    --phylesystem-par=$(PHYLESYSTEM_ROOT)/shards \
-    --output-dir=$(PROPINQUITY_OUT_DIR)/phylo_snapshot \
-    $(PROPINQUITY_OUT_DIR)/phylo_input/rank_collection.json \
-    -v 2>&1 | tee $(PROPINQUITY_OUT_DIR)/phylo_snapshot/stdouterr.txt
 "${PEYOTL_ROOT}/scripts/nexson/propinquity_newick_to_nexson.py" \
     "--ids=${tree_id}" \
     "${filename}" > "$PROPINQUITY_OUT_DIR/phylo_snapshot/${stem}.json"

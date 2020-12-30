@@ -97,7 +97,7 @@ class _Phylesystem(TypeAwareDocStore):
                                    infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                                    **kwargs)
         self._new_study_prefix = self._growing_shard._new_study_prefix  # TODO:shard-edits?
-        self._growing_shard._determine_next_study_id()
+#        self._growing_shard._determine_next_study_id()
         if with_caching:
             self._cache_region = _make_phylesystem_cache_region()
         else:

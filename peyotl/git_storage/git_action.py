@@ -149,6 +149,8 @@ class GitActionBase(object):
         return full_path
 
     def object_SHA(self, doc_id, commit_sha='HEAD'):
+        if not commit_sha:
+            commit_sha = 'HEAD' 
         full_path = self.path_for_doc_fn(self.repo, doc_id)
         return self.get_blob_sha_for_file(full_path, branch=commit_sha)
 

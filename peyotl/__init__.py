@@ -7,7 +7,7 @@ repositories.
 # Some imports to help our py2 code behave like py3
 from __future__ import absolute_import, print_function, division
 
-__version__ = '1.0.0dev'  # sync with setup.py
+__version__ = '1.0.1dev'  # sync with setup.py
 
 from peyutil import (read_as_json,
                      write_as_json)

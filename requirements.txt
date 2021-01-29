@@ -7,10 +7,6 @@ requests>=2.2.1
 redis
 argcomplete
 python-dateutil
-<<<<<<< HEAD
-setuptools
-nexson>=0.0.1
-peyutil>=0.0.1
+nexson>=0.0.3
+peyutil>=0.0.3
 
-=======
->>>>>>> origin/allow-subtree-of-taxonomy

@@ -7,6 +7,6 @@ requests>=2.2.1
 redis
 argcomplete
 python-dateutil
-nexson>=0.0.3
+nexson>=0.0.4
 peyutil>=0.0.3
 

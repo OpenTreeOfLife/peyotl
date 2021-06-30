@@ -4,6 +4,25 @@
 peyotl.
 """
 __all__ = ['get_logger', 'get_config']
+
+
+def download_large_file(url, destination_filepath):
+    """
+    See http://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
+    by Roman Podlinov
+    """
+    import requests
+    r = requests.get(url, stream=True)
+    r.raise_for_status()
+    par_dir = os.path.split(destination_filepath)[0]
+    assure_dir_exists(par_dir)
+    with open(destination_filepath, 'wb') as f:
+        for chunk in r.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+    return destination_filepath
+
+
 from peyutil import (any_early_exit,
                      doi2url, download,
                      expand_path,

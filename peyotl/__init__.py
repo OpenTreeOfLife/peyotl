@@ -72,3 +72,7 @@ __all__ = ['utility',
            'struct_diff',
            'evaluate_tree',
            ]
+
+from peyotl.otifacts import (filter_otifacts_by_type,
+                             read_all_otifacts,
+                             partition_otifacts_by_root_element, )

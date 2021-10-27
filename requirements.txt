@@ -7,4 +7,4 @@ redis
 enum34
 argcomplete
 python-dateutil
-setuptools
+setuptools<58

@@ -51,10 +51,7 @@ Writes a NexSON representation of the tree to
     # sys.stderr.write('args.newick= {}\n'.format(args.newick))
     with codecs.open(args.newick, 'r', encoding='utf8') as inp:
         tree = parse_newick(stream=inp)
-<<<<<<< HEAD
-=======
         # sys.stderr.write('tree = {}\n'.format(tree))
->>>>>>> origin/allow-subtree-of-taxonomy
         tree_id = next(tree_id_it)
         nexson = get_empty_nexson()
         body = nexson['nexml']

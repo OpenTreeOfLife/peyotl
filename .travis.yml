@@ -3,10 +3,7 @@ python:
     - "2.7"
     - "3.5"
     - "3.6"
-<<<<<<< HEAD
-=======
     - "3.7"
->>>>>>> origin/allow-subtree-of-taxonomy
 install:
     - pip install -r requirements.txt ; python setup.py install
 script:

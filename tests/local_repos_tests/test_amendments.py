@@ -7,7 +7,6 @@ from peyotl.utility import get_logger
 from peyotl.test.support import get_test_path_mapper
 
 pathmap = get_test_path_mapper()
-
 _LOG = get_logger(__name__)
 
 test_repos = pathmap.get_test_repos(['mini_amendments'])

@@ -253,6 +253,7 @@ class OTT(object):
         self.skip_prefixes = ('environmental samples (',)
         self._ott_id_to_names = None
         self._ott_id2par_ott_id = None
+        self._preorder2ott_id = None
         self._version = None
         self._root_name = None
         self._root_ott_id = None
@@ -433,6 +434,12 @@ class OTT(object):
         if self._ott_id_to_ranks is None:
             self._ott_id_to_ranks = self._load_pickled('ottID2ranks')
         return self._ott_id_to_ranks
+
+    @property
+    def preorder2ott_id(self):
+        if self._preorder2ott_id is None:
+            self._preorder2ott_id = self._load_pickled('preorder2ottID')
+        return self._preorder2ott_id
 
     def get_label(self, ott_id, name2label):
         n = self.get_name(ott_id)

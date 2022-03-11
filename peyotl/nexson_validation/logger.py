@@ -69,8 +69,11 @@ def _msg_cmp(x, y):
                 yrv = [yr[i] for i in xrk]
                 if xrv == yrv:
                     return _msg_data_cmp(x, y)
-                if xrv < yrv:
-                    return -1
+                try:  # skip if comparing different types
+                    if xrv < yrv:
+                        return -1
+                except TypeError:
+                    return 1
                 return 1
             return -1 if xrk < yrk else 1
         return 1
@@ -78,7 +81,10 @@ def _msg_cmp(x, y):
         return -1
     if xri == yri:
         return _msg_data_cmp(x, y)
-    return -1 if xri < yri else 1
+    try:  # skip if comparing different types
+        return -1 if xri < yri else 1
+    except TypeError:
+        return 1
 
 
 _msg_key_func = cmp_to_key(_msg_cmp)

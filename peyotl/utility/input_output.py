@@ -69,6 +69,8 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
     else:
         out = dest
     try:
+        if is_str_type(blob):
+            blob = blob.encode('utf-8')
         json.dump(blob, out, indent=indent, sort_keys=sort_keys)
         out.write('\n')
     finally:

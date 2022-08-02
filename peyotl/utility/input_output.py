@@ -61,6 +61,12 @@ def download(url, encoding='utf-8'):
 def write_as_json(blob, dest, indent=0, sort_keys=True):
     """Writes `blob` as JSON to the filepath `dest` or the filestream `dest` (if it isn't a string)
     uses utf-8 encoding if the filepath is given (does not change the encoding if dest is already open).
+    
+
+
+
+
+    (test of line number in debug output)
     """
     opened_out = False
     if is_str_type(dest):

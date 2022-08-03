@@ -61,13 +61,8 @@ def download(url, encoding='utf-8'):
 def write_as_json(blob, dest, indent=0, sort_keys=True):
     """Writes `blob` as JSON to the filepath `dest` or the filestream `dest` (if it isn't a string)
     uses utf-8 encoding if the filepath is given (does not change the encoding if dest is already open).
-    
-
-
-
-
-    (test of line number in debug output)
     """
+    _LOG = get_logger(__name__)
     opened_out = False
     if is_str_type(dest):
         out = codecs.open(dest, mode='w', encoding='utf-8')
@@ -75,8 +70,11 @@ def write_as_json(blob, dest, indent=0, sort_keys=True):
     else:
         out = dest
     try:
+        _LOG.warn(">>>> is_str_type(blob)? ".format(is_str_type(blob)))
         if is_str_type(blob):
+            _LOG.warn(">>>> encoding blob!")
             blob = blob.encode('utf-8')
+            _LOG.warn(">>>> is_str_type(blob)? ".format(is_str_type(blob)))
         json.dump(blob, out, indent=indent, sort_keys=sort_keys)
         out.write('\n')
     finally:

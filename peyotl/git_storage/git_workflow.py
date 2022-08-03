@@ -170,7 +170,7 @@ def generic_commit_and_try_merge2master_wf(git_action,
     #            parent_sha="{p}" merged_sha="{m}"'.format(
     #            s=doc_id, p=parent_sha, m=merged_sha))
     merge_needed = False
-    fc = tempfile.NamedTemporaryFile()
+    fc = tempfile.NamedTemporaryFile(mode='w+t')
     # N.B. we currently assume file_content is text/JSON, or should be serialized from a dict
     try:
         if is_str_type(file_content):

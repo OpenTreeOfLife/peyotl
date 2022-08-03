@@ -3,7 +3,7 @@
 peyotl.
 """
 from peyotl.utility.str_util import is_str_type, StringIO
-import peyotl.utility.get_logger
+from peyotl.utility.get_logger import get_logger
 import codecs
 import json
 import stat

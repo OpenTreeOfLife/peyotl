@@ -280,7 +280,7 @@ class GitActionBase(object):
         except Exception as e:
             # We can ignore this if no changes are new,
             # otherwise raise a 400
-            if "nothing to commit" in e.message:  # @EJM is this dangerous?
+            if isinstance(e, dict) and "nothing to commit" in e.get('message', ""):
                 _LOG.debug('"nothing to commit" found in error response')
             else:
                 _LOG.exception('"git commit" failed')
@@ -501,7 +501,7 @@ class GitActionBase(object):
             except Exception as e:
                 # We can ignore this if no changes are new,
                 # otherwise raise a 400
-                if "nothing to commit" in e.message:  # @EJM is this dangerous?
+                if isinstance(e, dict) and "nothing to commit" in e.get('message', ""):
                     pass
                 else:
                     _LOG.exception('"git commit" failed')

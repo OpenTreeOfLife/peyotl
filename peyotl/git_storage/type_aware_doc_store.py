@@ -280,21 +280,15 @@ class TypeAwareDocStore(ShardedDocStore):
                                                 merged_sha=master_file_blob_included)
 
     def delete_doc(self, doc_id, auth_info, parent_sha, **kwargs):
-        _LOG.warn('delete_doc STARTING...')
-        _LOG.warn('doc_id={}').format(doc_id))
-        _LOG.warn('auth_info={}').format(auth_info))
-        _LOG.warn('parent_sha={}').format(parent_sha))
         git_action = self.create_git_action(doc_id)
         from peyotl.git_storage.git_workflow import delete_document
         doctype_display_name = kwargs.get('doctype_display_name', None)
-        _LOG.warn('doctype_display_name={}').format(doctype_display_name))
         ret = delete_document(git_action,
                               doc_id,
                               auth_info,
                               parent_sha,
                               doctype_display_name=doctype_display_name,
                               **kwargs)
-        _LOG.warn('ret={}').format(ret))
         if not ret['merge_needed']:
             with self._index_lock:
                 try:

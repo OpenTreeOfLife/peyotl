@@ -478,11 +478,7 @@ class GitActionBase(object):
 
         """
         parent_sha = None
-<<<<<<< HEAD
-        fc = tempfile.NamedTemporaryFile("w")
-=======
-        fc = tempfile.NamedTemporaryFile(mode='w+t')
->>>>>>> master
+        fc = tempfile.NamedTemporaryFile("w+t")
         # N.B. we currently assume file_content is text/JSON, or should be serialized from a dict
         if is_str_type(file_content):
             fc.write(file_content)

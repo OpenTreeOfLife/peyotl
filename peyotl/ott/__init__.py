@@ -753,7 +753,7 @@ class OTT(object):
                         try:
                             if ls[0] == 'id':  # deal with header
                                 continue
-                            old_id, new_id = ls[0], ls[1]
+                            old_id, new_id = int(ls[0]), int(ls[1])
                         except:
                             if line.strip():
                                 raise RuntimeError('error parsing line in "{}":\n{}'.format(fp, line))
@@ -880,6 +880,7 @@ class OTT(object):
         known_above_root, known_below_root = set(), set()
         oi2poi = self.ott_id2par_ott_id
         ft = self.forward_table
+        _LOG.debug("len(ft) = {}".format(len(ft)))
         for old_id in ott_id_list:
             if old_id in oi2poi:
                 if self.check_if_above_root(old_id, known_above_root, known_below_root, root_ott_id):
@@ -892,6 +893,7 @@ class OTT(object):
             else:
                 new_id = ft.get(old_id)
                 if new_id is None:
+                    _LOG.debug("{o} not found in ott_id2par_ott_id or forward_table".format(o=type(old_id)))
                     unrecog.append(old_id)
                 else:
                     new_was_found = False

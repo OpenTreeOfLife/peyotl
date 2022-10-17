@@ -44,7 +44,7 @@ def gen_otu_dict(nex_obj, nexson_version=None):
                 d.update(v['otuById'])
             return d
         else:
-            return otus.values()[0]['otuById']
+            return list(otus.values())[0]['otuById']
     o_dict = {}
     for ob in nex_obj.get('otus', []):
         for o in ob.get('otu', []):

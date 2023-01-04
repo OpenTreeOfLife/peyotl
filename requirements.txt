@@ -5,8 +5,7 @@ sh>=1.08
 locket>=0.1.1
 requests>=2.2.1
 redis
+enum34==1.1.10; python_version < '3.4'
 argcomplete
 python-dateutil
-nexson>=0.0.4
-peyutil>=0.0.3
-
+setuptools<58

@@ -1,19 +1,10 @@
 #! /usr/bin/env python
-<<<<<<< HEAD
-from peyotl.phylesystem.git_workflows import commit_and_try_merge2master, GitWorkflowError
-from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
-import unittest
-import json
-import copy
-=======
 import copy
 import json
 import unittest
-
 from peyotl.phylesystem.git_workflows import commit_and_try_merge2master
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem
 from peyotl.test.support import pathmap
->>>>>>> origin/allow-subtree-of-taxonomy
 from peyotl.utility import get_logger
 from peyotl.test.support import get_test_path_mapper
 

@@ -170,7 +170,7 @@ def generic_commit_and_try_merge2master_wf(git_action,
     #            parent_sha="{p}" merged_sha="{m}"'.format(
     #            s=doc_id, p=parent_sha, m=merged_sha))
     merge_needed = False
-    fc = tempfile.NamedTemporaryFile("w")
+    fc = tempfile.NamedTemporaryFile(mode='w+t')
     # N.B. we currently assume file_content is text/JSON, or should be serialized from a dict
     try:
         if is_str_type(file_content):
@@ -201,8 +201,12 @@ def generic_commit_and_try_merge2master_wf(git_action,
                                                                 doctype_display_name)
             except Exception as e:
                 _LOG.exception('write_doc_from_tmpfile exception')
+                if isinstance(e, dict):
+                    found_msg = e.get('message', 'NO MESSAGE FOUND')
+                else:
+                    found_msg = ""
                 raise GitWorkflowError("Could not write to %s #%s ! Details: \n%s" %
-                                       (doctype_display_name, doc_id, e.message))
+                                       (doctype_display_name, doc_id, found_msg))
             written_fp = git_action.path_for_doc(doc_id)
             branch_name = commit_resp['branch']
             new_sha = commit_resp['commit_sha']

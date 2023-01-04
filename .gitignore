@@ -14,8 +14,4 @@ requests-*egg
 .eggs
 dev/external_deps.txt
 is-oti-up.sh
-<<<<<<< HEAD
-peyotl/test/data/amendments/amendment-bad-dois.json.output
-=======
 peyotl/test/data/*/*.output
->>>>>>> origin/allow-subtree-of-taxonomy

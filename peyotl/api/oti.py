@@ -219,7 +219,7 @@ class _OTIWrapper(_WSWrapper):
                 self.query_prefix = '{d}/oti/QueryServices/graphdb'.format(d=d)
             else:
                 self.indexing_prefix = '{d}/oti/IndexServices/graphdb'.format(d=d)
-                self.query_prefix = '{d}/v2/studies'.format(d=d)
+                self.query_prefix = '{d}/v3/studies'.format(d=d)
 
     @property
     def node_search_term_set(self):

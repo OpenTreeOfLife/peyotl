@@ -1,4 +1,3 @@
-setuptools
 anyjson
 coverage
 sh>=1.08

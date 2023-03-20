@@ -22,6 +22,14 @@ _TREEMACHINE_PRUNE_FLAGS = {'major_rank_conflict', 'major_rank_conflict_direct',
                             'barren', 'not_otu', 'incertae_sedis', 'incertae_sedis_direct', 'incertae_sedis_inherited',
                             'extinct_inherited', 'extinct_direct', 'hidden', 'unclassified', 'tattered'}
 
+# Either convert a string to unicode, or returns an
+# already-unicode string. Used for curator names.
+def to_unicode(text):
+    try:
+        text = str(text, 'utf-8')
+        return text
+    except TypeError:
+        return text
 
 class OTTFlagUnion(object):
     def __init__(self, ott, flag_set):
@@ -613,7 +621,7 @@ class OTT(object):
             assert first_line.startswith('name\t|\tuid\t|\ttype\t|\tuniqname')
             for rown in it:
                 ls = rown.split('\t|\t')
-                name, ott_id = ls[0], ls[1]
+                name, ott_id = to_unicode[0], ls[1]
                 ott_id = int(ott_id)
                 if ott_id in id2name:
                     n = id2name[ott_id]

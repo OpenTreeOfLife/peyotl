@@ -542,7 +542,9 @@ class OTT(object):
             for rown in it:
                 ls = rown.split('\t|\t')
                 uid, par, name = ls[:3]
+                name = to_unicode(name)
                 rank,sourceinfo, uniqname, flags = ls[3:7]
+                uniqname = to_unicode(name)
                 skip = False
                 for p in self.skip_prefixes:
                     if uniqname.startswith(p):

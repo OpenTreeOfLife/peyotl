@@ -42,7 +42,14 @@ def _msg_data_cmp(x, y):
     yl = y.get('data', _LIST_1)
     if xl == yl:
         return 0
-    return -1 if xl < yl else 1
+    try:
+        return -1 if xl < yl else 1
+    except TypeError:
+        if isinstance(xl, list) and isinstance(yl, tuple):
+            return -1 if tuple(xl) < yl else 1
+        if isinstance(yl, list) and isinstance(xl, tuple):
+            return -1 if xl < tuple(yl) else 1
+        raise
 
 
 def _msg_cmp(x, y):

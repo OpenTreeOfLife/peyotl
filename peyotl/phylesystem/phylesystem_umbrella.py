@@ -11,8 +11,7 @@ from peyotl.git_storage import ShardedDocStore, \
 from peyotl.phylesystem.phylesystem_shard import PhylesystemShardProxy, PhylesystemShard
 from peyotl.phylesystem.git_actions import PhylesystemGitAction
 from peyotl.phylesystem.git_workflows import validate_and_convert_nexson
-from peyotl.nexson_validation import ot_validate
-from peyotl.nexson_validation._validation_base import NexsonAnnotationAdder, replace_same_agent_annotation
+from peyotl.nexson_validation import ot_validate, NexsonAnnotationAdder, replace_same_agent_annotation
 import re
 
 STUDY_ID_PATTERN = re.compile(r'[a-zA-Z][a-zA-Z]_[0-9]+')
@@ -49,6 +48,7 @@ class PhylesystemProxy(ShardedDocStore):
         self._doc2shard_map = d
 
 
+# noinspection PyAttributeOutsideInit
 class _Phylesystem(TypeAwareDocStore):
     """Wrapper around a set of sharded git repos, with business rules specific to Nexson studies.
     """
@@ -97,7 +97,7 @@ class _Phylesystem(TypeAwareDocStore):
                                    infrastructure_commit_author='OpenTree API <api@opentreeoflife.org>',
                                    **kwargs)
         self._new_study_prefix = self._growing_shard._new_study_prefix  # TODO:shard-edits?
-        self._growing_shard._determine_next_study_id()
+#        self._growing_shard._determine_next_study_id()
         if with_caching:
             self._cache_region = _make_phylesystem_cache_region()
         else:

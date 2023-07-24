@@ -2,10 +2,11 @@
 # coding=utf-8
 from peyotl.collections_store.collections_umbrella import _TreeCollectionStore
 import unittest
-from peyotl.test.support import pathmap
 import os
-
 from peyotl.utility import get_logger
+from peyotl.test.support import get_test_path_mapper
+
+pathmap = get_test_path_mapper()
 
 _LOG = get_logger(__name__)
 
@@ -25,7 +26,7 @@ class TestTreeCollections(unittest.TestCase):
         self.r = dict(_repos)
 
     def testSlugify(self):
-        from peyotl.utility.str_util import slugify
+        from peyutil import slugify
         self.assertEqual('simple-test', slugify('Simple Test'))
         self.assertEqual('no-punctuation-allowed', slugify('No punctuation allowed!?'))
         self.assertEqual('no-extra-spaces-', slugify('No \t extra   spaces   '))

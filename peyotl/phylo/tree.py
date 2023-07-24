@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility.tokenizer import NewickEvents
+from peyutil import NewickEvents
 from peyotl.utility import get_logger
 import sys
 
@@ -183,6 +183,7 @@ class _TreeWithNodeIDs(object):
         for i in node._path_ids:
             self._id2node[i] = node
 
+    # noinspection PyPep8Naming
     def do_full_check_of_invariants(self, testCase, **kwargs):
         _do_full_check_of_tree_invariants(self, testCase, **kwargs)
 
@@ -211,6 +212,7 @@ class SpikeTreeError(Exception):
         self.anc = anc
 
 
+# noinspection PyAttributeOutsideInit
 class TreeWithPathsInEdges(_TreeWithNodeIDs):
     def __init__(self, id_to_par_id=None, newick_events=None):
         _TreeWithNodeIDs.__init__(self)
@@ -521,16 +523,16 @@ def _do_full_check_of_tree_invariants(tree, testCase, id2par=None, leaf_ids=None
             # _LOG.debug('anc_set = {}'.format(anc_set))
             # _LOG.debug('checked_node = {}'.format(checked_node))
     if len(tree._id2node) > 1:
-        from peyotl.utility.str_util import StringIO
+        from peyutil import StringIO
         o = StringIO()
         tree.write_newick(o)
-        from peyotl.utility.tokenizer import NewickEventFactory
+        from peyutil.tokenizer import NewickEventFactory
         nef = NewickEventFactory(newick=o.getvalue())
         TreeWithPathsInEdges(newick_events=nef)
 
 
 def parse_newick(newick=None, stream=None, filepath=None, _class=TreeWithPathsInEdges):
-    from peyotl.utility.tokenizer import NewickEventFactory, NewickTokenizer
+    from peyutil import NewickEventFactory, NewickTokenizer
     nt = NewickTokenizer(stream=stream, newick=newick, filepath=filepath)
     nef = NewickEventFactory(tokenizer=nt)
     return _class(newick_events=nef)

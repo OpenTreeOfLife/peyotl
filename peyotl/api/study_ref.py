@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from peyotl.utility.dict_wrapper import FrozenDictAttrWrapper
+from peyutil.dict_wrapper import FrozenDictAttrWrapper
 import copy
 
 

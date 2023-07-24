@@ -3,6 +3,7 @@ from subprocess import check_output
 import sys
 import os
 import re
+
 if '-h' in sys.argv:
     sys.stdout.write('''script to parse import statements in peyotl to determine
 which subpackages depend on which other parts.
@@ -76,14 +77,18 @@ for i in sub_els:
         continue
     if i not in d:
         d[i] = {}
+
+
 def simplify_list_of_deps(dep_dict, dep_list):
     remove = set()
     for i in dep_list:
         for j in dep_list:
             if (i != j) and (i in dep_dict.get(j, {})):
-                #sys.stderr.write('{i} removed because it is in {j} deps\n'.format(i=i, j=j))
+                # sys.stderr.write('{i} removed because it is in {j} deps\n'.format(i=i, j=j))
                 remove.add(i)
     return set([i for i in dep_list if i not in remove])
+
+
 for suppress in ['test', '__init__']:
     if suppress in d:
         del d[suppress]
@@ -91,7 +96,7 @@ if simplify:
     r = {}
     for k, v in d.items():
         r[k] = simplify_list_of_deps(d, v)
-        #sys.stderr.write(k + ' -> ' + str(v) + '\n to    -> ' + str(r[k]) + '\n')
+        # sys.stderr.write(k + ' -> ' + str(v) + '\n to    -> ' + str(r[k]) + '\n')
     d = r
 
 ml = list(d.keys())
@@ -119,6 +124,3 @@ else:
         x = [i for i in dep_set if i != mod]
         x.sort()
         print('{m} depends on: "{d}"'.format(m=mod, d='", "'.join(x)))
-
-
-

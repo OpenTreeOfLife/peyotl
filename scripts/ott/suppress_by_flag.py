@@ -38,6 +38,11 @@ if __name__ == '__main__':
                         type=int,
                         required=False,
                         help='Optional taxonomy root argument.')
+    parser.add_argument('--flagged-taxa-out',
+                        default=None,
+                        type=str,
+                        required=False,
+                        help='Filepath for an output JSON file listing OTT Ids of taxa flagged as extinct, and retained in the tree')
     args = parser.parse_args(sys.argv[1:])
     ott_dir, output, log_filename, root = args.ott_dir, args.output, args.log, args.root
     flags_str = args.flags
@@ -45,12 +50,13 @@ if __name__ == '__main__':
         assert os.path.isdir(args.ott_dir)
     except:
         sys.exit('Expecting ott-dir argument to be a directory. Got "{}"'.format(args.ott_dir))
-    ott = OTT(ott_dir=args.ott_dir)
+    extinct_out_fp = args.flagged_taxa_out
+    ott = OTT(ott_dir=args.ott_dir, support_subtree_of_taxonomy=True)
     if flags_str is None:
         flags = ott.TREEMACHINE_SUPPRESS_FLAGS
     else:
         flags = flags_str.split(',')
-    create_log = log_filename is not None
+    create_log = (log_filename is not None) and (extinct_out_fp is not None)
     with codecs.open(args.output, 'w', encoding='utf-8') as outp:
         log = ott.write_newick(outp,
                                label_style=OTULabelStyleEnum.CURRENT_LABEL_OTT_ID,
@@ -58,5 +64,12 @@ if __name__ == '__main__':
                                prune_flags=flags,
                                create_log_dict=create_log)
         outp.write('\n')
+    if extinct_out_fp is not None:
+        d = {'extinct': log.get('extinct_unpruned_ids',[]),
+             'incertae_sedis': log.get('incertae_sedis_unpruned_ids', [])
+            }
+        write_as_json(d, extinct_out_fp)
     if create_log:
+        if 'extinct_unpruned_ids' in log:
+            del log['extinct_unpruned_ids']
         write_as_json(log, log_filename)

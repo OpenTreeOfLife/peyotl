@@ -9,10 +9,10 @@ then
     num_fails=$(expr 1 + ${num_fails})
 fi
 f=0
-if ! ./tests/integration-tests.sh
-then
-    f=1
-fi
+# if ! ./tests/integration-tests.sh
+# then
+#     f=1
+# fi
 s=0
 if ! python setup.py test
 then

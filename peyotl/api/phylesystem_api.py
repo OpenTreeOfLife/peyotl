@@ -1,11 +1,11 @@
 #!/usr/bin/env python
+from peyutil import urlencode
 from peyotl.phylesystem.phylesystem_umbrella import Phylesystem, PhylesystemProxy
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import TreeRef
 from peyotl.nexson_syntax import create_content_spec
 from peyotl.utility import get_logger
 import anyjson
-import urllib
 import os
 
 _LOG = get_logger(__name__)
@@ -220,7 +220,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
     def url_for_api_get_study(self, study_id, schema):
         u, d = schema.phylesystem_api_url(self._prefix, study_id)
         if d:
-            return '{u}?{d}'.format(u=u, d=urllib.urlencode(d))
+            return '{u}?{d}'.format(u=u, d=urlencode(d))
         return u
 
     def _remote_get_study(self, study_id, schema):

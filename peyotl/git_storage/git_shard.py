@@ -13,8 +13,8 @@ except:
     anyjson.loads = json.loads
 
 from threading import Lock
-from peyotl.utility import get_logger, write_to_filepath
-from peyotl.utility.input_output import read_as_json, write_as_json
+from peyotl.utility import get_logger
+from peyutil import read_as_json, write_as_json, write_to_filepath
 
 
 class FailedShardCreationError(ValueError):

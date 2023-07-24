@@ -78,7 +78,7 @@ def get_logger(name="peyotl"):
         logger.addHandler(ch)
         if log_init_warnings:
             for w in log_init_warnings:
-                logger.warn(w)
+                logger.warning(w)
     return logger
 
 
@@ -92,7 +92,7 @@ def warn_from_util_logger(msg):
         return
     if _LOG is None:
         _LOG = get_logger("peyotl.utility")
-    _LOG.warn(msg)
+    _LOG.warning(msg)
 
 
 def _logging_env_conf_overrides(log_init_warnings=None):

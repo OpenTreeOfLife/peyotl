@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 from peyotl.api import PhylesystemAPI
-from peyotl.nexson_syntax.helper import detect_nexson_version, find_val_literal_meta_first
+from peyotl.nexson_syntax import detect_nexson_version, find_val_literal_meta_first
 from peyotl.test.support.pathmap import get_test_ot_service_domains
 from peyotl.test.support import test_phylesystem_api_for_study
 from peyotl.utility import get_logger

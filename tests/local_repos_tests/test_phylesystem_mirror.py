@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 import unittest
-import codecs
-import json
 import os
 import re
-from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
+from peyotl.test.support import get_test_path_mapper
 
+pathmap = get_test_path_mapper()
 _LOG = get_logger(__name__)
 
 PUSHABLE_PATTERN = re.compile(r'\s*url\s*[=]\s*git@')
@@ -37,7 +36,7 @@ class TestPhylesystemMirror(unittest.TestCase):
             return
         acurr_obj, sha, wip_map = p.return_study(_SID, return_WIP_map=True)
         _LOG.debug('test sha = "{}"'.format(sha))
-        self.assertEquals(wip_map.keys(), ['master'])
+        self.assertEqual(wip_map.keys(), ['master'])
         ac = acurr_obj['nexml'].get("^acount", 0)
         # add a second commit that should merge to master
         ac += 1

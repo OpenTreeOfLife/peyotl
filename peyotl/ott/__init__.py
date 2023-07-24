@@ -1,27 +1,36 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function, division
-from peyotl.phylo.entities import OTULabelStyleEnum
-from peyotl.nexson_syntax import quote_newick_name
-from peyotl.phylo.tree import create_tree_from_id2par, create_anc_lineage_from_id2par
-from peyotl.utility.str_util import is_str_type
-from peyotl.utility import get_config_object, get_logger
-from collections import defaultdict
-import pickle
+
 import codecs
 import os
+import pickle
+
+from peyotl.nexson_syntax import quote_newick_name
+from peyotl.phylo.entities import OTULabelStyleEnum
+from peyotl.phylo.tree import create_tree_from_id2par, create_anc_lineage_from_id2par
+from peyotl.utility import get_config_object, get_logger
+from peyutil import is_str_type
 
 _LOG = get_logger(__name__)
 NONE_PAR = None
 
 _PICKLE_AS_JSON = False
 if _PICKLE_AS_JSON:
-    from peyotl.utility.input_output import read_as_json, write_as_json
+    from peyutil import read_as_json, write_as_json
 
 _TREEMACHINE_PRUNE_FLAGS = {'major_rank_conflict', 'major_rank_conflict_direct', 'major_rank_conflict_inherited',
                             'environmental', 'unclassified_inherited', 'unclassified_direct', 'viral', 'nootu',
                             'barren', 'not_otu', 'incertae_sedis', 'incertae_sedis_direct', 'incertae_sedis_inherited',
                             'extinct_inherited', 'extinct_direct', 'hidden', 'unclassified', 'tattered'}
 
+# Either convert a string to unicode, or returns an
+# already-unicode string. Used for curator names.
+def to_unicode(text):
+    try:
+        text = str(text, 'utf-8')
+        return text
+    except TypeError:
+        return text
 
 class OTTFlagUnion(object):
     def __init__(self, ott, flag_set):
@@ -54,11 +63,17 @@ def write_newick_ott(out,
     else:
         flags_to_prune_list = []
         to_prune_fsi_set = None
+    extinct_fsi_set = ott.convert_flag_string_set_to_union(['extinct', 'extinct_inherited', 'extinct_direct'])
+    extinct_unpruned_ids = set()
+    inc_sed_fsi_set = ott.convert_flag_string_set_to_union(['incertae_sedis', 'incertae_sedis_direct', 'incertae_sedis_inherited'])
+    inc_sed_unpruned_ids = set()
     flags_to_prune_set = frozenset(flags_to_prune_list)
     pfd = {}
     log_dict = None
     if create_log_dict:
-        log_dict = {'version': ott.version, 'flags_to_prune': flags_to_prune_list}
+        log_dict = {'version': ott.version,
+                    'flags_to_prune': flags_to_prune_list,
+                   }
         fsi_to_str_flag_set = {}
         for k, v in dict(ott.flag_set_id_to_flag_set).items():
             fsi_to_str_flag_set[k] = frozenset(list(v))
@@ -106,6 +121,10 @@ def write_newick_ott(out,
                                     fd['anc_ott_id_pruned'].append(child_id)
                             num_pruned_anc_nodes += 1
                         else:
+                            if ott.has_flag_set_key_intersection(child_id, extinct_fsi_set):
+                                extinct_unpruned_ids.add(child_id)
+                            if ott.has_flag_set_key_intersection(child_id, inc_sed_fsi_set):
+                                inc_sed_unpruned_ids.add(child_id)
                             c.append(child_id)
                     children = c
                     nc = len(children)
@@ -114,6 +133,10 @@ def write_newick_ott(out,
                             num_monotypic_nodes += 1
                         else:
                             num_tips += 1
+                if ott.has_flag_set_key_intersection(ott_id, extinct_fsi_set):
+                    extinct_unpruned_ids.add(ott_id)
+                if ott.has_flag_set_key_intersection(ott_id, inc_sed_fsi_set):
+                    inc_sed_unpruned_ids.add(ott_id)
                 if ott_id not in first_children:
                     out.write(',')
                 else:
@@ -146,9 +169,16 @@ def write_newick_ott(out,
         log_dict['num_non_leaf_nodes'] = num_nodes - num_tips
         log_dict['num_non_leaf_nodes_with_multiple_children'] = num_nodes - num_tips - num_monotypic_nodes
         log_dict['num_monotypic_nodes'] = num_monotypic_nodes
+        extinct_unpruned_id_list = list(extinct_unpruned_ids)
+        extinct_unpruned_id_list.sort()
+        inc_sed_unpruned_id_list = list(inc_sed_unpruned_ids)
+        inc_sed_unpruned_id_list.sort()
+        log_dict['extinct_unpruned_ids'] = extinct_unpruned_id_list
+        log_dict['incertae_sedis_unpruned_ids'] = inc_sed_unpruned_id_list
     return log_dict
 
 
+# noinspection PyUnresolvedReferences
 class _TransitionalNode(object):
     def __init__(self, ott_id=None, par=None):
         self.par = par
@@ -198,6 +228,7 @@ class _TransitionalNode(object):
         elif self.ott_id is not None:
             leaves.add(self.ott_id)
 
+
 _CACHES = {
     'flagsetid2flagset': ('flagSetID2FlagSet', 'maps an integer to set of flags. Used to compress the flags field'),
     'forwardingtable': ('forward_table', 'maps a deprecated ID to its forwarded ID'),
@@ -205,11 +236,12 @@ _CACHES = {
     'name2ottid': ('name2ottID', 'maps a taxon name -> ott ID ',),
     'ncbi2ottid': ('ncbi2ottID', 'maps an ncbi to an ott ID or list of ott IDs'),
     'nonhomonym2ottid': ('nonhomonym2ottID', 'maps a taxon name -> single OTT ID ',),
-    'ottid2flags': ('ottID2flags', '''maps an ott ID to an integer that can be looked up in the flag_set_id2flag_set dictionary. Absence of a ott ID means that there were no flags set.''',),
+    'ottid2flags': ('ottID2flags',
+                    '''maps an ott ID to an integer that can be looked up in the flag_set_id2flag_set dictionary. Absence of a ott ID means that there were no flags set.''',),
     'ottid2names': ('ottID2names', 'ottID to a name or list/tuple of names',),
     'ottid2parentottid': ('ottID2parentOttId', 'ott ID-> parent\'s ott ID. root maps to -1',),
     'ottid2preorder': ('ottID2preorder', 'ott ID -> preorder #',),
-    'ottid2ranks': ('ottID2ranks','ottID -> rank',),
+    'ottid2ranks': ('ottID2ranks', 'ottID -> rank',),
     'ottid2sources': ('ottIDsources', '''maps an ott ID to a dict. The value
     holds a mapping of a source taxonomy name to the ID of this ott ID in that
     taxonomy.''',),
@@ -225,7 +257,7 @@ _CACHES = {
     'root': ('root', 'name and ott_id of the root of the taxonomy',),
     'taxonomicsources': ('taxonomicSources', 'the set of all taxonomic source prefixes'),
     'uniq2ottid': ('uniq2ottID', 'uniqname -> ott ID for those IDs that have a uniqname',)
-   }
+}
 _SECOND_LEVEL_CACHES = {'ncbi2ottid'}
 
 
@@ -234,9 +266,19 @@ class CacheNotFoundError(RuntimeError):
         RuntimeError.__init__(self, 'Cache {} not found'.format(m))
 
 
+
 class OTT(object):
     TREEMACHINE_SUPPRESS_FLAGS = _TREEMACHINE_PRUNE_FLAGS
-
+    FILENAMES = ('about.json',
+                 'conflicts.tsv',
+                 'deprecated.tsv',
+                 'forwards.tsv',
+                 'log.tsv',
+                 'otu_differences.tsv',
+                 'synonyms.tsv',
+                 'taxonomy.tsv',
+                 'version.txt',
+                )
     def __init__(self, ott_dir=None, **kwargs):
         self._config = kwargs.get('config')
         if self._config is None:
@@ -265,6 +307,7 @@ class OTT(object):
         self._taxonomic_sources = None
         self._ncbi_2_ott_id = None
         self._forward_table = None
+        self.support_subtree_of_taxonomy = kwargs.get('support_subtree_of_taxonomy', False)
 
     def create_ncbi_to_ott(self):
         ncbi2ott = {}
@@ -534,7 +577,10 @@ class OTT(object):
             for rown in it:
                 ls = rown.split('\t|\t')
                 uid, par, name = ls[:3]
-                rank,sourceinfo, uniqname, flags = ls[3:7]
+                rank, sourceinfo, uniqname, flags = ls[3:7]
+                name = to_unicode(name)
+                rank, sourceinfo, uniqname, flags = ls[3:7]
+                uniqname = to_unicode(name)
                 skip = False
                 for p in self.skip_prefixes:
                     if uniqname.startswith(p):
@@ -547,13 +593,18 @@ class OTT(object):
                     # parse the root node (name = life; no parent)
                     par = NONE_PAR
                     root_ott_id = uid
-                    assert name == 'life'
                     self._root_name = name
                 else:
                     # this is not the root node
                     par = int(par)
                     if par not in id2par:
-                        raise ValueError('parent {} not found in OTT parsing'.format(par))
+                        if not self.support_subtree_of_taxonomy:
+                            raise ValueError('parent {} not found in OTT parsing'.format(par))
+                        else:
+                            _LOG.warning('parent {} not found in OTT parsing, setting to None'.format(par))
+                            par = NONE_PAR
+                            root_ott_id = uid
+                            self._root_name = name
                 assert ls[7] == '\n'
                 assert uid not in id2par
                 id2par[uid] = par
@@ -613,7 +664,7 @@ class OTT(object):
             assert first_line.startswith('name\t|\tuid\t|\ttype\t|\tuniqname')
             for rown in it:
                 ls = rown.split('\t|\t')
-                name, ott_id = ls[0], ls[1]
+                name, ott_id = to_unicode(ls[0]), ls[1]
                 ott_id = int(ott_id)
                 if ott_id in id2name:
                     n = id2name[ott_id]
@@ -622,9 +673,12 @@ class OTT(object):
                     else:
                         id2name[ott_id] = [n, name]
                 else:
-                    _f = u'synonym "{n}" maps to an ott_id ({u}) that was not in the taxonomy!'
-                    _m = _f.format(n=name, u=ott_id)
-                    _LOG.debug(_m)
+                    if self.support_subtree_of_taxonomy:
+                        pass
+                    else:
+                        _f = u'synonym "{n}" maps to an ott_id ({u}) that was not in the taxonomy!'
+                        _m = _f.format(n=name, u=ott_id)
+                        _LOG.debug(_m)
                 num_lines += 1
                 if num_lines % 100000 == 0:
                     _LOG.debug('read {n:d} lines...'.format(n=num_lines))
@@ -714,15 +768,16 @@ class OTT(object):
                         try:
                             if ls[0] == 'id':  # deal with header
                                 continue
-                            old_id, new_id = ls[0], ls[1]
+                            old_id, new_id = int(ls[0]), int(ls[1])
                         except:
                             if line.strip():
                                 raise RuntimeError('error parsing line in "{}":\n{}'.format(fp, line))
-                        if old_id in r:
-                            _LOG.warn(
-                                'fp: "{}" {} -> {} but {} -> {} already.'.format(fp, old_id, new_id, old_id, r[old_id]))
-                            assert old_id not in r
-                        r[old_id] = new_id
+                        else:
+                            if old_id in r:
+                                _LOG.warn(
+                                    'fp: "{}" {} -> {} but {} -> {} already.'.format(fp, old_id, new_id, old_id, r[old_id]))
+                                assert old_id not in r
+                            r[old_id] = new_id
         while True:
             reforward = [(k, v) for k, v in r.items() if v in r]
             if not reforward:
@@ -775,8 +830,7 @@ class OTT(object):
         asl = []
         for a in al:
             asl.append(' -> '.join(['{:<8}'.format(i) for i in a]))
-        l = [len(i) for i in asl]
-        m = max(l)
+        m = max([len(i) for i in asl])
         fmt = "{:<8} : {:>%d}" % m
         for n, o in enumerate(ott_id_list):
             _LOG.debug(fmt.format(o, asl[n]))
@@ -840,6 +894,7 @@ class OTT(object):
         known_above_root, known_below_root = set(), set()
         oi2poi = self.ott_id2par_ott_id
         ft = self.forward_table
+        # _LOG.debug("len(ft) = {}".format(len(ft)))
         for old_id in ott_id_list:
             if old_id in oi2poi:
                 if self.check_if_above_root(old_id, known_above_root, known_below_root, root_ott_id):
@@ -852,16 +907,24 @@ class OTT(object):
             else:
                 new_id = ft.get(old_id)
                 if new_id is None:
+                    # _LOG.debug("{o} not found in ott_id2par_ott_id or forward_table".format(o=type(old_id)))
                     unrecog.append(old_id)
                 else:
-                    if new_id in oi2poi:
-                        if (to_prune_fsi_set is not None) and \
-                                self.check_if_in_pruned_subtree(new_id, known_unpruned, known_pruned, to_prune_fsi_set):
-                            pruned.append(old_id)  # could be in a forward2pruned
+                    new_was_found = False
+                    while not new_was_found:
+                        if new_id in oi2poi:
+                            new_was_found = True
+                            if (to_prune_fsi_set is not None) and \
+                                    self.check_if_in_pruned_subtree(new_id, known_unpruned, known_pruned, to_prune_fsi_set):
+                                pruned.append(old_id)  # could be in a forward2pruned
+                            else:
+                                old2new[old_id] = new_id
+                                mapped.append(new_id)
                         else:
-                            old2new[old_id] = new_id
-                            mapped.append(new_id)
-                    else:
+                            new_id = ft.get(new_id)
+                            if new_id is None:
+                                break
+                    if not new_was_found:
                         forward2unrecog.append(old_id)
         return mapped, unrecog, forward2unrecog, pruned, above_root, old2new
 

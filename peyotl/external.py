@@ -6,8 +6,8 @@ from peyotl.nexson_syntax import (get_ot_study_info_from_nexml,
                                   DEFAULT_NEXSON_VERSION,
                                   BY_ID_HONEY_BADGERFISH,
                                   convert_nexson_format,
-                                  sort_arbitrarily_ordered_nexson)
-from peyotl.nexson_syntax.helper import _simplify_all_meta_by_id_del
+                                  sort_arbitrarily_ordered_nexson,
+                                  _simplify_all_meta_by_id_del)
 from peyotl.utility import get_logger, doi2url
 
 _LOG = get_logger(__name__)

@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 from peyotl.manip import count_num_trees, iter_trees
-from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
+from nexson.test.support.pathmap import get_test_path_mapper as ntest_path_mapper
+
+pathmap = ntest_path_mapper()
 
 _LOG = get_logger(__name__)
 

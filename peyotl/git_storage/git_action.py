@@ -1,5 +1,5 @@
 """Base class git action manager (subclasses will accommodate each type)"""
-from peyotl.utility.str_util import is_str_type
+from peyutil import is_str_type
 from peyotl.nexson_syntax import write_as_json
 from peyotl.utility import get_logger
 import os
@@ -63,6 +63,7 @@ class RepoLock(object):
         self._lock.release()
 
 
+# noinspection PyPep8Naming
 class GitActionBase(object):
     @staticmethod
     def clone_repo(par_dir, repo_local_name, remote):
@@ -147,6 +148,12 @@ class GitActionBase(object):
         # _LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc_fn: {}'.format(self.path_for_doc_fn))
         # _LOG.debug('>>>>>>>>>> GitActionBase.path_for_doc returning: [{}]'.format(full_path))
         return full_path
+
+    def object_SHA(self, doc_id, commit_sha='HEAD'):
+        if not commit_sha:
+            commit_sha = 'HEAD' 
+        full_path = self.path_for_doc_fn(self.repo, doc_id)
+        return self.get_blob_sha_for_file(full_path, branch=commit_sha)
 
     def lock(self):
         """ for syntax:

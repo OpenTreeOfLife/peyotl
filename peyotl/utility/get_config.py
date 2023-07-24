@@ -133,7 +133,7 @@ def _warn_missing_setting(section, param, config_filename, warn_on_none_level=lo
         return
     # noinspection PyProtectedMember
     from peyotl.utility.get_logger import warn_from_util_logger
-    from peyotl.utility.str_util import is_str_type
+    from peyutil import is_str_type
     if config_filename:
         if not is_str_type(config_filename):
             f = ' "{}" '.format('", "'.join(config_filename))

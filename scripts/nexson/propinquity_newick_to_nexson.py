@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-from peyotl.phylo.tree import parse_newick
-from peyotl.nexson_syntax import get_empty_nexson
-from peyotl import write_as_json
 import codecs
-import json
-import sys
 import os
 import re
+import sys
+
+from peyotl import write_as_json
+from peyotl.nexson_syntax import get_empty_nexson
+from peyotl.phylo.tree import parse_newick
 
 _ID_EXTRACTOR = re.compile(r'^.*[^0-9]([0-9]+)$')
 _ALL_DIGIT_ID_EXTRACTOR = re.compile(r'^([0-9]+)$')
@@ -41,18 +41,25 @@ Writes a NexSON representation of the tree to
     if not tree_id_list:
         sys.exit('At least one tree ID must be provided')
     tree_id_it = iter(tree_id_list)
-    out = codecs.getwriter('utf-8')(sys.stdout)
+    try:
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+        out = sys.stdout
+    except:
+        out = codecs.getwriter('utf-8')(sys.stdout)
     pyid2int = {}
     curr_nd_counter = 1
+    # sys.stderr.write('args.newick= {}\n'.format(args.newick))
     with codecs.open(args.newick, 'r', encoding='utf8') as inp:
         tree = parse_newick(stream=inp)
-        tree_id = tree_id_it.next()
+        # sys.stderr.write('tree = {}\n'.format(tree))
+        tree_id = next(tree_id_it)
         nexson = get_empty_nexson()
         body = nexson['nexml']
-        all_otus_groups = body['otusById'].values()
+        all_otus_groups = list(body['otusById'].values())
         assert len(all_otus_groups) == 1
+        # sys.stderr.write('all_otus_groups = {}\n'.format(all_otus_groups))
         first_otus_group = all_otus_groups[0]
-        all_trees_groups = body['treesById'].values()
+        all_trees_groups = list(body['treesById'].values())
         assert len(all_trees_groups) == 1
         first_trees_group = all_trees_groups[0]
         first_trees_group['^ot:treeElementOrder'].append(tree_id)
@@ -86,9 +93,11 @@ Writes a NexSON representation of the tree to
                 n_obj['@otu'] = otu_id_s
                 orig = node._id
                 ott_id = ott_id_from_label(orig)
-                otus[otu_id_s] = {"^ot:originalLabel": orig, "^ot:ottId": ott_id, "^ot:ottTaxonName": orig}
+                otus[otu_id_s] = {"^ot:originalLabel": str(orig),
+                                  "^ot:ottId": ott_id,
+                                  "^ot:ottTaxonName": str(orig)}
         assert root_node_id is not None
-        ntree['^ot:rootNodeId'] = root_node_id
+        ntree['^ot:rootNodeId'] = str(root_node_id)
         write_as_json(nexson, out)
 
 

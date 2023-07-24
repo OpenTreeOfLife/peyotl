@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 from peyotl.nexson_validation import ot_validate
-from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 from peyotl.phylesystem.git_workflows import validate_and_convert_nexson
 import unittest
 import os
+from nexson.test.support.pathmap import get_test_path_mapper
+
+pathmap = get_test_path_mapper()
 
 _LOG = get_logger(__name__)
 

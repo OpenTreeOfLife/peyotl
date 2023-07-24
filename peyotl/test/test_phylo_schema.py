@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 from peyotl.nexson_syntax import PhyloSchema, extract_tree_nexson, detect_nexson_version
-from peyotl.test.support import pathmap
 from peyotl.utility import get_logger
 import unittest
 import json
 import os
+from peyotl.test.support import get_test_path_mapper
+
+pathmap = get_test_path_mapper()
 
 _LOG = get_logger(__name__)
 # pylint does not realize that serialize returns a string, so generates lots of

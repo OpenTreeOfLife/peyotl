@@ -16,7 +16,7 @@ def filepath_for_amendment_id(repo_dir, amendment_id):
     # in this case, simply expand the id to a full path
     amendment_filename = '{i}.json'.format(i=amendment_id)
     full_path_to_file = os.path.join(repo_dir, doc_holder_subpath, amendment_filename)
-    _LOG.warn(">>>> filepath_for_amendment_id: full path is {}".format(full_path_to_file))
+    _LOG.debug(">>>> filepath_for_amendment_id: full path is {}".format(full_path_to_file))
     return full_path_to_file
 
 

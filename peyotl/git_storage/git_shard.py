@@ -104,14 +104,17 @@ class TypeAwareGitShard(GitShard):
             _LOG = get_logger('TypeAwareGitShard')
             try:
                 # pass this shard to a type-specific test
-                assumed_doc_version = detect_doc_version_fn(self)
+                if detect_doc_version_fn is None:
+                    _LOG.debug('`assumed_doc_version` unset and `detect_doc_version_fn` not provided.')
+                else:
+                    assumed_doc_version = detect_doc_version_fn(self)
             except IndexError as x:
                 # no documents in this shard!
-                _LOG.warn('No documents in this shard! Auto-detection of assumed_doc_version failed.')
+                _LOG.warning('No documents in this shard! Auto-detection of assumed_doc_version failed.')
             except Exception as x:
-                f = 'Auto-detection of assumed_doc_version FAILED with this error:\n{}'
-                f = f.format(str(x))
-                _LOG.warn(f)
+                f = 'Auto-detection of assumed_doc_version FAILED with the following error:'
+                _LOG.warning(f)
+                _LOG.exception(x)
             except:
                 pass
         max_file_size = kwargs.get('max_file_size')

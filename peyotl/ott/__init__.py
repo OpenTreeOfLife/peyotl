@@ -561,12 +561,15 @@ class OTT(object):
         f_set_id = 0
         source = {}
         root_ott_id = None
+        line_number = 0
         with codecs.open(taxonomy_file, 'r', encoding='utf-8') as tax_fo:
+            line_number += 1
             it = iter(tax_fo)
             first_line = next(it)
             assert first_line == 'uid\t|\tparent_uid\t|\tname\t|\trank\t|\tsourceinfo\t|\tuniqname\t|\tflags\t|\t\n'
             # now parse the rest of the taxonomy file
             for rown in it:
+                line_number += 1
                 ls = rown.split('\t|\t')
                 uid, par, name = ls[:3]
                 rank, sourceinfo, uniqname, flags = ls[3:7]
@@ -594,7 +597,12 @@ class OTT(object):
                             par = NONE_PAR
                             root_ott_id = uid
                             self._root_name = name
-                assert ls[7] == '\n'
+                try:
+                    assert ls[7] == '\n'
+                except:
+                    import sys
+                    sys.stderr.write("Error on taxonomy file line " + str(line_number) + "\n")
+                    raise
                 assert uid not in id2par
                 id2par[uid] = par
                 id2name[uid] = name

@@ -22,8 +22,6 @@ class AmendmentValidationAdaptor(object):
         if errors is None:
             errors = []
         self.required_toplevel_elements = {
-            # N.B. anyjson might parse a text element as str or unicode,
-            # depending on its value. Either is fine here.
             'curator': dict,
             'date_created': primitive_string_types,
             'taxa': list,

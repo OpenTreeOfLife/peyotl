@@ -2,7 +2,7 @@
    Subclasses will accommodate each type."""
 import os
 import codecs
-import anyjson
+import json as jsonmod
 from threading import Lock
 from peyotl.utility import get_logger
 from peyutil import read_as_json, write_as_json, write_to_filepath
@@ -211,7 +211,7 @@ class TypeAwareGitShard(GitShard):
                     # TODO:hook for type-specific parser?
                     with codecs.open(fp, 'r', 'utf-8') as fo:
                         try:
-                            nex_obj = anyjson.loads(fo.read())
+                            nex_obj = jsonmod.loads(fo.read())
                             yield (doc_id, nex_obj)
                         except Exception:
                             pass

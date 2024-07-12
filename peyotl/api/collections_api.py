@@ -3,7 +3,7 @@ from peyotl.collections_store.collections_umbrella import TreeCollectionStore, T
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.collections_store import COLLECTION_ID_PATTERN
 from peyotl.utility import get_logger
-import anyjson
+import json as jsonmod
 import os
 
 _LOG = get_logger(__name__)
@@ -176,7 +176,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             params['commit_msg'] = commit_msg
         return self.json_http_post(uri,
                                    params=params,
-                                   data=anyjson.dumps({'json': json}))
+                                   data=jsonmod.dumps({'json': json}))
 
     def put_collection(self,
                        collection_id,
@@ -191,7 +191,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             params['commit_msg'] = commit_msg
         return self.json_http_put(uri,
                                   params=params,
-                                  data=anyjson.dumps({'json': json}))
+                                  data=jsonmod.dumps({'json': json}))
 
     def delete_collection(self,
                           collection_id,

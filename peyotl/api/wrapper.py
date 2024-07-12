@@ -4,7 +4,7 @@ from peyotl.utility import get_config_object, get_logger
 import requests
 import warnings
 import codecs
-import anyjson
+import json as jsonmod
 import os
 
 _LOG = get_logger(__name__)
@@ -46,8 +46,8 @@ def log_request_as_curl(curl_log, url, verb, headers, params, data):
         dargs = ''
         if data:
             if is_str_type(data):
-                data = anyjson.loads(data)
-            dargs = "'" + anyjson.dumps(data) + "'"
+                data = jsonmod.loads(data)
+            dargs = "'" + jsonmod.dumps(data) + "'"
         elif params:
             url = url + '?' + urlencode(params)
         data_arg = ''
@@ -454,7 +454,7 @@ def _http_method_summary_str(url, verb, headers, params, data=None):
     if data is None:
         ds = 'None'
     elif is_str_type(data):
-        ds = _dict_summary(anyjson.loads(data), 'data')
+        ds = _dict_summary(jsonmod.loads(data), 'data')
     else:
         ds = _dict_summary(data, 'data')
     fmt = 'error in HTTP {v} verb call to {u} with {p}, {d} and {h}'

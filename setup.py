@@ -99,7 +99,6 @@ setup(
     author='Emily Jane B. McTavish and Mark T. Holder',
     py_modules=['peyotl'],
     install_requires=['setuptools',
-                      'anyjson',
                       'coverage',
                       'sh>=1.08',
                       'locket>=0.1.1',

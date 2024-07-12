@@ -3,7 +3,7 @@ from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import StudyRef
 from peyotl.api.taxon import TaxonWrapper, TaxonHolder
-import anyjson
+import json as jsonmod
 
 _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
@@ -268,7 +268,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
     #        data = {'git_sha': kwargs.get('git_sha', ''),
     #                'study_id': study_id,
     #                'tree_id': tree_id}
-    #        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+    #        return self.json_http_post_raise(uri, data=jsonmod.dumps(data))
     # noinspection PyShadowingBuiltins
     def get_synthetic_tree(self, tree_id=None, format='newick', node_id=None, max_depth=None,
                            ott_id=None):  # pylint: disable=W0622
@@ -296,7 +296,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
             data['node_id'] = int(node_id)
         else:
             data['ott_id'] = int(ott_id)
-        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+        return self.json_http_post_raise(uri, data=jsonmod.dumps(data))
 
     def mrca(self, ott_ids=None, node_ids=None, wrap_response=False):
         if not (ott_ids or node_ids):
@@ -304,7 +304,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
         assert not self.use_v1
         uri = '{p}/mrca'.format(p=self.prefix)
         data = {'ott_ids': ott_ids, 'node_ids': node_ids}
-        resp = self.json_http_post_raise(uri, data=anyjson.dumps(data))
+        resp = self.json_http_post_raise(uri, data=jsonmod.dumps(data))
         if wrap_response:
             return MRCAGoLNode(resp, treemachine_wrapper=self)
         return resp
@@ -330,7 +330,7 @@ class _TreemachineAPIWrapper(_WSWrapper):
             uri = '{p}/getDraftTreeSubtreeForNodes'.format(p=self.prefix)
         else:
             uri = '{p}/induced_subtree'.format(p=self.prefix)
-        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+        return self.json_http_post_raise(uri, data=jsonmod.dumps(data))
 
     induced_subtree = get_synth_tree_pruned
 
@@ -358,12 +358,12 @@ class _TreemachineAPIWrapper(_WSWrapper):
                 if ott_id is None:
                     return ValueError('ott_id or node_id must be specified')
                 data['ott_id'] = ott_id
-        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+        return self.json_http_post_raise(uri, data=jsonmod.dumps(data))
 
     def get_node_id_for_ott_id(self, ott_id):
         uri = '{p}/getNodeIDForottId'.format(p=self.prefix)
         data = {'ottId': str(ott_id)}
-        return self.json_http_post_raise(uri, data=anyjson.dumps(data))
+        return self.json_http_post_raise(uri, data=jsonmod.dumps(data))
 
 
 def Treemachine(domains=None, **kwargs):

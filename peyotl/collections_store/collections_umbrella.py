@@ -9,17 +9,8 @@
 #
 from peyotl.utility import get_logger
 from peyutil import slugify, increment_slug
-import json
+import json as jsonmod
 
-try:
-    import anyjson
-except:
-    class Wrapper(object):
-        pass
-
-
-    anyjson = Wrapper()
-    anyjson.loads = json.loads
 from peyotl.git_storage import ShardedDocStore, TypeAwareDocStore
 from peyotl.collections_store.collections_shard import TreeCollectionsShardProxy, TreeCollectionsShard
 from peyotl.collections_store.validation import validate_collection
@@ -273,9 +264,9 @@ class _TreeCollectionStore(TypeAwareDocStore):
             collection = json_repr
         else:
             try:
-                collection = anyjson.loads(json_repr)
+                collection = jsonmod.loads(json_repr)
             except:
-                _LOG.warn('> invalid JSON (failed anyjson parsing)')
+                _LOG.warn('> invalid JSON')
                 return None
         return collection
 

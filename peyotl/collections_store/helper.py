@@ -1,15 +1,4 @@
 from peyotl.utility import get_logger
-import json
-
-try:
-    import anyjson
-except:
-    class Wrapper(object):
-        pass
-
-
-    anyjson = Wrapper()
-    anyjson.loads = json.loads
 from peyotl.phylesystem.helper import _get_phylesystem_parent
 import os
 from threading import Lock

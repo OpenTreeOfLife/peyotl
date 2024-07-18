@@ -4,7 +4,7 @@ from peyotl.api.taxon import TaxonWrapper, TaxonHolder
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import weakref
-import anyjson
+import json as jsonmod
 
 _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()
@@ -195,7 +195,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             data['include_deprecated'] = True
         if include_dubious:
             data['include_dubious'] = True
-        resp = self.json_http_post(uri, data=anyjson.dumps(data))
+        resp = self.json_http_post(uri, data=jsonmod.dumps(data))
         if wrap_response is None or wrap_response is False:
             return resp
         if wrap_response is True:
@@ -225,14 +225,14 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 data['context_name'] = context_name
             if include_dubious:
                 data['include_dubious'] = True
-        return self.json_http_post(uri, data=anyjson.dumps(data))
+        return self.json_http_post(uri, data=jsonmod.dumps(data))
 
     def infer_context(self, names):
         if self.use_v1:
             raise NotImplementedError("infer_context not wrapped in v1")
         uri = '{p}/infer_context'.format(p=self.prefix)
         data = {'names': names}
-        return self.json_http_post(uri, data=anyjson.dumps(data))
+        return self.json_http_post(uri, data=jsonmod.dumps(data))
 
     def __init__(self, domain, **kwargs):
         self._config = kwargs.get('config')
@@ -293,7 +293,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
                 'include_lineage': bool(include_lineage),
                 'list_terminal_descendants': bool(list_terminal_descendants)}
         uri = '{p}/taxon'.format(p=self.taxonomy_prefix)
-        r = self.json_http_post(uri, data=anyjson.dumps(data))
+        r = self.json_http_post(uri, data=jsonmod.dumps(data))
         if 'error' in r:
             raise ValueError(r['error'])
         if wrap_response:
@@ -307,7 +307,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
             raise NotImplementedError('"subtree" method not implemented')
         data = {'ott_id': int(ott_id), }
         uri = '{p}/subtree'.format(p=self.taxonomy_prefix)
-        return self.json_http_post(uri, data=anyjson.dumps(data))
+        return self.json_http_post(uri, data=jsonmod.dumps(data))
 
     def lica(self, ott_ids, include_lineage=False):
         if self.use_v1:
@@ -315,7 +315,7 @@ class _TaxomachineAPIWrapper(_WSWrapper):
         data = {'ott_ids': [int(i) for i in ott_ids],
                 'include_lineage': bool(include_lineage)}
         uri = '{p}/lica'.format(p=self.taxonomy_prefix)
-        return self.json_http_post(uri, data=anyjson.dumps(data))
+        return self.json_http_post(uri, data=jsonmod.dumps(data))
 
     def contexts(self):
         # Taxonomic name contexts. These are cached in _contexts

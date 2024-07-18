@@ -3,7 +3,7 @@ from peyotl.amendments.amendments_umbrella import TaxonomicAmendmentStore, Taxon
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.amendments import AMENDMENT_ID_PATTERN
 from peyotl.utility import get_logger
-import anyjson
+import json as jsonmod
 import os
 
 _LOG = get_logger(__name__)
@@ -14,8 +14,8 @@ _GET_FROM_VALUES = ('local',  # only from local copy of amendments
                     'api',)  # from the GET calls of the amendments-api
 
 # TRANSFORM only relevant when get_from is "api"
-#_TRANS_CLIENT, _TRANS_SERVER = range(2)
-#_TRANSFORM_VALUES = ('client', # *DEFAULT* transform to the desired output format on the client side
+# _TRANS_CLIENT, _TRANS_SERVER = range(2)
+# _TRANSFORM_VALUES = ('client', # *DEFAULT* transform to the desired output format on the client side
 #                     'server', ) # request data transformation take place on the server
 
 # REFRESH is only relevant when get_from is "local"
@@ -172,7 +172,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             params['commit_msg'] = commit_msg
         return self.json_http_post(uri,
                                    params=params,
-                                   data=anyjson.dumps({'json': json}))
+                                   data=jsonmod.dumps({'json': json}))
 
     def put_amendment(self,
                       amendment_id,
@@ -187,7 +187,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             params['commit_msg'] = commit_msg
         return self.json_http_put(uri,
                                   params=params,
-                                  data=anyjson.dumps({'json': json}))
+                                  data=jsonmod.dumps({'json': json}))
 
     def delete_amendment(self,
                          amendment_id,

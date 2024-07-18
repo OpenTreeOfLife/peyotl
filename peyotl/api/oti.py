@@ -4,7 +4,7 @@ from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import TreeRefList
 from peyotl.nexson_syntax import create_content_spec
 from peyotl.utility import doi2url, get_config_object, get_logger
-import anyjson
+import json as jsonmod
 
 _LOG = get_logger(__name__)
 _OTI_NEXSON_SCHEMA = create_content_spec(format='nexson', nexson_version='0.0.0')
@@ -175,7 +175,7 @@ class _OTIWrapper(_WSWrapper):
         url = '{p}/findAllStudies'.format(p=self.query_prefix)
         data = {'includeTreeMetadata': include_trees,
                 'verbose': verbose, }
-        response = self.json_http_post(url, data=anyjson.dumps(data))
+        response = self.json_http_post(url, data=jsonmod.dumps(data))
         return response
 
     def __init__(self, domain, **kwargs):
@@ -281,7 +281,7 @@ class _OTIWrapper(_WSWrapper):
                                         verbose=verbose,
                                         valid_keys=valid_keys,
                                         kwargs=kwargs)
-        response = self.json_http_post(url, data=anyjson.dumps(data))
+        response = self.json_http_post(url, data=jsonmod.dumps(data))
         if 'error' in response:
             raise RuntimeError('Error reported by oti "{}"'.format(response['error']))
         assert len(response) == 1
@@ -339,14 +339,14 @@ class _OTIWrapper(_WSWrapper):
         url = '{p}/indexNexsons'.format(p=self.indexing_prefix)
         nexson_url = phylesystem_api.url_for_api_get_study(study_id, schema=_OTI_NEXSON_SCHEMA)
         data = {'urls': [nexson_url]}
-        return self.json_http_post(url, data=anyjson.dumps(data))
+        return self.json_http_post(url, data=jsonmod.dumps(data))
 
     def trigger_unindex(self, study_id):
         url = '{p}/unindexNexsons'.format(p=self.indexing_prefix)
         if is_str_type(study_id):
             study_id = [study_id]
         data = {'ids': study_id}
-        return self.json_http_post(url, data=anyjson.dumps(data))
+        return self.json_http_post(url, data=jsonmod.dumps(data))
 
 
 def OTI(domains=None, **kwargs):

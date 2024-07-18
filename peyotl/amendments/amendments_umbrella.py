@@ -6,23 +6,14 @@
 # N.B. We will somebay bump to 8 digits, so sorting logic should manage this.
 from peyotl.utility import get_logger
 from peyotl.utility.str_util import (slugify, increment_slug)
-import json
 
-try:
-    import anyjson
-except:
-    class Wrapper(object):
-        pass
-
-
-    anyjson = Wrapper()
-    anyjson.loads = json.loads
 from peyotl.git_storage import ShardedDocStore, \
     TypeAwareDocStore
 from peyotl.amendments.amendments_shard import (TaxonomicAmendmentsShardProxy, TaxonomicAmendmentsShard)
 
 from peyotl.amendments.validation import validate_amendment
 from peyotl.amendments.git_actions import TaxonomicAmendmentsGitAction
+import json as jsonmod
 import re
 
 # Allow simple slug-ified string with '{known-prefix}-{7-or-8-digit-id}-{7-or-8-digit-id}'
@@ -338,9 +329,9 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
             amendment = json_repr
         else:
             try:
-                amendment = anyjson.loads(json_repr)
+                amendment = jsonmod.loads(json_repr)
             except:
-                _LOG.warn('> invalid JSON (failed anyjson parsing)')
+                _LOG.warn('> invalid JSON')
                 return None
         return amendment
 

@@ -8,17 +8,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
-import json
-
-try:
-    import anyjson
-except:
-    class Wrapper(object):
-        pass
-
-
-    anyjson = Wrapper()
-    anyjson.loads = json.loads
+import json as jsonmod
 from peyotl.git_storage import ShardedDocStore
 from peyotl.git_storage.git_shard import FailedShardCreationError
 from peyotl.utility import get_logger
@@ -26,6 +16,7 @@ from peyotl.utility import get_logger
 _LOG = get_logger(__name__)
 
 
+# noinspection PyPep8Naming
 class TypeAwareDocStore(ShardedDocStore):
     def __init__(self,
                  prefix_from_doc_id,
@@ -196,7 +187,7 @@ class TypeAwareDocStore(ShardedDocStore):
             content = blob[0]
             if content is None:
                 raise KeyError('Document {} not found'.format(doc_id))
-            nexson = anyjson.loads(blob[0])
+            nexson = jsonmod.loads(blob[0])
             if return_WIP_map:
                 return nexson, blob[1], blob[2]
             return nexson, blob[1]

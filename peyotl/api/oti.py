@@ -198,6 +198,9 @@ class _OTIWrapper(_WSWrapper):
         self._raw_urls = (r.lower() == 'true')
         _WSWrapper.__init__(self, domain, **kwargs)
         self.domain = domain
+        _LOG.debug("self.domain={}".format(self.domain))
+        if self.domain.endswith(':'):
+            raise ValueError("Not gettting configured...")
 
     @property
     def domain(self):

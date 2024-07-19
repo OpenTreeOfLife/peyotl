@@ -467,10 +467,10 @@ if __name__ == '__main__':
         inp_files = list(args.nexson)
     else:
         if args.nexson_file_tags:
-            with open(os.path.expanduser(args.nexson_file_tags), 'rU') as tf:
+            with open(os.path.expanduser(args.nexson_file_tags), 'r') as tf:
                 inp_files = ['{}.json'.format(i.strip()) for i in tf if i.strip()]
         elif args.input_files_list:
-            with open(os.path.expanduser(args.input_files_list), 'rU') as tf:
+            with open(os.path.expanduser(args.input_files_list), 'r') as tf:
                 inp_files = [i.strip() for i in tf if i.strip()]
         else:
             error(

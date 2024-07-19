@@ -308,7 +308,7 @@ class PhylesystemShard(TypeAwareGitShard):
     def infer_study_prefix(self):
         prefix_file = os.path.join(self.path, 'new_study_prefix')
         if os.path.exists(prefix_file):
-            with open(prefix_file, 'rU') as f:
+            with open(prefix_file, 'r') as f:
                 pre_content = f.read().strip()
             valid_pat = re.compile('^[a-zA-Z0-9]+_$')
             if len(pre_content) != 3 or not valid_pat.match(pre_content):

@@ -65,7 +65,7 @@ if __name__ == '__main__':
         inp_filepath = args.input[0]
     except:
         sys.exit('Expecting a filepath to a NexSON file as the only argument.\n')
-    inp = codecs.open(inp_filepath, 'rU', encoding='utf-8')
+    inp = codecs.open(inp_filepath, 'r', encoding='utf-8')
     outfn = args.output
     if outfn is not None:
         try:

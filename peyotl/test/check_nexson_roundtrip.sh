@@ -38,7 +38,7 @@ then
     exit 1
 fi
 
-python -c "import json, codecs, sys; o=codecs.open(sys.argv[2], 'w', encoding='utf-8'); json.dump(json.load(codecs.open(sys.argv[1], 'rU', encoding='utf-8')), o, indent=0, sort_keys=True); o.write('\n')" "${inpnexson}" .1.json
+python -c "import json, codecs, sys; o=codecs.open(sys.argv[2], 'w', encoding='utf-8'); json.dump(json.load(codecs.open(sys.argv[1], 'r', encoding='utf-8')), o, indent=0, sort_keys=True); o.write('\n')" "${inpnexson}" .1.json
 # 4. Verify that the input is valid NeXML
 if ! diff .2.json .1.json
 then

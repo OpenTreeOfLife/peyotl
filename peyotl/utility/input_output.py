@@ -111,7 +111,7 @@ def parse_study_tree_list(fp):
         sl = read_as_json(fp)
     except:
         sl = []
-        with codecs.open(fp, 'rU', encoding='utf-8') as fo:
+        with codecs.open(fp, 'r', encoding='utf-8') as fo:
             for line in fo:
                 frag = line.split('#')[0].strip()
                 if frag:

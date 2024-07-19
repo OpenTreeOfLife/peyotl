@@ -61,5 +61,5 @@ def check_file(inp):
 
 
 for f in sys.argv[2:]:
-    with codecs.open(f, 'rU', encoding='utf-8') as inp:
+    with codecs.open(f, 'r', encoding='utf-8') as inp:
         check_file(inp)

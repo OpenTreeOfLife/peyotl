@@ -6,7 +6,7 @@ import sys
 
 # Expecting a lot of lines like pg_2359_4962 for 'pg_2359', 'tree4962'
 inp_fn = sys.argv[1]
-with open(inp_fn, 'rU') as inp:
+with open(inp_fn, 'r') as inp:
     lines = []
     for line in inp:
         line = line.strip()

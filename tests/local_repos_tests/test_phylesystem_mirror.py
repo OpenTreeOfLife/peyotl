@@ -28,7 +28,7 @@ class TestPhylesystemMirror(unittest.TestCase):
             return
         shard = p.get_shard(_SID)
         can_push = False
-        for line in open(os.path.join(shard.git_dir, 'config'), 'rU'):
+        for line in open(os.path.join(shard.git_dir, 'config'), 'r'):
             if PUSHABLE_PATTERN.match(line):
                 can_push = True
                 break

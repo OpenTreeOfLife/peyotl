@@ -55,7 +55,7 @@ Environmental variables used:
     inpfn = args.input
     outfn = args.output
     try:
-        inp = codecs.open(inpfn, mode='rU', encoding='utf-8')
+        inp = codecs.open(inpfn, mode='r', encoding='utf-8')
     except:
         sys.exit('nexson_newick: Could not open file "{fn}"\n'.format(fn=inpfn))
 

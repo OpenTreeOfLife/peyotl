@@ -92,7 +92,7 @@ badgerfish form of NexSON'.format(c='", "'.join(e_choices))
                     'The mode option is not neeeded if the export option is used.'.format(
                     e=export_format, m=mode))
     try:
-        inp = codecs.open(inpfn, mode='rU', encoding='utf-8')
+        inp = codecs.open(inpfn, mode='r', encoding='utf-8')
     except:
         sys.exit('nexson_nexml: Could not open file "{fn}"\n'.format(fn=inpfn))
     if mode is None:

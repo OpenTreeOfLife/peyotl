@@ -285,7 +285,7 @@ class TypeAwareGitShard(GitShard):
                 if os.path.exists(fn):
                     if is_json:
                         return read_as_json(fn)
-                    with codecs.open(fn, 'rU', encoding='utf-8') as f:
+                    with codecs.open(fn, 'r', encoding='utf-8') as f:
                         ret = f.read()
                     return ret
                 return None

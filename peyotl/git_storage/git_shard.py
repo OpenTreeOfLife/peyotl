@@ -2,7 +2,14 @@
    Subclasses will accommodate each type."""
 import os
 import codecs
-import anyjson
+try:
+    import anyjson
+except:
+    class Wrapper(object):
+        pass
+
+    anyjson = Wrapper()
+    anyjson.loads = json.loads
 from threading import Lock
 from peyotl.utility import get_logger
 from peyutil import read_as_json, write_as_json, write_to_filepath

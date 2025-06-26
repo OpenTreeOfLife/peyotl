@@ -47,7 +47,7 @@ def log_request_as_curl(curl_log, url, verb, headers, params, data):
         if data:
             if is_str_type(data):
                 data = anyjson.loads(data)
-            dargs = "'" + anyjson.dumps(data) + "'"
+            dargs = "'" + json.dumps(data) + "'"
         elif params:
             url = url + '?' + urlencode(params)
         data_arg = ''

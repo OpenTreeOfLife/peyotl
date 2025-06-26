@@ -176,7 +176,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             params['commit_msg'] = commit_msg
         return self.json_http_post(uri,
                                    params=params,
-                                   data=anyjson.dumps({'json': json}))
+                                   data=json.dumps({'json': json}))
 
     def put_collection(self,
                        collection_id,
@@ -191,7 +191,7 @@ variable to obtain this token. If you need to obtain your key, see the instructi
             params['commit_msg'] = commit_msg
         return self.json_http_put(uri,
                                   params=params,
-                                  data=anyjson.dumps({'json': json}))
+                                  data=json.dumps({'json': json}))
 
     def delete_collection(self,
                           collection_id,

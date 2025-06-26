@@ -4,7 +4,7 @@ from peyotl.api.taxon import TaxonWrapper, TaxonHolder
 from peyotl.utility import get_config_object, get_logger
 from peyotl.api.wrapper import _WSWrapper, APIWrapper
 import weakref
-import anyjson
+
 
 _LOG = get_logger(__name__)
 _EMPTY_TUPLE = tuple()

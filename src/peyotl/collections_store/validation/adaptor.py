@@ -22,7 +22,7 @@ class CollectionValidationAdaptor(object):
         if errors is None:
             errors = []
         self.required_toplevel_elements = {
-            # N.B. anyjson might parse a text element as str or unicode,
+            # N.B. json might parse a text element as str or unicode,
             # depending on its value. Either is fine here.
             'name': primitive_string_types,
             'description': primitive_string_types,

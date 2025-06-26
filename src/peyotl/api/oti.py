@@ -4,7 +4,7 @@ from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import TreeRefList
 from peyotl.nexson_syntax import create_content_spec
 from peyutil import doi2url, UNICODE, is_str_type, underscored2camel_case
-import anyjson
+
 
 _LOG = get_logger(__name__)
 _OTI_NEXSON_SCHEMA = create_content_spec(format='nexson', nexson_version='0.0.0')

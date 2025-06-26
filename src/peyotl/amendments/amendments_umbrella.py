@@ -7,16 +7,6 @@
 from peyotl.utility import get_logger
 from peyutil import (slugify, increment_slug)
 import json
-
-try:
-    import anyjson
-except:
-    class Wrapper(object):
-        pass
-
-
-    anyjson = Wrapper()
-    anyjson.loads = json.loads
 from peyotl.git_storage import ShardedDocStore, \
     TypeAwareDocStore
 from peyotl.amendments.amendments_shard import (TaxonomicAmendmentsShardProxy, TaxonomicAmendmentsShard)
@@ -338,9 +328,9 @@ class _TaxonomicAmendmentStore(TypeAwareDocStore):
             amendment = json_repr
         else:
             try:
-                amendment = anyjson.loads(json_repr)
+                amendment = json.loads(json_repr)
             except:
-                _LOG.warn('> invalid JSON (failed anyjson parsing)')
+                _LOG.warn('> invalid JSON (failed json parsing)')
                 return None
         return amendment
 

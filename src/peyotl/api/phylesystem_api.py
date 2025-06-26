@@ -5,7 +5,7 @@ from peyotl.api.wrapper import _WSWrapper, APIWrapper
 from peyotl.api.study_ref import TreeRef
 from peyotl.nexson_syntax import create_content_spec
 from peyotl.utility import get_logger
-import anyjson
+
 import os
 
 _LOG = get_logger(__name__)

@@ -33,7 +33,7 @@ def read_all_otifacts(otifacts_dir):
     """
     union = {}
     for fp in find_otifacts_json_filepaths(otifacts_dir):
-        with codecs.open(fp, 'rU', encoding='utf-8') as inp:
+        with codecs.open(fp, 'r', encoding='utf-8') as inp:
             try:
                 obj = json.load(inp)
             except:

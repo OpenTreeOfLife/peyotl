@@ -22,7 +22,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 dependencies = [
-    "anyjson",
     "coverage",
     "sh>=1.08",
     "locket>=0.1.1",

@@ -3,3 +3,5 @@ were based on Jeet Sukumaran's work in the DendroPy package.
 
 Funding was provided by the National Science Foundation's award to the
 Open Tree of Life project.
+
+Jamie Lentin (https://github.com/lentinj) for modern python packaging (via https://github.com/OpenTreeOfLife/peyotl/pull/184)

@@ -196,10 +196,12 @@ class GitActionBase(object):
         return None
 
     def checkout(self, branch):
-        git(self.gitdir, self.gitwd, "checkout", branch)
+        if self.current_branch != branch:
+            git(self.gitdir, self.gitwd, "checkout", branch)
 
     def checkout_master(self):
-        git(self.gitdir, self.gitwd, "checkout", "master")
+        if self.current_branch != "master":
+            git(self.gitdir, self.gitwd, "checkout", "master")
 
     def fetch(self, remote='origin'):
         """fetch from a remote"""
